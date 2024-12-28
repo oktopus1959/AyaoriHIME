@@ -39,7 +39,7 @@ namespace lattice2 {
     DEFINE_LOCAL_LOGGER(lattice);
 
     // ビームサイズ
-    size_t BestKSize = 5;
+    //size_t BestKSize = 5;
 
     // 多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
     int AllowedStrokeRange = 5;
@@ -870,35 +870,56 @@ namespace lattice2 {
             return EMPTY_MSTR;
         }
 
+        std::vector<MString> split_piece_str(const MString& s) const {
+            if (s.size() == 1 && s.front() == '|') {
+                return std::vector<MString>(1, s);
+            } else {
+                return utils::split(s, '|');
+            }
+        }
+
         // 単語素片を末尾に適用してみる
-        std::tuple<MString, int> applyPiece(const WordPiece& piece, int strokeCount) const {
+        std::tuple<std::vector<MString>, int> applyPiece(const WordPiece& piece, int strokeCount) const {
+            std::vector<MString> ss;
+            int numBS = 0;
             if (_strokeLen + piece.strokeLen() == strokeCount) {
                 // 素片のストローク数が適合した
-                int numBS;
                 if (piece.rewriteNode()) {
+                    // 書き換えノード
                     const RewriteInfo* rewInfo;
                     std::tie(rewInfo, numBS) = matchWithTailString(piece.rewriteNode());
 
                     if (rewInfo) {
-                        return { utils::safe_substr(_str, 0, -numBS) + rewInfo->rewriteStr, numBS };
+                        ss.push_back(utils::safe_substr(_str, 0, -numBS) + rewInfo->rewriteStr);
                     } else {
-                        return { _str + piece.rewriteNode()->getString(), 0 };
+                        // 複数文字が設定されたストロークの扱い
+                        _LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
+                        for (MString s : split_piece_str(piece.rewriteNode()->getString())) {
+                            ss.push_back(_str + s);
+                        }
+                        numBS = 0;
                     }
-
                 } else {
                     numBS = piece.numBS();
                     if (numBS > 0) {
                         if ((size_t)numBS < _str.size()) {
-                            return { utils::safe_substr(_str, 0, (int)(_str.size() - numBS)), numBS };
+                            ss.push_back(utils::safe_substr(_str, 0, (int)(_str.size() - numBS)));
                         } else {
-                            return { EMPTY_MSTR, numBS };
+                            ss.push_back(EMPTY_MSTR);
                         }
                     } else {
-                        return { _str + piece.getString(), 0 };
+                        // 複数文字が設定されたストロークの扱い
+                        _LOG_DEBUGH(_T("normalNode: {}"), to_wstr(piece.getString()));
+                        for (MString s : split_piece_str(piece.getString())) {
+                            ss.push_back(_str + s);
+                        }
+                        numBS = 0;
                     }
                 }
+            } else {
+                ss.push_back(EMPTY_MSTR);
             }
-            return { EMPTY_MSTR, 0 };
+            return { ss, numBS };
         }
 
         const MString& string() const {
@@ -1052,8 +1073,8 @@ namespace lattice2 {
         }
 
         void removeOtherThanKBest() {
-            if (_candidates.size() > BestKSize) {
-                _candidates.erase(_candidates.begin() + BestKSize, _candidates.end());
+            if ((int)_candidates.size() > SETTINGS->multiStreamBeamSize) {
+                _candidates.erase(_candidates.begin() + SETTINGS->multiStreamBeamSize, _candidates.end());
             }
         }
 
@@ -1230,16 +1251,17 @@ namespace lattice2 {
         // 2つの文字列の末尾文字列の共通部分が指定の長さより長いか、または全く同じ文字列か
         bool hasLongerCommonSuffixThanOrSameStr(const MString& str1, const MString& str2, int len) {
             _LOG_DEBUGH(_T("ENTER: str1={}, str2={}, len={}"), to_wstr(str1), to_wstr(str2), len);
-            int n1 = (int)str1.size() - 1;
-            int n2 = (int)str2.size() - 1;
-            while (n1 >= 0 && n2 >= 0 && len > 0) {
-                if (str1[n1] != str2[n2]) break;
+            int n1 = (int)str1.size();
+            int n2 = (int)str2.size();
+            while (n1 > 0 && n2 > 0 && len > 0) {
+                if (str1[n1 - 1] != str2[n2 - 1]) break;
                 --n1;
                 --n2;
                 --len;
             }
-            _LOG_DEBUGH(_T("LEAVE: remainingLen: str1={}, str2={}, common={}"), n1, n2, len);
-            return len == 0 || (n1 == 0 && n2 == 0);
+            bool result = len == 0 || (n1 == 0 && n2 == 0);
+            _LOG_DEBUGH(_T("LEAVE: remainingLen: {}: str1={}, str2={}, common={}"), utils::boolToString(result), n1, n2, len);
+            return result;
         }
 
         // 新しい候補を追加
@@ -1301,14 +1323,14 @@ namespace lattice2 {
                     }
                 }
             }
-            if (!bAdded && !bIgnored && newCandidates.size() < BestKSize) {
+            if (!bAdded && !bIgnored && (int)newCandidates.size() < SETTINGS->multiStreamBeamSize) {
                 // 余裕があれば末尾に追加
                 newCandidates.push_back(newCandStr);
                 bAdded = true;
             }
-            if (newCandidates.size() > BestKSize) {
+            if ((int)newCandidates.size() > SETTINGS->multiStreamBeamSize) {
                 // kBestサイズを超えたら末尾を削除
-                newCandidates.resize(BestKSize);
+                newCandidates.resize(SETTINGS->multiStreamBeamSize);
                 _LOG_DETAIL(_T("    REMOVE OVERFLOW ENTRY"));
             }
             if (bAdded) {
@@ -1352,9 +1374,9 @@ namespace lattice2 {
                         _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
                         penalty += NON_PREFERRED_PENALTY;
                     }
-                    MString s;
                     int numBS;
                     if (!bAutoBushuFound) {
+                        MString s;
                         std::tie(s, numBS) = cand.applyAutoBushu(piece, strokeCount);  // 自動部首合成
                         if (!s.empty()) {
                             CandidateString newCandStr(s, strokeCount, 0, penalty);
@@ -1362,10 +1384,13 @@ namespace lattice2 {
                             bAutoBushuFound = true;
                         }
                     }
-                    std::tie(s, numBS) = cand.applyPiece(piece, strokeCount);
-                    if (!s.empty() || numBS > 0) {
-                        CandidateString newCandStr(s, strokeCount, 0, penalty);
-                        addCandidate(newCandidates, newCandStr, isStrokeBS);
+                    std::vector<MString> ss;
+                    std::tie(ss, numBS) = cand.applyPiece(piece, strokeCount);
+                    for (MString s : ss) {
+                        if (!s.empty() || numBS > 0) {
+                            CandidateString newCandStr(s, strokeCount, 0, penalty);
+                            addCandidate(newCandidates, newCandStr, isStrokeBS);
+                        }
                     }
                 }
             }
@@ -1462,6 +1487,7 @@ namespace lattice2 {
 
         // return: strokeBack による戻しがあったら、先頭を優先する
         std::vector<CandidateString> _updateKBestList_sub(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack) {
+            _LOG_DETAIL(_T("CALLED"));
             std::vector<CandidateString> newCandidates;
             if (strokeBack) {
                 // strokeBackの場合
@@ -1501,10 +1527,27 @@ namespace lattice2 {
             return newCandidates;
         }
 
+        // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
+        std::vector<CandidateString> _updateKBestList_initial(const CandidateString& dummyCand, const WordPiece& piece, int strokeCount) {
+            _LOG_DETAIL(_T("CALLED: dummyCand.string()={}, piece.string()={}, strokeCount={}"), to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount);
+            std::vector<CandidateString> newCandidates;
+            std::vector<MString> ss;
+            int numBS;
+            std::tie(ss, numBS) = dummyCand.applyPiece(piece, strokeCount);
+            for (MString s : ss) {
+                if (!s.empty() || numBS > 0) {
+                    CandidateString newCandStr(s, strokeCount, 0, 0);
+                    newCandidates.push_back(newCandStr);
+                }
+            }
+            newCandidates.push_back(dummyCand);
+            return newCandidates;
+        }
+
     public:
         // strokeCount: lattice に最初に addPieces() した時からの相対的なストローク数
         void updateKBestList(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack) {
-            _LOG_DETAIL(_T("ENTER: strokeCount={}, strokeBack={}"), strokeCount, strokeBack);
+            _LOG_DETAIL(_T("ENTER: _candidates.size()={}, pieces.size()={}, strokeCount={}, strokeBack={}"), _candidates.size(), pieces.size(), strokeCount, strokeBack);
             _debugLog.clear();
 
             setRollOverStroke(strokeCount - 1, STATE_COMMON->IsRollOverStroke());
@@ -1512,7 +1555,12 @@ namespace lattice2 {
             // 候補リストが空の場合は、追加される piece と組み合わせるための、先頭を表すダミーを用意しておく
             addDummyCandidate();
 
-            _candidates = std::move(_updateKBestList_sub(pieces, strokeCount, strokeBack));
+            if (!strokeBack && _candidates.size() == 1 && _candidates.front().string().empty() && pieces.size() == 1) {
+                // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
+                _candidates = std::move(_updateKBestList_initial(_candidates.front(), pieces.front(), strokeCount));
+            } else {
+                _candidates = std::move(_updateKBestList_sub(pieces, strokeCount, strokeBack));
+            }
 
             //// 漢字またはカタカナが2文字以上連続したら、その候補を優先する
             //if (!_candidates.empty()) {

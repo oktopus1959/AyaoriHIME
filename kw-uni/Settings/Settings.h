@@ -105,6 +105,7 @@ struct Settings {
     bool collectRealtimeNgram = true;         // Realtime Ngram 情報を収集する
     bool useMorphAnalyzer = true;           // 形態素解析器を使用する
     bool commitByPunctuation = true;        // 句読点でコミットする
+    int multiStreamBeamSize = 5;            // multi-stream モードでのBeamSize
     int challengeNumForSameLeader = 4;      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
     int kanjiNoKanjiBonus = 1500;           // 「漢字+の+漢字」のような場合に与えるボーナス
     String mergerCandidateFile;             // 解候補ログファイル

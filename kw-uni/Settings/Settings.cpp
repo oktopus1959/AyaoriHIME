@@ -125,6 +125,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(collectRealtimeNgram);
     SET_BOOL_VALUE(useMorphAnalyzer);
     SET_BOOL_VALUE(commitByPunctuation);
+    SET_INT_VALUE(multiStreamBeamSize);
     SET_INT_VALUE(challengeNumForSameLeader);
     SET_INT_VALUE(kanjiNoKanjiBonus);
     SET_INT_VALUE(realtimeTrigramBonusFactor);

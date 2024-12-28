@@ -599,6 +599,8 @@ namespace KanchokuWS.Gui
             this.button_developClose = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.textBox_multiStreamBeamSize = new System.Windows.Forms.TextBox();
+            this.label167 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -6290,6 +6292,8 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_fusion
             // 
+            this.tabPage_fusion.Controls.Add(this.textBox_multiStreamBeamSize);
+            this.tabPage_fusion.Controls.Add(this.label167);
             this.tabPage_fusion.Controls.Add(this.groupBox41);
             this.tabPage_fusion.Controls.Add(this.comboBox_editBufferCaretChar);
             this.tabPage_fusion.Controls.Add(this.label163);
@@ -6399,7 +6403,7 @@ namespace KanchokuWS.Gui
             "▴",
             "⏐",
             "‸"});
-            this.comboBox_editBufferCaretChar.Location = new System.Drawing.Point(196, 217);
+            this.comboBox_editBufferCaretChar.Location = new System.Drawing.Point(196, 240);
             this.comboBox_editBufferCaretChar.Name = "comboBox_editBufferCaretChar";
             this.comboBox_editBufferCaretChar.Size = new System.Drawing.Size(55, 20);
             this.comboBox_editBufferCaretChar.TabIndex = 57;
@@ -6408,7 +6412,7 @@ namespace KanchokuWS.Gui
             // label163
             // 
             this.label163.AutoSize = true;
-            this.label163.Location = new System.Drawing.Point(24, 219);
+            this.label163.Location = new System.Drawing.Point(24, 242);
             this.label163.Name = "label163";
             this.label163.Size = new System.Drawing.Size(132, 15);
             this.label163.TabIndex = 55;
@@ -6417,7 +6421,7 @@ namespace KanchokuWS.Gui
             // textBox_editBufferFlushChar
             // 
             this.textBox_editBufferFlushChar.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_editBufferFlushChar.Location = new System.Drawing.Point(196, 239);
+            this.textBox_editBufferFlushChar.Location = new System.Drawing.Point(196, 262);
             this.textBox_editBufferFlushChar.Name = "textBox_editBufferFlushChar";
             this.textBox_editBufferFlushChar.Size = new System.Drawing.Size(175, 19);
             this.textBox_editBufferFlushChar.TabIndex = 54;
@@ -6426,7 +6430,7 @@ namespace KanchokuWS.Gui
             // label158
             // 
             this.label158.AutoSize = true;
-            this.label158.Location = new System.Drawing.Point(24, 241);
+            this.label158.Location = new System.Drawing.Point(24, 264);
             this.label158.Name = "label158";
             this.label158.Size = new System.Drawing.Size(166, 15);
             this.label158.TabIndex = 53;
@@ -6471,7 +6475,7 @@ namespace KanchokuWS.Gui
             // textBox_realtimeTrigramTier2Num
             // 
             this.textBox_realtimeTrigramTier2Num.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_realtimeTrigramTier2Num.Location = new System.Drawing.Point(337, 179);
+            this.textBox_realtimeTrigramTier2Num.Location = new System.Drawing.Point(337, 202);
             this.textBox_realtimeTrigramTier2Num.Name = "textBox_realtimeTrigramTier2Num";
             this.textBox_realtimeTrigramTier2Num.Size = new System.Drawing.Size(34, 19);
             this.textBox_realtimeTrigramTier2Num.TabIndex = 49;
@@ -6480,7 +6484,7 @@ namespace KanchokuWS.Gui
             // label161
             // 
             this.label161.AutoSize = true;
-            this.label161.Location = new System.Drawing.Point(24, 181);
+            this.label161.Location = new System.Drawing.Point(24, 204);
             this.label161.Name = "label161";
             this.label161.Size = new System.Drawing.Size(278, 15);
             this.label161.TabIndex = 48;
@@ -6489,7 +6493,7 @@ namespace KanchokuWS.Gui
             // textBox_realtimeTrigramTier1Num
             // 
             this.textBox_realtimeTrigramTier1Num.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_realtimeTrigramTier1Num.Location = new System.Drawing.Point(337, 157);
+            this.textBox_realtimeTrigramTier1Num.Location = new System.Drawing.Point(337, 180);
             this.textBox_realtimeTrigramTier1Num.Name = "textBox_realtimeTrigramTier1Num";
             this.textBox_realtimeTrigramTier1Num.Size = new System.Drawing.Size(34, 19);
             this.textBox_realtimeTrigramTier1Num.TabIndex = 47;
@@ -6498,7 +6502,7 @@ namespace KanchokuWS.Gui
             // label160
             // 
             this.label160.AutoSize = true;
-            this.label160.Location = new System.Drawing.Point(24, 159);
+            this.label160.Location = new System.Drawing.Point(24, 182);
             this.label160.Name = "label160";
             this.label160.Size = new System.Drawing.Size(284, 15);
             this.label160.TabIndex = 46;
@@ -6507,7 +6511,7 @@ namespace KanchokuWS.Gui
             // textBox_realtimeTrigramBonusFactor
             // 
             this.textBox_realtimeTrigramBonusFactor.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_realtimeTrigramBonusFactor.Location = new System.Drawing.Point(337, 135);
+            this.textBox_realtimeTrigramBonusFactor.Location = new System.Drawing.Point(337, 158);
             this.textBox_realtimeTrigramBonusFactor.Name = "textBox_realtimeTrigramBonusFactor";
             this.textBox_realtimeTrigramBonusFactor.Size = new System.Drawing.Size(34, 19);
             this.textBox_realtimeTrigramBonusFactor.TabIndex = 45;
@@ -6516,7 +6520,7 @@ namespace KanchokuWS.Gui
             // label159
             // 
             this.label159.AutoSize = true;
-            this.label159.Location = new System.Drawing.Point(24, 137);
+            this.label159.Location = new System.Drawing.Point(24, 160);
             this.label159.Name = "label159";
             this.label159.Size = new System.Drawing.Size(310, 15);
             this.label159.TabIndex = 44;
@@ -6535,7 +6539,7 @@ namespace KanchokuWS.Gui
             // textBox_challengeNumForSameLeader
             // 
             this.textBox_challengeNumForSameLeader.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_challengeNumForSameLeader.Location = new System.Drawing.Point(27, 91);
+            this.textBox_challengeNumForSameLeader.Location = new System.Drawing.Point(27, 114);
             this.textBox_challengeNumForSameLeader.Name = "textBox_challengeNumForSameLeader";
             this.textBox_challengeNumForSameLeader.Size = new System.Drawing.Size(34, 19);
             this.textBox_challengeNumForSameLeader.TabIndex = 40;
@@ -6544,7 +6548,7 @@ namespace KanchokuWS.Gui
             // label157
             // 
             this.label157.AutoSize = true;
-            this.label157.Location = new System.Drawing.Point(63, 93);
+            this.label157.Location = new System.Drawing.Point(63, 116);
             this.label157.Name = "label157";
             this.label157.Size = new System.Drawing.Size(212, 15);
             this.label157.TabIndex = 41;
@@ -7434,6 +7438,24 @@ namespace KanchokuWS.Gui
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // textBox_multiStreamBeamSize
+            // 
+            this.textBox_multiStreamBeamSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_multiStreamBeamSize.Location = new System.Drawing.Point(89, 90);
+            this.textBox_multiStreamBeamSize.Name = "textBox_multiStreamBeamSize";
+            this.textBox_multiStreamBeamSize.Size = new System.Drawing.Size(34, 19);
+            this.textBox_multiStreamBeamSize.TabIndex = 59;
+            this.textBox_multiStreamBeamSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label167
+            // 
+            this.label167.AutoSize = true;
+            this.label167.Location = new System.Drawing.Point(24, 92);
+            this.label167.Name = "label167";
+            this.label167.Size = new System.Drawing.Size(60, 15);
+            this.label167.TabIndex = 60;
+            this.label167.Text = "ビームサイズ";
+            // 
             // DlgSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -8150,5 +8172,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label166;
         private System.Windows.Forms.TextBox textBox_realtimeNgram;
         private System.Windows.Forms.Button button_raiseRealtimeNgram;
+        private System.Windows.Forms.TextBox textBox_multiStreamBeamSize;
+        private System.Windows.Forms.Label label167;
     }
 }
