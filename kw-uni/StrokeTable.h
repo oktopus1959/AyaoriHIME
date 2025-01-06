@@ -45,6 +45,9 @@ private:
     // 当ノードに対する書き換え定義
     PostRewriteOneShotNode* rewriteNode = 0;
 
+    // 同時打鍵テーブルか
+    bool _isComboTable = false;
+
 public:
     // コンストラクタ
     StrokeTableNode(int depth) : _depth(depth) {
@@ -79,8 +82,14 @@ public:
     // (半)濁点のみの後置書き換え子ノードがあるか
     bool hasOnlyUsualRewriteNdoe();
 
+    inline void checkComboNode() {
+        _isComboTable = hasComboNode();
+    }
+
 private:
     int findPostRewriteNode(int result);
+
+    bool hasComboNode();
 
 public:
     /* StrokeTableNode 独自メソッド */
@@ -125,6 +134,11 @@ public:
     // 木の根からの深さを返す
     inline size_t depth() const {
         return _depth;
+    }
+
+    // 同時打鍵テーブルか
+    inline bool isComboTable() const {
+        return _isComboTable;
     }
 
 private:

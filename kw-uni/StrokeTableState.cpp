@@ -17,12 +17,15 @@
 //#include "History/HistoryResidentState.h"
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughStrokeTable)
+#define _LOG_DETAIL LOG_DEBUGH
 
 #if 1 || defined(_DEBUG)
+#undef _LOG_DETAIL
 #undef LOG_INFO
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
 #undef _LOG_DEBUGH
+#define _LOG_DETAIL LOG_INFOH
 #define LOG_INFO LOG_INFOH
 #define LOG_DEBUGH LOG_INFOH
 #define LOG_DEBUG LOG_INFOH
@@ -74,6 +77,12 @@ namespace {
             return p != nullptr ? p->IsRootKeyCombination() : false;
         }
 
+        // ルートテーブルは同時打鍵テーブルか
+        virtual bool IsRootTableCombination() {
+            auto p = dynamic_cast<StrokeTableState*>(PrevState());
+            return p != nullptr ? p->IsRootTableCombination() : false;
+        }
+
     public:
         // コンストラクタ
         StrokeTableState(StrokeTableNode* pN) {
@@ -103,7 +112,7 @@ namespace {
         void handleStrokeKeys(int deckey) {
             bool isRootCombo = IsRootKeyCombination();
             myChar = DECKEY_TO_CHARS->GetCharFromDeckey(origDeckey >= 0 ? origDeckey : deckey);
-            LOG_DEBUGH(_T("ENTER: {}: origDeckey={:x}H({}), deckey={:x}H({}), face={}, isRootCombo={}, nodeDepth={}"), Name, origDeckey, origDeckey, deckey, deckey, myChar, isRootCombo, DEPTH);
+            _LOG_DETAIL(_T("ENTER: {}: origDeckey={:x}H({}), deckey={:x}H({}), face={}, isRootCombo={}, nodeDepth={}"), Name, origDeckey, origDeckey, deckey, deckey, myChar, isRootCombo, DEPTH);
             if (!isRootCombo) {
                 // RootStrokeTableState が作成されたときに OrigString はクリアされている。この処理はEisuModeなどへの対応のために必要
                 // ただしRootStrokeTableStateが同時打鍵の開始だった場合は、OrigStringを返さない
@@ -116,7 +125,7 @@ namespace {
             //    // 自身がRootStrokeNodeでなく、かつRootStrokeKeyが同時打鍵キーでなければ通常面に落としこむ
             //    // 同時打鍵の場合は、重複回避のため、第２キーはシフト化されてくる場合がある。その場合は、UNSHIFTしない
             //    deckey = UNSHIFT_DECKEY(deckey);
-            //    LOG_DEBUGH(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
+            //    _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
             //}
 #else
             //if (!myNode()->isRootStrokeTableNode() && !IsRootKeyCombination() && DeckeyUtil::is_ordered_combo(deckey)) {
@@ -124,16 +133,22 @@ namespace {
             //    // かな配列側で「い→ら」⇒「いう」が順序ありで定義されている場合に、「大使ら」をロールオーバーで打鍵しても「使」の2ストローク目を通常面として扱える。
             //    // また、漢直側で「い→ら」⇒「運」を順序ありで再定義する必要もなくなる
             //    deckey = UNSHIFT_DECKEY(deckey);
-            //    LOG_DEBUGH(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
+            //    _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
+            if (DeckeyUtil::is_ordered_combo(deckey) && !IsRootTableCombination()) {
+                // 当キーが順序ありの同時打鍵で、RootStrokeTableが同時打鍵テーブルでないなら通常面に落としこむ。
+                // 漢直側でスペース前置の「<SP> O I」⇒「乖」を順序ありで再定義する必要がなくなる
+                deckey = UNSHIFT_DECKEY(deckey);
+                _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
+            }
             //}
 #endif
             if (STATE_COMMON->IsDecodeKeyboardCharMode()) {
                 // キーボードフェイス文字を返すモード
-                LOG_DEBUGH(_T("SetNextNodeMaybe: MY_CHAR_NODE"));
+                _LOG_DETAIL(_T("SetNextNodeMaybe: MY_CHAR_NODE"));
                 SetNextNodeMaybe(MY_CHAR_NODE);
             } else if (SETTINGS->eisuModeEnabled && !STATE_COMMON->IsUpperRomanGuideMode() && myNode()->isRootStrokeTableNode() && myChar >= 'A' && myChar <= 'Z') {
                 // 英数モード
-                LOG_DEBUGH(_T("SetNextNodeMaybe: Eisu"));
+                _LOG_DETAIL(_T("SetNextNodeMaybe: Eisu"));
                 EISU_NODE->blockerNeeded = true; // 入力済み末尾にブロッカーを設定する
                 SetNextNodeMaybe(EISU_NODE);
             } else {
@@ -146,22 +161,22 @@ namespace {
                     if (rewInfo) {
                         // 入力文字列にマッチする書き換えノードを持つ
                         np = rp;
-                        LOG_DEBUGH(_T("REWRITE node matched"));
+                        _LOG_DETAIL(_T("REWRITE node matched"));
                     }
                 }
-                LOG_DEBUGH(_T("SetNextNodeMaybe: np={}"), np ? np->getNodeName() : _T("null"));
+                _LOG_DETAIL(_T("SetNextNodeMaybe: np={}"), np ? np->getNodeName() : _T("null"));
                 SetNextNodeMaybe(np);
             }
             if (!NextNodeMaybe() || !NextNodeMaybe()->isStrokeTableNode()) {
                 // 次ノードがストロークノードでないか、ストロークテーブルノード以外(文字ノードや機能ノードなど)ならば、全ストロークを削除対象とする
-                LOG_DEBUGH(_T("{}: RemoveAllStroke: NEXT_NODE={}, DecodeKeyboardCharMode={}"), Name, NODE_NAME(NextNodeMaybe()), STATE_COMMON->IsDecodeKeyboardCharMode());
+                _LOG_DETAIL(_T("{}: RemoveAllStroke: NEXT_NODE={}, DecodeKeyboardCharMode={}"), Name, NODE_NAME(NextNodeMaybe()), STATE_COMMON->IsDecodeKeyboardCharMode());
                 setToRemoveAllStroke();
             }
             if (deckey < NORMAL_DECKEY_NUM && IsRootKeyHiraganaized()) {
                 _LOG_DEBUGH(_T("{}, rootKeyHiraganaized={}"), Name, IsRootKeyHiraganaized());
                 STATE_COMMON->SetHiraganaToKatakana();   // 通常面の平仮名を片仮名に変換するモード
             }
-            LOG_DEBUGH(_T("LEAVE"));
+            _LOG_DETAIL(_T("LEAVE"));
         }
 
         // Shift飾修されたキー
@@ -349,6 +364,12 @@ namespace {
             return bCombination;
         }
 
+        // ルートテーブルは同時打鍵テーブルか
+        bool IsRootTableCombination() override {
+            _LOG_DEBUGH(_T("CALLED: {}, combination={}"), Name, myNode()->isComboTable());
+            return myNode()->isComboTable();
+        }
+
     public:
         // コンストラクタ
         RootStrokeTableState(StrokeTableNode* pN)
@@ -360,8 +381,14 @@ namespace {
 
         // StrokeTableNode を処理する
         void handleStrokeKeys(int deckey) {
-            _LOG_DEBUGH(_T("CALLED: {}"), Name);
+            _LOG_DETAIL(_T("ENTER: {}: isCombo={}: deckey={:x}H({})"), Name, myNode()->isComboTable(), deckey, deckey);
             STATE_COMMON->SyncFirstStrokeKeyCount();    // 第1ストロークキーカウントの同期
+            if (!myNode()->isComboTable() && DeckeyUtil::is_ordered_combo(deckey)) {
+                // 逐次打鍵テーブルであり、かつキーが順序ありの同時打鍵なら通常面に落としこむ。
+                // 漢直側で「い→ら」⇒「運」を順序ありで再定義する必要がなくなる
+                deckey = UNSHIFT_DECKEY(deckey);
+                _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
+            }
             if (deckey >= COMBO_DECKEY_START && deckey < EISU_COMBO_DECKEY_END) {
                 bCombination = true;
             }
@@ -374,6 +401,7 @@ namespace {
             //    // 次ノードがなく、拡張修飾キーの類なら、入力された拡張修飾類キーをそのまま返す
             //    setThroughDeckeyFlag();
             //}
+            _LOG_DETAIL(_T("LEAVE: {}"), Name);
         }
 
         // Shift飾修されたキー
@@ -568,6 +596,19 @@ int StrokeTableNode::findPostRewriteNode(int result) {
         }
     }
     LOG_INFO(_T("LEAVE: {}"), result);
+    return result;
+}
+
+bool StrokeTableNode::hasComboNode() {
+    _LOG_DETAIL(_T("ENTER"));
+    bool result = false;
+    for (int i = COMBO_DECKEY_START; i < (int)children.size(); ++i) {
+        if (children[i]) {
+            result = true;
+            break;
+        }
+    }
+    _LOG_DETAIL(_T("LEAVE: {}"), result);
     return result;
 }
 

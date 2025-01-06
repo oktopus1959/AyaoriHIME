@@ -96,6 +96,10 @@ struct LatticeResult {
     LatticeResult(const MString& s, size_t n)
         : outStr(s), numBS(n) {
     }
+
+    static LatticeResult emptyResult() {
+        return LatticeResult(EMPTY_MSTR, 0);
+    }
 };
 
 // Lattice

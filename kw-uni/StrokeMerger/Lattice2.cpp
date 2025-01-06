@@ -82,7 +82,8 @@ namespace lattice2 {
 
     // 2文字以上の形態素で漢字を含む場合のボーナス
     //int MORPH_ANY_KANJI_BONUS = 5000;
-    int MORPH_ANY_KANJI_BONUS = 3000;
+    //int MORPH_ANY_KANJI_BONUS = 3000;
+    int MORPH_ANY_KANJI_BONUS = 1000;
 
     // 3文字以上の形態素ですべてひらがなの場合のボーナス
     int MORPH_ALL_HIRAGANA_BONUS = 1000;
@@ -1795,8 +1796,15 @@ namespace lattice2 {
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
 
             //_LOG_DEBUGH(_T("ENTER: currentStrokeCount={}, pieces: {}\nkBest:\n{}"), currentStrokeCount, formatStringOfWordPieces(pieces), _kBestList.debugString());
-            _LOG_INFOH(_T("ENTER: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, kanjiPref={}, strokeBack={}, rollOver={}, pieces: {}"),
+            _LOG_DETAIL(_T("ENTER: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, kanjiPref={}, strokeBack={}, rollOver={}, pieces: {}"),
                 _kBestList.size(), _kBestList.origFirstCand(), totalStrokeCount, currentStrokeCount, kanjiPreferredNext, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
+
+            if (pieces.empty()) {
+                // pieces が空になるのは、同時打鍵の途中の状態などで、文字が確定していない場合
+                _LOG_DETAIL(L"LEAVE: emptyResult");
+                return LatticeResult::emptyResult();
+            }
+
             // endPos における空の k-best path リストを取得
 
             //if (pieces.size() == 1) {
@@ -1840,7 +1848,7 @@ namespace lattice2 {
             _prevOutputStr = outStr;
             outStr = utils::safe_substr(outStr, commonLen);
 
-            _LOG_INFOH(_T("LEAVE: OUTPUT: {}, numBS={}\n\n{}"), to_wstr(outStr), numBS, _kBestList.debugKBestString());
+            _LOG_DETAIL(_T("LEAVE: OUTPUT: {}, numBS={}\n\n{}"), to_wstr(outStr), numBS, _kBestList.debugKBestString());
             if (IS_LOG_DEBUGH_ENABLED) {
                 while (_debugLogQueue.size() >= 10) _debugLogQueue.pop_front();
                 _debugLogQueue.push_back(std::format(L"========================================\nENTER: currentStrokeCount={}, pieces: {}\n",

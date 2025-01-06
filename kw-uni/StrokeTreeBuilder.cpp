@@ -258,6 +258,7 @@ namespace {
             StrokeTableNode* rootNode = new StrokeTableNode(0, TOTAL_DECKEY_NUM);
             setupShiftedKeyFunction(rootNode);
             ParseTableSource(rootNode);
+            rootNode->checkComboNode();
             //rootNode->setPostRewrite(bPostRewriteNodeFound);
             return rootNode;
         }
