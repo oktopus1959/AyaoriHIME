@@ -880,28 +880,30 @@ namespace lattice2 {
         }
 
         // 単語素片を末尾に適用してみる
-        std::tuple<std::vector<MString>, int> applyPiece(const WordPiece& piece, int strokeCount) const {
+        std::vector<MString> applyPiece(const WordPiece& piece, int strokeCount) const {
             std::vector<MString> ss;
-            int numBS = 0;
             if (_strokeLen + piece.strokeLen() == strokeCount) {
                 // 素片のストローク数が適合した
                 if (piece.rewriteNode()) {
                     // 書き換えノード
                     const RewriteInfo* rewInfo;
+                    int numBS = 0;
                     std::tie(rewInfo, numBS) = matchWithTailString(piece.rewriteNode());
 
                     if (rewInfo) {
-                        ss.push_back(utils::safe_substr(_str, 0, -numBS) + rewInfo->rewriteStr);
-                    } else {
-                        // 複数文字が設定されたストロークの扱い
-                        _LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
-                        for (MString s : split_piece_str(piece.rewriteNode()->getString())) {
-                            ss.push_back(_str + s);
+                        // 末尾にマッチする書き換え情報があった
+                        for (MString s : split_piece_str(rewInfo->rewriteStr)) {
+                            ss.push_back(utils::safe_substr(_str, 0, -numBS) + s);
                         }
-                        numBS = 0;
+                    }
+                    // 書き換えない候補も追加
+                    // 複数文字が設定されたストロークの扱い
+                    _LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
+                    for (MString s : split_piece_str(piece.rewriteNode()->getString())) {
+                        ss.push_back(_str + s);
                     }
                 } else {
-                    numBS = piece.numBS();
+                    int numBS = piece.numBS();
                     if (numBS > 0) {
                         if ((size_t)numBS < _str.size()) {
                             ss.push_back(utils::safe_substr(_str, 0, (int)(_str.size() - numBS)));
@@ -914,13 +916,12 @@ namespace lattice2 {
                         for (MString s : split_piece_str(piece.getString())) {
                             ss.push_back(_str + s);
                         }
-                        numBS = 0;
                     }
                 }
             } else {
                 ss.push_back(EMPTY_MSTR);
             }
-            return { ss, numBS };
+            return ss;
         }
 
         const MString& string() const {
@@ -1375,9 +1376,9 @@ namespace lattice2 {
                         _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
                         penalty += NON_PREFERRED_PENALTY;
                     }
-                    int numBS;
                     if (!bAutoBushuFound) {
                         MString s;
+                        int numBS;
                         std::tie(s, numBS) = cand.applyAutoBushu(piece, strokeCount);  // 自動部首合成
                         if (!s.empty()) {
                             CandidateString newCandStr(s, strokeCount, 0, penalty);
@@ -1385,13 +1386,10 @@ namespace lattice2 {
                             bAutoBushuFound = true;
                         }
                     }
-                    std::vector<MString> ss;
-                    std::tie(ss, numBS) = cand.applyPiece(piece, strokeCount);
+                    std::vector<MString> ss = cand.applyPiece(piece, strokeCount);
                     for (MString s : ss) {
-                        if (!s.empty() || numBS > 0) {
-                            CandidateString newCandStr(s, strokeCount, 0, penalty);
-                            addCandidate(newCandidates, newCandStr, isStrokeBS);
-                        }
+                        CandidateString newCandStr(s, strokeCount, 0, penalty);
+                        addCandidate(newCandidates, newCandStr, isStrokeBS);
                     }
                 }
             }
@@ -1532,14 +1530,10 @@ namespace lattice2 {
         std::vector<CandidateString> _updateKBestList_initial(const CandidateString& dummyCand, const WordPiece& piece, int strokeCount) {
             _LOG_DETAIL(_T("CALLED: dummyCand.string()={}, piece.string()={}, strokeCount={}"), to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount);
             std::vector<CandidateString> newCandidates;
-            std::vector<MString> ss;
-            int numBS;
-            std::tie(ss, numBS) = dummyCand.applyPiece(piece, strokeCount);
+            std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount);
             for (MString s : ss) {
-                if (!s.empty() || numBS > 0) {
-                    CandidateString newCandStr(s, strokeCount, 0, 0);
-                    newCandidates.push_back(newCandStr);
-                }
+                CandidateString newCandStr(s, strokeCount, 0, 0);
+                newCandidates.push_back(newCandStr);
             }
             newCandidates.push_back(dummyCand);
             return newCandidates;
