@@ -567,10 +567,13 @@ namespace {
                         break;
                     }
                 } else {
-                    if (deckey >= COMBO_DECKEY_START && deckey < COMBO_DECKEY_END && (!DeckeyUtil::is_ordered_combo(deckey) /* || OUTPUT_STACK->GetLastOutputStackChar() != ' '*/)) {
+                    if (deckey >= COMBO_DECKEY_START && deckey < COMBO_DECKEY_END /* && (!DeckeyUtil::is_ordered_combo(deckey)*/ /* || OUTPUT_STACK->GetLastOutputStackChar() != ' ')*/) {
                         // 順序あり以外の同時打鍵の始まりなので、いったん streamList はクリア
                         // 順序あり同時打鍵は、2ストロークの2打鍵目となることあり; 「使ら」)
                         // また、Spaceの後の順序あり同時打鍵は、裏文字入力の場合あり
+                        // 2025/1/10 しかし、順序あり同時打鍵と漢直を両立させようとすると、順序あり同時打鍵を1打鍵ずつバラして扱う必要があるので、
+                        //           そうであれば、結局、最初から後置書き換えでよいのではないか。
+                        //           ということで、順序あり同時打鍵は、同時打鍵として扱うことにする。
                         // 同時打鍵中は、処理を分岐させない
                         _LOG_DETAIL(L"Combo Deckey except ORDERED");
                         clearStreamLists();
