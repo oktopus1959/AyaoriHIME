@@ -206,9 +206,9 @@ namespace KanchokuWS.Forms
         {
             var decoderOutput = frmMain.DecoderOutput;
 
-            //logger.WarnH(() => $"CALLED: layout={decoderOutput.layout}, faceString={decoderOutput.faceStrings._toString()}");
+            //logger.WarnH(() => $"CALLED: layout={decoderOutput.layout}, faceString={decoderOutput.candidateStrings._toString()}");
 
-            if (frmEditBuf.IsEmpty || decoderOutput.layout != (int)VkbLayout.MultiStreamCandidates || decoderOutput.faceStrings._isEmpty() || decoderOutput.faceStrings[0] == 0) {
+            if (frmEditBuf.IsEmpty || decoderOutput.layout != (int)VkbLayout.MultiStreamCandidates || decoderOutput.candidateStrings._isEmpty() || decoderOutput.candidateStrings[0] == 0) {
                 this.Hide();
                 //logger.WarnH("Hide");
                 return;
@@ -218,8 +218,8 @@ namespace KanchokuWS.Forms
             resetControls(0, 0, 0);
             int nRow = 0;
             for (int i = 0; i < LongVkeyNum; ++i) {
-                //logger.Info(decoderOutput.faceStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
-                if (drawHorizontalCandidateCharsWithColor(decoderOutput, i, decoderOutput.faceStrings)) ++nRow;
+                //logger.Info(decoderOutput.candidateStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
+                if (drawHorizontalCandidateCharsWithColor(decoderOutput, i, decoderOutput.candidateStrings)) ++nRow;
             }
             //logger.WarnH($"nRow={nRow}");
             dgvHorizontal.CurrentCell = null;   // どのセルも選択されていない状態にする

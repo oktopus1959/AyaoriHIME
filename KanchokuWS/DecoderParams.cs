@@ -51,10 +51,15 @@ namespace KanchokuWS
         [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = 20)]
         public char[] centerString;
 
-        /// <summary> 仮想キーボードに表示する文字列 (レイアウトにより、 20x10 または 2x100 として扱う)<br/>
+        /// <summary> 仮想キーボードに表示する文字列 (2x100 として扱う)<br/>
         /// 配列文字長未満の場合は '\0' 終端であること </summary>
         [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = 200)]
         public char[] faceStrings;
+
+        /// <summary> 候補テーブルに表示する文字列 (20x10 として扱う)<br/>
+        /// 配列文字長未満の場合は '\0' 終端であること </summary>
+        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = 200)]
+        public char[] candidateStrings;
     }
 
     /// <summary>仮想鍵盤レイアウトタイプ</summary>

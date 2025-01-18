@@ -2,7 +2,7 @@
 #include "DymazinBridge.h"
 #include "DyMazinLib.h"
 
-#if 1
+#if 0
 #undef _LOG_INFOH
 #undef LOG_DEBUGH
 #if 0
@@ -40,7 +40,7 @@ namespace DymazinBridge {
         DymazinFinalize();
     }
 
-#if 1
+#if true
     int dymazinCalcCost(const MString& str, std::vector<MString>& words) {
         LOG_DEBUGH(_T("ENTER: str={}"), to_wstr(str));
         const size_t BUFSIZE = 1000;

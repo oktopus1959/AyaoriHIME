@@ -10,7 +10,7 @@
 //#include "History/HistoryResidentState.h"
 #include "StrokeMerger/StrokeMergerHistoryResidentState.h"
 
-#if 1 || defined(_DEBUG)
+#if 0 || defined(_DEBUG)
 #undef _DEBUG_SENT
 #undef _DEBUG_FLAG
 #undef LOG_INFO

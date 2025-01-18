@@ -173,7 +173,7 @@ namespace {
                 setToRemoveAllStroke();
             }
             if (deckey < NORMAL_DECKEY_NUM && IsRootKeyHiraganaized()) {
-                _LOG_DEBUGH(_T("{}, rootKeyHiraganaized={}"), Name, IsRootKeyHiraganaized());
+                LOG_DEBUGH(_T("{}, rootKeyHiraganaized={}"), Name, IsRootKeyHiraganaized());
                 STATE_COMMON->SetHiraganaToKatakana();   // 通常面の平仮名を片仮名に変換するモード
             }
             _LOG_DETAIL(_T("LEAVE"));
@@ -181,7 +181,7 @@ namespace {
 
         // Shift飾修されたキー
         void handleShiftKeys(int deckey) {
-            _LOG_DEBUGH(_T("ENTER: {}, deckey={:x}({}), rootKeyHiraganaized={}"), Name, deckey, deckey, IsRootKeyHiraganaized());
+            LOG_DEBUGH(_T("ENTER: {}, deckey={:x}({}), rootKeyHiraganaized={}"), Name, deckey, deckey, IsRootKeyHiraganaized());
             if (origDeckey < 0) origDeckey = deckey;
             //handleStrokeKeys(UNSHIFT_DECKEY(deckey));
             handleStrokeKeys(deckey);
@@ -197,7 +197,7 @@ namespace {
             //    // 2打鍵目以降は、Unshiftして処理する
             //    handleStrokeKeys(UNSHIFT_DECKEY(deckey));
             //}
-            _LOG_DEBUGH(_T("LEAVE: {}"), Name);
+            LOG_DEBUGH(_T("LEAVE: {}"), Name);
         }
 
         // これがあると、TUT-Code など、第2打鍵のSpaceキーが記号に割り当てられているコード系で問題になる
@@ -221,29 +221,29 @@ namespace {
 
         // FullEscapeの処理 -- 履歴検索文字列の遡及ブロッカーをセット
         void handleFullEscape() {
-            _LOG_DEBUGH(_T("CALLED: {}"), Name);
+            LOG_DEBUGH(_T("CALLED: {}"), Name);
             STATE_COMMON->SetBothHistoryBlockFlag();
             setToRemoveAllStroke();
         }
 
         void handleClearStroke() {
-            _LOG_DEBUGH(_T("CALLED: {}"), Name);
+            LOG_DEBUGH(_T("CALLED: {}"), Name);
             setToRemoveAllStroke();
         }
 
         void handleEsc() {
-            _LOG_DEBUGH(_T("CALLED: {}"), Name);
+            LOG_DEBUGH(_T("CALLED: {}"), Name);
             setToRemoveAllStroke();
         }
 
         // CommitState の処理 -- 処理のコミット
         void handleCommitState() override {
-            _LOG_DEBUGH(_T("CALLED: {}"), Name);
+            LOG_DEBUGH(_T("CALLED: {}"), Name);
             setToRemoveAllStroke();
         }
 
         void handleEnter() {
-            _LOG_DEBUGH(_T("CALLED: {}"), Name);
+            LOG_DEBUGH(_T("CALLED: {}"), Name);
             // 自打鍵をクリアし、前打鍵までを出力する
             myChar = '\0';
             SetNextNodeMaybe(PREV_CHAR_NODE);
@@ -251,7 +251,7 @@ namespace {
         }
 
         //void handleCtrlU() {
-        //    _LOG_DEBUGH(_T("CALLED: {}"), Name);
+        //    LOG_DEBUGH(_T("CALLED: {}"), Name);
         //    handleFullEscape();
         //    State::handleCtrlU();
         //}
@@ -277,7 +277,7 @@ namespace {
                 if (ps && ps->isToRemoveAllStroke()) {
                     // ストロークテーブルチェイン全体の削除
                     setToRemoveAllStroke();
-                    _LOG_DEBUGH(_T("REMOVE ALL: {}"), Name);
+                    LOG_DEBUGH(_T("REMOVE ALL: {}"), Name);
                 } else if (NextState()->IsUnnecessary()) {
                     // 次状態が取り消されたら、origString を縮めておく
                     STATE_COMMON->PopOrigString();
@@ -289,22 +289,22 @@ namespace {
 
         // ストローク状態に対して生成時処理を実行する
         void DoProcOnCreated() override {
-            _LOG_DEBUGH(_T("ENTER: {}"), Name);
+            LOG_DEBUGH(_T("ENTER: {}"), Name);
             // 打鍵ヘルプをセットする
             setNormalStrokeHelpVkb();
             // 前状態にチェーン
             MarkNecessary();
-            _LOG_DEBUGH(_T("LEAVE: {}"), Name);
+            LOG_DEBUGH(_T("LEAVE: {}"), Name);
         }
 
         // 出力文字を取得する
         //void GetResultStringChain(MStringResult& resultOut) override {
-        //    _LOG_DEBUGH(_T("ENTER: {}: resultStr={}, numBS={}"), Name, to_wstr(resultOut.resultStr()), resultOut.numBS());
+        //    LOG_DEBUGH(_T("ENTER: {}: resultStr={}, numBS={}"), Name, to_wstr(resultOut.resultStr()), resultOut.numBS());
         //    if (NextState()) {
         //        //if (myChar != '\0') resultOut.resultStr.append(1, myChar);
         //        State::GetResultStringChain(resultOut);
         //    }
-        //    _LOG_DEBUGH(_T("LEAVE: {}: resultStr={}, numBS={}"), Name, to_wstr(resultOut.resultStr()), resultOut.numBS());
+        //    LOG_DEBUGH(_T("LEAVE: {}: resultStr={}, numBS={}"), Name, to_wstr(resultOut.resultStr()), resultOut.numBS());
         //}
 
         // ストロークテーブルチェインの長さ(テーブルのレベル)
@@ -319,7 +319,7 @@ namespace {
 
     private:
         void setNormalStrokeHelpVkb() {
-            _LOG_DEBUGH(_T("ENTER"));
+            _LOG_DETAIL(_T("ENTER"));
             // 打鍵ヘルプをセットする
             STATE_COMMON->SetNormalVkbLayout();
             auto tblNode = myNode();
@@ -327,9 +327,10 @@ namespace {
                 tblNode->CopyChildrenFace(STATE_COMMON->GetFaces(), STATE_COMMON->FacesSize());
             } else {
                 STATE_COMMON->ClearFaces();
+                _LOG_DETAIL(_T("ClearFaces"));
             }
             //STATE_COMMON->SetWaiting2ndStroke();
-            _LOG_DEBUGH(_T("LEAVE"));
+            _LOG_DETAIL(_T("LEAVE"));
         }
 
     };
@@ -348,25 +349,25 @@ namespace {
     protected:
         // ルートキーは UNSHIFT されているか
         //bool IsRootKeyUnshifted() override {
-        //    _LOG_DEBUGH(_T("CALLED: {}, unshifted={}"), Name, bUnshifted);
+        //    LOG_DEBUGH(_T("CALLED: {}, unshifted={}"), Name, bUnshifted);
         //    return bUnshifted;
         //}
 
         // ルートキーは平仮名化されているか
         bool IsRootKeyHiraganaized() override {
-            _LOG_DEBUGH(_T("CALLED: {}, hiraganaized={}"), Name, bHiraganaized);
+            LOG_DEBUGH(_T("CALLED: {}, hiraganaized={}"), Name, bHiraganaized);
             return bHiraganaized;
         }
 
         // ルートキーは同時打鍵キーか
         bool IsRootKeyCombination() override {
-            _LOG_DEBUGH(_T("CALLED: {}, combination={}"), Name, bCombination);
+            LOG_DEBUGH(_T("CALLED: {}, combination={}"), Name, bCombination);
             return bCombination;
         }
 
         // ルートテーブルは同時打鍵テーブルか
         bool IsRootTableCombination() override {
-            _LOG_DEBUGH(_T("CALLED: {}, combination={}"), Name, myNode()->isComboTable());
+            LOG_DEBUGH(_T("CALLED: {}, combination={}"), Name, myNode()->isComboTable());
             return myNode()->isComboTable();
         }
 
@@ -406,7 +407,7 @@ namespace {
 
         // Shift飾修されたキー
         void handleShiftKeys(int deckey) {
-            _LOG_DEBUGH(_T("ENTER: {}, deckey={:x}H({}), hiraConvPlane={}"), Name, deckey, deckey, SETTINGS->hiraToKataShiftPlane);
+            LOG_DEBUGH(_T("ENTER: {}, deckey={:x}H({}), hiraConvPlane={}"), Name, deckey, deckey, SETTINGS->hiraToKataShiftPlane);
             STATE_COMMON->SyncFirstStrokeKeyCount();    // 第1ストロークキーカウントの同期
             if (origDeckey < 0) origDeckey = deckey;
             if (SETTINGS->hiraToKataShiftPlane > 0 &&
@@ -414,16 +415,16 @@ namespace {
                 utils::contains(VkbTableMaker::GetHiraganaFirstDeckeys(), UNSHIFT_DECKEY(deckey))) {
                 // 後でShift入力された平仮名をカタカナに変換する
                 bHiraganaized = true;
-                _LOG_DEBUGH(_T("SET SHIFTED HIRAGANA: {}"), Name);
+                LOG_DEBUGH(_T("SET SHIFTED HIRAGANA: {}"), Name);
                 STATE_COMMON->SetHiraganaToKatakana();   // Shift入力された平仮名だった
                 //shiftedOrigChar = DECKEY_TO_CHARS->GetCharFromDeckey(deckey);
-                //_LOG_DEBUGH(_T("Unshifted: shiftedOrigChar={}"), shiftedOrigChar);
+                //LOG_DEBUGH(_T("Unshifted: shiftedOrigChar={}"), shiftedOrigChar);
                 handleStrokeKeys(UNSHIFT_DECKEY(deckey));
             } else {
                 // その他の(拡張)シフト
                 StrokeTableState::handleStrokeKeys(deckey);
             }
-            _LOG_DEBUGH(_T("LEAVE: {}"), Name);
+            LOG_DEBUGH(_T("LEAVE: {}"), Name);
         }
 
         // Shift+Space を通常Spaceとして扱う
@@ -456,16 +457,16 @@ namespace {
         // 例：ストロークの末尾まで到達して、ストロークチェイン全体が不要になった
         // 例：次ストロークが取り消されたので、自ストロークも初期状態に戻す
         void CheckNextState() override {
-            _LOG_DEBUGH(_T("CALLED: {}"), Name);
+            LOG_DEBUGH(_T("CALLED: {}"), Name);
             StrokeTableState::CheckNextState();
             if (bHiraganaized) {
-                _LOG_DEBUGH(_T("SET SHIFTED HIRAGANA: {}"), Name);
+                LOG_DEBUGH(_T("SET SHIFTED HIRAGANA: {}"), Name);
                 STATE_COMMON->SetHiraganaToKatakana();   // Shift入力された平仮名だった
             }
             if (NextState() && NextState()->IsUnnecessary()) {
                 // 次状態が不要になったらルートストロークテーブルも不要
                 MarkUnnecessary();
-                _LOG_DEBUGH(_T("REMOVE ALL: {}"), Name);
+                LOG_DEBUGH(_T("REMOVE ALL: {}"), Name);
             }
         }
 
@@ -479,7 +480,7 @@ namespace {
 
 // デストラクタ
 StrokeTableNode::~StrokeTableNode() {
-    _LOG_DEBUGH(_T("CALLED: destructor: ptr={:p}"), (void*)this);
+    LOG_DEBUGH(_T("CALLED: destructor: ptr={:p}"), (void*)this);
     delete rewriteNode;
     for (auto p : children) {
         delete p;       // 子ノードの削除 (デストラクタ)
@@ -494,13 +495,13 @@ State* StrokeTableNode::CreateState() {
 
 // 子ノード列の文字をコピーする
 void StrokeTableNode::CopyChildrenFace(mchar_t* faces, size_t facesSize) {
-    _LOG_DEBUGH(_T("ENTER"));
+    LOG_DEBUGH(_T("ENTER: depth={}"), depth());
     for (size_t n = 0; n < facesSize; ++n) {
         const Node* child = getNth(n);
         const auto& s = child ? child->getString() : MString();
         faces[n] = s.empty() ? 0 : is_ascii_pair(s) ? make_mchar((wchar_t)s[0], (wchar_t)s[1]) : s[0];  // "12" のような半角文字のペアも扱う
     }
-    _LOG_DEBUGH(_T("LEAVE"));
+    LOG_DEBUGH(_T("LEAVE: faces={}"), to_wstr(faces, 20));
 }
 
 // 後置書き換えノードを取得

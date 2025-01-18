@@ -15,7 +15,7 @@ DEFINE_CLASS_LOGGER(StateCommonInfo);
 #define _DEBUG_SENT(x) x
 #define _DEBUG_FLAG(x) (x)
 #define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFO
+#define LOG_DEBUG LOG_INFOH
 #define _LOG_DEBUGH LOG_INFOH
 #define _LOG_DEBUGH_COND LOG_INFO_COND
 #endif
@@ -56,10 +56,18 @@ void StateCommonInfo::setCenterString(mchar_t center) {
     }
 }
 
+void StateCommonInfo::ClearFaces() {
+    LOG_DEBUG(_T("CALLED"));
+    wchar_t spc = _T(" ")[0];
+    for (size_t i = 0; i < utils::array_length(faces); ++i) {
+        faces[i] = spc;
+    }
+}
+
 // 仮想鍵盤と受渡しするための文字をセットする
 // lo : レイアウト, fcs:左右鍵盤にセットする文字列
 void StateCommonInfo::setVirtualKeyboardStrings(VkbLayout lo, const mchar_t* fcs) {
-    LOG_DEBUG(_T("layout={}"), GetVkbLayoutStr(lo));
+    LOG_DEBUG(_T("CALLED: layout={}"), GetVkbLayoutStr(lo));
     SetVkbLayout(lo);
     for (int i = 0; i < NORMAL_DECKEY_NUM; ++i) faces[i] = fcs ? fcs[i] : 0;
     for (auto& s : longVkeyCandidates) s.clear();
@@ -68,9 +76,9 @@ void StateCommonInfo::setVirtualKeyboardStrings(VkbLayout lo, const mchar_t* fcs
 // 仮想鍵盤と受渡しするための文字をセットする
 // lo : レイアウト, longKeys: 縦列または横列鍵盤にセットする文字列
 void StateCommonInfo::setVirtualKeyboardStrings(VkbLayout lo, const std::vector<MString>& longKeys, size_t pos) {
-    LOG_DEBUG(_T("layout={}"), GetVkbLayoutStr(lo));
+    LOG_DEBUG(_T("CALLED: layout={}"), GetVkbLayoutStr(lo));
     SetVkbLayout(lo);
-    for (int i = 0; i < NORMAL_DECKEY_NUM; ++i) faces[i] = 0;
+    //for (int i = 0; i < NORMAL_DECKEY_NUM; ++i) faces[i] = 0;
     for (size_t n = 0; n < longVkeyCandidates.size(); ++n) {
         if (pos + n < longKeys.size())
             longVkeyCandidates[n] = to_wstr(longKeys[pos + n]);
@@ -111,6 +119,7 @@ void StateCommonInfo::ClearRunningStates() {
 
 //仮想鍵盤にストロークヘルプの情報を設定する
 void StateCommonInfo::CopyStrokeHelpToVkbFaces(wchar_t ch) {
+    LOG_DEBUGH(L"ENTER: ch={}", ch);
     SetCenterString(ch);
     ClearFaces();
     if (STROKE_HELP->copyStrokeHelpToVkbFacesStateCommon(ch, GetFaces())) {
@@ -118,6 +127,7 @@ void StateCommonInfo::CopyStrokeHelpToVkbFaces(wchar_t ch) {
     } else {
         ClearVkbLayout();
     }
+    LOG_DEBUGH(L"LEAVE");
 }
 
 //仮想鍵盤にストロークヘルプの情報を設定する(outStringの先頭文字)

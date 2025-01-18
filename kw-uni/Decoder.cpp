@@ -67,7 +67,6 @@ namespace {
         }
         *faces = p.second;
     }
-
 }
 
 // デコーダの実装クラス
@@ -90,6 +89,31 @@ private:
         if (params) {
             wcscpy_s(params->inOutData, ERROR_HANDLER->GetErrorMsg().c_str());
         }
+    }
+
+
+    void copy_facestr(const mchar_t* faces, size_t numFaces) {
+        LOG_DEBUG(_T("Copy faces: {}"), to_wstr(faces, 20));
+        for (size_t i = 0; i < numFaces; ++i) {
+            set_facestr(faces[i], OutParams->faceStrings + i * 2);
+        }
+    }
+
+    MString get_facestr() {
+        MString result;
+        const wchar_t* faces = OutParams->faceStrings;
+        size_t len = utils::array_length(OutParams->faceStrings) / 2;
+        for (size_t i = 0; i < len; i += 2) {
+            wchar_t first = faces[i];
+            wchar_t second = faces[i + 1];
+            if (!first) break;
+            if (!second) {
+                second = first;
+                first = 0;
+            }
+            result.push_back(make_mchar(first, second));
+        }
+        return result;
     }
 
 public:
@@ -399,7 +423,7 @@ public:
                 // 部首連想辞書の保存
                 BUSHU_ASSOC_DIC->WriteBushuAssocDic();
             } else if (cmd == _T("addMazegakiEntry")) {
-                LOG_INFOH(_T("addMazegakiEntry: {}"), items.size() >= 2 && !items[1].empty() ? items[1] : _T("none"));
+                LOG_DEBUGH(_T("addMazegakiEntry: {}"), items.size() >= 2 && !items[1].empty() ? items[1] : _T("none"));
                 if (MAZEGAKI_DIC && items.size() >= 2 && !items[1].empty()) {
                     // 交ぜ書きエントリの追加
                     MAZEGAKI_DIC->AddMazeDicEntry(items[1], true, false);
@@ -603,9 +627,9 @@ public:
 
         // 同時打鍵コードなら、RootStrokeStateを削除しておく⇒と思ったが、実際にはそのようなケースがあったのでコメントアウト(「のにいると」で  KkDF のケース)
         //if (keyId >= COMBO_DECKEY_START && keyId < EISU_COMBO_DECKEY_END) {
-        //    _LOG_DEBUGH(_T("\nENTER: Clear stroke"));
+        //    LOG_DEBUGH(_T("\nENTER: Clear stroke"));
         //    startState->HandleDeckeyChain(CLEAR_STROKE_DECKEY);
-        //    _LOG_DEBUGH(_T("LEAVE: Clear stroke\n"));
+        //    LOG_DEBUGH(_T("LEAVE: Clear stroke\n"));
         //}
 
         // DecKey処理を呼ぶ
@@ -640,28 +664,28 @@ public:
         // 出力履歴に HistoryBlock を反映
         if (STATE_COMMON->IsSetHistoryBlockFlag()) {
             OUTPUT_STACK->setHistBlocker();
-            _LOG_DEBUGH(_T("OUTPUT_STACK->setHistBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
+            LOG_DEBUGH(_T("OUTPUT_STACK->setHistBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
         }
         // 出力履歴に MazeBlock を反映
         if (STATE_COMMON->IsSetMazegakiBlockFlag()) {
             OUTPUT_STACK->setMazeBlocker(STATE_COMMON->GetMazegakiBlockerPosition());
-            _LOG_DEBUGH(_T("OUTPUT_STACK->setMazeBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
+            LOG_DEBUGH(_T("OUTPUT_STACK->setMazeBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
         }
         // 出力履歴に Rewritable を反映
-        //_LOG_DEBUGH(_T("OUTPUT_STACK->setRewritable({})"), STATE_COMMON->RewritableLen());
+        //LOG_DEBUGH(_T("OUTPUT_STACK->setRewritable({})"), STATE_COMMON->RewritableLen());
         //OUTPUT_STACK->setRewritable(STATE_COMMON->RewritableLen());
-        _LOG_DEBUGH(_T("OUTPUT_STACK->setRewritable({})"), resultStr.rewritableLen());
+        LOG_DEBUGH(_T("OUTPUT_STACK->setRewritable({})"), resultStr.rewritableLen());
         OUTPUT_STACK->setRewritable(resultStr.rewritableLen());
-        _LOG_DEBUGH(_T("OutputStackBackStrWithFlagUpto(16)={}"), to_wstr(OUTPUT_STACK->OutputStackBackStrWithFlagUpto(16)));
+        LOG_DEBUGH(_T("OutputStackBackStrWithFlagUpto(16)={}"), to_wstr(OUTPUT_STACK->OutputStackBackStrWithFlagUpto(16)));
 
         int strokeTableChainLen = (int)(startState->StrokeTableChainLength());
-        _LOG_DEBUGH(_T("strokeTableChainLen={}"), strokeTableChainLen);
+        LOG_DEBUGH(_T("strokeTableChainLen={}"), strokeTableChainLen);
         STATE_COMMON->SetStrokeCount(std::max(strokeTableChainLen - 1, 0));
         if (strokeTableChainLen >= 2) {
             STATE_COMMON->SetWaiting2ndStroke();
             if (STATE_COMMON->GetLayout() == VkbLayout::None) STATE_COMMON->SetNormalVkbLayout();
         }
-        _LOG_DEBUGH(_T("STATE_COMMON->StrokeCount={}"), STATE_COMMON->GetStrokeCount());
+        LOG_DEBUGH(_T("STATE_COMMON->StrokeCount={}"), STATE_COMMON->GetStrokeCount());
 
         // 最終的な出力履歴が整ったところで呼び出される処理
         if (!STATE_COMMON->IsOutStringProcDone() && !STATE_COMMON->IsWaiting2ndStroke()) startState->DoLastHistoryProcChain();
@@ -671,7 +695,7 @@ public:
 
         if (Reporting::Logger::IsInfoHEnabled()) {
             //String stack = std::regex_replace(to_wstr(OUTPUT_STACK->OutputStackBackStr(10)), std::wregex(_T("\n")), _T("|"));
-            LOG_INFOH(_T("LEAVE: states={} (len={}), flags={:x}, expKey={}, layout={}, centerStr={}, numBS={}, outLength={}, stack={}\n\n================================================\n"),
+            LOG_DEBUGH(_T("LEAVE: states={} (len={}), flags={:x}, expKey={}, layout={}, centerStr={}, numBS={}, outLength={}, stack={}\n\n================================================\n"),
                 startState->JoinedName(), startState->ChainLength(), STATE_COMMON->GetResultFlags(), STATE_COMMON->GetNextExpectedKeyType(),
                 STATE_COMMON->GetLayoutInt(), outParams->centerString, resultStr.numBS(), cpyLen, OUTPUT_STACK->OutputStackBackStrForDebug(10));
         }
@@ -687,13 +711,13 @@ public:
     // 末尾のローマ字列を削除
     void clearTailRomanStr() {
         OUTPUT_STACK->ClearTailAlaphabetStr();
-        _LOG_DEBUGH(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(10));
+        LOG_DEBUGH(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(10));
     }
 
     // 末尾のひらがな列を削除
     void clearTailHiraganaStr() {
         OUTPUT_STACK->ClearTailHiraganaStr();
-        _LOG_DEBUGH(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(10));
+        LOG_DEBUGH(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(10));
     }
 
     // 末尾にひらがなブロッカーを設定
@@ -704,7 +728,7 @@ public:
     // ヘルプや候補文字列
     void setHelpOrCandidates(mchar_t targetChar, const MStringResult& resultStr) {
         //if (startState->StrokeTableChainLength() >= 2) STATE_COMMON->SetWaiting2ndStroke();
-        LOG_DEBUG(_T("layout={}, nextExp={}"), STATE_COMMON->GetLayoutInt(), (int)STATE_COMMON->GetNextExpectedKeyType());
+        LOG_DEBUG(_T("ENTER: layout={}, faces={}, nextExp={}"), STATE_COMMON->GetLayoutInt(), to_wstr(STATE_COMMON->GetFaces(), 20), (int)STATE_COMMON->GetNextExpectedKeyType());
         OutParams->nextExpectedKeyType = (int)STATE_COMMON->GetNextExpectedKeyType();
         OutParams->strokeCount = (int)STATE_COMMON->GetStrokeCount();
         OutParams->nextSelectPos = (int)STATE_COMMON->GetNextSelectPos();
@@ -730,12 +754,14 @@ public:
         {
             //copyToTopString();
             //copyToCenterString();
-            mchar_t* faces = STATE_COMMON->GetFaces();
-            size_t numFaces = STATE_COMMON->FacesSize();
-            for (size_t i = 0; i < numFaces; ++i) {
-                //OutParams->faceStrings[i] = STATE_COMMON->faces[i];
-                set_facestr(faces[i], OutParams->faceStrings + i * 2);
-            }
+            copy_facestr(STATE_COMMON->GetFaces(), STATE_COMMON->FacesSize());
+            //mchar_t* faces = STATE_COMMON->GetFaces();
+            //size_t numFaces = STATE_COMMON->FacesSize();
+            //LOG_DEBUG(_T("Copy faces: {}"), to_wstr(faces, numFaces));
+            //for (size_t i = 0; i < numFaces; ++i) {
+            //    //OutParams->faceStrings[i] = STATE_COMMON->faces[i];
+            //    set_facestr(faces[i], OutParams->faceStrings + i * 2);
+            //}
         }
             break;
         case VkbLayout::Vertical:
@@ -745,24 +771,26 @@ public:
         {
             //copyToTopString();
             //copyToCenterString();
+            copy_facestr(STATE_COMMON->GetFaces(), STATE_COMMON->FacesSize());
+
             size_t pos = 0;
-            size_t maxlen = utils::array_length(OutParams->faceStrings);
+            size_t maxlen = utils::array_length(OutParams->candidateStrings);
             for (auto& s : STATE_COMMON->LongVkeyCandidates()) {
                 size_t i = 0;
                 for (; i < s.size(); ++i) {
                     if (pos + i >= maxlen) break;
                     if (i >= LONG_VKEY_CHAR_SIZE) {
-                        OutParams->faceStrings[pos + i - 1] = (wchar_t)'…';
+                        OutParams->candidateStrings[pos + i - 1] = (wchar_t)'…';
                         break;
                     }
-                    OutParams->faceStrings[pos + i] = s[i];
+                    OutParams->candidateStrings[pos + i] = s[i];
                 }
-                OutParams->faceStrings[pos + i] = 0;
+                OutParams->candidateStrings[pos + i] = 0;
                 pos += LONG_VKEY_CHAR_SIZE;
                 if (pos >= maxlen) break;
             }
             while (pos < maxlen) {
-                OutParams->faceStrings[pos] = 0;
+                OutParams->candidateStrings[pos] = 0;
                 pos += LONG_VKEY_CHAR_SIZE;
             }
         }
@@ -784,6 +812,8 @@ public:
             LOG_DEBUG(_T("default"));
             break;
         }
+
+        LOG_DEBUG(_T("LEAVE: out faces={}"), to_wstr(get_facestr()));
     }
 
     // 出力構造体の初期化
@@ -830,20 +860,20 @@ public:
     }
 
     mchar_t copyToTopString() {
-        _LOG_DEBUGH(_T("\nENTER: outStackStr={}"), OUTPUT_STACK->OutputStackBackStrForDebug(32));
+        LOG_DEBUGH(_T("\nENTER: outStackStr={}"), OUTPUT_STACK->OutputStackBackStrForDebug(32));
         size_t origLen = 0;
         // 打鍵途中なら打鍵中のキー文字列もミニバッファに表示する(ただし書き換えが存在しない場合のみ)
         // 書き換えありの場合、OrigString に '?' がアペンドされてしまうと、後で書き換えのときに同一部分判定で問題が生じるため
         if (STATE_COMMON->IsWaiting2ndStroke() && !(ROOT_STROKE_NODE && ROOT_STROKE_NODE->hasPostRewriteNode())) origLen = STATE_COMMON->OrigString().size();
         size_t topBufSize = utils::array_length(OutParams->topString);
         size_t prevMazeLen = MAZEGAKI_INFO ? MAZEGAKI_INFO->GetPrevOutputLen() : 0;
-        _LOG_DEBUGH(_T("topBufSize={}, origLen={}, prevMazeLen={}"), topBufSize, origLen, prevMazeLen);
+        LOG_DEBUGH(_T("topBufSize={}, origLen={}, prevMazeLen={}"), topBufSize, origLen, prevMazeLen);
         auto s = OUTPUT_STACK->OutputStackBackStrWithFlagUpto(topBufSize - origLen - 1, prevMazeLen);        // ブロッカーを反映した文字列を取得
-        _LOG_DEBUGH(_T("OutputStackBackStrWithFlagUpto({})={}"), (topBufSize - origLen - 1), to_wstr(s));
+        LOG_DEBUGH(_T("OutputStackBackStrWithFlagUpto({})={}"), (topBufSize - origLen - 1), to_wstr(s));
         size_t pos = copy_mstr(s, OutParams->topString, topBufSize);
         if (origLen > 0) copy_mstr(STATE_COMMON->OrigString(), OutParams->topString + pos, origLen);
         mchar_t lastChar = origLen == 0 ? OUTPUT_STACK->OutputStackLastChar() : 0;
-        _LOG_DEBUGH(_T("LEAVE: OutParams->topString={}, lastChar={}"), OutParams->topString, to_wstr(lastChar));
+        LOG_DEBUGH(_T("LEAVE: OutParams->topString={}, lastChar={}"), OutParams->topString, to_wstr(lastChar));
         return lastChar;
     }
 
@@ -896,10 +926,11 @@ public:
                 mchar_t* faces = STATE_COMMON->GetFaces();
                 size_t numFaces = STATE_COMMON->FacesSize();
                 pn->CopyChildrenFace(faces, numFaces);
-                for (size_t i = 0; i < numFaces; ++i) {
-                    //OutParams->faceStrings[i] = STATE_COMMON->faces[i];
-                    set_facestr(faces[i], OutParams->faceStrings + i * 2);
-                }
+                copy_facestr(faces, numFaces);
+                //for (size_t i = 0; i < numFaces; ++i) {
+                //    //OutParams->faceStrings[i] = STATE_COMMON->faces[i];
+                //    set_facestr(faces[i], OutParams->faceStrings + i * 2);
+                //}
             } else {
                 LOG_DEBUGH(_T("StrokeTable NOT FOUND"));
             }

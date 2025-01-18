@@ -6,7 +6,7 @@
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughState)
 
-#if 1 || defined(_DEBUG)
+#if 0 || defined(_DEBUG)
 #undef LOG_DEBUGH
 #undef _LOG_DEBUGH
 #define LOG_DEBUGH LOG_INFOH

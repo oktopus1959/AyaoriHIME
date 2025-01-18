@@ -64,10 +64,15 @@ struct DecoderOutParams
     // [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = 20)]
     wchar_t centerString[20];
 
-    // 仮想キーボードに表示する文字列 (レイアウトにより、 20x10 または 2x100 として扱う)
+    // 仮想キーボードに表示する文字列 (2x100 として扱う)
     // 配列文字長未満の場合は '\\0' 終端であること
     // [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = 200)]
     wchar_t faceStrings[200];
+
+    // 候補テーブルに表示する文字列 (20x10 として扱う)
+    // 配列文字長未満の場合は '\\0' 終端であること
+    // [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = 200)]
+    wchar_t candidateStrings[200];
 };
 
 // 長い鍵盤の文字長

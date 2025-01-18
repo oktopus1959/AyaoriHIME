@@ -1115,8 +1115,8 @@ namespace KanchokuWS
                 resetVkbControls(topText, 0, 0, 0);
                 int nRow = 0;
                 for (int i = 0; i < LongVkeyNum; ++i) {
-                    //logger.Info(decoderOutput.faceStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
-                    if (drawHorizontalCandidateCharsWithColor(decoderOutput, i, decoderOutput.faceStrings)) ++nRow;
+                    //logger.Info(decoderOutput.candidateStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
+                    if (drawHorizontalCandidateCharsWithColor(decoderOutput, i, decoderOutput.candidateStrings)) ++nRow;
                 }
                 dgvHorizontal.CurrentCell = null;   // どのセルも選択されていない状態にする
                 dgvHorizontal.Height = (int)(VkbCellHeight * nRow + 1);
@@ -1132,7 +1132,7 @@ namespace KanchokuWS
                 // 10件縦列配列(部首合成ヘルプを含む)
                 renewCandidateVerticalFont();
                 renewCenterVerticalFont();
-                var candArray = getCandidateStrings(decoderOutput.faceStrings);
+                var candArray = getCandidateStrings(decoderOutput.candidateStrings);
                 //float height = (int)(candArray.Select(s => calcCharsAsFullwide(s)).Max()._lowLimit(MinVerticalChars) * verticalFontInfo.CharHeight * 0.9) + 5;
                 float height = (float)(candArray.Select(s => calcCharsAsFullwide(s)).Max()._lowLimit(MinVerticalChars) * verticalFontInfo.CharHeight * Settings.VerticalFontHeightFactor) + 5;
                 float centerHeight = height._max(CommonState.CenterString._safeLength()._lowLimit(MinCenterChars) * centerFontInfo.CharHeight * Settings.VerticalFontHeightFactor + 5);
@@ -1141,14 +1141,14 @@ namespace KanchokuWS
                     drawVerticalVkbFrame(drawer.Gfx);
                     drawCenterCharsWithColor(drawer.Gfx, decoderOutput);
                     for (int i = 0; i < LongVkeyNum; ++i) {
-                        drawVerticalCandidateCharsWithColor(drawer.Gfx, decoderOutput, i, decoderOutput.faceStrings);
+                        drawVerticalCandidateCharsWithColor(drawer.Gfx, decoderOutput, i, decoderOutput.candidateStrings);
                     }
                 }
                 changeFormHeight(pictureBox_Main.Top + pictureBox_Main.Height + 1);
                 ShowNonActive();
                 return;
             }
-            if (decoderOutput.layout >= (int)VkbLayout.Normal && decoderOutput.layout < (int)VkbLayout.KanaTable) {
+            if (decoderOutput.layout >= (int)VkbLayout.Normal && decoderOutput.layout < (int)VkbLayout.KanaTable || decoderOutput.layout == (int)VkbLayout.MultiStreamCandidates) {
                 // 2打鍵目以降の通常配列
                 if (frmMain.IsVkbShown) {
                     resetVkbControls(topText, VkbNormalWidth, VkbPictureBoxHeight_Normal, VkbCenterBoxHeight_Normal);

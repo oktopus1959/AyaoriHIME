@@ -54,16 +54,22 @@ public:
         CreateNewStateChain();
         LOG_DEBUGH(_T("END: CreateNewStateChain: ========================"));
 
+        //LOG_DEBUGH(L"\nfaces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
+
         // 出力文字を取得する
         LOG_DEBUGH(_T("\nBEGIN: GetResultStringChain: ========================"));
         resultStr.clear();
         GetResultStringChain(resultStr);
         LOG_DEBUGH(_T("END: GetResultStringChain: ========================"));
 
+        //LOG_DEBUGH(L"\nfaces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
+
         // チェーンをたどって不要とマークされた後続状態を削除する
         LOG_DEBUGH(_T("\nBEGIN: DeleteUnnecessarySuccessorStateChain: ========================"));
         DeleteUnnecessarySuccessorStateChain();
         LOG_DEBUGH(_T("END: DeleteUnnecessarySuccessorStateChain: ========================"));
+
+        //LOG_DEBUGH(L"\nfaces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
         LOG_DEBUGH(_T("LEAVE: {}, NextNode={}, outStr={}\n================================\n"), Name, NODE_NAME(NextNodeMaybe()), to_wstr(resultStr.resultStr()));
         //return pNextNodeMaybe;

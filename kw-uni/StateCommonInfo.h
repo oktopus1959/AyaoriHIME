@@ -252,13 +252,6 @@ public:
         IncrementTotalDecKeyCount();
     }
 
-    void ClearFaces() {
-        wchar_t spc = _T(" ")[0];
-        for (size_t i = 0; i < utils::array_length(faces); ++i) {
-            faces[i] = spc;
-        }
-    }
-
     inline UINT32 GetResultFlags() { return (UINT32)resultFlags; }
     inline int GetNextExpectedKeyType() { return (int)nextExpectedKeyType; }
     inline int GetStrokeCount() { return strokeCount; }
@@ -393,6 +386,9 @@ public:
         setCenterString(center);
         setVirtualKeyboardStrings(lo, longKeys, pos);
     }
+
+    // 仮想鍵盤をクリアする
+    void ClearFaces();
 
 private:
     // 実行されている状態

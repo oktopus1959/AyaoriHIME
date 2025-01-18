@@ -2,7 +2,7 @@
 #include "mecab.h"
 #include "MecabBridge.h"
 
-#if 1
+#if 0
 #undef _LOG_INFOH
 #undef LOG_DEBUGH
 #if 0

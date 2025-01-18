@@ -16,23 +16,21 @@
 #include "MorphBridge.h"
 #include "Llama/LlamaBridge.h"
 
+#define _LOG_INFOH LOG_INFO
 #define _LOG_DETAIL LOG_DEBUG
-#define _LOG_INFOH LOG_INFOH
 #if 1
 #undef IS_LOG_DEBUGH_ENABLED
 #define IS_LOG_DEBUGH_ENABLED true
-#if 1
-#undef _LOG_DETAIL
-#define _LOG_DETAIL LOG_WARN
-#endif
 #undef _LOG_INFOH
+#undef _LOG_DETAIL
 #undef LOG_INFO
+#undef LOG_DEBUGH
 #undef LOG_DEBUG
-#undef _LOG_DEBUGH
 #define _LOG_INFOH LOG_WARN
+#define _LOG_DETAIL LOG_WARN
 #define LOG_INFO LOG_INFOH
+#define LOG_DEBUGH LOG_INFOH
 #define LOG_DEBUG LOG_INFOH
-#define _LOG_DEBUGH LOG_INFOH
 #endif
 
 namespace lattice2 {
@@ -306,7 +304,7 @@ namespace lattice2 {
 
     int _loadNgramFile(StringRef ngramFile, std::map<MString, int>& ngramMap) {
         auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
-        _LOG_INFOH(_T("LOAD: {}"), path.c_str());
+        LOG_INFO(_T("LOAD: {}"), path.c_str());
         int maxFreq = 0;
         utils::IfstreamReader reader(path);
         if (reader.success()) {
@@ -328,7 +326,7 @@ namespace lattice2 {
 
     void _loadKatakanaCostFile() {
         auto path = utils::joinPath(SETTINGS->rootDir, KATAKANA_COST_FILE);
-        _LOG_INFOH(_T("LOAD: {}"), path.c_str());
+        LOG_INFO(_T("LOAD: {}"), path.c_str());
         utils::IfstreamReader reader(path);
         if (reader.success()) {
             KatakanaWordCosts.clear();
@@ -349,7 +347,7 @@ namespace lattice2 {
 
     void _loadUserCostFile() {
         auto path = utils::joinPath(SETTINGS->rootDir, USER_COST_FILE);
-        _LOG_INFOH(_T("LOAD: {}"), path.c_str());
+        LOG_INFO(_T("LOAD: {}"), path.c_str());
         utils::IfstreamReader reader(path);
         if (reader.success()) {
             userWordCosts.clear();
@@ -379,7 +377,7 @@ namespace lattice2 {
     }
 
     void loadCostAndNgramFile(bool withNgramFile = false) {
-        _LOG_INFOH(L"ENTER: withNgramFile={}", withNgramFile);
+        LOG_INFO(L"ENTER: withNgramFile={}", withNgramFile);
         if (!withNgramFile) {
             systemMaxFreq = _loadNgramFile(SYSTEM_NGRAM_FILE, systemNgram);
             realtimeMaxFreq = _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgram);
@@ -387,15 +385,15 @@ namespace lattice2 {
         }
         _loadUserCostFile();
         makeInitialNgramCostMap();
-        _LOG_INFOH(L"LEAVE");
+        LOG_INFO(L"LEAVE");
     }
 
     void saveRealtimeNgramFile() {
-        _LOG_INFOH(L"CALLED: realtimeNgram_updated={}", realtimeNgram_updated);
+        LOG_INFO(L"CALLED: realtimeNgram_updated={}", realtimeNgram_updated);
         auto path = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
         if (realtimeNgram_updated) {
             if (utils::moveFileToBackDirWithRotation(path, SETTINGS->backFileRotationGeneration)) {
-                _LOG_INFOH(_T("SAVE: {}"), path.c_str());
+                LOG_INFO(_T("SAVE: {}"), path.c_str());
                 utils::OfstreamWriter writer(path);
                 if (writer.success()) {
                     for (const auto& pair : realtimeNgram) {
@@ -444,7 +442,7 @@ namespace lattice2 {
     }
 
     void raiseRealtimeNgram(const MString& str) {
-        _LOG_DEBUGH(L"CALLED: str={}", to_wstr(str));
+        LOG_DEBUGH(L"CALLED: str={}", to_wstr(str));
         int strlen = (int)str.size();
         for (int pos = 0; pos < strlen; ++pos) {
             if (!utils::is_japanese_char_except_nakaguro(str[pos])) continue;
@@ -463,7 +461,7 @@ namespace lattice2 {
     }
 
     void depressRealtimeNgram(const MString& str) {
-        _LOG_DEBUGH(L"CALLED: str={}", to_wstr(str));
+        LOG_DEBUGH(L"CALLED: str={}", to_wstr(str));
         int strlen = (int)str.size();
         for (int pos = 0; pos < strlen; ++pos) {
             if (!utils::is_japanese_char_except_nakaguro(str[pos])) continue;
@@ -790,16 +788,16 @@ namespace lattice2 {
             bool bRollOverStroke = STATE_COMMON->IsRollOverStroke();
             _LOG_DETAIL(_T("bRollOverStroke={}"), bRollOverStroke);
             while (maxlen > 0) {
-                _LOG_DEBUGH(_T("maxlen={}"), maxlen);
+                LOG_DEBUGH(_T("maxlen={}"), maxlen);
                 const MString targetStr = utils::safe_tailstr(_str, maxlen);
-                _LOG_DEBUGH(_T("targetStr={}"), to_wstr(targetStr));
+                LOG_DEBUGH(_T("targetStr={}"), to_wstr(targetStr));
                 if (targetStr.empty()) break;
 
                 const RewriteInfo* rewInfo = 0;
                 if (bRollOverStroke) rewInfo = rewriteNode->getRewriteInfo(targetStr + MSTR_PLUS);        // ロールオーバー打ちのときは"+"を付加したエントリを検索
                 if (!rewInfo) rewInfo = rewriteNode->getRewriteInfo(targetStr);
                 if (rewInfo) {
-                    _LOG_DEBUGH(_T("REWRITE_INFO found: outStr={}, rewritableLen={}, subTable={:p}"), to_wstr(rewInfo->rewriteStr), rewInfo->rewritableLen, (void*)rewInfo->subTable);
+                    LOG_DEBUGH(_T("REWRITE_INFO found: outStr={}, rewritableLen={}, subTable={:p}"), to_wstr(rewInfo->rewriteStr), rewInfo->rewritableLen, (void*)rewInfo->subTable);
                     return { rewInfo, (int)targetStr.size() };
                 }
 
@@ -832,7 +830,7 @@ namespace lattice2 {
                         }
                         //mchar_t m = BUSHU_DIC->FindAutoComposite(_str.back(), piece.getString().front());
                         ////if (m == 0) m = BUSHU_DIC->FindComposite(_str.back(), piece.getString().front(), 0);
-                        //_LOG_DEBUGH(_T("BUSHU_DIC->FindAutoComposite({}, {}) -> {}"),
+                        //LOG_DEBUGH(_T("BUSHU_DIC->FindAutoComposite({}, {}) -> {}"),
                         //    to_wstr(utils::safe_tailstr(_str, 1)), to_wstr(utils::safe_substr(piece.getString(), 0, 1)), to_wstr(m));
                         //if (m != 0) {
                         //    MString s(_str);
@@ -851,7 +849,7 @@ namespace lattice2 {
                 if (_str.size() >= 2) {
                     // 部首合成の実行
                     MString ms = BUSHU_COMP_NODE->ReduceByBushu(_str[_str.size() - 2], _str[_str.size() - 1]);
-                    _LOG_DEBUGH(_T("BUSHU_COMP_NODE->ReduceByBushu({}, {}) -> {}"),
+                    LOG_DEBUGH(_T("BUSHU_COMP_NODE->ReduceByBushu({}, {}) -> {}"),
                         to_wstr(_str[_str.size() - 2]), to_wstr(_str[_str.size() - 1]), to_wstr(ms));
                     if (!ms.empty()) {
                         MString s(_str.substr(0, _str.size() - 2));
@@ -859,7 +857,7 @@ namespace lattice2 {
                         return s;
                     }
                     //mchar_t m = BUSHU_DIC->FindComposite(_str[_str.size() - 2], _str[_str.size() - 1], '\0');
-                    //_LOG_DEBUGH(_T("BUSHU_DIC->FindComposite({}, {}) -> {}"),
+                    //LOG_DEBUGH(_T("BUSHU_DIC->FindComposite({}, {}) -> {}"),
                     //    to_wstr(_str[_str.size() - 2]), to_wstr(_str[_str.size() - 1]), to_wstr(m));
                     //if (m != 0) {
                     //    MString s(_str.substr(0, _str.size() - 2));
@@ -898,7 +896,7 @@ namespace lattice2 {
                     }
                     // 書き換えない候補も追加
                     // 複数文字が設定されたストロークの扱い
-                    _LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
+                    LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
                     for (MString s : split_piece_str(piece.rewriteNode()->getString())) {
                         ss.push_back(_str + s);
                     }
@@ -912,7 +910,7 @@ namespace lattice2 {
                         }
                     } else {
                         // 複数文字が設定されたストロークの扱い
-                        _LOG_DEBUGH(_T("normalNode: {}"), to_wstr(piece.getString()));
+                        LOG_DEBUGH(_T("normalNode: {}"), to_wstr(piece.getString()));
                         for (MString s : split_piece_str(piece.getString())) {
                             ss.push_back(_str + s);
                         }
@@ -1001,7 +999,7 @@ namespace lattice2 {
         size_t nSameLen = getNumOfSameStrokeLen(candidates);
         if (nSameLen > 1) {
             arrangePenalties(candidates, nSameLen);
-            _LOG_INFOH(_T("CALLED: First candidate preferred."));
+            LOG_INFO(_T("CALLED: First candidate preferred."));
         }
     }
 
@@ -1065,7 +1063,7 @@ namespace lattice2 {
         }
 
         void clearKbests(bool clearAll) {
-            //_LOG_INFOH(L"CALLED: clearAll={}", clearAll);
+            //LOG_INFO(L"CALLED: clearAll={}", clearAll);
             _candidates.clear();
             _bestStack.clear();
             _highFreqJoshiStroke.clear();
@@ -1238,7 +1236,7 @@ namespace lattice2 {
         float calcLlamaLoss(const MString& s) {
             std::vector<float> logits;
             auto loss = LlamaBridge::llamaCalcCost(s, logits);
-            _LOG_INFOH(L"{}: loss={}, logits={}", to_wstr(s), loss, utils::join_primitive(logits, L","));
+            LOG_INFO(L"{}: loss={}, logits={}", to_wstr(s), loss, utils::join_primitive(logits, L","));
             return loss;
         }
 
@@ -1246,13 +1244,13 @@ namespace lattice2 {
             std::vector<float> logits;
             auto loss = s.size() > 1 ? LlamaBridge::llamaCalcCost(s, logits) : 2.0f;
             int cost = (int)((loss / s.size()) * 1000);
-            _LOG_INFOH(L"{}: loss={}, cost={}, logits={}", to_wstr(s), loss, cost, utils::join_primitive(logits, L","));
+            LOG_INFO(L"{}: loss={}, cost={}, logits={}", to_wstr(s), loss, cost, utils::join_primitive(logits, L","));
             return cost;
         }
 
         // 2つの文字列の末尾文字列の共通部分が指定の長さより長いか、または全く同じ文字列か
         bool hasLongerCommonSuffixThanOrSameStr(const MString& str1, const MString& str2, int len) {
-            _LOG_DEBUGH(_T("ENTER: str1={}, str2={}, len={}"), to_wstr(str1), to_wstr(str2), len);
+            LOG_DEBUGH(_T("ENTER: str1={}, str2={}, len={}"), to_wstr(str1), to_wstr(str2), len);
             int n1 = (int)str1.size();
             int n2 = (int)str2.size();
             while (n1 > 0 && n2 > 0 && len > 0) {
@@ -1262,13 +1260,13 @@ namespace lattice2 {
                 --len;
             }
             bool result = len == 0 || (n1 == 0 && n2 == 0);
-            _LOG_DEBUGH(_T("LEAVE: remainingLen: {}: str1={}, str2={}, common={}"), utils::boolToString(result), n1, n2, len);
+            LOG_DEBUGH(_T("LEAVE: remainingLen: {}: str1={}, str2={}, common={}"), utils::boolToString(result), n1, n2, len);
             return result;
         }
 
         // 新しい候補を追加
         bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, bool isStrokeBS) {
-            _LOG_INFOH(_T("ENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
+            LOG_INFO(_T("ENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
             bool bAdded = false;
             bool bIgnored = false;
             const MString& candStr = newCandStr.string();
@@ -1293,7 +1291,7 @@ namespace lattice2 {
 
             int totalCost = newCandStr.totalCost();
 
-            _LOG_INFOH(_T("CALLED: candStr={}, totalCost={}, candCost={} (morph={}[{}], ngram={})"),
+            LOG_INFO(_T("CALLED: candStr={}, totalCost={}, candCost={} (morph={}[{}], ngram={})"),
                 to_wstr(candStr), totalCost, candCost, morphCost, to_wstr(utils::join(words, ' ')), ngramCost);
 
             if (IS_LOG_DEBUGH_ENABLED) {
@@ -1304,7 +1302,7 @@ namespace lattice2 {
             if (!newCandidates.empty()) {
                 for (auto iter = newCandidates.begin(); iter != newCandidates.end(); ++iter) {
                     int otherCost = iter->totalCost();
-                    _LOG_DEBUGH(_T("    otherStr={}, otherCost={}"), to_wstr(iter->string()), otherCost);
+                    LOG_DEBUGH(_T("    otherStr={}, otherCost={}"), to_wstr(iter->string()), otherCost);
                     if (totalCost < otherCost) {
                         iter = newCandidates.insert(iter, newCandStr);    // iter は挿入したノードを指す
                         bAdded = true;
@@ -1313,7 +1311,7 @@ namespace lattice2 {
                             if (hasLongerCommonSuffixThanOrSameStr(candStr, iter->string(), LastSameLen)) {
                                 // 末尾文字列の共通部分が指定の長さより長いか、同じ文字列
                                 newCandidates.erase(iter);
-                                _LOG_DEBUGH(_T("    REMOVE second best or lesser candidate"));
+                                LOG_DEBUGH(_T("    REMOVE second best or lesser candidate"));
                                 break;
                             }
                         }
@@ -1340,7 +1338,7 @@ namespace lattice2 {
             } else {
                 _LOG_DETAIL(_T("    ABANDON candidate: {}, totalCost={}"), to_wstr(candStr), totalCost);
             }
-            _LOG_INFOH(_T("LEAVE: {}, newCandidates.size={}"), bAdded ? L"ADD" : L"ABANDON", newCandidates.size());
+            LOG_INFO(_T("LEAVE: {}, newCandidates.size={}"), bAdded ? L"ADD" : L"ABANDON", newCandidates.size());
             return bAdded;
         }
 
@@ -1459,13 +1457,13 @@ namespace lattice2 {
 
         //// Strokeを一つ進める
         //void advanceStroke(std::vector<CandidateString>& newCandidates) {
-        //    _LOG_INFOH(L"ENTER: _candidates.size={}", _candidates.size());
+        //    LOG_INFO(L"ENTER: _candidates.size={}", _candidates.size());
         //    for (const auto& cand : _candidates) {
         //        CandidateString newCand(cand, 1);
         //        _LOG_DETAIL(L"add cand={}", newCand.debugString());
         //        newCandidates.push_back(newCand);
         //    }
-        //    _LOG_INFOH(L"LEAVE: {} candidates", newCandidates.size());
+        //    LOG_INFO(L"LEAVE: {} candidates", newCandidates.size());
         //}
 
         // llama-loss の小さい順に候補を並べ直す
@@ -1592,7 +1590,7 @@ namespace lattice2 {
 
     public:
         void setKanjiPreferredNextCands() {
-            //_LOG_INFOH(L"ENTER");
+            //LOG_INFO(L"ENTER");
             _kanjiPreferredNextCands.clear();
             if (!_candidates.empty()) {
                 int topStrokeCnt = _candidates.front().strokeLen();
@@ -1602,7 +1600,7 @@ namespace lattice2 {
                 }
             }
             if (_kanjiPreferredNextCands.empty()) _kanjiPreferredNextCands.insert(EMPTY_MSTR);
-            //_LOG_INFOH(L"LEAVE: kanjiPreferredNextCands={}", kanjiPreferredNextCandsDebug());
+            //LOG_INFO(L"LEAVE: kanjiPreferredNextCands={}", kanjiPreferredNextCandsDebug());
         }
 
         String kanjiPreferredNextCandsDebug() const {
@@ -1622,7 +1620,7 @@ namespace lattice2 {
             //size_t nSameLen = getNumOfSameStrokeLen();
             //if (nSameLen > 1) {
             //    arrangePenalties(nSameLen);
-            //    _LOG_INFOH(_T("CALLED: First candidate preferred."));
+            //    LOG_INFO(_T("CALLED: First candidate preferred."));
             //}
             lattice2::selectFirst(_candidates);
             resetOrigFirstCand();
@@ -1688,13 +1686,13 @@ namespace lattice2 {
 
         // 前回生成された文字列との共通する先頭部分の長さ
         size_t calcCommonPrefixLenWithPrevStr(const MString& outStr) {
-            _LOG_DEBUGH(_T("ENTER: outStr={}, prevStr={}"), to_wstr(outStr), to_wstr(_prevOutputStr));
+            LOG_DEBUGH(_T("ENTER: outStr={}, prevStr={}"), to_wstr(outStr), to_wstr(_prevOutputStr));
             size_t n = 0;
             while (n < outStr.size() && n < _prevOutputStr.size()) {
                 if (outStr[n] != _prevOutputStr[n]) break;
                 ++n;
             }
-            _LOG_DEBUGH(_T("LEAVE: commonLen={}"), n);
+            LOG_DEBUGH(_T("LEAVE: commonLen={}"), n);
             return n;
         }
 
@@ -1708,9 +1706,9 @@ namespace lattice2 {
         bool areAllPiecesNonJaChar(const std::vector<WordPiece>& pieces) {
             for (const auto iter : pieces) {
                 MString s = pieces.front().getString();
-                //_LOG_INFOH(_T("s: len={}, str={}"), s.size(), to_wstr(s));
+                //LOG_INFO(_T("s: len={}, str={}"), s.size(), to_wstr(s));
                 if (s.size() != 1 || utils::is_japanese_char_except_nakaguro(s.front())) {
-                    //_LOG_INFOH(_T("FALSE"));
+                    //LOG_INFO(_T("FALSE"));
                     return false;
                 }
             }
@@ -1789,7 +1787,7 @@ namespace lattice2 {
             if (_startStrokeCount == 0) _startStrokeCount = totalStrokeCount;
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
 
-            //_LOG_DEBUGH(_T("ENTER: currentStrokeCount={}, pieces: {}\nkBest:\n{}"), currentStrokeCount, formatStringOfWordPieces(pieces), _kBestList.debugString());
+            //LOG_DEBUGH(_T("ENTER: currentStrokeCount={}, pieces: {}\nkBest:\n{}"), currentStrokeCount, formatStringOfWordPieces(pieces), _kBestList.debugString());
             _LOG_DETAIL(_T("ENTER: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, kanjiPref={}, strokeBack={}, rollOver={}, pieces: {}"),
                 _kBestList.size(), _kBestList.origFirstCand(), totalStrokeCount, currentStrokeCount, kanjiPreferredNext, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
 
@@ -1799,6 +1797,7 @@ namespace lattice2 {
                 return LatticeResult::emptyResult();
             }
 
+            //LOG_DEBUGH(L"A:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             // endPos における空の k-best path リストを取得
 
             //if (pieces.size() == 1) {
@@ -1815,12 +1814,16 @@ namespace lattice2 {
                 _LOG_DETAIL(L"KANJI PREFERRED NEXT");
                 // 現在の先頭候補を最優先に設定し、
                 selectFirst();
+                //LOG_DEBUGH(L"C:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
                 // 次のストロークを漢字優先とする
                 _kBestList.setKanjiPreferredNextCands();
                 if (_startStrokeCount == 1) _startStrokeCount = 0;  // 先頭での漢字優先なら、0 クリアしておく(この後、clear()が呼ばれるので、それと状態を合わせるため)
+                //LOG_DEBUGH(L"D:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
                 _kanjiPreferredSettingDt = utils::getSecondsFromEpochTime();
+                //LOG_DEBUGH(L"E:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             }
 
+            //LOG_DEBUGH(L"F:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             _LOG_DETAIL(L"_kBestList.size={}", _kBestList.size());
 
             //// すべての単語素片が1文字で、それが漢字・ひらがな・カタカナ以外だったら、現在の先頭候補を優先させる
@@ -1828,13 +1831,13 @@ namespace lattice2 {
             //    _LOG_DETAIL(L"ALL PIECES NON JA CHAR");
             //    selectFirst();
             //}
-
-            _LOG_DETAIL(L"_kBestList.size={}", _kBestList.size());
+            //_LOG_DETAIL(L"_kBestList.size={}", _kBestList.size());
 
             // 候補リストの更新
             _kBestList.updateKBestList(pieces, currentStrokeCount, strokeBack);
 
-            //_LOG_DEBUGH(_T(".\nresult kBest:\n{}"), pKBestList->debugString());
+            //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
+            //LOG_DEBUGH(_T(".\nresult kBest:\n{}"), pKBestList->debugString());
             size_t numBS = 0;
             MString outStr = _kBestList.getTopString();
             size_t commonLen = calcCommonPrefixLenWithPrevStr(outStr);
@@ -1852,6 +1855,7 @@ namespace lattice2 {
                 }
             }
 
+            //LOG_DEBUGH(L"H:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             // 解候補を仮想鍵盤に表示する
             std::vector<MString> candStrings = _kBestList.getTopCandStrings();
             if (candStrings.size() > 1) {
@@ -1859,23 +1863,24 @@ namespace lattice2 {
                 STATE_COMMON->SetWaitingCandSelect(_kBestList.selectedCandPos());
             }
 
+            //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             return LatticeResult(outStr, numBS);
         }
 
         void saveCandidateLog() override {
-            _LOG_INFOH(_T("ENTER"));
+            LOG_INFO(_T("ENTER"));
             String result;
             while (!_debugLogQueue.empty()) {
                 result.append(_debugLogQueue.front());
                 _debugLogQueue.pop_front();
             }
-            _LOG_INFOH(L"result: {}", result);
+            LOG_INFO(L"result: {}", result);
             utils::OfstreamWriter writer(utils::joinPath(SETTINGS->rootDir, SETTINGS->mergerCandidateFile));
             if (writer.success()) {
                 writer.writeLine(utils::utf8_encode(result));
-                _LOG_INFOH(_T("result written"));
+                LOG_INFO(_T("result written"));
             }
-            _LOG_INFOH(_T("LEAVE"));
+            LOG_INFO(_T("LEAVE"));
         }
     };
     DEFINE_CLASS_LOGGER(LatticeImpl);

@@ -17,7 +17,7 @@
 
 #define DONT_READ_MAZEDIC_ON_DEBUG 1
 
-#if 1
+#if 0
 #undef _DEBUG_SENT
 #undef _DEBUG_FLAG
 #undef LOG_INFO

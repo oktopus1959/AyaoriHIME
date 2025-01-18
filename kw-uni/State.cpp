@@ -439,6 +439,7 @@ size_t State::StrokeTableChainLength() const {
 
 //仮想鍵盤にストロークヘルプの情報を設定する
 void State::copyStrokeHelpToVkbFaces(wchar_t ch) {
+    LOG_DEBUGH(L"ENTER: ch={}", ch);
     STATE_COMMON->SetCenterString(ch);
     STATE_COMMON->ClearFaces();
     if (STROKE_HELP->copyStrokeHelpToVkbFacesStateCommon(ch, STATE_COMMON->GetFaces())) {
@@ -446,11 +447,13 @@ void State::copyStrokeHelpToVkbFaces(wchar_t ch) {
     } else {
         STATE_COMMON->ClearVkbLayout();
     }
+    LOG_DEBUGH(L"LEAVE");
 }
 
 //仮想鍵盤にストロークヘルプの情報を設定する(outStringの先頭文字)
 void State::copyStrokeHelpToVkbFaces() {
     if (!resultStr.resultStr().empty()) {
+        LOG_DEBUGH(L"CALLED: resultStr={}", to_wstr(resultStr.resultStr()));
         copyStrokeHelpToVkbFaces((wchar_t)utils::safe_front(resultStr.resultStr()));
     }
 }

@@ -10,7 +10,7 @@
 #include "Lattice.h"
 #include "Mecab/MecabBridge.h"
 
-#if 1
+#if 0
 #undef IS_LOG_DEBUGH_ENABLED
 #define IS_LOG_DEBUGH_ENABLED true
 #undef _LOG_INFOH
