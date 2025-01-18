@@ -165,7 +165,7 @@ namespace {
         //    return result;
         //}
 
-        void AppendWordPiece(std::vector<WordPiece>& pieces, bool /*bExcludeHiragana*/, bool /*bKatakanaConversion*/) {
+        void AppendWordPiece(std::vector<WordPiece>& pieces, bool /*bExcludeHiragana*/) {
             if (NextState()) {
                 LOG_DEBUGH(_T("ENTER"));
                 MStringResult result;
@@ -357,13 +357,13 @@ namespace {
         }
 
         // 出力文字を取得する
-        void AddWordPieces(std::vector<WordPiece>& pieces, bool bExcludeHiragana, bool bKatakanaConversion) {
+        void AddWordPieces(std::vector<WordPiece>& pieces, bool bExcludeHiragana) {
             LOG_DEBUGH(_T("ENTER: {}: streamNum={}"), name, Count());
             //for (const auto& pState : strokeChannelList) {
             //    pState->AppendWordPiece(pieces, bExcludeHiragana);
             //}
-            forEach([&pieces, bExcludeHiragana, bKatakanaConversion](const StrokeStreamUptr& pStream) {
-                pStream->AppendWordPiece(pieces, bExcludeHiragana, bKatakanaConversion);
+            forEach([&pieces, bExcludeHiragana](const StrokeStreamUptr& pStream) {
+                pStream->AppendWordPiece(pieces, bExcludeHiragana);
             });
             LOG_DEBUGH(_T("LEAVE: {}"), name);
         }
@@ -467,6 +467,7 @@ namespace {
                         //    break;
                     case MULTI_STREAM_COMMIT_DECKEY:
                         LOG_DEBUGH(_T("EnterKey: clear streamList"));
+                        _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
                         OUTPUT_STACK->setMazeBlocker();
                         //MarkUnnecessary();
@@ -513,6 +514,7 @@ namespace {
                         break;
                     case TOGGLE_ZENKAKU_CONVERSION_DECKEY:
                         LOG_DEBUGH(_T("TOGGLE_ZENKAKU_CONVERSION"));
+                        _isKatakanaConversionMode = false;
                         if (!NextNodeMaybe()) {
                             WORD_LATTICE->clearAll();
                             SetNextNodeMaybe(ZENKAKU_NODE);
@@ -520,11 +522,12 @@ namespace {
                         break;
                     case TOGGLE_KATAKANA_CONVERSION_DECKEY:
                         LOG_DEBUGH(_T("TOGGLE_KATAKANA_CONVERSION"));
-                        //_isKatakanaConversionMode = !_isKatakanaConversionMode;
+                        _isKatakanaConversionMode = !_isKatakanaConversionMode;
                         break;
                     case EISU_MODE_TOGGLE_DECKEY:
                     //case EISU_CONVERSION_DECKEY:
                         LOG_DEBUGH(_T("EISU_MODE_TOGGLE"));
+                        _isKatakanaConversionMode = false;
                         if (!NextNodeMaybe()) {
                             WORD_LATTICE->clearAll();
                             EISU_NODE->blockerNeeded = true; // 入力済み末尾にブロッカーを設定する
@@ -556,9 +559,11 @@ namespace {
                     case CLEAR_STROKE_DECKEY:
                         _LOG_DETAIL(_T("CLEAR_STROKE_DECKEY: DO NOTHING"));
                         // Do nothing
+                        _isKatakanaConversionMode = false;
                         break;
                     default:
                         LOG_DEBUGH(_T("OTHER"));
+                        _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
                         //MarkUnnecessary();
                         State::dispatchDeckey(deckey);
@@ -604,6 +609,9 @@ namespace {
                 }
             }
 
+            if (_isKatakanaConversionMode) {
+                STATE_COMMON->SetCenterString(L'カ');
+            }
             _LOG_INFOH(_T("LEAVE\n"));
         }
 
@@ -651,9 +659,9 @@ namespace {
                     //LOG_DEBUGH(L"D:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
                 } else {
                     LOG_DEBUGH(_T("streamList1: AddWordPieces"));
-                    _streamList1.AddWordPieces(pieces, false, _isKatakanaConversionMode);
+                    _streamList1.AddWordPieces(pieces, false);
                     LOG_DEBUGH(_T("streamList2: AddWordPieces"));
-                    _streamList2.AddWordPieces(pieces, false, _isKatakanaConversionMode);
+                    _streamList2.AddWordPieces(pieces, false);
 
                     Node* pNextNode1 = _streamList1.GetNonStringNode();
                     Node* pNextNode2 = _streamList2.GetNonStringNode();
@@ -740,7 +748,7 @@ namespace {
                 }
             }
             //LOG_DEBUGH(L"L:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
-            return WORD_LATTICE->addPieces(pieces, _kanjiPreferredNext, _strokeBack);
+            return WORD_LATTICE->addPieces(pieces, _kanjiPreferredNext, _strokeBack, _isKatakanaConversionMode);
         }
 
         // チェーンをたどって不要とマークされた後続状態を削除する

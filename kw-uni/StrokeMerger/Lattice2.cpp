@@ -806,6 +806,25 @@ namespace lattice2 {
             return { 0, 0 };
         }
 
+        std::vector<MString> split_piece_str(const MString& s) const {
+            if (s.size() == 1 && s.front() == '|') {
+                return std::vector<MString>(1, s);
+            } else {
+                return utils::split(s, '|');
+            }
+        }
+
+        MString convertoToKatakanaIfAny(const MString& str, bool bKatakana) const {
+            MString result = str;
+            if (bKatakana) {
+                for (size_t i = 0; i < result.size(); ++i) {
+                    mchar_t ch = (wchar_t)result[i];
+                    if (utils::is_hiragana(ch)) { result[i] = utils::hiragana_to_katakana(ch); }
+                }
+            }
+            return result;
+        }
+
     public:
         CandidateString() : _strokeLen(0), _cost(0), _penalty(0) {
         }
@@ -869,16 +888,8 @@ namespace lattice2 {
             return EMPTY_MSTR;
         }
 
-        std::vector<MString> split_piece_str(const MString& s) const {
-            if (s.size() == 1 && s.front() == '|') {
-                return std::vector<MString>(1, s);
-            } else {
-                return utils::split(s, '|');
-            }
-        }
-
         // 単語素片を末尾に適用してみる
-        std::vector<MString> applyPiece(const WordPiece& piece, int strokeCount) const {
+        std::vector<MString> applyPiece(const WordPiece& piece, int strokeCount, bool bKatakanaConversion) const {
             std::vector<MString> ss;
             if (_strokeLen + piece.strokeLen() == strokeCount) {
                 // 素片のストローク数が適合した
@@ -898,7 +909,7 @@ namespace lattice2 {
                     // 複数文字が設定されたストロークの扱い
                     LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
                     for (MString s : split_piece_str(piece.rewriteNode()->getString())) {
-                        ss.push_back(_str + s);
+                        ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
                     }
                 } else {
                     int numBS = piece.numBS();
@@ -912,7 +923,7 @@ namespace lattice2 {
                         // 複数文字が設定されたストロークの扱い
                         LOG_DEBUGH(_T("normalNode: {}"), to_wstr(piece.getString()));
                         for (MString s : split_piece_str(piece.getString())) {
-                            ss.push_back(_str + s);
+                            ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
                         }
                     }
                 }
@@ -1344,7 +1355,7 @@ namespace lattice2 {
 
     private:
         // 素片のストロークと適合する候補だけを追加
-        void addOnePiece(std::vector<CandidateString>& newCandidates, const WordPiece& piece, int strokeCount) {
+        void addOnePiece(std::vector<CandidateString>& newCandidates, const WordPiece& piece, int strokeCount, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("ENTER: _candidates.size={}, piece={}"), _candidates.size(), piece.debugString());
             bool bAutoBushuFound = false;           // 自動部首合成は一回だけ実行する
             bool isStrokeBS = piece.numBS() > 0;
@@ -1384,7 +1395,7 @@ namespace lattice2 {
                             bAutoBushuFound = true;
                         }
                     }
-                    std::vector<MString> ss = cand.applyPiece(piece, strokeCount);
+                    std::vector<MString> ss = cand.applyPiece(piece, strokeCount, bKatakanaConversion);
                     for (MString s : ss) {
                         CandidateString newCandStr(s, strokeCount, 0, penalty);
                         addCandidate(newCandidates, newCandStr, isStrokeBS);
@@ -1483,7 +1494,7 @@ namespace lattice2 {
         }
 
         // return: strokeBack による戻しがあったら、先頭を優先する
-        std::vector<CandidateString> _updateKBestList_sub(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack) {
+        std::vector<CandidateString> _updateKBestList_sub(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("CALLED"));
             std::vector<CandidateString> newCandidates;
             if (strokeBack) {
@@ -1504,7 +1515,7 @@ namespace lattice2 {
             // BS でないか、以前の候補が無くなっていた
             for (const auto& piece : pieces) {
                 // 素片のストロークと適合する候補だけを追加
-                addOnePiece(newCandidates, piece, strokeCount);
+                addOnePiece(newCandidates, piece, strokeCount, bKatakanaConversion);
             }
 
             //sortByLlamaLoss(newCandidates);
@@ -1525,10 +1536,10 @@ namespace lattice2 {
         }
 
         // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
-        std::vector<CandidateString> _updateKBestList_initial(const CandidateString& dummyCand, const WordPiece& piece, int strokeCount) {
+        std::vector<CandidateString> _updateKBestList_initial(const CandidateString& dummyCand, const WordPiece& piece, int strokeCount, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("CALLED: dummyCand.string()={}, piece.string()={}, strokeCount={}"), to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount);
             std::vector<CandidateString> newCandidates;
-            std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount);
+            std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, bKatakanaConversion);
             for (MString s : ss) {
                 CandidateString newCandStr(s, strokeCount, 0, 0);
                 newCandidates.push_back(newCandStr);
@@ -1539,7 +1550,7 @@ namespace lattice2 {
 
     public:
         // strokeCount: lattice に最初に addPieces() した時からの相対的なストローク数
-        void updateKBestList(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack) {
+        void updateKBestList(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("ENTER: _candidates.size()={}, pieces.size()={}, strokeCount={}, strokeBack={}"), _candidates.size(), pieces.size(), strokeCount, strokeBack);
             _debugLog.clear();
 
@@ -1550,9 +1561,9 @@ namespace lattice2 {
 
             if (!strokeBack && _candidates.size() == 1 && _candidates.front().string().empty() && pieces.size() == 1) {
                 // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
-                _candidates = std::move(_updateKBestList_initial(_candidates.front(), pieces.front(), strokeCount));
+                _candidates = std::move(_updateKBestList_initial(_candidates.front(), pieces.front(), strokeCount, bKatakanaConversion));
             } else {
-                _candidates = std::move(_updateKBestList_sub(pieces, strokeCount, strokeBack));
+                _candidates = std::move(_updateKBestList_sub(pieces, strokeCount, strokeBack, bKatakanaConversion));
             }
 
             //// 漢字またはカタカナが2文字以上連続したら、その候補を優先する
@@ -1782,7 +1793,7 @@ namespace lattice2 {
     public:
         // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
         // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
-        LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool kanjiPreferredNext, bool strokeBack) override {
+        LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool kanjiPreferredNext, bool strokeBack, bool bKatakanaConversion) override {
             int totalStrokeCount = (int)(STATE_COMMON->GetTotalDecKeyCount());
             if (_startStrokeCount == 0) _startStrokeCount = totalStrokeCount;
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
@@ -1834,7 +1845,7 @@ namespace lattice2 {
             //_LOG_DETAIL(L"_kBestList.size={}", _kBestList.size());
 
             // 候補リストの更新
-            _kBestList.updateKBestList(pieces, currentStrokeCount, strokeBack);
+            _kBestList.updateKBestList(pieces, currentStrokeCount, strokeBack, bKatakanaConversion);
 
             //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             //LOG_DEBUGH(_T(".\nresult kBest:\n{}"), pKBestList->debugString());
