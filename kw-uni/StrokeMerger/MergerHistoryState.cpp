@@ -542,6 +542,7 @@ namespace {
                     case MAZE_CONVERSION_DECKEY:
                         LOG_DEBUGH(_T("MAZE_CONVERSION"));
                         if (!NextNodeMaybe()) {
+                            OUTPUT_STACK->pushNewString(WORD_LATTICE->getFirst());
                             WORD_LATTICE->clearAll();
                             if (!MAZEGAKI_INFO || !MAZEGAKI_INFO->RevertPrevXfer(resultStr)) {
                                 SetNextNodeMaybe(MAZEGAKI_NODE);

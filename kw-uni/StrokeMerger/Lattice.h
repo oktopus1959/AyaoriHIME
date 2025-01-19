@@ -147,6 +147,8 @@ public:
 
     virtual bool isEmpty() = 0;
 
+    virtual MString getFirst() const = 0;
+
     virtual void selectFirst() = 0;
 
     virtual void selectNext() = 0;

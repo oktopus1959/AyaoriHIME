@@ -63,6 +63,11 @@ public:
         _resize();
     }
 
+    inline void pushNewString(const MString& str) {
+        pushNewLine();
+        push(str);
+    }
+
     // 改行は、全ブロッカーとなる
     inline void pushNewLine() {
         push('\n');

@@ -1625,6 +1625,13 @@ namespace lattice2 {
             }
         }
 
+        // 先頭候補を取得する
+        MString getFirst() const {
+            _LOG_DETAIL(_T("CALLED"));
+            if (_candidates.empty()) return MString();
+            return _candidates.front().string();
+        }
+
         // 先頭候補を最優先候補にする
         void selectFirst() {
             _LOG_DETAIL(_T("ENTER: _origFirstCand={}"), _origFirstCand);
@@ -1765,6 +1772,12 @@ namespace lattice2 {
         bool isEmpty() override {
             //_LOG_DETAIL(_T("CALLED: isEmpty={}"), _kBestList.isEmpty());
             return _kBestList.isEmpty();
+        }
+
+        // 先頭候補を取得する
+        MString getFirst() const override {
+            _LOG_DETAIL(_T("CALLED"));
+            return _kBestList.getFirst();
         }
 
         // 先頭候補を最優先候補にする
