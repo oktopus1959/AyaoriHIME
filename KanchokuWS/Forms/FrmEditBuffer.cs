@@ -88,9 +88,16 @@ namespace KanchokuWS.Forms
             if (str._isEmpty() && numBS <= 0 && !bFlush) return;
 
             if (editTextBox.Text._isEmpty() && (str._isEmpty() || HandlerUtils.IsFKeySpec(str) || HandlerUtils.IsTernaryOperator(str))) {
-                // 何もせずに、呼び出し元に任せる
-                //logger.InfoH(() => $"REDIRECT: SendStringViaClipboardIfNeeded({str}, {numBS}, true)");
-                SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(chars, numBS, true);
+                logger.InfoH($"REDIRECT");
+                var kf = HandlerUtils.GetFKeySpec(str);
+                if (kf != null && kf.IsFunction) {
+                    logger.InfoH($"CALL: FuncDispatcher({kf.DecKey})");
+                    frmMain.FuncDispatcher(kf.DecKey, -1, 0, false);
+                } else {
+                    // 何もせずに、呼び出し元に任せる
+                    logger.InfoH(() => $"CALL: SendStringViaClipboardIfNeeded({str}, {numBS}, true)");
+                    SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(chars, numBS, true);
+                }
                 return;
             }
 
@@ -112,7 +119,7 @@ namespace KanchokuWS.Forms
 
             void handleFunctionalKey(string fkey)
             {
-                //logger.InfoH($"fkey={fkey}");
+                logger.InfoH($"handleFunctionalKey: fkey={fkey}");
                 switch (fkey) {
                     case "Left":
                         logger.InfoH($"Left");
@@ -167,6 +174,14 @@ namespace KanchokuWS.Forms
                         preText = "";
                         postText = "";
                         toAbort = true;
+                        break;
+                    default:
+                        logger.InfoH($"Check FkeySpec");
+                        var kf = SpecialKeysAndFunctions.GetKeyOrFuncByName(fkey);
+                        if (kf != null && kf.IsFunction) {
+                            logger.InfoH($"CALL: FuncDispatcher({kf.DecKey})");
+                            frmMain.FuncDispatcher(kf.DecKey, -1, 0, false);
+                        }
                         break;
                 }
             }

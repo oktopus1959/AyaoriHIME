@@ -16,6 +16,22 @@ namespace KanchokuWS.Handler
             return str._getFirst() == '!' && str._getSecond() == '{';
         }
 
+        public static KeyOrFunction GetFKeySpec(string str)
+        {
+            if (IsFKeySpec(str)) {
+                var sb = new StringBuilder();
+                int pos = 2;
+                while (pos < str.Length && str[pos]._isAlphaNum()) {
+                    sb.Append(str[pos++]);
+                }
+                if (str[pos] == '}') {
+                    return SpecialKeysAndFunctions.GetKeyOrFuncByName(sb.ToString());
+                }
+
+            }
+            return null;
+        }
+
         public static bool IsTernaryOperator(string str)
         {
             return str._getFirst() == '(' && str.Last() == ')' && str._reMatch(reTernaryOperator);

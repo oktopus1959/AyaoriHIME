@@ -70,6 +70,7 @@ namespace KanchokuWS
 
         public bool MatchName(string name)
         {
+            if (name == Name) return true;
             string key = name._toLower();
             return key == otherName0 || key == otherName1 || key == otherName2;
         }
