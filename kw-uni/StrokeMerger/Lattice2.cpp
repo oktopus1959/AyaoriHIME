@@ -89,8 +89,8 @@ namespace lattice2 {
     // 2文字以上の形態素ですべてカタカナの場合のボーナス
     int MORPH_ALL_KATAKANA_BONUS = 3000;
 
-    // 2文字の形態素で先頭が高頻度助詞の場合のボーナス
-    int HEAD_HIGH_FREQ_JOSHI_BONUS = 3000;
+    // 2文字以上の形態素で先頭が高頻度助詞、2文字目がひらがな以外の場合のボーナス
+    int HEAD_HIGH_FREQ_JOSHI_BONUS = 1000;
 
     // SingleHitの高頻度助詞が、マルチストロークに使われているケースのコスト
     int SINGLE_HIT_HIGH_FREQ_JOSHI_KANJI_COST = 3000;
@@ -621,6 +621,10 @@ namespace lattice2 {
         return mc == L'が' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は';
     }
 
+    inline bool isHeadHighFreqJoshi(mchar_t mc) {
+        return mc == L'と' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は' || mc == L'が';
+    }
+
     inline bool isSmallKatakana(mchar_t mc) {
         return mc == L'ァ' || mc == L'ィ' || mc == L'ゥ' || mc == L'ェ' || mc == L'ォ' || mc == L'ャ' || mc == L'ュ' || mc == L'ョ';
     }
@@ -645,8 +649,8 @@ namespace lattice2 {
             //} else if ((i == 0 || !utils::is_hiragana(str[i - 1])) && strLen == i + 2 && isHighFreqJoshi(str[i]) && utils::is_hiragana(str[i + 1])) {
                 //// 先頭または漢字・カタカナの直後の2文字のひらがなで、1文字目が高頻度の助詞(が、を、に、の、で、は)なら、ボーナスを与付して、ひらがな2文字になるようにする
                 // こちらはいろいろと害が多い(からです⇒朝です、食べさせると青⇒食べ森書がの、など)
-            } else if ((i == 0) && strLen == i + 2 && isHighFreqJoshi(str[i]) && utils::is_hiragana(str[i + 1])) {
-                // 先頭の2文字のひらがなで、1文字目が高頻度の助詞(が、を、に、の、で、は)なら、ボーナスを与付して、ひらがな2文字になるようにする
+            } else if (i == 0 && strLen >= 2 && isHighFreqJoshi(str[0]) && !utils::is_hiragana(str[1])) {
+                // 1文字目が高頻度の助詞(と、を、に、の、で、は、が)で、2文字目がひらがな以外なら、ボーナスを付与
                 cost -= HEAD_HIGH_FREQ_JOSHI_BONUS;
             }
             // 通常の unigram コストの計上
