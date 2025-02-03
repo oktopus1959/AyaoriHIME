@@ -441,6 +441,7 @@ namespace lattice2 {
         }
     }
 
+    // リアルタイムNgramの蒿上げ
     void raiseRealtimeNgram(const MString& str) {
         LOG_DEBUGH(L"CALLED: str={}", to_wstr(str));
         int strlen = (int)str.size();
@@ -460,8 +461,10 @@ namespace lattice2 {
         }
     }
 
+    // リアルタイムNgramの抑制
     void depressRealtimeNgram(const MString& str) {
-        LOG_DEBUGH(L"CALLED: str={}", to_wstr(str));
+        //LOG_DEBUGH(L"CALLED: str={}", to_wstr(str));
+        LOG_WARNH(L"CALLED: str={}", to_wstr(str));
         int strlen = (int)str.size();
         for (int pos = 0; pos < strlen; ++pos) {
             if (!utils::is_japanese_char_except_nakaguro(str[pos])) continue;
@@ -476,6 +479,15 @@ namespace lattice2 {
 
             //if (pos + 3 >= strlen || !utils::is_japanese_char_except_nakaguro(str[pos + 3])) continue;
             //_depressRealtimeNgramByWord(str.substr(pos, 4));
+        }
+    }
+
+    void depressRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
+        LOG_WARNH(L"CALLED: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
+        size_t prefixLen = utils::commonPrefixLength(oldCand, newCand);
+        if (prefixLen < oldCand.size()) {
+            prefixLen = prefixLen > 2 ? prefixLen - 2 : 0;
+            depressRealtimeNgram(oldCand.substr(prefixLen));
         }
     }
 
@@ -1516,6 +1528,13 @@ namespace lattice2 {
             bool isEmptyPiece = pieces.size() == 1 && pieces.front().isEmpty();
             bool isBSpiece = pieces.size() == 1 && pieces.front().isBS();
             _prevBS = isBSpiece;
+
+            if (!isEmptyPiece && !isBSpiece &&
+                _origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
+                // 候補選択がなされていて、元の先頭候補以外が選択された
+                depressRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
+            }
+
             // BS でないか、以前の候補が無くなっていた
             for (const auto& piece : pieces) {
                 // 素片のストロークと適合する候補だけを追加

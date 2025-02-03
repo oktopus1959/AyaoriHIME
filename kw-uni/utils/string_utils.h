@@ -658,6 +658,20 @@ namespace utils
         return last_substr(s, n);
     }
 
+    inline size_t commonPrefixLength(const MString& str1, const MString& str2) {
+        size_t length = 0;
+        size_t minLength = std::min(str1.size(), str2.size());
+
+        for (size_t i = 0; i < minLength; ++i) {
+            if (str1[i] != str2[i]) {
+                break;
+            }
+            ++length;
+        }
+
+        return length;
+    }
+
     inline bool is_hirakana(mchar_t ch) {
         return ch >= 0x3041 && ch <= 0x3096;    // 'ぁ' 〜 '小け'
     }
