@@ -466,7 +466,8 @@ namespace {
                         //    State::handleEnter();
                         //    break;
                     case MULTI_STREAM_COMMIT_DECKEY:
-                        LOG_DEBUGH(_T("EnterKey: clear streamList"));
+                        LOG_DEBUGH(_T("MULTI_STREAM_COMMIT"));
+                        WORD_LATTICE->raiseAndDepressRealtimeNgramForDiffPart();
                         _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
                         OUTPUT_STACK->setMazeBlocker();
@@ -564,6 +565,9 @@ namespace {
                         break;
                     default:
                         LOG_DEBUGH(_T("OTHER"));
+                        if (deckey == ENTER_DECKEY) {
+                            WORD_LATTICE->raiseAndDepressRealtimeNgramForDiffPart();
+                        }
                         _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
                         //MarkUnnecessary();

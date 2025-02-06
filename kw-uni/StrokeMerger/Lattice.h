@@ -155,6 +155,8 @@ public:
 
     virtual void selectPrev() = 0;
 
+    virtual void raiseAndDepressRealtimeNgramForDiffPart() = 0;
+
     virtual void updateByBushuComp() = 0;
 
     virtual void saveCandidateLog() = 0;
@@ -172,7 +174,7 @@ public:
     static void raiseRealtimeNgram(const MString& str);
 
     static void depressRealtimeNgram(const MString& str);
-
+    
     static void saveRealtimeNgramFile();
 
     static std::unique_ptr<Lattice2> Singleton;

@@ -43,7 +43,7 @@ namespace lattice2 {
     int AllowedStrokeRange = 5;
 
     // 末尾がここで設定した長さ以上に同じ候補は、先頭だけを残して削除
-    int LastSameLen = 5;
+    int LastSameLen = 99;
 
     // 解の先頭部分が指定の長さ以上で同じなら、それらだけを残す
     int SAME_LEADER_LEN = 4;
@@ -207,6 +207,8 @@ namespace lattice2 {
 
             //// 上のやり方は、間違いの方の影響も拡大してしまうので、結局、あまり意味が無いと思われる
             //ngramCosts[word] = -(rtmCount * bonumFactor + (sysCount + usrCount) * (bonumFactor/10));
+        //} else if (word.size() >= 4 && rtmCount < 0) {
+        //    ngramCosts[word] = (-rtmCount) * 100;
         }
         if (ngramCosts[word] < -100000) {
             LOG_WARNH(L"ABNORMAL COST: word={}, cost={}, sysCount={}, usrCount={}, rtmCount={}", to_wstr(word), ngramCosts[word], sysCount, usrCount, rtmCount);
@@ -232,7 +234,19 @@ namespace lattice2 {
 
     void _raiseRealtimeNgramByWord(const MString& word) {
         const int count = SETTINGS->realtimeTrigramTier1Num;
-        if (word.length() >= 2 && realtimeNgram[word] < count) {
+        if (word.length() >= 4) {
+            ////LOG_WARNH(L"CALLED: word={}", to_wstr(word));
+            //auto iter = realtimeNgram.find(word);
+            //if (iter != realtimeNgram.end()) {
+            //    if (iter->second < 0) iter->second = 0;
+            //    else ++(iter->second);
+            //    LOG_WARNH(L"RAISE: word={} count={}", to_wstr(word), iter->second);
+            //}
+        } else if (word.length() == 3) {
+            int c = realtimeNgram[word] + 10;
+            if (c < count) c = count;
+            realtimeNgram[word] = c;
+        } else if (word.length() == 2 && realtimeNgram[word] < count) {
             realtimeNgram[word] = count;
         }
         _updateNgramCost(word, 0, 0, count);
@@ -240,8 +254,19 @@ namespace lattice2 {
     }
 
     void _depressRealtimeNgramByWord(const MString& word) {
-        const int count = 1;
-        if (word.length() >= 2) {
+        int count = 1;
+        if (word.length() >= 4) {
+            // 4gramの抑制をやってみたが、いまいちなので採用しない(2025/2/4)
+            //LOG_WARNH(L"CALLED: word={}", to_wstr(word));
+            //count = -SETTINGS->realtimeTrigramTier1Num;
+            //if (realtimeNgram[word] > count) {
+            //    realtimeNgram[word] = count;
+            //}
+        } else if (word.length() == 3) {
+            count = realtimeNgram[word] - 10;
+            if (count < 0) count = 0;
+            realtimeNgram[word] = count;
+        } else if (word.length() == 2) {
             realtimeNgram[word] = count;
         }
         _updateNgramCost(word, 0, 0, count);
@@ -280,10 +305,12 @@ namespace lattice2 {
         // ⇒と思ったが、問題なさそうなので復活
         for (auto iter = realtimeNgram.begin(); iter != realtimeNgram.end(); ++iter) {
             const MString& word = iter->first;
-            int rtmCount = iter->second;
-            if (ngramCosts.find(word) == ngramCosts.end()) {
-                // 未登録
-                _updateNgramCost(word, 0, 0, rtmCount);
+            if (word.size() < 4) {
+                int rtmCount = iter->second;
+                if (ngramCosts.find(word) == ngramCosts.end()) {
+                    // 未登録
+                    _updateNgramCost(word, 0, 0, rtmCount);
+                }
             }
         }
         for (auto iter = KatakanaWordCosts.begin(); iter != KatakanaWordCosts.end(); ++iter) {
@@ -437,7 +464,8 @@ namespace lattice2 {
             _updateRealtimeNgramByWord(str.substr(pos, 3));
 
             //if (pos + 3 >= strlen || !utils::is_japanese_char_except_nakaguro(str[pos + 3])) continue;
-            //_updateRealtimeNgramByWord(str.substr(pos, 4));
+            //// 4-gram
+            //_raiseRealtimeNgramByWord(str.substr(pos, 4));
         }
     }
 
@@ -457,6 +485,7 @@ namespace lattice2 {
             _raiseRealtimeNgramByWord(str.substr(pos, 3));
 
             //if (pos + 3 >= strlen || !utils::is_japanese_char_except_nakaguro(str[pos + 3])) continue;
+            //// 4-gram
             //_raiseRealtimeNgramByWord(str.substr(pos, 4));
         }
     }
@@ -478,15 +507,37 @@ namespace lattice2 {
             _depressRealtimeNgramByWord(str.substr(pos, 3));
 
             //if (pos + 3 >= strlen || !utils::is_japanese_char_except_nakaguro(str[pos + 3])) continue;
+            //// 4-gram
             //_depressRealtimeNgramByWord(str.substr(pos, 4));
         }
     }
 
-    void depressRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
+    // 候補選択による、リアルタイムNgramの蒿上げと抑制
+    void _raiseAndDepressRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
         LOG_WARNH(L"CALLED: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
         size_t prefixLen = utils::commonPrefixLength(oldCand, newCand);
+        if (prefixLen < newCand.size()) {
+            for (int delta = 2; delta > 0; --delta) {
+                // 異なっている部分の2文字前のところから、3gramについて蒿上げをする
+                if (prefixLen >= (size_t)delta) {
+                    size_t pos = prefixLen - delta;
+                    if (pos + 2 < newCand.size()) _raiseRealtimeNgramByWord(newCand.substr(pos, 3));
+                    //if (pos + 3 < newCand.size()) _depressRealtimeNgramByWord(newCand.substr(pos, 4));
+                }
+            }
+            // 異なっている部分について蒿上げする
+            raiseRealtimeNgram(newCand.substr(prefixLen));
+        }
         if (prefixLen < oldCand.size()) {
-            prefixLen = prefixLen > 2 ? prefixLen - 2 : 0;
+            for (int delta = 2; delta > 0; --delta) {
+                // 異なっている部分の2文字前のところから、3gramについて抑制をする
+                if (prefixLen >= (size_t)delta) {
+                    size_t pos = prefixLen - delta;
+                    if (pos + 2 < oldCand.size()) _depressRealtimeNgramByWord(oldCand.substr(pos, 3));
+                    //if (pos + 3 < oldCand.size()) _depressRealtimeNgramByWord(oldCand.substr(pos, 4));
+                }
+            }
+            // 異なっている部分について抑制する
             depressRealtimeNgram(oldCand.substr(prefixLen));
         }
     }
@@ -1089,6 +1140,14 @@ namespace lattice2 {
             return _prevBS;
         }
 
+        // 候補選択による、リアルタイムNgramの蒿上げと抑制
+        void raiseAndDepressRealtimeNgramForDiffPart() {
+            if (_origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
+                // 候補選択がなされていて、元の先頭候補以外が選択された
+                _raiseAndDepressRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
+            }
+        }
+
         void clearKbests(bool clearAll) {
             //LOG_INFO(L"CALLED: clearAll={}", clearAll);
             _candidates.clear();
@@ -1280,13 +1339,18 @@ namespace lattice2 {
             LOG_DEBUGH(_T("ENTER: str1={}, str2={}, len={}"), to_wstr(str1), to_wstr(str2), len);
             int n1 = (int)str1.size();
             int n2 = (int)str2.size();
-            while (n1 > 0 && n2 > 0 && len > 0) {
-                if (str1[n1 - 1] != str2[n2 - 1]) break;
-                --n1;
-                --n2;
-                --len;
+            bool result = false;
+            if (len <= n1 && len <= n2) {
+                while (n1 > 0 && n2 > 0 && len > 0) {
+                    if (str1[n1 - 1] != str2[n2 - 1]) break;
+                    --n1;
+                    --n2;
+                    --len;
+                }
+                result = len == 0 || (n1 == 0 && n2 == 0);
+            } else {
+                result = (n1 == n2 && str1 == str2);
             }
-            bool result = len == 0 || (n1 == 0 && n2 == 0);
             LOG_DEBUGH(_T("LEAVE: remainingLen: {}: str1={}, str2={}, common={}"), utils::boolToString(result), n1, n2, len);
             return result;
         }
@@ -1529,10 +1593,8 @@ namespace lattice2 {
             bool isBSpiece = pieces.size() == 1 && pieces.front().isBS();
             _prevBS = isBSpiece;
 
-            if (!isEmptyPiece && !isBSpiece &&
-                _origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
-                // 候補選択がなされていて、元の先頭候補以外が選択された
-                depressRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
+            if (!isEmptyPiece && !isBSpiece) {
+                raiseAndDepressRealtimeNgramForDiffPart();
             }
 
             // BS でないか、以前の候補が無くなっていた
@@ -1819,6 +1881,11 @@ namespace lattice2 {
         void selectPrev() override {
             _LOG_DETAIL(_T("CALLED"));
             _kBestList.selectPrev();
+        }
+
+        // 候補選択による、リアルタイムNgramの蒿上げと抑制
+        void raiseAndDepressRealtimeNgramForDiffPart() override {
+            _kBestList.raiseAndDepressRealtimeNgramForDiffPart();
         }
 
         void updateByBushuComp() override {
