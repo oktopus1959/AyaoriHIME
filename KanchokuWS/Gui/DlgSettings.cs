@@ -1,16 +1,12 @@
-﻿using System;
+﻿using KanchokuWS.Domain;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Reflection;
 using System.Runtime.InteropServices;
-
-using KanchokuWS.Domain;
+using System.Text;
+using System.Windows.Forms;
 using Utils;
 
 namespace KanchokuWS.Gui
@@ -1941,6 +1937,19 @@ namespace KanchokuWS.Gui
             frmMain?.ShowDlgCandidateLog(this, Right - 10, Top);
         }
 
+        [DllImport("user32.dll")]
+        private static extern ushort GetAsyncKeyState(uint vkey);
+
+        private void button_checkModifiers_Click(object sender, EventArgs e)
+        {
+            checkBox_leftCtrl.Checked = (GetAsyncKeyState(FuncVKeys.LCONTROL) & 0x8000) != 0;
+            checkBox_rightCtrl.Checked = (GetAsyncKeyState(FuncVKeys.RCONTROL) & 0x8000) != 0;
+            checkBox_leftShift.Checked = (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0;
+            checkBox_rightShift.Checked = (GetAsyncKeyState(FuncVKeys.RSHIFT) & 0x8000) != 0;
+            checkBox_leftAlt.Checked = (GetAsyncKeyState(FuncVKeys.L_ALT) & 0x8000) != 0;
+            checkBox_rightAlt.Checked = (GetAsyncKeyState(FuncVKeys.R_ALT) & 0x8000) != 0;
+        }
+
         //-----------------------------------------------------------------------------------
         //  その他設定
         //-----------------------------------------------------------------------------------
@@ -3012,7 +3021,6 @@ namespace KanchokuWS.Gui
         {
             comboBox_ctrlKey_setItems(comboBox_vkbShowHideTemporaryKey);
         }
-
     }
 }
 

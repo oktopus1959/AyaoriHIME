@@ -19,6 +19,8 @@ namespace KanchokuWS.Domain
         public const uint RSHIFT = 0xa1;
         public const uint LCONTROL = 0xa2;
         public const uint RCONTROL = 0xa3;
+        public const uint L_ALT = 0xa4;
+        public const uint R_ALT = 0xa5;
         public const uint SPACE = (uint)Keys.Space;
 
         // 以下は JP/US によってキーコードが変わるor無効になる可能性あり

@@ -505,6 +505,15 @@ namespace KanchokuWS.Gui
             this.checkBox_convertJaComma = new System.Windows.Forms.CheckBox();
             this.checkBox_convertJaPeriod = new System.Windows.Forms.CheckBox();
             this.tabPage_fusion = new System.Windows.Forms.TabPage();
+            this.button_checkModifiers = new System.Windows.Forms.Button();
+            this.checkBox_rightAlt = new System.Windows.Forms.CheckBox();
+            this.checkBox_leftAlt = new System.Windows.Forms.CheckBox();
+            this.checkBox_rightShift = new System.Windows.Forms.CheckBox();
+            this.checkBox_leftShift = new System.Windows.Forms.CheckBox();
+            this.checkBox_rightCtrl = new System.Windows.Forms.CheckBox();
+            this.checkBox_leftCtrl = new System.Windows.Forms.CheckBox();
+            this.textBox_multiStreamBeamSize = new System.Windows.Forms.TextBox();
+            this.label167 = new System.Windows.Forms.Label();
             this.groupBox41 = new System.Windows.Forms.GroupBox();
             this.label165 = new System.Windows.Forms.Label();
             this.button_depressRealtimeNgram = new System.Windows.Forms.Button();
@@ -599,8 +608,6 @@ namespace KanchokuWS.Gui
             this.button_developClose = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.textBox_multiStreamBeamSize = new System.Windows.Forms.TextBox();
-            this.label167 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -6292,6 +6299,13 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_fusion
             // 
+            this.tabPage_fusion.Controls.Add(this.button_checkModifiers);
+            this.tabPage_fusion.Controls.Add(this.checkBox_rightAlt);
+            this.tabPage_fusion.Controls.Add(this.checkBox_leftAlt);
+            this.tabPage_fusion.Controls.Add(this.checkBox_rightShift);
+            this.tabPage_fusion.Controls.Add(this.checkBox_leftShift);
+            this.tabPage_fusion.Controls.Add(this.checkBox_rightCtrl);
+            this.tabPage_fusion.Controls.Add(this.checkBox_leftCtrl);
             this.tabPage_fusion.Controls.Add(this.textBox_multiStreamBeamSize);
             this.tabPage_fusion.Controls.Add(this.label167);
             this.tabPage_fusion.Controls.Add(this.groupBox41);
@@ -6323,6 +6337,96 @@ namespace KanchokuWS.Gui
             this.tabPage_fusion.TabIndex = 11;
             this.tabPage_fusion.Text = "配列融合";
             this.tabPage_fusion.UseVisualStyleBackColor = true;
+            // 
+            // button_checkModifiers
+            // 
+            this.button_checkModifiers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_checkModifiers.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_checkModifiers.Location = new System.Drawing.Point(591, 137);
+            this.button_checkModifiers.Name = "button_checkModifiers";
+            this.button_checkModifiers.Size = new System.Drawing.Size(107, 23);
+            this.button_checkModifiers.TabIndex = 67;
+            this.button_checkModifiers.Text = "修飾キー状態(&M)";
+            this.button_checkModifiers.UseVisualStyleBackColor = true;
+            this.button_checkModifiers.Click += new System.EventHandler(this.button_checkModifiers_Click);
+            // 
+            // checkBox_rightAlt
+            // 
+            this.checkBox_rightAlt.AutoSize = true;
+            this.checkBox_rightAlt.Location = new System.Drawing.Point(497, 262);
+            this.checkBox_rightAlt.Name = "checkBox_rightAlt";
+            this.checkBox_rightAlt.Size = new System.Drawing.Size(72, 19);
+            this.checkBox_rightAlt.TabIndex = 66;
+            this.checkBox_rightAlt.Text = "Right Alt";
+            this.checkBox_rightAlt.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_leftAlt
+            // 
+            this.checkBox_leftAlt.AutoSize = true;
+            this.checkBox_leftAlt.Location = new System.Drawing.Point(497, 237);
+            this.checkBox_leftAlt.Name = "checkBox_leftAlt";
+            this.checkBox_leftAlt.Size = new System.Drawing.Size(64, 19);
+            this.checkBox_leftAlt.TabIndex = 65;
+            this.checkBox_leftAlt.Text = "Left Alt";
+            this.checkBox_leftAlt.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_rightShift
+            // 
+            this.checkBox_rightShift.AutoSize = true;
+            this.checkBox_rightShift.Location = new System.Drawing.Point(497, 212);
+            this.checkBox_rightShift.Name = "checkBox_rightShift";
+            this.checkBox_rightShift.Size = new System.Drawing.Size(81, 19);
+            this.checkBox_rightShift.TabIndex = 64;
+            this.checkBox_rightShift.Text = "Right Shift";
+            this.checkBox_rightShift.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_leftShift
+            // 
+            this.checkBox_leftShift.AutoSize = true;
+            this.checkBox_leftShift.Location = new System.Drawing.Point(497, 187);
+            this.checkBox_leftShift.Name = "checkBox_leftShift";
+            this.checkBox_leftShift.Size = new System.Drawing.Size(73, 19);
+            this.checkBox_leftShift.TabIndex = 63;
+            this.checkBox_leftShift.Text = "Left Shift";
+            this.checkBox_leftShift.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_rightCtrl
+            // 
+            this.checkBox_rightCtrl.AutoSize = true;
+            this.checkBox_rightCtrl.Location = new System.Drawing.Point(497, 162);
+            this.checkBox_rightCtrl.Name = "checkBox_rightCtrl";
+            this.checkBox_rightCtrl.Size = new System.Drawing.Size(96, 19);
+            this.checkBox_rightCtrl.TabIndex = 62;
+            this.checkBox_rightCtrl.Text = "Right Control";
+            this.checkBox_rightCtrl.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_leftCtrl
+            // 
+            this.checkBox_leftCtrl.AutoSize = true;
+            this.checkBox_leftCtrl.Location = new System.Drawing.Point(497, 137);
+            this.checkBox_leftCtrl.Name = "checkBox_leftCtrl";
+            this.checkBox_leftCtrl.Size = new System.Drawing.Size(88, 19);
+            this.checkBox_leftCtrl.TabIndex = 61;
+            this.checkBox_leftCtrl.Text = "Left Control";
+            this.checkBox_leftCtrl.UseVisualStyleBackColor = true;
+            // 
+            // textBox_multiStreamBeamSize
+            // 
+            this.textBox_multiStreamBeamSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_multiStreamBeamSize.Location = new System.Drawing.Point(89, 90);
+            this.textBox_multiStreamBeamSize.Name = "textBox_multiStreamBeamSize";
+            this.textBox_multiStreamBeamSize.Size = new System.Drawing.Size(34, 19);
+            this.textBox_multiStreamBeamSize.TabIndex = 59;
+            this.textBox_multiStreamBeamSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label167
+            // 
+            this.label167.AutoSize = true;
+            this.label167.Location = new System.Drawing.Point(24, 92);
+            this.label167.Name = "label167";
+            this.label167.Size = new System.Drawing.Size(60, 15);
+            this.label167.TabIndex = 60;
+            this.label167.Text = "ビームサイズ";
             // 
             // groupBox41
             // 
@@ -7438,24 +7542,6 @@ namespace KanchokuWS.Gui
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // textBox_multiStreamBeamSize
-            // 
-            this.textBox_multiStreamBeamSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_multiStreamBeamSize.Location = new System.Drawing.Point(89, 90);
-            this.textBox_multiStreamBeamSize.Name = "textBox_multiStreamBeamSize";
-            this.textBox_multiStreamBeamSize.Size = new System.Drawing.Size(34, 19);
-            this.textBox_multiStreamBeamSize.TabIndex = 59;
-            this.textBox_multiStreamBeamSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label167
-            // 
-            this.label167.AutoSize = true;
-            this.label167.Location = new System.Drawing.Point(24, 92);
-            this.label167.Name = "label167";
-            this.label167.Size = new System.Drawing.Size(60, 15);
-            this.label167.TabIndex = 60;
-            this.label167.Text = "ビームサイズ";
-            // 
             // DlgSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -8174,5 +8260,12 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Button button_raiseRealtimeNgram;
         private System.Windows.Forms.TextBox textBox_multiStreamBeamSize;
         private System.Windows.Forms.Label label167;
+        private System.Windows.Forms.CheckBox checkBox_rightAlt;
+        private System.Windows.Forms.CheckBox checkBox_leftAlt;
+        private System.Windows.Forms.CheckBox checkBox_rightShift;
+        private System.Windows.Forms.CheckBox checkBox_leftShift;
+        private System.Windows.Forms.CheckBox checkBox_rightCtrl;
+        private System.Windows.Forms.CheckBox checkBox_leftCtrl;
+        private System.Windows.Forms.Button button_checkModifiers;
     }
 }
