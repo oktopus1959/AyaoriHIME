@@ -510,6 +510,7 @@ namespace KanchokuWS.TableParser
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"ENTER: depth={Depth}, bBare={bBare}, str={CurrentStr}");
             // 終端ノードの追加と同時打鍵列の組合せの登録
             string str = ConvertKanji(CurrentStr);
+            if (str._safeContains("|")) bBare = false;
             // TODO ひらがなや記号の削除については、ユーザーに指定させるようにする
             if (!IsSecondaryTableOnMultiStream || str._reMatch("^@[v^]") || (!str._isHiragana() && /*!str._isZenkakuSymbol() &&*/ !str._startsWith("@"))) {
                 addTerminalNode(idx, Node.MakeStringNode($"{str}", bBare), true);

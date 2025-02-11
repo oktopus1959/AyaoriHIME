@@ -211,6 +211,9 @@ namespace KanchokuWS
         /// <summary> 漢字読みファイル</summary>
         public static string KanjiYomiFile { get; private set; }
 
+        /// <summary> 別候補漢字ファイル</summary>
+        public static string AltKanjiFile { get; private set; }
+
         // 各種辞書ファイル
         public static string BushuAssocFile { get; private set; }
         public static string BushuFile { get; private set; }
@@ -1636,6 +1639,7 @@ namespace KanchokuWS
             TableFile3 = addDecoderSetting("tableFile3", "");
 #endif
             KanjiYomiFile = addDecoderSetting("kanjiYomiFile", "kanji-yomi.txt");
+            AltKanjiFile = addDecoderSetting("altKanjiFile", "files/alt-kanji.txt");
             //addDecoderSetting("strokeHelpFile");
             HistoryFile = addDecoderSetting("historyFile", "kwhist.*.txt");
             //addDecoderSetting("historyUsedFile");

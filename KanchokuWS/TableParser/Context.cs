@@ -978,7 +978,9 @@ namespace KanchokuWS.TableParser
         /// <param name="k"></param>
         /// <returns></returns>
         public string ConvertKanji(string k) {
-            return kanjiConvMap._safeGet(k)._orElse(k);
+            var altKanji = kanjiConvMap._safeGet(k);
+            if (altKanji._isEmpty()) return k;
+            return altKanji.StartsWith("|") ? k + altKanji : altKanji;
         }
 
         /// <summary>キー文字に到るストロークパスを得る辞書</summary>
