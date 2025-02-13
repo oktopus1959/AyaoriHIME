@@ -1904,14 +1904,14 @@ namespace KanchokuWS.Gui
         {
             logger.Info("CALLED");
             if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("depressRealtimeNgram", textBox_realtimeNgram.Text);
-            textBox_realtimeNgram.Text = "";
+            //textBox_realtimeNgram.Text = "";
         }
 
         private void button_raiseRealtimeNgram_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
             if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("raiseRealtimeNgram", textBox_realtimeNgram.Text);
-            textBox_realtimeNgram.Text = "";
+            //textBox_realtimeNgram.Text = "";
         }
 
         private void button_fusionClose_Click(object sender, EventArgs e)
