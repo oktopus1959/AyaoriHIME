@@ -95,6 +95,9 @@ namespace lattice2 {
     // SingleHitの高頻度助詞が、マルチストロークに使われているケースのコスト
     int SINGLE_HIT_HIGH_FREQ_JOSHI_KANJI_COST = 3000;
 
+    // 先頭の1文字だけの場合に、複数の候補があれば、2つ目以降には初期コストを与える
+    int HEAD_SINGLE_CHAR_ORDER_COST = 5000;
+
     // 孤立した小書きカタカナのコスト
     int ISOLATED_SMALL_KATAKANA_COST = 3000;
 
@@ -840,7 +843,7 @@ namespace lattice2 {
                 }
             }
         }
-        _LOG_DETAIL(L"LEAVE: cost={}", cost);
+        _LOG_DETAIL(L"LEAVE: cost={} * NGRAM_COST_FACTOR({})", cost, NGRAM_COST_FACTOR);
         return cost;
     }
 #else
@@ -1028,8 +1031,8 @@ namespace lattice2 {
             return _cost + _penalty;
         }
 
-        void cost(int cost) {
-            _cost = cost;
+        void addCost(int cost) {
+            _cost += cost;
         }
 
         //void zeroCost() {
@@ -1374,7 +1377,7 @@ namespace lattice2 {
 
         // 新しい候補を追加
         bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, bool isStrokeBS) {
-            LOG_INFO(_T("ENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
+            _LOG_DETAIL(_T("ENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
             bool bAdded = false;
             bool bIgnored = false;
             const MString& candStr = newCandStr.string();
@@ -1382,7 +1385,8 @@ namespace lattice2 {
 
             std::vector<MString> words;
             // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
-            int morphCost = !SETTINGS->useMorphAnalyzer || subStr.size() <= 1 ? 5000 : calcMorphCost(subStr, words);
+            //int morphCost = !SETTINGS->useMorphAnalyzer || subStr.size() <= 1 ? 5000 : calcMorphCost(subStr, words);
+            int morphCost = !SETTINGS->useMorphAnalyzer || subStr.empty() ? 0 : calcMorphCost(subStr, words);
             if (subStr.size() == 1 && utils::is_katakana(subStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
             int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr) * NGRAM_COST_FACTOR;
             //int morphCost = 0;
@@ -1390,7 +1394,7 @@ namespace lattice2 {
             //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * NGRAM_COST_FACTOR;
             int llamaCost = 0;
             int candCost = morphCost + ngramCost + llamaCost;
-            newCandStr.cost(candCost);
+            newCandStr.addCost(candCost);
 
             //// 「漢字+の+漢字」のような場合はペナルティを解除
             //size_t len = candStr.size();
@@ -1400,7 +1404,7 @@ namespace lattice2 {
 
             int totalCost = newCandStr.totalCost();
 
-            LOG_INFO(_T("CALLED: candStr={}, totalCost={}, candCost={} (morph={}[{}], ngram={})"),
+            _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[{}], ngram={})"),
                 to_wstr(candStr), totalCost, candCost, morphCost, to_wstr(utils::join(words, ' ')), ngramCost);
 
             if (IS_LOG_DEBUGH_ENABLED) {
@@ -1443,11 +1447,11 @@ namespace lattice2 {
                 _LOG_DETAIL(_T("    REMOVE OVERFLOW ENTRY"));
             }
             if (bAdded) {
-                _LOG_DETAIL(_T("    ADD candidate: {}"), to_wstr(candStr));
+                _LOG_DETAIL(_T("    ADD candidate: {}, totalCost={}"), to_wstr(candStr), totalCost);
             } else {
                 _LOG_DETAIL(_T("    ABANDON candidate: {}, totalCost={}"), to_wstr(candStr), totalCost);
             }
-            LOG_INFO(_T("LEAVE: {}, newCandidates.size={}"), bAdded ? L"ADD" : L"ABANDON", newCandidates.size());
+            _LOG_DETAIL(_T("LEAVE: {}, newCandidates.size={}"), bAdded ? L"ADD" : L"ABANDON", newCandidates.size());
             return bAdded;
         }
 
@@ -1494,8 +1498,15 @@ namespace lattice2 {
                         }
                     }
                     std::vector<MString> ss = cand.applyPiece(piece, strokeCount, bKatakanaConversion);
+                    int idx = 0;
                     for (MString s : ss) {
-                        CandidateString newCandStr(s, strokeCount, 0, penalty);
+                        int _iniCost = 0;
+                        if (s.length() == 1) {
+                            // 1文字以下なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
+                            _iniCost = HEAD_SINGLE_CHAR_ORDER_COST * idx;
+                            ++idx;
+                        }
+                        CandidateString newCandStr(s, strokeCount, _iniCost, penalty);
                         addCandidate(newCandidates, newCandStr, isStrokeBS);
                     }
                 }
