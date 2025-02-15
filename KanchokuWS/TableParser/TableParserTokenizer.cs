@@ -858,7 +858,7 @@ namespace KanchokuWS.TableParser
         // 別候補漢字ファイルを読み込む
         // 一行の形式は「定義漢字 [<TAB>|Space]+ 別候補漢字の並び('|'区切り) [[<TAB>|Space]+ 裏漢字の並び('|'区切り)]」
         // bSecond = false なら、定義文字に別候補漢字の並びを追加する(「別候補漢字の並び」が"-"のみなら何もしない)
-        // bSecond = true なら、定義文字を裏漢字の並びで置換する
+        // bSecond = true なら、定義文字を裏漢字の並びで置換する(裏文字定義が無ければ、別候補文字で置換する)
         void readAltKanjiFile(string filename, bool bSecond)
         {
             var reComment = @"#.*";
@@ -876,10 +876,9 @@ namespace KanchokuWS.TableParser
                     if (items.Length >= 2) {
                         var kanji = items[0];
                         if (kanji._notEmpty()) {
-                            var altKanji = !bSecond ? items._getNth(1) : items._getNth(2);
-                            if (altKanji._isEmpty()) continue;
+                            var altKanji = !bSecond ? items._getNth(1) : items._getNth(2)._notEmpty() ? items._getNth(2) : items._getNth(1);
+                            if (altKanji._isEmpty() || altKanji == "-") continue;
                             if (!bSecond) {
-                                if (altKanji == "-") continue;
                                 altKanji = kanji + ((!altKanji.StartsWith("|")) ? "|" : "") + altKanji;
                             }
                             kanjiConvMap[kanji] = altKanji;
