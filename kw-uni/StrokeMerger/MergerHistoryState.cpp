@@ -473,12 +473,25 @@ namespace {
                         OUTPUT_STACK->setMazeBlocker();
                         //MarkUnnecessary();
                         break;
+                    case STROKE_BACK_DECKEY:
+                        // 打鍵取消
+                        LOG_DEBUGH(_T("STROKE_BACK_DECKEY"));
+                        _strokeCountBS = (int)STATE_COMMON->GetTotalDecKeyCount();
+                        _strokeBack = true;
+                        if (WORD_LATTICE->isEmpty()) State::handleBS();
+                        break;
                     case BS_DECKEY:
                         LOG_DEBUGH(_T("BS"));
                         _strokeCountBS = (int)STATE_COMMON->GetTotalDecKeyCount();
-                        //WORD_LATTICE->selectFirst();
-                        // 現在の先頭候補を優先する
-                        WORD_LATTICE->removeSecondOrLesser();
+                        if (SETTINGS->strokeBackByBS) {
+                            // 打鍵取消
+                            LOG_DEBUGH(_T("stroke back by BS"));
+                            _strokeBack = true;
+                        } else {
+                            // 現在の先頭候補を優先する
+                            //WORD_LATTICE->selectFirst();
+                            WORD_LATTICE->removeSecondOrLesser();
+                        }
                         if (WORD_LATTICE->isEmpty()) State::handleBS();
                         break;
                     case DOWN_ARROW_DECKEY:
@@ -553,10 +566,6 @@ namespace {
                     case KANJI_PREFERRED_NEXT_DECKEY:
                         LOG_DEBUGH(_T("KANJI_PREFERRED_NEXT_DECKEY"));
                         _kanjiPreferredNext = true;
-                        break;
-                    case STROKE_BACK_DECKEY:
-                        LOG_DEBUGH(_T("STROKE_BACK_DECKEY"));
-                        _strokeBack = true;
                         break;
                     case CLEAR_STROKE_DECKEY:
                         _LOG_DETAIL(_T("CLEAR_STROKE_DECKEY: DO NOTHING"));
@@ -701,13 +710,13 @@ namespace {
 
                 // 新しい文字列が得られたらそれを返す
                 if (!result.outStr.empty() || result.numBS > 0) {
-                    LOG_DEBUGH(_T("commitByPunctuation={}, outStr={}"), SETTINGS->commitByPunctuation, to_wstr(result.outStr));
-                    if (SETTINGS->commitByPunctuation && utils::is_punct_or_commit_char(result.outStr.back())) {
-                        // 句読点の入力だったら、編集バッファをフラッシュする
-                        LOG_DEBUGH(_T("commit by punctuation"));
-                        result.outStr += to_mstr(L"!{Flush}");
-                        WORD_LATTICE->clearAll();
-                    }
+                    //LOG_DEBUGH(_T("commitByPunctuation={}, outStr={}"), SETTINGS->commitByPunctuation, to_wstr(result.outStr));
+                    //if (SETTINGS->commitByPunctuation && !result.outStr.empty() && utils::is_punct_or_commit_char(result.outStr.back())) {
+                    //    // 句読点の入力だったら、編集バッファをフラッシュする
+                    //    LOG_DEBUGH(_T("commit by punctuation"));
+                    //    result.outStr += to_mstr(L"!{Flush}");
+                    //    WORD_LATTICE->clearAll();
+                    //}
                     resultOut.setResult(result.outStr, (int)(result.numBS));
                     SetTranslatedOutString(resultOut);
                     //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));

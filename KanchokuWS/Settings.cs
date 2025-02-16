@@ -165,11 +165,20 @@ namespace KanchokuWS
         /// <summary>形態素解析器を使用する</summary>
         public static bool UseMorphAnalyzer { get; set; }
 
-        /// <summary>句読点でコミットする</summary>
-        public static bool CommitByPunctuation { get; set; }
+        ///// <summary>句読点でコミットする</summary>
+        //public static bool CommitByPunctuation { get; set; }
+
+        /// <summary>先頭のスペースをそのまま出力する</summary>
+        public static bool OutputHeadSpace { get; set; }
+
+        /// <summary>BSで打鍵取消を行う</summary>
+        public static bool StrokeBackByBS { get; set; }
 
         /// <summary>融合モードにおける解探索のビームサイズ</summary>
         public static int MultiStreamBeamSize { get; set; }
+
+        /// <summary>残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)</summary>
+        public static int RemainingStrokeSize { get; set; }
 
         /// <summary>解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数</summary>
         public static int ChallengeNumForSameLeader { get; set; }
@@ -1720,8 +1729,11 @@ namespace KanchokuWS
 
             CollectRealtimeNgram = addDecoderSetting("collectRealtimeNgram", true);                 // Realtime Ngram 情報を収集する
             UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
-            CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
+            //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
+            OutputHeadSpace = addDecoderSetting("outputHeadSpace", true);                       // 先頭のスペースをそのまま出力する
+            StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                         // BSで打鍵取消を行う
             MultiStreamBeamSize = addDecoderSetting("multiStreamBeamSize", 5);                  // 融合モードにおける解探索のビームサイズ
+            RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲
             ChallengeNumForSameLeader = addDecoderSetting("challengeNumForSameLeader", 4);      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
             KanjiNoKanjiBonus = addDecoderSetting("kanjiNoKanjiBonus", 1500);                   // 「漢字+の+漢字」のような場合に与えるボーナス
             RealtimeTrigramBonusFactor = addDecoderSetting("realtimeTrigramBonusFactor", 10);   // Realtime 3gram のカウントからボーナス値を算出する際の係数

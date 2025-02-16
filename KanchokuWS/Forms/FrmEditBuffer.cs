@@ -188,32 +188,37 @@ namespace KanchokuWS.Forms
 
             int pos = 0;
             if (str._notEmpty()) {
-                while (pos < str.Length && !toFlush) {
-                    if (str[pos] == '!' && pos + 1 < str.Length && str[pos + 1] == '{') {
-                        // "!{...}"
-                        pos += 2;
-                        var sb = new StringBuilder();
-                        while (pos < str.Length && str[pos] != '}') {
-                            sb.Append(str[pos++]);
-                        }
-                        handleFunctionalKey(sb.ToString());
-                    } else {
-                        if (str[pos] == '(' && str[str.Length - 1] == ')') {
-                            var value = Handler.HandlerUtils.ParseTernaryOperator(str._safeSubstring(pos), "@");
-                            logger.InfoH($"value={value}");
-                            if (value._notEmpty()) {
-                                str = value;
-                                pos = 0;
-                                continue;
+                if (str == " " && Settings.OutputHeadSpace) {
+                    // 先頭のSpace
+                    toFlush = true;
+                } else {
+                    while (pos < str.Length && !toFlush) {
+                        if (str[pos] == '!' && pos + 1 < str.Length && str[pos + 1] == '{') {
+                            // "!{...}"
+                            pos += 2;
+                            var sb = new StringBuilder();
+                            while (pos < str.Length && str[pos] != '}') {
+                                sb.Append(str[pos++]);
+                            }
+                            handleFunctionalKey(sb.ToString());
+                        } else {
+                            if (str[pos] == '(' && str[str.Length - 1] == ')') {
+                                var value = Handler.HandlerUtils.ParseTernaryOperator(str._safeSubstring(pos), "@");
+                                logger.InfoH($"value={value}");
+                                if (value._notEmpty()) {
+                                    str = value;
+                                    pos = 0;
+                                    continue;
+                                }
+                            }
+                            preText += str[pos];
+                            if (pos == str.Length - 1 && Settings.EditBufferFlushChar._safeIndexOf(str[pos]) >= 0) {
+                                // 末尾のフラッシュ文字
+                                toFlush = true;
                             }
                         }
-                        preText += str[pos];
-                        if (pos == str.Length - 1 && Settings.EditBufferFlushChar._safeIndexOf(str[pos]) >= 0) {
-                            // 末尾のフラッシュ文字
-                            toFlush = true;
-                        }
+                        ++pos;
                     }
-                    ++pos;
                 }
             }
 

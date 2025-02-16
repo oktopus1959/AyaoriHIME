@@ -69,7 +69,9 @@ namespace KanchokuWS.Domain
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"name={name}, deckey={deckey:x}H({deckey})");
             if (deckey > 0) {
                 uint vk = DecoderKeyVsVKey.GetFuncVkeyByName(name);
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"vk={vk}");
                 if (vk > 0) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"KeyComboFromDecKey[{deckey}]=KeyCombo(0, {deckey})");
                     KeyComboFromDecKey[deckey] = new KeyCombo(0, deckey);
                 }
             }

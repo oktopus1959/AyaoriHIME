@@ -85,6 +85,10 @@ namespace {
         return is_upper_alphabet(ch) || is_lower_alphabet(ch);
     }
 
+    inline bool is_wide_alphabet(wchar_t ch) {
+        return ch >= L'Ａ' && ch <= L'Ｚ' || ch >= L'ａ' && ch <= L'ｚ';
+    }
+
     inline bool is_numeral(wchar_t ch) {
         return ch >= '0' && ch <= '9';
     }
@@ -688,6 +692,10 @@ namespace utils
         return true;
     }
 
+    inline bool is_paren(mchar_t ch) {
+        return ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == L'（' || ch == L'）' || ch == L'「' || ch == L'」' || ch == L'『' || ch == L'』';
+    }
+
     inline bool is_punct(mchar_t ch) {
         return ch == TOTEN || ch == KUTEN;
     }
@@ -763,6 +771,10 @@ namespace utils
 
     inline bool is_not_japanese_char(mchar_t ch) {
         return !is_japanese_char(ch);
+    }
+
+    inline bool is_morph_stop_char(mchar_t ch) {
+        return !((ch < 0xffff && (is_alphabet((wchar_t)ch) || is_numeral((wchar_t)ch) || is_wide_alphabet((wchar_t)ch) || is_wide_numeral((wchar_t)ch))) || is_japanese_char(ch));
     }
 
     inline String convert_star_and_question_to_hankaku(const wchar_t* wp) {

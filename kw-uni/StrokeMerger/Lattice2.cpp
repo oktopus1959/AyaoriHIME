@@ -39,14 +39,14 @@ namespace lattice2 {
     // ビームサイズ
     //size_t BestKSize = 5;
 
-    // 多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
-    int AllowedStrokeRange = 5;
+    //// 多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
+    //int AllowedStrokeRange = 5;
 
-    // 末尾がここで設定した長さ以上に同じ候補は、先頭だけを残して削除
-    int LastSameLen = 99;
+    //// 末尾がここで設定した長さ以上に同じ候補は、先頭だけを残して削除
+    //int LastSameLen = 99;
 
-    // 解の先頭部分が指定の長さ以上で同じなら、それらだけを残す
-    int SAME_LEADER_LEN = 4;
+    //// 解の先頭部分が指定の長さ以上で同じなら、それらだけを残す
+    //int SAME_LEADER_LEN = 99;
 
     // 非優先候補に与えるペナルティ
     int NON_PREFERRED_PENALTY = 1000000;
@@ -699,6 +699,20 @@ namespace lattice2 {
         return utils::safe_substr(str, startPos, endPos - startPos);
     }
 
+    MString substringBetweenNonJapaneseChars(const MString& str) {
+        int endPos = (int)(str.size());
+        // まず末尾の非日本語文字をスキップ
+        for (; endPos > 0; --endPos) {
+            if (!utils::is_punct_or_commit_char(str[endPos - 1]) && !utils::is_paren(str[endPos - 1])) break;
+        }
+        // 前方に向かって非日本語文字を検索
+        int startPos = endPos - 1;
+        for (; startPos > 0; --startPos) {
+            if (utils::is_punct_or_commit_char(str[endPos - 1]) || utils::is_paren(str[startPos - 1])) break;
+        }
+        return utils::safe_substr(str, startPos, endPos - startPos);
+    }
+
     inline bool isHighFreqJoshi(mchar_t mc) {
         return mc == L'が' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は';
     }
@@ -1276,6 +1290,7 @@ namespace lattice2 {
         String debugKBestString(size_t maxLn = 100000) const {
             String result = L"kanjiPreferredNextCands=" + kanjiPreferredNextCandsDebug() + L"\n\n";
             result.append(_debugLog);
+            result.append(std::format(L"\nTotal candidates={}\n", _candidates.size()));
             result.append(L"\nKBest:\n");
             for (size_t i = 0; i < _candidates.size() && i < maxLn; ++i) {
                 result.append(std::to_wstring(i));
@@ -1381,7 +1396,8 @@ namespace lattice2 {
             bool bAdded = false;
             bool bIgnored = false;
             const MString& candStr = newCandStr.string();
-            MString subStr = substringBetweenPunctuations(candStr);
+            //MString subStr = substringBetweenPunctuations(candStr);
+            MString subStr = substringBetweenNonJapaneseChars(candStr);
 
             std::vector<MString> words;
             // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
@@ -1419,20 +1435,21 @@ namespace lattice2 {
                     if (totalCost < otherCost) {
                         iter = newCandidates.insert(iter, newCandStr);    // iter は挿入したノードを指す
                         bAdded = true;
-                        // 下位のノードで末尾文字列の共通部分が指定の長さより長いものを探し、あればそれを削除
-                        for (++iter; iter != newCandidates.end(); ++iter) {
-                            if (hasLongerCommonSuffixThanOrSameStr(candStr, iter->string(), LastSameLen)) {
-                                // 末尾文字列の共通部分が指定の長さより長いか、同じ文字列
-                                newCandidates.erase(iter);
-                                LOG_DEBUGH(_T("    REMOVE second best or lesser candidate"));
-                                break;
-                            }
-                        }
+                        // TODO LastSameLen は使わない
+                        //// 下位のノードで末尾文字列の共通部分が指定の長さより長いものを探し、あればそれを削除
+                        //for (++iter; iter != newCandidates.end(); ++iter) {
+                        //    if (hasLongerCommonSuffixThanOrSameStr(candStr, iter->string(), LastSameLen)) {
+                        //        // 末尾文字列の共通部分が指定の長さより長いか、同じ文字列
+                        //        newCandidates.erase(iter);
+                        //        LOG_DEBUGH(_T("    REMOVE second best or lesser candidate"));
+                        //        break;
+                        //    }
+                        //}
                         break;
-                    } else if (hasLongerCommonSuffixThanOrSameStr(candStr, iter->string(), LastSameLen)) {
-                        // 末尾文字列の共通部分が指定の長さより長いか、同じ文字列
-                        bIgnored = true;
-                        break;
+                    //} else if (hasLongerCommonSuffixThanOrSameStr(candStr, iter->string(), LastSameLen)) {
+                    //    // 末尾文字列の共通部分が指定の長さより長いか、同じ文字列
+                    //    bIgnored = true;
+                    //    break;
                     }
                 }
             }
@@ -1526,25 +1543,25 @@ namespace lattice2 {
                     if ((int)_bestStack.size() > challengeNum) {
                         int basePos = (int)_bestStack.size() - challengeNum - 1;
                         auto baseStr = _bestStack[basePos];
-                        if ((int)baseStr.size() >= SAME_LEADER_LEN) {
-                            bool sameFlag = true;
-                            for (int i = basePos + 1; sameFlag && i < (int)_bestStack.size(); ++i) {
-                                sameFlag = utils::startsWith(_bestStack[i], baseStr);
-                            }
-                            if (sameFlag) {
-                                _LOG_DETAIL(L"_bestStack.size={}, challengeNum={}, baseStr={}", _bestStack.size(), challengeNum, to_wstr(baseStr));
-                                std::vector<CandidateString> tempCands;
-                                auto iter = _candidates.begin();
-                                tempCands.push_back(*iter++);
-                                for (; iter != _candidates.end(); ++iter) {
-                                    if (utils::startsWith(iter->string(), baseStr)) {
-                                        // 先頭部分が一致する候補だけを残す
-                                        tempCands.push_back(*iter);
-                                    }
-                                }
-                                _candidates = std::move(tempCands);
-                            }
-                        }
+                        //if ((int)baseStr.size() >= SAME_LEADER_LEN) {
+                        //    bool sameFlag = true;
+                        //    for (int i = basePos + 1; sameFlag && i < (int)_bestStack.size(); ++i) {
+                        //        sameFlag = utils::startsWith(_bestStack[i], baseStr);
+                        //    }
+                        //    if (sameFlag) {
+                        //        _LOG_DETAIL(L"_bestStack.size={}, challengeNum={}, baseStr={}", _bestStack.size(), challengeNum, to_wstr(baseStr));
+                        //        std::vector<CandidateString> tempCands;
+                        //        auto iter = _candidates.begin();
+                        //        tempCands.push_back(*iter++);
+                        //        for (; iter != _candidates.end(); ++iter) {
+                        //            if (utils::startsWith(iter->string(), baseStr)) {
+                        //                // 先頭部分が一致する候補だけを残す
+                        //                tempCands.push_back(*iter);
+                        //            }
+                        //        }
+                        //        _candidates = std::move(tempCands);
+                        //    }
+                        //}
                     }
                 }
             }
@@ -1637,7 +1654,7 @@ namespace lattice2 {
             // stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく
             if (!isBSpiece && !_isEmpty(newCandidates)) {     // isEmpty()だったら、BSなどで先頭のものだけが残されたということ
                 for (const auto& cand : _candidates) {
-                    if (cand.strokeLen() + AllowedStrokeRange > strokeCount) {
+                    if (cand.strokeLen() + SETTINGS->remainingStrokeSize > strokeCount) {
                         newCandidates.push_back(cand);
                     }
                 }

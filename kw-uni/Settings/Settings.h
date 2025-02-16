@@ -104,8 +104,11 @@ struct Settings {
 
     bool collectRealtimeNgram = true;         // Realtime Ngram 情報を収集する
     bool useMorphAnalyzer = true;           // 形態素解析器を使用する
-    bool commitByPunctuation = true;        // 句読点でコミットする
+    //bool commitByPunctuation = true;        // 句読点でコミットする
+    bool outputHeadSpace = true;            // 先頭のスペースをそのまま出力する
+    bool strokeBackByBS = false;            // BSで打鍵取消を行う
     int multiStreamBeamSize = 5;            // multi-stream モードでのBeamSize
+    int remainingStrokeSize = 5;            // 残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
     int challengeNumForSameLeader = 4;      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
     int kanjiNoKanjiBonus = 1500;           // 「漢字+の+漢字」のような場合に与えるボーナス
     String mergerCandidateFile;             // 解候補ログファイル

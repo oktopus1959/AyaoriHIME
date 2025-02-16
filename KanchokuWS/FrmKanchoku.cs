@@ -20,7 +20,7 @@ namespace KanchokuWS
 {
     public partial class FrmKanchoku : Form
     {
-        private static Logger logger = Logger.GetLogger();
+        private static Logger logger = Logger.GetLogger(true);
 
         //------------------------------------------------------------------
         [DllImport("user32.dll")]
@@ -2164,6 +2164,13 @@ namespace KanchokuWS
 
             if (Settings.LoggingDecKeyInfo) {
                 logger.Info($"ENTER: deckey={deckey:x}H({deckey}), origDeckey={origDeckey:x}H({origDeckey}), mod={mod:x}({mod}), anyCtrl={ctrlKeyState.AnyKeyDown}, shortcutConv={bShortcutConversion}");
+            }
+
+            if (deckey == DecoderKeys.STROKE_BACK_DECKEY) {
+                deckey = DecoderKeys.BS_DECKEY;
+                if (Settings.LoggingDecKeyInfo) {
+                    logger.Info($"STROKE_BACK_DECKEY({DecoderKeys.STROKE_BACK_DECKEY}) converted to BS_DECKEY({deckey})");
+                }
             }
 
             if ((!ctrlKeyState.AnyKeyDown)                                                                      // Ctrlキーが押されていないか、

@@ -1816,7 +1816,10 @@ namespace KanchokuWS.Gui
         {
             checkBox_collectRealtimeNgram.Checked = Settings.CollectRealtimeNgram;
             checkBox_useMorphAnalyzer.Checked = Settings.UseMorphAnalyzer;
+            checkBox_strokeBackByBS.Checked = Settings.StrokeBackByBS;
+            checkBox_outputHeadSpace.Checked = Settings.OutputHeadSpace;
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
+            textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
             textBox_challengeNumForSameLeader.Text = $"{Settings.ChallengeNumForSameLeader}";
             textBox_realtimeTrigramBonusFactor.Text = $"{Settings.RealtimeTrigramBonusFactor}";
             textBox_realtimeTrigramTier1Num.Text = $"{Settings.RealtimeTrigramTier1Num}";
@@ -1849,7 +1852,10 @@ namespace KanchokuWS.Gui
 
             checkerFusion.Add(checkBox_collectRealtimeNgram);
             checkerFusion.Add(checkBox_useMorphAnalyzer);
+            checkerFusion.Add(checkBox_strokeBackByBS);
+            checkerFusion.Add(checkBox_outputHeadSpace);
             checkerFusion.Add(textBox_multiStreamBeamSize);
+            checkerFusion.Add(textBox_remainingStrokeSize);
             checkerFusion.Add(textBox_challengeNumForSameLeader);
             checkerFusion.Add(textBox_realtimeTrigramBonusFactor);
             checkerFusion.Add(textBox_realtimeTrigramTier1Num);
@@ -1873,7 +1879,10 @@ namespace KanchokuWS.Gui
 
             Settings.SetUserIni("collectRealtimeNgram", checkBox_collectRealtimeNgram.Checked);
             Settings.SetUserIni("useMorphAnalyzer", checkBox_useMorphAnalyzer.Checked);
+            Settings.SetUserIni("strokeBackByBS", checkBox_strokeBackByBS.Checked);
+            Settings.SetUserIni("outputHeadSpace", checkBox_outputHeadSpace.Checked);
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
+            Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
             Settings.SetUserIni("challengeNumForSameLeader", textBox_challengeNumForSameLeader.Text);
             Settings.SetUserIni("realtimeTrigramBonusFactor", textBox_realtimeTrigramBonusFactor.Text);
             Settings.SetUserIni("realtimeTrigramTier1Num", textBox_realtimeTrigramTier1Num.Text);
