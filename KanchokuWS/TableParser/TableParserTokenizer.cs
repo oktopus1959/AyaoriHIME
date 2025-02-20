@@ -207,22 +207,21 @@ namespace KanchokuWS.TableParser
                         ReadWord();
                         var keyword = CurrentStr._toLower();
                         if (Settings.LoggingTableFileInfo) logger.Info(() => $"AddAltKanji: keyword={keyword}");
-                        if (keyword == "clear" || keyword == "end") {
-                            kanjiConvMap?.Clear();
-                        } else {
-                            bool bSecond = false;
+                        kanjiConvMap?.Clear();
+                        bSecondKanjiMap = false;
+                        if (keyword != "clear" && keyword != "end") {
                             if (keyword == "second") {
-                                bSecond = true;
+                                bSecondKanjiMap = true;
                                 keyword = CurrentStr._toLower();
                             }
-                            if (Settings.LoggingTableFileInfo) logger.Info(() => $"AddAltKanji: {Settings.AltKanjiFile}, second={bSecond}");
-                            if (Settings.AltKanjiFile._notEmpty()) readAltKanjiFile(Settings.AltKanjiFile, bSecond);
+                            if (Settings.LoggingTableFileInfo) logger.Info(() => $"AddAltKanji: {Settings.AltKanjiFile}, second={bSecondKanjiMap}");
+                            if (Settings.AltKanjiFile._notEmpty()) readAltKanjiFile(Settings.AltKanjiFile);
                             if (keyword == "with") {
                                 ReadWordOrString();
                                 var altKanjiFile = definedNames._safeGet(CurrentStr, CurrentStr);
                                 if (altKanjiFile._notEmpty()) {
                                     if (Settings.LoggingTableFileInfo) logger.Info(() => $"UserAltKanjiFile: {altKanjiFile}");
-                                    readAltKanjiFile(altKanjiFile, bSecond);
+                                    readAltKanjiFile(altKanjiFile);
                                 }
                             }
                         }
@@ -857,14 +856,14 @@ namespace KanchokuWS.TableParser
 
         // 別候補漢字ファイルを読み込む
         // 一行の形式は「定義漢字 [<TAB>|Space]+ 別候補漢字の並び('|'区切り) [[<TAB>|Space]+ 裏漢字の並び('|'区切り)]」
-        // bSecond = false なら、定義文字に別候補漢字の並びを追加する(「別候補漢字の並び」が"-"のみなら何もしない)
-        // bSecond = true なら、定義文字を裏漢字の並びで置換する(裏文字定義が無ければ、別候補文字で置換する)
-        void readAltKanjiFile(string filename, bool bSecond)
+        // bSecondKanjiMap = false なら、"|" の後に別候補漢字の並びを追加する(「別候補漢字の並び」が"-"のみなら何もしない)
+        // bSecondKanjiMap = true なら、定義文字を裏漢字の並びで置換する(裏文字定義が無ければ、別候補文字で置換する)
+        void readAltKanjiFile(string filename)
         {
             var reComment = @"#.*";
             var reBlank = @"[\t ]+";
 
-            if (Settings.LoggingTableFileInfo) logger.Info(() => $"filename: {filename}, bSecond={bSecond}");
+            if (Settings.LoggingTableFileInfo) logger.Info(() => $"filename: {filename}, bSecondKanjiMap={bSecondKanjiMap}");
             var lines = Helper.ReadAllLines(KanchokuIni.MakeFullPath(filename), e => {
                 logger.Error($"Can't open: {filename}");
                 FileOpenError(filename);
@@ -876,12 +875,13 @@ namespace KanchokuWS.TableParser
                     if (items.Length >= 2) {
                         var kanji = items[0];
                         if (kanji._notEmpty()) {
-                            var altKanji = !bSecond ? items._getNth(1) : items._getNth(2)._notEmpty() ? items._getNth(2) : items._getNth(1);
-                            if (altKanji._isEmpty() || altKanji == "-") continue;
-                            if (!bSecond) {
-                                altKanji = kanji + ((!altKanji.StartsWith("|")) ? "|" : "") + altKanji;
+                            var altKanji = !bSecondKanjiMap ? items._getNth(1) : items._getNth(2)._notEmpty() ? items._getNth(2) : items._getNth(1);
+                            if (altKanji._isEmpty() || !bSecondKanjiMap && altKanji == "-") continue;
+                            if (!bSecondKanjiMap && altKanji[0] != '|') {
+                                altKanji = "|" + altKanji;
                             }
                             kanjiConvMap[kanji] = altKanji;
+                            // bSecondKanjiMap && "-" の場合は、ParserContext.ConvertKanji()で、空文字列に変換される
                         }
                     }
                 }

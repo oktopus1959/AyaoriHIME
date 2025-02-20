@@ -755,6 +755,28 @@ namespace Utils
             return sb == null || sb.Length == 0;
         }
 
+        public static bool _notEmpty(this StringBuilder sb)
+        {
+            return sb != null && sb.Length > 0;
+        }
+
+        public static bool _equals(this StringBuilder sb, string str)
+        {
+            if (sb == null && str == null) return true;
+            if (sb != null && str != null && sb.Length == str.Length) {
+                for (int i = 0; i < sb.Length; ++i) {
+                    if (sb[i] != str[i]) return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public static void _chop(this StringBuilder sb)
+        {
+            if (sb._notEmpty()) sb.Remove(sb.Length, 1);
+        }
+
         /// <summary>
         /// 文字列が null でなく、かつ empty でもなければ true を返す。
         /// </summary>

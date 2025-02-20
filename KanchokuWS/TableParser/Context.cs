@@ -974,13 +974,28 @@ namespace KanchokuWS.TableParser
         // 漢字置換マップ
         public Dictionary<string, string> kanjiConvMap = new Dictionary<string, string>();
 
+        // 別表定義か
+        public bool bSecondKanjiMap = false;
+
         /// <summary>漢字置換ファイルによる漢字の書きえ</summary>
         /// <param name="k"></param>
         /// <returns></returns>
-        public string ConvertKanji(string k) {
-            var altKanji = kanjiConvMap._safeGet(k);
-            if (altKanji._isEmpty()) return k;
-            return altKanji.StartsWith("|") ? k + altKanji : altKanji;
+        public string ConvertKanji(string str) {
+            var result = new StringBuilder();
+            foreach (var k in str._split('|')) {
+                var altKanji = kanjiConvMap._safeGet(k._strip());
+                if (altKanji._notEmpty()) {
+                    if (result._notEmpty()) {
+                        if (result._equals("-")) result._chop();
+                        if (result._notEmpty() && !altKanji.StartsWith("|")) result.Append('|');
+                    }
+                    result.Append(altKanji);
+                }
+            }
+            if (result._isEmpty()) return bSecondKanjiMap ? "" : str;
+            if (result._equals("-")) return "";
+            var added = result.ToString();
+            return added[0] == '|' ? str + added : added;
         }
 
         /// <summary>キー文字に到るストロークパスを得る辞書</summary>

@@ -83,6 +83,7 @@ namespace KanchokuWS.TableParser
         protected HashSet<int> sequentialShiftKeys => Context.sequentialShiftKeys;
 
         protected Dictionary<string, string> kanjiConvMap => Context.kanjiConvMap;
+        protected bool bSecondKanjiMap { get { return Context.bSecondKanjiMap; } set { Context.bSecondKanjiMap = value; } }
         public string ConvertKanji(string k) { return Context.ConvertKanji(k); }
 
         protected bool IsPrimary => tableLines.IsPrimary;
