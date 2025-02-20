@@ -77,10 +77,10 @@ namespace {
             return p != nullptr ? p->IsRootKeyCombination() : false;
         }
 
-        // ルートテーブルは同時打鍵テーブルか
-        virtual bool IsRootTableCombination() {
+        // ルートテーブルは順序あり同時打鍵テーブルか
+        virtual bool IsRootTableOrderedCombination() {
             auto p = dynamic_cast<StrokeTableState*>(PrevState());
-            return p != nullptr ? p->IsRootTableCombination() : false;
+            return p != nullptr ? p->IsRootTableOrderedCombination() : false;
         }
 
     public:
@@ -134,7 +134,7 @@ namespace {
             //    // また、漢直側で「い→ら」⇒「運」を順序ありで再定義する必要もなくなる
             //    deckey = UNSHIFT_DECKEY(deckey);
             //    _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
-            if (DeckeyUtil::is_ordered_combo(deckey) && !IsRootTableCombination()) {
+            if (DeckeyUtil::is_ordered_combo(deckey) && !IsRootTableOrderedCombination()) {
                 // 当キーが順序ありの同時打鍵で、RootStrokeTableが同時打鍵テーブルでないなら通常面に落としこむ。
                 // 漢直側でスペース前置の「<SP> O I」⇒「乖」を順序ありで再定義する必要がなくなる
                 deckey = UNSHIFT_DECKEY(deckey);
@@ -365,10 +365,10 @@ namespace {
             return bCombination;
         }
 
-        // ルートテーブルは同時打鍵テーブルか
-        bool IsRootTableCombination() override {
-            LOG_DEBUGH(_T("CALLED: {}, combination={}"), Name, myNode()->isComboTable());
-            return myNode()->isComboTable();
+        // ルートテーブルは順序あり同時打鍵テーブルか
+        bool IsRootTableOrderedCombination() override {
+            LOG_DEBUGH(_T("CALLED: {}, combination={}"), Name, myNode()->isOrderedComboTable());
+            return myNode()->isOrderedComboTable();
         }
 
     public:
@@ -382,9 +382,9 @@ namespace {
 
         // StrokeTableNode を処理する
         void handleStrokeKeys(int deckey) {
-            _LOG_DETAIL(_T("ENTER: {}: isCombo={}: deckey={:x}H({})"), Name, myNode()->isComboTable(), deckey, deckey);
+            _LOG_DETAIL(_T("ENTER: {}: isCombo={}: deckey={:x}H({})"), Name, myNode()->isOrderedComboTable(), deckey, deckey);
             STATE_COMMON->SyncFirstStrokeKeyCount();    // 第1ストロークキーカウントの同期
-            if (!myNode()->isComboTable() && DeckeyUtil::is_ordered_combo(deckey)) {
+            if (!myNode()->isOrderedComboTable() && DeckeyUtil::is_ordered_combo(deckey)) {
                 // 逐次打鍵テーブルであり、かつキーが順序ありの同時打鍵なら通常面に落としこむ。
                 // 漢直側で「い→ら」⇒「運」を順序ありで再定義する必要がなくなる
                 deckey = UNSHIFT_DECKEY(deckey);
@@ -604,6 +604,19 @@ bool StrokeTableNode::hasComboNode() {
     _LOG_DETAIL(_T("ENTER"));
     bool result = false;
     for (int i = COMBO_DECKEY_START; i < (int)children.size(); ++i) {
+        if (children[i]) {
+            result = true;
+            break;
+        }
+    }
+    _LOG_DETAIL(_T("LEAVE: {}"), result);
+    return result;
+}
+
+bool StrokeTableNode::hasOrderedComboNode() {
+    _LOG_DETAIL(_T("ENTER"));
+    bool result = false;
+    for (int i = ORDERED_COMBO_DECKEY_START; i < (int)children.size(); ++i) {
         if (children[i]) {
             result = true;
             break;

@@ -259,6 +259,7 @@ namespace {
             setupShiftedKeyFunction(rootNode);
             ParseTableSource(rootNode);
             rootNode->checkComboNode();
+            rootNode->checkOrderedComboNode();
             //rootNode->setPostRewrite(bPostRewriteNodeFound);
             return rootNode;
         }

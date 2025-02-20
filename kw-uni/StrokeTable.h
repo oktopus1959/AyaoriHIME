@@ -48,6 +48,9 @@ private:
     // 同時打鍵テーブルか
     bool _isComboTable = false;
 
+    // 順序あり同時打鍵テーブルか
+    bool _isOrderedComboTable = false;
+
 public:
     // コンストラクタ
     StrokeTableNode(int depth) : _depth(depth) {
@@ -86,10 +89,16 @@ public:
         _isComboTable = hasComboNode();
     }
 
+    inline void checkOrderedComboNode() {
+        _isOrderedComboTable = hasOrderedComboNode();
+    }
+
 private:
     int findPostRewriteNode(int result);
 
     bool hasComboNode();
+
+    bool hasOrderedComboNode();
 
 public:
     /* StrokeTableNode 独自メソッド */
@@ -138,7 +147,12 @@ public:
 
     // 同時打鍵テーブルか
     inline bool isComboTable() const {
-        return _isComboTable;
+        return _isOrderedComboTable;
+    }
+
+    // 順序あり同時打鍵テーブルか
+    inline bool isOrderedComboTable() const {
+        return _isOrderedComboTable;
     }
 
 private:
