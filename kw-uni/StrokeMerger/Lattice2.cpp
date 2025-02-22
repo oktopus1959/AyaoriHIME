@@ -745,9 +745,10 @@ namespace lattice2 {
             //} else if ((i == 0 || !utils::is_hiragana(str[i - 1])) && strLen == i + 2 && isHighFreqJoshi(str[i]) && utils::is_hiragana(str[i + 1])) {
                 //// 先頭または漢字・カタカナの直後の2文字のひらがなで、1文字目が高頻度の助詞(が、を、に、の、で、は)なら、ボーナスを与付して、ひらがな2文字になるようにする
                 // こちらはいろいろと害が多い(からです⇒朝です、食べさせると青⇒食べ森書がの、など)
-            } else if (i == 0 && strLen >= 2 && isHighFreqJoshi(str[0]) && !utils::is_hiragana(str[1])) {
-                // 1文字目が高頻度の助詞(と、を、に、の、で、は、が)で、2文字目がひらがな以外なら、ボーナスを付与
-                cost -= HEAD_HIGH_FREQ_JOSHI_BONUS;
+            //} else if (i == 0 && strLen >= 2 && isHighFreqJoshi(str[0]) && !utils::is_hiragana(str[1])) {
+            //    // 1文字目が高頻度の助詞(と、を、に、の、で、は、が)で、2文字目がひらがな以外なら、ボーナスを付与
+            //    cost -= HEAD_HIGH_FREQ_JOSHI_BONUS;
+                // 「がよい」より「が関」が優先されてしまう
             }
             // 通常の unigram コストの計上
             cost += get_base_ngram_cost(utils::safe_substr(str, i, 1));
