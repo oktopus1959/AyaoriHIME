@@ -685,6 +685,22 @@ namespace lattice2 {
     }
 
 
+    inline bool isHighFreqJoshi(mchar_t mc) {
+        return mc == L'が' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は';
+    }
+
+    inline bool isHeadHighFreqJoshi(mchar_t mc) {
+        return mc == L'と' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は' || mc == L'が';
+    }
+
+    inline bool isSmallKatakana(mchar_t mc) {
+        return mc == L'ァ' || mc == L'ィ' || mc == L'ゥ' || mc == L'ェ' || mc == L'ォ' || mc == L'ャ' || mc == L'ュ' || mc == L'ョ';
+    }
+
+    inline bool isCommitChar(mchar_t mch) {
+        return utils::is_punct_or_commit_char(mch) || utils::is_paren(mch);
+    }
+
     MString substringBetweenPunctuations(const MString& str) {
         int endPos = (int)(str.size());
         // まず末尾の句読点をスキップ
@@ -703,26 +719,14 @@ namespace lattice2 {
         int endPos = (int)(str.size());
         // まず末尾の非日本語文字をスキップ
         for (; endPos > 0; --endPos) {
-            if (!utils::is_punct_or_commit_char(str[endPos - 1]) && !utils::is_paren(str[endPos - 1])) break;
+            if (!isCommitChar(str[endPos - 1])) break;
         }
         // 前方に向かって非日本語文字を検索
         int startPos = endPos - 1;
         for (; startPos > 0; --startPos) {
-            if (utils::is_punct_or_commit_char(str[endPos - 1]) || utils::is_paren(str[startPos - 1])) break;
+            if (isCommitChar(str[startPos - 1])) break;
         }
         return utils::safe_substr(str, startPos, endPos - startPos);
-    }
-
-    inline bool isHighFreqJoshi(mchar_t mc) {
-        return mc == L'が' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は';
-    }
-
-    inline bool isHeadHighFreqJoshi(mchar_t mc) {
-        return mc == L'と' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は' || mc == L'が';
-    }
-
-    inline bool isSmallKatakana(mchar_t mc) {
-        return mc == L'ァ' || mc == L'ィ' || mc == L'ゥ' || mc == L'ェ' || mc == L'ォ' || mc == L'ャ' || mc == L'ュ' || mc == L'ョ';
     }
 
 #if 1
@@ -1040,6 +1044,10 @@ namespace lattice2 {
 
         const int strokeLen() const {
             return _strokeLen;
+        }
+
+        void addStrokeCount(int delta) {
+            _strokeLen += delta;
         }
 
         int totalCost() const {
@@ -1392,19 +1400,22 @@ namespace lattice2 {
         }
 
         // 新しい候補を追加
-        bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, bool isStrokeBS) {
+        bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, const MString& subStr, bool isStrokeBS) {
             _LOG_DETAIL(_T("ENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
             bool bAdded = false;
             bool bIgnored = false;
             const MString& candStr = newCandStr.string();
             //MString subStr = substringBetweenPunctuations(candStr);
-            MString subStr = substringBetweenNonJapaneseChars(candStr);
+            //MString subStr = substringBetweenNonJapaneseChars(candStr);
+            _LOG_DETAIL(_T("subStr={}"), to_wstr(subStr));
 
             std::vector<MString> words;
             // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
             //int morphCost = !SETTINGS->useMorphAnalyzer || subStr.size() <= 1 ? 5000 : calcMorphCost(subStr, words);
             int morphCost = !SETTINGS->useMorphAnalyzer || subStr.empty() ? 0 : calcMorphCost(subStr, words);
-            if (subStr.size() == 1 && utils::is_katakana(subStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
+            if (subStr.size() == 1) {
+                if (utils::is_katakana(subStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
+            }
             int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr) * NGRAM_COST_FACTOR;
             //int morphCost = 0;
             //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
@@ -1482,7 +1493,7 @@ namespace lattice2 {
             const MString& pieceStr = piece.getString();
             //int topStrokeLen = -1;
 
-            if (piece.getString().size() == 1) setHighFreqJoshiStroke(strokeCount, piece.getString()[0]);
+            if (pieceStr.size() == 1) setHighFreqJoshiStroke(strokeCount, pieceStr[0]);
 
             int singleHitHighFreqJoshiCost = piece.strokeLen() > 1 && isSingleHitHighFreqJoshi(strokeCount - (piece.strokeLen() - 1)) ? SINGLE_HIT_HIGH_FREQ_JOSHI_KANJI_COST : 0;
 
@@ -1511,7 +1522,7 @@ namespace lattice2 {
                         std::tie(s, numBS) = cand.applyAutoBushu(piece, strokeCount);  // 自動部首合成
                         if (!s.empty()) {
                             CandidateString newCandStr(s, strokeCount, 0, penalty);
-                            addCandidate(newCandidates, newCandStr, isStrokeBS);
+                            addCandidate(newCandidates, newCandStr, s, isStrokeBS);
                             bAutoBushuFound = true;
                         }
                     }
@@ -1519,14 +1530,21 @@ namespace lattice2 {
                     int idx = 0;
                     for (MString s : ss) {
                         int _iniCost = 0;
-                        if (s.length() == 1) {
+                        MString subStr = substringBetweenNonJapaneseChars(s);
+                        if (subStr.length() == 1) {
                             // 1文字以下なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
                             _iniCost = HEAD_SINGLE_CHAR_ORDER_COST * idx;
                             ++idx;
                         }
                         CandidateString newCandStr(s, strokeCount, _iniCost, penalty);
-                        addCandidate(newCandidates, newCandStr, isStrokeBS);
+                        addCandidate(newCandidates, newCandStr, subStr, isStrokeBS);
                     }
+                    // pieceが確定文字の場合
+                    if (pieceStr.size() == 1 && lattice2::isCommitChar(pieceStr[0])) {
+                        // 先頭候補だけを残す
+                        break;
+                    }
+
                 }
             }
             _LOG_DETAIL(_T("LEAVE"));
@@ -1588,6 +1606,14 @@ namespace lattice2 {
                             newCandidates.push_back(newCand);
                         }
                     }
+                    if (!newCandidates.empty() && newCandidates.front().strokeLen() != strokeCount) {
+                        // 一つ前のストローク候補が無くなっていたら、それ以下のものを繰り上げる
+                        delta = strokeCount - newCandidates.front().strokeLen();
+                        _LOG_DETAIL(L"raise candidates: frontCand.strokeLen={}, delta={}", newCandidates.front().strokeLen(), delta);
+                        for (auto& cand : newCandidates) {
+                            cand.addStrokeCount(delta);
+                        }
+                    }
                 }
             }
             _LOG_DETAIL(L"LEAVE: {} candidates", newCandidates.size());
@@ -1629,8 +1655,6 @@ namespace lattice2 {
                 //_LOG_DETAIL(L"strokeBack");
                 removeCurrentStrokeCandidates(newCandidates, strokeCount);
                 if (!newCandidates.empty()) {
-                    // 戻した先頭を優先しておく
-                    lattice2::selectFirst(newCandidates);
                     return newCandidates;
                 }
                 // 以前のストロークの候補が無ければ、通常のBSの動作とする
@@ -2012,7 +2036,7 @@ namespace lattice2 {
                 _debugLogQueue.push_back(std::format(L"========================================\nENTER: currentStrokeCount={}, pieces: {}\n",
                     currentStrokeCount, formatStringOfWordPieces(pieces)));
                 if (pieces.back().numBS() <= 0) {
-                    _debugLogQueue.push_back(std::format(L"\n{}\nOUTPUT: {}, numBS={}\n\n", _kBestList.debugKBestString(10), to_wstr(outStr), numBS));
+                    _debugLogQueue.push_back(std::format(L"\n{}\nOUTPUT: {}, numBS={}\n\n", _kBestList.debugKBestString(SETTINGS->multiStreamBeamSize), to_wstr(outStr), numBS));
                 }
             }
 
