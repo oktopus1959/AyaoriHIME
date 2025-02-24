@@ -650,11 +650,13 @@ namespace {
 
             STATE_COMMON->SetCurrentModeIsMultiStreamInput();
 
-            if (resultStr.isModified()) {
+            /*if (resultStr.isModified()) {
                 LOG_DEBUGH(_T("resultStr={}"), resultStr.debugString());
                 resultOut.setResult(resultStr);
                 //LOG_DEBUGH(L"B:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
-            } else if (NextState()) {
+            } else*/
+            if (!resultStr.isModified() && NextState()) {
+                LOG_DEBUGH(_T("CALL NextState()->GetResultStringChain"));
                 NextState()->GetResultStringChain(resultOut);
                 //LOG_DEBUGH(L"C:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             } else {
@@ -667,7 +669,13 @@ namespace {
 
                 // 単語素片の収集
                 std::vector<WordPiece> pieces;
-                if ((int)STATE_COMMON->GetTotalDecKeyCount() == _strokeCountBS) {
+                if (resultStr.isModified()) {
+                    // EISUなど、何か他の処理で文字列が得られた場合
+                    LOG_DEBUGH(_T("resultStr={}"), resultStr.debugString());
+                    WORD_LATTICE->clear();
+                    pieces.push_back(WordPiece(resultStr.resultStr(), 1, 0));
+                }
+                else if ((int)STATE_COMMON->GetTotalDecKeyCount() == _strokeCountBS) {
                     LOG_DEBUGH(_T("add WordPiece for BS."));
                     pieces.push_back(WordPiece::BSPiece());
                     //LOG_DEBUGH(L"D:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
@@ -705,6 +713,8 @@ namespace {
                 auto result = getLatticeResult(pieces);
                 _kanjiPreferredNext = false;
                 _strokeBack = false;
+
+                if (resultStr.numBS() > 0) result.numBS = resultStr.numBS();
 
                 //LOG_DEBUGH(L"F:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
