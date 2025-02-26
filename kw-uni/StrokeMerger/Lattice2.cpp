@@ -940,13 +940,17 @@ namespace lattice2 {
         CandidateString(const CandidateString& cand, int strokeDelta) : _str(cand._str), _strokeLen(cand._strokeLen+strokeDelta), _cost(cand._cost), _penalty(cand._penalty) {
         }
 
+        // 自動部首合成の実行
         std::tuple<MString, int> applyAutoBushu(const WordPiece& piece, int strokeCount) const {
+            LOG_DEBUGH(_T("CALLED: _str={}, _strokeLen={}, piece={}, strokeCount={}"), to_wstr(_str), piece.debugString(), _strokeLen, strokeCount);
             MStringResult resultOut;
             if (_strokeLen + piece.strokeLen() == strokeCount) {
                 if (SETTINGS->autoBushuCompMinCount > 0 && BUSHU_DIC) {
-                    if (_str.size() > 0 && piece.getString().size() == 1) {
-                        // 自動部首合成の実行
-                        BUSHU_COMP_NODE->ReduceByAutoBushu(_str.back(), piece.getString().front(), resultOut);
+                    const MString& pieceStr = piece.getString();
+                    if (_str.size() > 0 && (pieceStr.size() == 1 || (pieceStr.size() > 1 && pieceStr[1] == '|'))) {
+                        // 自動部首合成の実行 (複数文字がある場合は先頭の文字だけを対象)
+                        LOG_DEBUGH(L"CALL ReduceByAutoBushu({}, {})", (wchar_t)_str.back(), (wchar_t)pieceStr.front());
+                        BUSHU_COMP_NODE->ReduceByAutoBushu(_str.back(), pieceStr.front(), resultOut);
                         if (!resultOut.resultStr().empty()) {
                             MString s(_str);
                             s.back() = resultOut.resultStr().front();
