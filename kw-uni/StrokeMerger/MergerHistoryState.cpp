@@ -394,6 +394,8 @@ namespace {
         int _comboStrokeCount = 0;
 
         int _strokeCountBS = -1;
+        int _prevStrokeCountBS = -1;
+        int _startStrokeCountBS = -1;
 
         // ストロークを1つ前に戻す
         bool _strokeBack = false;
@@ -483,7 +485,8 @@ namespace {
                     case BS_DECKEY:
                         LOG_DEBUGH(_T("BS"));
                         _strokeCountBS = (int)STATE_COMMON->GetTotalDecKeyCount();
-                        if (SETTINGS->strokeBackByBS) {
+                        if (_strokeCountBS != _prevStrokeCountBS + 1) _startStrokeCountBS = _strokeCountBS;
+                        if (SETTINGS->strokeBackByBS && _strokeCountBS - _startStrokeCountBS < SETTINGS->maxStrokeBackCount) {
                             // 打鍵取消
                             LOG_DEBUGH(_T("stroke back by BS"));
                             _strokeBack = true;
@@ -492,6 +495,7 @@ namespace {
                             //WORD_LATTICE->selectFirst();
                             WORD_LATTICE->removeSecondOrLesser();
                         }
+                        _prevStrokeCountBS = _strokeCountBS;
                         if (WORD_LATTICE->isEmpty()) State::handleBS();
                         break;
                     case DOWN_ARROW_DECKEY:
@@ -916,7 +920,7 @@ namespace {
             } else {
                 resultStr.clear();
                 //if (bBushuComp && SETTINGS->autoBushuCompMinCount > 0) {
-                //    // 自動部首合成
+                //    // 自動部首合成⇒Latticeの中でやっている
                 //    LOG_DEBUGH(_T("Call AutoBushu"));
                 //    BUSHU_COMP_NODE->ReduceByAutoBushu(outStr, resultStr);
                 //}

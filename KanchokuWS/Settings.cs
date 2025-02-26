@@ -174,6 +174,9 @@ namespace KanchokuWS
         /// <summary>BSで打鍵取消を行う</summary>
         public static bool StrokeBackByBS { get; set; }
 
+        /// <summary>BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか</summary>
+        public static int MaxStrokeBackCount { get; set; }
+
         /// <summary>融合モードにおける解探索のビームサイズ</summary>
         public static int MultiStreamBeamSize { get; set; }
 
@@ -1731,7 +1734,8 @@ namespace KanchokuWS
             UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             OutputHeadSpace = addDecoderSetting("outputHeadSpace", true);                       // 先頭のスペースをそのまま出力する
-            StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                         // BSで打鍵取消を行う
+            StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う
+            MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 2);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
             MultiStreamBeamSize = addDecoderSetting("multiStreamBeamSize", 5);                  // 融合モードにおける解探索のビームサイズ
             RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲
             ChallengeNumForSameLeader = addDecoderSetting("challengeNumForSameLeader", 4);      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数

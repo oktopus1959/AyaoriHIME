@@ -127,6 +127,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     //SET_BOOL_VALUE(commitByPunctuation);
     SET_BOOL_VALUE(outputHeadSpace);
     SET_BOOL_VALUE(strokeBackByBS);
+    SET_INT_VALUE(maxStrokeBackCount);
     SET_INT_VALUE(multiStreamBeamSize);
     SET_INT_VALUE(remainingStrokeSize);
     SET_INT_VALUE(challengeNumForSameLeader);
