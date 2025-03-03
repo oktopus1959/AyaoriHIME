@@ -261,6 +261,9 @@ public:
         // ユーザー単語コストファイルの読み込み
         Lattice2::reloadUserCostFile();
 
+        // グローバルな後置書き換えマップファイルの読み込み
+        Lattice2::reloadGlobalPostRewriteMapFile();
+
         LOG_DEBUGH(_T("LEAVE"));
     }
 

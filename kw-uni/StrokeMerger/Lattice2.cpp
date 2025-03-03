@@ -152,6 +152,9 @@ namespace lattice2 {
     // Ngram頻度がオンラインで更新されたか
     bool realtimeNgram_updated = false;
 
+    // グローバルな後置書き換えマップ
+    std::map<MString, MString> globalPostRewriteMap;
+
     inline bool isDecimalString(StringRef item) {
         return utils::reMatch(item, L"[+\\-]?[0-9]+");
     }
@@ -879,6 +882,30 @@ namespace lattice2 {
     }
 #endif
 
+#define GLOBAL_POST_REWRITE_FILE    L"files/global-post-rewrite-map.txt"
+
+    // グローバルな後置書き換えマップファイルの読み込み
+    void readGlobalPostRewriteMapFile() {
+        auto path = utils::joinPath(SETTINGS->rootDir, GLOBAL_POST_REWRITE_FILE);
+        LOG_INFO(_T("LOAD: {}"), path.c_str());
+        utils::IfstreamReader reader(path);
+        int count = 0;
+        if (reader.success()) {
+            LOG_INFO(_T("FOUND: {}"), path.c_str());
+            for (const auto& line : reader.getAllLines()) {
+                auto items = utils::split(utils::replace_all(utils::strip(line), L"[>: ]+", L"\t"), '\t');
+                if (items.size() == 2 &&
+                    items[0].size() >= 1 && items[1].size() >= 1 &&
+                    items[0][0] != L'#' && items[0][0] != L';') {
+
+                   globalPostRewriteMap[to_mstr(items[0])] = to_mstr(items[1]);
+                   ++count;
+                }
+            }
+        }
+        LOG_INFO(_T("LEAVE: count={}"), count);
+    }
+
     // 候補文字列
     class CandidateString {
         MString _str;
@@ -911,6 +938,7 @@ namespace lattice2 {
             return { 0, 0 };
         }
 
+        // 複数文字が設定されているストロークを1文字ずつに分解
         std::vector<MString> split_piece_str(const MString& s) const {
             if (s.size() == 1 && s.front() == '|') {
                 return std::vector<MString>(1, s);
@@ -928,6 +956,23 @@ namespace lattice2 {
                 }
             }
             return result;
+        }
+
+        // グローバルな後置書き換えを適用する
+        MString applyGlobalPostRewrite(const MString& adder) const {
+            size_t maxlen = SETTINGS->kanaTrainingMode && ROOT_STROKE_NODE->hasOnlyUsualRewriteNdoe() ? 0 : 8;     // かな入力練習モードで濁点のみなら書き換えをやらない
+            if (maxlen > _str.size()) maxlen = _str.size();
+            for (size_t len = maxlen; len > 0; --len) {
+                MString key = utils::safe_tailstr(_str, len) + adder;
+                LOG_DEBUGH(_T("key={}"), to_wstr(key));
+                auto iter = globalPostRewriteMap.find(key);
+                if (iter != globalPostRewriteMap.end()) {
+                    // 書き換え文字列が見つかった
+                    LOG_DEBUGH(_T("FOUND: rewrite={}"), to_wstr(iter->second));
+                    return len < _str.size() ? utils::safe_substr(_str, 0, _str.size() - len) + iter->second : iter->second;
+                }
+            }
+            return _str + adder;
         }
 
     public:
@@ -1032,7 +1077,11 @@ namespace lattice2 {
                         // 複数文字が設定されたストロークの扱い
                         LOG_DEBUGH(_T("normalNode: {}"), to_wstr(piece.getString()));
                         for (MString s : split_piece_str(piece.getString())) {
-                            ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
+                            if (bKatakanaConversion) {
+                                ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
+                            } else {
+                                ss.push_back(applyGlobalPostRewrite(s));
+                            }
                         }
                     }
                 }
@@ -2111,3 +2160,8 @@ void Lattice2::depressRealtimeNgram(const MString& str) {
 void Lattice2::saveRealtimeNgramFile() {
     lattice2::saveRealtimeNgramFile();
 }
+
+void Lattice2::reloadGlobalPostRewriteMapFile() {
+    lattice2::readGlobalPostRewriteMapFile();
+}
+

@@ -177,6 +177,8 @@ public:
     
     static void saveRealtimeNgramFile();
 
+    static void reloadGlobalPostRewriteMapFile();
+
     static std::unique_ptr<Lattice2> Singleton;
 
     //static void loadCostFile();
