@@ -1463,17 +1463,17 @@ namespace KanchokuWS
             // Ctrlキー変換
             GlobalCtrlKeysEnabled = GetString("globalCtrlKeysEnabled")._parseBool(false);
 
-            CtrlKeyConvertedToBackSpace = GetString("ctrlKeyToBackSpace", "#H");
-            CtrlKeyConvertedToDelete = GetString("ctrlKeyToDelete", "#D");
-            CtrlKeyConvertedToLeftArrow = GetString("ctrlKeyToLeftArrowKey", "#B");
-            CtrlKeyConvertedToRightArrow = GetString("ctrlKeyToRightArrowKey", "#F");
-            CtrlKeyConvertedToUpArrow = GetString("ctrlKeyToUpArrowKey", "#P");
-            CtrlKeyConvertedToDownArrow = GetString("ctrlKeyToDownArrowKey", "#N");
-            CtrlKeyConvertedToHome = GetString("ctrlKeyToHome", "#A");
-            CtrlKeyConvertedToEnd = GetString("ctrlKeyToEnd", "#E");
-            CtrlKeyConvertedToEsc = GetString("ctrlKeyToEsc", "#OEM4");
-            CtrlKeyConvertedToTab = GetString("ctrlKeyToTab", "#I");
-            CtrlKeyConvertedToEnter = GetString("ctrlKeyToEnter", "#M");
+            CtrlKeyConvertedToBackSpace = GetString("ctrlKeyToBackSpace", "H");
+            CtrlKeyConvertedToDelete = GetString("ctrlKeyToDelete", "D");
+            CtrlKeyConvertedToLeftArrow = GetString("ctrlKeyToLeftArrowKey", "B");
+            CtrlKeyConvertedToRightArrow = GetString("ctrlKeyToRightArrowKey", "F");
+            CtrlKeyConvertedToUpArrow = GetString("ctrlKeyToUpArrowKey", "P");
+            CtrlKeyConvertedToDownArrow = GetString("ctrlKeyToDownArrowKey", "N");
+            CtrlKeyConvertedToHome = GetString("ctrlKeyToHome", "A");
+            CtrlKeyConvertedToEnd = GetString("ctrlKeyToEnd", "E");
+            CtrlKeyConvertedToEsc = GetString("ctrlKeyToEsc", "OEM4");
+            CtrlKeyConvertedToTab = GetString("ctrlKeyToTab", "I");
+            CtrlKeyConvertedToEnter = GetString("ctrlKeyToEnter", "M");
             CtrlKeyConvertedToInsert = GetString("ctrlKeyToInsert", "#");
             CtrlKeyConvertedToPageUp = GetString("ctrlKeyToPageUp", "#");
             CtrlKeyConvertedToPageDown = GetString("ctrlKeyToPageDown", "#");

@@ -83,7 +83,7 @@ namespace KanchokuWS.Forms
         {
             var str = chars._toString();
 
-            logger.WarnH(() => $"CALLED: str={str}, numBS={numBS}, bFlush={bFlush}");
+            logger.InfoH(() => $"CALLED: str={str}, numBS={numBS}, bFlush={bFlush}");
 
             if (str._isEmpty() && numBS <= 0 && !bFlush) return;
 
