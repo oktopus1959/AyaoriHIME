@@ -484,6 +484,19 @@ namespace KanchokuWS.Domain
             { (uint)Keys.IMENonconvert, '無' },        // 1d
         }; // vkeyToCharUS
 
+        private static Dictionary<uint, string> vkeyToModifier = new Dictionary<uint, string>() {
+            { FuncVKeys.SHIFT, "SHIFT" },
+            { FuncVKeys.CONTROL, "CONTROL" },
+            { FuncVKeys.ALT, "ALT" },
+            { FuncVKeys.LSHIFT, "LSHIFT" },
+            { FuncVKeys.RSHIFT, "RSHIFT" },
+            { FuncVKeys.LCONTROL, "LCONTROL" },
+            { FuncVKeys.RCONTROL, "RCONTROL" },
+            { FuncVKeys.L_ALT, "L_ALT" },
+            { FuncVKeys.R_ALT, "R_ALT" },
+            { FuncVKeys.SPACE, "SPACE" },
+        };
+
         /// <summary>キー文字から、その仮想キーコードを得る</summary>
         public static uint getFaceToVKey(string face)
         {
@@ -501,6 +514,12 @@ namespace KanchokuWS.Domain
         public static char getVKeyToChar(uint vk)
         {
             return (DecoderKeyVsVKey.IsJPmode ? vkeyToCharJP : vkeyToCharUS)._safeGet(vk);
+        }
+
+        /// <summary>仮想キーコードから、その表示名を得る</summary>
+        public static string getVKeyToFaceString(uint vk)
+        {
+            return vkeyToModifier._safeGet(vk);
         }
 
         /// <summary>文字名から、その文字コードを得る</summary>
@@ -538,6 +557,17 @@ namespace KanchokuWS.Domain
         public static char GetCharFromFaceStr(string face)
         {
             return _FaceCharVKey.getFaceStrToChar(face);
+        }
+
+        /// <summary>仮想キーコードから、その表示名を得る<br>対応するものがなければ空文字列を返す</summary>
+        public static string GetFaceStringFromVKey(uint vkey)
+        {
+            var face = _FaceCharVKey.getVKeyToFaceString(vkey);
+            if (face._isEmpty()) {
+                var ch = _FaceCharVKey.getVKeyToChar(vkey);
+                face = ch > 0 ? ch.ToString() : "";
+            }
+            return face;
         }
 
     }

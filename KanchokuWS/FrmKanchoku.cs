@@ -140,7 +140,7 @@ namespace KanchokuWS
             } else {
                 sDiff = $"{diffMs,6:#,0}";
             }
-            //sbStrokeLog.Append($"{dt.ToString("HH:mm:ss.fff")} | {sDiff} | {msg}\r\n");
+            //sbStrokeLog.Append($"{dtNow.ToString("HH:mm:ss.fff")} | {sDiff} | {msg}\r\n");
             appendStringBufferAndQueue($"{dt.ToString("HH:mm:ss.fff")} | {sDiff} | {msg}\r\n");
             strokeLogLastDt = dt;
         }
@@ -208,6 +208,42 @@ namespace KanchokuWS
         {
             logger.DebugH("CALLED");
             dlgCandidateLog = null;
+        }
+
+        //------------------------------------------------------------------
+        private DlgKeyInfoLog dlgKeyInfoLog = null;
+
+        public void ShowDlgKeyInfoLog(Form frmFocus, int left, int top)
+        {
+            logger.DebugH("ENTER");
+            // 解候補ログ表示ダイアログの作成
+            if (dlgKeyInfoLog == null) {
+                dlgKeyInfoLog = new DlgKeyInfoLog(NotifyToCloseDlgKeyInfoLog, refreshKeyInfoLog, frmFocus);
+                //MoveWindow(dlgKeyInfoLog.Handle, 0, 0, dlgKeyInfoLog.Width, dlgKeyInfoLog.Height, true);
+            }
+            refreshKeyInfoLog();
+            dlgKeyInfoLog._showTopMost();
+            logger.DebugH("LEAVE");
+        }
+
+        private void refreshKeyInfoLog()
+        {
+            foreach (var line in keHandler.getRecentKeyInfos()) {
+                dlgKeyInfoLog.WriteLog(line + "\r\n");
+            }
+        }
+
+        public void CloseDlgKeyInfoLog()
+        {
+            logger.DebugH("CALLED");
+            dlgKeyInfoLog?.Close();
+            dlgKeyInfoLog = null;
+        }
+
+        public void NotifyToCloseDlgKeyInfoLog()
+        {
+            logger.DebugH("CALLED");
+            dlgKeyInfoLog = null;
         }
 
         //------------------------------------------------------------------

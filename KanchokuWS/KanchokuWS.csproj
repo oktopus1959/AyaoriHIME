@@ -109,6 +109,12 @@
     <Compile Include="Forms\FrmEditBuffer.Designer.cs">
       <DependentUpon>FrmEditBuffer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Gui\DlgKeyInfoLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Gui\DlgKeyInfoLog.Designer.cs">
+      <DependentUpon>DlgKeyInfoLog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Gui\DlgSettings_Develop.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -260,6 +266,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Gui\ColorTextBox.resx">
       <DependentUpon>ColorTextBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Gui\DlgKeyInfoLog.resx">
+      <DependentUpon>DlgKeyInfoLog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Gui\DlgColorSelector.resx">
       <DependentUpon>DlgColorSelector.cs</DependentUpon>

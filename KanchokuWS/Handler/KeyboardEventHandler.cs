@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using KanchokuWS.Domain;
 using Utils;
 using KanchokuWS.CombinationKeyStroke;
+using System.Threading;
 
 namespace KanchokuWS.Handler
 {
@@ -19,6 +20,44 @@ namespace KanchokuWS.Handler
         private FrmKanchoku frmKanchoku = null;
 
         private FrmVirtualKeyboard frmVkb = null;
+
+        private Queue<KeyInfo> strokeLogQueue = new Queue<KeyInfo>();
+
+        struct KeyInfo
+        {
+            public DateTime dtNow;
+            public bool bDown;
+            public uint vkey;
+            public int scanCode;
+            public uint flags;
+            public int extraInfo;
+
+            public KeyInfo(bool bDown, uint vkey, int scanCode, uint flags, int extraInfo)
+            {
+                this.dtNow = DateTime.Now;
+                this.bDown = bDown;
+                this.vkey = vkey;
+                this.scanCode = scanCode;
+                this.flags = flags;
+                this.extraInfo = extraInfo;
+            }
+
+            public override string ToString()
+            {
+                return $"{dtNow._toStringWithMillisec()}: {(bDown ? "DOWN" : "  UP")}: '{CharVsVKey.GetFaceStringFromVKey(vkey)}': vkey={vkey:x}, scanCode={scanCode:x}, flags={flags:x}, extraInfo={extraInfo}";
+            }
+        }
+
+        private void appendKeyInfo(bool bDown, uint vkey, int scanCode, uint flags, int extraInfo)
+        {
+            strokeLogQueue.Enqueue(new KeyInfo(bDown, vkey, scanCode, flags, extraInfo));
+            if (strokeLogQueue.Count > 100) strokeLogQueue.Dequeue();
+        }
+
+        public IEnumerable<string> getRecentKeyInfos()
+        {
+            return strokeLogQueue.Select(x => x.ToString());
+        }
 
         /// <summary>デコーダが ON か</summary>
         private bool isDecoderActivated() {
@@ -587,6 +626,8 @@ namespace KanchokuWS.Handler
         /// <returns>キー入力を破棄する場合は true を返す。flase を返すとシステム側でキー入力処理が行われる</returns>
         private bool onKeyboardDownHandler(uint vkey, int scanCode, uint flags, int extraInfo)
         {
+            appendKeyInfo(true, vkey, scanCode, flags, extraInfo);
+
             // Pauseで一時停止?
             if (Settings.SuspendByPauseKey && vkey == (uint)Keys.Pause) {
                 frmKanchoku?.DecoderSuspendToggle();
@@ -651,6 +692,7 @@ namespace KanchokuWS.Handler
 
                 var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
                 if (keyInfo != null) {
+                    // CapsLock/英数/RShift/Nfer/Xfer/Space
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"{keyInfo.Name}Key Pressed: ctrl={bCtrl}, shift={bShift}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, modPressedOrShifted={modPressedOrShifted:x}");
                     if (vkey == FuncVKeys.SPACE) {
                         // Space
@@ -762,7 +804,7 @@ namespace KanchokuWS.Handler
                         }
                         return false; // keyboardDownHandler() をスキップ、システム側で本来のSHIFT処理を実行
                     } else {
-                        // Space/RSHIFT 以外
+                        // Space/RSHIFT 以外 (Caps/英数/Nfer/Xfer)
                         if (keyInfo.IsShiftPlaneAssigned(bDecoderOn)) {
                             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"ShiftPlaneAssigned: {keyInfo.Name}");
                             // 拡張シフト面が割り当てられている拡張修飾キーの場合
@@ -848,6 +890,7 @@ namespace KanchokuWS.Handler
         /// <returns>キー入力を破棄する場合は true を返す。flase を返すとシステム側でキー入力処理が行われる</returns>
         private bool keyboardDownHandler(uint vkey, bool leftCtrl, bool rightCtrl)
         {
+            //if (vkey == FuncVKeys.HENKAN) logger.WarnH($"ENTER: vkey=HENKAN");
             //bool leftCtrl = (GetAsyncKeyState(FuncVKeys.LCONTROL) & 0x8000) != 0;
             //bool rightCtrl = (GetAsyncKeyState(FuncVKeys.RCONTROL) & 0x8000) != 0;
             bool bDecoderOn = isDecoderActivated();
@@ -910,6 +953,7 @@ namespace KanchokuWS.Handler
                 // デコーダーがOFFで、どの DecoderKey にもヒモ付けられていないか、または通常キーでもないキーが押されたら、そのままシステムに処理させる
                 // ⇒ Astah など、なぜか自身で キーボード入力を監視していると思われるソフトがあるため
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: false: Decoder=OFF, no assigned deckey and not normal key");
+                if (vkey == FuncVKeys.HENKAN) logger.WarnH(() => $"LEAVE: HENKAN: result=False");
                 frmKanchoku?.ResetPrevDeckey();
                 return false;
             }
@@ -936,11 +980,14 @@ namespace KanchokuWS.Handler
                 } else {
                     // 直接ハンドラを呼び出す
                     if (bDecoderOn && vkey == FuncVKeys.SPACE) logger.Warn($"invokeHandler Space: currentPool.Enabled={currentPool.Enabled}, mod={mod:x}H, kanchokuCode={kanchokuCode}");
+                    //if (bDecoderOn && vkey == FuncVKeys.HENKAN) logger.WarnH($"invokeHandler HENKAN: currentPool.Enabled={currentPool.Enabled}, mod={mod:x}H, kanchokuCode={kanchokuCode}");
                     result = invokeHandler(kanchokuCode, normalDecKey, mod, false);
+                    //if (bDecoderOn && vkey == FuncVKeys.HENKAN) logger.WarnH($"invokeHandler HENKAN: result={result}");
                 }
                 bHandlerBusy = false;
             }
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: result={result}");
+            if (vkey == FuncVKeys.HENKAN) logger.WarnH(() => $"LEAVE: HENKAN: result={result}");
             return result;
         }
 
@@ -952,6 +999,8 @@ namespace KanchokuWS.Handler
         /// <returns>キー入力を破棄する場合は true を返す。flase を返すとシステム側でキー入力処理が行われる</returns>
         private bool onKeyboardUpHandler(uint vkey, int scanCode, uint flags, int extraInfo)
         {
+            appendKeyInfo(false, vkey, scanCode, flags, extraInfo);
+
             // Pauseで一時停止?
             if (Settings.SuspendByPauseKey && vkey == (uint)Keys.Pause) {
                 return true;

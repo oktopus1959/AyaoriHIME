@@ -96,7 +96,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
 
         public void SetPrevComboShiftKeyUpDt(int deckey, DateTime dt)
         {
-            //prevComboShiftKeyUpDtMap[deckey] = dt;
+            //prevComboShiftKeyUpDtMap[deckey] = dtNow;
             comboShiftUpTimeInfo.SetValues(deckey, dt);
         }
 
@@ -459,7 +459,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         // 解放の場合
         public List<int> GetKeyCombinationWhenKeyUp(int decKey, DateTime dtNow, bool bDecoderOn, out bool bUnconditional)
         {
-            logger.InfoH(() => $"ENTER: decKey={decKey}, IsTemporaryComboDisabled={IsTemporaryComboDisabled}, dt={dtNow.ToString("HH:mm:ss.fff")}");
+            logger.InfoH(() => $"ENTER: decKey={decKey}, IsTemporaryComboDisabled={IsTemporaryComboDisabled}, dtNow={dtNow.ToString("HH:mm:ss.fff")}");
 
             List<int> result = new List<int>();
             bUnconditional = false;

@@ -151,6 +151,7 @@ namespace KanchokuWS.Gui
                 logger.Info("ENTER");
                 frmMain?.CloseDlgStrokeLog();
                 frmMain?.CloseDlgCandidateLog();
+                frmMain?.CloseDlgKeyInfoLog();
                 timer1.Stop();
                 logger.Info("Timer Stopped");
                 ShownDlg = null;

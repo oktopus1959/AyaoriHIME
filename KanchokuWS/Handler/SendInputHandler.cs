@@ -384,21 +384,21 @@ namespace KanchokuWS.Handler
         private static void setLeftShiftInput(ref INPUT input, int keyEventFlag)
         {
             initializeKeyboardInput(ref input);
-            input.inputUnion.ki.wVk = VK_LSHIFT;           // 右シフトは EXTENTED ではなく、0xa1 を設定する必要あり
+            input.inputUnion.ki.wVk = VK_LSHIFT;
             input.inputUnion.ki.dwFlags = keyEventFlag;
         }
 
         private static void setRightShiftInput(ref INPUT input, int keyEventFlag)
         {
             initializeKeyboardInput(ref input);
-            input.inputUnion.ki.wVk = VK_RSHIFT;
+            input.inputUnion.ki.wVk = VK_RSHIFT;           // 右シフトは EXTENTED ではなく、0xa1 を設定する必要あり
             input.inputUnion.ki.dwFlags = keyEventFlag;
         }
 
         private static void setLeftAltInput(ref INPUT input, int keyEventFlag)
         {
             initializeKeyboardInput(ref input);
-            input.inputUnion.ki.wVk = VK_LALT;           // 右シフトは EXTENTED ではなく、0xa1 を設定する必要あり
+            input.inputUnion.ki.wVk = VK_LALT;
             input.inputUnion.ki.dwFlags = keyEventFlag;
         }
 
@@ -576,7 +576,7 @@ namespace KanchokuWS.Handler
 
         private int sendFuncKeyInputs(string str, int pos, int strLen)
         {
-            logger.DebugH(() => $"CALLED: str={str}, pos={pos}, strLen={strLen}");
+            logger.InfoH(() => $"CALLED: str={str}, pos={pos}, strLen={strLen}");
 
             bool bLCtrl = false;
             bool bRCtrl = false;
@@ -641,9 +641,9 @@ namespace KanchokuWS.Handler
             if (sb.Length > 0) {
                 string name = sb.ToString();
                 name = functionalKeyAliases._safeGet(name, name);
-                logger.Info(() => $"alias={sb}, key={name}");
+                //logger.InfoH(() => $"alias={sb}, key={name}");
                 uint vkey = DecoderKeyVsVKey.GetFuncVkeyByName(name);
-                //logger.DebugH(() => $"vkey={vkey:x} by FuncKey");
+                //logger.InfoH(() => $"vkey={vkey:x} by FuncKey={name}");
                 if (vkey == 0) vkey = AlphabetVKeys.GetAlphabetVkeyByName(name);
                 //logger.DebugH(() => $"vkey={vkey:x} by Alphabet");
                 if (vkey > 0) {
@@ -971,6 +971,8 @@ namespace KanchokuWS.Handler
             logger.DebugH(() => $"LEAVE: str={str}");
         }
 
+        BoolObject syncPostVkey = new BoolObject();
+
         /// <summary>
         /// キーボード入力をエミュレートして文字列を送出する
         /// </summary>
@@ -979,38 +981,44 @@ namespace KanchokuWS.Handler
         public void SendString(char[] str, int strLen, int numBS)
         {
             logger.DebugH(() => $"CALLED: str={(str._isEmpty() ? "" : new string(str, 0, strLen._lowLimit(0)))}, numBS={numBS}");
-
-            // Ctrl上げ
-            var ctrlState = upCtrlKeyInputs();
-            logger.DebugH($"upCtrl");
-
-            // Shift
-            var shiftState = upShiftKeyInputs();
-            logger.DebugH($"upShift");
-
-            // Backspace
-            //sendInputsVkey(VK_BACK, numBS);
-            numBS = clearOrSendWaitingCharWhenKanaTraining(numBS);
-            sendBackSpaces(numBS, strLen <= 0);
-
-            // 文字列
-            if (strLen > 0) {
-                if (numBS > 0) waitAfterBS();
-                var s = str._toString();
-                var v = HandlerUtils.ParseTernaryOperator(s);
-                sendStringInputs(v._notEmpty() ? v : s);
+            if (syncPostVkey.BusyCheck()) {
+                logger.WarnH(() => $"LEAVE: IGNORED: str={(str._isEmpty() ? "" : new string(str, 0, strLen._lowLimit(0)))}, numBS={numBS}");
+                return;
             }
 
-            // Shift戻し
-            RevertShiftKey(shiftState);
-            logger.DebugH($"revertShift");
+            using (syncPostVkey) {
+                lock (syncPostVkey) {
+                    // Ctrl上げ
+                    var ctrlState = upCtrlKeyInputs();
+                    logger.DebugH($"upCtrl");
 
-            // Ctrl戻し
-            RevertCtrlKey(ctrlState);
-            logger.DebugH($"revertCtrl");
+                    // Shift
+                    var shiftState = upShiftKeyInputs();
+                    logger.DebugH($"upShift");
+
+                    // Backspace
+                    //sendInputsVkey(VK_BACK, numBS);
+                    numBS = clearOrSendWaitingCharWhenKanaTraining(numBS);
+                    sendBackSpaces(numBS, strLen <= 0);
+
+                    // 文字列
+                    if (strLen > 0) {
+                        if (numBS > 0) waitAfterBS();
+                        var s = str._toString();
+                        var v = HandlerUtils.ParseTernaryOperator(s);
+                        sendStringInputs(v._notEmpty() ? v : s);
+                    }
+
+                    // Shift戻し
+                    RevertShiftKey(shiftState);
+                    logger.DebugH($"revertShift");
+
+                    // Ctrl戻し
+                    RevertCtrlKey(ctrlState);
+                    logger.DebugH($"revertCtrl");
+                }
+            }
         }
-
-        BoolObject syncPostVkey = new BoolObject();
 
         /// <summary>
         /// 仮想キーComboを送出する<br/>
@@ -1020,7 +1028,8 @@ namespace KanchokuWS.Handler
         {
             if (Settings.LoggingDecKeyInfo)logger.Info(() => $"ENTER: modifier={modifier:x}H, vkey={vkey:x}H, numKeys={n}");
             if (syncPostVkey.BusyCheck()) {
-                if (Settings.LoggingDecKeyInfo)logger.Info(() => $"LEAVE: IGNORED: numKeys={n}");
+                //if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: IGNORED: numKeys={n}");
+                logger.WarnH(() => $"LEAVE: IGNORED: numKeys={n}");
                 return;
             }
             using (syncPostVkey) {

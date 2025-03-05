@@ -2520,6 +2520,16 @@ namespace Utils
         }
 
         /// <summary>
+        /// yyyy/MM/dd HH:mm.fff 形式の文字列を返す
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static string _toStringWithMillisec(this DateTime dt)
+        {
+            return dt.ToString("yyyy/MM/dd HH:mm:ss.fff");
+        }
+
+        /// <summary>
         /// valid なデータ(MinValue, MaxValue でない)かどうかを返す
         /// </summary>
         /// <returns></returns>
