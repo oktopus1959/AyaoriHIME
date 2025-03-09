@@ -907,6 +907,8 @@ namespace KanchokuWS.TableParser
     /// グローバルなコンテキスト情報を格納するクラス
     /// </summary>
     class ParserContext {
+        private static Logger logger = Logger.GetLogger();
+
         // テーブルの融合モードでの従テーブルか
         public bool isSecondaryTableOnMultiStream = false;
 
@@ -981,21 +983,34 @@ namespace KanchokuWS.TableParser
         /// <param name="k"></param>
         /// <returns></returns>
         public string ConvertKanji(string str) {
-            var result = new StringBuilder();
+            //logger.WarnH($"ENTER: str={str}, second={bSecondKanjiMap}");
+            var sb = new StringBuilder();
             foreach (var k in str._split('|')) {
                 var altKanji = kanjiConvMap._safeGet(k._strip());
                 if (altKanji._notEmpty()) {
-                    if (result._notEmpty()) {
-                        if (result._equals("-")) result._chop();
-                        if (result._notEmpty() && !altKanji.StartsWith("|")) result.Append('|');
+                    //logger.WarnH($"k={k}, altKanji={altKanji}");
+                    if (sb._notEmpty()) {
+                        sb._chop('-');
+                        if (sb._notEmpty() && !altKanji.StartsWith("|")) sb.Append('|');
                     }
-                    result.Append(altKanji);
+                    sb.Append(altKanji);
+                    //logger.WarnH($"sb={sb.ToString()}");
                 }
             }
-            if (result._isEmpty()) return bSecondKanjiMap ? "" : str;
-            if (result._equals("-")) return "";
-            var added = result.ToString();
-            return added[0] == '|' ? str + added : added;
+            string result;
+            if (sb._isEmpty()) {
+                result = bSecondKanjiMap ? "" : str;
+            } else {
+                sb._chop('-');
+                if (sb._isEmpty()) {
+                    result = "";
+                } else {
+                    var added = sb.ToString();
+                    result = added[0] == '|' ? str + added : added;
+                }
+            }
+            //logger.WarnH($"LEAVE: result={result}");
+            return result;
         }
 
         /// <summary>キー文字に到るストロークパスを得る辞書</summary>

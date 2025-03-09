@@ -772,9 +772,11 @@ namespace Utils
             return false;
         }
 
-        public static void _chop(this StringBuilder sb)
+        public static void _chop(this StringBuilder sb, char ch = '\0')
         {
-            if (sb._notEmpty()) sb.Remove(sb.Length, 1);
+            if (sb._notEmpty() && (ch == '\0' || sb[sb.Length - 1] == ch)) {
+                sb.Remove(sb.Length - 1, 1);
+            }
         }
 
         /// <summary>
