@@ -1005,8 +1005,8 @@ namespace KanchokuWS.TableParser
                 if (sb._isEmpty()) {
                     result = "";
                 } else {
-                    var added = sb.ToString();
-                    result = added[0] == '|' ? str + added : added;
+                    //var added = sb.ToString();
+                    result = bSecondKanjiMap ? sb.ToString() : $"{str}|{sb}";
                 }
             }
             //logger.WarnH($"LEAVE: result={result}");

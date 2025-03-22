@@ -493,7 +493,7 @@ namespace {
                         } else {
                             // 現在の先頭候補を優先する
                             //WORD_LATTICE->selectFirst();
-                            WORD_LATTICE->removeSecondOrLesser();
+                            WORD_LATTICE->removeOtherThanFirst();
                         }
                         _prevStrokeCountBS = _strokeCountBS;
                         if (WORD_LATTICE->isEmpty()) State::handleBS();
@@ -520,9 +520,10 @@ namespace {
                         WORD_LATTICE->selectPrev();
                         break;
                     case MULTI_STREAM_SELECT_FIRST_DECKEY:
-                        // 現在の先頭候補を優先する
+                        // 現在の先頭候補以外を削除する
                         LOG_DEBUGH(_T("MULTI_STREAM_SELECT_FIRST: commit first candidate"));
-                        WORD_LATTICE->selectFirst();
+                        //WORD_LATTICE->selectFirst();
+                        WORD_LATTICE->removeOtherThanFirst();
                         break;
                     case HISTORY_FULL_CAND_DECKEY:
                         LOG_DEBUGH(_T("HISTORY_FULL_CAND"));

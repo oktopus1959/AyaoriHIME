@@ -1176,6 +1176,15 @@ namespace lattice2 {
         }
     }
 
+    // 先頭候補だけを残す
+    void pickupFirst(std::vector<CandidateString>& candidates) {
+        size_t nSameLen = getNumOfSameStrokeLen(candidates);
+        if (nSameLen > 1) {
+            arrangePenalties(candidates, nSameLen);
+            LOG_INFO(_T("CALLED: First candidate preferred."));
+        }
+    }
+
     // K-best な文字列を格納する
     class KBestList {
 
@@ -1259,7 +1268,7 @@ namespace lattice2 {
             }
         }
 
-        void removeSecondOrLesser() {
+        void removeOtherThanFirst() {
             if (_candidates.size() > 0) {
                 _candidates.erase(_candidates.begin() + 1, _candidates.end());
                 _candidates.front().zeroPenalty();
@@ -1711,7 +1720,7 @@ namespace lattice2 {
                     return newCandidates;
                 }
                 // 以前のストロークの候補が無ければ、通常のBSの動作とする
-                removeSecondOrLesser();
+                removeOtherThanFirst();
             }
             bool isEmptyPiece = pieces.size() == 1 && pieces.front().isEmpty();
             bool isBSpiece = pieces.size() == 1 && pieces.front().isBS();
@@ -1973,9 +1982,9 @@ namespace lattice2 {
             _kBestList.removeOtherThanKBest();
         }
 
-        void removeSecondOrLesser() override {
+        void removeOtherThanFirst() override {
             _LOG_DETAIL(_T("CALLED"));
-            _kBestList.removeSecondOrLesser();
+            _kBestList.removeOtherThanFirst();
         }
 
         bool isEmpty() override {

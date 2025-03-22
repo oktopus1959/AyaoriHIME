@@ -143,7 +143,7 @@ public:
 
     virtual void removeOtherThanKBest() = 0;
 
-    virtual void removeSecondOrLesser() = 0;
+    virtual void removeOtherThanFirst() = 0;
 
     virtual bool isEmpty() = 0;
 
