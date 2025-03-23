@@ -686,7 +686,7 @@ public:
         STATE_COMMON->SetStrokeCount(std::max(strokeTableChainLen - 1, 0));
         if (strokeTableChainLen >= 2) {
             STATE_COMMON->SetWaiting2ndStroke();
-            if (STATE_COMMON->GetLayout() == VkbLayout::None) STATE_COMMON->SetNormalVkbLayout();
+            if (STATE_COMMON->GetLayout() == VkbLayout::None) STATE_COMMON->SetNormalVkbLayout(strokeTableChainLen - 1);
         }
         LOG_DEBUGH(_T("STATE_COMMON->StrokeCount={}"), STATE_COMMON->GetStrokeCount());
 

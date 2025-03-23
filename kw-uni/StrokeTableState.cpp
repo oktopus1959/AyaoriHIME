@@ -280,6 +280,7 @@ namespace {
                     LOG_DEBUGH(_T("REMOVE ALL: {}"), Name);
                 } else if (NextState()->IsUnnecessary()) {
                     // 次状態が取り消されたら、origString を縮めておく
+                    LOG_DEBUGH(_T("NEXT is UNNECESSARY: {}"), Name);
                     STATE_COMMON->PopOrigString();
                     // ルートでなければ打鍵ヘルプを再セットする
                     if (myNode()->depth() > 0) setNormalStrokeHelpVkb();
@@ -321,13 +322,21 @@ namespace {
         void setNormalStrokeHelpVkb() {
             _LOG_DETAIL(_T("ENTER"));
             // 打鍵ヘルプをセットする
-            STATE_COMMON->SetNormalVkbLayout();
             auto tblNode = myNode();
             if (tblNode) {
-                tblNode->CopyChildrenFace(STATE_COMMON->GetFaces(), STATE_COMMON->FacesSize());
+                int depth = tblNode->depth();
+                _LOG_DETAIL(_T("CopyChildrenFace: depth={}"), depth);
+                if (depth >= STATE_COMMON->GetStrokeDepth()) {
+                    STATE_COMMON->SetNormalVkbLayout(depth);
+                    _LOG_DETAIL(_T("CopyChildrenFace: depth={}"), depth);
+                    tblNode->CopyChildrenFace(STATE_COMMON->GetFaces(), STATE_COMMON->FacesSize());
+                }
             } else {
-                STATE_COMMON->ClearFaces();
-                _LOG_DETAIL(_T("ClearFaces"));
+                //STATE_COMMON->SetNormalVkbLayout(0);
+                //STATE_COMMON->ClearFaces();
+                //_LOG_DETAIL(_T("ClearFaces"));
+                _LOG_DETAIL(L"ClearVkbLayout");
+                STATE_COMMON->ClearVkbLayout();
             }
             //STATE_COMMON->SetWaiting2ndStroke();
             _LOG_DETAIL(_T("LEAVE"));

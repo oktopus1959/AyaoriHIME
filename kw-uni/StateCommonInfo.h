@@ -154,6 +154,9 @@ class StateCommonInfo {
     // 処理後に表示する仮想鍵盤のレイアウト
     VkbLayout layout;
 
+    // 仮想鍵盤に表示するストロークの深さ
+    int strokeDepth = 0;
+
     // 仮想鍵盤に出力される文字(列)
     String centerString;
     mchar_t faces[NORMAL_DECKEY_NUM] = { 0 };
@@ -236,6 +239,7 @@ public:
         strokeCount = 0;
         nextSelectPos = 0;
         layout = VkbLayout::None;
+        strokeDepth = 0,
         centerString.clear();
         outStringProcDone = false;
         convertHiraganaToKatakana = false;
@@ -350,11 +354,13 @@ public:
     inline VkbLayout GetLayout() { return layout; }
     inline int GetLayoutInt() { return (int)layout; }
 
+    inline int GetStrokeDepth() { return (int)strokeDepth; }
+
     inline void SetVkbLayout(VkbLayout lo) { layout = lo;; }
 
-    inline void ClearVkbLayout() { SetVkbLayout(VkbLayout::None); }
+    inline void ClearVkbLayout() { SetVkbLayout(VkbLayout::None); strokeDepth = 0; }
 
-    inline void SetNormalVkbLayout() { SetVkbLayout(VkbLayout::Normal); }
+    inline void SetNormalVkbLayout(int depth) { SetVkbLayout(VkbLayout::Normal); strokeDepth = depth; }
     inline void SetStrokeHelpVkbLayout() { SetVkbLayout(VkbLayout::StrokeHelp); }
 
     inline const std::vector<String>& LongVkeyCandidates() { return longVkeyCandidates; }

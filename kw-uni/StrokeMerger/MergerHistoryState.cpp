@@ -416,6 +416,8 @@ namespace {
             _LOG_DETAIL(L"CALLED: Clear streamLists");
             _streamList1.Clear();
             _streamList2.Clear();
+            _LOG_DETAIL(L"ClearVkbLayout");
+            STATE_COMMON->ClearVkbLayout();
         }
 
     public:
