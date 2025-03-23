@@ -876,12 +876,12 @@ namespace KanchokuWS.TableParser
                     if (items.Length >= 2) {
                         var kanji = items[0];
                         if (kanji._notEmpty()) {
-                            var altKanji = (!bSecondKanjiMap ? items._getNth(1) : items._getNth(2)._notEmpty() ? items._getNth(2) : items._getNth(1))._strip("|\t ");
+                            var altKanji = (!bSecondKanjiMap ? items._getNth(1) : items._getNth(2)._notEmpty() ? items._getNth(2) : items._getNth(1))._strip("\t ");
                             if (altKanji._isEmpty() || !bSecondKanjiMap && altKanji == "-") continue;
                             //if (!bSecondKanjiMap && altKanji[0] != '|') {
                             //    altKanji = "|" + altKanji;
                             //}
-                            kanjiConvMap[kanji] = altKanji;
+                            kanjiConvMap[kanji] = altKanji._strip("|");
                             if (altKanji.Length == 1) kanjiConvMap[altKanji] = kanji;
                             // bSecondKanjiMap && "-" の場合は、ParserContext.ConvertKanji()で、空文字列に変換される
                         }
