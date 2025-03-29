@@ -789,7 +789,8 @@ namespace KanchokuWS.Handler
                                 //} else if (keyInfo.Shifted) {
                                 //    // SHIFT状態なら何もしない
                             }
-                            return true; // keyboardDownHandler() をスキップ、システム側の本来のSHIFT処理もスキップ
+                            //return true; // keyboardDownHandler() をスキップ、システム側の本来のSHIFT処理もスキップ
+                            return false; // keyboardDownHandler() をスキップ、システム側の本来のSHIFT処理もスキップ
                         }
                         if (keyInfo.IsSingleShiftHitEffecive(bCtrl)) {
                             // 拡張シフト面が割り当てはないが、単打系ありの場合

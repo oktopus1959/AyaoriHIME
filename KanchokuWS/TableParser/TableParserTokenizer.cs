@@ -858,7 +858,7 @@ namespace KanchokuWS.TableParser
         // 一行の形式は「定義漢字 [<TAB>|Space]+ 別候補漢字の並び('|'区切り) [[<TAB>|Space]+ 裏漢字の並び('|'区切り)]」
         // bSecondKanjiMap = false なら、"|" の後に別候補漢字の並びを追加する(「別候補漢字の並び」が"-"のみなら何もしない)
         // bSecondKanjiMap = true なら、定義文字を裏漢字の並びで置換する(裏文字定義が無ければ、別候補文字で置換する)
-        // 別候補漢字の並びが1文字なら、定義漢字と別候補漢字を入れ替えたものも採用する
+        // 別候補漢字の並びが1文字なら、定義漢字と別候補漢字を入れ替えたものも採用する⇒やめた(2025/3/23)
         void readAltKanjiFile(string filename)
         {
             var reComment = @"#.*";
@@ -882,7 +882,7 @@ namespace KanchokuWS.TableParser
                             //    altKanji = "|" + altKanji;
                             //}
                             kanjiConvMap[kanji] = altKanji._strip("|");
-                            if (altKanji.Length == 1) kanjiConvMap[altKanji] = kanji;
+                            //if (altKanji.Length == 1) kanjiConvMap[altKanji] = kanji; // やめた(2025/3/23)
                             // bSecondKanjiMap && "-" の場合は、ParserContext.ConvertKanji()で、空文字列に変換される
                         }
                     }

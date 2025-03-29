@@ -886,6 +886,7 @@ namespace lattice2 {
 
     // グローバルな後置書き換えマップファイルの読み込み
     void readGlobalPostRewriteMapFile() {
+        globalPostRewriteMap.clear();
         auto path = utils::joinPath(SETTINGS->rootDir, GLOBAL_POST_REWRITE_FILE);
         LOG_INFO(_T("LOAD: {}"), path.c_str());
         utils::IfstreamReader reader(path);

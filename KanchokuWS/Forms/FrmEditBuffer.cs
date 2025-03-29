@@ -188,7 +188,7 @@ namespace KanchokuWS.Forms
 
             int pos = 0;
             if (str._notEmpty()) {
-                if (str == " " && Settings.OutputHeadSpace) {
+                if (str == " " && editTextBox.Text._isEmpty() && (Settings.OutputHeadSpace || SendInputHandler.IsShiftKeyPressed())) {
                     // 先頭のSpace
                     toFlush = true;
                 } else {

@@ -561,6 +561,7 @@ namespace {
                         WORD_LATTICE->updateByBushuComp();
                         break;
                     case MAZE_CONVERSION_DECKEY:
+                        // 交ぜ書き変換
                         LOG_DEBUGH(_T("MAZE_CONVERSION"));
                         if (!NextNodeMaybe()) {
                             OUTPUT_STACK->pushNewString(WORD_LATTICE->getFirst());
