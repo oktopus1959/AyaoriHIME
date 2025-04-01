@@ -39,6 +39,9 @@ namespace lattice2 {
     // ビームサイズ
     //size_t BestKSize = 5;
 
+    // 漢字用の余裕
+    int EXTRA_KANJI_BEAM_SIZE = 3;
+
     //// 多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
     //int AllowedStrokeRange = 5;
 
@@ -1096,6 +1099,14 @@ namespace lattice2 {
             return _str;
         }
 
+        const mchar_t tailChar() const {
+            return _str.empty() ? 0 : _str.back();
+        }
+
+        const bool isKanjiTailChar() const {
+            return utils::is_kanji(tailChar());
+        }
+
         const int strokeLen() const {
             return _strokeLen;
         }
@@ -1201,6 +1212,9 @@ namespace lattice2 {
         // 次候補/前候補選択された時の選択候補位置
         int _selectedCandPos = 0;
 
+        // 末尾漢字などの追加で一時的に拡大された候補数
+        int _extendedCandNum = 0;
+
         // 次のストロークをスキップする候補文字列
         std::set<MString> _kanjiPreferredNextCands;
 
@@ -1260,6 +1274,7 @@ namespace lattice2 {
             _highFreqJoshiStroke.clear();
             _rollOverStroke.clear();
             _origFirstCand = -1;
+            _extendedCandNum = 0;
             if (clearAll) _kanjiPreferredNextCands.clear();
         }
 
@@ -1306,6 +1321,7 @@ namespace lattice2 {
 
         void resetOrigFirstCand() {
             _origFirstCand = -1;
+            _extendedCandNum = 0;
         }
 
         void incrementOrigFirstCand(int nSameLen) {
@@ -1316,12 +1332,14 @@ namespace lattice2 {
                 if (_origFirstCand >= (int)nSameLen) _origFirstCand = 0;
             }
             setSelectedCandPos(nSameLen);
+            _extendedCandNum = nSameLen;
         }
 
         void decrementOrigFirstCand(int nSameLen) {
             --_origFirstCand;
             if (_origFirstCand < 0) _origFirstCand = nSameLen - 1;
             setSelectedCandPos(nSameLen);
+            _extendedCandNum = nSameLen;
         }
 
         std::vector<MString> getTopCandStrings() const {
@@ -1528,15 +1546,34 @@ namespace lattice2 {
                     }
                 }
             }
-            if (!bAdded && !bIgnored && (int)newCandidates.size() < SETTINGS->multiStreamBeamSize) {
-                // 余裕があれば末尾に追加
+            int beamSize = SETTINGS->multiStreamBeamSize + (newCandStr.isKanjiTailChar() ? EXTRA_KANJI_BEAM_SIZE : 0);
+            if (beamSize < _extendedCandNum) beamSize = _extendedCandNum;
+            if (!bAdded && !bIgnored && (int)newCandidates.size() < beamSize) {
+                // 余裕があれば末尾に追加(複数漢字候補の場合はkBestを超えても追加)
                 newCandidates.push_back(newCandStr);
                 bAdded = true;
             }
             if ((int)newCandidates.size() > SETTINGS->multiStreamBeamSize) {
                 // kBestサイズを超えたら末尾を削除
+#if 0
                 newCandidates.resize(SETTINGS->multiStreamBeamSize);
                 _LOG_DETAIL(_T("    REMOVE OVERFLOW ENTRY"));
+#else
+                size_t pos = SETTINGS->multiStreamBeamSize;
+                while (pos < newCandidates.size() && pos < (size_t)(SETTINGS->multiStreamBeamSize + EXTRA_KANJI_BEAM_SIZE)) {
+                    auto iter = newCandidates.begin() + pos;
+                    if (pos >= (size_t)_extendedCandNum && !iter->isKanjiTailChar()) {
+                        // 末尾が漢字以外のものだけを削除対象とする
+                        newCandidates.erase(iter);
+                        _LOG_DETAIL(_T("    REMOVE OVERFLOW ENTRY"));
+                    } else {
+                        ++pos;
+                    }
+                }
+                if (pos < newCandidates.size()) {
+                    newCandidates.resize(pos);
+                }
+#endif
             }
             if (bAdded) {
                 _LOG_DETAIL(_T("    ADD candidate: {}, totalCost={}"), to_wstr(candStr), totalCost);
