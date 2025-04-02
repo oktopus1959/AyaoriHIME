@@ -387,7 +387,17 @@ namespace KanchokuWS.TableParser
             if ((node.IsStringNode() || node.outputStr._notEmpty()) && node.outputStr._ne(outputStr)) {
                 if (outputStr._isEmpty() || IsFunctionNode() || !node.IsFunctionNode()) {
                     bOverwrite = outputStr._notEmpty() && !IsFunctionNode();
-                    outputStr = node.outputStr;
+                    if (bOverwrite) {
+                        // 文字が重複したら、"|"で区切って連結する
+                        var s1 = outputStr.GetSafeString();
+                        bool isBare1 = outputStr.IsBare();
+                        var s2 = node.outputStr.GetSafeString();
+                        bool isBare2 = node.outputStr.IsBare();
+                        var s = s1._isEmpty() ? s2 : s2._isEmpty() ? s1 : s1[0]._isKanji() ? s1 + "|" + s2 : s2 + "|" + s1;
+                        outputStr = new OutputString(s, (s1._isEmpty() || s2._isEmpty()) && isBare1 && isBare2);
+                    } else {
+                        outputStr = node.outputStr;
+                    }
                     //isBareStr = node.isBareStr;
                 }
             }

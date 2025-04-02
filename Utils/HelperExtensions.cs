@@ -167,6 +167,16 @@ namespace Utils
             return ch >= 0x4e00 && ch <= 0x9fff || ch == '々';
         }
 
+        public static bool _isHiragana(this char ch)
+        {
+            return ch >= 0x3040 && ch <= 0x309f;
+        }
+
+        public static bool _isKatakana(this char ch)
+        {
+            return ch >= 0x30a0 && ch <= 0x30ff;
+        }
+
         /// <summary>
         /// 0 より大きければ自身を返し、0 以下なら defval を返す
         /// </summary>
