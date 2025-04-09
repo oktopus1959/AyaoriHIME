@@ -431,7 +431,15 @@ namespace {
         }
 
         ~StrokeMergerHistoryResidentStateImpl() override {
-            LOG_DEBUGH(_T("CALLED: Destructor"));
+            LOG_DEBUGH(_T("ENTER: Destructor"));
+            ClearState();
+            LOG_DEBUGH(_T("LEAVE: Destructor"));
+        }
+
+        void ClearState() override {
+            LOG_DEBUGH(_T("CALLED"));
+            WORD_LATTICE->clearAll();
+            clearStreamLists();
         }
 
         // 状態が生成されたときに実行する処理 (特に何もせず、前状態にチェインする)

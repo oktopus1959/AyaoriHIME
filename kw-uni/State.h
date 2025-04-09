@@ -103,10 +103,7 @@ protected:
     //State(const Node* pN) : pNode(pN) { }
 
     // 初期化
-    virtual void Initialize(StringRef name, Node* pN) {
-        Name = name;
-        pNode = pN;
-    }
+    virtual void Initialize(StringRef name, Node* pN);
 
     // 自状態の名前を返す (デバックログ出力で用いる)
     // これ、最初は pure virtual にしていたけど、デストラクタから呼び出そうとすると、(当たり前だが)クラッシュする。
@@ -120,6 +117,8 @@ protected:
 public:
     // デストラクタ
     virtual ~State();
+
+    virtual void ClearState();
 
     inline String GetName() const { return Name; }
 

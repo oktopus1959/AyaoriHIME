@@ -41,6 +41,13 @@ State::~State() {
     LOG_DEBUG(_T("LEAVE: Destructor: {}"), Name);
 }
 
+    // 初期化
+void State::Initialize(StringRef name, Node* pN) {
+    LOG_DEBUGH(_T("CALLED: name={}, pN={:p}"), Name, (void*)pN);
+    Name = name;
+    pNode = pN;
+}
+
 String State::JoinedName() const {
     String myName = Name;
     if (IsUnnecessary()) myName += _T("(-)");
@@ -70,6 +77,10 @@ void State::DeleteNextState() {
     delete pNext;
     pNext = pNN;
     LOG_DEBUG(_T("LEAVE: {}"), Name);
+}
+
+void State::ClearState() {
+    LOG_DEBUG(_T("CALLED: {}: DO NOTHING"), Name);
 }
 
 // 状態の再アクティブ化 (何かやりたい場合はオーバーライドする)

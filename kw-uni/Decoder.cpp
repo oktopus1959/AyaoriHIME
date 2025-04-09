@@ -243,6 +243,8 @@ public:
         // settings の事前ロード
         if (bPreLoad) loadSettings(decoderSettings);
 
+        if (MERGER_HISTORY_RESIDENT_STATE) MERGER_HISTORY_RESIDENT_STATE->ClearState();
+
         // Deckey から文字への変換インスタンスの構築
         createDeckeyToCharsInstance();
 

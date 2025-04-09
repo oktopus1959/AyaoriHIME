@@ -6,7 +6,7 @@ kanjiMap = {}
 
 while line = gets
   next if line =~ /Lesson/ || line =~ /^\s*$/
-  if line =~ /・.*・.*・/
+  if line =~ /・.{2,3}・.{2,3}・/
     extra.push(line)
   else
     lines.push(line)
@@ -16,18 +16,23 @@ end
 def check_and_put_line(line, kanjiMap)
   kfound = false
   kfirst = false
+  kmap = {}
   line.strip.split(//).each{|k|
     if k =~ /[一-龠]/
-      kfound = true
-      unless kanjiMap[k]
-        kfirst = true
-        kanjiMap[k] = true
+      if kmap[k]
+        kmap[k] += 1
+      else
+        kmap[k] = 1
       end
     end
   }
-  if kfound && kfirst
-    puts line
-    puts
+  if kmap.size > 0
+    kj = kmap.max_by { |k, v| v }[0]
+    unless kanjiMap[kj]
+      kanjiMap[kj] = true
+      puts line
+      puts
+    end
   end
 end
 
@@ -46,6 +51,6 @@ rand(extra.size).times do
   extra.push(extra.shift)
 end
 
-extra.each{|line|
-  check_and_put_line(line, kanjiMap)
-}
+for n in (0...50)
+  check_and_put_line(extra[n], kanjiMap)
+end

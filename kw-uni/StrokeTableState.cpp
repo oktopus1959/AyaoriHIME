@@ -86,7 +86,7 @@ namespace {
     public:
         // コンストラクタ
         StrokeTableState(StrokeTableNode* pN) {
-            LOG_INFO(_T("CALLED: ctor"));
+            LOG_INFO(_T("CALLED: ctor: pN={:p}"), (void*)pN);
             Initialize(logger.ClassNameT(), pN);
         }
 
@@ -112,7 +112,8 @@ namespace {
         void handleStrokeKeys(int deckey) {
             bool isRootCombo = IsRootKeyCombination();
             myChar = DECKEY_TO_CHARS->GetCharFromDeckey(origDeckey >= 0 ? origDeckey : deckey);
-            _LOG_DETAIL(_T("ENTER: {}: origDeckey={:x}H({}), deckey={:x}H({}), face={}, isRootCombo={}, nodeDepth={}"), Name, origDeckey, origDeckey, deckey, deckey, myChar, isRootCombo, DEPTH);
+            _LOG_DETAIL(_T("ENTER: {}: origDeckey={:x}H({}), deckey={:x}H({}), face={}, isRootCombo={}, nodeDepth={}, pN={:p}"),
+                Name, origDeckey, origDeckey, deckey, deckey, myChar, isRootCombo, DEPTH, (void*)myNode());
             if (!isRootCombo) {
                 // RootStrokeTableState が作成されたときに OrigString はクリアされている。この処理はEisuModeなどへの対応のために必要
                 // ただしRootStrokeTableStateが同時打鍵の開始だった場合は、OrigStringを返さない
