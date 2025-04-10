@@ -154,7 +154,7 @@ namespace KanchokuWS
         public static bool MultiStreamMode { get; set; } = false;
 
         /// <summary>複数配列の融合モード時の従配列番号(1始まり; 通常は漢直側)</summary>
-        public static int SecondaryTableWhenMultiStream { get; set; } = 1;
+        public static int SecondaryTableWhenMultiStream { get; set; } = 2;
 
         /// <summary>前回のデコーダ呼び出しから一定時間が経過したら、MulstStreamCommit を発行</summary>
         public static int CommitMultiStreamElapsedTime { get; set; } = 0;
@@ -1294,7 +1294,7 @@ namespace KanchokuWS
             ShowEisuVkb = GetString("showEisuVkb")._parseBool(false);
             OpenSettingsDlgWhenIconClicked = GetString("openSettingsDlgWhenIconClicked")._parseBool(false);
 
-            SecondaryTableWhenMultiStream = GetString("secondaryTableWhenMultiStream")._parseInt(1);
+            SecondaryTableWhenMultiStream = GetString("secondaryTableWhenMultiStream")._parseInt(2);
 
             //-------------------------------------------------------------------------------------
             // デバッグ用設定

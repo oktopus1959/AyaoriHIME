@@ -1178,7 +1178,7 @@ namespace KanchokuWS
             }
         }
 
-        /// <summary>漢直コードテーブルの入れ替え(トグル)</summary>
+        /// <summary>主・副テーブルの入れ替え(トグル)</summary>
         public void ExchangeCodeTable(bool bSecond = false)
         {
             logger.Info("CALLED");
@@ -1204,7 +1204,7 @@ namespace KanchokuWS
             }
         }
 
-        /// <summary>漢直コードテーブルの選択</summary>
+        /// <summary>コードテーブルの選択</summary>
         public void SelectCodeTable(int n, bool toggleKatakana)
         {
             logger.Info($"CALLED: n={n}");
@@ -1972,7 +1972,7 @@ namespace KanchokuWS
                 targetChar = 0;
             } else {
                 if (!Settings.MultiStreamMode && decoderOutput.GetStrokeCount() > 0) {
-                    logger.DebugH("MultiStreamMode and At second stroke or later");
+                    logger.DebugH("NOT MultiStreamMode and At second stroke or later");
                     // 第2打鍵以降の待ちで、何かVkey出力がある場合は、打鍵クリア
                     if (decoderOutput.IsDeckeyToVkey()) {
                         logger.DebugH(() => $"send CLEAR_STROKE_DECKEY");
