@@ -303,6 +303,7 @@ DEFINE_CLASS_LOGGER(HistoryNode);
 // コンストラクタ
 HistoryNode::HistoryNode() {
     LOG_DEBUGH(_T("CALLED: constructor"));
+    setShared();
 }
 
 // デストラクタ

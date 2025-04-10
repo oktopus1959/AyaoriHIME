@@ -1288,8 +1288,10 @@ int HistoryDic::CreateHistoryDic(StringRef histFile) {
         LOG_DEBUGH(_T("open history file: {}"), path);
 
         size_t pos = path.find(_T("*"));
+#ifndef _DEBUG
         readFile(replaceStar(path, pos, _T("entry")), &HistoryDic::ReadFile);
         readFile(replaceStar(path, pos, _T("roman")), &HistoryDic::ReadRomanFileAsReadOnly, false);
+#endif
         readFile(replaceStar(path, pos, _T("recent")), &HistoryDic::ReadUsedFile);
         readFile(replaceStar(path, pos, _T("exclude")), &HistoryDic::ReadExcludeFile);
         //readFile(replaceStar(path, pos, _T("ngram")), &HistoryDic::ReadNgramFile);

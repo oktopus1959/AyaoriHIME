@@ -488,13 +488,29 @@ namespace {
 // -------------------------------------------------------------------
 // StrokeTableNode - ストロークテーブルの連鎖となるノード
 
+static void* target_ptr = nullptr;
+
 // デストラクタ
 StrokeTableNode::~StrokeTableNode() {
     LOG_DEBUGH(_T("CALLED: destructor: ptr={:p}"), (void*)this);
     delete rewriteNode;
+#ifndef _DEBUG
     for (auto p : children) {
-        delete p;       // 子ノードの削除 (デストラクタ)
+        if (p && !p->isShared()) delete p;       // 子ノードの削除 (デストラクタ)
     }
+#else
+    if (_depth == 0) {
+        target_ptr = (void*)children[44];
+    }
+    for (size_t i = 0; i < children.size(); ++i) {
+        auto p = children[i];
+        if (_depth > 0 && target_ptr != nullptr && target_ptr == (void*)p) {
+            if (p && !p->isShared()) delete p;       // 子ノードの削除 (デストラクタ)
+            continue;
+        }
+        if (p && !p->isShared()) delete p;       // 子ノードの削除 (デストラクタ)
+    }
+#endif
 }
 
 // 当ノードを処理する State インスタンスを作成する (depth == 0 ならルートStateを返す)

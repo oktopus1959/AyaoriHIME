@@ -47,6 +47,11 @@ namespace {
 class Node {
     DECLARE_CLASS_LOGGER;
 
+    bool _bShared = false;
+
+protected:
+    inline void setShared() { _bShared = true; }
+
 public:
     virtual ~Node();
 
@@ -93,5 +98,6 @@ public:
     // 文字列ノードまたは書き換えノードか
     inline bool isStringLikeNode() const { return isStringNode() || isRewriteNode(); };
 
+    inline bool isShared() const { return _bShared; }
 };
 

@@ -427,14 +427,16 @@ namespace lattice2 {
         //__loadUserCostFile(USER_NGRAM_FILE);
     }
 
-    void loadCostAndNgramFile(bool withNgramFile = false) {
+    void loadCostAndNgramFile(bool withNgramFile = true) {
         LOG_INFO(L"ENTER: withNgramFile={}", withNgramFile);
-        if (!withNgramFile) {
+        if (withNgramFile) {
+#ifndef _DEBUG
             systemMaxFreq = _loadNgramFile(SYSTEM_NGRAM_FILE, systemNgram);
             //int userMaxFreq = _loadNgramFile(USER_NGRAM_FILE, systemNgram);
             //if (systemMaxFreq < userMaxFreq) systemMaxFreq = userMaxFreq;
             realtimeMaxFreq = _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgram);
             _loadKatakanaCostFile();
+#endif
         }
         _loadUserCostFile();
         makeInitialNgramCostMap();
@@ -2185,7 +2187,7 @@ void Lattice2::reloadCostFile() {
 }
 
 void Lattice2::reloadUserCostFile() {
-    lattice2::loadCostAndNgramFile(true);
+    lattice2::loadCostAndNgramFile(false);
 }
 
 void Lattice2::updateRealtimeNgram() {
