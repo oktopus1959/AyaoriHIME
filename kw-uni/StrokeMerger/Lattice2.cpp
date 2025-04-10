@@ -706,7 +706,8 @@ namespace lattice2 {
     }
 
     inline bool isCommitChar(mchar_t mch) {
-        return utils::is_punct_or_commit_char(mch) || utils::is_paren(mch);
+        //return utils::is_punct_or_commit_char(mch) || utils::is_paren(mch);
+        return !utils::is_japanese_char_except_nakaguro(mch) && !is_numeral((wchar_t)mch);
     }
 
     MString substringBetweenPunctuations(const MString& str) {
