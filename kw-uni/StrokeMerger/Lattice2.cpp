@@ -108,7 +108,7 @@ namespace lattice2 {
     int ONE_KANJI_COST = 1000;
 
     // 1スペースのコスト
-    int ONE_SPACE_COST = 3000;
+    int ONE_SPACE_COST = 20000;
 
     // デフォルトの最大コスト
     int DEFAULT_MAX_COST = 1000;
@@ -344,7 +344,8 @@ namespace lattice2 {
 
 #define SYSTEM_NGRAM_FILE L"files/mixed_all.ngram.txt"
 #define KATAKANA_COST_FILE  L"files/katakana.cost.txt"
-#define REALTIME_NGRAM_FILE L"files/realtime.ngram.txt"
+#define REALTIME_NGRAM_MAIN_FILE L"files/realtime.ngram.txt"
+#define REALTIME_NGRAM_TEMP_FILE L"files/realtime.ngram.tmp.txt"
 //#define USER_NGRAM_FILE    L"files/user.ngram.txt"
 #define USER_COST_FILE    L"files/userword.cost.txt"
 
@@ -354,6 +355,7 @@ namespace lattice2 {
         int maxFreq = 0;
         utils::IfstreamReader reader(path);
         if (reader.success()) {
+            ngramMap.clear();
             for (const auto& line : reader.getAllLines()) {
                 auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
                 if (items.size() == 2 &&
@@ -367,6 +369,7 @@ namespace lattice2 {
                 }
             }
         }
+        LOG_INFO(_T("DONE: maxFreq={}"), maxFreq);
         return maxFreq;
     }
 
@@ -427,6 +430,8 @@ namespace lattice2 {
         //__loadUserCostFile(USER_NGRAM_FILE);
     }
 
+#define REALTIME_NGRAM_FILE (SETTINGS->useTmpRealtimeNgramFile ? REALTIME_NGRAM_TEMP_FILE : REALTIME_NGRAM_MAIN_FILE)
+
     void loadCostAndNgramFile(bool withNgramFile = true) {
         LOG_INFO(L"ENTER: withNgramFile={}", withNgramFile);
         if (withNgramFile) {
@@ -434,7 +439,11 @@ namespace lattice2 {
             systemMaxFreq = _loadNgramFile(SYSTEM_NGRAM_FILE, systemNgram);
             //int userMaxFreq = _loadNgramFile(USER_NGRAM_FILE, systemNgram);
             //if (systemMaxFreq < userMaxFreq) systemMaxFreq = userMaxFreq;
+            LOG_INFO(L"LOAD: realtime ngram file={}", REALTIME_NGRAM_FILE);
             realtimeMaxFreq = _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgram);
+            if (realtimeMaxFreq <= 0 && SETTINGS->useTmpRealtimeNgramFile) {
+                realtimeMaxFreq = _loadNgramFile(REALTIME_NGRAM_MAIN_FILE, realtimeNgram);
+            }
             _loadKatakanaCostFile();
 #endif
         }
@@ -444,11 +453,11 @@ namespace lattice2 {
     }
 
     void saveRealtimeNgramFile() {
-        LOG_INFO(L"CALLED: realtimeNgram_updated={}", realtimeNgram_updated);
+        LOG_INFO(L"CALLED: file={}, realtimeNgram_updated={}", REALTIME_NGRAM_FILE, realtimeNgram_updated);
         auto path = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
         if (realtimeNgram_updated) {
             if (utils::moveFileToBackDirWithRotation(path, SETTINGS->backFileRotationGeneration)) {
-                LOG_INFO(_T("SAVE: {}"), path.c_str());
+                LOG_INFO(_T("SAVE: realtime ngram file path={}"), path.c_str());
                 utils::OfstreamWriter writer(path);
                 if (writer.success()) {
                     for (const auto& pair : realtimeNgram) {
@@ -707,7 +716,7 @@ namespace lattice2 {
 
     inline bool isCommitChar(mchar_t mch) {
         //return utils::is_punct_or_commit_char(mch) || utils::is_paren(mch);
-        return !utils::is_japanese_char_except_nakaguro(mch) && !is_numeral((wchar_t)mch);
+        return !utils::is_japanese_char_except_nakaguro(mch) && !is_numeral((wchar_t)mch) && mch != L'　' && mch != ' ';
     }
 
     MString substringBetweenPunctuations(const MString& str) {
@@ -998,6 +1007,7 @@ namespace lattice2 {
             MStringResult resultOut;
             if (_strokeLen + piece.strokeLen() == strokeCount) {
                 if (SETTINGS->autoBushuCompMinCount > 0 && BUSHU_DIC) {
+                    // 自動部首合成が有効である
                     const MString& pieceStr = piece.getString();
                     if (_str.size() > 0 && (pieceStr.size() == 1 || (pieceStr.size() > 1 && pieceStr[1] == '|'))) {
                         // 自動部首合成の実行 (複数文字がある場合は先頭の文字だけを対象)
@@ -1024,6 +1034,7 @@ namespace lattice2 {
             return { resultOut.resultStr(), resultOut.numBS()};
         }
 
+        // 部首合成の実行
         MString applyBushuComp() const {
             if (BUSHU_DIC) {
                 if (_str.size() >= 2) {
@@ -2183,7 +2194,7 @@ void Lattice2::createLattice() {
     Singleton.reset(new lattice2::LatticeImpl());
 }
 
-void Lattice2::reloadCostFile() {
+void Lattice2::reloadCostAndNgramFile() {
     lattice2::loadCostAndNgramFile();
 }
 

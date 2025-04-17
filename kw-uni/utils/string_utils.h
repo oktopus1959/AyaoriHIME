@@ -270,7 +270,7 @@ namespace {
             mchar_t m = mstr[i];
             if (m == 0) {
                 if (bStopByNull) break;
-                m = L'　';
+                m = L'　';   // 全角スペース
             }
             push_back_wstr(m, result);
         }
@@ -754,7 +754,7 @@ namespace utils
     }
 
     inline bool is_japanese_char(mchar_t ch) {
-        return is_hirakana(ch) || is_kanji(ch) || is_katakana(ch);
+        return is_hirakana(ch) || is_kanji(ch) || is_katakana(ch) || ch == L'ゝ';
     }
 
     inline bool is_kanji_or_katakana_except_nakaguro(mchar_t ch) {

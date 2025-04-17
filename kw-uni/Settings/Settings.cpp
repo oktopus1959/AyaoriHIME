@@ -123,6 +123,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
 
     SET_BOOL_VALUE(multiStreamMode);
     SET_BOOL_VALUE(collectRealtimeNgram);
+    SET_BOOL_VALUE(useTmpRealtimeNgramFile);
     SET_BOOL_VALUE(useMorphAnalyzer);
     //SET_BOOL_VALUE(commitByPunctuation);
     SET_BOOL_VALUE(outputHeadSpace);

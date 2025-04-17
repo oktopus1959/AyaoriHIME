@@ -103,6 +103,7 @@ struct Settings {
     bool multiStreamMode = false;           // 漢直・かな融合モードか
 
     bool collectRealtimeNgram = true;         // Realtime Ngram 情報を収集する
+    bool useTmpRealtimeNgramFile = false;   // 一時的なRealtime Ngram ファイルを使用する
     bool useMorphAnalyzer = true;           // 形態素解析器を使用する
     //bool commitByPunctuation = true;        // 句読点でコミットする
     bool outputHeadSpace = true;            // 先頭のスペースをそのまま出力する

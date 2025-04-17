@@ -16,7 +16,7 @@ namespace KanchokuWS
 
         //-------------------------------------------------------------------------------------
         /// <summary> バージョン </summary>
-        public static string Version => "1.3.0-alpha2";
+        public static string Version => "1.3.0-α3";
         public static string Version2 => "";
 
         //-------------------------------------------------------------------------------------
@@ -161,6 +161,9 @@ namespace KanchokuWS
 
         /// <summary>Realtime Ngram 情報を収集する</summary>
         public static bool CollectRealtimeNgram { get; set; }
+
+        /// <summary>一時的な Realtime Ngram ファイルを使用する</summary>
+        public static bool UseTmpRealtimeNgramFile { get; set; }
 
         /// <summary>形態素解析器を使用する</summary>
         public static bool UseMorphAnalyzer { get; set; }
@@ -1730,7 +1733,8 @@ namespace KanchokuWS
 
             PostRewriteCompatibleWithGooble = addDecoderSetting("googleCompatible", false);     // Google日本語入力と互換な書き換システム
 
-            CollectRealtimeNgram = addDecoderSetting("collectRealtimeNgram", true);                 // Realtime Ngram 情報を収集する
+            CollectRealtimeNgram = addDecoderSetting("collectRealtimeNgram", true);             // Realtime Ngram 情報を収集する
+            UseTmpRealtimeNgramFile = addDecoderSetting("useTmpRealtimeNgramFile", false);      // 一時的な Realtime Ngram ファイルを使用する
             UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             OutputHeadSpace = addDecoderSetting("outputHeadSpace", true);                       // 先頭のスペースをそのまま出力する

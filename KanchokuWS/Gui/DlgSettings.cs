@@ -1830,6 +1830,8 @@ namespace KanchokuWS.Gui
                 selectComboBoxItem(comboBox_editBufferCaretChar, "▴");
             }
             textBox_editBufferFlushChar.Text = $"{Settings.EditBufferFlushChar}";
+            radioButton_mainRtNgramFile.Checked = !Settings.UseTmpRealtimeNgramFile;
+            radioButton_tempRtNgramFile.Checked = Settings.UseTmpRealtimeNgramFile;
         }
 
         private void selectComboBoxItem(ComboBox cbx, string text)
@@ -1863,6 +1865,8 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(textBox_realtimeTrigramTier2Num);
             checkerFusion.Add(comboBox_editBufferCaretChar);
             checkerFusion.Add(textBox_editBufferFlushChar);
+            checkerFusion.Add(radioButton_mainRtNgramFile);
+            checkerFusion.Add(radioButton_tempRtNgramFile);
 
             checkerAll.Add(checkerFusion);
         }
@@ -1890,10 +1894,13 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("realtimeTrigramTier2Num", textBox_realtimeTrigramTier2Num.Text);
             Settings.SetUserIni("editBufferCaretChar", comboBox_editBufferCaretChar.Text.Trim());
             Settings.SetUserIni("editBufferFlushChar", textBox_editBufferFlushChar.Text.Trim());
+            Settings.SetUserIni("useTmpRealtimeNgramFile", radioButton_tempRtNgramFile.Checked);
 
             Settings.ReadIniFile(false);
             // 各種定義ファイルの再読み込み
             frmMain?.ReloadSettingsAndDefFiles();
+
+            frmMain?.ExecCmdDecoder("reloadCostAndNgramFile", "");
 
             readSettings_tabFusion();
             checkerFusion.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
@@ -1939,7 +1946,7 @@ namespace KanchokuWS.Gui
         /// <summary> 単語コストファイルの再読込</summary>
         private void button_reloadDict_Click(object sender, EventArgs e)
         {
-            frmMain?.ExecCmdDecoder("reloadCostFile", "");
+            frmMain?.ExecCmdDecoder("reloadCostAndNgramFile", "");
         }
 
         private void button_showCandidates_Click(object sender, EventArgs e)

@@ -442,9 +442,9 @@ public:
             } else if (cmd == _T("saveRealtimeNgram")) {
                 // リアルタイムNgramファイルの保存
                 Lattice2::saveRealtimeNgramFile();
-            } else if (cmd == _T("reloadCostFile")) {
-                // 単語コストファイルの読み込み
-                Lattice2::reloadCostFile();
+            } else if (cmd == _T("reloadCostAndNgramFile")) {
+                // 単語コストファイルとNgramファイルの読み込み
+                Lattice2::reloadCostAndNgramFile();
             } else if (cmd == _T("showStrokeHelp") && STROKE_HELP) {
                 // ストロークヘルプの表示
                 //OutParams = outParams;
