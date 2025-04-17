@@ -432,21 +432,23 @@ namespace lattice2 {
 
 #define REALTIME_NGRAM_FILE (SETTINGS->useTmpRealtimeNgramFile ? REALTIME_NGRAM_TEMP_FILE : REALTIME_NGRAM_MAIN_FILE)
 
-    void loadCostAndNgramFile(bool withNgramFile = true) {
-        LOG_INFO(L"ENTER: withNgramFile={}", withNgramFile);
-        if (withNgramFile) {
+    void loadCostAndNgramFile(bool systemNgramFile = true, bool realtimeNgramFile = true) {
+        LOG_INFO(L"ENTER: systemNgramFile={}, realtimeNgramFile={}", systemNgramFile, realtimeNgramFile);
 #ifndef _DEBUG
+        if (systemNgramFile) {
             systemMaxFreq = _loadNgramFile(SYSTEM_NGRAM_FILE, systemNgram);
             //int userMaxFreq = _loadNgramFile(USER_NGRAM_FILE, systemNgram);
             //if (systemMaxFreq < userMaxFreq) systemMaxFreq = userMaxFreq;
+        }
+        if (realtimeNgramFile) {
             LOG_INFO(L"LOAD: realtime ngram file={}", REALTIME_NGRAM_FILE);
             realtimeMaxFreq = _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgram);
             if (realtimeMaxFreq <= 0 && SETTINGS->useTmpRealtimeNgramFile) {
                 realtimeMaxFreq = _loadNgramFile(REALTIME_NGRAM_MAIN_FILE, realtimeNgram);
             }
             _loadKatakanaCostFile();
-#endif
         }
+#endif
         _loadUserCostFile();
         makeInitialNgramCostMap();
         LOG_INFO(L"LEAVE");
@@ -462,13 +464,18 @@ namespace lattice2 {
                 if (writer.success()) {
                     for (const auto& pair : realtimeNgram) {
                         String line;
-                        line.append(to_wstr(pair.first));           // 単語
-                        line.append(_T("\t"));
-                        line.append(std::to_wstring(pair.second));  // カウント
-                        writer.writeLine(utils::utf8_encode(line));
+                        int count = pair.second;
+                        if (count < 0 || count > 1) {
+                            // count が 0 または 1 の N-gramは無視する
+                            line.append(to_wstr(pair.first));           // 単語
+                            line.append(_T("\t"));
+                            line.append(std::to_wstring(pair.second));  // カウント
+                            writer.writeLine(utils::utf8_encode(line));
+                        }
                     }
                     realtimeNgram_updated = false;
                 }
+                LOG_INFO(_T("DONE: entries count={}"), realtimeNgram.size());
             }
         }
     }
@@ -2195,11 +2202,11 @@ void Lattice2::createLattice() {
 }
 
 void Lattice2::reloadCostAndNgramFile() {
-    lattice2::loadCostAndNgramFile();
+    lattice2::loadCostAndNgramFile(false);
 }
 
 void Lattice2::reloadUserCostFile() {
-    lattice2::loadCostAndNgramFile(false);
+    lattice2::loadCostAndNgramFile(false, false);
 }
 
 void Lattice2::updateRealtimeNgram() {
