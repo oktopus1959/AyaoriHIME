@@ -122,7 +122,7 @@ void StateCommonInfo::CopyStrokeHelpToVkbFaces(wchar_t ch) {
     LOG_DEBUGH(L"ENTER: ch={}", ch);
     SetCenterString(ch);
     ClearFaces();
-    if (STROKE_HELP->copyStrokeHelpToVkbFacesStateCommon(ch, GetFaces())) {
+    if (STROKE_HELP->copyStrokeHelpToVkbFacesStateCommon(ch, GetFaces(), FacesSize())) {
         SetStrokeHelpVkbLayout();
     } else {
         ClearVkbLayout();

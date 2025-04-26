@@ -7,7 +7,7 @@ PROGDIR=bin/Release
 SCRIPT=kanchokuws
 LINENUM=
 LOGFILE=
-LESS=
+LESS_CMD=
 
 while [ "$1" ]; do
     if [ "$1" == "-b" ]; then
@@ -39,11 +39,11 @@ done
 
 if [ "$LINENUM" ]; then
     TAILOPT=-n
-    LESS="| less -R -F -X"
+    LESS_CMD="| less -R -F -X"
 fi
 
 [ $LOGFILE ] || LOGFILE=$PROGDIR/${SCRIPT}.log
 
-CMD="tail $TAILOPT $LINENUM $LOGFILE | $BINDIR/${SCRIPT}_colorcat.sh $LESS"
+CMD="tail $TAILOPT $LINENUM $LOGFILE | $BINDIR/${SCRIPT}_colorcat.sh $LESS_CMD"
 echo "$CMD"
 eval "$CMD"

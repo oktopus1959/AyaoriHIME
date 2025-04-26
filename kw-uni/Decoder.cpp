@@ -197,8 +197,8 @@ public:
         //// 英数入力ノードのSingleton生成
         //EisuNode::CreateSingleton();
 
-        // ストロークヘルプを求めておく
-        StrokeHelp::GatherStrokeHelp();
+        //// ストロークヘルプを求めておく
+        //StrokeHelp::GatherStrokeHelp();
         // 部首合成の部品について、ストローク可能文字か否かを設定しておく
         if (BUSHU_DIC) BUSHU_DIC->MakeStrokableMap();
 
@@ -259,6 +259,9 @@ public:
 
         // 簡易打鍵文字を集める
         EasyChars::GatherEasyChars();
+
+        // ストロークヘルプを求めておく
+        StrokeHelp::GatherStrokeHelp();
 
         // ユーザー単語コストファイルの読み込み
         Lattice2::reloadUserCostFile();
@@ -900,7 +903,7 @@ public:
             copyToCenterString(to_wstr(ms));
             clearKeyFaces();
             if (!ms.empty()) {
-                if (bBushuComp || !STROKE_HELP->copyStrokeHelpToVkbFacesOutParams(ms[0], OutParams->faceStrings)) {
+                if (bBushuComp || !STROKE_HELP->copyStrokeHelpToVkbFacesOutParams(ms[0], OutParams->faceStrings, utils::array_length(OutParams->faceStrings))) {
                     if (BUSHU_DIC) {
                         if (BUSHU_DIC->CopyBushuCompHelpToVkbFaces(ms[0], OutParams->faceStrings, LONG_VKEY_CHAR_SIZE, LONG_VKEY_NUM, true)) {
                             OutParams->layout = (int)VkbLayout::BushuCompHelp;

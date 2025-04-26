@@ -78,7 +78,7 @@ namespace Reporting {
 
         static inline bool IsErrorEnabled() { return LogLevel() >= LogLevelError; }
 
-        static inline bool IsWarnEnabledH() { return LogLevel() >= LogLevelWarnH; }
+        static inline bool IsWarnHEnabled() { return LogLevel() >= LogLevelWarnH; }
 
         static inline bool IsWarnEnabled() { return LogLevel() >= LogLevelWarn; }
 

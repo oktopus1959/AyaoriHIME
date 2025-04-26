@@ -453,7 +453,7 @@ void State::copyStrokeHelpToVkbFaces(wchar_t ch) {
     LOG_DEBUGH(L"ENTER: ch={}", ch);
     STATE_COMMON->SetCenterString(ch);
     STATE_COMMON->ClearFaces();
-    if (STROKE_HELP->copyStrokeHelpToVkbFacesStateCommon(ch, STATE_COMMON->GetFaces())) {
+    if (STROKE_HELP->copyStrokeHelpToVkbFacesStateCommon(ch, STATE_COMMON->GetFaces(), STATE_COMMON->FacesSize())) {
         STATE_COMMON->SetStrokeHelpVkbLayout();
     } else {
         STATE_COMMON->ClearVkbLayout();
