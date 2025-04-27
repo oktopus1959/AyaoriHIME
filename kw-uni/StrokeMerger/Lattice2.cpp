@@ -104,6 +104,9 @@ namespace lattice2 {
     // 孤立した小書きカタカナのコスト
     int ISOLATED_SMALL_KATAKANA_COST = 3000;
 
+    // 孤立したカタカナのコスト
+    int ISOLATED_KATAKANA_COST = 3000;
+
     // 孤立した漢字のコスト
     int ONE_KANJI_COST = 1000;
 
@@ -465,7 +468,7 @@ namespace lattice2 {
                     for (const auto& pair : realtimeNgram) {
                         String line;
                         int count = pair.second;
-                        if (count < 0 || count > 1) {
+                        if (count < 0 || count > 1 || (count == 1 && Reporting::Logger::IsWarnEnabled())) {
                             // count が 0 または 1 の N-gramは無視する
                             line.append(to_wstr(pair.first));           // 単語
                             line.append(_T("\t"));
@@ -626,6 +629,7 @@ namespace lattice2 {
                 // 正のコストが設定されている場合(wikipedia.costなど)は、 DEFAULT BONUS を引いたコストにする; つまり負のコストになる
                 if (xCost > 0 && xCost < DEFAULT_WORD_BONUS) xCost -= DEFAULT_WORD_BONUS;
                 _LOG_DETAIL(L"{}: ngramCosts={}", to_wstr(word), xCost);
+                //if (to_wstr(word) == L"れた々") { LOG_WARNH(L"word={}: ngramCosts={}", to_wstr(word), xCost); }
             }
         }
         return xCost;
@@ -769,6 +773,12 @@ namespace lattice2 {
                 if ((i == 0 || !utils::is_katakana(str[i - 1]))) {
                     // 小書きカタカナの直前にカタカナが無ければ、ペナルティを与える
                     cost += ISOLATED_SMALL_KATAKANA_COST;
+                    continue;
+                }
+            } else if (utils::is_pure_katakana(str[i])) {
+                if ((i == 0 || !utils::is_katakana(str[i - 1])) && (i == strLen - 1 || !utils::is_katakana(str[i + 1]))) {
+                    // 孤立したカタカナなら、ペナルティを与える
+                    cost += ISOLATED_KATAKANA_COST;
                     continue;
                 }
             //} else if ((i == 0 || !utils::is_hiragana(str[i - 1])) && strLen == i + 2 && isHighFreqJoshi(str[i]) && utils::is_hiragana(str[i + 1])) {
