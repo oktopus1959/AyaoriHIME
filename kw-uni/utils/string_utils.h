@@ -277,6 +277,19 @@ namespace {
         return result;
     }
 
+    String to_debug_wstr(const mchar_t* mstr, size_t len, bool bStopByNull = false) {
+        String result;
+        for (size_t i = 0; i < len; ++i) {
+            mchar_t m = mstr[i];
+            if (m == 0) {
+                if (bStopByNull) break;
+                m = L'□';   // 全角スペース
+            }
+            push_back_wstr(m, result);
+        }
+        return result;
+    }
+
     String to_wstr(const std::vector<mchar_t>& mstr) {
         String result;
         for (auto m : mstr) {

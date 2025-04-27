@@ -521,13 +521,13 @@ State* StrokeTableNode::CreateState() {
 
 // 子ノード列の文字をコピーする
 void StrokeTableNode::CopyChildrenFace(mchar_t* faces, size_t facesSize) {
-    LOG_DEBUGH(_T("ENTER: depth={}"), depth());
+    LOG_DEBUGH(_T("ENTER: depth={}, facesSize={}"), depth(), facesSize);
     for (size_t n = 0; n < facesSize; ++n) {
         const Node* child = getNth(n);
         const auto& s = child ? child->getString() : MString();
         faces[n] = s.empty() ? 0 : is_ascii_pair(s) ? make_mchar((wchar_t)s[0], (wchar_t)s[1]) : s[0];  // "12" のような半角文字のペアも扱う
     }
-    LOG_DEBUGH(_T("LEAVE: faces={}"), to_wstr(faces, 20));
+    LOG_DEBUGH(_T("LEAVE: faces=\"{}\""), to_debug_wstr(faces, 50));
 }
 
 // 後置書き換えノードを取得

@@ -17,7 +17,7 @@ private:
     int temp[10];
 
     // 各文字に対するストロークを求める(下請け)
-    size_t gatherStrokeHelp(StrokeTableNode*, size_t);
+    void gatherStrokeHelp(StrokeTableNode*, size_t);
 
 public:
     static std::unique_ptr<StrokeHelp> Singleton;
