@@ -459,6 +459,7 @@ namespace lattice2 {
 
     void saveRealtimeNgramFile() {
         LOG_INFO(L"CALLED: file={}, realtimeNgram_updated={}", REALTIME_NGRAM_FILE, realtimeNgram_updated);
+#ifndef _DEBUG
         auto path = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
         if (realtimeNgram_updated) {
             if (utils::moveFileToBackDirWithRotation(path, SETTINGS->backFileRotationGeneration)) {
@@ -481,6 +482,7 @@ namespace lattice2 {
                 LOG_INFO(_T("DONE: entries count={}"), realtimeNgram.size());
             }
         }
+#endif
     }
 
     inline bool is_space_or_vbar(mchar_t ch) {
