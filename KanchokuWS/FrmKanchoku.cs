@@ -140,7 +140,7 @@ namespace KanchokuWS
             } else {
                 sDiff = $"{diffMs,6:#,0}";
             }
-            //sbStrokeLog.Append($"{dtNow.ToString("HH:mm:ss.fff")} | {sDiff} | {msg}\r\n");
+            //sbStrokeLog.Append($"{dtNow.ToString("HH:mm:ss.fff")} | {sDiff} | {vkbMsg}\r\n");
             appendStringBufferAndQueue($"{dt.ToString("HH:mm:ss.fff")} | {sDiff} | {msg}\r\n");
             strokeLogLastDt = dt;
         }
@@ -1487,23 +1487,26 @@ namespace KanchokuWS
                     frmVkb.SetTopText(ActiveWindowHandler.Singleton.ActiveWinClassName);
                     ShowFrmVkb();       // Show NonActive
                 }
+                string vkbMsg = "";
                 if (Settings.IsAnyDevFlagEnabled) {
                     if (devFlagsOnWarningCount <= 0) {
                         devFlagsOnWarningCount = 2;
                     } else {
                         --devFlagsOnWarningCount;
                         if (devFlagsOnWarningCount == 0) {
-                            string msg = "";
                             if (Logger.LogLevel > 2) {
-                                msg = "ログレベルを確認してください。";
+                                vkbMsg = "ログレベルを確認してください。";
                             } else {
-                                msg = "開発者用の設定が有効になっています。";
+                                vkbMsg = "開発者用の設定が有効になっています。";
                             }
-                            //SystemHelper.ShowWarningMessageBox(msg);
-                            frmVkb.SetTopText(msg);
+                            //SystemHelper.ShowWarningMessageBox(vkbMsg);
                         }
                     }
                 }
+                if (Settings.UseTmpRealtimeNgramFile) {
+                    vkbMsg = "一時的なリアルタイムNgramファイル。";
+                }
+                frmVkb.SetTopText(vkbMsg);
                 ShowFrmEditBuf();
             } finally {
             }
