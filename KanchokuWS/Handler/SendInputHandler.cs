@@ -1065,7 +1065,9 @@ namespace KanchokuWS.Handler
 
             if ((str._notEmpty() && str[0] != 0) || numBS > 0) {
                 int len = str._isEmpty() ? 0 : str._strlen();     // 終端までの長さを取得
-                if (bForceString || activeWinHandle == IntPtr.Zero || Settings.MinLeghthViaClipboard <= 0 || len < Settings.MinLeghthViaClipboard || isShiftLeftArrowDeleteComboUsed(numBS)) {
+                if (bForceString || activeWinHandle == IntPtr.Zero ||
+                    Settings.MinLeghthViaClipboard <= 0 || len < Settings.MinLeghthViaClipboard ||
+                    Settings.UseTmpRealtimeNgramFile || isShiftLeftArrowDeleteComboUsed(numBS)) {
                     // 自前で送出
                     SendString(str, len, numBS);
                 } else {
