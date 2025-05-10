@@ -4,11 +4,16 @@
 #include "Mecab/MecabBridge.h"
 #include "DyMazin/DymazinBridge.h"
 
+#ifndef _DEBUG
+#define USE_MORPHER 1
+#else
+#define USE_MORPHER 1
+#endif
 #define USE_DYMAZIN 1
 
 namespace MorphBridge {
     inline void morphInitialize(Reporting::Logger& logger) {
-#ifndef _DEBUG
+#if USE_MORPHER
         int unkMax = 3;
 #if USE_DYMAZIN
         auto rcfile = utils::joinPath(SETTINGS->rootDir, _T("dymazin/etc/morphrc"));
@@ -26,7 +31,7 @@ namespace MorphBridge {
     }
 
     inline void morphFinalize() {
-#ifndef _DEBUG
+#if USE_MORPHER
 #if USE_DYMAZIN
         return DymazinBridge::dymazinFinalize();
 #else
@@ -36,7 +41,7 @@ namespace MorphBridge {
     }
 
     inline int morphCalcCost(const MString& str, std::vector<MString>& words) {
-#ifndef _DEBUG
+#if USE_MORPHER
 #if USE_DYMAZIN
         return DymazinBridge::dymazinCalcCost(str, words);
 #else

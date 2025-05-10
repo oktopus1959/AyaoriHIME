@@ -1079,6 +1079,25 @@ namespace lattice2 {
             return EMPTY_MSTR;
         }
 
+        // 交ぜ書き変換の実行
+        MString applyMazegaki() const {
+            _LOG_DETAIL(L"ENTER: {}", to_wstr(_str));
+            MString result;
+            std::vector<MString> words;
+            MorphBridge::morphCalcCost(_str, words);
+            for (auto iter = words.begin(); iter != words.end(); ++iter) {
+                _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
+                auto items = utils::split(*iter, '\t');
+                if (items.size() == 1) {
+                    result.append(items[0]);
+                }  else if (items.size() >= 2) {
+                    result.append(items[1] == MSTR_MINUS ? items[0] : items[1]);
+                }
+            }
+            _LOG_DETAIL(L"LEAVE: {}", to_wstr(result));
+            return result;
+        }
+
         // 単語素片を末尾に適用してみる
         std::vector<MString> applyPiece(const WordPiece& piece, int strokeCount, bool bKatakanaConversion) const {
             std::vector<MString> ss;
@@ -1229,6 +1248,13 @@ namespace lattice2 {
             LOG_INFO(_T("CALLED: First candidate preferred."));
         }
     }
+
+    // 表層形と交ぜ書き原形などの形態素情報
+    class MorphInfo {
+        MString surface;
+        MString mazeBase;
+
+    };
 
     // K-best な文字列を格納する
     class KBestList {
@@ -1430,16 +1456,22 @@ namespace lattice2 {
             int cost = 0;
             if (!s.empty()) {
                 cost = MorphBridge::morphCalcCost(s, words);
-                _LOG_DETAIL(L"ENTER: {}: orig morphCost={}", to_wstr(s), cost);
+                _LOG_DETAIL(L"ENTER: {}: orig morphCost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(words, '/')));
                 for (auto iter = words.begin(); iter != words.end(); ++iter) {
-                    const MString& w = *iter;
-                    if (w.size() == 1 && utils::is_hiragana(w[0]) && (iter + 1) != words.end() && (iter + 1)->size() == 1 && utils::is_hiragana((iter + 1)->front())) {
+                    auto items = utils::split(*iter, '\t');
+                    const MString& w = items[0];
+                    if (w.size() == 1 && utils::is_hiragana(w[0])) {
                         // 「開発させる」⇒「さ きれ て さ せる」
-                        // 1文字ひらがなが2つ続いた
-                        if ((iter != words.begin() && utils::is_hiragana((iter - 1)->back())) && ((iter + 2) != words.end() && utils::is_hiragana((iter + 2)->front()))) {
-                            // その前後もひらがながだった
-                            cost += MORPH_ISOLATED_HIRAGANA_COST;
-                            _LOG_DETAIL(L"{} {}: ADD ISOLATED_HIRAGANA_COST({}): morphCost={}", to_wstr(w), to_wstr(*(iter + 1)), MORPH_ISOLATED_HIRAGANA_COST, cost);
+                        auto iter1 = iter + 1;
+                        if (iter1 != words.end() && iter1->size() == 1 && utils::is_hiragana(iter1->front())) {
+                            // 1文字ひらがなが2つ続いた
+                            auto iter0 = iter - 1;
+                            auto iter2 = iter + 2;
+                            if ((iter != words.begin() && utils::is_hiragana(iter0->back())) && (iter2 != words.end() && utils::is_hiragana(iter2->front()))) {
+                                // その前後もひらがながだった
+                                cost += MORPH_ISOLATED_HIRAGANA_COST;
+                                _LOG_DETAIL(L"{} {}: ADD ISOLATED_HIRAGANA_COST({}): morphCost={}", to_wstr(w), to_wstr(*iter1), MORPH_ISOLATED_HIRAGANA_COST, cost);
+                            }
                         }
                     }
                     //if (w.size() >= 2 && std::any_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_kanji(c); })) {
@@ -1457,8 +1489,15 @@ namespace lattice2 {
                         _LOG_DETAIL(L"{}: SUB ALL_HIRAGANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_HIRAGANA_BONUS, cost);
                     }
                     if (w.size() >= 2 && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_katakana(c); })) {
-                        const MString& w2 = *(iter + 1);
-                        if (!((iter + 1) != words.end() && std::all_of(w2.begin(), w2.end(), [](mchar_t c) { return utils::is_katakana(c); }) && w.size() + w2.size() <= 5)) {
+                        auto iter1 = iter + 1;
+                        bool flag = iter1 == words.end();
+                        if (!flag) {
+                            auto items2 = utils::split(*(iter1), '\t');
+                            const MString& w2 = items2[0];
+                            // 次がカタカナ連でないか、合計で6文以上
+                            flag = !std::all_of(w2.begin(), w2.end(), [](mchar_t c) { return utils::is_katakana(c); }) || w.size() + w2.size() >= 6;
+                        }
+                        if (flag) {
                             // 次がカタカナ連でないか、合計で6文以上なら
                             cost -= MORPH_ALL_KATAKANA_BONUS;
                             _LOG_DETAIL(L"{}: SUB ALL_KATAKANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_KATAKANA_BONUS, cost);
@@ -1547,11 +1586,11 @@ namespace lattice2 {
             int totalCost = newCandStr.totalCost();
 
             _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[{}], ngram={})"),
-                to_wstr(candStr), totalCost, candCost, morphCost, to_wstr(utils::join(words, ' ')), ngramCost);
+                to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(words, ' ')), L"\t", L"|"), ngramCost);
 
             if (IS_LOG_DEBUGH_ENABLED) {
                 if (!isStrokeBS) _debugLog.append(std::format(L"candStr={}, totalCost={}, candCost={} (morph={} [{}] , ngram = {})\n",
-                    to_wstr(candStr), totalCost, candCost, morphCost, to_wstr(utils::join(words, ' ')), ngramCost));
+                    to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(words, ' ')), L"\t", L"|"), ngramCost));
             }
 
             if (!newCandidates.empty()) {
@@ -1960,17 +1999,30 @@ namespace lattice2 {
             _LOG_DETAIL(_T("LEAVE: _origFirstCand={}"), _origFirstCand);
         }
 
+    private:
+        void updateByConversion(const MString& s) {
+            if (!s.empty()) {
+                CandidateString newCandStr(s, _candidates.front().strokeLen(), 0, 0);
+                _candidates.insert(_candidates.begin(), newCandStr);
+                size_t nSameLen = getNumOfSameStrokeLen();
+                arrangePenalties(nSameLen);
+            }
+        }
+
+    public:
         // 部首合成
         void updateByBushuComp() {
             _LOG_DETAIL(_T("CALLED"));
             if (!_candidates.empty()) {
-                MString s = _candidates.front().applyBushuComp();
-                if (!s.empty()) {
-                    CandidateString newCandStr(s, _candidates.front().strokeLen(), 0, 0);
-                    _candidates.insert(_candidates.begin(), newCandStr);
-                    size_t nSameLen = getNumOfSameStrokeLen();
-                    arrangePenalties(nSameLen);
-                }
+                updateByConversion(_candidates.front().applyBushuComp());
+            }
+        }
+
+        // 交ぜ書き変換
+        void updateByMazegaki() {
+            _LOG_DETAIL(_T("CALLED"));
+            if (!_candidates.empty()) {
+                updateByConversion(_candidates.front().applyMazegaki());
             }
         }
     };
@@ -2092,9 +2144,16 @@ namespace lattice2 {
             _kBestList.raiseAndDepressRealtimeNgramForDiffPart();
         }
 
+        // 部首合成
         void updateByBushuComp() override {
             _LOG_DETAIL(_T("CALLED"));
             _kBestList.updateByBushuComp();
+        }
+
+        // 交ぜ書き変換
+        void updateByMazegaki() override {
+            _LOG_DETAIL(_T("CALLED"));
+            _kBestList.updateByMazegaki();
         }
 
     public:
@@ -2185,6 +2244,7 @@ namespace lattice2 {
             return LatticeResult(outStr, numBS);
         }
 
+        // 融合候補の表示
         void saveCandidateLog() override {
             LOG_INFO(_T("ENTER"));
             String result;
@@ -2200,6 +2260,7 @@ namespace lattice2 {
             }
             LOG_INFO(_T("LEAVE"));
         }
+
     };
     DEFINE_CLASS_LOGGER(LatticeImpl);
 

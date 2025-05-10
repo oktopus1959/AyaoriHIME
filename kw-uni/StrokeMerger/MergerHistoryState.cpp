@@ -571,13 +571,14 @@ namespace {
                     case MAZE_CONVERSION_DECKEY:
                         // 交ぜ書き変換
                         LOG_DEBUGH(_T("MAZE_CONVERSION"));
-                        if (!NextNodeMaybe()) {
-                            OUTPUT_STACK->pushNewString(WORD_LATTICE->getFirst());
-                            WORD_LATTICE->clearAll();
-                            if (!MAZEGAKI_INFO || !MAZEGAKI_INFO->RevertPrevXfer(resultStr)) {
-                                SetNextNodeMaybe(MAZEGAKI_NODE);
-                            }
-                        }
+                        WORD_LATTICE->updateByMazegaki();
+                        //if (!NextNodeMaybe()) {
+                        //    OUTPUT_STACK->pushNewString(WORD_LATTICE->getFirst());
+                        //    WORD_LATTICE->clearAll();
+                        //    if (!MAZEGAKI_INFO || !MAZEGAKI_INFO->RevertPrevXfer(resultStr)) {
+                        //        SetNextNodeMaybe(MAZEGAKI_NODE);
+                        //    }
+                        //}
                         break;
                     case KANJI_PREFERRED_NEXT_DECKEY:
                         LOG_DEBUGH(_T("KANJI_PREFERRED_NEXT_DECKEY"));

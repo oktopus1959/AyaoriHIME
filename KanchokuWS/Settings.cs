@@ -168,6 +168,9 @@ namespace KanchokuWS
         /// <summary>形態素解析器を使用する</summary>
         public static bool UseMorphAnalyzer { get; set; }
 
+        /// <summary>形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)</summary>
+        public static string MorphMazeFormat { get; set; } = "maze1";
+
         ///// <summary>句読点でコミットする</summary>
         //public static bool CommitByPunctuation { get; set; }
 
@@ -1736,6 +1739,7 @@ namespace KanchokuWS
             CollectRealtimeNgram = addDecoderSetting("collectRealtimeNgram", true);             // Realtime Ngram 情報を収集する
             UseTmpRealtimeNgramFile = addDecoderSetting("useTmpRealtimeNgramFile", false);      // 一時的な Realtime Ngram ファイルを使用する
             UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
+            MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze1");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             OutputHeadSpace = addDecoderSetting("outputHeadSpace", true);                       // 先頭のスペースをそのまま出力する
             StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う

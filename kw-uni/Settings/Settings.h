@@ -105,6 +105,7 @@ struct Settings {
     bool collectRealtimeNgram = true;         // Realtime Ngram 情報を収集する
     bool useTmpRealtimeNgramFile = false;   // 一時的なRealtime Ngram ファイルを使用する
     bool useMorphAnalyzer = true;           // 形態素解析器を使用する
+    String morphMazeFormat = L"maze1";      // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
     //bool commitByPunctuation = true;        // 句読点でコミットする
     bool outputHeadSpace = true;            // 先頭のスペースをそのまま出力する
     bool strokeBackByBS = false;            // BSで打鍵取消を行う
