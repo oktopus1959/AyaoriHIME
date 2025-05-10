@@ -3038,6 +3038,7 @@ namespace KanchokuWS.Gui
         {
             comboBox_ctrlKey_setItems(comboBox_vkbShowHideTemporaryKey);
         }
+
     }
 }
 

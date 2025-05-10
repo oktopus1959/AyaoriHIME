@@ -48,6 +48,8 @@ namespace Reporting {
 
         static String _logFilename;
 
+        static Deque<std::string> _traceLogQueue;
+
     public:
         static int LogLevel() { return _logLevel; }
         static void SetLogLevel(int logLevel);
@@ -111,6 +113,8 @@ namespace Reporting {
 
         static void WriteLog(const std::string& msg);
         static void WriteLog(const String& msg);
+
+        static void SaveLog();
 
     private:
         std::string _className;

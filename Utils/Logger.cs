@@ -68,6 +68,10 @@ namespace Utils
         private static System.IO.StreamWriter m_sw = null;
         private static object m_sync = new object();
 
+        private static int QUEUE_SIZE = 10000;
+        private static int QUEUE_EXTRA_SIZE = 1000;
+        private static Queue<String> traceLogQueue = new Queue<String>();
+
         public static Logger GetLogger(bool bInfoPromotion = false)
         {
             return new Logger() {
@@ -277,22 +281,53 @@ namespace Utils
             }
         }
 
-        private void writeLog(string level, string caller, int line, string msg)
+        public void SaveLog()
         {
             var sw = getWriter();
-            if (sw != null && msg._notEmpty()) {
-                int nlCnt = 0;
-                while (nlCnt < msg.Length && msg[nlCnt] == '\n') ++nlCnt;
-                if (nlCnt > 0) {
-                    sw.Write(msg._safeSubstring(0, nlCnt));
-                    msg = msg._safeSubstring(nlCnt);
-                }
+            if (sw != null) {
                 try {
-                    sw.WriteLine($"{HRDateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff")} {level} [{caller}({line})] {msg}");
+                    sw.WriteLine(traceLogQueue._join("\n") + "\n");
                     sw.Flush();
                     if (LogLevel <= LogLevelWarn) Close();
                 } catch { }
             }
+        }
+
+        private void writeLog(string level, string caller, int line, string msg)
+        {
+            //var sw = getWriter();
+            //if (sw != null && msg._notEmpty()) {
+            //    int nlCnt = 0;
+            //    while (nlCnt < msg.Length && msg[nlCnt] == '\n') ++nlCnt;
+            //    if (nlCnt > 0) {
+            //        sw.Write(msg._safeSubstring(0, nlCnt));
+            //        msg = msg._safeSubstring(nlCnt);
+            //    }
+            //    try {
+            //        sw.WriteLine($"{HRDateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff")} {level} [{caller}({line})] {msg}");
+            //        sw.Flush();
+            //        if (LogLevel <= LogLevelWarn) Close();
+            //    } catch { }
+            //}
+            int nlCnt = 0;
+            while (nlCnt < msg.Length && msg[nlCnt] == '\n') ++nlCnt;
+            if (nlCnt > 0) {
+                appendLog(msg._safeSubstring(0, nlCnt));
+                msg = msg._safeSubstring(nlCnt);
+            }
+            try {
+                appendLog($"{HRDateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff")} {level} [{caller}({line})] {msg}");
+            } catch { }
+        }
+
+        private void appendLog(String msg)
+        {
+            if (traceLogQueue.Count > QUEUE_SIZE + QUEUE_EXTRA_SIZE) {
+                while (traceLogQueue.Count > QUEUE_SIZE) {
+                    traceLogQueue.Dequeue();
+                }
+            }
+            traceLogQueue.Enqueue(msg);
         }
     }
 }

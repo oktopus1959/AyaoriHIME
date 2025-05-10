@@ -34,7 +34,7 @@ namespace Reporting {
 			DWORD dwWritten = 0;
 			WriteFile(m_hFile, (LPCVOID)logmsg, lstrlenA(logmsg), &dwWritten, NULL);
 
-			flushLog();
+			//flushLog();
 		}
 
 		// ログファイルへの書き込み
@@ -50,7 +50,6 @@ namespace Reporting {
 			}
 		}
 
-	private:
 		// フラッシュ
 		void flushLog() {
 			if (INVALID_HANDLE_VALUE != m_hFile) {
@@ -58,6 +57,7 @@ namespace Reporting {
 			}
 		}
 
+	private:
 		// ログファイルの作成
 		void openFile()
 		{
@@ -121,8 +121,24 @@ namespace Reporting {
 			st.wMilliseconds);
 	}
 
+	std::string formatMessage(const std::string& level, const std::string& className, const std::string& method, int line, StringRef msg) {
+		return std::format("{} {} [{}.{}({})] {}\n", getDatetimeStr(), level, className, method, line, utils::utf8_encode(msg));
+	}
+
 	void _write_log(FileWriter& fw, const std::string& level, const std::string& className, const std::string& method, int line, StringRef msg) {
-		fw.WriteLog(std::format("{} {} [{}.{}({})] {}\n", getDatetimeStr(), level, className, method, line, utils::utf8_encode(msg)));
+		fw.WriteLog(formatMessage(level, className, method, line, msg));
+	}
+
+	static const int QUEUE_SIZE = 10000;
+	static const int QUEUE_EXTRA_SIZE = 1000;
+
+	void appendLog(Deque<std::string>& queue, const std::string& msg) {
+		if (queue.size() > QUEUE_SIZE + QUEUE_EXTRA_SIZE) queue.erase(queue.begin(), queue.begin() + QUEUE_EXTRA_SIZE);
+		queue.push_back(msg);
+	}
+
+	void _write_log(Deque<std::string>& queue, const std::string& level, const std::string& className, const std::string& method, int line, StringRef msg) {
+		appendLog(queue, formatMessage(level, className, method, line, msg));
 	}
 
 	//-----------------------------------------------------------------------------
@@ -130,6 +146,8 @@ namespace Reporting {
 	int Logger::_logLevel = Logger::LogLevelWarn;
 
 	String Logger::_logFilename;
+
+	Deque<std::string> Logger::_traceLogQueue;
 
 	void Logger::SetLogLevel(int logLevel) {
 		_logLevel = logLevel;
@@ -140,15 +158,26 @@ namespace Reporting {
 		_logFilename = logFilename;
 	}
 
+	void Logger::SaveLog() {
+		if (initializeFileWriter()) {
+			while (!_traceLogQueue.empty()) {
+				fileWriterPtr->WriteLog(_traceLogQueue.front());
+				_traceLogQueue.pop_front();
+			}
+			fileWriterPtr->flushLog();
+		}
+	}
+
 	void Logger::Close() {
 		//_logFilename.clear();
 		fileWriterPtr.reset();
 	}
 
 	void Logger::WriteLog(const std::string& msg) {
-		if (initializeFileWriter()) {
-			fileWriterPtr->WriteLog(msg);
-		}
+		//if (initializeFileWriter()) {
+		//	fileWriterPtr->WriteLog(msg);
+		//}
+		appendLog(_traceLogQueue, msg);
 	}
 
 	void Logger::WriteLog(const String& msg) {
@@ -157,20 +186,32 @@ namespace Reporting {
 
 	void Logger::writeLog(const std::string& level, const std::string& method, const std::string& /*file*/, int line, StringRef msg)
 	{
-		if (initializeFileWriter()) {
-			if (msg.size() > 0 && msg[0] == '\n') {
-				std::string newlines;
-				size_t n = 0;
-				while (msg.size() > 0 && n < msg.size() && msg[n] == '\n') {
-					newlines.push_back('\n');
-					++n;
-				}
-				fileWriterPtr->WriteLog(newlines);
-				if (n < msg.size()) _write_log(*fileWriterPtr, level, _className, method, line, msg.substr(n));
-			} else {
-				_write_log(*fileWriterPtr, level, _className, method, line, msg);
-			}
-			if (LogLevel() <= LogLevelWarn) Close();
-		}
+		//if (initializeFileWriter()) {
+		//	if (msg.size() > 0 && msg[0] == '\n') {
+		//		std::string newlines;
+		//		size_t n = 0;
+		//		while (msg.size() > 0 && n < msg.size() && msg[n] == '\n') {
+		//			newlines.push_back('\n');
+		//			++n;
+		//		}
+		//		fileWriterPtr->WriteLog(newlines);
+		//		if (n < msg.size()) _write_log(*fileWriterPtr, level, _className, method, line, msg.substr(n));
+		//	} else {
+		//		_write_log(*fileWriterPtr, level, _className, method, line, msg);
+		//	}
+		//	if (LogLevel() <= LogLevelWarn) Close();
+		//}
+        if (msg.size() > 0 && msg[0] == '\n') {
+            std::string newlines;
+            size_t n = 0;
+            while (msg.size() > 0 && n < msg.size() && msg[n] == '\n') {
+                newlines.push_back('\n');
+                ++n;
+            }
+            appendLog(_traceLogQueue, newlines);
+            if (n < msg.size()) _write_log(_traceLogQueue, level, _className, method, line, msg.substr(n));
+        } else {
+            _write_log(_traceLogQueue, level, _className, method, line, msg);
+        }
 	}
 }

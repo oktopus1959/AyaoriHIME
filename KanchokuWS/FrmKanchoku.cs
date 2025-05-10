@@ -860,6 +860,12 @@ namespace KanchokuWS
                 return null;
         }
 
+        public void SaveTraceLog()
+        {
+            logger.SaveLog();
+            ExecCmdDecoder("saveTraceLog", null);
+        }
+
         //------------------------------------------------------------------
         [DllImport("user32.dll")]
         private static extern ushort GetAsyncKeyState(uint vkey);

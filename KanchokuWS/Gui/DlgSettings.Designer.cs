@@ -505,17 +505,21 @@ namespace KanchokuWS.Gui
             this.checkBox_convertJaComma = new System.Windows.Forms.CheckBox();
             this.checkBox_convertJaPeriod = new System.Windows.Forms.CheckBox();
             this.tabPage_fusion = new System.Windows.Forms.TabPage();
+            this.groupBox52 = new System.Windows.Forms.GroupBox();
+            this.button_checkModifiers = new System.Windows.Forms.Button();
+            this.checkBox_leftCtrl = new System.Windows.Forms.CheckBox();
+            this.checkBox_rightCtrl = new System.Windows.Forms.CheckBox();
+            this.checkBox_leftShift = new System.Windows.Forms.CheckBox();
+            this.checkBox_rightShift = new System.Windows.Forms.CheckBox();
+            this.checkBox_leftAlt = new System.Windows.Forms.CheckBox();
+            this.checkBox_rightAlt = new System.Windows.Forms.CheckBox();
+            this.groupBox51 = new System.Windows.Forms.GroupBox();
+            this.radioButton_mainRtNgramFile = new System.Windows.Forms.RadioButton();
+            this.radioButton_tempRtNgramFile = new System.Windows.Forms.RadioButton();
             this.checkBox_outputHeadSpace = new System.Windows.Forms.CheckBox();
             this.textBox_remainingStrokeSize = new System.Windows.Forms.TextBox();
             this.label168 = new System.Windows.Forms.Label();
             this.checkBox_strokeBackByBS = new System.Windows.Forms.CheckBox();
-            this.button_checkModifiers = new System.Windows.Forms.Button();
-            this.checkBox_rightAlt = new System.Windows.Forms.CheckBox();
-            this.checkBox_leftAlt = new System.Windows.Forms.CheckBox();
-            this.checkBox_rightShift = new System.Windows.Forms.CheckBox();
-            this.checkBox_leftShift = new System.Windows.Forms.CheckBox();
-            this.checkBox_rightCtrl = new System.Windows.Forms.CheckBox();
-            this.checkBox_leftCtrl = new System.Windows.Forms.CheckBox();
             this.textBox_multiStreamBeamSize = new System.Windows.Forms.TextBox();
             this.label167 = new System.Windows.Forms.Label();
             this.groupBox41 = new System.Windows.Forms.GroupBox();
@@ -590,6 +594,7 @@ namespace KanchokuWS.Gui
             this.label_okResultDevelop = new System.Windows.Forms.Label();
             this.button_developEnter = new System.Windows.Forms.Button();
             this.groupBox15 = new System.Windows.Forms.GroupBox();
+            this.button_developSaveLog = new System.Windows.Forms.Button();
             this.button_displayKeyInfos = new System.Windows.Forms.Button();
             this.button_defaultLogLevel = new System.Windows.Forms.Button();
             this.checkBox_loggingTableFileInfo = new System.Windows.Forms.CheckBox();
@@ -598,7 +603,6 @@ namespace KanchokuWS.Gui
             this.label_testCount = new System.Windows.Forms.Label();
             this.textBox_warnThresholdKeyQueueCount = new System.Windows.Forms.TextBox();
             this.label119 = new System.Windows.Forms.Label();
-            this.button_developSaveDebugTableFile = new System.Windows.Forms.Button();
             this.button_developTest = new System.Windows.Forms.Button();
             this.checkBox_testAll = new System.Windows.Forms.CheckBox();
             this.checkBox_bushuDicLogEnabled = new System.Windows.Forms.CheckBox();
@@ -610,12 +614,9 @@ namespace KanchokuWS.Gui
             this.label29 = new System.Windows.Forms.Label();
             this.dgvAbout = new System.Windows.Forms.DataGridView();
             this.button_developClose = new System.Windows.Forms.Button();
+            this.button_developSaveDebugTableFile = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.radioButton_tempRtNgramFile = new System.Windows.Forms.RadioButton();
-            this.radioButton_mainRtNgramFile = new System.Windows.Forms.RadioButton();
-            this.groupBox51 = new System.Windows.Forms.GroupBox();
-            this.groupBox52 = new System.Windows.Forms.GroupBox();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -670,6 +671,8 @@ namespace KanchokuWS.Gui
             this.groupBox37.SuspendLayout();
             this.groupBox27.SuspendLayout();
             this.tabPage_fusion.SuspendLayout();
+            this.groupBox52.SuspendLayout();
+            this.groupBox51.SuspendLayout();
             this.groupBox41.SuspendLayout();
             this.tabPage_register.SuspendLayout();
             this.groupBox19.SuspendLayout();
@@ -680,8 +683,6 @@ namespace KanchokuWS.Gui
             this.tabPage_develop.SuspendLayout();
             this.groupBox15.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAbout)).BeginInit();
-            this.groupBox51.SuspendLayout();
-            this.groupBox52.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -6347,6 +6348,127 @@ namespace KanchokuWS.Gui
             this.tabPage_fusion.Text = "配列融合";
             this.tabPage_fusion.UseVisualStyleBackColor = true;
             // 
+            // groupBox52
+            // 
+            this.groupBox52.Controls.Add(this.button_checkModifiers);
+            this.groupBox52.Controls.Add(this.checkBox_leftCtrl);
+            this.groupBox52.Controls.Add(this.checkBox_rightCtrl);
+            this.groupBox52.Controls.Add(this.checkBox_leftShift);
+            this.groupBox52.Controls.Add(this.checkBox_rightShift);
+            this.groupBox52.Controls.Add(this.checkBox_leftAlt);
+            this.groupBox52.Controls.Add(this.checkBox_rightAlt);
+            this.groupBox52.Location = new System.Drawing.Point(414, 156);
+            this.groupBox52.Name = "groupBox52";
+            this.groupBox52.Size = new System.Drawing.Size(280, 126);
+            this.groupBox52.TabIndex = 75;
+            this.groupBox52.TabStop = false;
+            this.groupBox52.Text = "修飾キー状態";
+            // 
+            // button_checkModifiers
+            // 
+            this.button_checkModifiers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_checkModifiers.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_checkModifiers.Location = new System.Drawing.Point(170, 97);
+            this.button_checkModifiers.Name = "button_checkModifiers";
+            this.button_checkModifiers.Size = new System.Drawing.Size(94, 23);
+            this.button_checkModifiers.TabIndex = 67;
+            this.button_checkModifiers.Text = "状態表示(&M)";
+            this.button_checkModifiers.UseVisualStyleBackColor = true;
+            this.button_checkModifiers.Click += new System.EventHandler(this.button_checkModifiers_Click);
+            // 
+            // checkBox_leftCtrl
+            // 
+            this.checkBox_leftCtrl.AutoSize = true;
+            this.checkBox_leftCtrl.Location = new System.Drawing.Point(29, 22);
+            this.checkBox_leftCtrl.Name = "checkBox_leftCtrl";
+            this.checkBox_leftCtrl.Size = new System.Drawing.Size(88, 19);
+            this.checkBox_leftCtrl.TabIndex = 61;
+            this.checkBox_leftCtrl.Text = "Left Control";
+            this.checkBox_leftCtrl.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_rightCtrl
+            // 
+            this.checkBox_rightCtrl.AutoSize = true;
+            this.checkBox_rightCtrl.Location = new System.Drawing.Point(134, 22);
+            this.checkBox_rightCtrl.Name = "checkBox_rightCtrl";
+            this.checkBox_rightCtrl.Size = new System.Drawing.Size(96, 19);
+            this.checkBox_rightCtrl.TabIndex = 62;
+            this.checkBox_rightCtrl.Text = "Right Control";
+            this.checkBox_rightCtrl.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_leftShift
+            // 
+            this.checkBox_leftShift.AutoSize = true;
+            this.checkBox_leftShift.Location = new System.Drawing.Point(29, 47);
+            this.checkBox_leftShift.Name = "checkBox_leftShift";
+            this.checkBox_leftShift.Size = new System.Drawing.Size(73, 19);
+            this.checkBox_leftShift.TabIndex = 63;
+            this.checkBox_leftShift.Text = "Left Shift";
+            this.checkBox_leftShift.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_rightShift
+            // 
+            this.checkBox_rightShift.AutoSize = true;
+            this.checkBox_rightShift.Location = new System.Drawing.Point(134, 47);
+            this.checkBox_rightShift.Name = "checkBox_rightShift";
+            this.checkBox_rightShift.Size = new System.Drawing.Size(81, 19);
+            this.checkBox_rightShift.TabIndex = 64;
+            this.checkBox_rightShift.Text = "Right Shift";
+            this.checkBox_rightShift.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_leftAlt
+            // 
+            this.checkBox_leftAlt.AutoSize = true;
+            this.checkBox_leftAlt.Location = new System.Drawing.Point(29, 72);
+            this.checkBox_leftAlt.Name = "checkBox_leftAlt";
+            this.checkBox_leftAlt.Size = new System.Drawing.Size(64, 19);
+            this.checkBox_leftAlt.TabIndex = 65;
+            this.checkBox_leftAlt.Text = "Left Alt";
+            this.checkBox_leftAlt.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_rightAlt
+            // 
+            this.checkBox_rightAlt.AutoSize = true;
+            this.checkBox_rightAlt.Location = new System.Drawing.Point(134, 72);
+            this.checkBox_rightAlt.Name = "checkBox_rightAlt";
+            this.checkBox_rightAlt.Size = new System.Drawing.Size(72, 19);
+            this.checkBox_rightAlt.TabIndex = 66;
+            this.checkBox_rightAlt.Text = "Right Alt";
+            this.checkBox_rightAlt.UseVisualStyleBackColor = true;
+            // 
+            // groupBox51
+            // 
+            this.groupBox51.Controls.Add(this.radioButton_mainRtNgramFile);
+            this.groupBox51.Controls.Add(this.radioButton_tempRtNgramFile);
+            this.groupBox51.Location = new System.Drawing.Point(414, 100);
+            this.groupBox51.Name = "groupBox51";
+            this.groupBox51.Size = new System.Drawing.Size(251, 50);
+            this.groupBox51.TabIndex = 74;
+            this.groupBox51.TabStop = false;
+            this.groupBox51.Text = "使用するリアルタイムNgramファイル";
+            // 
+            // radioButton_mainRtNgramFile
+            // 
+            this.radioButton_mainRtNgramFile.AutoSize = true;
+            this.radioButton_mainRtNgramFile.Location = new System.Drawing.Point(28, 22);
+            this.radioButton_mainRtNgramFile.Name = "radioButton_mainRtNgramFile";
+            this.radioButton_mainRtNgramFile.Size = new System.Drawing.Size(85, 19);
+            this.radioButton_mainRtNgramFile.TabIndex = 72;
+            this.radioButton_mainRtNgramFile.TabStop = true;
+            this.radioButton_mainRtNgramFile.Text = "メインファイル";
+            this.radioButton_mainRtNgramFile.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_tempRtNgramFile
+            // 
+            this.radioButton_tempRtNgramFile.AutoSize = true;
+            this.radioButton_tempRtNgramFile.Location = new System.Drawing.Point(134, 22);
+            this.radioButton_tempRtNgramFile.Name = "radioButton_tempRtNgramFile";
+            this.radioButton_tempRtNgramFile.Size = new System.Drawing.Size(83, 19);
+            this.radioButton_tempRtNgramFile.TabIndex = 73;
+            this.radioButton_tempRtNgramFile.TabStop = true;
+            this.radioButton_tempRtNgramFile.Text = "一時ファイル";
+            this.radioButton_tempRtNgramFile.UseVisualStyleBackColor = true;
+            // 
             // checkBox_outputHeadSpace
             // 
             this.checkBox_outputHeadSpace.AutoSize = true;
@@ -6384,78 +6506,6 @@ namespace KanchokuWS.Gui
             this.checkBox_strokeBackByBS.TabIndex = 68;
             this.checkBox_strokeBackByBS.Text = "BSで直前の打鍵を取り消す";
             this.checkBox_strokeBackByBS.UseVisualStyleBackColor = true;
-            // 
-            // button_checkModifiers
-            // 
-            this.button_checkModifiers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_checkModifiers.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_checkModifiers.Location = new System.Drawing.Point(170, 97);
-            this.button_checkModifiers.Name = "button_checkModifiers";
-            this.button_checkModifiers.Size = new System.Drawing.Size(94, 23);
-            this.button_checkModifiers.TabIndex = 67;
-            this.button_checkModifiers.Text = "状態表示(&M)";
-            this.button_checkModifiers.UseVisualStyleBackColor = true;
-            this.button_checkModifiers.Click += new System.EventHandler(this.button_checkModifiers_Click);
-            // 
-            // checkBox_rightAlt
-            // 
-            this.checkBox_rightAlt.AutoSize = true;
-            this.checkBox_rightAlt.Location = new System.Drawing.Point(134, 72);
-            this.checkBox_rightAlt.Name = "checkBox_rightAlt";
-            this.checkBox_rightAlt.Size = new System.Drawing.Size(72, 19);
-            this.checkBox_rightAlt.TabIndex = 66;
-            this.checkBox_rightAlt.Text = "Right Alt";
-            this.checkBox_rightAlt.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_leftAlt
-            // 
-            this.checkBox_leftAlt.AutoSize = true;
-            this.checkBox_leftAlt.Location = new System.Drawing.Point(29, 72);
-            this.checkBox_leftAlt.Name = "checkBox_leftAlt";
-            this.checkBox_leftAlt.Size = new System.Drawing.Size(64, 19);
-            this.checkBox_leftAlt.TabIndex = 65;
-            this.checkBox_leftAlt.Text = "Left Alt";
-            this.checkBox_leftAlt.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_rightShift
-            // 
-            this.checkBox_rightShift.AutoSize = true;
-            this.checkBox_rightShift.Location = new System.Drawing.Point(134, 47);
-            this.checkBox_rightShift.Name = "checkBox_rightShift";
-            this.checkBox_rightShift.Size = new System.Drawing.Size(81, 19);
-            this.checkBox_rightShift.TabIndex = 64;
-            this.checkBox_rightShift.Text = "Right Shift";
-            this.checkBox_rightShift.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_leftShift
-            // 
-            this.checkBox_leftShift.AutoSize = true;
-            this.checkBox_leftShift.Location = new System.Drawing.Point(29, 47);
-            this.checkBox_leftShift.Name = "checkBox_leftShift";
-            this.checkBox_leftShift.Size = new System.Drawing.Size(73, 19);
-            this.checkBox_leftShift.TabIndex = 63;
-            this.checkBox_leftShift.Text = "Left Shift";
-            this.checkBox_leftShift.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_rightCtrl
-            // 
-            this.checkBox_rightCtrl.AutoSize = true;
-            this.checkBox_rightCtrl.Location = new System.Drawing.Point(134, 22);
-            this.checkBox_rightCtrl.Name = "checkBox_rightCtrl";
-            this.checkBox_rightCtrl.Size = new System.Drawing.Size(96, 19);
-            this.checkBox_rightCtrl.TabIndex = 62;
-            this.checkBox_rightCtrl.Text = "Right Control";
-            this.checkBox_rightCtrl.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_leftCtrl
-            // 
-            this.checkBox_leftCtrl.AutoSize = true;
-            this.checkBox_leftCtrl.Location = new System.Drawing.Point(29, 22);
-            this.checkBox_leftCtrl.Name = "checkBox_leftCtrl";
-            this.checkBox_leftCtrl.Size = new System.Drawing.Size(88, 19);
-            this.checkBox_leftCtrl.TabIndex = 61;
-            this.checkBox_leftCtrl.Text = "Left Control";
-            this.checkBox_leftCtrl.UseVisualStyleBackColor = true;
             // 
             // textBox_multiStreamBeamSize
             // 
@@ -7277,6 +7327,7 @@ namespace KanchokuWS.Gui
             this.tabPage_develop.Controls.Add(this.groupBox15);
             this.tabPage_develop.Controls.Add(this.dgvAbout);
             this.tabPage_develop.Controls.Add(this.button_developClose);
+            this.tabPage_develop.Controls.Add(this.button_developSaveDebugTableFile);
             this.tabPage_develop.Location = new System.Drawing.Point(4, 24);
             this.tabPage_develop.Name = "tabPage_develop";
             this.tabPage_develop.Size = new System.Drawing.Size(711, 393);
@@ -7327,6 +7378,7 @@ namespace KanchokuWS.Gui
             // groupBox15
             // 
             this.groupBox15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox15.Controls.Add(this.button_developSaveLog);
             this.groupBox15.Controls.Add(this.button_displayKeyInfos);
             this.groupBox15.Controls.Add(this.button_defaultLogLevel);
             this.groupBox15.Controls.Add(this.checkBox_loggingTableFileInfo);
@@ -7335,7 +7387,6 @@ namespace KanchokuWS.Gui
             this.groupBox15.Controls.Add(this.label_testCount);
             this.groupBox15.Controls.Add(this.textBox_warnThresholdKeyQueueCount);
             this.groupBox15.Controls.Add(this.label119);
-            this.groupBox15.Controls.Add(this.button_developSaveDebugTableFile);
             this.groupBox15.Controls.Add(this.button_developTest);
             this.groupBox15.Controls.Add(this.checkBox_testAll);
             this.groupBox15.Controls.Add(this.checkBox_bushuDicLogEnabled);
@@ -7352,6 +7403,18 @@ namespace KanchokuWS.Gui
             this.groupBox15.TabIndex = 1;
             this.groupBox15.TabStop = false;
             this.groupBox15.Text = "開発者用設定";
+            // 
+            // button_developSaveLog
+            // 
+            this.button_developSaveLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_developSaveLog.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_developSaveLog.Location = new System.Drawing.Point(448, 38);
+            this.button_developSaveLog.Name = "button_developSaveLog";
+            this.button_developSaveLog.Size = new System.Drawing.Size(104, 23);
+            this.button_developSaveLog.TabIndex = 14;
+            this.button_developSaveLog.Text = "ログ出力(&L)";
+            this.button_developSaveLog.UseVisualStyleBackColor = true;
+            this.button_developSaveLog.Click += new System.EventHandler(this.button_developSaveLog_Click);
             // 
             // button_displayKeyInfos
             // 
@@ -7436,19 +7499,6 @@ namespace KanchokuWS.Gui
             this.label119.Size = new System.Drawing.Size(259, 15);
             this.label119.TabIndex = 10;
             this.label119.Text = "個以上の打鍵がキューにたまったら警告をログ出力する";
-            // 
-            // button_developSaveDebugTableFile
-            // 
-            this.button_developSaveDebugTableFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_developSaveDebugTableFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_developSaveDebugTableFile.Location = new System.Drawing.Point(454, 36);
-            this.button_developSaveDebugTableFile.Name = "button_developSaveDebugTableFile";
-            this.button_developSaveDebugTableFile.Size = new System.Drawing.Size(104, 23);
-            this.button_developSaveDebugTableFile.TabIndex = 11;
-            this.button_developSaveDebugTableFile.Text = "テーブル出力(&F)";
-            this.button_developSaveDebugTableFile.UseVisualStyleBackColor = true;
-            this.button_developSaveDebugTableFile.Visible = false;
-            this.button_developSaveDebugTableFile.Click += new System.EventHandler(this.button_developSaveDebugTableFile_Click);
             // 
             // button_developTest
             // 
@@ -7578,6 +7628,19 @@ namespace KanchokuWS.Gui
             this.button_developClose.UseVisualStyleBackColor = true;
             this.button_developClose.Click += new System.EventHandler(this.button_developClose_Click);
             // 
+            // button_developSaveDebugTableFile
+            // 
+            this.button_developSaveDebugTableFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_developSaveDebugTableFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_developSaveDebugTableFile.Location = new System.Drawing.Point(594, 241);
+            this.button_developSaveDebugTableFile.Name = "button_developSaveDebugTableFile";
+            this.button_developSaveDebugTableFile.Size = new System.Drawing.Size(104, 23);
+            this.button_developSaveDebugTableFile.TabIndex = 11;
+            this.button_developSaveDebugTableFile.Text = "テーブル出力(&F)";
+            this.button_developSaveDebugTableFile.UseVisualStyleBackColor = true;
+            this.button_developSaveDebugTableFile.Visible = false;
+            this.button_developSaveDebugTableFile.Click += new System.EventHandler(this.button_developSaveDebugTableFile_Click);
+            // 
             // toolTip1
             // 
             this.toolTip1.AutoPopDelay = 32000;
@@ -7587,55 +7650,6 @@ namespace KanchokuWS.Gui
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // radioButton_tempRtNgramFile
-            // 
-            this.radioButton_tempRtNgramFile.AutoSize = true;
-            this.radioButton_tempRtNgramFile.Location = new System.Drawing.Point(134, 22);
-            this.radioButton_tempRtNgramFile.Name = "radioButton_tempRtNgramFile";
-            this.radioButton_tempRtNgramFile.Size = new System.Drawing.Size(83, 19);
-            this.radioButton_tempRtNgramFile.TabIndex = 73;
-            this.radioButton_tempRtNgramFile.TabStop = true;
-            this.radioButton_tempRtNgramFile.Text = "一時ファイル";
-            this.radioButton_tempRtNgramFile.UseVisualStyleBackColor = true;
-            // 
-            // radioButton_mainRtNgramFile
-            // 
-            this.radioButton_mainRtNgramFile.AutoSize = true;
-            this.radioButton_mainRtNgramFile.Location = new System.Drawing.Point(28, 22);
-            this.radioButton_mainRtNgramFile.Name = "radioButton_mainRtNgramFile";
-            this.radioButton_mainRtNgramFile.Size = new System.Drawing.Size(85, 19);
-            this.radioButton_mainRtNgramFile.TabIndex = 72;
-            this.radioButton_mainRtNgramFile.TabStop = true;
-            this.radioButton_mainRtNgramFile.Text = "メインファイル";
-            this.radioButton_mainRtNgramFile.UseVisualStyleBackColor = true;
-            // 
-            // groupBox51
-            // 
-            this.groupBox51.Controls.Add(this.radioButton_mainRtNgramFile);
-            this.groupBox51.Controls.Add(this.radioButton_tempRtNgramFile);
-            this.groupBox51.Location = new System.Drawing.Point(414, 100);
-            this.groupBox51.Name = "groupBox51";
-            this.groupBox51.Size = new System.Drawing.Size(251, 50);
-            this.groupBox51.TabIndex = 74;
-            this.groupBox51.TabStop = false;
-            this.groupBox51.Text = "使用するリアルタイムNgramファイル";
-            // 
-            // groupBox52
-            // 
-            this.groupBox52.Controls.Add(this.button_checkModifiers);
-            this.groupBox52.Controls.Add(this.checkBox_leftCtrl);
-            this.groupBox52.Controls.Add(this.checkBox_rightCtrl);
-            this.groupBox52.Controls.Add(this.checkBox_leftShift);
-            this.groupBox52.Controls.Add(this.checkBox_rightShift);
-            this.groupBox52.Controls.Add(this.checkBox_leftAlt);
-            this.groupBox52.Controls.Add(this.checkBox_rightAlt);
-            this.groupBox52.Location = new System.Drawing.Point(414, 156);
-            this.groupBox52.Name = "groupBox52";
-            this.groupBox52.Size = new System.Drawing.Size(280, 126);
-            this.groupBox52.TabIndex = 75;
-            this.groupBox52.TabStop = false;
-            this.groupBox52.Text = "修飾キー状態";
             // 
             // DlgSettings
             // 
@@ -7759,6 +7773,10 @@ namespace KanchokuWS.Gui
             this.groupBox27.PerformLayout();
             this.tabPage_fusion.ResumeLayout(false);
             this.tabPage_fusion.PerformLayout();
+            this.groupBox52.ResumeLayout(false);
+            this.groupBox52.PerformLayout();
+            this.groupBox51.ResumeLayout(false);
+            this.groupBox51.PerformLayout();
             this.groupBox41.ResumeLayout(false);
             this.groupBox41.PerformLayout();
             this.tabPage_register.ResumeLayout(false);
@@ -7778,10 +7796,6 @@ namespace KanchokuWS.Gui
             this.groupBox15.ResumeLayout(false);
             this.groupBox15.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAbout)).EndInit();
-            this.groupBox51.ResumeLayout(false);
-            this.groupBox51.PerformLayout();
-            this.groupBox52.ResumeLayout(false);
-            this.groupBox52.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -8374,5 +8388,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.RadioButton radioButton_mainRtNgramFile;
         private System.Windows.Forms.GroupBox groupBox52;
         private System.Windows.Forms.GroupBox groupBox51;
+        private System.Windows.Forms.Button button_developSaveLog;
     }
 }

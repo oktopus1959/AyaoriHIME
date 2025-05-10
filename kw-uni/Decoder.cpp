@@ -603,6 +603,8 @@ public:
             } else if (cmd == _T("commitHistory")) {
                 // 履歴のコミットと初期化
                 commitHistory();
+            } else if (cmd == _T("saveTraceLog")) {
+                Reporting::Logger::SaveLog();
             } else if (cmd == _T("closeLogger")) {
                 Reporting::Logger::Close();
             }

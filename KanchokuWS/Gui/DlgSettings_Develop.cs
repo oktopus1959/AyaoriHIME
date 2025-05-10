@@ -225,5 +225,10 @@ namespace KanchokuWS.Gui
         {
             frmMain?.ShowDlgKeyInfoLog(this, Right - 10, Top);
         }
+
+        private void button_developSaveLog_Click(object sender, EventArgs e)
+        {
+            frmMain?.SaveTraceLog();
+        }
     }
 }
