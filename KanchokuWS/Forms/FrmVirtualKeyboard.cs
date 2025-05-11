@@ -1671,8 +1671,8 @@ namespace KanchokuWS
                 if (name._isEmpty() && Settings.MultiStreamMode) {
                     if (decoderOutput.IsDecoderMultiStreamInput())
                         name = Settings.BgColorForMultiStreamInput;    // 配列融合モードの入力中のとき
-                    else if (Settings.UseTmpRealtimeNgramFile)
-                        name = Settings.BgColorForKanaTrainingMode;    // 一時的なリアルタイムNgramファイルを使っているとき
+                    else if (Settings.UseTmpRealtimeNgramFile || Logger.IsWarnEnabled)
+                        name = Settings.BgColorForKanaTrainingMode;    // 一時的なリアルタイムNgramファイルを使っているとき、または、LogLevelがWARN以上のとき
                     else
                         name = Settings.BgColorForMultiStreamMode;     // 配列融合モードの入力待ちとき
                 }

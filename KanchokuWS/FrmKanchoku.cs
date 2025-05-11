@@ -1494,23 +1494,15 @@ namespace KanchokuWS
                     ShowFrmVkb();       // Show NonActive
                 }
                 string vkbMsg = "";
-                if (Settings.IsAnyDevFlagEnabled) {
-                    if (devFlagsOnWarningCount <= 0) {
-                        devFlagsOnWarningCount = 2;
-                    } else {
-                        --devFlagsOnWarningCount;
-                        if (devFlagsOnWarningCount == 0) {
-                            if (Logger.LogLevel > 2) {
-                                vkbMsg = "ログレベルを確認してください。";
-                            } else {
-                                vkbMsg = "開発者用の設定が有効になっています。";
-                            }
-                            //SystemHelper.ShowWarningMessageBox(vkbMsg);
-                        }
-                    }
-                }
                 if (Settings.UseTmpRealtimeNgramFile) {
                     vkbMsg = "一時的なリアルタイムNgramファイル。";
+                } else if (Settings.IsAnyDevFlagEnabled) {
+                    if (Logger.LogLevel > 2) {
+                        vkbMsg = "ログレベルを確認してください。";
+                    } else {
+                        vkbMsg = "開発者用の設定が有効になっています。";
+                    }
+                    //SystemHelper.ShowWarningMessageBox(vkbMsg);
                 }
                 frmVkb.SetTopText(vkbMsg);
                 ShowFrmEditBuf();

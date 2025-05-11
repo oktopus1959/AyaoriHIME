@@ -41,6 +41,8 @@ namespace Utils
 
         public static void UseDefaultEncoding() { useDefaultEncoding = true; }
 
+        public static bool IsWarnEnabled => LogLevel >= LogLevelWarn;
+
         public static bool IsInfoHEnabled => LogLevel >= LogLevelInfoH;
 
         public static bool IsInfoEnabled => LogLevel >= LogLevelInfo;
