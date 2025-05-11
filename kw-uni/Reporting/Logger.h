@@ -123,7 +123,8 @@ namespace Reporting {
         static std::unique_ptr<FileWriter> fileWriterPtr;
         static bool initializeFileWriter();
 
-        void writeLog(const std::string& level, const std::string& method, const std::string& /*file*/, int line, StringRef msg);
+        void writeLogToFile(const std::string& level, const std::string& method, const std::string& /*file*/, int line, StringRef msg);
+        void writeLogToQueue(const std::string& level, const std::string& method, const std::string& /*file*/, int line, StringRef msg);
 
     public:
         inline Logger(const std::string& className, StringRef classNameT)
@@ -140,35 +141,39 @@ namespace Reporting {
         inline const String& ClassNameT() const { return _classNameT; }
 
         inline void Trace(const String& msg, const std::string& method, const std::string& file, int line) {
-            writeLog("TRACE", method, file, line, msg);
+            writeLogToQueue("TRACE", method, file, line, msg);
         }
 
         inline void Debug(const String& msg, const std::string& method, const std::string& file, int line) {
-            writeLog("DEBUG", method, file, line, msg);
+            writeLogToQueue("DEBUG", method, file, line, msg);
         }
 
         inline void DebugH(const String& msg, const std::string& method, const std::string& file, int line) {
-            writeLog("DEBUH", method, file, line, msg);
+            writeLogToQueue("DEBUH", method, file, line, msg);
         }
 
         inline void Info(const String& msg, const std::string& method, const std::string& file, int line) {
-            writeLog("INFO ", method, file, line, msg);
+            writeLogToQueue("INFO ", method, file, line, msg);
+        }
+
+        inline void InfoFile(const String& msg, const std::string& method, const std::string& file, int line) {
+            writeLogToFile("INFO ", method, file, line, msg);
         }
 
         inline void InfoH(const String& msg, const std::string& method, const std::string& file, int line) {
-            writeLog("INFOH", method, file, line, msg);
+            writeLogToQueue("INFOH", method, file, line, msg);
         }
 
         inline void Warn(const String& msg, const std::string& method, const std::string& file, int line) {
-            writeLog("WARN ", method, file, line, msg);
+            writeLogToQueue("WARN ", method, file, line, msg);
         }
 
         inline void WarnH(const String& msg, const std::string& method, const std::string& file, int line) {
-            writeLog("WARNH", method, file, line, msg);
+            writeLogToFile("WARNH", method, file, line, msg);
         }
 
         inline void Error(const String& msg, const std::string& method, const std::string& file, int line) {
-            writeLog("ERROR", method, file, line, msg);
+            writeLogToFile("ERROR", method, file, line, msg);
         }
 
     };
@@ -221,7 +226,7 @@ namespace Reporting {
 #define LOG_INFOH(fmt, ...) LOG_REPORT_COND(InfoH, fmt, __VA_ARGS__)
 #define LOG_INFOH_COND(flag, fmt, ...) if (flag) LOG_REPORT_COND(InfoH, fmt, __VA_ARGS__)
 #define LOG_INFO_COND(flag, fmt, ...)  if (flag) LOG_REPORT_COND(InfoH, fmt, __VA_ARGS__)
-#define LOG_INFO_UC(fmt, ...) if (!Reporting::Logger::IsAnyLogDisabled()) LOG_REPORT(Info, fmt, __VA_ARGS__)
+#define LOG_INFO_UC(fmt, ...) if (!Reporting::Logger::IsAnyLogDisabled()) LOG_REPORT(InfoFile, fmt, __VA_ARGS__)
 #define LOG_WARN(fmt, ...)  LOG_REPORT_COND(Warn, fmt, __VA_ARGS__)
 #define LOG_WARNH(fmt, ...)  LOG_REPORT(WarnH, fmt, __VA_ARGS__)
 #define LOG_ERROR(fmt, ...) LOG_REPORT(Error, fmt, __VA_ARGS__)

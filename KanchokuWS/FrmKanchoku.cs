@@ -1395,7 +1395,7 @@ namespace KanchokuWS
         }
 
         // 開発者用の設定がONになっているとき、漢直モードのON/OFFを10回繰り返したら警告を出す
-        private int devFlagsOnWarningCount = 0;
+        //private int devFlagsOnWarningCount = 0;
 
         public void ToggleDecoder(int activatorCode = 0)
         {

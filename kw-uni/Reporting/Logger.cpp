@@ -184,23 +184,27 @@ namespace Reporting {
 		WriteLog(utils::utf8_encode(msg));
 	}
 
-	void Logger::writeLog(const std::string& level, const std::string& method, const std::string& /*file*/, int line, StringRef msg)
+	void Logger::writeLogToFile(const std::string& level, const std::string& method, const std::string& /*file*/, int line, StringRef msg)
 	{
-		//if (initializeFileWriter()) {
-		//	if (msg.size() > 0 && msg[0] == '\n') {
-		//		std::string newlines;
-		//		size_t n = 0;
-		//		while (msg.size() > 0 && n < msg.size() && msg[n] == '\n') {
-		//			newlines.push_back('\n');
-		//			++n;
-		//		}
-		//		fileWriterPtr->WriteLog(newlines);
-		//		if (n < msg.size()) _write_log(*fileWriterPtr, level, _className, method, line, msg.substr(n));
-		//	} else {
-		//		_write_log(*fileWriterPtr, level, _className, method, line, msg);
-		//	}
-		//	if (LogLevel() <= LogLevelWarn) Close();
-		//}
+		if (initializeFileWriter()) {
+			if (msg.size() > 0 && msg[0] == '\n') {
+				std::string newlines;
+				size_t n = 0;
+				while (msg.size() > 0 && n < msg.size() && msg[n] == '\n') {
+					newlines.push_back('\n');
+					++n;
+				}
+				fileWriterPtr->WriteLog(newlines);
+				if (n < msg.size()) _write_log(*fileWriterPtr, level, _className, method, line, msg.substr(n));
+			} else {
+				_write_log(*fileWriterPtr, level, _className, method, line, msg);
+			}
+			if (LogLevel() <= LogLevelWarn) Close();
+		}
+	}
+
+	void Logger::writeLogToQueue(const std::string& level, const std::string& method, const std::string& /*file*/, int line, StringRef msg)
+	{
         if (msg.size() > 0 && msg[0] == '\n') {
             std::string newlines;
             size_t n = 0;

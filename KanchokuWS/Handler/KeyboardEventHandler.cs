@@ -954,7 +954,7 @@ namespace KanchokuWS.Handler
                 // デコーダーがOFFで、どの DecoderKey にもヒモ付けられていないか、または通常キーでもないキーが押されたら、そのままシステムに処理させる
                 // ⇒ Astah など、なぜか自身で キーボード入力を監視していると思われるソフトがあるため
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: false: Decoder=OFF, no assigned deckey and not normal key");
-                if (vkey == FuncVKeys.HENKAN) logger.WarnH(() => $"LEAVE: HENKAN: result=False");
+                if (vkey == FuncVKeys.HENKAN) logger.Warn(() => $"LEAVE: HENKAN: result=False");
                 frmKanchoku?.ResetPrevDeckey();
                 return false;
             }
@@ -988,7 +988,7 @@ namespace KanchokuWS.Handler
                 bHandlerBusy = false;
             }
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: result={result}");
-            if (vkey == FuncVKeys.HENKAN) logger.WarnH(() => $"LEAVE: HENKAN: result={result}");
+            if (vkey == FuncVKeys.HENKAN) logger.Warn(() => $"LEAVE: HENKAN: result={result}");
             return result;
         }
 
