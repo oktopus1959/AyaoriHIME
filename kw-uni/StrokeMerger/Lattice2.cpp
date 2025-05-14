@@ -38,6 +38,7 @@ namespace lattice2 {
 
     // ビームサイズ
     //size_t BestKSize = 5;
+    size_t maxCandidatesSize = 0;
 
     // 漢字用の余裕
     int EXTRA_KANJI_BEAM_SIZE = 3;
@@ -1272,7 +1273,7 @@ namespace lattice2 {
         int _selectedCandPos = 0;
 
         // 末尾漢字などの追加で一時的に拡大された候補数
-        int _extendedCandNum = 0;
+        //int _extendedCandNum = 0;
 
         // 次のストロークをスキップする候補文字列
         std::set<MString> _kanjiPreferredNextCands;
@@ -1333,7 +1334,7 @@ namespace lattice2 {
             _highFreqJoshiStroke.clear();
             _rollOverStroke.clear();
             _origFirstCand = -1;
-            _extendedCandNum = 0;
+            //_extendedCandNum = 0;
             if (clearAll) _kanjiPreferredNextCands.clear();
         }
 
@@ -1380,7 +1381,7 @@ namespace lattice2 {
 
         void resetOrigFirstCand() {
             _origFirstCand = -1;
-            _extendedCandNum = 0;
+            //_extendedCandNum = 0;
         }
 
         void incrementOrigFirstCand(int nSameLen) {
@@ -1391,36 +1392,35 @@ namespace lattice2 {
                 if (_origFirstCand >= (int)nSameLen) _origFirstCand = 0;
             }
             setSelectedCandPos(nSameLen);
-            _extendedCandNum = nSameLen;
+            //_extendedCandNum = nSameLen;
         }
 
         void decrementOrigFirstCand(int nSameLen) {
             --_origFirstCand;
             if (_origFirstCand < 0) _origFirstCand = nSameLen - 1;
             setSelectedCandPos(nSameLen);
-            _extendedCandNum = nSameLen;
+            //_extendedCandNum = nSameLen;
+        }
+
+        // ストローク長の同じ候補の数を返す
+        size_t getNumOfSameStrokeLen() const {
+            return lattice2::getNumOfSameStrokeLen(_candidates);
         }
 
         std::vector<MString> getTopCandStrings() const {
-            _LOG_DETAIL(L"ENTER: _origFirstCand={}", _origFirstCand);
+            _LOG_DETAIL(L"ENTER: _candidates.size={}, _origFirstCand={}, _selectedCandPos={}", _candidates.size(), _origFirstCand, _selectedCandPos);
             std::vector<MString> result;
-            //int maxStrokeLen = 0;
-            //for (const auto& c : _candidates) {
-            //    if (c.strokeLen() >= maxStrokeLen) {
-            //        //result.push_back(utils::safe_substr(c.string(), _prevFixedLen));
-            //        result.push_back(c.string());
-            //        maxStrokeLen = c.strokeLen();
-            //    }
-            //}
             int nSameLen = getNumOfSameStrokeLen();
             int first = cookedOrigFirstCand();
             if (first > nSameLen) first = nSameLen;
+            _LOG_DETAIL(L"nSameLen={}, first={}", nSameLen, first);
             for (int i = first; i < nSameLen; ++i) {
                 result.push_back(_candidates[i].string());
             }
             for (int i = 0; i < first; ++i) {
                 result.push_back(_candidates[i].string());
             }
+
             size_t maxLen = 0;
             for (const auto& s : result) {
                 if (maxLen < s.size()) maxLen = s.size();
@@ -1432,7 +1432,7 @@ namespace lattice2 {
                     s = s.substr(pos);
                 }
             }
-            _LOG_DETAIL(L"ENTER: result.size()={}, _origFirstCand={}", result.size(), _origFirstCand);
+            _LOG_DETAIL(L"LEAVE: result.size()={}, _origFirstCand={}, _selectedCandPos={}", result.size(), _origFirstCand, _selectedCandPos);
             return result;
         }
 
@@ -1556,7 +1556,7 @@ namespace lattice2 {
         bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, const MString& subStr, bool isStrokeBS) {
             _LOG_DETAIL(_T("ENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
             bool bAdded = false;
-            bool bIgnored = false;
+            //bool bIgnored = false;
             const MString& candStr = newCandStr.string();
             //MString subStr = substringBetweenPunctuations(candStr);
             //MString subStr = substringBetweenNonJapaneseChars(candStr);
@@ -1618,9 +1618,10 @@ namespace lattice2 {
                     }
                 }
             }
+#if 0
             int beamSize = SETTINGS->multiStreamBeamSize + (newCandStr.isKanjiTailChar() ? EXTRA_KANJI_BEAM_SIZE : 0);
             if (beamSize < _extendedCandNum) beamSize = _extendedCandNum;
-            if (!bAdded && !bIgnored && (int)newCandidates.size() < beamSize) {
+            if (!bAdded && /*!bIgnored &&*/ (int)newCandidates.size() < beamSize) {
                 // 余裕があれば末尾に追加(複数漢字候補の場合はkBestを超えても追加)
                 newCandidates.push_back(newCandStr);
                 bAdded = true;
@@ -1647,6 +1648,12 @@ namespace lattice2 {
                 }
 #endif
             }
+#else
+            if (!bAdded) {
+                newCandidates.push_back(newCandStr);
+                bAdded = true;
+            }
+#endif
             if (bAdded) {
                 _LOG_DETAIL(_T("    ADD candidate: {}, totalCost={}"), to_wstr(candStr), totalCost);
             } else {
@@ -1654,6 +1661,80 @@ namespace lattice2 {
             }
             _LOG_DETAIL(_T("LEAVE: {}, newCandidates.size={}"), bAdded ? L"ADD" : L"ABANDON", newCandidates.size());
             return bAdded;
+        }
+
+        // beamSize を超えた部分を削除する
+        void truncateTailCandidates(std::vector<CandidateString>& newCandidates) {
+            _LOG_DETAIL(_T("ENTER: newCandidates.size={}"), newCandidates.size());
+            if (IS_LOG_DEBUGH_ENABLED) {
+                _debugLog.append(std::format(L"\ntruncateTailCandidates: ENTER: newCandidates.size={}\n", newCandidates.size()));
+            }
+            std::set<MString> triGrams;
+            std::set<MString> biGrams;
+            std::set<MString> uniGrams;
+            const size_t beamSize = SETTINGS->multiStreamBeamSize;
+            const size_t beamSize2 = beamSize * 2;
+            size_t pos = 0;
+            while (pos < newCandidates.size()) {
+                auto iter = newCandidates.begin() + pos;
+                const MString& str = iter->string();
+                const MString uni = str.size() >= 1 ? utils::safe_tailstr(str, 1) : EMPTY_MSTR;
+                const MString bi = str.size() >= 2 ? utils::safe_tailstr(str, 2) : EMPTY_MSTR;
+                const MString tri = str.size() >= 3 ? utils::safe_tailstr(str, 3) : EMPTY_MSTR;
+                if (pos < beamSize) {
+                    if (!uni.empty()) uniGrams.insert(uni);
+                    if (!bi.empty()) biGrams.insert(bi);
+                    if (!tri.empty()) triGrams.insert(tri);
+                    _LOG_DETAIL(_T("[{}] string={}: OK"), pos, to_wstr(str));
+                    ++pos;
+                } else {
+                    if (IS_LOG_DEBUGH_ENABLED && pos == beamSize) {
+                        _LOG_DETAIL(_T("uniGrams={}"), to_wstr(utils::join(uniGrams, ',')));
+                        _LOG_DETAIL(_T("biGrams={}"), to_wstr(utils::join(biGrams, ',')));
+                        _LOG_DETAIL(_T("triGrams={}"), to_wstr(utils::join(triGrams, ',')));
+                    }
+                    if (!tri.empty()) {
+                        if (triGrams.size() < beamSize && triGrams.find(tri) == triGrams.end()) {
+                            // 未見のtrigramであり、まだ余裕がある
+                            triGrams.insert(tri);
+                            _LOG_DETAIL(_T("[{}] string={}: triGram OK, triGrams.size={}"), pos, to_wstr(str), triGrams.size());
+                            ++pos;
+                            continue;
+                        }
+                    }
+                    if (!bi.empty()) {
+                        if (biGrams.size() < beamSize2 && biGrams.find(bi) == biGrams.end()) {
+                            // 未見のbigramであり、まだ余裕がある
+                            biGrams.insert(bi);
+                            _LOG_DETAIL(_T("[{}] string={}: biGram OK, biGrams.size={}"), pos, to_wstr(str), biGrams.size());
+                            ++pos;
+                            continue;
+                        }
+                    }
+                    if (!uni.empty()) {
+                        if (uniGrams.size() < beamSize && uniGrams.find(uni) == uniGrams.end()) {
+                            // 未見のunigramであり、まだ余裕がある
+                            uniGrams.insert(uni);
+                            _LOG_DETAIL(_T("[{}] string={}: uniGram OK, uniGrams.size={}"), pos, to_wstr(str), uniGrams.size());
+                            ++pos;
+                            continue;
+                        }
+                    }
+                    _LOG_DETAIL(_T("[{}] string={}: erased"), pos, to_wstr(str));
+                    newCandidates.erase(iter);
+                }
+            }
+            if (pos < newCandidates.size()) {
+                newCandidates.resize(pos);
+            }
+            _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
+            if (IS_LOG_DEBUGH_ENABLED) {
+                _debugLog.append(std::format(L"truncateTailCandidates: LEAVE: newCandidates.size={}\n\n", newCandidates.size()));
+            }
+            if (newCandidates.size() > maxCandidatesSize) {
+                maxCandidatesSize = newCandidates.size();
+                LOG_WARNH(_T("max newCandidates.size updated: {}"), maxCandidatesSize);
+            }
         }
 
     private:
@@ -1820,13 +1901,15 @@ namespace lattice2 {
 
         // return: strokeBack による戻しがあったら、先頭を優先する
         std::vector<CandidateString> _updateKBestList_sub(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack, bool bKatakanaConversion) {
-            _LOG_DETAIL(_T("CALLED"));
+            _LOG_DETAIL(_T("ENTER: pieces.size={}, strokeCount={}, strokeBack={}"), pieces.size(), strokeCount, strokeBack);
             std::vector<CandidateString> newCandidates;
             if (strokeBack) {
+                _LOG_DETAIL(_T("strokeBack"));
                 // strokeBackの場合
                 //_LOG_DETAIL(L"strokeBack");
                 removeCurrentStrokeCandidates(newCandidates, strokeCount);
                 if (!newCandidates.empty()) {
+                    _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
                     return newCandidates;
                 }
                 // 以前のストロークの候補が無ければ、通常のBSの動作とする
@@ -1834,6 +1917,7 @@ namespace lattice2 {
             }
             bool isEmptyPiece = pieces.size() == 1 && pieces.front().isEmpty();
             bool isBSpiece = pieces.size() == 1 && pieces.front().isBS();
+            _LOG_DETAIL(_T("isEmptyPiece={}, isBSpiece={}"), isEmptyPiece, isBSpiece);
             _prevBS = isBSpiece;
 
             if (!isEmptyPiece && !isBSpiece) {
@@ -1845,6 +1929,8 @@ namespace lattice2 {
                 // 素片のストロークと適合する候補だけを追加
                 addOnePiece(newCandidates, piece, strokeCount, bKatakanaConversion);
             }
+
+            if (!isEmptyPiece) truncateTailCandidates(newCandidates);
 
             //sortByLlamaLoss(newCandidates);
 
@@ -1860,6 +1946,7 @@ namespace lattice2 {
                 // 新しく候補が作成された
                 resetOrigFirstCand();
             }
+            _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
             return newCandidates;
         }
 
@@ -1904,20 +1991,6 @@ namespace lattice2 {
         }
 
     private:
-        // ストローク長の同じ候補の数を返す
-        size_t getNumOfSameStrokeLen() const {
-            //size_t nSameLen = 0;
-            //if (_candidates.size() > 1) {
-            //    int strokeLen = _candidates.front().strokeLen();
-            //    ++nSameLen;
-            //    for (auto iter = _candidates.begin() + 1; iter != _candidates.end() && iter->strokeLen() == strokeLen; ++iter) {
-            //        ++nSameLen;
-            //    }
-            //}
-            //return nSameLen;
-            return lattice2::getNumOfSameStrokeLen(_candidates);
-        }
-
         // 先頭候補以外に、非優先候補ペナルティを与える (先頭候補のペナルティは 0 にする)
         void arrangePenalties(size_t nSameLen) {
             //_candidates.front().zeroPenalty();
@@ -1977,26 +2050,28 @@ namespace lattice2 {
         void selectNext() {
             _LOG_DETAIL(_T("ENTER: _origFirstCand={}"), _origFirstCand);
             size_t nSameLen = getNumOfSameStrokeLen();
+            _LOG_DETAIL(_T("candidates.size={}, nSameLen={}"), _candidates.size(), nSameLen);
             if (nSameLen > 1) {
                 auto begin = _candidates.begin();
                 std::rotate(begin, begin + 1, begin + nSameLen);
                 arrangePenalties(nSameLen);
                 decrementOrigFirstCand((int)nSameLen);
             }
-            _LOG_DETAIL(_T("LEAVE: _origFirstCand={}"), _origFirstCand);
+            _LOG_DETAIL(_T("LEAVE: _origFirstCand={}, _selectedCandPos={}"), _origFirstCand, _selectedCandPos);
         }
 
         // 前候補を選択する (一時的に優先するだけなので、他の候補を削除したりはしない)
         void selectPrev() {
             _LOG_DETAIL(_T("ENTER: _origFirstCand={}"), _origFirstCand);
             size_t nSameLen = getNumOfSameStrokeLen();
+            _LOG_DETAIL(_T("candidates.size={}, nSameLen={}"), _candidates.size(), nSameLen);
             if (nSameLen > 1) {
                 auto begin = _candidates.begin();
                 std::rotate(begin, begin + nSameLen - 1, begin + nSameLen);
                 arrangePenalties(nSameLen);
                 incrementOrigFirstCand((int)nSameLen);
             }
-            _LOG_DETAIL(_T("LEAVE: _origFirstCand={}"), _origFirstCand);
+            _LOG_DETAIL(_T("LEAVE: _origFirstCand={}, _selectedCandPos={}"), _origFirstCand, _selectedCandPos);
         }
 
     private:
