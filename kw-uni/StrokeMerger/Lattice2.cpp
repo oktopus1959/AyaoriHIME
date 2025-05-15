@@ -123,6 +123,9 @@ namespace lattice2 {
     // Realtime Ngram のカウントを水増しする係数
     int REALTIME_FREQ_BOOST_FACTOR = 10;
 
+    // Realtime Ngram のカウントを水増ししたときの、カウント値をスムージングする際の閾値
+    int SYSTEM_NGRAM_COUNT_THRESHOLD = 3000;
+
     //// Realtime 3gram のカウントからボーナス値を算出する際の係数
     //int REALTIME_TRIGRAM_BONUS_FACTOR = 100;
 
@@ -189,6 +192,8 @@ namespace lattice2 {
     }
 
     inline void _updateNgramCost(const MString& word, int sysCount, int usrCount, int rtmCount) {
+        int origSysCnt = sysCount;
+        int origRtmCnt = rtmCount;
         if (word.size() <= 2) {
             // 1-2 gram は正のコスト
             int total = sysCount + usrCount + rtmCount * REALTIME_FREQ_BOOST_FACTOR;
@@ -198,7 +203,10 @@ namespace lattice2 {
             // 3gramは負のコスト
             if (std::all_of(word.begin(), word.end(), [](mchar_t x) { return utils::is_hiragana(x);})) {
                 // すべてひらがななら、system ngram として扱う。(「ってい」とかが高い realtime ngram になって、「調節す」⇒「ってい老」になってしまうことを防ぐ)
-                sysCount += rtmCount * REALTIME_FREQ_BOOST_FACTOR;
+                //sysCount += rtmCount * REALTIME_FREQ_BOOST_FACTOR;
+                // SYSTEM_NGRAM_COUNT_THRESHOLD によってスムージングする(「ている」の突出した頻度によって、「していかない」より「しているない」が優先されないように)
+                int tmpCnt = sysCount + rtmCount * REALTIME_FREQ_BOOST_FACTOR;
+                sysCount = tmpCnt > SYSTEM_NGRAM_COUNT_THRESHOLD ? SYSTEM_NGRAM_COUNT_THRESHOLD + (int)(std::sqrt(tmpCnt - 1000) * REALTIME_FREQ_BOOST_FACTOR) : tmpCnt;
                 rtmCount = 0;
             }
             int bonumFactor = SETTINGS->realtimeTrigramBonusFactor;
@@ -213,19 +221,28 @@ namespace lattice2 {
             if (numTier3 > maxTier3) numTier3 = maxTier3;
             int numTier4 = rtmCount - (numTier1 + numTier2 + numTier3);
             if (numTier4 < 0) numTier4 = 0;
-            ngramCosts[word] = -(
-                numTier1 * (bonumFactor*10) +
-                numTier2 * bonumFactor +
-                (maxTier3 > 0 && numTier3 > 0 ? (int)(numTier3 * bonumFactor * (1.0 - ((float)numTier3 / (maxTier3 * 2)))) : 0) +
-                (numTier4 + sysCount));
 
+            int bonusTier1 = numTier1 * (bonumFactor * 10);
+            int bonusTier2 = numTier2 * bonumFactor;
+            int bonusTier3 = (maxTier3 > 0 && numTier3 > 0 ? (int)(numTier3 * bonumFactor * (1.0 - ((float)numTier3 / (maxTier3 * 2)))) : 0);
+            int bonusTier4 = numTier4 + sysCount;
+            int bonusTotal = bonusTier1 + bonusTier2 + bonusTier3 + bonusTier4;
+            ngramCosts[word] = -bonusTotal;
+
+            if (IS_LOG_DEBUGH_ENABLED) {
+                String ws = to_wstr(word);
+                if (ws == L"ている" || ws == L"いるな" || ws == L"ていか" || ws == L"いかな") {
+                    LOG_WARNH(L"word={}: sysCount adjusted: sysCnt={}, totalCost={}", ws, sysCount, bonusTotal);
+                }
+                if (ngramCosts[word] < -(SETTINGS->realtimeTrigramTier1Num * bonumFactor * 10 + 1000)) {
+                    LOG_WARN(L"HIGHER COST: word={}, cost={}, sysCount={}, usrCount={}, rtmCount={}, tier1=({}:{}), tier2=({}:{}), tier3=({}:{}), tier4=({}:{})",
+                        to_wstr(word), ngramCosts[word], origSysCnt, usrCount, origRtmCnt, numTier1, bonusTier1, numTier2, bonusTier2, numTier3, bonusTier3, numTier4, bonusTier4);
+                }
+            }
             //// 上のやり方は、間違いの方の影響も拡大してしまうので、結局、あまり意味が無いと思われる
             //ngramCosts[word] = -(rtmCount * bonumFactor + (sysCount + usrCount) * (bonumFactor/10));
         //} else if (word.size() >= 4 && rtmCount < 0) {
         //    ngramCosts[word] = (-rtmCount) * 100;
-        }
-        if (ngramCosts[word] < -100000) {
-            LOG_WARNH(L"ABNORMAL COST: word={}, cost={}, sysCount={}, usrCount={}, rtmCount={}", to_wstr(word), ngramCosts[word], sysCount, usrCount, rtmCount);
         }
     }
 
@@ -237,7 +254,7 @@ namespace lattice2 {
             (all_pure_katakana(word) || contains_half_or_more_kanji(word))) {
             // 未だどこにも登録されていない2文字以上の素片で、全部カタカナか半分以上漢字を含むものは、ティア1として登録
             count = SETTINGS->realtimeTrigramTier1Num;
-            LOG_WARNH(L"TIER1 Ngram: {}", to_wstr(word));
+            LOG_WARNH(L"TIER1 Ngram: {}, count={}", to_wstr(word), count);
         } else {
             ++count;
         }
@@ -272,7 +289,6 @@ namespace lattice2 {
     }
 
     void _depressRealtimeNgramByWord(const MString& word, bool bJust2ByGUI = false) {
-        LOG_WARNH(L"CALLED: word={}, just2ByGUI", to_wstr(word), bJust2ByGUI);
         int count = 0;
         if (word.length() >= 4) {
             // 4gramの抑制をやってみたが、いまいちなので採用しない(2025/2/4)
@@ -291,6 +307,7 @@ namespace lattice2 {
             else count -= bJust2ByGUI ? 1000 : 10;
             realtimeNgram[word] = count;
         }
+        LOG_WARNH(L"CALLED: _updateNgramCost(word={}, rtmCnt={}), just2ByGUI", to_wstr(word), count, bJust2ByGUI);
         _updateNgramCost(word, 0, 0, count);
         realtimeNgram_updated = true;
     }
@@ -303,9 +320,9 @@ namespace lattice2 {
         for (auto iter = systemNgram.begin(); iter != systemNgram.end(); ++iter) {
             const MString& word = iter->first;
             int sysCount = iter->second;
-            auto iterOnl = realtimeNgram.find(iter->first);
+            auto iterOnl = realtimeNgram.find(word);
             int rtmCount = iterOnl != realtimeNgram.end() ? iterOnl->second : 0;
-            auto iterUsr = userNgram.find(iter->first);
+            auto iterUsr = userNgram.find(word);
             int usrCount = iterUsr != userNgram.end() ? iterUsr->second : 0;
             _updateNgramCost(word, sysCount, usrCount, rtmCount);
         }
@@ -318,7 +335,7 @@ namespace lattice2 {
             }
             if (ngramCosts.find(word) == ngramCosts.end()) {
                 // 未登録
-                auto iterOnl = realtimeNgram.find(iter->first);
+                auto iterOnl = realtimeNgram.find(word);
                 int rtmCount = iterOnl != realtimeNgram.end() ? iterOnl->second : 0;
                 _updateNgramCost(word, 0, usrCount, rtmCount);
             }
@@ -370,6 +387,12 @@ namespace lattice2 {
                     MString word = to_mstr(items[0]);
                     ngramMap[word] = count;
                     if (maxFreq < count) maxFreq = count;
+                    if (IS_LOG_DEBUGH_ENABLED) {
+                        String ws = to_wstr(word);
+                        if (ws == L"ている" || ws == L"いるな" || ws == L"ていか" || ws == L"いかな") {
+                            LOG_WARNH(L"file={}, word={}, count={}", ngramFile, ws, count);
+                        }
+                    }
                 }
             }
         }
@@ -455,6 +478,8 @@ namespace lattice2 {
 #endif
         _loadUserCostFile();
         makeInitialNgramCostMap();
+
+        maxCandidatesSize = 0;
         LOG_INFO(L"LEAVE");
     }
 
@@ -634,6 +659,8 @@ namespace lattice2 {
                 _LOG_DETAIL(L"{}: ngramCosts={}", to_wstr(word), xCost);
                 //if (to_wstr(word) == L"れた々") { LOG_WARNH(L"word={}: ngramCosts={}", to_wstr(word), xCost); }
             }
+        } else if (xCost < 0) {
+            _LOG_DETAIL(L"{}: userWordCost={}", to_wstr(word), xCost);
         }
         return xCost;
     }
@@ -1673,7 +1700,7 @@ namespace lattice2 {
             std::set<MString> biGrams;
             std::set<MString> uniGrams;
             const size_t beamSize = SETTINGS->multiStreamBeamSize;
-            const size_t beamSize2 = beamSize * 2;
+            const size_t beamSize2 = beamSize + beamSize / 2;
             size_t pos = 0;
             while (pos < newCandidates.size()) {
                 auto iter = newCandidates.begin() + pos;
@@ -1694,7 +1721,7 @@ namespace lattice2 {
                         _LOG_DETAIL(_T("triGrams={}"), to_wstr(utils::join(triGrams, ',')));
                     }
                     if (!tri.empty()) {
-                        if (triGrams.size() < beamSize && triGrams.find(tri) == triGrams.end()) {
+                        if (triGrams.size() < beamSize2 && triGrams.find(tri) == triGrams.end()) {
                             // 未見のtrigramであり、まだ余裕がある
                             triGrams.insert(tri);
                             _LOG_DETAIL(_T("[{}] string={}: triGram OK, triGrams.size={}"), pos, to_wstr(str), triGrams.size());
@@ -1712,7 +1739,7 @@ namespace lattice2 {
                         }
                     }
                     if (!uni.empty()) {
-                        if (uniGrams.size() < beamSize && uniGrams.find(uni) == uniGrams.end()) {
+                        if (uniGrams.size() < beamSize2 && uniGrams.find(uni) == uniGrams.end()) {
                             // 未見のunigramであり、まだ余裕がある
                             uniGrams.insert(uni);
                             _LOG_DETAIL(_T("[{}] string={}: uniGram OK, uniGrams.size={}"), pos, to_wstr(str), uniGrams.size());
