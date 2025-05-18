@@ -186,6 +186,9 @@ namespace KanchokuWS
         /// <summary>融合モードにおける解探索のビームサイズ</summary>
         public static int MultiStreamBeamSize { get; set; }
 
+        /// <summary>融合モードにおける解探索のビームサイズ</summary>
+        public static double ExtraBeamSizeRate { get; set; }
+
         /// <summary>残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)</summary>
         public static int RemainingStrokeSize { get; set; }
 
@@ -1157,6 +1160,13 @@ namespace KanchokuWS
             return result;
         }
 
+        private static double addDecoderSetting(string attr, double defval, double lowLimit = 0.0)
+        {
+            double result = GetString(attr)._parseDouble(defval)._lowLimit(lowLimit);
+            DecoderSettings[attr] = GetString(attr, $"{result}");
+            return result;
+        }
+
         private static int addDecoderSetting(string attr, int defval, int lowLimit, int highLimit)
         {
             int result = GetString(attr)._parseInt(defval)._lowLimit(lowLimit)._highLimit(highLimit);
@@ -1745,6 +1755,7 @@ namespace KanchokuWS
             StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う
             MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 2);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
             MultiStreamBeamSize = addDecoderSetting("multiStreamBeamSize", 5);                  // 融合モードにおける解探索のビームサイズ
+            ExtraBeamSizeRate = addDecoderSetting("extraBeamSizeRate", 0.5);                    // 余分に残しておく候補の割合
             RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲
             ChallengeNumForSameLeader = addDecoderSetting("challengeNumForSameLeader", 4);      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
             KanjiNoKanjiBonus = addDecoderSetting("kanjiNoKanjiBonus", 1500);                   // 「漢字+の+漢字」のような場合に与えるボーナス

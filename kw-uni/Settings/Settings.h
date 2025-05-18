@@ -111,6 +111,7 @@ struct Settings {
     bool strokeBackByBS = false;            // BSで打鍵取消を行う
     int maxStrokeBackCount = 4;             // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
     int multiStreamBeamSize = 5;            // multi-stream モードでのBeamSize
+    double extraBeamSizeRate = 0.5;         // 余分に残しておく候補の割合
     int remainingStrokeSize = 5;            // 残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
     int challengeNumForSameLeader = 4;      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
     int kanjiNoKanjiBonus = 1500;           // 「漢字+の+漢字」のような場合に与えるボーナス

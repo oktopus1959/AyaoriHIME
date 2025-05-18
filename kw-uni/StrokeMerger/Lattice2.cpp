@@ -1700,7 +1700,7 @@ namespace lattice2 {
             std::set<MString> biGrams;
             std::set<MString> uniGrams;
             const size_t beamSize = SETTINGS->multiStreamBeamSize;
-            const size_t beamSize2 = beamSize + beamSize / 2;
+            const size_t beamSize2 = beamSize + (int)(beamSize * SETTINGS->extraBeamSizeRate);
             size_t pos = 0;
             while (pos < newCandidates.size()) {
                 auto iter = newCandidates.begin() + pos;

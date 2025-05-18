@@ -25,6 +25,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
 #define SET_CHAR_VALUE(k) k = safe_get_head_char(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_INT_VALUE(k) k = utils::strToInt(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_UINT_VALUE(k) k = (size_t)utils::strToInt(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_DOUBLE_VALUE(k) k = utils::strToDouble(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_BOOL_VALUE(k) k = utils::strToBool(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define GET_BOOL_VALUE(k) utils::strToBool(utils::safe_get(dict, String(_T(#k))))
 #define RESET_STROKE_FUNC(k) StrokeTableNode::AssignFucntion(utils::safe_get(dict, String(_T(k "KeySeq"))), _T(k))
@@ -131,6 +132,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(strokeBackByBS);
     SET_INT_VALUE(maxStrokeBackCount);
     SET_INT_VALUE(multiStreamBeamSize);
+    SET_DOUBLE_VALUE(extraBeamSizeRate);
     SET_INT_VALUE(remainingStrokeSize);
     SET_INT_VALUE(challengeNumForSameLeader);
     SET_INT_VALUE(kanjiNoKanjiBonus);
