@@ -1387,6 +1387,7 @@ namespace lattice2 {
         }
 
         MString getTopString() {
+            _LOG_DETAIL(L"_candidates.size={}, topString=\"{}\"", _candidates.size(), to_wstr(_candidates.empty() ? MString() : _candidates[0].string()));
             return _candidates.empty() ? MString() : _candidates[0].string();
         }
 
@@ -1962,7 +1963,7 @@ namespace lattice2 {
             //sortByLlamaLoss(newCandidates);
 
             // stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく
-            if (!isBSpiece && !_isEmpty(newCandidates)) {     // isEmpty()だったら、BSなどで先頭のものだけが残されたということ
+            if (!isBSpiece /* && !_isEmpty(newCandidates)*/) {     // isEmpty()だったら、BSなどで先頭のものだけが残されたということ
                 for (const auto& cand : _candidates) {
                     if (cand.strokeLen() + SETTINGS->remainingStrokeSize > strokeCount) {
                         newCandidates.push_back(cand);
