@@ -5,5 +5,9 @@ namespace DymazinBridge {
 
     void dymazinFinalize();
 
+    void dymazinSetLogLevel(int logLevel);
+
+    void dymazinSaveLog();
+
     int dymazinCalcCost(const MString& str, std::vector<MString>& words);
 }

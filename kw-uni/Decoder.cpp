@@ -288,6 +288,7 @@ public:
 
         int logLevel = utils::strToInt(utils::safe_get(key_vals, String(_T("logLevel"))));
         Reporting::Logger::SetLogLevel(logLevel);
+        MorphBridge::morphSetLogLevel(logLevel);
 
         SETTINGS->SetValues(key_vals);
 
@@ -605,6 +606,7 @@ public:
                 commitHistory();
             } else if (cmd == _T("saveTraceLog")) {
                 Reporting::Logger::SaveLog();
+                MorphBridge::morphSaveLog();
             } else if (cmd == _T("closeLogger")) {
                 Reporting::Logger::Close();
             }

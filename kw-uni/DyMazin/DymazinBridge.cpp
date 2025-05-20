@@ -3,10 +3,10 @@
 #include "DyMazinLib.h"
 #include "Settings/Settings.h"
 
-#if 0
+#if 1
 #undef _LOG_INFOH
 #undef LOG_DEBUGH
-#if 0
+#if 1
 #define _LOG_INFOH LOG_INFOH
 #define LOG_DEBUGH LOG_INFOH
 #else
@@ -43,6 +43,16 @@ namespace DymazinBridge {
     void dymazinFinalize() {
         LOG_INFOH(_T("CALLED"));
         DymazinFinalize();
+    }
+
+    void dymazinSetLogLevel(int logLevel) {
+        LOG_INFOH(_T("CALLED: logLevel={}"), logLevel);
+        DymazinSetLogLevel(logLevel);
+    }
+
+    void dymazinSaveLog() {
+        LOG_INFOH(_T("CALLED"));
+        DymazinSaveLog();
     }
 
 #if true

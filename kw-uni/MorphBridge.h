@@ -40,6 +40,22 @@ namespace MorphBridge {
 #endif //_DEBUG
     }
 
+    inline void morphSetLogLevel(int logLevel) {
+#if USE_MORPHER
+#if USE_DYMAZIN
+        return DymazinBridge::dymazinSetLogLevel(logLevel);
+#endif
+#endif //_DEBUG
+    }
+
+    inline void morphSaveLog() {
+#if USE_MORPHER
+#if USE_DYMAZIN
+        return DymazinBridge::dymazinSaveLog();
+#endif
+#endif //_DEBUG
+    }
+
     inline int morphCalcCost(const MString& str, std::vector<MString>& words) {
 #if USE_MORPHER
 #if USE_DYMAZIN
