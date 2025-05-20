@@ -1128,8 +1128,10 @@ namespace lattice2 {
 
         // 単語素片を末尾に適用してみる
         std::vector<MString> applyPiece(const WordPiece& piece, int strokeCount, bool bKatakanaConversion) const {
+            LOG_DEBUGH(_T("ENTER: pieces={}, strokeCount={}, _strokeLen={}"), piece.debugString(), strokeCount, _strokeLen);
             std::vector<MString> ss;
             if (_strokeLen + piece.strokeLen() == strokeCount) {
+                LOG_DEBUGH(_T("_strokeLen({}) + piece.strokeLen({}) == strokeCount({})"), _strokeLen, piece.strokeLen(), strokeCount);
                 // 素片のストローク数が適合した
                 if (piece.rewriteNode()) {
                     // 書き換えノード
@@ -1170,8 +1172,11 @@ namespace lattice2 {
                     }
                 }
             } else {
-                ss.push_back(EMPTY_MSTR);
+                // ここで空文字列を push_back してはいけない。_candidates の stroke が進むことによって余計な候補が追加されてしまう。
+                LOG_DEBUGH(_T("return NO result: _strokeLen({}) + piece.strokeLen({}) != strokeCount({})"), _strokeLen, piece.strokeLen(), strokeCount);
             }
+
+            LOG_DEBUG(L"LEAVE: ss=\"{}\"", to_wstr(utils::join(ss, '|')));
             return ss;
         }
 
@@ -1980,7 +1985,7 @@ namespace lattice2 {
 
         // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
         std::vector<CandidateString> _updateKBestList_initial(const CandidateString& dummyCand, const WordPiece& piece, int strokeCount, bool bKatakanaConversion) {
-            _LOG_DETAIL(_T("CALLED: dummyCand.string()={}, piece.string()={}, strokeCount={}"), to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount);
+            _LOG_DETAIL(_T("ENTER: dummyCand.string()=\"{}\", piece.string()={}, strokeCount={}"), to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount);
             std::vector<CandidateString> newCandidates;
             std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, bKatakanaConversion);
             for (MString s : ss) {
@@ -1988,6 +1993,7 @@ namespace lattice2 {
                 newCandidates.push_back(newCandStr);
             }
             newCandidates.push_back(dummyCand);
+            _LOG_DETAIL(_T("LEAVE: newCandidates.size()={}"), newCandidates.size());
             return newCandidates;
         }
 
@@ -2015,7 +2021,7 @@ namespace lattice2 {
             //}
             // 指定の打鍵回数分、解の先頭部分が同じなら、それらだけを残す (ただし、候補の選択状態でない場合)
             if (_origFirstCand < 0) commitOnlyWithSameLeaderString();
-            _LOG_DETAIL(_T("LEAVE"));
+            _LOG_DETAIL(_T("LEAVE: _candidates.size()={}"), _candidates.size());
         }
 
     private:
