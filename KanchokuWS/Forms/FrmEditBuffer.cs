@@ -79,13 +79,13 @@ namespace KanchokuWS.Forms
 
         /// <summary>文字列を編集バッファのカーソル位置に挿入する。</summary>
         /// <param name="chars"></param>
-        public void PutString(char[] chars, int numBS, bool bFlush = false)
+        public void PutString(char[] chars, int numBS, bool bFlushAll = false)
         {
             var str = chars._toString();
 
-            logger.InfoH(() => $"CALLED: str={str}, numBS={numBS}, bFlush={bFlush}");
+            logger.InfoH(() => $"CALLED: str={str}, numBS={numBS}, bFlushAll={bFlushAll}");
 
-            if (str._isEmpty() && numBS <= 0 && !bFlush) return;
+            if (str._isEmpty() && numBS <= 0 && !bFlushAll) return;
 
             if (editTextBox.Text._isEmpty() && (str._isEmpty() || HandlerUtils.IsFKeySpec(str) || HandlerUtils.IsTernaryOperator(str))) {
                 logger.InfoH($"REDIRECT");
@@ -160,8 +160,11 @@ namespace KanchokuWS.Forms
                         }
                         break;
                     case "Enter":
-                    case "Flush":
                         logger.InfoH($"Enter");
+                        bFlushAll = true;
+                        break;
+                    case "Flush":
+                        logger.InfoH($"Flush");
                         toFlush = true;
                         break;
                     case "^U":
@@ -223,7 +226,11 @@ namespace KanchokuWS.Forms
             }
 
             editTextBox.Text = makeEditText(preText, postText);
-            if (toFlush || bFlush || (preText._safeCount() == 1 && preText[0] > 0x20 && preText[0] <= 0x7f && !preText[0]._isAlphaNum() && postText._isEmpty())) FlushBuffer();
+            if (toFlush || bFlushAll ||
+                (preText._safeCount() == 1 && preText[0] > 0x20 && preText[0] <= 0x7f && !preText[0]._isAlphaNum() && postText._isEmpty())) {
+                // フラッシュ
+                FlushBuffer(bFlushAll);
+            }
             if (toAbort) {
                 ClearBuffer();
                 frmMain.ToDeactivateDecoder();
@@ -234,10 +241,10 @@ namespace KanchokuWS.Forms
                 this.Hide();
             }
 
-            if (toFlush && pos < str.Length) {
-                // フラッシュの後の余った入力は、SendInputする
-                SendInputHandler.Singleton.SendString(str._safeSubstring(pos)._toCharArray(), str.Length - pos, 0);
-            }
+            //if (toFlush && pos < str.Length) {
+            //    // フラッシュの後の余った入力は、SendInputする
+            //    SendInputHandler.Singleton.SendString(str._safeSubstring(pos)._toCharArray(), str.Length - pos, 0);
+            //}
             logger.InfoH(() => $"LEAVE: EditText={EditText}, pos={editTextBox.Text._safeIndexOf(Settings.EditBufferCaretChar[0])}");
         }
 
@@ -266,7 +273,7 @@ namespace KanchokuWS.Forms
                     break;
                 case (uint)Keys.Back:
                     logger.InfoH($"Back");
-                    backspace();
+                    backspace(modifier, vkey);
                     break;
                 case (uint)Keys.Delete:
                     logger.InfoH($"Delete");
@@ -274,7 +281,7 @@ namespace KanchokuWS.Forms
                     break;
                 case (uint)Keys.Enter:
                     logger.InfoH($"Enter");
-                    FlushBuffer();
+                    FlushBuffer(true);
                     break;
             }
             if (EditText._notEmpty()) {
@@ -338,12 +345,14 @@ namespace KanchokuWS.Forms
             editTextBox.Text = makeEditText(ts[0] + ts[1], "");
         }
 
-        private void backspace()
+        private void backspace(uint modifier, uint vkey)
         {
             var ts = splitByCaret();
             if (ts[0]._notEmpty()) {
                 string pre = ts[0]._safeSubstring(0, -1);
                 editTextBox.Text = makeEditText(pre, ts[1]);
+            } else {
+                SendInputHandler.Singleton.SendVKeyCombo(modifier, vkey, 1);
             }
         }
 
@@ -357,11 +366,20 @@ namespace KanchokuWS.Forms
         }
 
         /// <summary>編集バッファをフラッシュして、アプリケーションに文字列を送出する</summary>
-        public void FlushBuffer()
+        public void FlushBuffer(bool bFlushAll)
         {
-            string result = editTextBox.Text._safeReplace(Settings.EditBufferCaretChar, "");
-            editTextBox.Text = "";
-            editTextBox.SelectionStart = 0;
+            string result;
+            int pos = editTextBox.Text._safeIndexOf(Settings.EditBufferCaretChar);
+            if (bFlushAll || pos <= 0 || pos == editTextBox.Text.Length - 1) {
+                // 全フラッシュまたはカレットが先頭/末尾にある
+                result = editTextBox.Text._safeReplace(Settings.EditBufferCaretChar, "");
+                editTextBox.Text = "";
+                editTextBox.SelectionStart = 0;
+            } else {
+                result = editTextBox.Text._safeSubstring(0, pos);
+                editTextBox.Text = editTextBox.Text._safeSubstring(pos);
+                editTextBox.SelectionStart = 0;
+            }
             this.Hide();
             //frmCands?.Hide();
             //Helper.WaitMilliSeconds(10);
@@ -376,7 +394,7 @@ namespace KanchokuWS.Forms
         /// <summary>Decoderの非活性化時に編集バッファをフラッシュして、アプリケーションに文字列を送出する</summary>
         public void FlushBufferOnDeactivated()
         {
-            if (EditText.Length <= 10000) FlushBuffer();
+            if (EditText.Length <= 10000) FlushBuffer(true);
         }
 
         public bool ClearBuffer()
