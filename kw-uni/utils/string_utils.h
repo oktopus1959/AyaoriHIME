@@ -752,8 +752,12 @@ namespace utils
         return ch >= 0xff65 && ch <= 0xff9f;    // '・' 〜 'ﾟ'
     }
 
+    inline bool is_pure_kanji(mchar_t ch) {
+        return ch >= 0x4e00 && ch <= 0x9fff;
+    }
+
     inline bool is_kanji(mchar_t ch) {
-        return ch >= 0x4e00 && ch <= 0x9fff || ch == 0x3005 /*々*/;
+        return is_pure_kanji(ch) || ch == 0x3005 /*々*/;
     }
 
     inline bool is_kanji_or_katakana(mchar_t ch) {

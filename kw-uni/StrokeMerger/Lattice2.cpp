@@ -24,13 +24,13 @@
 #undef _LOG_INFOH
 #undef _LOG_DETAIL
 #undef LOG_INFO
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
+//#undef LOG_DEBUGH
+//#undef LOG_DEBUG
 #define _LOG_INFOH LOG_WARN
 #define _LOG_DETAIL LOG_WARN
 #define LOG_INFO LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFOH
+//#define LOG_DEBUGH LOG_INFOH
+//#define LOG_DEBUG LOG_INFOH
 #endif
 
 namespace lattice2 {
@@ -81,6 +81,9 @@ namespace lattice2 {
 
     // 1文字のひらがな形態素で、前後もひらがなの場合のコスト
     int MORPH_ISOLATED_HIRAGANA_COST = 3000;
+
+    // 連続する単漢字の場合のコスト
+    int MORPH_CONTINUOUS_ISOLATED_KANJI_COST = 3000;
 
     // 2文字以上の形態素で漢字を含む場合のボーナス
     //int MORPH_ANY_KANJI_BONUS = 5000;
@@ -1490,20 +1493,41 @@ namespace lattice2 {
             if (!s.empty()) {
                 cost = MorphBridge::morphCalcCost(s, words);
                 _LOG_DETAIL(L"ENTER: {}: orig morphCost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(words, '/')));
+                std::vector<std::vector<MString>> wordItemsList;
                 for (auto iter = words.begin(); iter != words.end(); ++iter) {
-                    auto items = utils::split(*iter, '\t');
+                    wordItemsList.push_back(utils::split(*iter, '\t'));
+                }
+                for (auto iter = wordItemsList.begin(); iter != wordItemsList.end(); ++iter) {
+                    const auto& items = *iter;
                     const MString& w = items[0];
                     if (w.size() == 1 && utils::is_hiragana(w[0])) {
+                        // 1文字ひらがなが2つ続いて、その前後もひらがなのケース
                         // 「開発させる」⇒「さ きれ て さ せる」
-                        auto iter1 = iter + 1;
-                        if (iter1 != words.end() && iter1->size() == 1 && utils::is_hiragana(iter1->front())) {
-                            // 1文字ひらがなが2つ続いた
+                        if (iter != wordItemsList.begin() && iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
                             auto iter0 = iter - 1;
+                            auto iter1 = iter + 1;
                             auto iter2 = iter + 2;
-                            if ((iter != words.begin() && utils::is_hiragana(iter0->back())) && (iter2 != words.end() && utils::is_hiragana(iter2->front()))) {
-                                // その前後もひらがながだった
-                                cost += MORPH_ISOLATED_HIRAGANA_COST;
-                                _LOG_DETAIL(L"{} {}: ADD ISOLATED_HIRAGANA_COST({}): morphCost={}", to_wstr(w), to_wstr(*iter1), MORPH_ISOLATED_HIRAGANA_COST, cost);
+                            const MString& w1 = iter1->front();
+                            if (w1.size() == 1 && utils::is_hiragana(w1[0])) {
+                                // 1文字ひらがなが2つ続いた
+                                if (utils::is_hiragana(iter0->front().back()) && utils::is_hiragana(iter2->front().front())) {
+                                    // その前後もひらがながだった
+                                    cost += MORPH_ISOLATED_HIRAGANA_COST;
+                                    _LOG_DETAIL(L"{} {}: ADD ISOLATED_HIRAGANA_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), MORPH_ISOLATED_HIRAGANA_COST, cost);
+                                }
+                            }
+                        }
+                    }
+                    if (w.size() == 1 && utils::is_pure_kanji(w[0])) {
+                        // 単漢字が3つ続くケース (「耳調量序高い」（これってけっこう高い）)
+                        if (iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
+                            auto iter1 = iter + 1;
+                            auto iter2 = iter + 2;
+                            const MString& w1 = iter1->front();
+                            const MString& w2 = iter2->front();
+                            if (w1.size() == 1 && utils::is_pure_kanji(w1[0]) && w2.size() == 1 && utils::is_pure_kanji(w2[0])) {
+                                cost += MORPH_CONTINUOUS_ISOLATED_KANJI_COST;
+                                _LOG_DETAIL(L"{} {} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), to_wstr(w1), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
                             }
                         }
                     }
@@ -1523,10 +1547,9 @@ namespace lattice2 {
                     }
                     if (w.size() >= 2 && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_katakana(c); })) {
                         auto iter1 = iter + 1;
-                        bool flag = iter1 == words.end();
+                        bool flag = iter1 == wordItemsList.end();
                         if (!flag) {
-                            auto items2 = utils::split(*(iter1), '\t');
-                            const MString& w2 = items2[0];
+                            const MString& w2 = iter1->front();
                             // 次がカタカナ連でないか、合計で6文以上
                             flag = !std::all_of(w2.begin(), w2.end(), [](mchar_t c) { return utils::is_katakana(c); }) || w.size() + w2.size() >= 6;
                         }
@@ -2279,7 +2302,7 @@ namespace lattice2 {
 
             if (pieces.empty()) {
                 // pieces が空になるのは、同時打鍵の途中の状態などで、文字が確定していない場合
-                _LOG_DETAIL(L"LEAVE: emptyResult");
+                LOG_WARNH(L"LEAVE: emptyResult");
                 return LatticeResult::emptyResult();
             }
 
