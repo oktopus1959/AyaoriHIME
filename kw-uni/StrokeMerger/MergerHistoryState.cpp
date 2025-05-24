@@ -719,8 +719,12 @@ namespace {
                         //MarkUnnecessary();
                     }
 #endif
-                    if (!IsUnnecessary() && pieces.empty() && _streamList1.Empty() && _streamList2.Empty()) {
-                        _LOG_DETAIL(_T("pieces is empty and both streamList are empty. Add EmptyWordPiece."));
+                    //if (!IsUnnecessary() && pieces.empty() && _streamList1.Empty() && _streamList2.Empty()) 
+                    //    _LOG_DETAIL(_T("pieces is empty and both streamList are empty. Add EmptyWordPiece."));
+                    if (pieces.empty())
+                    {
+                        // ストロークを進めるために、空のpieceを追加する
+                        _LOG_DETAIL(_T("pieces is empty. Add EmptyWordPiece."));
                         pieces.push_back(WordPiece::emptyPiece());
                     }
                     //LOG_DEBUGH(L"E:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
