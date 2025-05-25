@@ -1519,6 +1519,17 @@ namespace lattice2 {
                         }
                     }
                     if (w.size() == 1 && utils::is_pure_kanji(w[0])) {
+#if 1
+                        // 単漢字が2つ続くケース (「耳調量序高い」（これってけっこう高い）)
+                        if (iter + 1 != wordItemsList.end()) {
+                            auto iter1 = iter + 1;
+                            const MString& w1 = iter1->front();
+                            if (w1.size() == 1 && utils::is_pure_kanji(w1[0])) {
+                                cost += MORPH_CONTINUOUS_ISOLATED_KANJI_COST;
+                                _LOG_DETAIL(L"{} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
+                            }
+                        }
+#else
                         // 単漢字が3つ続くケース (「耳調量序高い」（これってけっこう高い）)
                         if (iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
                             auto iter1 = iter + 1;
@@ -1527,9 +1538,10 @@ namespace lattice2 {
                             const MString& w2 = iter2->front();
                             if (w1.size() == 1 && utils::is_pure_kanji(w1[0]) && w2.size() == 1 && utils::is_pure_kanji(w2[0])) {
                                 cost += MORPH_CONTINUOUS_ISOLATED_KANJI_COST;
-                                _LOG_DETAIL(L"{} {} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), to_wstr(w1), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
+                                _LOG_DETAIL(L"{} {} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), to_wstr(w2), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
                             }
                         }
+#endif
                     }
                     //if (w.size() >= 2 && std::any_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_kanji(c); })) {
                     //    cost -= MORPH_ANY_KANJI_BONUS * (int)(w.size() - 1);
