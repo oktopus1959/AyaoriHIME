@@ -441,7 +441,7 @@ bool State::isStrokableKey(int deckey) {
 // ストロークテーブルチェインの長さ(テーブルのレベル)
 size_t State::StrokeTableChainLength() const {
     size_t len = 0;
-    if (pNext) {
+    if (pNext && !pNext->IsUnnecessary()) {
         len = pNext->StrokeTableChainLength();
     }
     LOG_DEBUG(_T("LEAVE: {}, len={}"), Name, len);

@@ -207,6 +207,9 @@ namespace KanchokuWS
         /// <summary>Realtime 3gram の Tier2 の数</summary>
         public static int RealtimeTrigramTier2Num {  get; set; }
 
+        /// <summary>排他的なストローク処理を開始する文字の集合</summary>
+        public static int ExclusivePrefixCode { get; set; } = -1;
+
         /// <summary>解候補ログファイル</summary>
         public static string MergerCandidateFile { get; set; } = "tmp/merger_candidates.log";
 
@@ -1751,6 +1754,7 @@ namespace KanchokuWS
             UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
             MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze1");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
+            ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード
             OutputHeadSpace = addDecoderSetting("outputHeadSpace", true);                       // 先頭のスペースをそのまま出力する
             StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う
             MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 2);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか

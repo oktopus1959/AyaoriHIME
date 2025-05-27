@@ -170,10 +170,12 @@ namespace Reporting {
 
         inline void WarnH(const String& msg, const std::string& method, const std::string& file, int line) {
             writeLogToFile("WARNH", method, file, line, msg);
+            writeLogToQueue("WARNH", method, file, line, msg);
         }
 
         inline void Error(const String& msg, const std::string& method, const std::string& file, int line) {
             writeLogToFile("ERROR", method, file, line, msg);
+            writeLogToQueue("ERROR", method, file, line, msg);
         }
 
     };

@@ -165,6 +165,10 @@ namespace {
         //    return result;
         //}
 
+        int StrokeLength() const {
+            return (int)(STATE_COMMON->GetTotalDecKeyCount() - cntStroke);
+        }
+
         void AppendWordPiece(std::vector<WordPiece>& pieces, bool /*bExcludeHiragana*/) {
             if (NextState()) {
                 LOG_DEBUGH(_T("ENTER"));
@@ -174,7 +178,7 @@ namespace {
                     LOG_DEBUGH(_T("ADD WORD: rewriteStr={}, string={}, numBS={}"),
                         to_wstr(result.getRewriteNode() ? result.getRewriteNode()->getString() : EMPTY_MSTR), to_wstr(result.resultStr()), result.numBS());
                     // TODO bKatakanaConversionのサポート
-                    int strokeLen = (int)(STATE_COMMON->GetTotalDecKeyCount() - cntStroke);
+                    int strokeLen = StrokeLength();
                     //if (bKatakanaConversion) {
                     //    MString hs = result.resultStr();
                     //    if (std::all_of(hs.begin(), hs.end(), [](auto ch) {return utils::is_hiragana(ch) || utils::is_katakana(ch);})) {
@@ -271,6 +275,7 @@ namespace {
                 size_t ln = pStream->StrokeTableChainLength();
                 if (ln > len) len = ln;
                 });
+            LOG_DEBUGH(_T("CALLED: {}: Length={}"), name, len);
             return len;
         }
 
@@ -295,7 +300,10 @@ namespace {
             LOG_DEBUGH(_T("ENTER: {}: pRootNode={:p}, decKey={}, comboStrokeCnt={}"), name, (void*)pRootNode, decKey, comboStrokeCnt);
             if (pRootNode) {
                 // 同時打鍵列に入ったら、先頭打鍵の時(comboStrokeCnt==0)だけ stream を追加できる
-                if ((comboStrokeCnt < 1 || (comboStrokeCnt == 1 && Count() < 1)) && State::isStrokableKey(decKey)) addStrokeStream(pRootNode);
+                if ((comboStrokeCnt < 1 || (comboStrokeCnt == 1 && Count() < 1))
+                    && State::isStrokableKey(decKey)) {
+                    addStrokeStream(pRootNode);
+                }
                 LOG_DEBUGH(_T("{}: strokeStateList.Count={}"), name, Count());
                 int count = 1;
                 forEach([decKey, &count, this](const StrokeStreamUptr& pStream) {
@@ -303,7 +311,7 @@ namespace {
                     pStream->HandleDeckeyChain(decKey);
                     LOG_DEBUGH(_T("{}: {}: IsUnnecessary: AFTER: {}"), name, count, pStream->IsUnnecessary());
                     ++count;
-                    });
+                });
             }
             LOG_DEBUGH(_T("LEAVE: {}: strokeStateList.Count={}"), name, Count());
         }
@@ -367,7 +375,16 @@ namespace {
             });
             LOG_DEBUGH(_T("LEAVE: {}"), name);
         }
-        
+       
+        int MaxStrokeLength() const {
+            int maxlen = 0;
+            for (const auto& pStream : strokeStreamList) {
+                int len = pStream->StrokeLength();
+                if (maxlen < len) maxlen = len;
+            }
+            return maxlen;
+        }
+
         void DebugPrintStatesChain(StringRef label) {
             if (Reporting::Logger::IsInfoHEnabled()) {
                 if (strokeStreamList.empty()) {
@@ -392,6 +409,9 @@ namespace {
 
         // 同時打鍵中なら1以上で、同時打鍵列の位置を示す
         int _comboStrokeCount = 0;
+
+        // 排他的なストロークの起点
+        bool _bExclusivePrefix = false;
 
         int _strokeCountBS = -1;
         int _prevStrokeCountBS = -1;
@@ -601,7 +621,15 @@ namespace {
                         break;
                     }
                 } else {
-                    if (deckey >= COMBO_DECKEY_START && deckey < COMBO_DECKEY_END /* && (!DeckeyUtil::is_ordered_combo(deckey)*/ /* || OUTPUT_STACK->GetLastOutputStackChar() != ' ')*/) {
+                    if (deckey == SETTINGS->exclusivePrefixCode) {
+                        if (!_bExclusivePrefix) {
+                            _LOG_DETAIL(L"ExclusivePrefix: {:x}H({})", deckey, deckey);
+                            clearStreamLists();
+                            _bExclusivePrefix = true;
+                            _comboStrokeCount = 1;
+                        }
+                    } else if (deckey >= COMBO_DECKEY_START && deckey < COMBO_DECKEY_END
+                        /* && (!DeckeyUtil::is_ordered_combo(deckey)*/ /* || OUTPUT_STACK->GetLastOutputStackChar() != ' ')*/) {
                         // 順序あり以外の同時打鍵の始まりなので、いったん streamList はクリア
                         // 順序あり同時打鍵は、2ストロークの2打鍵目となることあり; 「使ら」)
                         // また、Spaceの後の順序あり同時打鍵は、裏文字入力の場合あり
@@ -633,9 +661,18 @@ namespace {
                     LOG_DEBUGH(_T("streamList2: doDeckeyPreProc"));
                     _streamList2.HandleDeckeyProc(StrokeTableNode::RootStrokeNode2.get(), deckey, _comboStrokeCount);
                     if (_comboStrokeCount > 0) ++_comboStrokeCount;     // 同時打鍵で始まった時だけ
-                    if (deckey < SHIFT_DECKEY_START) {
-                        // 同時打鍵列の終わり
-                        _comboStrokeCount = 0;
+                    if (_bExclusivePrefix) {
+                        if (StrokeTableChainLength() == 0) {
+                            LOG_DEBUGH(_T("exclusive stroke end"));
+                            _bExclusivePrefix = false;
+                            _comboStrokeCount = 0;
+                        }
+                    } else {
+                        if (deckey < SHIFT_DECKEY_START) {
+                            // 同時打鍵列の終わり
+                            LOG_DEBUGH(_T("combo stroke end"));
+                            _comboStrokeCount = 0;
+                        }
                     }
                 }
             }
@@ -667,6 +704,7 @@ namespace {
 
             STATE_COMMON->SetCurrentModeIsMultiStreamInput();
 
+            LOG_DEBUGH(_T("CHECKPOINT-1"));
             /*if (resultStr.isModified()) {
                 LOG_DEBUGH(_T("resultStr={}"), resultStr.debugString());
                 resultOut.setResult(resultStr);
@@ -677,6 +715,7 @@ namespace {
                 NextState()->GetResultStringChain(resultOut);
                 //LOG_DEBUGH(L"C:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             } else {
+                LOG_DEBUGH(_T("CHECKPOINT-2"));
                 //if (IsUnnecessary()) {
                 //    LOG_DEBUGH(_T("LEAVE: {}"), Name);
                 //    LOG_DEBUGH(_T("ClearCurrentModeIsMultiStreamInput"));
@@ -697,11 +736,13 @@ namespace {
                     pieces.push_back(WordPiece::BSPiece());
                     //LOG_DEBUGH(L"D:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
                 } else {
+                    LOG_DEBUGH(_T("CHECKPOINT-3"));
                     LOG_DEBUGH(_T("streamList1: AddWordPieces"));
                     _streamList1.AddWordPieces(pieces, false);
                     LOG_DEBUGH(_T("streamList2: AddWordPieces"));
                     _streamList2.AddWordPieces(pieces, false);
 
+                    LOG_DEBUGH(_T("CHECKPOINT-4"));
                     Node* pNextNode1 = _streamList1.GetNonStringNode();
                     Node* pNextNode2 = _streamList2.GetNonStringNode();
                     if (pNextNode1 || pNextNode2) {
@@ -719,17 +760,26 @@ namespace {
                         //MarkUnnecessary();
                     }
 #endif
-                    //if (!IsUnnecessary() && pieces.empty() && _streamList1.Empty() && _streamList2.Empty()) 
-                    //    _LOG_DETAIL(_T("pieces is empty and both streamList are empty. Add EmptyWordPiece."));
-                    if (pieces.empty())
-                    {
+                    LOG_DEBUGH(_T("CHECKPOINT-5"));
+                    if (pieces.empty() &&
+                        (StrokeTableChainLength() == 0 ||
+                            (!IsUnnecessary() && _streamList1.Empty() && _streamList2.Empty()))) {
                         // ストロークを進めるために、空のpieceを追加する
-                        _LOG_DETAIL(_T("pieces is empty. Add EmptyWordPiece."));
-                        pieces.push_back(WordPiece::emptyPiece());
+                        LOG_DEBUGH(_T("pieces is empty and both streamList are empty. Add Padding Piece."));
+                        pieces.push_back(WordPiece::paddingPiece());
                     }
-                    //LOG_DEBUGH(L"E:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
+                    LOG_DEBUGH(_T("CHECKPOINT-6"));
+                    if (pieces.empty()) {
+                        // 両方のStreamで多ストローク列に入った。つまり、当ストロークは何も文字が入力されない真空ストローク。
+                        // なので、強制的に排他的ストロークモードに移行する。
+                        // すでに第1ストロークは打鍵済みなので、_comboStrokeCount は2から始まる。
+                        LOG_DEBUGH(_T("pieces is empty. Set _bExclusivePrefix = TRUE."));
+                        _bExclusivePrefix = true;
+                        if (_comboStrokeCount == 0) _comboStrokeCount = 2;
+                    }
                 }
 
+                LOG_DEBUGH(_T("CHECKPOINT-7"));
                 // Lattice処理
                 auto result = getLatticeResult(pieces);
                 _kanjiPreferredNext = false;
@@ -739,6 +789,7 @@ namespace {
 
                 //LOG_DEBUGH(L"F:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
+                LOG_DEBUGH(_T("CHECKPOINT-8"));
                 // 新しい文字列が得られたらそれを返す
                 if (!result.outStr.empty() || result.numBS > 0) {
                     //LOG_DEBUGH(_T("commitByPunctuation={}, outStr={}"), SETTINGS->commitByPunctuation, to_wstr(result.outStr));
@@ -758,13 +809,14 @@ namespace {
             //LOG_DEBUGH(L"H:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
             if (_streamList1.Empty() && _streamList2.Empty() && WORD_LATTICE->isEmpty()) {
-                _LOG_DETAIL(L"CALL WORD_LATTICE->clear()");
+                LOG_DEBUGH(L"CALL WORD_LATTICE->clear()");
                 WORD_LATTICE->clear();
                 //MarkUnnecessary();
                 LOG_DEBUGH(_T("ClearCurrentModeIsMultiStreamInput"));
                 STATE_COMMON->ClearCurrentModeIsMultiStreamInput();
             }
             //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
+            LOG_DEBUGH(_T("CHECKPOINT-9"));
 
             _streamList1.DebugPrintStatesChain(_T("LEAVE: streamList1"));
             _streamList2.DebugPrintStatesChain(_T("LEAVE: streamList2"));

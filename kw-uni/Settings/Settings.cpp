@@ -24,6 +24,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
 #define SET_FILE_PATH(k) k = make_path(SETTINGS->rootDir, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_CHAR_VALUE(k) k = safe_get_head_char(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_INT_VALUE(k) k = utils::strToInt(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_INT_VALUE2(k,d) k = utils::strToInt(utils::safe_get(dict, String(_T(#k))), d); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_UINT_VALUE(k) k = (size_t)utils::strToInt(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_DOUBLE_VALUE(k) k = utils::strToDouble(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_BOOL_VALUE(k) k = utils::strToBool(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
@@ -140,6 +141,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(realtimeTrigramTier1Num);
     SET_INT_VALUE(realtimeTrigramTier2Num);
     SET_KEY_VALUE(editBufferCaretChar);
+    SET_INT_VALUE2(exclusivePrefixCode, -1);
     SET_KEY_VALUE(mergerCandidateFile);
 
     // 機能へのキー割り当ての変更

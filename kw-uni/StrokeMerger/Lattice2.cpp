@@ -1130,11 +1130,11 @@ namespace lattice2 {
         }
 
         // 単語素片を末尾に適用してみる
-        std::vector<MString> applyPiece(const WordPiece& piece, int strokeCount, bool bKatakanaConversion) const {
-            LOG_DEBUGH(_T("ENTER: pieces={}, strokeCount={}, _strokeLen={}"), piece.debugString(), strokeCount, _strokeLen);
+        std::vector<MString> applyPiece(const WordPiece& piece, int strokeCount, int paddingLen, bool bKatakanaConversion) const {
+            LOG_DEBUGH(_T("ENTER: pieces={}, strokeCount={}, paddingLen={}, _strokeLen={}"), piece.debugString(), strokeCount, paddingLen, _strokeLen);
             std::vector<MString> ss;
-            if (_strokeLen + piece.strokeLen() == strokeCount) {
-                LOG_DEBUGH(_T("_strokeLen({}) + piece.strokeLen({}) == strokeCount({})"), _strokeLen, piece.strokeLen(), strokeCount);
+            if ((piece.isPadding() && _strokeLen + paddingLen == strokeCount) || (_strokeLen + piece.strokeLen() == strokeCount)) {
+                LOG_DEBUGH(_T("_strokeLen({}) + piece.strokeLen({})|paddingLen({}) == strokeCount({})"), _strokeLen, piece.strokeLen(), paddingLen, strokeCount);
                 // 素片のストローク数が適合した
                 if (piece.rewriteNode()) {
                     // 書き換えノード
@@ -1807,7 +1807,7 @@ namespace lattice2 {
 
     private:
         // 素片のストロークと適合する候補だけを追加
-        void addOnePiece(std::vector<CandidateString>& newCandidates, const WordPiece& piece, int strokeCount, bool bKatakanaConversion) {
+        void addOnePiece(std::vector<CandidateString>& newCandidates, const WordPiece& piece, int strokeCount, int paddingLen, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("ENTER: _candidates.size={}, piece={}"), _candidates.size(), piece.debugString());
             bool bAutoBushuFound = false;           // 自動部首合成は一回だけ実行する
             bool isStrokeBS = piece.numBS() > 0;
@@ -1820,8 +1820,10 @@ namespace lattice2 {
 
             for (const auto& cand : _candidates) {
                 //if (topStrokeLen < 0) topStrokeLen = cand.strokeLen();
-                _LOG_DETAIL(_T("cand.strokeLen={}, piece.strokeLen()={}, strokeCount={}"), cand.strokeLen(),piece.strokeLen(), strokeCount);
-                if (cand.strokeLen() + piece.strokeLen() == strokeCount) {
+                bool bStrokeCountMatched = (piece.isPadding() && cand.strokeLen() + paddingLen == strokeCount) || (cand.strokeLen() + piece.strokeLen() == strokeCount);
+                _LOG_DETAIL(_T("cand.strokeLen={}, piece.strokeLen()={}, strokeCount={}, paddingLen={}: {}"),
+                    cand.strokeLen(), piece.strokeLen(), strokeCount, paddingLen, (bStrokeCountMatched ? L"MATCH" : L"UNMATCH"));
+                if (bStrokeCountMatched) {
                     // 素片のストロークと適合する候補
                     int penalty = cand.penalty();
                     _LOG_DETAIL(L"cand.string()=\"{}\", contained in kanjiPreferred={}", to_wstr(cand.string()), _kanjiPreferredNextCands.contains(cand.string()));
@@ -1847,7 +1849,7 @@ namespace lattice2 {
                             bAutoBushuFound = true;
                         }
                     }
-                    std::vector<MString> ss = cand.applyPiece(piece, strokeCount, bKatakanaConversion);
+                    std::vector<MString> ss = cand.applyPiece(piece, strokeCount, paddingLen, bKatakanaConversion);
                     int idx = 0;
                     for (MString s : ss) {
                         int _iniCost = 0;
@@ -1968,8 +1970,8 @@ namespace lattice2 {
         }
 
         // return: strokeBack による戻しがあったら、先頭を優先する
-        std::vector<CandidateString> _updateKBestList_sub(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack, bool bKatakanaConversion) {
-            _LOG_DETAIL(_T("ENTER: pieces.size={}, strokeCount={}, strokeBack={}"), pieces.size(), strokeCount, strokeBack);
+        std::vector<CandidateString> _updateKBestList_sub(const std::vector<WordPiece>& pieces, int strokeCount, int paddingLen, bool strokeBack, bool bKatakanaConversion) {
+            _LOG_DETAIL(_T("ENTER: pieces.size={}, strokeCount={}, strokeBack={}, paddingLen={}"), pieces.size(), strokeCount, strokeBack, paddingLen);
             std::vector<CandidateString> newCandidates;
             if (strokeBack) {
                 _LOG_DETAIL(_T("strokeBack"));
@@ -1983,34 +1985,34 @@ namespace lattice2 {
                 // 以前のストロークの候補が無ければ、通常のBSの動作とする
                 removeOtherThanFirst();
             }
-            bool isEmptyPiece = pieces.size() == 1 && pieces.front().isEmpty();
+            bool isPaddingPiece = pieces.size() == 1 && pieces.front().isPadding();
             bool isBSpiece = pieces.size() == 1 && pieces.front().isBS();
-            _LOG_DETAIL(_T("isEmptyPiece={}, isBSpiece={}"), isEmptyPiece, isBSpiece);
+            _LOG_DETAIL(_T("isPaddingPiece={}, isBSpiece={}"), isPaddingPiece, isBSpiece);
             _prevBS = isBSpiece;
 
-            if (!isEmptyPiece && !isBSpiece) {
+            if (!isPaddingPiece && !isBSpiece) {
                 raiseAndDepressRealtimeNgramForDiffPart();
             }
 
             // BS でないか、以前の候補が無くなっていた
             for (const auto& piece : pieces) {
                 // 素片のストロークと適合する候補だけを追加
-                addOnePiece(newCandidates, piece, strokeCount, bKatakanaConversion);
+                addOnePiece(newCandidates, piece, strokeCount, paddingLen, bKatakanaConversion);
             }
 
-            if (!isEmptyPiece) truncateTailCandidates(newCandidates);
+            if (!isPaddingPiece) truncateTailCandidates(newCandidates);
 
             //sortByLlamaLoss(newCandidates);
 
             // stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく
-            if (!isBSpiece /* && !_isEmpty(newCandidates)*/) {     // isEmpty()だったら、BSなどで先頭のものだけが残されたということ
+            if (!isBSpiece /* && !_isPadding(newCandidates)*/) {     // isPadding()だったら、BSなどで先頭のものだけが残されたということ
                 for (const auto& cand : _candidates) {
                     if (cand.strokeLen() + SETTINGS->remainingStrokeSize > strokeCount) {
                         newCandidates.push_back(cand);
                     }
                 }
             }
-            if (!isEmptyPiece || isBSpiece) {
+            if (!isPaddingPiece || isBSpiece) {
                 // 新しく候補が作成された
                 resetOrigFirstCand();
             }
@@ -2019,10 +2021,11 @@ namespace lattice2 {
         }
 
         // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
-        std::vector<CandidateString> _updateKBestList_initial(const CandidateString& dummyCand, const WordPiece& piece, int strokeCount, bool bKatakanaConversion) {
-            _LOG_DETAIL(_T("ENTER: dummyCand.string()=\"{}\", piece.string()={}, strokeCount={}"), to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount);
+        std::vector<CandidateString> _updateKBestList_initial(const CandidateString& dummyCand, const WordPiece& piece, int strokeCount, int paddingLen, bool bKatakanaConversion) {
+            _LOG_DETAIL(_T("ENTER: dummyCand.string()=\"{}\", piece.string()={}, strokeCount={}, paddingLen={}"),
+                to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount, paddingLen);
             std::vector<CandidateString> newCandidates;
-            std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, bKatakanaConversion);
+            std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, bKatakanaConversion);
             for (MString s : ss) {
                 CandidateString newCandStr(s, strokeCount, 0, 0);
                 newCandidates.push_back(newCandStr);
@@ -2043,11 +2046,16 @@ namespace lattice2 {
             // 候補リストが空の場合は、追加される piece と組み合わせるための、先頭を表すダミーを用意しておく
             addDummyCandidate();
 
+            int paddingLen = 0;
+            if (pieces.front().isPadding()) {
+                paddingLen = strokeCount - _candidates.front().strokeLen();
+                _LOG_DETAIL(_T("paddingLen={}"), paddingLen);
+            }
             if (!strokeBack && _candidates.size() == 1 && _candidates.front().string().empty() && pieces.size() == 1) {
                 // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
-                _candidates = std::move(_updateKBestList_initial(_candidates.front(), pieces.front(), strokeCount, bKatakanaConversion));
+                _candidates = std::move(_updateKBestList_initial(_candidates.front(), pieces.front(), strokeCount, paddingLen, bKatakanaConversion));
             } else {
-                _candidates = std::move(_updateKBestList_sub(pieces, strokeCount, strokeBack, bKatakanaConversion));
+                _candidates = std::move(_updateKBestList_sub(pieces, strokeCount, paddingLen, strokeBack, bKatakanaConversion));
             }
 
             //// 漢字またはカタカナが2文字以上連続したら、その候補を優先する
@@ -2169,6 +2177,7 @@ namespace lattice2 {
                 updateByConversion(_candidates.front().applyMazegaki());
             }
         }
+
     };
 
     // Lattice

@@ -312,7 +312,7 @@ namespace {
         // ストロークテーブルチェインの長さ(テーブルのレベル)
         size_t StrokeTableChainLength() const {
             size_t len = myNode()->depth() + 1;
-            if (NextState()) {
+            if (NextState() && !NextState()->IsUnnecessary()) {
                 len = NextState()->StrokeTableChainLength();
             }
             LOG_DEBUG(_T("LEAVE: {}, len={}"), Name, len);

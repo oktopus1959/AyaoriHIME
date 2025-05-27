@@ -115,6 +115,7 @@ struct Settings {
     int remainingStrokeSize = 5;            // 残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
     int challengeNumForSameLeader = 4;      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
     int kanjiNoKanjiBonus = 1500;           // 「漢字+の+漢字」のような場合に与えるボーナス
+    int exclusivePrefixCode = -1;           // 排他的なストローク処理を開始する文字のコード
     String mergerCandidateFile;             // 解候補ログファイル
     int realtimeTrigramBonusFactor = 100;   // Realtime 3gram のカウントからボーナス値を算出する際の係数
     int realtimeTrigramTier1Num = 5;        // Realtime 3gram の Tier1 の数

@@ -6,30 +6,11 @@
 #include "OneShot/PostRewriteOneShot.h"
 #include "Logger.h"
 
-#if 0
-// -------------------------------------------------------------------
-// LatticeState - ラティス
-class LatticeState {
-    DECLARE_CLASS_LOGGER;
-public:
-    LatticeState();
-
-    ~LatticeState();
-
-public:
-    // 当ノードを処理する State インスタンスを作成する
-    static void CreateSingleton();
-
-    static std::unique_ptr<LatticeState> latticeState;
-};
-#define LATTICE_STATE (LatticeState::latticeState)
-#endif
-
 // -------------------------------------------------------------------
 // 単語素片と、それの出力にかかった打鍵数
 class WordPiece {
     // 打鍵数
-    size_t _strokeLen;
+    int _strokeLen;
     // 書き換えノード
     const PostRewriteOneShotNode* _rewriteNode;
     // 単語素片
@@ -40,15 +21,15 @@ class WordPiece {
     int _numBS;
 
 public:
-    WordPiece(const MString& ms, size_t len, size_t rewLen, int nBS = -1)
+    WordPiece(const MString& ms, int len, size_t rewLen, int nBS = -1)
         : _rewriteNode(0), _pieceStr(ms), _strokeLen(len), _rewritableLen(rewLen), _numBS(nBS) {
     }
 
-    WordPiece(const PostRewriteOneShotNode* rewriteNode, size_t len) : _rewriteNode(rewriteNode), _strokeLen(len), _rewritableLen(0), _numBS(0) {
+    WordPiece(const PostRewriteOneShotNode* rewriteNode, int len) : _rewriteNode(rewriteNode), _strokeLen(len), _rewritableLen(0), _numBS(0) {
     }
 
-    static WordPiece emptyPiece() {
-        return WordPiece(EMPTY_MSTR, 1, 0);
+    static WordPiece paddingPiece() {
+        return WordPiece(EMPTY_MSTR, -1, 0);
     }
 
     static WordPiece BSPiece() {
@@ -64,15 +45,19 @@ public:
     }
 
     int strokeLen() const {
-        return (int)_strokeLen;
+        return _strokeLen;
+    }
+
+    void setStrokeLen(int len) {
+        _strokeLen = len;
     }
 
     int numBS() const {
         return _numBS;
     }
 
-    bool isEmpty() const {
-        return getString().empty() && strokeLen() == 1 && numBS() <= 0;
+    bool isPadding() const {
+        return _strokeLen < 0;
     }
 
     bool isBS() const {
