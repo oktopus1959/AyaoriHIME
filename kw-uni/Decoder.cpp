@@ -748,8 +748,10 @@ public:
         copyToCenterString();
         mchar_t lastChar = copyToTopString();
 
-        if (ROOT_STROKE_NODE && targetChar != 0 && OutParams->strokeCount > 0) {
-            auto list = ROOT_STROKE_NODE->getStrokeList(to_mstr(targetChar), true);
+        LOG_DEBUG(_T("ROOT_STROKE_NODE_2={:p}, targetChar={:c}, strokeCnt={}"), (void*)ROOT_STROKE_NODE_2.get(), (wchar_t)targetChar, OutParams->strokeCount);
+
+        if (ROOT_STROKE_NODE_2 && targetChar != 0 && OutParams->strokeCount > 0) {
+            auto list = ROOT_STROKE_NODE_2->getStrokeList(to_mstr(targetChar), true);
             LOG_DEBUG(_T("strokeList={}, targetChar={:c}"), utils::join(list, _T(":")), (wchar_t)targetChar);
             if (!list.empty()) {
                 if (list.size() > (size_t)OutParams->strokeCount) {

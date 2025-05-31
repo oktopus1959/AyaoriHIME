@@ -994,7 +994,8 @@ namespace KanchokuWS
         /// <returns>実際に表示された文字の集まり</returns>
         public string[] DrawStrokeHelp(char[] chars)
         {
-            char[] result = chars._isEmpty() ? null : frmMain.CallDecoderFunc("reorderByFirstStrokePosition", chars._toString());
+            //char[] result = chars._isEmpty() ? null : frmMain.CallDecoderFunc("reorderByFirstStrokePosition", chars._toString());
+            char[] result = chars._isEmpty() ? null : frmMain.CallDecoderFunc("reorderByFirstStrokePosition2", chars._toString());
 
             var charOrKeys = new string[DecoderKeys.NORMAL_DECKEY_NUM];
             if (result._notEmpty()) {
@@ -1342,7 +1343,7 @@ namespace KanchokuWS
         /// <param name="g"></param>
         private void drawNormalVkbFrame(Graphics g, int nextDeckey = -1)
         {
-            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"\nnextDecke={nextDeckey}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"\nnextDeckey={nextDeckey}");
 
             // 背景色
             Color getColor(string name)

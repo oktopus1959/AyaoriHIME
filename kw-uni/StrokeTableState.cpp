@@ -560,9 +560,12 @@ bool StrokeTableNode::getStrokeListSub(const MString& target, std::vector<int>& 
             } else {
                 Node* cn = dynamic_cast<StringNode*>(p);
                 if (!cn) cn = dynamic_cast<PostRewriteOneShotNode*>(p);
-                if (cn && target == cn->getString()) {
-                    list.push_back((int)i);
-                    return true;
+                if (cn) {
+                    size_t pos = cn->getString().find(target.front());  // '|' で区切られた複数文字の可能性を考慮
+                    if (pos != MString::npos) {
+                        list.push_back((int)i);
+                        return true;
+                    }
                 }
             }
         }

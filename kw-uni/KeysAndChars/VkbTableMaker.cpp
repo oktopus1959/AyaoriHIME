@@ -152,9 +152,11 @@ namespace VkbTableMaker {
                     wchar_t ch = 0;
                     if (blk->isStringLikeNode()) {
                         auto ms = blk->getString();
-                        if (ms.size() == 1) {
-                            auto iter = charSet.find((wchar_t)ms[0]);
-                            if (iter != charSet.end()) ch = *iter;
+                        for (auto mss : utils::split(ms, '|')) {
+                            if (mss.size() == 1) {
+                                auto iter = charSet.find((wchar_t)mss[0]);
+                                if (iter != charSet.end()) ch = *iter;
+                            }
                         }
                     } else {
                         ch = DECKEY_TO_CHARS->GetCharFromDeckey(i);

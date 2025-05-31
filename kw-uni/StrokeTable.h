@@ -216,4 +216,5 @@ public:
 };
 
 #define ROOT_STROKE_NODE (StrokeTableNode::RootStrokeNode)
+#define ROOT_STROKE_NODE_2 (StrokeTableNode::RootStrokeNode2)
 
