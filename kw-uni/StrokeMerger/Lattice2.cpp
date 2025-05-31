@@ -55,6 +55,9 @@ namespace lattice2 {
     // 非優先候補に与えるペナルティ
     int NON_PREFERRED_PENALTY = 1000000;
 
+    // 末尾が同じ候補と見なす末尾長
+    size_t SAME_TAIL_LEN = 3;
+
     //// 漢字と長音が連続する場合のペナルティ
     //int KANJI_CONSECUTIVE_PENALTY = 1000;
 
@@ -1359,6 +1362,7 @@ namespace lattice2 {
             if (_origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
                 // 候補選択がなされていて、元の先頭候補以外が選択された
                 _raiseAndDepressRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
+                removeOtherThanFirst();
             }
         }
 
@@ -1722,6 +1726,7 @@ namespace lattice2 {
             }
 #else
             if (!bAdded) {
+                // 末尾に追加
                 newCandidates.push_back(newCandStr);
                 bAdded = true;
             }
@@ -1733,6 +1738,26 @@ namespace lattice2 {
             }
             _LOG_DETAIL(_T("LEAVE: {}, newCandidates.size={}"), bAdded ? L"ADD" : L"ABANDON", newCandidates.size());
             return bAdded;
+        }
+
+        // 同じ末尾部分を持つ候補が連続しないように移動する
+        void rotateSameTailCandidates(std::vector<CandidateString>& newCandidates) {
+            std::set<MString> candStrs;
+            if (newCandidates.front().string().size() < SAME_TAIL_LEN) return;
+
+            candStrs.insert(utils::safe_tailstr(newCandidates.front().string(), SAME_TAIL_LEN));
+            for (size_t i = 1; i < newCandidates.size() && i < 10; ++i) {
+                for (auto iter = newCandidates.begin() + i; iter != newCandidates.end(); ++iter) {
+                    auto tail = utils::safe_tailstr(iter->string(), SAME_TAIL_LEN);
+                    if (!candStrs.contains(tail)) {
+                        if (iter != newCandidates.begin() + i) {
+                            std::rotate(newCandidates.begin() + i, iter, iter + 1);
+                        }
+                        candStrs.insert(tail);
+                        break;
+                    }
+                }
+            }
         }
 
         // beamSize を超えた部分を削除する
@@ -2004,7 +2029,10 @@ namespace lattice2 {
                 addOnePiece(newCandidates, piece, strokeCount, paddingLen, bKatakanaConversion);
             }
 
-            if (!isPaddingPiece) truncateTailCandidates(newCandidates);
+            if (!isPaddingPiece) {
+                //rotateSameTailCandidates(newCandidates);
+                truncateTailCandidates(newCandidates);
+            }
 
             //sortByLlamaLoss(newCandidates);
 
