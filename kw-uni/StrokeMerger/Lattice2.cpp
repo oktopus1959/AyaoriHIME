@@ -1518,30 +1518,34 @@ namespace lattice2 {
                             }
                         }
                     }
-                    if (w.size() == 1 && utils::is_pure_kanji(w[0])) {
-#if 1
-                        // 単漢字が2つ続くケース (「耳調量序高い」（これってけっこう高い）)
-                        if (iter + 1 != wordItemsList.end()) {
-                            auto iter1 = iter + 1;
-                            const MString& w1 = iter1->front();
-                            if (w1.size() == 1 && utils::is_pure_kanji(w1[0])) {
-                                cost += MORPH_CONTINUOUS_ISOLATED_KANJI_COST;
-                                _LOG_DETAIL(L"{} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
+                    if (SETTINGS->depressedContinuousKanjiNum > 0) {
+                        if (w.size() == 1 && utils::is_pure_kanji(w[0])) {
+                            if (SETTINGS->depressedContinuousKanjiNum == 2) {
+                                // 単漢字が2つ続くケース (「耳調量序高い」（これってけっこう高い）)
+                                if (iter + 1 != wordItemsList.end()) {
+                                    auto iter1 = iter + 1;
+                                    const MString& w1 = iter1->front();
+                                    if (w1.size() == 1 && utils::is_pure_kanji(w1[0])) {
+                                        cost += MORPH_CONTINUOUS_ISOLATED_KANJI_COST;
+                                        _LOG_DETAIL(L"{} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}",
+                                            to_wstr(w), to_wstr(w1), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
+                                    }
+                                }
+                            } else if (SETTINGS->depressedContinuousKanjiNum > 2) {
+                                // 単漢字が3つ続くケース (「耳調量序高い」（これってけっこう高い）)
+                                if (iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
+                                    auto iter1 = iter + 1;
+                                    auto iter2 = iter + 2;
+                                    const MString& w1 = iter1->front();
+                                    const MString& w2 = iter2->front();
+                                    if (w1.size() == 1 && utils::is_pure_kanji(w1[0]) && w2.size() == 1 && utils::is_pure_kanji(w2[0])) {
+                                        cost += MORPH_CONTINUOUS_ISOLATED_KANJI_COST;
+                                        _LOG_DETAIL(L"{} {} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}",
+                                            to_wstr(w), to_wstr(w1), to_wstr(w2), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
+                                    }
+                                }
                             }
                         }
-#else
-                        // 単漢字が3つ続くケース (「耳調量序高い」（これってけっこう高い）)
-                        if (iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
-                            auto iter1 = iter + 1;
-                            auto iter2 = iter + 2;
-                            const MString& w1 = iter1->front();
-                            const MString& w2 = iter2->front();
-                            if (w1.size() == 1 && utils::is_pure_kanji(w1[0]) && w2.size() == 1 && utils::is_pure_kanji(w2[0])) {
-                                cost += MORPH_CONTINUOUS_ISOLATED_KANJI_COST;
-                                _LOG_DETAIL(L"{} {} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), to_wstr(w2), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
-                            }
-                        }
-#endif
                     }
                     //if (w.size() >= 2 && std::any_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_kanji(c); })) {
                     //    cost -= MORPH_ANY_KANJI_BONUS * (int)(w.size() - 1);
@@ -2313,12 +2317,13 @@ namespace lattice2 {
         // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
         // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
         LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool kanjiPreferredNext, bool strokeBack, bool bKatakanaConversion) override {
+            LOG_WARNH(_T("ENTER: pieces: {}"), formatStringOfWordPieces(pieces));
             int totalStrokeCount = (int)(STATE_COMMON->GetTotalDecKeyCount());
             if (_startStrokeCount == 0) _startStrokeCount = totalStrokeCount;
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
 
             //LOG_DEBUGH(_T("ENTER: currentStrokeCount={}, pieces: {}\nkBest:\n{}"), currentStrokeCount, formatStringOfWordPieces(pieces), _kBestList.debugString());
-            _LOG_DETAIL(_T("ENTER: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, kanjiPref={}, strokeBack={}, rollOver={}, pieces: {}"),
+            _LOG_DETAIL(_T("INPUT: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, kanjiPref={}, strokeBack={}, rollOver={}, pieces: {}"),
                 _kBestList.size(), _kBestList.origFirstCand(), totalStrokeCount, currentStrokeCount, kanjiPreferredNext, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
 
             if (pieces.empty()) {
@@ -2375,7 +2380,7 @@ namespace lattice2 {
             _prevOutputStr = outStr;
             outStr = utils::safe_substr(outStr, commonLen);
 
-            _LOG_DETAIL(_T("LEAVE: OUTPUT: {}, numBS={}\n\n{}"), to_wstr(outStr), numBS, _kBestList.debugKBestString());
+            _LOG_DETAIL(_T("OUTPUT: {}, numBS={}\n\n{}"), to_wstr(outStr), numBS, _kBestList.debugKBestString());
             if (IS_LOG_DEBUGH_ENABLED) {
                 while (_debugLogQueue.size() >= 10) _debugLogQueue.pop_front();
                 _debugLogQueue.push_back(std::format(L"========================================\nENTER: currentStrokeCount={}, pieces: {}\n",
@@ -2392,8 +2397,9 @@ namespace lattice2 {
                 STATE_COMMON->SetVirtualKeyboardStrings(VkbLayout::MultiStreamCandidates, EMPTY_MSTR, candStrings);
                 STATE_COMMON->SetWaitingCandSelect(_kBestList.selectedCandPos());
             }
-
             //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
+
+            LOG_WARNH(_T("LEAVE"));
             return LatticeResult(outStr, numBS);
         }
 
