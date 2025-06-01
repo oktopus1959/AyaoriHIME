@@ -128,6 +128,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(useTmpRealtimeNgramFile);
     SET_BOOL_VALUE(useMorphAnalyzer);
     SET_KEY_VALUE(morphMazeFormat);
+    SET_INT_VALUE(mazeEntryPenalty);
     //SET_BOOL_VALUE(commitByPunctuation);
     SET_BOOL_VALUE(outputHeadSpace);
     SET_BOOL_VALUE(strokeBackByBS);

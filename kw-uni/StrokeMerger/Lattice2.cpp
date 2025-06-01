@@ -58,6 +58,11 @@ namespace lattice2 {
     // 末尾が同じ候補と見なす末尾長
     size_t SAME_TAIL_LEN = 3;
 
+    // 形態素解析の結果、交ぜ書きエントリであった場合のペナルティ
+    int MAZE_PENALTY_2 = 5000;      // 見出し2文字以下
+    int MAZE_PENALTY_3 = 3000;      // 見出し3文字
+    int MAZE_PENALTY_4 = 1000;      // 見出し4文字以上
+
     //// 漢字と長音が連続する場合のペナルティ
     //int KANJI_CONSECUTIVE_PENALTY = 1000;
 
@@ -1492,15 +1497,24 @@ namespace lattice2 {
         }
 
     private:
+        MString _MAZE = to_mstr(L"MAZE");
+
         // 形態素解析コストの計算
         int calcMorphCost(const MString& s, std::vector<MString>& words) {
             int cost = 0;
             if (!s.empty()) {
                 cost = MorphBridge::morphCalcCost(s, words);
-                _LOG_DETAIL(L"ENTER: {}: orig morphCost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(words, '/')));
+                _LOG_DETAIL(L"ENTER: {}: orig morph cost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(words, '/')));
                 std::vector<std::vector<MString>> wordItemsList;
                 for (auto iter = words.begin(); iter != words.end(); ++iter) {
                     wordItemsList.push_back(utils::split(*iter, '\t'));
+                    // MAZEコストの追加
+                    if (utils::endsWith(wordItemsList.back().back(), _MAZE)) {
+                        size_t len = wordItemsList.back().front().size();
+                        int penalty = len <= 2 ? MAZE_PENALTY_2 : len == 3 ? MAZE_PENALTY_3 : MAZE_PENALTY_4;
+                        cost += penalty;
+                        _LOG_DETAIL(L"add MAZE penalty={}, new cost={}", penalty, cost);
+                    }
                 }
                 for (auto iter = wordItemsList.begin(); iter != wordItemsList.end(); ++iter) {
                     const auto& items = *iter;

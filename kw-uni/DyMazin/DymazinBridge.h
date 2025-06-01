@@ -1,7 +1,7 @@
 #include "string_utils.h"
 
 namespace DymazinBridge {
-    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax);
+    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty = 1000);
 
     void dymazinFinalize();
 

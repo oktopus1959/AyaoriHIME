@@ -18,7 +18,7 @@
 namespace DymazinBridge {
     DEFINE_LOCAL_LOGGER(DymazinBridge);
 
-    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax) {
+    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty) {
         LOG_INFOH(_T("ENTER: rcfile={}, dicdir={}, -O{}"), rcfile, dicdir, SETTINGS->morphMazeFormat);
 
         std::vector<const wchar_t*> av;
@@ -34,6 +34,9 @@ namespace DymazinBridge {
         String mazeOpt = L"-O";
         mazeOpt += SETTINGS->morphMazeFormat == L"maze2" ? L"maze2" : L"maze1";
         av.push_back(mazeOpt.c_str());     // 交ぜ書きの原形を含む(w/ feature)
+        String mazePenaltyOpt(L"--maze-penalty=");
+        mazePenaltyOpt.append(std::to_wstring(mazePenalty));
+        av.push_back(mazePenaltyOpt.c_str());
         int result = DymazinInitialize(av.size(), av.data(), L"dymazin.log");
 
         LOG_INFOH(_T("LEAVE: result={}"), result);

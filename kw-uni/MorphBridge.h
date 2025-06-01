@@ -18,7 +18,7 @@ namespace MorphBridge {
 #if USE_DYMAZIN
         auto rcfile = utils::joinPath(SETTINGS->rootDir, _T("dymazin/etc/morphrc"));
         auto dicdir = utils::joinPath(SETTINGS->rootDir, _T("dymazin/dic/ipadic"));
-        int ret = DymazinBridge::dymazinInitialize(rcfile, dicdir, unkMax);
+        int ret = DymazinBridge::dymazinInitialize(rcfile, dicdir, unkMax, SETTINGS->mazeEntryPenalty);
 #else
         auto rcfile = utils::joinPath(SETTINGS->rootDir, _T("mecab/etc/mecabrc"));
         auto dicdir = utils::joinPath(SETTINGS->rootDir, _T("mecab/dic/ipadic"));
