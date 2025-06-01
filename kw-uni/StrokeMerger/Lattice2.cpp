@@ -24,13 +24,13 @@
 #undef _LOG_INFOH
 #undef _LOG_DETAIL
 #undef LOG_INFO
-//#undef LOG_DEBUGH
-//#undef LOG_DEBUG
+#undef LOG_DEBUGH
+#undef LOG_DEBUG
 #define _LOG_INFOH LOG_WARN
 #define _LOG_DETAIL LOG_WARN
 #define LOG_INFO LOG_INFOH
-//#define LOG_DEBUGH LOG_INFOH
-//#define LOG_DEBUG LOG_INFOH
+#define LOG_DEBUGH LOG_INFOH
+#define LOG_DEBUG LOG_INFOH
 #endif
 
 namespace lattice2 {
@@ -1133,11 +1133,12 @@ namespace lattice2 {
         }
 
         // 単語素片を末尾に適用してみる
-        std::vector<MString> applyPiece(const WordPiece& piece, int strokeCount, int paddingLen, bool bKatakanaConversion) const {
-            LOG_DEBUGH(_T("ENTER: pieces={}, strokeCount={}, paddingLen={}, _strokeLen={}"), piece.debugString(), strokeCount, paddingLen, _strokeLen);
+        std::vector<MString> applyPiece(const WordPiece& piece, int strokeCount, int paddingLen, bool isStrokeBS, bool bKatakanaConversion) const {
+            LOG_DEBUGH(_T("ENTER: pieces={}, strokeCount={}, paddingLen={}, isStrokeBS={}, _strokeLen={}"), piece.debugString(), strokeCount, paddingLen, isStrokeBS, _strokeLen);
             std::vector<MString> ss;
-            if ((piece.isPadding() && _strokeLen + paddingLen == strokeCount) || (_strokeLen + piece.strokeLen() == strokeCount)) {
-                LOG_DEBUGH(_T("_strokeLen({}) + piece.strokeLen({})|paddingLen({}) == strokeCount({})"), _strokeLen, piece.strokeLen(), paddingLen, strokeCount);
+            if (isStrokeBS || (piece.isPadding() && _strokeLen + paddingLen == strokeCount) || (_strokeLen + piece.strokeLen() == strokeCount)) {
+                LOG_DEBUGH(_T("isStrokeBS({}) || _strokeLen({}) + piece.strokeLen({})|paddingLen({}) == strokeCount({})"),
+                    isStrokeBS, _strokeLen, piece.strokeLen(), paddingLen, strokeCount);
                 // 素片のストローク数が適合した
                 if (piece.rewriteNode()) {
                     // 書き換えノード
@@ -1743,10 +1744,10 @@ namespace lattice2 {
         // 同じ末尾部分を持つ候補が連続しないように移動する
         void rotateSameTailCandidates(std::vector<CandidateString>& newCandidates) {
             std::set<MString> candStrs;
-            if (newCandidates.front().string().size() < SAME_TAIL_LEN) return;
+            if (newCandidates.empty() || newCandidates.front().string().size() < SAME_TAIL_LEN) return;
 
             candStrs.insert(utils::safe_tailstr(newCandidates.front().string(), SAME_TAIL_LEN));
-            for (size_t i = 1; i < newCandidates.size() && i < 10; ++i) {
+            for (size_t i = 1; i < newCandidates.size() && i < 3; ++i) {
                 for (auto iter = newCandidates.begin() + i; iter != newCandidates.end(); ++iter) {
                     auto tail = utils::safe_tailstr(iter->string(), SAME_TAIL_LEN);
                     if (!candStrs.contains(tail)) {
@@ -1852,7 +1853,7 @@ namespace lattice2 {
                 bool bStrokeCountMatched = (piece.isPadding() && cand.strokeLen() + paddingLen == strokeCount) || (cand.strokeLen() + piece.strokeLen() == strokeCount);
                 _LOG_DETAIL(_T("cand.strokeLen={}, piece.strokeLen()={}, strokeCount={}, paddingLen={}: {}"),
                     cand.strokeLen(), piece.strokeLen(), strokeCount, paddingLen, (bStrokeCountMatched ? L"MATCH" : L"UNMATCH"));
-                if (bStrokeCountMatched) {
+                if (isStrokeBS || bStrokeCountMatched) {
                     // 素片のストロークと適合する候補
                     int penalty = cand.penalty();
                     _LOG_DETAIL(L"cand.string()=\"{}\", contained in kanjiPreferred={}", to_wstr(cand.string()), _kanjiPreferredNextCands.contains(cand.string()));
@@ -1873,12 +1874,13 @@ namespace lattice2 {
                         int numBS;
                         std::tie(s, numBS) = cand.applyAutoBushu(piece, strokeCount);  // 自動部首合成
                         if (!s.empty()) {
+                            _LOG_DETAIL(_T("AutoBush FOUND"));
                             CandidateString newCandStr(s, strokeCount, 0, penalty);
                             addCandidate(newCandidates, newCandStr, s, isStrokeBS);
                             bAutoBushuFound = true;
                         }
                     }
-                    std::vector<MString> ss = cand.applyPiece(piece, strokeCount, paddingLen, bKatakanaConversion);
+                    std::vector<MString> ss = cand.applyPiece(piece, strokeCount, paddingLen, isStrokeBS, bKatakanaConversion);
                     int idx = 0;
                     for (MString s : ss) {
                         int _iniCost = 0;
@@ -2030,7 +2032,7 @@ namespace lattice2 {
             }
 
             if (!isPaddingPiece) {
-                //rotateSameTailCandidates(newCandidates);
+                rotateSameTailCandidates(newCandidates);
                 truncateTailCandidates(newCandidates);
             }
 
@@ -2057,7 +2059,7 @@ namespace lattice2 {
             _LOG_DETAIL(_T("ENTER: dummyCand.string()=\"{}\", piece.string()={}, strokeCount={}, paddingLen={}"),
                 to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount, paddingLen);
             std::vector<CandidateString> newCandidates;
-            std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, bKatakanaConversion);
+            std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
             for (MString s : ss) {
                 CandidateString newCandStr(s, strokeCount, 0, 0);
                 newCandidates.push_back(newCandStr);
