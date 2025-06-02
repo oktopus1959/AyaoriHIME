@@ -172,7 +172,7 @@ namespace KanchokuWS
         public static string MorphMazeFormat { get; set; } = "maze1";
 
         /// <summary>交ぜ書きエントリに対するペナルティ</summary>
-        public static int MazeEntryPenalty { get; set; } = 1000;
+        public static int MorphMazeEntryPenalty { get; set; } = 1000;
 
         ///// <summary>句読点でコミットする</summary>
         //public static bool CommitByPunctuation { get; set; }
@@ -1759,7 +1759,7 @@ namespace KanchokuWS
             UseTmpRealtimeNgramFile = addDecoderSetting("useTmpRealtimeNgramFile", false);      // 一時的な Realtime Ngram ファイルを使用する
             UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
             MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze1");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
-            MazeEntryPenalty = addDecoderSetting("mazeEntryPenalty", 1000);                     // 交ぜ書きエントリに対するペナルティ
+            MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000);           // 交ぜ書きエントリに対するペナルティ
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             DepressedContinuousKanjiNum = addDecoderSetting("depressedContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード

@@ -18,7 +18,7 @@ namespace MorphBridge {
 #if USE_DYMAZIN
         auto rcfile = utils::joinPath(SETTINGS->rootDir, _T("dymazin/etc/morphrc"));
         auto dicdir = utils::joinPath(SETTINGS->rootDir, _T("dymazin/dic/ipadic"));
-        int ret = DymazinBridge::dymazinInitialize(rcfile, dicdir, unkMax, SETTINGS->mazeEntryPenalty);
+        int ret = DymazinBridge::dymazinInitialize(rcfile, dicdir, unkMax, SETTINGS->morphMazeEntryPenalty);
 #else
         auto rcfile = utils::joinPath(SETTINGS->rootDir, _T("mecab/etc/mecabrc"));
         auto dicdir = utils::joinPath(SETTINGS->rootDir, _T("mecab/dic/ipadic"));
@@ -56,10 +56,10 @@ namespace MorphBridge {
 #endif //_DEBUG
     }
 
-    inline int morphCalcCost(const MString& str, std::vector<MString>& words) {
+    inline int morphCalcCost(const MString& str, std::vector<MString>& words, int mazePenalty) {
 #if USE_MORPHER
 #if USE_DYMAZIN
-        return DymazinBridge::dymazinCalcCost(str, words);
+        return DymazinBridge::dymazinCalcCost(str, words, mazePenalty);
 #else
         return MecabBridge::mecabCalcCost(str, words);
 #endif

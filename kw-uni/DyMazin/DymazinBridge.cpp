@@ -59,11 +59,11 @@ namespace DymazinBridge {
     }
 
 #if true
-    int dymazinCalcCost(const MString& str, std::vector<MString>& words) {
+    int dymazinCalcCost(const MString& str, std::vector<MString>& words, int mazePenalty) {
         LOG_DEBUGH(_T("ENTER: str={}"), to_wstr(str));
         const size_t BUFSIZE = 1000;
         wchar_t wchbuf[BUFSIZE] = { '\0' };
-        int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, false);
+        int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, mazePenalty, false);
         for (const auto& s : utils::split(wchbuf, L'\n')) {
             words.push_back(to_mstr(s));
         }

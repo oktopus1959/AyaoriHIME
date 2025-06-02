@@ -1123,7 +1123,7 @@ namespace lattice2 {
             _LOG_DETAIL(L"ENTER: {}", to_wstr(_str));
             MString result;
             std::vector<MString> words;
-            MorphBridge::morphCalcCost(_str, words);
+            MorphBridge::morphCalcCost(_str, words, -SETTINGS->morphMazeEntryPenalty);
             for (auto iter = words.begin(); iter != words.end(); ++iter) {
                 _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
                 auto items = utils::split(*iter, '\t');
@@ -1503,7 +1503,7 @@ namespace lattice2 {
         int calcMorphCost(const MString& s, std::vector<MString>& words) {
             int cost = 0;
             if (!s.empty()) {
-                cost = MorphBridge::morphCalcCost(s, words);
+                cost = MorphBridge::morphCalcCost(s, words, 0);
                 _LOG_DETAIL(L"ENTER: {}: orig morph cost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(words, '/')));
                 std::vector<std::vector<MString>> wordItemsList;
                 for (auto iter = words.begin(); iter != words.end(); ++iter) {

@@ -9,5 +9,5 @@ namespace DymazinBridge {
 
     void dymazinSaveLog();
 
-    int dymazinCalcCost(const MString& str, std::vector<MString>& words);
+    int dymazinCalcCost(const MString& str, std::vector<MString>& words, int mazePenalty);
 }
