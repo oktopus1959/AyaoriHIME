@@ -16,7 +16,7 @@ namespace KanchokuWS
 
         //-------------------------------------------------------------------------------------
         /// <summary> バージョン </summary>
-        public static string Version => "1.3.0-α4";
+        public static string Version => "1.3.0-α5";
         public static string Version2 => "";
 
         //-------------------------------------------------------------------------------------
@@ -173,6 +173,9 @@ namespace KanchokuWS
 
         /// <summary>交ぜ書きエントリに対するペナルティ</summary>
         public static int MorphMazeEntryPenalty { get; set; } = 1000;
+
+        /// <summary>非終端形態素の単語コスト</summary>
+        public static int MorphNonTerminalCost { get; set; } = 5000;
 
         ///// <summary>句読点でコミットする</summary>
         //public static bool CommitByPunctuation { get; set; }
@@ -1760,6 +1763,7 @@ namespace KanchokuWS
             UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
             MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze1");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
             MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000);           // 交ぜ書きエントリに対するペナルティ
+            MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             DepressedContinuousKanjiNum = addDecoderSetting("depressedContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード

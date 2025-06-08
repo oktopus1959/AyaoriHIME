@@ -107,6 +107,7 @@ struct Settings {
     bool useMorphAnalyzer = true;           // 形態素解析器を使用する
     String morphMazeFormat = L"maze1";      // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
     int morphMazeEntryPenalty = 1000;       // 交ぜ書きエントリに対するペナルティ
+    int morphNonTerminalCost = 5000;        // 非終端形態素の単語コスト
     //bool commitByPunctuation = true;        // 句読点でコミットする
     bool outputHeadSpace = true;            // 先頭のスペースをそのまま出力する
     bool strokeBackByBS = false;            // BSで打鍵取消を行う

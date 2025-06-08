@@ -137,6 +137,13 @@ namespace lattice2 {
     // Realtime Ngram のカウントを水増ししたときの、カウント値をスムージングする際の閾値
     int SYSTEM_NGRAM_COUNT_THRESHOLD = 3000;
 
+    const MString NonTerminalMarker = to_mstr(L"非終端,*");
+
+    bool isNonTerminalMorph(const MString& morph) {
+        auto items = utils::split(morph, '\t');
+        return items.size() > 2 && utils::startsWith(items[2], NonTerminalMarker);
+    }
+
     //// Realtime 3gram のカウントからボーナス値を算出する際の係数
     //int REALTIME_TRIGRAM_BONUS_FACTOR = 100;
 
@@ -447,8 +454,12 @@ namespace lattice2 {
                         if (items.size() >= 2 && isDecimalString(items[1])) {
                             count = std::stoi(items[1]);
                         }
-                        userNgram[word] = count;
-                        if (userMaxFreq < count) userMaxFreq = count;
+                        if (count >= 0) {
+                            userNgram[word] = count;
+                            if (userMaxFreq < count) userMaxFreq = count;
+                        } else {
+                            userWordCosts[word] = count;    // 負数はコストとして扱う
+                        }
                     } else {
                         if (items.size() >= 2 && isDecimalString(items[1])) {
                             userWordCosts[word] = std::stoi(items[1]);
@@ -647,7 +658,8 @@ namespace lattice2 {
     int get_base_ngram_cost(const MString& word) {
         if (word.empty()) return 0;
         if (word.size() == 1 && word == MSTR_SPACE) return ONE_SPACE_COST;          // 1 space の場合のコスト
-        int cost = word.size() == 2 ? getUserWordCost(word) : 0;
+        //int cost = word.size() == 2 ? getUserWordCost(word) : 0;
+        int cost = getUserWordCost(word);
         if (cost != 0) return cost;
         auto iter = ngramCosts.find(word);
         cost = iter != ngramCosts.end() ? iter->second : DEFAULT_MAX_COST;
@@ -680,7 +692,7 @@ namespace lattice2 {
     //    return get_base_ngram_cost(utils::last_substr(s1, 1) + utils::safe_substr(s2, 0, 1)) / 2;
     //}
 
-    int findKatakanaLen(const MString& s, int pos) {
+    int findKatakanaLen(const MString& s, size_t pos) {
         int len = 0;
         for (; (size_t)(pos + len) < s.size(); ++len) {
             if (!utils::is_katakana(s[pos + len])) break;
@@ -688,7 +700,7 @@ namespace lattice2 {
         return len;
     }
 
-    int getKatakanaStringCost(const MString& str, int pos, int katakanaLen) {
+    int getKatakanaStringCost(const MString& str, size_t pos, int katakanaLen) {
         int restlen = katakanaLen;
         auto katakanaWord = to_wstr(utils::safe_substr(str, pos, katakanaLen));
         int xCost = 0;
@@ -801,15 +813,24 @@ namespace lattice2 {
 
 #if 1
     // Ngramコストの取得
-    int getNgramCost(const MString& str) {
+    int getNgramCost(const MString& str, const std::vector<MString>& morphs) {
         _LOG_DETAIL(L"ENTER: str={}", to_wstr(str));
         int cost = 0;
-        int strLen = (int)(str.size());
+        size_t strLen = str.size();
 
         if (strLen <= 0) return 0;
 
+        std::vector<size_t> wordBoundaries;
+        wordBoundaries.push_back(0);
+        for (const auto& m : morphs) {
+            size_t p = m.find('\t');
+            if (p > m.size()) p = m.size();
+            p += wordBoundaries.back();
+            wordBoundaries.push_back(p);
+        }
+
         // unigram
-        for (int i = 0; i < strLen; ++i) {
+        for (size_t i = 0; i < strLen; ++i) {
             if (isSmallKatakana(str[i])) {
                 if ((i == 0 || !utils::is_katakana(str[i - 1]))) {
                     // 小書きカタカナの直前にカタカナが無ければ、ペナルティを与える
@@ -843,9 +864,23 @@ namespace lattice2 {
         } else if (strLen > 1) {
             // bigram
             //int lastKanjiPos = -1;
-            for (int i = 0; i < strLen - 1; ++i) {
+            auto wbIter = wordBoundaries.begin();
+            size_t wbBegin = 0;
+            size_t wbEnd = 0;
+            for (size_t i = 0; i < strLen - 1; ++i) {
+                if (i >= wbEnd) {
+                    wbBegin = wbEnd;
+                    ++wbIter;
+                    wbEnd = wbIter != wordBoundaries.end() ? *wbIter : strLen;
+                }
+
                 // 通常の bigram コストの計上
-                cost += get_base_ngram_cost(utils::safe_substr(str, i, 2));
+                int divider = 1;    // コスト減少のためのディバイダー
+                if (wbEnd - wbBegin > 2 && (i >= wbBegin && i + 2 <= wbEnd)) {
+                    // 形態素内に収まる場合は、bigramコストを減少させる
+                    divider = wbEnd - wbBegin - 1;
+                }
+                cost += get_base_ngram_cost(utils::safe_substr(str, i, 2)) / divider;
 
                 //// 漢字が2文字連続する場合のボーナス
                 //if (i > lastKanjiPos && utils::is_kanji(str[i]) && utils::is_kanji(str[i + 1])) {
@@ -873,7 +908,7 @@ namespace lattice2 {
 
             if (strLen > 2) {
                 // trigram
-                int i = 0;
+                size_t i = 0;
                 while (i < strLen - 2) {
                     // 末尾に3文字以上残っている
                     //bool found = false;
@@ -986,6 +1021,7 @@ namespace lattice2 {
         int _strokeLen;
         int _cost;
         int _penalty;
+        bool _isNonTerminal;
         //float _llama_loss = 0.0f;
 
         // 末尾文字列にマッチする RewriteInfo を取得する
@@ -1050,13 +1086,16 @@ namespace lattice2 {
         }
 
     public:
-        CandidateString() : _strokeLen(0), _cost(0), _penalty(0) {
+        CandidateString()
+            : _strokeLen(0), _cost(0), _penalty(0), _isNonTerminal(false) {
         }
 
-        CandidateString(const MString& s, int len, int cost, int penalty) : _str(s), _strokeLen(len), _cost(cost), _penalty(penalty) {
+        CandidateString(const MString& s, int len, int cost, int penalty)
+            : _str(s), _strokeLen(len), _cost(cost), _penalty(penalty), _isNonTerminal(false) {
         }
 
-        CandidateString(const CandidateString& cand, int strokeDelta) : _str(cand._str), _strokeLen(cand._strokeLen+strokeDelta), _cost(cand._cost), _penalty(cand._penalty) {
+        CandidateString(const CandidateString& cand, int strokeDelta)
+            : _str(cand._str), _strokeLen(cand._strokeLen+strokeDelta), _cost(cand._cost), _penalty(cand._penalty), _isNonTerminal(false) {
         }
 
         // 自動部首合成の実行
@@ -1123,14 +1162,28 @@ namespace lattice2 {
             _LOG_DETAIL(L"ENTER: {}", to_wstr(_str));
             MString result;
             std::vector<MString> words;
-            MorphBridge::morphCalcCost(_str, words, -SETTINGS->morphMazeEntryPenalty);
-            for (auto iter = words.begin(); iter != words.end(); ++iter) {
+            MorphBridge::morphCalcCost(_str, words, -SETTINGS->morphMazeEntryPenalty, false);
+            //for (auto iter = words.begin(); iter != words.end(); ++iter) {
+            //    _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
+            //    auto items = utils::split(*iter, '\t');
+            //    if (items.size() == 1) {
+            //        result.append(items[0]);
+            //    }  else if (items.size() >= 2) {
+            //        result.append(items[1] == MSTR_MINUS ? items[0] : items[1]);
+            //    }
+            //}
+            bool tailMaze = false;          // 末尾の交ぜ書きのみが置換される
+            for (auto iter = words.rbegin(); iter != words.rend(); ++iter) {
                 _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
                 auto items = utils::split(*iter, '\t');
-                if (items.size() == 1) {
-                    result.append(items[0]);
-                }  else if (items.size() >= 2) {
-                    result.append(items[1] == MSTR_MINUS ? items[0] : items[1]);
+                if (!items.empty()) {
+                    if (tailMaze || items.size() == 1 || items[1] == MSTR_MINUS) {
+                        result.insert(0, items[0]);
+                    } else {
+                        result.insert(0, items[1]);
+                        // 末尾の交ぜ書きを実行したら、残りは元の表層形を出力
+                        tailMaze = true;
+                    }
                 }
             }
             _LOG_DETAIL(L"LEAVE: {}", to_wstr(result));
@@ -1234,6 +1287,14 @@ namespace lattice2 {
 
         void zeroPenalty() {
             _penalty = 0;
+        }
+
+        bool isNonTerminal() const {
+            return _isNonTerminal;
+        }
+
+        void setNonTerminal(bool flag = true) {
+            _isNonTerminal = flag;
         }
 
         //float llama_loss() const {
@@ -1503,7 +1564,7 @@ namespace lattice2 {
         int calcMorphCost(const MString& s, std::vector<MString>& words) {
             int cost = 0;
             if (!s.empty()) {
-                cost = MorphBridge::morphCalcCost(s, words, 0);
+                cost = MorphBridge::morphCalcCost(s, words, 0, true);
                 _LOG_DETAIL(L"ENTER: {}: orig morph cost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(words, '/')));
                 std::vector<std::vector<MString>> wordItemsList;
                 for (auto iter = words.begin(); iter != words.end(); ++iter) {
@@ -1653,18 +1714,30 @@ namespace lattice2 {
             //MString subStr = substringBetweenNonJapaneseChars(candStr);
             _LOG_DETAIL(_T("subStr={}"), to_wstr(subStr));
 
-            std::vector<MString> words;
+            std::vector<MString> morphs;
+
+            // 形態素解析コスト
             // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
-            //int morphCost = !SETTINGS->useMorphAnalyzer || subStr.size() <= 1 ? 5000 : calcMorphCost(subStr, words);
-            int morphCost = !SETTINGS->useMorphAnalyzer || subStr.empty() ? 0 : calcMorphCost(subStr, words);
+            //int morphCost = !SETTINGS->useMorphAnalyzer || subStr.size() <= 1 ? 5000 : calcMorphCost(subStr, morphs);
+            int morphCost = !SETTINGS->useMorphAnalyzer || subStr.empty() ? 0 : calcMorphCost(subStr, morphs);
             if (subStr.size() == 1) {
                 if (utils::is_katakana(subStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
             }
-            int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr) * NGRAM_COST_FACTOR;
+            if (!morphs.empty() && isNonTerminalMorph(morphs.back())) {
+                _LOG_DETAIL(_T("NON TERMINAL morph={}"), to_wstr(morphs.back()));
+                newCandStr.setNonTerminal();
+            }
+
+            // Ngramコスト
+            int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr, morphs) * NGRAM_COST_FACTOR;
             //int morphCost = 0;
             //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
             //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * NGRAM_COST_FACTOR;
+
+            // llamaコスト
             int llamaCost = 0;
+
+            // 総コスト
             int candCost = morphCost + ngramCost + llamaCost;
             newCandStr.addCost(candCost);
 
@@ -1677,11 +1750,11 @@ namespace lattice2 {
             int totalCost = newCandStr.totalCost();
 
             _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[{}], ngram={})"),
-                to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(words, ' ')), L"\t", L"|"), ngramCost);
+                to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, ' ')), L"\t", L"|"), ngramCost);
 
             if (IS_LOG_DEBUGH_ENABLED) {
                 if (!isStrokeBS) _debugLog.append(std::format(L"candStr={}, totalCost={}, candCost={} (morph={} [{}] , ngram = {})\n",
-                    to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(words, ' ')), L"\t", L"|"), ngramCost));
+                    to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, ' ')), L"\t", L"|"), ngramCost));
             }
 
             if (!newCandidates.empty()) {
@@ -1804,6 +1877,12 @@ namespace lattice2 {
                         _LOG_DETAIL(_T("uniGrams={}"), to_wstr(utils::join(uniGrams, ',')));
                         _LOG_DETAIL(_T("biGrams={}"), to_wstr(utils::join(biGrams, ',')));
                         _LOG_DETAIL(_T("triGrams={}"), to_wstr(utils::join(triGrams, ',')));
+                    }
+                    if (iter->isNonTerminal()) {
+                        // 非終端は残す
+                        _LOG_DETAIL(_T("REMAIN: non terminal: {}"), to_wstr(str));
+                        ++pos;
+                        continue;
                     }
                     if (!tri.empty()) {
                         if (triGrams.size() < beamSize2 && triGrams.find(tri) == triGrams.end()) {
@@ -2361,7 +2440,7 @@ namespace lattice2 {
         // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
         // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
         LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool kanjiPreferredNext, bool strokeBack, bool bKatakanaConversion) override {
-            LOG_WARNH(_T("ENTER: pieces: {}"), formatStringOfWordPieces(pieces));
+            _LOG_DETAIL(_T("ENTER: pieces: {}"), formatStringOfWordPieces(pieces));
             int totalStrokeCount = (int)(STATE_COMMON->GetTotalDecKeyCount());
             if (_startStrokeCount == 0) _startStrokeCount = totalStrokeCount;
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
@@ -2372,7 +2451,7 @@ namespace lattice2 {
 
             if (pieces.empty()) {
                 // pieces が空になるのは、同時打鍵の途中の状態などで、文字が確定していない場合
-                LOG_WARNH(L"LEAVE: emptyResult");
+                _LOG_DETAIL(L"LEAVE: emptyResult");
                 return LatticeResult::emptyResult();
             }
 
@@ -2443,7 +2522,7 @@ namespace lattice2 {
             }
             //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
-            LOG_WARNH(_T("LEAVE"));
+            _LOG_DETAIL(_T("LEAVE"));
             return LatticeResult(outStr, numBS);
         }
 
