@@ -40,6 +40,7 @@ namespace DymazinBridge {
         String nonTerminalCostOpt(L"--non-terminal-cost=");
         nonTerminalCostOpt.append(std::to_wstring(nonTerminalCost));
         av.push_back(nonTerminalCostOpt.c_str());
+        av.push_back(L"--ignore-eos");
         int result = DymazinInitialize(av.size(), av.data(), L"dymazin.log");
 
         _LOG_INFOH(_T("LEAVE: result={}"), result);
