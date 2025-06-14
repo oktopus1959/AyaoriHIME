@@ -1951,7 +1951,8 @@ namespace KanchokuWS.Gui
 
         private void button_showCandidates_Click(object sender, EventArgs e)
         {
-            frmMain?.ShowDlgCandidateLog(this, Right - 10, Top);
+            //frmMain?.ShowDlgCandidateLog(this, Right - 10, Top);
+            frmMain?.ShowDlgCandidateLog();
         }
 
         [DllImport("user32.dll")]

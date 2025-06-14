@@ -41,14 +41,14 @@ namespace KanchokuWS.Gui
             this.richTextBox1.Font = new System.Drawing.Font("ＭＳ ゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.richTextBox1.Location = new System.Drawing.Point(5, 6);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(862, 380);
+            this.richTextBox1.Size = new System.Drawing.Size(1575, 720);
             this.richTextBox1.TabIndex = 1;
             this.richTextBox1.Text = "";
             // 
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(792, 392);
+            this.button1.Location = new System.Drawing.Point(1505, 732);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 2;
@@ -59,7 +59,7 @@ namespace KanchokuWS.Gui
             // button_refresh
             // 
             this.button_refresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_refresh.Location = new System.Drawing.Point(695, 392);
+            this.button_refresh.Location = new System.Drawing.Point(1408, 732);
             this.button_refresh.Name = "button_refresh";
             this.button_refresh.Size = new System.Drawing.Size(75, 23);
             this.button_refresh.TabIndex = 3;
@@ -71,7 +71,7 @@ namespace KanchokuWS.Gui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(871, 421);
+            this.ClientSize = new System.Drawing.Size(1584, 761);
             this.Controls.Add(this.button_refresh);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.richTextBox1);

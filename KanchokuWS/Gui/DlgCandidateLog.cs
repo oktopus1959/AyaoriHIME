@@ -20,13 +20,13 @@ namespace KanchokuWS.Gui
 
         private Action RefreshLog;
 
-        private Form frmFocus;
+        //private Form frmFocus;
 
-        public DlgCandidateLog(Action notifier, Action refreshLog, Form focusFrm)
+        public DlgCandidateLog(Action notifier, Action refreshLog /*, Form focusFrm*/)
         {
             NotifyToClose = notifier;
             RefreshLog = refreshLog;
-            frmFocus = focusFrm;
+            //frmFocus = focusFrm;
 
             InitializeComponent();
         }
@@ -34,12 +34,19 @@ namespace KanchokuWS.Gui
         public void WriteLog(string msg)
         {
             try {
-                richTextBox1.Focus();
+                //richTextBox1.Focus();
                 richTextBox1.AppendText(msg);
                 //frmFocus?.Focus();
             } catch (Exception ex) {
                 logger.Warn(ex._getErrorMsg());
             }
+        }
+
+        public void MoveCaretToTail()
+        {
+            richTextBox1.Focus();
+            richTextBox1.SelectionStart = richTextBox1.TextLength;
+            richTextBox1.ScrollToCaret();
         }
 
         private void button1_Click(object sender, EventArgs e)
