@@ -57,7 +57,7 @@ namespace KanchokuWS.Forms
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "漢直窓 WS";
+            this.Text = "漢直WS";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmDisplayBuffer_FormClosing);
             this.Load += new System.EventHandler(this.FrmCandidateSelector_Load);

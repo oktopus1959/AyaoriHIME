@@ -59,9 +59,9 @@ namespace lattice2 {
     size_t SAME_TAIL_LEN = 3;
 
     // 形態素解析の結果、交ぜ書きエントリであった場合のペナルティ
-    int MAZE_PENALTY_2 = 5000;      // 見出し2文字以下
-    int MAZE_PENALTY_3 = 3000;      // 見出し3文字
-    int MAZE_PENALTY_4 = 1000;      // 見出し4文字以上
+    //int MAZE_PENALTY_2 = 5000;      // 見出し2文字以下
+    //int MAZE_PENALTY_3 = 3000;      // 見出し3文字
+    //int MAZE_PENALTY_4 = 1000;      // 見出し4文字以上
 
     //// 漢字と長音が連続する場合のペナルティ
     //int KANJI_CONSECUTIVE_PENALTY = 1000;
@@ -867,6 +867,7 @@ namespace lattice2 {
             auto wbIter = wordBoundaries.begin();
             size_t wbBegin = 0;
             size_t wbEnd = 0;
+            int biCost = 0;
             for (size_t i = 0; i < strLen - 1; ++i) {
                 if (i >= wbEnd) {
                     wbBegin = wbEnd;
@@ -880,7 +881,7 @@ namespace lattice2 {
                     // 形態素内に収まる場合は、bigramコストを減少させる
                     divider = wbEnd - wbBegin - 1;
                 }
-                cost += get_base_ngram_cost(utils::safe_substr(str, i, 2)) / divider;
+                biCost += get_base_ngram_cost(utils::safe_substr(str, i, 2)) / divider;
 
                 //// 漢字が2文字連続する場合のボーナス
                 //if (i > lastKanjiPos && utils::is_kanji(str[i]) && utils::is_kanji(str[i + 1])) {
@@ -904,7 +905,8 @@ namespace lattice2 {
                 //    cost += KANJI_CONSECUTIVE_PENALTY;
                 //}
             }
-            _LOG_DETAIL(L"Bigram cost={}", cost);
+            cost += biCost;
+            _LOG_DETAIL(L"Bigram cost={}, total={}", biCost, cost);
 
             if (strLen > 2) {
                 // trigram
@@ -936,7 +938,7 @@ namespace lattice2 {
                         if (xCost != 0) {
                             // コスト定義がある
                             cost += xCost;
-                            _LOG_DETAIL(L"FOUND: extraWord={}, xCost={}, cost={}", to_wstr(word), xCost, cost);
+                            _LOG_DETAIL(L"FOUND: extraWord={}, xCost={}, total={}", to_wstr(word), xCost, cost);
                             //i += len - 1;
                             //continue;
                             //found = true;
@@ -951,7 +953,7 @@ namespace lattice2 {
                         if (xCost != 0) {
                             // コスト定義がある
                             cost += xCost;
-                            _LOG_DETAIL(L"FOUND: extraWord={}, xCost={}, cost={}", to_wstr(word), xCost, cost);
+                            _LOG_DETAIL(L"FOUND: extraWord={}, xCost={}, total={}", to_wstr(word), xCost, cost);
                             // 次の位置へ
                             //i += len;
                             //found = true;
@@ -973,7 +975,7 @@ namespace lattice2 {
                 }
             }
         }
-        _LOG_DETAIL(L"LEAVE: cost={} * NGRAM_COST_FACTOR({})", cost, NGRAM_COST_FACTOR);
+        _LOG_DETAIL(L"LEAVE: cost={}, adjusted cost={} (* NGRAM_COST_FACTOR({}))", cost, cost* NGRAM_COST_FACTOR, NGRAM_COST_FACTOR);
         return cost;
     }
 #else
@@ -1564,18 +1566,21 @@ namespace lattice2 {
         int calcMorphCost(const MString& s, std::vector<MString>& words) {
             int cost = 0;
             if (!s.empty()) {
+                // 形態素解析器の呼び出し
+                // mazePenalty = 0 なので、形態素解析器の中で、デフォルトの mazePenalty が加算される。
                 cost = MorphBridge::morphCalcCost(s, words, 0, true);
+
                 _LOG_DETAIL(L"ENTER: {}: orig morph cost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(words, '/')));
                 std::vector<std::vector<MString>> wordItemsList;
                 for (auto iter = words.begin(); iter != words.end(); ++iter) {
                     wordItemsList.push_back(utils::split(*iter, '\t'));
-                    // MAZEコストの追加
-                    if (utils::endsWith(wordItemsList.back().back(), _MAZE)) {
-                        size_t len = wordItemsList.back().front().size();
-                        int penalty = len <= 2 ? MAZE_PENALTY_2 : len == 3 ? MAZE_PENALTY_3 : MAZE_PENALTY_4;
-                        cost += penalty;
-                        _LOG_DETAIL(L"add MAZE penalty={}, new cost={}", penalty, cost);
-                    }
+                    //// MAZEコストの追加
+                    //if (utils::endsWith(wordItemsList.back().back(), _MAZE)) {
+                    //    size_t len = wordItemsList.back().front().size();
+                    //    int penalty = len <= 2 ? MAZE_PENALTY_2 : len == 3 ? MAZE_PENALTY_3 : MAZE_PENALTY_4;
+                    //    cost += penalty;
+                    //    _LOG_DETAIL(L"add MAZE penalty={}, new cost={}", penalty, cost);
+                    //}
                 }
                 for (auto iter = wordItemsList.begin(); iter != wordItemsList.end(); ++iter) {
                     const auto& items = *iter;
@@ -1706,7 +1711,7 @@ namespace lattice2 {
 
         // 新しい候補を追加
         bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, const MString& subStr, bool isStrokeBS) {
-            _LOG_DETAIL(_T("ENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
+            _LOG_DETAIL(_T("\nENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
             bool bAdded = false;
             //bool bIgnored = false;
             const MString& candStr = newCandStr.string();
