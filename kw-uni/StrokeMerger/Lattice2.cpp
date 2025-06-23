@@ -128,8 +128,8 @@ namespace lattice2 {
     // デフォルトの最大コスト
     int DEFAULT_MAX_COST = 1000;
 
-    // Ngramコストに対する係数
-    int NGRAM_COST_FACTOR = 5;
+    //// 形態素コストに対するNgramコストの係数
+    //int NGRAM_COST_FACTOR = 5;
 
     // Realtime Ngram のカウントを水増しする係数
     int REALTIME_FREQ_BOOST_FACTOR = 10;
@@ -975,7 +975,7 @@ namespace lattice2 {
                 }
             }
         }
-        _LOG_DETAIL(L"LEAVE: cost={}, adjusted cost={} (* NGRAM_COST_FACTOR({}))", cost, cost* NGRAM_COST_FACTOR, NGRAM_COST_FACTOR);
+        _LOG_DETAIL(L"LEAVE: cost={}, adjusted cost={} (* NGRAM_COST_FACTOR({}))", cost, cost* SETTINGS->ngramCostFactor, SETTINGS->ngramCostFactor);
         return cost;
     }
 #else
@@ -1560,7 +1560,7 @@ namespace lattice2 {
         }
 
     private:
-        MString _MAZE = to_mstr(L"MAZE");
+        MString MS_MAZE = to_mstr(L"MAZE");
 
         // 形態素解析コストの計算
         int calcMorphCost(const MString& s, std::vector<MString>& words) {
@@ -1575,7 +1575,7 @@ namespace lattice2 {
                 for (auto iter = words.begin(); iter != words.end(); ++iter) {
                     wordItemsList.push_back(utils::split(*iter, '\t'));
                     //// MAZEコストの追加
-                    //if (utils::endsWith(wordItemsList.back().back(), _MAZE)) {
+                    //if (utils::endsWith(wordItemsList.back().back(), MS_MAZE)) {
                     //    size_t len = wordItemsList.back().front().size();
                     //    int penalty = len <= 2 ? MAZE_PENALTY_2 : len == 3 ? MAZE_PENALTY_3 : MAZE_PENALTY_4;
                     //    cost += penalty;
@@ -1585,6 +1585,7 @@ namespace lattice2 {
                 for (auto iter = wordItemsList.begin(); iter != wordItemsList.end(); ++iter) {
                     const auto& items = *iter;
                     const MString& w = items[0];
+                    const MString& feat = items[2];
                     if (w.size() == 1 && utils::is_hiragana(w[0])) {
                         // 1文字ひらがなが2つ続いて、その前後もひらがなのケース
                         // 「開発させる」⇒「さ きれ て さ せる」
@@ -1642,7 +1643,7 @@ namespace lattice2 {
                             _LOG_DETAIL(L"{}: SUB ANY_KANJI_BONUS({}): morphCost={}", to_wstr(w), MORPH_ANY_KANJI_BONUS * kCnt, cost);
                         }
                     }
-                    if (w.size() >= 3 && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_hiragana(c); })) {
+                    if (w.size() >= 3 && !utils::endsWith(feat, MS_MAZE) && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_hiragana(c); })) {
                         cost -= MORPH_ALL_HIRAGANA_BONUS;
                         _LOG_DETAIL(L"{}: SUB ALL_HIRAGANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_HIRAGANA_BONUS, cost);
                     }
@@ -1734,10 +1735,10 @@ namespace lattice2 {
             }
 
             // Ngramコスト
-            int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr, morphs) * NGRAM_COST_FACTOR;
+            int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr, morphs) * SETTINGS->ngramCostFactor;
             //int morphCost = 0;
             //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
-            //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * NGRAM_COST_FACTOR;
+            //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;
 
             // llamaコスト
             int llamaCost = 0;

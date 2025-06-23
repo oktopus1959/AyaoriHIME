@@ -177,6 +177,9 @@ namespace KanchokuWS
         /// <summary>非終端形態素の単語コスト</summary>
         public static int MorphNonTerminalCost { get; set; } = 5000;
 
+        /// <summary>形態素コストに対するNgramコストの係数</summary>
+        public static int NgramCostFactor { get; set; } = 5;
+
         ///// <summary>句読点でコミットする</summary>
         //public static bool CommitByPunctuation { get; set; }
 
@@ -1764,6 +1767,7 @@ namespace KanchokuWS
             MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze1");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
             MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000);           // 交ぜ書きエントリに対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
+            NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             DepressedContinuousKanjiNum = addDecoderSetting("depressedContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード
