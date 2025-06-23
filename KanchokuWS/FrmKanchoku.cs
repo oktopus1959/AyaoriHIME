@@ -169,6 +169,9 @@ namespace KanchokuWS
         //------------------------------------------------------------------
         private DlgCandidateLog dlgCandidateLog = null;
 
+        private int dlgCandidateLog_Width = 0;
+        private int dlgCandidateLog_Height = 0;
+
         public void ShowDlgCandidateLog()
         {
             logger.DebugH("ENTER");
@@ -197,6 +200,9 @@ namespace KanchokuWS
             } else {
                 logger.Error($"log file: {absPath} couldn't read");
             }
+            if (dlgCandidateLog_Width > 0 && dlgCandidateLog_Height > 0) {
+                dlg.Size = new Size(dlgCandidateLog_Width, dlgCandidateLog_Height);
+            }
             dlg._showTopMost();
         }
 
@@ -210,6 +216,10 @@ namespace KanchokuWS
         public void NotifyToCloseDlgCandidateLog()
         {
             logger.DebugH("CALLED");
+            if (dlgCandidateLog != null) {
+                dlgCandidateLog_Width = dlgCandidateLog.Width;
+                dlgCandidateLog_Height = dlgCandidateLog.Height;
+            }
             dlgCandidateLog = null;
         }
 
