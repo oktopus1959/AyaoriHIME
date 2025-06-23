@@ -209,6 +209,36 @@ namespace lattice2 {
         return count_kanji(word) >= nHalf;
     }
 
+    inline int _calcTrigramBonus(const MString& word, int rtmCount, int sysCount = 0, int origSysCnt = 0, int usrCount = 0, int origRtmCnt = 0) {
+        int bonumFactor = SETTINGS->realtimeTrigramBonusFactor;
+        int numTier1 = SETTINGS->realtimeTrigramTier1Num;
+        if (numTier1 > rtmCount) numTier1 = rtmCount;
+        int numTier2 = SETTINGS->realtimeTrigramTier2Num;
+        if (numTier1 + numTier2 > rtmCount) numTier2 = rtmCount - numTier1;
+        int maxTier3 = 100 - (numTier1 + numTier2);
+        if (maxTier3 < 0) maxTier3 = 0;
+        int numTier3 = rtmCount - (numTier1 + numTier2);
+        if (numTier3 < 0) numTier3 = 0;
+        if (numTier3 > maxTier3) numTier3 = maxTier3;
+        int numTier4 = rtmCount - (numTier1 + numTier2 + numTier3);
+        if (numTier4 < 0) numTier4 = 0;
+
+        int bonusTier1 = numTier1 * (bonumFactor * 10);
+        int bonusTier2 = numTier2 * bonumFactor;
+        int bonusTier3 = (maxTier3 > 0 && numTier3 > 0 ? (int)(numTier3 * bonumFactor * (1.0 - ((float)numTier3 / (maxTier3 * 2)))) : 0);
+        int bonusTier4 = numTier4 + sysCount;
+        int bonusTotal = -(bonusTier1 + bonusTier2 + bonusTier3 + bonusTier4);
+        if (IS_LOG_DEBUGH_ENABLED) {
+            if (sysCount == 0 && origSysCnt == 0 && usrCount == 0 && origRtmCnt == 0) {
+                LOG_WARN(L"REGEX-MATCH COST: word={}, cost={}, rtmCount={}", to_wstr(word), bonusTotal, rtmCount);
+            } else if (bonusTotal < -(SETTINGS->realtimeTrigramTier1Num * bonumFactor * 10 + 1000)) {
+                LOG_WARN(L"HIGHER COST: word={}, cost={}, sysCount={}, usrCount={}, rtmCount={}, tier1=({}:{}), tier2=({}:{}), tier3=({}:{}), tier4=({}:{})",
+                    to_wstr(word), bonusTotal, origSysCnt, usrCount, origRtmCnt, numTier1, bonusTier1, numTier2, bonusTier2, numTier3, bonusTier3, numTier4, bonusTier4);
+            }
+        }
+        return bonusTotal;
+    }
+
     inline void _updateNgramCost(const MString& word, int sysCount, int usrCount, int rtmCount) {
         int origSysCnt = sysCount;
         int origRtmCnt = rtmCount;
@@ -227,34 +257,12 @@ namespace lattice2 {
                 sysCount = tmpCnt > SYSTEM_NGRAM_COUNT_THRESHOLD ? SYSTEM_NGRAM_COUNT_THRESHOLD + (int)(std::sqrt(tmpCnt - 1000) * REALTIME_FREQ_BOOST_FACTOR) : tmpCnt;
                 rtmCount = 0;
             }
-            int bonumFactor = SETTINGS->realtimeTrigramBonusFactor;
-            int numTier1 = SETTINGS->realtimeTrigramTier1Num;
-            if (numTier1 > rtmCount) numTier1 = rtmCount;
-            int numTier2 = SETTINGS->realtimeTrigramTier2Num;
-            if (numTier1 + numTier2 > rtmCount) numTier2 = rtmCount - numTier1;
-            int maxTier3 = 100 - (numTier1 + numTier2);
-            if (maxTier3 < 0) maxTier3 = 0;
-            int numTier3 = rtmCount - (numTier1 + numTier2);
-            if (numTier3 < 0) numTier3 = 0;
-            if (numTier3 > maxTier3) numTier3 = maxTier3;
-            int numTier4 = rtmCount - (numTier1 + numTier2 + numTier3);
-            if (numTier4 < 0) numTier4 = 0;
-
-            int bonusTier1 = numTier1 * (bonumFactor * 10);
-            int bonusTier2 = numTier2 * bonumFactor;
-            int bonusTier3 = (maxTier3 > 0 && numTier3 > 0 ? (int)(numTier3 * bonumFactor * (1.0 - ((float)numTier3 / (maxTier3 * 2)))) : 0);
-            int bonusTier4 = numTier4 + sysCount;
-            int bonusTotal = bonusTier1 + bonusTier2 + bonusTier3 + bonusTier4;
-            ngramCosts[word] = -bonusTotal;
+            ngramCosts[word] = _calcTrigramBonus(word, rtmCount, sysCount, origSysCnt, usrCount, origRtmCnt);
 
             if (IS_LOG_DEBUGH_ENABLED) {
                 String ws = to_wstr(word);
                 if (ws == L"ている" || ws == L"いるな" || ws == L"ていか" || ws == L"いかな") {
-                    LOG_WARNH(L"word={}: sysCount adjusted: sysCnt={}, totalCost={}", ws, sysCount, bonusTotal);
-                }
-                if (ngramCosts[word] < -(SETTINGS->realtimeTrigramTier1Num * bonumFactor * 10 + 1000)) {
-                    LOG_WARN(L"HIGHER COST: word={}, cost={}, sysCount={}, usrCount={}, rtmCount={}, tier1=({}:{}), tier2=({}:{}), tier3=({}:{}), tier4=({}:{})",
-                        to_wstr(word), ngramCosts[word], origSysCnt, usrCount, origRtmCnt, numTier1, bonusTier1, numTier2, bonusTier2, numTier3, bonusTier3, numTier4, bonusTier4);
+                    LOG_WARNH(L"word={}: sysCount adjusted: sysCnt={}, totalCost={}", ws, sysCount, ngramCosts[word]);
                 }
             }
             //// 上のやり方は、間違いの方の影響も拡大してしまうので、結局、あまり意味が無いと思われる
@@ -812,6 +820,8 @@ namespace lattice2 {
     }
 
 #if 1
+    std::wregex kanjiDateTime(L"年[一二三四五六七八九十]+月?|[一二三四五六七八九十]+月[一二三四五六七八九十]?|月[一二三四五六七八九十]+日?|[一二三四五六七八九十]+日");
+
     // Ngramコストの取得
     int getNgramCost(const MString& str, const std::vector<MString>& morphs) {
         _LOG_DETAIL(L"ENTER: str={}", to_wstr(str));
@@ -950,6 +960,12 @@ namespace lattice2 {
                         auto word = utils::safe_substr(str, i, len);
                         _LOG_DETAIL(L"len={}, extraWord={}", len, to_wstr(word));
                         int xCost = getExtraNgramCost(word);
+                        if (xCost == 0) {
+                            // 「M月N日」のパターンか
+                            if (utils::reMatch(to_wstr(word), kanjiDateTime)) {
+                                xCost = _calcTrigramBonus(word, SETTINGS->realtimeTrigramTier1Num / 2);
+                            }
+                        }
                         if (xCost != 0) {
                             // コスト定義がある
                             cost += xCost;
@@ -2131,7 +2147,7 @@ namespace lattice2 {
             }
 
             if (!isPaddingPiece) {
-                rotateSameTailCandidates(newCandidates);
+                //rotateSameTailCandidates(newCandidates);
                 truncateTailCandidates(newCandidates);
             }
 
