@@ -12,6 +12,7 @@
 #include "MStringResult.h"
 #include "BushuComp/BushuComp.h"
 #include "BushuComp/BushuDic.h"
+#include "KeysAndChars/EasyChars.h"
 
 #include "MorphBridge.h"
 #include "Llama/LlamaBridge.h"
@@ -1176,36 +1177,69 @@ namespace lattice2 {
         }
 
         // 交ぜ書き変換の実行
-        MString applyMazegaki() const {
+        std::vector<MString> applyMazegaki() const {
             _LOG_DETAIL(L"ENTER: {}", to_wstr(_str));
-            MString result;
+            EASY_CHARS->DumpEasyCharsMemory();
+            MString tail;
+            MString head;
+            std::vector<MString> cands;
+
             std::vector<MString> words;
             MorphBridge::morphCalcCost(_str, words, -SETTINGS->morphMazeEntryPenalty, false);
-            //for (auto iter = words.begin(); iter != words.end(); ++iter) {
-            //    _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
-            //    auto items = utils::split(*iter, '\t');
-            //    if (items.size() == 1) {
-            //        result.append(items[0]);
-            //    }  else if (items.size() >= 2) {
-            //        result.append(items[1] == MSTR_MINUS ? items[0] : items[1]);
-            //    }
-            //}
             bool tailMaze = false;          // 末尾の交ぜ書きのみが置換される
             for (auto iter = words.rbegin(); iter != words.rend(); ++iter) {
                 _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
                 auto items = utils::split(*iter, '\t');
                 if (!items.empty()) {
-                    if (tailMaze || items.size() == 1 || items[1] == MSTR_MINUS) {
-                        result.insert(0, items[0]);
+                    if (tailMaze) {
+                        head.insert(0, items[0]);
+                    } else if (items.size() == 1 || items[1] == MSTR_MINUS) {
+                        // 変換後文字列が定義されていない
+                        tail.insert(0, items[0]);
                     } else {
-                        result.insert(0, items[1]);
+                        getDifficultMazeCands(items[0], items[1], cands);
                         // 末尾の交ぜ書きを実行したら、残りは元の表層形を出力
                         tailMaze = true;
                     }
                 }
             }
-            _LOG_DETAIL(L"LEAVE: {}", to_wstr(result));
+
+            std::vector<MString> result;
+            if (cands.empty()) {
+                result.push_back(head + tail);
+                _LOG_DETAIL(L"maze result (no cands): {}", to_wstr(result.back()));
+            } else {
+                for (const auto& c : cands) {
+                    result.push_back(head + c + tail);
+                    _LOG_DETAIL(L"maze result: {}", to_wstr(result.back()));
+                }
+            }
+            _LOG_DETAIL(L"LEAVE");
             return result;
+        }
+
+        void getDifficultMazeCands(const MString& surf, const MString& mazeCands, std::vector<MString>& result) const {
+            auto cands = utils::split(mazeCands, '|');
+            if (cands.size() <= 1) {
+                result.push_back(mazeCands);
+            } else {
+                std::set<mchar_t> surfKanjis;
+                for (mchar_t mc : surf) {
+                    if (utils::is_kanji(mc)) surfKanjis.insert(mc);
+                }
+                for (const auto& cand : cands) {
+                    for (mchar_t mc : cand) {
+                        if (surfKanjis.find(mc) == surfKanjis.end() && !EASY_CHARS->IsEasyChar(mc)) {
+                            // 難字を含む候補が見つかった
+                            result.push_back(cand);
+                            break;
+                        }
+                    }
+                }
+                if (result.empty()) {
+                    std::copy(cands.begin(), cands.end(), std::back_inserter(result));
+                }
+            }
         }
 
         // 単語素片を末尾に適用してみる
@@ -2301,12 +2335,24 @@ namespace lattice2 {
         }
 
     private:
+        void insertCandidate(const MString& cand) {
+            CandidateString newCandStr(cand, _candidates.front().strokeLen(), 0, 0);
+            _candidates.insert(_candidates.begin(), newCandStr);
+            size_t nSameLen = getNumOfSameStrokeLen();
+            arrangePenalties(nSameLen);
+        }
+
         void updateByConversion(const MString& s) {
             if (!s.empty()) {
-                CandidateString newCandStr(s, _candidates.front().strokeLen(), 0, 0);
-                _candidates.insert(_candidates.begin(), newCandStr);
-                size_t nSameLen = getNumOfSameStrokeLen();
-                arrangePenalties(nSameLen);
+                selectFirst();
+                insertCandidate(s);
+            }
+        }
+
+        void updateByConversions(const std::vector<MString>& convs) {
+            selectFirst();
+            for (auto iter = convs.rbegin(); iter != convs.rend(); ++iter) {
+                insertCandidate(*iter);
             }
         }
 
@@ -2323,7 +2369,7 @@ namespace lattice2 {
         void updateByMazegaki() {
             _LOG_DETAIL(_T("CALLED"));
             if (!_candidates.empty()) {
-                updateByConversion(_candidates.front().applyMazegaki());
+                updateByConversions(_candidates.front().applyMazegaki());
             }
         }
 

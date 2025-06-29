@@ -27,6 +27,7 @@ namespace {
     void addNStrokeChars(size_t start, size_t deckeyNum, size_t depth) {
         LOG_DEBUGH(_T("start={}, deckeyNum={}, depth={}"), start, deckeyNum, depth);
         if (ROOT_STROKE_NODE) addNStrokeChars(ROOT_STROKE_NODE, start, deckeyNum, depth);
+        if (ROOT_STROKE_NODE_2) addNStrokeChars(ROOT_STROKE_NODE_2.get(), start, deckeyNum, depth);
     }
 }
 
@@ -91,16 +92,16 @@ void EasyChars::GatherEasyChars() {
     LOG_INFO(_T("LEAVE"));
 }
 
-void EasyChars::DumpEasyCharsMemory(int n) {
+void EasyChars::DumpEasyCharsMemory() {
     if (Singleton) {
         const std::set<mchar_t>& set_ = Singleton->GetCharsSet();
-        unsigned long* p = (unsigned long*)(&set_);
-        LOG_INFO(_T("{}: {:p}={:08x},{:08x},{:08x},{:08x},{:08x},{:08x},{:08x},{:08x}"), n, (void*)p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+        //unsigned long* p = (unsigned long*)(&set_);
+        //LOG_DEBUG(_T("{}: {:p}={:08x},{:08x},{:08x},{:08x},{:08x},{:08x},{:08x},{:08x}"), n, (void*)p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
         MString chars;
         for (auto x : set_) {
             chars.push_back(x);
         }
-        LOG_INFO(_T("CHARS: {}"), to_wstr(chars));
+        LOG_WARN(_T("CHARS: {}"), to_wstr(chars));
     }
 }
 
