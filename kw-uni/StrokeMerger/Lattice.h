@@ -140,7 +140,7 @@ public:
 
     virtual void selectPrev() = 0;
 
-    virtual void raiseAndDepressRealtimeNgramForDiffPart() = 0;
+    virtual void raiseAndDepressByCandSelection() = 0;
 
     virtual void updateByBushuComp() = 0;
 

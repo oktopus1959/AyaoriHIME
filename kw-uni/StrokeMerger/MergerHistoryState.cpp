@@ -499,7 +499,7 @@ namespace {
                         //    break;
                     case MULTI_STREAM_COMMIT_DECKEY:
                         LOG_DEBUGH(_T("MULTI_STREAM_COMMIT"));
-                        WORD_LATTICE->raiseAndDepressRealtimeNgramForDiffPart();
+                        WORD_LATTICE->raiseAndDepressByCandSelection();
                         _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
                         OUTPUT_STACK->setMazeBlocker();
@@ -612,7 +612,7 @@ namespace {
                     default:
                         LOG_DEBUGH(_T("OTHER"));
                         if (deckey == ENTER_DECKEY) {
-                            WORD_LATTICE->raiseAndDepressRealtimeNgramForDiffPart();
+                            WORD_LATTICE->raiseAndDepressByCandSelection();
                         }
                         _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();

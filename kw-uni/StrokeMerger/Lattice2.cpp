@@ -37,6 +37,14 @@
 namespace lattice2 {
     DEFINE_LOCAL_LOGGER(lattice);
 
+#define SYSTEM_NGRAM_FILE           L"files/mixed_all.ngram.txt"
+#define KATAKANA_COST_FILE          L"files/katakana.cost.txt"
+#define REALTIME_NGRAM_MAIN_FILE    L"files/realtime.ngram.txt"
+#define REALTIME_NGRAM_TEMP_FILE    L"files/realtime.ngram.tmp.txt"
+//#define USER_NGRAM_FILE           L"files/user.ngram.txt"
+#define USER_COST_FILE              L"files/userword.cost.txt"
+#define MAZEGAKI_PRIOR_FILE         L"files/mazegaki.prior.txt"
+
     // ビームサイズ
     //size_t BestKSize = 5;
     size_t maxCandidatesSize = 0;
@@ -183,6 +191,9 @@ namespace lattice2 {
 
     // グローバルな後置書き換えマップ
     std::map<MString, MString> globalPostRewriteMap;
+
+    // 交ぜ書き優先度
+    std::map<MString, int> mazegakiPriorDict;
 
     inline bool isDecimalString(StringRef item) {
         return utils::reMatch(item, L"[+\\-]?[0-9]+");
@@ -389,13 +400,6 @@ namespace lattice2 {
         }
         _LOG_DETAIL(L"LEAVE: ngramCosts.size={}", ngramCosts.size());
     }
-
-#define SYSTEM_NGRAM_FILE L"files/mixed_all.ngram.txt"
-#define KATAKANA_COST_FILE  L"files/katakana.cost.txt"
-#define REALTIME_NGRAM_MAIN_FILE L"files/realtime.ngram.txt"
-#define REALTIME_NGRAM_TEMP_FILE L"files/realtime.ngram.tmp.txt"
-//#define USER_NGRAM_FILE    L"files/user.ngram.txt"
-#define USER_COST_FILE    L"files/userword.cost.txt"
 
     int _loadNgramFile(StringRef ngramFile, std::map<MString, int>& ngramMap) {
         auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
@@ -1034,6 +1038,35 @@ namespace lattice2 {
         LOG_INFO(_T("LEAVE: count={}"), count);
     }
 
+    // 交ぜ書き優先辞書の読み込み
+    void loadMazegakiPriorFile(StringRef file) {
+        auto path = utils::joinPath(SETTINGS->rootDir, file);
+        LOG_INFO(_T("LOAD: {}"), path.c_str());
+        utils::IfstreamReader reader(path);
+        if (reader.success()) {
+            for (const auto& line : reader.getAllLines()) {
+                auto items = utils::split(utils::replace_all(utils::strip(utils::reReplace(line, L"#.*$", L"")), L"[ \t]+", L"\t"), '\t');
+                if (!items.empty() && !items[0].empty() && items[0][0] != L'#') {
+                    MString word = to_mstr(items[0]);
+                    if (items.size() >= 2 && isDecimalString(items[1])) {
+                        mazegakiPriorDict[word] = std::stoi(items[1]);
+                    } else {
+                        mazegakiPriorDict[word] = -DEFAULT_WORD_BONUS;       // mazegaki優先度のデフォルトは -DEFAULT_WORD_BONUS
+                    }
+                }
+            }
+        }
+    }
+
+    int getMazegakiPriorityCost(const MString& mazeFeat) {
+        auto iter = mazegakiPriorDict.find(mazeFeat);
+        if (iter == mazegakiPriorDict.end()) {
+            return 0;
+        } else {
+            return iter->second;
+        }
+    }
+
     // 候補文字列
     class CandidateString {
         MString _str;
@@ -1041,6 +1074,7 @@ namespace lattice2 {
         int _cost;
         int _penalty;
         bool _isNonTerminal;
+        MString _mazeFeat;
         //float _llama_loss = 0.0f;
 
         // 末尾文字列にマッチする RewriteInfo を取得する
@@ -1109,12 +1143,24 @@ namespace lattice2 {
             : _strokeLen(0), _cost(0), _penalty(0), _isNonTerminal(false) {
         }
 
-        CandidateString(const MString& s, int len, int cost, int penalty)
-            : _str(s), _strokeLen(len), _cost(cost), _penalty(penalty), _isNonTerminal(false) {
+        CandidateString(const MString& s, int len)
+            : _str(s), _strokeLen(len), _cost(0), _penalty(0), _isNonTerminal(false) {
+        }
+
+        CandidateString(const MString& s, int len, const MString& mazeFeat)
+            : _str(s), _strokeLen(len), _cost(0), _penalty(0), _isNonTerminal(false), _mazeFeat(mazeFeat) {
+        }
+
+        CandidateString(const MString& s, int len, int cost, int penalty, const MString& mazeFeat)
+            : _str(s), _strokeLen(len), _cost(cost), _penalty(penalty), _isNonTerminal(false), _mazeFeat(mazeFeat) {
+        }
+
+        CandidateString(const CandidateString& cand)
+            : _str(cand._str), _strokeLen(cand._strokeLen), _cost(cand._cost), _penalty(cand._penalty), _isNonTerminal(cand._isNonTerminal), _mazeFeat(cand._mazeFeat) {
         }
 
         CandidateString(const CandidateString& cand, int strokeDelta)
-            : _str(cand._str), _strokeLen(cand._strokeLen+strokeDelta), _cost(cand._cost), _penalty(cand._penalty), _isNonTerminal(false) {
+            : _str(cand._str), _strokeLen(cand._strokeLen+strokeDelta), _cost(cand._cost), _penalty(cand._penalty), _isNonTerminal(false), _mazeFeat(cand._mazeFeat) {
         }
 
         // 自動部首合成の実行
@@ -1177,7 +1223,7 @@ namespace lattice2 {
         }
 
         // 交ぜ書き変換の実行
-        std::vector<MString> applyMazegaki() const {
+        std::vector<CandidateString> applyMazegaki() const {
             _LOG_DETAIL(L"ENTER: {}", to_wstr(_str));
             EASY_CHARS->DumpEasyCharsMemory();
             MString tail;
@@ -1185,33 +1231,45 @@ namespace lattice2 {
             std::vector<MString> cands;
 
             std::vector<MString> words;
+            // まず、交ぜ書き優先で形態素解析する
             MorphBridge::morphCalcCost(_str, words, -SETTINGS->morphMazeEntryPenalty, false);
             bool tailMaze = false;          // 末尾の交ぜ書きのみが置換される
             for (auto iter = words.rbegin(); iter != words.rend(); ++iter) {
                 _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
                 auto items = utils::split(*iter, '\t');
                 if (!items.empty()) {
+                    const MString& surf = items[0];
                     if (tailMaze) {
-                        head.insert(0, items[0]);
+                        head.insert(0, surf);
                     } else if (items.size() == 1 || items[1] == MSTR_MINUS) {
                         // 変換後文字列が定義されていない
-                        tail.insert(0, items[0]);
+                        tail.insert(0, surf);
                     } else {
-                        getDifficultMazeCands(items[0], items[1], cands);
+                        const MString& mazeCands = items[1];
+                        getDifficultMazeCands(surf, mazeCands, cands);
                         // 末尾の交ぜ書きを実行したら、残りは元の表層形を出力
                         tailMaze = true;
                     }
                 }
             }
 
-            std::vector<MString> result;
+            std::vector<CandidateString> result;
             if (cands.empty()) {
-                result.push_back(head + tail);
-                _LOG_DETAIL(L"maze result (no cands): {}", to_wstr(result.back()));
+                // 交ぜ書き候補が無かった
+                result.push_back(CandidateString(head + tail, strokeLen()));
+                _LOG_DETAIL(L"maze result (no cands): {}", result.back().debugString());
             } else {
+                // 交せ書き候補によるバリエーション
                 for (const auto& c : cands) {
-                    result.push_back(head + c + tail);
-                    _LOG_DETAIL(L"maze result: {}", to_wstr(result.back()));
+                    //result.push_back(CandidateString(head + c + tail, strokeLen()));
+                    auto items = utils::split(c, '@');      // 変換形@属性
+                    auto word = head + items[0] + tail;
+                    if (items.size() > 1) {
+                        result.push_back(CandidateString(word, strokeLen(), items[1]));
+                    } else {
+                        result.push_back(CandidateString(word, strokeLen()));
+                    }
+                    _LOG_DETAIL(L"maze result: {}", result.back().debugString());
                 }
             }
             _LOG_DETAIL(L"LEAVE");
@@ -1227,18 +1285,45 @@ namespace lattice2 {
                 for (mchar_t mc : surf) {
                     if (utils::is_kanji(mc)) surfKanjis.insert(mc);
                 }
+                std::vector<MString> unused;
                 for (const auto& cand : cands) {
-                    for (mchar_t mc : cand) {
+                    auto items = utils::split(cand, '@');
+                    bool found = false;
+                    for (mchar_t mc : items[0]) {
                         if (surfKanjis.find(mc) == surfKanjis.end() && !EASY_CHARS->IsEasyChar(mc)) {
                             // 難字を含む候補が見つかった
                             result.push_back(cand);
+                            found = true;
                             break;
                         }
                     }
+                    if (!found) {
+                        unused.push_back(cand);
+                    }
                 }
-                if (result.empty()) {
-                    std::copy(cands.begin(), cands.end(), std::back_inserter(result));
+                //if (result.empty()) {
+                //    std::copy(cands.begin(), cands.end(), std::back_inserter(result));
+                //}
+                for (const auto& cand : unused) {
+                    result.push_back(cand);
                 }
+
+                std::stable_sort(result.begin(), result.end(), [](const MString& a, const MString& b) {
+                    auto aItems = utils::split(a, '@');
+                    auto bItems = utils::split(b, '@');
+                    int aPriCost = aItems.size() > 1 ? getMazegakiPriorityCost(aItems[1]) : 0;
+                    int bPriCost = bItems.size() > 1 ? getMazegakiPriorityCost(bItems[1]) : 0;
+                    _LOG_DETAIL(L"aPriCost={}, bPriCost={}", aPriCost, bPriCost);
+                    return aPriCost < bPriCost;
+                });
+            }
+        }
+
+        CandidateString makeCandWithFeat(const std::vector<MString>& items, int strkLen) const {
+            if (items.size() > 1) {
+                return CandidateString(items[0], strkLen, items[1]);
+            } else {
+                return CandidateString(items[0], strkLen);
             }
         }
 
@@ -1349,6 +1434,10 @@ namespace lattice2 {
             _isNonTerminal = flag;
         }
 
+        const MString& mazeFeat() const {
+            return _mazeFeat;
+        }
+
         //float llama_loss() const {
         //    return _llama_loss;
         //}
@@ -1363,9 +1452,23 @@ namespace lattice2 {
                 + _T("(_cost=") + std::to_wstring(_cost)
                 + _T(",_penalty=") + std::to_wstring(_penalty)
                 //+ _T(",_llama_loss=") + std::to_wstring(_llama_loss)
-                + _T("), strokeLen=") + std::to_wstring(_strokeLen) + _T(")");
+                + _T("), strokeLen=") + std::to_wstring(_strokeLen)
+                + _T(", mazeFeat='") + to_wstr(_mazeFeat)
+                + _T("')");
         }
     };
+
+    void updateMazegakiPriority(const CandidateString& raised, const CandidateString& depressed) {
+        _LOG_DETAIL(L"ENTER: raised={}, depressed={}", raised.debugString(), depressed.debugString());
+        if (!raised.mazeFeat().empty()) {
+            mazegakiPriorDict[raised.mazeFeat()] += -DEFAULT_WORD_BONUS;
+            _LOG_DETAIL(L"raised: mazegakiPriorDict[{}]={}", to_wstr(raised.mazeFeat()), mazegakiPriorDict[raised.mazeFeat()]);
+        }
+        if (!depressed.mazeFeat().empty()) {
+            mazegakiPriorDict[depressed.mazeFeat()] += DEFAULT_WORD_BONUS;
+            _LOG_DETAIL(L"depressed: mazegakiPriorDict[{}]={}", to_wstr(depressed.mazeFeat()), mazegakiPriorDict[depressed.mazeFeat()]);
+        }
+    }
 
     // 先頭候補以外に、非優先候補ペナルティを与える (先頭候補のペナルティは 0 にする)
     void arrangePenalties(std::vector<CandidateString>& candidates, size_t nSameLen) {
@@ -1477,11 +1580,13 @@ namespace lattice2 {
         }
 
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
-        void raiseAndDepressRealtimeNgramForDiffPart() {
+        void raiseAndDepressByCandSelection() {
             if (_origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
                 // 候補選択がなされていて、元の先頭候補以外が選択された
                 _raiseAndDepressRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
+                updateMazegakiPriority(_candidates[0], _candidates[_origFirstCand]);
                 removeOtherThanFirst();
+                _LOG_DETAIL(L"kBest:\n{}", debugCandidates(10));
             }
         }
 
@@ -1595,17 +1700,23 @@ namespace lattice2 {
             return result;
         }
 
-        String debugKBestString(size_t maxLn = 100000) const {
-            String result = L"kanjiPreferredNextCands=" + kanjiPreferredNextCandsDebug() + L"\n\n";
-            result.append(_debugLog);
-            result.append(std::format(L"\nTotal candidates={}\n", _candidates.size()));
-            result.append(L"\nKBest:\n");
+        String debugCandidates(size_t maxLn = 100000) const {
+            String result;
             for (size_t i = 0; i < _candidates.size() && i < maxLn; ++i) {
                 result.append(std::to_wstring(i));
                 result.append(_T(": "));
                 result.append(_candidates[i].debugString());
                 result.append(_T("\n"));
             }
+            return result;
+        }
+
+        String debugKBestString(size_t maxLn = 100000) const {
+            String result = L"kanjiPreferredNextCands=" + kanjiPreferredNextCandsDebug() + L"\n\n";
+            result.append(_debugLog);
+            result.append(std::format(L"\nTotal candidates={}\n", _candidates.size()));
+            result.append(L"\nKBest:\n");
+            result.append(debugCandidates(maxLn));
             return result;
         }
 
@@ -1805,12 +1916,12 @@ namespace lattice2 {
 
             int totalCost = newCandStr.totalCost();
 
-            _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[{}], ngram={})"),
-                to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, ' ')), L"\t", L"|"), ngramCost);
+            _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[<{}>], ngram={})"),
+                to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost);
 
             if (IS_LOG_DEBUGH_ENABLED) {
-                if (!isStrokeBS) _debugLog.append(std::format(L"candStr={}, totalCost={}, candCost={} (morph={} [{}] , ngram = {})\n",
-                    to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, ' ')), L"\t", L"|"), ngramCost));
+                if (!isStrokeBS) _debugLog.append(std::format(L"candStr={}, totalCost={}, candCost={} (morph={} [<{}>] , ngram = {})\n",
+                    to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost));
             }
 
             if (!newCandidates.empty()) {
@@ -2024,7 +2135,7 @@ namespace lattice2 {
                         std::tie(s, numBS) = cand.applyAutoBushu(piece, strokeCount);  // 自動部首合成
                         if (!s.empty()) {
                             _LOG_DETAIL(_T("AutoBush FOUND"));
-                            CandidateString newCandStr(s, strokeCount, 0, penalty);
+                            CandidateString newCandStr(s, strokeCount, 0, penalty, cand.mazeFeat());
                             addCandidate(newCandidates, newCandStr, s, isStrokeBS);
                             bAutoBushuFound = true;
                         }
@@ -2039,7 +2150,7 @@ namespace lattice2 {
                             _iniCost = HEAD_SINGLE_CHAR_ORDER_COST * idx;
                             ++idx;
                         }
-                        CandidateString newCandStr(s, strokeCount, _iniCost, penalty);
+                        CandidateString newCandStr(s, strokeCount, _iniCost, penalty, cand.mazeFeat());
                         addCandidate(newCandidates, newCandStr, subStr, isStrokeBS);
                     }
                     // pieceが確定文字の場合
@@ -2171,7 +2282,7 @@ namespace lattice2 {
             _prevBS = isBSpiece;
 
             if (!isPaddingPiece && !isBSpiece) {
-                raiseAndDepressRealtimeNgramForDiffPart();
+                raiseAndDepressByCandSelection();
             }
 
             // BS でないか、以前の候補が無くなっていた
@@ -2210,7 +2321,7 @@ namespace lattice2 {
             std::vector<CandidateString> newCandidates;
             std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
             for (MString s : ss) {
-                CandidateString newCandStr(s, strokeCount, 0, 0);
+                CandidateString newCandStr(s, strokeCount);
                 newCandidates.push_back(newCandStr);
             }
             newCandidates.push_back(dummyCand);
@@ -2335,21 +2446,24 @@ namespace lattice2 {
         }
 
     private:
-        void insertCandidate(const MString& cand) {
-            CandidateString newCandStr(cand, _candidates.front().strokeLen(), 0, 0);
-            _candidates.insert(_candidates.begin(), newCandStr);
+        void insertCandidate(const CandidateString& cand) {
+            _candidates.insert(_candidates.begin(), cand);
             size_t nSameLen = getNumOfSameStrokeLen();
             arrangePenalties(nSameLen);
         }
 
+        //void insertCandidate(const MString& cand) {
+        //    insertCandidate(CandidateString(cand, _candidates.front().strokeLen(), 0, 0));
+        //}
+
         void updateByConversion(const MString& s) {
             if (!s.empty()) {
                 selectFirst();
-                insertCandidate(s);
+                insertCandidate(CandidateString(s, _candidates.front().strokeLen()));
             }
         }
 
-        void updateByConversions(const std::vector<MString>& convs) {
+        void updateByConversions(const std::vector<CandidateString>& convs) {
             selectFirst();
             for (auto iter = convs.rbegin(); iter != convs.rend(); ++iter) {
                 insertCandidate(*iter);
@@ -2370,6 +2484,7 @@ namespace lattice2 {
             _LOG_DETAIL(_T("CALLED"));
             if (!_candidates.empty()) {
                 updateByConversions(_candidates.front().applyMazegaki());
+                _LOG_DETAIL(L"kBest:\n{}", debugCandidates(SETTINGS->multiStreamBeamSize));
             }
         }
 
@@ -2488,8 +2603,8 @@ namespace lattice2 {
         }
 
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
-        void raiseAndDepressRealtimeNgramForDiffPart() override {
-            _kBestList.raiseAndDepressRealtimeNgramForDiffPart();
+        void raiseAndDepressByCandSelection() override {
+            _kBestList.raiseAndDepressByCandSelection();
         }
 
         // 部首合成
@@ -2516,6 +2631,8 @@ namespace lattice2 {
             //LOG_DEBUGH(_T("ENTER: currentStrokeCount={}, pieces: {}\nkBest:\n{}"), currentStrokeCount, formatStringOfWordPieces(pieces), _kBestList.debugString());
             _LOG_DETAIL(_T("INPUT: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, kanjiPref={}, strokeBack={}, rollOver={}, pieces: {}"),
                 _kBestList.size(), _kBestList.origFirstCand(), totalStrokeCount, currentStrokeCount, kanjiPreferredNext, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
+
+            _LOG_DETAIL(L"kBest:\n{}", _kBestList.debugCandidates(10));
 
             if (pieces.empty()) {
                 // pieces が空になるのは、同時打鍵の途中の状態などで、文字が確定していない場合
@@ -2590,7 +2707,7 @@ namespace lattice2 {
             }
             //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
-            _LOG_DETAIL(_T("LEAVE"));
+            _LOG_DETAIL(_T("LEAVE:\nkBest:\n{}"), _kBestList.debugCandidates(10));
             return LatticeResult(outStr, numBS);
         }
 

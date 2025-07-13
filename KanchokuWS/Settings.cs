@@ -16,7 +16,7 @@ namespace KanchokuWS
 
         //-------------------------------------------------------------------------------------
         /// <summary> バージョン </summary>
-        public static string Version => "1.3.0-α5";
+        public static string Version => "1.3.0-α6";
         public static string Version2 => "";
 
         //-------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ namespace KanchokuWS
         public static bool UseMorphAnalyzer { get; set; }
 
         /// <summary>形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)</summary>
-        public static string MorphMazeFormat { get; set; } = "maze1";
+        public static string MorphMazeFormat { get; set; } = "maze2";
 
         /// <summary>交ぜ書きエントリに対するペナルティ</summary>
         public static int MorphMazeEntryPenalty { get; set; } = 1000;
@@ -1631,9 +1631,9 @@ namespace KanchokuWS
 
             //------------------------------------------------------------------------------
             // 配列融合・編集バッファ
-            CommitMultiStreamElapsedTime = GetString("commitMultiStreamElapsedTime")._parseInt(0);    // 前回のデコーダ呼び出しから一定時間が経過したら、MulstStreamCommit を発行
-            EditBufferCaretChar = "▴"; // GetString("editBufferCaretChar", "▴");                      // 編集バッファのカレット文字
-            EditBufferFlushChar = GetString("editBufferFlushChar", "、。");                           // 編集バッファをフラッシュさせる文字
+            CommitMultiStreamElapsedTime = GetString("commitMultiStreamElapsedTime")._parseInt(0);      // 前回のデコーダ呼び出しから一定時間が経過したら、MultiStreamCommit を発行
+            EditBufferCaretChar = "▴"; // GetString("editBufferCaretChar", "▴");                        // 編集バッファのカレット文字
+            EditBufferFlushChar = GetString("editBufferFlushChar", "");                                 // 編集バッファをフラッシュさせる文字
 
             //-------------------------------------------------------------------------------------
             // ClassName ごとの設定
@@ -1764,7 +1764,7 @@ namespace KanchokuWS
             CollectRealtimeNgram = addDecoderSetting("collectRealtimeNgram", true);             // Realtime Ngram 情報を収集する
             UseTmpRealtimeNgramFile = addDecoderSetting("useTmpRealtimeNgramFile", false);      // 一時的な Realtime Ngram ファイルを使用する
             UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
-            MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze1");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
+            MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze2");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
             MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000);           // 交ぜ書きエントリに対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数

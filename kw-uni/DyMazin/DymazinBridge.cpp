@@ -32,7 +32,7 @@ namespace DymazinBridge {
         //av.push_back(L"-Owakati");
         //av.push_back(L"-Owakati2");     // 交ぜ書きの原形を含む
         String mazeOpt = L"-O";
-        mazeOpt += SETTINGS->morphMazeFormat == L"maze2" ? L"maze2" : L"maze1";
+        mazeOpt += SETTINGS->morphMazeFormat; // maze1 , maze2, maze3
         av.push_back(mazeOpt.c_str());     // 交ぜ書きの原形を含む(w/ feature)
         String mazePenaltyOpt(L"--maze-penalty=");
         mazePenaltyOpt.append(std::to_wstring(mazePenalty));
