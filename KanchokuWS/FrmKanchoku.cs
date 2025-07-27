@@ -2559,7 +2559,7 @@ namespace KanchokuWS
             if (!resultOK) return;
 
             // リアルタイムNgramファイルの保存
-            ExecCmdDecoder("saveRealtimeNgram", "");
+            ExecCmdDecoder("saveLatticeRelatedFiles", "");
 
             // 各種定義ファイルの読み込み
             ReloadDefFiles();

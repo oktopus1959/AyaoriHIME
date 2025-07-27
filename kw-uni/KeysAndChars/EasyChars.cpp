@@ -101,7 +101,7 @@ void EasyChars::DumpEasyCharsMemory() {
         for (auto x : set_) {
             chars.push_back(x);
         }
-        LOG_WARN(_T("CHARS: {}"), to_wstr(chars));
+        LOG_DEBUG(_T("CHARS: {}"), to_wstr(chars));
     }
 }
 

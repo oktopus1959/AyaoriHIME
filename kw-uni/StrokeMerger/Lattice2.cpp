@@ -195,6 +195,9 @@ namespace lattice2 {
     // 交ぜ書き優先度
     std::map<MString, int> mazegakiPriorDict;
 
+    // 交ぜ書き優先度がオンラインで更新されたか
+    bool mazegakiPrior_updated = false;
+
     inline bool isDecimalString(StringRef item) {
         return utils::reMatch(item, L"[+\\-]?[0-9]+");
     }
@@ -1039,31 +1042,60 @@ namespace lattice2 {
     }
 
     // 交ぜ書き優先辞書の読み込み
-    void loadMazegakiPriorFile(StringRef file) {
-        auto path = utils::joinPath(SETTINGS->rootDir, file);
+    void loadMazegakiPriorFile() {
+        auto path = utils::joinPath(SETTINGS->rootDir, MAZEGAKI_PRIOR_FILE);
         LOG_INFO(_T("LOAD: {}"), path.c_str());
         utils::IfstreamReader reader(path);
         if (reader.success()) {
             for (const auto& line : reader.getAllLines()) {
                 auto items = utils::split(utils::replace_all(utils::strip(utils::reReplace(line, L"#.*$", L"")), L"[ \t]+", L"\t"), '\t');
                 if (!items.empty() && !items[0].empty() && items[0][0] != L'#') {
-                    MString word = to_mstr(items[0]);
+                    MString mazeFeat = to_mstr(items[0]);
                     if (items.size() >= 2 && isDecimalString(items[1])) {
-                        mazegakiPriorDict[word] = std::stoi(items[1]);
+                        mazegakiPriorDict[mazeFeat] = std::stoi(items[1]);
                     } else {
-                        mazegakiPriorDict[word] = -DEFAULT_WORD_BONUS;       // mazegaki優先度のデフォルトは -DEFAULT_WORD_BONUS
+                        mazegakiPriorDict[mazeFeat] = -DEFAULT_WORD_BONUS;       // mazegaki優先度のデフォルトは -DEFAULT_WORD_BONUS
                     }
                 }
             }
+            LOG_INFO(_T("DONE: entries count={}"), mazegakiPriorDict.size());
         }
     }
 
+    // 交ぜ書き優先度の取得
     int getMazegakiPriorityCost(const MString& mazeFeat) {
         auto iter = mazegakiPriorDict.find(mazeFeat);
         if (iter == mazegakiPriorDict.end()) {
             return 0;
         } else {
             return iter->second;
+        }
+    }
+
+    // 交ぜ書き優先辞書の書き込み
+    void saveMazegakiPriorFile() {
+        LOG_INFO(L"CALLED: file={}, mazegakiPrior_updated={}", MAZEGAKI_PRIOR_FILE, mazegakiPrior_updated);
+        auto path = utils::joinPath(SETTINGS->rootDir, MAZEGAKI_PRIOR_FILE);
+        if (mazegakiPrior_updated) {
+            if (utils::moveFileToBackDirWithRotation(path, SETTINGS->backFileRotationGeneration)) {
+                LOG_INFO(_T("SAVE: mazegaki prior file path={}"), path.c_str());
+                utils::OfstreamWriter writer(path);
+                if (writer.success()) {
+                    for (const auto& pair : mazegakiPriorDict) {
+                        String line;
+                        int count = pair.second;
+                        if (count < 0 || count > 1 || (count == 1 && Reporting::Logger::IsWarnEnabled())) {
+                            // count が 0 または 1 の N-gramは無視する
+                            line.append(to_wstr(pair.first));           // mazeFeat
+                            line.append(_T("\t"));
+                            line.append(std::to_wstring(pair.second));  // ボーナス
+                            writer.writeLine(utils::utf8_encode(line));
+                        }
+                    }
+                    mazegakiPrior_updated = false;
+                }
+                LOG_INFO(_T("DONE: entries count={}"), mazegakiPriorDict.size());
+            }
         }
     }
 
@@ -1232,7 +1264,9 @@ namespace lattice2 {
 
             std::vector<MString> words;
             // まず、交ぜ書き優先で形態素解析する
-            MorphBridge::morphCalcCost(_str, words, -SETTINGS->morphMazeEntryPenalty, false);
+            _LOG_DETAIL(L"MorphBridge::morphCalcCost(_str={}, words, mazePenalty={}, allowNonTerminal=False)", to_wstr(_str), -SETTINGS->morphMazeEntryPenalty);
+            int cost = MorphBridge::morphCalcCost(_str, words, -SETTINGS->morphMazeEntryPenalty, false);
+            _LOG_DETAIL(L"{}: orig morph cost={}, morph={}", to_wstr(_str), cost, to_wstr(utils::join(words, '/')));
             bool tailMaze = false;          // 末尾の交ぜ書きのみが置換される
             for (auto iter = words.rbegin(); iter != words.rend(); ++iter) {
                 _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
@@ -1458,15 +1492,18 @@ namespace lattice2 {
         }
     };
 
+    // 交ぜ書き優先度の更新
     void updateMazegakiPriority(const CandidateString& raised, const CandidateString& depressed) {
         _LOG_DETAIL(L"ENTER: raised={}, depressed={}", raised.debugString(), depressed.debugString());
         if (!raised.mazeFeat().empty()) {
             mazegakiPriorDict[raised.mazeFeat()] += -DEFAULT_WORD_BONUS;
             _LOG_DETAIL(L"raised: mazegakiPriorDict[{}]={}", to_wstr(raised.mazeFeat()), mazegakiPriorDict[raised.mazeFeat()]);
+            mazegakiPrior_updated = true;
         }
         if (!depressed.mazeFeat().empty()) {
             mazegakiPriorDict[depressed.mazeFeat()] += DEFAULT_WORD_BONUS;
             _LOG_DETAIL(L"depressed: mazegakiPriorDict[{}]={}", to_wstr(depressed.mazeFeat()), mazegakiPriorDict[depressed.mazeFeat()]);
+            mazegakiPrior_updated = true;
         }
     }
 
@@ -2738,6 +2775,7 @@ std::unique_ptr<Lattice2> Lattice2::Singleton;
 
 void Lattice2::createLattice() {
     lattice2::loadCostAndNgramFile();
+    lattice2::loadMazegakiPriorFile();
     Singleton.reset(new lattice2::LatticeImpl());
 }
 
@@ -2765,8 +2803,13 @@ void Lattice2::depressRealtimeNgram(const MString& str) {
     lattice2::depressRealtimeNgram(str, true);
 }
 
-void Lattice2::saveRealtimeNgramFile() {
+//void Lattice2::saveRealtimeNgramFile() {
+//    lattice2::saveRealtimeNgramFile();
+//}
+
+void Lattice2::saveLatticeRelatedFiles() {
     lattice2::saveRealtimeNgramFile();
+    lattice2::saveMazegakiPriorFile();
 }
 
 void Lattice2::reloadGlobalPostRewriteMapFile() {

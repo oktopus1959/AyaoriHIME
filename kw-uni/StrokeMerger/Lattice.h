@@ -162,7 +162,9 @@ public:
 
     static void depressRealtimeNgram(const MString& str);
     
-    static void saveRealtimeNgramFile();
+    //static void saveRealtimeNgramFile();
+
+    static void saveLatticeRelatedFiles();
 
     static void reloadGlobalPostRewriteMapFile();
 
