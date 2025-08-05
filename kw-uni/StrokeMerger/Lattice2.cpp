@@ -553,6 +553,7 @@ namespace lattice2 {
         return ch == ' ' || ch == '|';
     }
 
+    // リアルタイムNgramの更新
     void updateRealtimeNgram(const MString& str) {
         _LOG_DETAIL(L"CALLED: str={}, collectRealtimeNgram={}", to_wstr(str), SETTINGS->collectRealtimeNgram);
         if (!SETTINGS->collectRealtimeNgram) return;
@@ -1179,6 +1180,10 @@ namespace lattice2 {
             : _str(s), _strokeLen(len), _cost(0), _penalty(0), _isNonTerminal(false) {
         }
 
+        CandidateString(const MString& s, int len, int cost, int penalty)
+            : _str(s), _strokeLen(len), _cost(cost), _penalty(penalty), _isNonTerminal(false) {
+        }
+
         CandidateString(const MString& s, int len, const MString& mazeFeat)
             : _str(s), _strokeLen(len), _cost(0), _penalty(0), _isNonTerminal(false), _mazeFeat(mazeFeat) {
         }
@@ -1258,14 +1263,19 @@ namespace lattice2 {
         std::vector<CandidateString> applyMazegaki() const {
             _LOG_DETAIL(L"ENTER: {}", to_wstr(_str));
             EASY_CHARS->DumpEasyCharsMemory();
+
+            // リアルタイムNgramの更新
+            updateRealtimeNgram(_str);
+
             MString tail;
             MString head;
             std::vector<MString> cands;
 
             std::vector<MString> words;
             // まず、交ぜ書き優先で形態素解析する
-            _LOG_DETAIL(L"MorphBridge::morphCalcCost(_str={}, words, mazePenalty={}, allowNonTerminal=False)", to_wstr(_str), -SETTINGS->morphMazeEntryPenalty);
-            int cost = MorphBridge::morphCalcCost(_str, words, -SETTINGS->morphMazeEntryPenalty, false);
+            int mazePenalty = -1;       // -SETTINGS->morphMazeEntryPenalty
+            _LOG_DETAIL(L"MorphBridge::morphCalcCost(_str={}, words, mazePenalty={}, allowNonTerminal=False)", to_wstr(_str), mazePenalty);
+            int cost = MorphBridge::morphCalcCost(_str, words, mazePenalty, false);
             _LOG_DETAIL(L"{}: orig morph cost={}, morph={}", to_wstr(_str), cost, to_wstr(utils::join(words, '/')));
             bool tailMaze = false;          // 末尾の交ぜ書きのみが置換される
             for (auto iter = words.rbegin(); iter != words.rend(); ++iter) {
@@ -2133,6 +2143,19 @@ namespace lattice2 {
         }
 
     private:
+        int getKanjiPrefferredPenalty(const CandidateString& cand, const WordPiece& piece) {
+            int penalty = 0;
+            const MString& pieceStr = piece.getString();
+            if (_kanjiPreferredNextCands.contains(cand.string())
+                && piece.numBS() <= 0 && !pieceStr.empty()
+                && (piece.strokeLen() == 1 || std::all_of(pieceStr.begin(), pieceStr.end(), [](mchar_t c) { return utils::is_hiragana(c);})) ) {
+                // 漢字優先
+                _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
+                penalty += NON_PREFERRED_PENALTY;
+            }
+            return penalty;
+        }
+
         // 素片のストロークと適合する候補だけを追加
         void addOnePiece(std::vector<CandidateString>& newCandidates, const WordPiece& piece, int strokeCount, int paddingLen, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("ENTER: _candidates.size={}, piece={}"), _candidates.size(), piece.debugString());
@@ -2140,6 +2163,8 @@ namespace lattice2 {
             bool isStrokeBS = piece.numBS() > 0;
             const MString& pieceStr = piece.getString();
             //int topStrokeLen = -1;
+
+            LOG_DEBUGH(L"kanjiPreferredNextCands={}", kanjiPreferredNextCandsDebug());
 
             if (pieceStr.size() == 1) setHighFreqJoshiStroke(strokeCount, pieceStr[0]);
 
@@ -2159,13 +2184,14 @@ namespace lattice2 {
                         penalty += singleHitHighFreqJoshiCost;
                         _LOG_DETAIL(L"Non rollover multi stroke penalty, total penalty={}", penalty);
                     }
-                    if (!isStrokeBS && /*cand.strokeLen() == topStrokeLen && */ !pieceStr.empty()
-                        && (piece.strokeLen() == 1 || std::all_of(pieceStr.begin(), pieceStr.end(), [](mchar_t c) { return utils::is_hiragana(c);}))
-                        && _kanjiPreferredNextCands.contains(cand.string())) {
-                        // 漢字優先
-                        _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
-                        penalty += NON_PREFERRED_PENALTY;
-                    }
+                    penalty += getKanjiPrefferredPenalty(cand, piece);
+                    //if (!isStrokeBS && /*cand.strokeLen() == topStrokeLen && */ !pieceStr.empty()
+                    //    && (piece.strokeLen() == 1 || std::all_of(pieceStr.begin(), pieceStr.end(), [](mchar_t c) { return utils::is_hiragana(c);}))
+                    //    && _kanjiPreferredNextCands.contains(cand.string())) {
+                    //    // 漢字優先
+                    //    _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
+                    //    penalty += NON_PREFERRED_PENALTY;
+                    //}
                     if (!bAutoBushuFound) {
                         MString s;
                         int numBS;
@@ -2356,9 +2382,10 @@ namespace lattice2 {
             _LOG_DETAIL(_T("ENTER: dummyCand.string()=\"{}\", piece.string()={}, strokeCount={}, paddingLen={}"),
                 to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount, paddingLen);
             std::vector<CandidateString> newCandidates;
+            int penalty = getKanjiPrefferredPenalty(dummyCand, piece);
             std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
             for (MString s : ss) {
-                CandidateString newCandStr(s, strokeCount);
+                CandidateString newCandStr(s, strokeCount, 0, penalty);
                 newCandidates.push_back(newCandStr);
             }
             newCandidates.push_back(dummyCand);
