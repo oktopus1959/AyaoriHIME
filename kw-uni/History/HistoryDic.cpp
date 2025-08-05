@@ -877,7 +877,7 @@ namespace {
             // set_ を vec に詰め替えてソートしてから回す。なお、'|' のままだと期待した順にならないので、'\t' に置換してからソートする(後で'|'に戻す)
             std::vector<MString> vec;
             std::transform(set_.begin(), set_.end(), std::back_inserter(vec), [](const auto& w) { return utils::replace_all(w, '|', '\t');});
-            if (vec.size() < 1000) std::sort(vec.begin(), vec.end());
+            if (vec.size() < 100000) std::sort(vec.begin(), vec.end());
             bool bRomanNeeded = utils::isRomanString(key);
 
             for (const auto& s : vec) {

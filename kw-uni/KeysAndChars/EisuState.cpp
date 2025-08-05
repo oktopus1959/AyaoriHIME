@@ -117,6 +117,27 @@ namespace {
             return result;
         }
 
+    private:
+        // 英字列の変換
+        bool _handleEisuConversion() {
+            bool result = false;
+            auto s = OUTPUT_STACK->backStringWithFlagUpto(2);
+            _LOG_DEBUGH(_T("ENTER: {}: tail={}"), Name, to_wstr(s));
+            size_t len = s.size();
+            if (len > 0) {
+                if ((len == 1 && is_upper_alphabet(s[0])) ||
+                    (is_alphabet(s[len - 2]) && is_lower_alphabet(s[len - 1])) ||
+                    (!is_alphabet(s[len - 2]) && is_upper_alphabet(s[len - 1]))) {
+                    // 履歴検索の実行(末尾文字が英小文字であるか、英大文字1文字でないと発動させない; "CO" の後の場合は、'O' がキーになるが、この場合は発動させない)
+                    MERGER_HISTORY_RESIDENT_STATE->handleNextCandTrigger();
+                    MY_NODE->prevHistSearchDeckeyCount = STATE_COMMON->GetTotalDecKeyCount();
+                    result = true;
+                }
+            }
+            _LOG_DEBUGH(_T("LEAVE: {}: result={}"), Name, result);
+            return result;
+        }
+
     public:
         // StrokeKey を処理する
         void handleStrokeKeys(int deckey) override {
@@ -126,13 +147,9 @@ namespace {
             myChar = DECKEY_TO_CHARS->GetCharFromDeckey(deckey);
             _LOG_DEBUGH(_T("ENTER: {}: deckey={:x}H({}), face={}"), Name, deckey, deckey, myChar);
             if (myChar == SETTINGS->eisuHistSearchChar) {
-                if (is_lower_alphabet(OUTPUT_STACK->back())) {
-                    //// 履歴検索の実行(末尾文字が英小文字でないと発動させない; "CO" の後の場合は、'O' がキーになるが、この場合は発動させない)
-                    //MERGER_HISTORY_RESIDENT_STATE->handleNextCandTrigger();
-                    //MY_NODE->prevHistSearchDeckeyCount = totalCnt;
-                    handleEisuConversion();
-                } else {
-                    // 末尾が小文字以外なら、英数モードを終了
+                if (!_handleEisuConversion()) {
+                    // 変換できなければ、英数モードを終了
+                    _LOG_DEBUGH(_T("Failed to convert"));
                     cancelMe();
                 }
             } else if (myChar == SETTINGS->eisuExitDecapitalChar) {
@@ -181,19 +198,13 @@ namespace {
 
         // 英字列の変換
         void handleEisuConversion() override {
-            _LOG_DEBUGH(_T("ENTER: {}"), Name);
-            if (is_lower_alphabet(OUTPUT_STACK->back())) {
-                // 履歴検索の実行(末尾文字が英小文字でないと発動させない; "CO" の後の場合は、'O' がキーになるが、この場合は発動させない)
-                MERGER_HISTORY_RESIDENT_STATE->handleNextCandTrigger();
-                MY_NODE->prevHistSearchDeckeyCount = STATE_COMMON->GetTotalDecKeyCount();
-            }
-            _LOG_DEBUGH(_T("LEAVE: {}"), Name);
+            _handleEisuConversion();
         }
 
         // 交ぜ書き変換キーでも英字列変換を行う
         void handleMazegakiConversion() override {
             _LOG_DEBUGH(_T("CALLED: {}"), Name);
-            handleEisuConversion();
+            _handleEisuConversion();
         }
 
         // 先頭文字の小文字化
