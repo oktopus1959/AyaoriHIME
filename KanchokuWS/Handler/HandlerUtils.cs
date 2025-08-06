@@ -9,6 +9,8 @@ namespace KanchokuWS.Handler
 {
     public class HandlerUtils
     {
+        //private static Logger logger = Logger.GetLogger();
+
         private static System.Text.RegularExpressions.Regex reTernaryOperator = new System.Text.RegularExpressions.Regex(@"\(([^)]+)\)\?\(([^)]+)\):\(([^)]+)\)");
 
         public static bool IsFKeySpec(string str)
@@ -32,13 +34,18 @@ namespace KanchokuWS.Handler
             return null;
         }
 
+        /// <summary>
+        /// 三項演算子か
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public static bool IsTernaryOperator(string str)
         {
             return str._getFirst() == '(' && str.Last() == ')' && str._reMatch(reTernaryOperator);
         }
 
         /// <summary>
-        /// (Q)?(A):(B) 形式だったら、Q に該当するウィンドウクラスか否かを判定し、当ならAを、否ならBを返す。<br/>
+        /// 三項演算子 (Q)?(A):(B) 形式だったら、Q に該当するウィンドウクラスか否かを判定し、当ならAを、否ならBを返す。<br/>
         /// (Q)?(A):(B) 形式でなければ、null を返す。
         /// </summary>
         /// <param name="str"></param>
@@ -47,9 +54,11 @@ namespace KanchokuWS.Handler
         {
             if (str._getFirst() == '(' && str.Last() == ')') {
                 var items = str._reScan(reTernaryOperator);
+                //logger.Warn($"items({items._safeCount()})={items._join("||")}");
                 if (items._safeCount() == 4) {
                     string activeWinClassName = ActiveWindowHandler.Singleton?.ActiveWinClassName._toLower();
                     var names = items[1]._toLower()._split('|');
+                    //logger.Warn($"str={str}, localName={localName}, winName={activeWinClassName}");
                     bool checkFunc()
                     {
                         if (names._notEmpty()) {
