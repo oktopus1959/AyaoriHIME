@@ -1276,6 +1276,20 @@ namespace utils
         return result;
     }
 
+    inline MString join(const std::set<MString>& list, const String& delim, size_t maxElem = 0)
+    {
+        MString result;
+        if (maxElem == 0) maxElem = list.size();
+        size_t n = 0;
+        MString mdelim = to_mstr(delim);
+        for (auto& e : list) {
+            if (n++ >= maxElem) break;
+            if (!result.empty()) result.append(mdelim);
+            result.append(e);
+        }
+        return result;
+    }
+
     /**
     * strip
     */

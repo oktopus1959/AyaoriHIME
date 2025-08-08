@@ -420,9 +420,6 @@ namespace {
         // ストロークを1つ前に戻す
         bool _strokeBack = false;
 
-        // 次の打鍵を単打ではなく、漢字など複数ストロークの第1打鍵を優先する
-        bool _kanjiPreferredNext = false;
-
         // RootStrokeState1用の状態集合
         StrokeStreamList _streamList1;
 
@@ -489,7 +486,6 @@ namespace {
                     _LOG_DETAIL(L"Clear streamLists");
                     clearStreamLists();
                     _strokeBack = false;
-                    _kanjiPreferredNext = false;
                     switch (deckey) {
                         //case ENTER_DECKEY:
                         //    LOG_DEBUGH(_T("EnterKey: clear streamList"));
@@ -553,6 +549,7 @@ namespace {
                         // 現在の先頭候補以外を削除する
                         LOG_DEBUGH(_T("MULTI_STREAM_SELECT_FIRST: commit first candidate"));
                         //WORD_LATTICE->selectFirst();
+                        WORD_LATTICE->clearKanjiPreferredNextCands();
                         WORD_LATTICE->removeOtherThanFirst();
                         break;
                     case HISTORY_FULL_CAND_DECKEY:
@@ -601,8 +598,10 @@ namespace {
                         //}
                         break;
                     case KANJI_PREFERRED_NEXT_DECKEY:
+                        // 次の打鍵を漢字のみ通す
                         LOG_DEBUGH(_T("KANJI_PREFERRED_NEXT_DECKEY"));
-                        _kanjiPreferredNext = true;
+                        WORD_LATTICE->removeOtherThanFirst();
+                        WORD_LATTICE->setKanjiPreferredNextCands();
                         break;
                     case CLEAR_STROKE_DECKEY:
                         _LOG_DETAIL(_T("CLEAR_STROKE_DECKEY: DO NOTHING"));
@@ -782,7 +781,6 @@ namespace {
                 LOG_DEBUGH(_T("CHECKPOINT-7"));
                 // Lattice処理
                 auto result = getLatticeResult(pieces);
-                _kanjiPreferredNext = false;
                 _strokeBack = false;
 
                 if (resultStr.numBS() > 0) result.numBS = resultStr.numBS();
@@ -845,7 +843,7 @@ namespace {
                 }
             }
             //LOG_DEBUGH(L"L:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
-            return WORD_LATTICE->addPieces(pieces, _kanjiPreferredNext, _strokeBack, _isKatakanaConversionMode);
+            return WORD_LATTICE->addPieces(pieces, _strokeBack, _isKatakanaConversionMode);
         }
 
         // チェーンをたどって不要とマークされた後続状態を削除する

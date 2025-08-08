@@ -1548,15 +1548,6 @@ namespace lattice2 {
         }
     }
 
-    // 先頭候補だけを残す
-    void pickupFirst(std::vector<CandidateString>& candidates) {
-        size_t nSameLen = getNumOfSameStrokeLen(candidates);
-        if (nSameLen > 1) {
-            arrangePenalties(candidates, nSameLen);
-            LOG_INFO(_T("CALLED: First candidate preferred."));
-        }
-    }
-
     // 表層形と交ぜ書き原形などの形態素情報
     class MorphInfo {
         MString surface;
@@ -1645,7 +1636,7 @@ namespace lattice2 {
             _rollOverStroke.clear();
             _origFirstCand = -1;
             //_extendedCandNum = 0;
-            if (clearAll) _kanjiPreferredNextCands.clear();
+            if (clearAll) clearKanjiPreferredNextCands();
         }
 
         void removeOtherThanKBest() {
@@ -2142,17 +2133,44 @@ namespace lattice2 {
             }
         }
 
+    public:
+        void setKanjiPreferredNextCands() {
+            //LOG_INFO(L"ENTER");
+            _kanjiPreferredNextCands.clear();
+            if (!_candidates.empty()) {
+                int topStrokeCnt = _candidates.front().strokeLen();
+                for (const auto& c : _candidates) {
+                    if (c.strokeLen() != topStrokeCnt) break;
+                    _kanjiPreferredNextCands.insert(c.string());
+                }
+            }
+            if (_kanjiPreferredNextCands.empty()) _kanjiPreferredNextCands.insert(EMPTY_MSTR);
+            //LOG_INFO(L"LEAVE: kanjiPreferredNextCands={}", kanjiPreferredNextCandsDebug());
+        }
+
+        void clearKanjiPreferredNextCands() {
+            _LOG_DETAIL(_T("CALLED: _kanjiPreferredNextCands={}"), kanjiPreferredNextCandsDebug());
+            _kanjiPreferredNextCands.clear();
+        }
+
+        String kanjiPreferredNextCandsDebug() const {
+            return std::to_wstring(_kanjiPreferredNextCands.size()) + L":['" + to_wstr(utils::join(_kanjiPreferredNextCands, L"', '")) + L"']";
+        }
+
     private:
         int getKanjiPrefferredPenalty(const CandidateString& cand, const WordPiece& piece) {
+            bool contained = _kanjiPreferredNextCands.contains(cand.string());
+            _LOG_DETAIL(L"cand.string()=\"{}\", {} in kanjiPreferred={}", to_wstr(cand.string()), contained ? L"CONTAINED" : L"NOT", kanjiPreferredNextCandsDebug());
             int penalty = 0;
             const MString& pieceStr = piece.getString();
-            if (_kanjiPreferredNextCands.contains(cand.string())
+            if (contained
                 && piece.numBS() <= 0 && !pieceStr.empty()
-                && (piece.strokeLen() == 1 || std::all_of(pieceStr.begin(), pieceStr.end(), [](mchar_t c) { return utils::is_hiragana(c);})) ) {
+                && (piece.strokeLen() == 1 || !utils::is_kanji(pieceStr[0])/*std::all_of(pieceStr.begin(), pieceStr.end(), [](mchar_t c) { return utils::is_hiragana(c);})*/)) {
                 // 漢字優先
                 _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
                 penalty += NON_PREFERRED_PENALTY;
             }
+            _LOG_DETAIL(_T("LEAVE: penalty={}"), penalty);
             return penalty;
         }
 
@@ -2178,20 +2196,18 @@ namespace lattice2 {
                 if (isStrokeBS || bStrokeCountMatched) {
                     // 素片のストロークと適合する候補
                     int penalty = cand.penalty();
-                    _LOG_DETAIL(L"cand.string()=\"{}\", contained in kanjiPreferred={}", to_wstr(cand.string()), _kanjiPreferredNextCands.contains(cand.string()));
                     if (singleHitHighFreqJoshiCost > 0) {
                         // 複数ストロークによる入力で、2打鍵目がロールオーバーでなかったらペナルティ
                         penalty += singleHitHighFreqJoshiCost;
                         _LOG_DETAIL(L"Non rollover multi stroke penalty, total penalty={}", penalty);
                     }
-                    penalty += getKanjiPrefferredPenalty(cand, piece);
-                    //if (!isStrokeBS && /*cand.strokeLen() == topStrokeLen && */ !pieceStr.empty()
-                    //    && (piece.strokeLen() == 1 || std::all_of(pieceStr.begin(), pieceStr.end(), [](mchar_t c) { return utils::is_hiragana(c);}))
-                    //    && _kanjiPreferredNextCands.contains(cand.string())) {
-                    //    // 漢字優先
-                    //    _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
-                    //    penalty += NON_PREFERRED_PENALTY;
-                    //}
+
+                    // 漢字優先か
+                    int kanjiPrefPenalty = getKanjiPrefferredPenalty(cand, piece);
+                    if (kanjiPrefPenalty > 0) continue;
+
+                    penalty += kanjiPrefPenalty;
+
                     if (!bAutoBushuFound) {
                         MString s;
                         int numBS;
@@ -2383,10 +2399,12 @@ namespace lattice2 {
                 to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount, paddingLen);
             std::vector<CandidateString> newCandidates;
             int penalty = getKanjiPrefferredPenalty(dummyCand, piece);
-            std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
-            for (MString s : ss) {
-                CandidateString newCandStr(s, strokeCount, 0, penalty);
-                newCandidates.push_back(newCandStr);
+            if (penalty == 0) {
+                std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
+                for (MString s : ss) {
+                    CandidateString newCandStr(s, strokeCount, 0, penalty);
+                    newCandidates.push_back(newCandStr);
+                }
             }
             newCandidates.push_back(dummyCand);
             _LOG_DETAIL(_T("LEAVE: newCandidates.size()={}"), newCandidates.size());
@@ -2436,24 +2454,6 @@ namespace lattice2 {
         }
 
     public:
-        void setKanjiPreferredNextCands() {
-            //LOG_INFO(L"ENTER");
-            _kanjiPreferredNextCands.clear();
-            if (!_candidates.empty()) {
-                int topStrokeCnt = _candidates.front().strokeLen();
-                for (const auto& c : _candidates) {
-                    if (c.strokeLen() != topStrokeCnt) break;
-                    _kanjiPreferredNextCands.insert(c.string());
-                }
-            }
-            if (_kanjiPreferredNextCands.empty()) _kanjiPreferredNextCands.insert(EMPTY_MSTR);
-            //LOG_INFO(L"LEAVE: kanjiPreferredNextCands={}", kanjiPreferredNextCandsDebug());
-        }
-
-        String kanjiPreferredNextCandsDebug() const {
-            return std::to_wstring(_kanjiPreferredNextCands.size()) + L":[" + to_wstr(utils::join(_kanjiPreferredNextCands, L',')) + L"]";
-        }
-
         // 先頭を表すダミーを用意しておく
         void addDummyCandidate() {
             if (_candidates.empty()) {
@@ -2567,9 +2567,6 @@ namespace lattice2 {
         // 前回生成された文字列
         MString _prevOutputStr;
 
-        // 漢字優先設定時刻
-        time_t _kanjiPreferredSettingDt;
-
         // 前回生成された文字列との共通する先頭部分の長さ
         size_t calcCommonPrefixLenWithPrevStr(const MString& outStr) {
             LOG_DEBUGH(_T("ENTER: outStr={}, prevStr={}"), to_wstr(outStr), to_wstr(_prevOutputStr));
@@ -2603,7 +2600,7 @@ namespace lattice2 {
 
     public:
         // コンストラクタ
-        LatticeImpl() : _kanjiPreferredSettingDt(0) {
+        LatticeImpl() {
             _LOG_DETAIL(_T("CALLED: Constructor"));
         }
 
@@ -2624,7 +2621,7 @@ namespace lattice2 {
             _LOG_DETAIL(_T("CALLED"));
             _startStrokeCount = 0;
             _prevOutputStr.clear();
-            _kBestList.clearKbests(utils::diffTime(_kanjiPreferredSettingDt) >= 3.0);     // 前回の設定時刻から３秒以上経過していたらクリアできる
+            _kBestList.clearKbests(false);
         }
 
         void removeOtherThanKBest() override {
@@ -2635,6 +2632,16 @@ namespace lattice2 {
         void removeOtherThanFirst() override {
             _LOG_DETAIL(_T("CALLED"));
             _kBestList.removeOtherThanFirst();
+        }
+
+        void setKanjiPreferredNextCands() override {
+            _LOG_DETAIL(_T("CALLED"));
+            _kBestList.setKanjiPreferredNextCands();
+            if (_startStrokeCount == 1) _startStrokeCount = 0;  // 先頭での漢字優先なら、0 クリアしておく(この後、clear()が呼ばれるので、それと状態を合わせるため)
+        }
+        void clearKanjiPreferredNextCands() override {
+            _LOG_DETAIL(_T("CALLED"));
+            _kBestList.clearKanjiPreferredNextCands();
         }
 
         bool isEmpty() override {
@@ -2686,15 +2693,15 @@ namespace lattice2 {
     public:
         // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
         // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
-        LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool kanjiPreferredNext, bool strokeBack, bool bKatakanaConversion) override {
+        LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool strokeBack, bool bKatakanaConversion) override {
             _LOG_DETAIL(_T("ENTER: pieces: {}"), formatStringOfWordPieces(pieces));
             int totalStrokeCount = (int)(STATE_COMMON->GetTotalDecKeyCount());
             if (_startStrokeCount == 0) _startStrokeCount = totalStrokeCount;
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
 
             //LOG_DEBUGH(_T("ENTER: currentStrokeCount={}, pieces: {}\nkBest:\n{}"), currentStrokeCount, formatStringOfWordPieces(pieces), _kBestList.debugString());
-            _LOG_DETAIL(_T("INPUT: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, kanjiPref={}, strokeBack={}, rollOver={}, pieces: {}"),
-                _kBestList.size(), _kBestList.origFirstCand(), totalStrokeCount, currentStrokeCount, kanjiPreferredNext, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
+            _LOG_DETAIL(_T("INPUT: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, strokeBack={}, rollOver={}, pieces: {}"),
+                _kBestList.size(), _kBestList.origFirstCand(), totalStrokeCount, currentStrokeCount, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
 
             _LOG_DETAIL(L"kBest:\n{}", _kBestList.debugCandidates(10));
 
@@ -2703,9 +2710,6 @@ namespace lattice2 {
                 _LOG_DETAIL(L"LEAVE: emptyResult");
                 return LatticeResult::emptyResult();
             }
-
-            //LOG_DEBUGH(L"A:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
-            // endPos における空の k-best path リストを取得
 
             //if (pieces.size() == 1) {
             //    auto s = pieces.front().getString();
@@ -2717,20 +2721,15 @@ namespace lattice2 {
             //}
             // フロントエンドから updateRealtimeNgram() を呼び出すので、ここではやる必要がない
 
-            if (kanjiPreferredNext) {
-                _LOG_DETAIL(L"KANJI PREFERRED NEXT");
-                // 現在の先頭候補を最優先に設定し、
-                selectFirst();
-                //LOG_DEBUGH(L"C:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
-                // 次のストロークを漢字優先とする
-                _kBestList.setKanjiPreferredNextCands();
-                if (_startStrokeCount == 1) _startStrokeCount = 0;  // 先頭での漢字優先なら、0 クリアしておく(この後、clear()が呼ばれるので、それと状態を合わせるため)
-                //LOG_DEBUGH(L"D:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
-                _kanjiPreferredSettingDt = utils::getSecondsFromEpochTime();
-                //LOG_DEBUGH(L"E:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
-            }
+            //if (kanjiPreferredNext) {
+            //    _LOG_DETAIL(L"KANJI PREFERRED NEXT");
+            //    // 先頭候補だけを残す
+            //    _kBestList.removeOtherThanFirst();
+            //    // 次のストロークを漢字優先とする
+            //    _kBestList.setKanjiPreferredNextCands();
+            //    if (_startStrokeCount == 1) _startStrokeCount = 0;  // 先頭での漢字優先なら、0 クリアしておく(この後、clear()が呼ばれるので、それと状態を合わせるため)
+            //}
 
-            //LOG_DEBUGH(L"F:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             _LOG_DETAIL(L"_kBestList.size={}", _kBestList.size());
 
             //// すべての単語素片が1文字で、それが漢字・ひらがな・カタカナ以外だったら、現在の先頭候補を優先させる
@@ -2771,7 +2770,7 @@ namespace lattice2 {
             }
             //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
-            _LOG_DETAIL(_T("LEAVE:\nkBest:\n{}"), _kBestList.debugCandidates(10));
+            _LOG_DETAIL(_T("LEAVE:\nkanjiPreferredNextCands={}\nkBest:\n{}"), _kBestList.kanjiPreferredNextCandsDebug(),  _kBestList.debugCandidates(10));
             return LatticeResult(outStr, numBS);
         }
 
