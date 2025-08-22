@@ -3,6 +3,8 @@
 #include "DyMazinLib.h"
 #include "Settings/Settings.h"
 
+#include "path_utils.h"
+
 #if 1
 #undef _LOG_DEBUGH
 #if 1
@@ -26,6 +28,8 @@ namespace DymazinBridge {
         av.push_back(rcfile.c_str());
         av.push_back(L"-d");
         av.push_back(dicdir.c_str());
+        av.push_back(L"--userdic");
+        av.push_back(utils::join_path(dicdir, L"user.dic").c_str());
         String maxGroupSize(L"--max-grouping-size=");
         maxGroupSize.append(std::to_wstring(unkMax));
         av.push_back(maxGroupSize.c_str());

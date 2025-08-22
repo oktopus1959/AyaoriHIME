@@ -2165,7 +2165,7 @@ namespace lattice2 {
             const MString& pieceStr = piece.getString();
             if (contained
                 && piece.numBS() <= 0 && !pieceStr.empty()
-                && (piece.strokeLen() == 1 || !utils::is_kanji(pieceStr[0])/*std::all_of(pieceStr.begin(), pieceStr.end(), [](mchar_t c) { return utils::is_hiragana(c);})*/)) {
+                && (piece.strokeLen() == 1 || utils::is_hiragana(pieceStr[0]))) {
                 // 漢字優先
                 _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
                 penalty += NON_PREFERRED_PENALTY;
