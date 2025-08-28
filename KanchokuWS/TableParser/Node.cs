@@ -387,6 +387,7 @@ namespace KanchokuWS.TableParser
             if ((node.IsStringNode() || node.outputStr._notEmpty()) && node.outputStr._ne(outputStr)) {
                 if (outputStr._isEmpty() || IsFunctionNode() || !node.IsFunctionNode()) {
                     bOverwrite = outputStr._notEmpty() && !IsFunctionNode();
+#if false
                     if (bOverwrite) {
                         // 文字が重複したら、"|"で区切って連結する
                         var s1 = outputStr.GetSafeString();
@@ -398,6 +399,9 @@ namespace KanchokuWS.TableParser
                     } else {
                         outputStr = node.outputStr;
                     }
+#else
+                    outputStr = node.outputStr;
+#endif
                     //isBareStr = node.isBareStr;
                 }
             }

@@ -135,8 +135,9 @@ namespace {
             //    // また、漢直側で「い→ら」⇒「運」を順序ありで再定義する必要もなくなる
             //    deckey = UNSHIFT_DECKEY(deckey);
             //    _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
-            if (DeckeyUtil::is_ordered_combo(deckey) && !IsRootTableOrderedCombination()) {
-                // 当キーが順序ありの同時打鍵で、RootStrokeTableが同時打鍵テーブルでないなら通常面に落としこむ。
+            if (DeckeyUtil::is_ordered_combo(deckey) && !NEXT_NODE(deckey) /*!IsRootTableOrderedCombination()*/) {
+                // //当キーが順序ありの同時打鍵で、RootStrokeTableが同時打鍵テーブルでないなら通常面に落としこむ。
+                // 当キーが順序ありの同時打鍵だが、該当するノード(SubTable)がないなら通常面に落としこむ。
                 // 漢直側でスペース前置の「<SP> O I」⇒「乖」を順序ありで再定義する必要がなくなる
                 deckey = UNSHIFT_DECKEY(deckey);
                 _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);

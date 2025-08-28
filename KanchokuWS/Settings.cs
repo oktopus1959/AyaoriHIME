@@ -16,7 +16,7 @@ namespace KanchokuWS
 
         //-------------------------------------------------------------------------------------
         /// <summary> バージョン </summary>
-        public static string Version => "1.3.0-α6";
+        public static string Version => "1.3.0-α7";
         public static string Version2 => "";
 
         //-------------------------------------------------------------------------------------
@@ -173,6 +173,9 @@ namespace KanchokuWS
 
         /// <summary>交ぜ書きエントリに対するペナルティ</summary>
         public static int MorphMazeEntryPenalty { get; set; } = 1000;
+
+        /// <summary>交ぜ書きエントリの接続に対するペナルティ</summary>
+        public static int MorphMazeConnectionPenalty { get; set; } = 1000;
 
         /// <summary>非終端形態素の単語コスト</summary>
         public static int MorphNonTerminalCost { get; set; } = 5000;
@@ -950,6 +953,17 @@ namespace KanchokuWS
         //public static bool ThirdComboKeyNeedToBeReleaseFirst { get; set; }
 
         //------------------------------------------------------------------------------
+        // Tap Dance
+        //------------------------------------------------------------------------------
+        public static int TapDanceHoldTimeMs { get; set; }
+        public static string TapDanceHoldTimeMs_PropName = "tapDanceHoldTimeMs";
+
+        public static string TapDanceHoldShiftPlane { get; set; }
+        public static string TapDanceHoldShiftPlane_PropName = "tapDanceHoldShiftPlane";
+
+        public static int TapDanceHoldShiftPlaneOffset { get; set; }
+
+        //------------------------------------------------------------------------------
         // IME連携
         //------------------------------------------------------------------------------
         /// <summary> IMEの状態に連携してON/OFFする </summary>
@@ -1599,6 +1613,12 @@ namespace KanchokuWS
                 GetString(HeadComboKeysListForZeroOverlappingTime_PropName)._strip()._split(',').
                 Select(x => x._split(':').Select(y => y._parseInt(-1)).ToList()).ToList();
 
+            //------------------------------------------------------------------------------
+            // Tap Dance
+            TapDanceHoldTimeMs = GetString(TapDanceHoldTimeMs_PropName)._parseInt(0);
+            TapDanceHoldShiftPlane = GetString(TapDanceHoldShiftPlane_PropName);
+            TapDanceHoldShiftPlaneOffset = DecoderKeys.GetShiftPlaneOffset(TapDanceHoldShiftPlane);
+
             //-------------------------------------------------------------------------------------
             // IME連携
             ImeCooperationEnabled = GetString(ImeCooperationEnabled_PropName)._parseBool(false);
@@ -1766,6 +1786,7 @@ namespace KanchokuWS
             UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
             MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze2");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
             MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000);           // 交ぜ書きエントリに対するペナルティ
+            MorphMazeConnectionPenalty = addDecoderSetting("morphMazeConnectionPenalty", 1000); // 交ぜ書きエントリの接続に対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする

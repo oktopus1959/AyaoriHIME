@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utils;
 
 // このファイルを修正したら make_deckey_id_def.sh で kw-uni/deckey_id_def.h を作成し直すこと
 
@@ -39,6 +40,21 @@ namespace KanchokuWS
 
         // SHIFT_A修飾DECKEYの始まり (200)
         public const int SHIFT_A_DECKEY_START = SHIFT_DECKEY_END;
+
+        // SHIFT_B修飾DECKEYの始まり (300)
+        public const int SHIFT_B_DECKEY_START = SHIFT_A_DECKEY_START + PLANE_DECKEY_NUM;
+
+        // SHIFT_C修飾DECKEYの始まり (400)
+        public const int SHIFT_C_DECKEY_START = SHIFT_B_DECKEY_START + PLANE_DECKEY_NUM;
+
+        // SHIFT_D修飾DECKEYの始まり (500)
+        public const int SHIFT_D_DECKEY_START = SHIFT_C_DECKEY_START + PLANE_DECKEY_NUM;
+
+        // SHIFT_E修飾DECKEYの始まり (600)
+        public const int SHIFT_E_DECKEY_START = SHIFT_D_DECKEY_START + PLANE_DECKEY_NUM;
+
+        // SHIFT_F修飾DECKEYの始まり (700)
+        public const int SHIFT_F_DECKEY_START = SHIFT_E_DECKEY_START + PLANE_DECKEY_NUM;
 
         // 面の総数(通常面、SHIFT面、SHIFT_A～SHIFT_F面)
         public const int ALL_PLANE_NUM = 8;
@@ -350,6 +366,19 @@ namespace KanchokuWS
         {
             int dk = deckey % PLANE_DECKEY_NUM;
             return dk == STROKE_SPACE_DECKEY || dk >= FUNC_DECKEY_START;
+        }
+
+        public static int GetShiftPlaneOffset(string planeName)
+        {
+            switch (planeName._toLower()) {
+                case "a": return SHIFT_A_DECKEY_START;
+                case "b": return SHIFT_B_DECKEY_START;
+                case "c": return SHIFT_C_DECKEY_START;
+                case "d": return SHIFT_D_DECKEY_START;
+                case "e": return SHIFT_E_DECKEY_START;
+                case "f": return SHIFT_F_DECKEY_START;
+                default: return 0;
+            }
         }
     }
 }

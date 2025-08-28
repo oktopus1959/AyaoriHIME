@@ -272,6 +272,11 @@ namespace KanchokuWS.TableParser
                             case "ordered":
                                 shiftKeyKind = ShiftKeyKind.PrefixSuccessiveShift;
                                 break;
+                            case "stacklike":
+                            case "covering":
+                                shiftKeyKind = ShiftKeyKind.PrefixSuccessiveShift;
+                                isStackLikeCombo = true;
+                                break;
                             case "oneshot":
                                 shiftKeyKind = ShiftKeyKind.UnorderedOneshotShift;
                                 break;
@@ -286,7 +291,7 @@ namespace KanchokuWS.TableParser
                                 break;
                         }
                         ReadWord();
-                        if (CurrentStr._toLower() == "stacklike") {
+                        if (CurrentStr._toLower() == "stacklike" || CurrentStr._toLower() == "covering") {
                             isStackLikeCombo = true;
                         }
                     //} else if (lcStr == "enablecomboonboth" || lcStr == "enablealways" || lcStr == "enabledalways") {

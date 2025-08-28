@@ -13,6 +13,8 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
     /// </summary>
     public class Stroke
     {
+        private static Logger logger = Logger.GetLogger(true);
+
         /// <summary>
         /// 同時打鍵検索用にモジュロ化したキーコードを返す<br/>
         /// これはシフトキーや拡張シフトキーで入力されたコードを、シフトを無視して検索するために必要となる
@@ -44,6 +46,12 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
 
         /// <summary>漢直モード(デコーダOn)か</summary>
         public bool IsKanchokuMode { get; private set; }
+
+        /// <summary>Tap Dnace によるシフト状態のチェック済みか</summary>
+        private bool checkedHoldFlagByTapDance = false;
+
+        /// <summary>Tap Dnace によってシフト状態が移行済みか</summary>
+        private bool isHoldByTapDance = false;
 
         /// <summary>スペースキーまたは機能キーか</summary>
         public bool IsSpaceOrFunc => DecoderKeys.IsSpaceOrFuncKey(OrigDecoderKey);
@@ -126,13 +134,13 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         public DateTime KeyDt { get; private set; }
 
         /// <summary>キーの押下間隔(ミリ秒)</summary>
-        public double TimeSpanMs(Stroke stk)
+        public double TimeDiffMs(Stroke stk)
         {
             return stk.KeyDt >= KeyDt ? (stk.KeyDt - KeyDt).TotalMilliseconds : (KeyDt - stk.KeyDt).TotalMilliseconds;
         }
 
         /// <summary>dtまでの経過時間</summary>
-        public double TimeSpanMs(DateTime dt)
+        public double TimeDiffMs(DateTime dt)
         {
             return dt >= KeyDt ? (dt - KeyDt).TotalMilliseconds : (KeyDt - dt).TotalMilliseconds;
         }
@@ -141,6 +149,28 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         /// コンストラクタ
         /// </summary>
         public Stroke() { }
+
+        ///// <summary>
+        ///// コピーコンストラクタ
+        ///// </summary>
+        //public Stroke(Stroke s)
+        //{
+        //    OrigDecoderKey = s.OrigDecoderKey;
+        //    IsKanchokuMode = s.IsKanchokuMode;
+        //    checkedHoldFlagByTapDance = s.checkedHoldFlagByTapDance;
+        //    IsSuccessiveShift = s.IsSuccessiveShift;
+        //    IsOneshotShift = s.IsSequentialShift;
+        //    IsPrefixShift = s.IsPrefixShift;
+        //    IsComboShift = s.IsComboShift;
+        //    IsSequentialShift = s.IsSequentialShift;
+        //    IsMajorComboShift = s.IsMainComboShift;
+        //    IsSingleHittable = s.IsSingleHittable;
+        //    HasStringOrSingleHittable = s.HasStringOrSingleHittable;
+        //    IsJustSingleHit = s.IsJustSingleHit;
+        //    HasDecKeyList = s.HasDecKeyList;
+        //    HasString = s.HasString;
+        //    KeyDt = s.KeyDt;
+        //}
 
         /// <summary>
         /// コンストラクタ(引数あり)
@@ -154,8 +184,8 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             IsPrefixShift = KeyCombinationPool.IsComboPrefix(decKey);
             IsComboShift = KeyCombinationPool.IsComboShift(decKey);
             IsSequentialShift = KeyCombinationPool.IsSequential(decKey);
-            IsMajorComboShift = KeyCombinationPool.CurrentPool.IsMajorComboShift(decKey);
-            var entry = KeyCombinationPool.CurrentPool.GetEntry(decKey);
+            IsMajorComboShift = KeyCombinationPool._IsMajorComboShift(decKey);
+            var entry = KeyCombinationPool._GetEntry(decKey);
             IsSingleHittable = entry == null || entry.HasDecoderOutput;         // 同時打鍵として使われていない(entry == null)か、出力文字または機能が定義されている
             HasStringOrSingleHittable = entry == null || entry.HasString;       // 同時打鍵として使われていない(entry == null)か、出力文字が定義されている
             IsJustSingleHit = entry == null || entry.IsTerminal;                // 同時打鍵として使われていない(entry == null)か、終端キーである
@@ -163,6 +193,43 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             HasString = entry != null && entry.HasString;                       // 同時打鍵として使われており(entry != null)、出力文字が定義されている
             KeyDt = dt;
         }
+
+        /// <summary>
+        /// 他キーのDown、または自キーのUP時に、長押しによるHold状態への移行をチェックする
+        /// </summary>
+        /// <param name="deckey">Down時は負数, Up時は当刻DecoderKeyコード</param>
+        /// <param name="dt"></param>
+        /// <param name="holdTimeMs"></param>
+        public void CheckAndSetHoldFlag(int deckey, DateTime dt, int holdTimeMs)
+        {
+            logger.DebugH(() => $"ENTER: deckey={deckey}, dt={dt.ToString("HH:MM:ss.fff")}, holdTimeMs={holdTimeMs}");
+            if (deckey < 0 || deckey == OrigDecoderKey) {
+                if (!checkedHoldFlagByTapDance && TimeDiffMs(dt) > holdTimeMs) {
+                    //list[i] = Stroke.makeStrokeShiftedByTapDance(s);
+                    isHoldByTapDance = true;
+                    logger.DebugH("SET FLAG");
+                }
+                checkedHoldFlagByTapDance = true;
+                logger.DebugH("CHECKED");
+            }
+        }
+
+        public int HoldDecoderKey()
+        {
+            int deckey = OrigDecoderKey;
+            if (isHoldByTapDance && deckey < DecoderKeys.PLANE_DECKEY_NUM) {
+                deckey += Settings.TapDanceHoldShiftPlaneOffset;
+            }
+            return deckey;
+        }
+
+        //public int HoldDecoderKey(int deckey)
+        //{
+        //    if (isHoldByTapDance && deckey < DecoderKeys.PLANE_DECKEY_NUM) {
+        //        deckey = OrigDecoderKey + Settings.TapDanceHoldShiftPlaneOffset;
+        //    }
+        //    return deckey;
+        //}
 
         public string DebugString() =>
             $"DecKeyCode={OrigDecoderKey}, ModuloKeyCode={ModuloDecKey}, IsComobShift={IsComboShift}, HasStringOrSingleHittable={HasStringOrSingleHittable}, HasDecKeyList={HasDecKeyList}, HasString={HasString}";

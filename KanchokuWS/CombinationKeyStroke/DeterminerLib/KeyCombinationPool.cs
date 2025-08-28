@@ -35,7 +35,51 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         private static KeyCombinationPool currentPoolA = SingletonA1;
 
         // 現在使用中のKeyCombinaitonPool
-        public static KeyCombinationPool CurrentPool { get; private set; } = SingletonK1;
+        private static KeyCombinationPool CurrentPool { get; set; } = SingletonA1;
+        private static KeyCombinationPool CurrentPool1 { get; set; } = SingletonA1;
+        private static KeyCombinationPool CurrentPool2 { get; set; } = SingletonA2;
+
+
+
+        public static bool IsComboEnabled {
+            get {  return CurrentPool1 != null || CurrentPool2 != null; }
+        }
+
+        public static bool _Enabled => (CurrentPool1?.Enabled ?? CurrentPool2?.Enabled) ?? false;
+
+        public static bool _ContainsSuccessiveShiftKey => (CurrentPool1?.ContainsSuccessiveShiftKey ?? CurrentPool2?.ContainsSuccessiveShiftKey) ?? false;
+
+        public static bool _ContainsComboShiftKey => (CurrentPool1?.ContainsComboShiftKey ?? CurrentPool2?.ContainsComboShiftKey) ?? false;
+
+        public static KeyCombination _GetEntry(IEnumerable<Stroke> strokeList, bool bStackLikePreffered = true)
+        {
+            return (CurrentPool1?.GetEntry(strokeList, bStackLikePreffered) ?? CurrentPool2?.GetEntry(strokeList, bStackLikePreffered)) ?? null;
+        }
+
+        public static KeyCombination _GetEntry(Stroke stroke)
+        {
+            return _GetEntry(stroke.OrigDecoderKey, stroke.ModuloDecKey);
+        }
+
+        public static KeyCombination _GetEntry(int decKey)
+        {
+            return _GetEntry(decKey, Stroke.ModuloizeKey(decKey));
+        }
+
+        public static KeyCombination _GetEntry(int origDecKey, int moduloDecKey)
+        {
+            return (CurrentPool1?.GetEntry(origDecKey, moduloDecKey) ?? CurrentPool2?.GetEntry(origDecKey, moduloDecKey)) ?? null;
+        }
+
+        public static bool _IsRepeatableKey(int keyCode)
+        {
+            return (CurrentPool1?.IsRepeatableKey(keyCode) ?? CurrentPool2?.IsRepeatableKey(keyCode)) ?? false;
+        }
+
+        public static bool _IsMajorComboShift(int keyCode)
+        {
+            return (CurrentPool1?.IsMajorComboShift(keyCode) ?? CurrentPool2?.IsMajorComboShift(keyCode)) ?? false;
+        }
 
         private static string detectCurrentPool()
         {
@@ -59,6 +103,8 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             currentPoolK = SingletonK1;
             currentPoolA = SingletonA1;
             CurrentPool = currentPoolA;
+            CurrentPool1 = currentPoolA;
+            CurrentPool2 = currentPoolA;
         }
 
         public static void ChangeCurrentPoolBySelectedTable(int tableNum, bool bDecoderOn)
@@ -81,8 +127,12 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         {
             if (bDecoderOn) {
                 CurrentPool = currentPoolK;
+                CurrentPool1 = SingletonK1;
+                CurrentPool2 = SingletonK2;
             } else {
                 CurrentPool = currentPoolA;
+                CurrentPool1 = SingletonA1;
+                CurrentPool2 = SingletonA2;
             }
             if (Settings.LoggingTableFileInfo) logger.DebugH(() => $"CurrentPool={detectCurrentPool()}, Enabled={CurrentPool.Enabled}");
         }
@@ -415,6 +465,11 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             return MiscKeys.IsRepeatable(keyCode);
         }
 
+        //public bool IsExtendedShiftPlaneKey(int keyCode)
+        //{
+        //    return MiscKeys.IsExtendedShiftPlaneKey((int)keyCode);
+        //}
+
         ///// <summary>
         ///// PreRewriteとして扱いうるキーの設定
         ///// </summary>
@@ -507,7 +562,8 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         /// <summary>keyCode が ComboShiftKeyとしても扱われるか否かを返す</summary>
         public static bool IsComboShift(int keyCode)
         {
-            return ComboShiftKeyPool.IsComboShift(CurrentPool.GetShiftKeyKind(keyCode));
+            //return ComboShiftKeyPool.IsComboShift(CurrentPool.GetShiftKeyKind(keyCode));
+            return _foo(keyCode, ck => ComboShiftKeyPool.IsComboShift(ck));
         }
 
         /// <summary>keyCode が SpaceOrFuncComboShiftKeyとしても扱われるか否かを返す</summary>
@@ -519,25 +575,36 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         /// <summary>keyCode が連続シフトとしても扱われるか否かを返す</summary>
         public static bool IsComboSuccessive(int keyCode)
         {
-            return ComboShiftKeyPool.IsSuccessiveShift(CurrentPool.GetShiftKeyKind(keyCode));
+            //return ComboShiftKeyPool.IsSuccessiveShift(CurrentPool.GetShiftKeyKind(keyCode));
+            return _foo(keyCode, ck => ComboShiftKeyPool.IsSuccessiveShift(ck));
         }
 
         /// <summary>keyCode がワンショットシフトとしても扱われるか否かを返す</summary>
         public static bool IsComboOneshot(int keyCode)
         {
-            return ComboShiftKeyPool.IsOneshotShift(CurrentPool.GetShiftKeyKind(keyCode));
+            //return ComboShiftKeyPool.IsOneshotShift(CurrentPool.GetShiftKeyKind(keyCode));
+            return _foo(keyCode, ck => ComboShiftKeyPool.IsOneshotShift(ck));
         }
 
         /// <summary>keyCode が前置シフトとしても扱われるか否かを返す</summary>
         public static bool IsComboPrefix(int keyCode)
         {
-            return ComboShiftKeyPool.IsPrefixShift(CurrentPool.GetShiftKeyKind(keyCode));
+            //return ComboShiftKeyPool.IsPrefixShift(CurrentPool.GetShiftKeyKind(keyCode));
+            return _foo(keyCode, ck => ComboShiftKeyPool.IsPrefixShift(ck));
         }
 
         /// <summary>keyCode が順次シフトか否かを返す</summary>
         public static bool IsSequential(int keyCode)
         {
-            return ComboShiftKeyPool.IsSequentialShift(CurrentPool.GetShiftKeyKind(keyCode));
+            //return ComboShiftKeyPool.IsSequentialShift(CurrentPool.GetShiftKeyKind(keyCode));
+            return _foo(keyCode, ck => ComboShiftKeyPool.IsSequentialShift(ck));
+        }
+
+        private static bool _foo(int keyCode, Func<ComboKind, bool> func)
+        {
+            return CurrentPool1 != null ? func(CurrentPool1.GetShiftKeyKind(keyCode))
+                 : CurrentPool2 != null ? func(CurrentPool2.GetShiftKeyKind(keyCode))
+                 : false;
         }
 
         public void DebugPrint(bool bAll = false)

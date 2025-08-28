@@ -282,7 +282,7 @@ namespace KanchokuWS.CombinationKeyStroke
         //    KeyCombinationPool.UseSecondaryPool(bDecoderOn);
         //}
 
-        //public static bool IsEnabled => KeyCombinationPool.CurrentPool.Enabled;
+        //public static bool IsEnabled => KeyCombinationPool._Enabled;
 
         /// <summary>
         /// 同時打鍵リストをクリアする
@@ -360,6 +360,9 @@ namespace KanchokuWS.CombinationKeyStroke
 
             strokeList.CheckComboShiftKeyUpDt(decKey);
 
+            // 先に TapDance による Holdフラグを立てておく
+            strokeList.CheckAndSetHoldFlagByTapDance(-1, dt);
+
             List<ResultKeyStroke> result = null;
             bool bUnconditional = false;
 
@@ -370,7 +373,7 @@ namespace KanchokuWS.CombinationKeyStroke
                 if (!bWaitSecondStroke) frmMain.IsWaitingSecondStrokeLocked = false;
 
                 var stroke = new Stroke(decKey, bDecoderOn, dt);
-                var combo = KeyCombinationPool.CurrentPool.GetEntry(stroke);
+                var combo = KeyCombinationPool._GetEntry(stroke);
 
                 logger.InfoH(() => $"combo={(combo == null ? "null" : combo.DecKeysDebugString())}, DecoderOn={bDecoderOn}, WaitSecondStroke={bWaitSecondStroke}");
 
@@ -386,7 +389,7 @@ namespace KanchokuWS.CombinationKeyStroke
                         // デコーダが英数モードだったので、そのまま返す
                         logger.InfoH("decoder is EISU mode");
                         result = makeSingleHitResult();
-                    } else if (combo?.IsTerminal == true && KeyCombinationPool.CurrentPool.IsRepeatableKey(decKey)) {
+                    } else if (combo?.IsTerminal == true && KeyCombinationPool._IsRepeatableKey(decKey)) {
                         // 終端、かつキーリピートが可能なキーだった(BackSpaceとか)ので、それを返す
                         logger.InfoH("terminal and repeatable key");
                         result = makeSingleHitResult();
@@ -403,7 +406,7 @@ namespace KanchokuWS.CombinationKeyStroke
                                 // DecoderがOFFのときはキーリピート扱いとする
                                 logger.InfoH("Decoder OFF, so repeat key");
                                 result = makeSingleHitResult();
-                            } else if (KeyCombinationPool.CurrentPool.IsRepeatableKey(decKey)) {
+                            } else if (KeyCombinationPool._IsRepeatableKey(decKey)) {
                                 // キーリピートが可能なキー
                                 logger.InfoH("non terminal and repeatable key");
                                 result = makeSingleHitResult();
@@ -578,6 +581,9 @@ namespace KanchokuWS.CombinationKeyStroke
 
             // 第1打鍵待ちに戻ったら、一時的な同時打鍵無効化をキャンセルする
             //checkStrokeCountReset();
+
+            // 先に TapDance による Holdフラグを立てておく
+            strokeList.CheckAndSetHoldFlagByTapDance(decKey, dt);
 
             bool bRollOverStroke = strokeList.FirstUnprocKey?.IsRollOver ?? false;
             bool bUnconditional = false;

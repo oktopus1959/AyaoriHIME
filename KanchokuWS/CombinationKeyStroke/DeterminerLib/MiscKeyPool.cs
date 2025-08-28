@@ -24,6 +24,20 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             repeatableKeySet.Add(keyCode);
         }
 
+        ///// <summary>拡張シフトプレーンキーの集合</summary>
+        //private HashSet<int> extendedShiftPlaneKeySet = new HashSet<int>();
+
+        //public bool IsExtendedShiftPlaneKey(int key)
+        //{
+        //    return extendedShiftPlaneKeySet.Contains(key);
+        //}
+
+        ///// <summary>拡張シフトプレーンキーの設定</summary>
+        //public void AddExtendedShiftPlaneKey(int Key)
+        //{
+        //    extendedShiftPlaneKeySet.Add(Key);
+        //}
+
         /// <summary>前置書き換えなキーの集合</summary>
         //private HashSet<int> preRewriteKeySet = new HashSet<int>();
 
@@ -41,6 +55,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         public void Clear()
         {
             repeatableKeySet.Clear();
+            //extendedShiftPlaneKeySet.Clear();
             //preRewriteKeySet.Clear();
         }
 

@@ -253,10 +253,12 @@ namespace {
             //for (auto* p : strokeChannelList) delete p;
         }
 
+        // strokeStreamListのサイズ
         size_t Count() const {
             return strokeStreamList.size();
         }
 
+        // strokeStreamListが空か
         size_t Empty() const {
             return Count() == 0;
         }
@@ -299,9 +301,10 @@ namespace {
         void HandleDeckeyProc(StrokeTableNode* pRootNode, int decKey, int comboStrokeCnt) {
             LOG_DEBUGH(_T("ENTER: {}: pRootNode={:p}, decKey={}, comboStrokeCnt={}"), name, (void*)pRootNode, decKey, comboStrokeCnt);
             if (pRootNode) {
-                // 同時打鍵列に入ったら、先頭打鍵の時(comboStrokeCnt==0)だけ stream を追加できる
-                if ((comboStrokeCnt < 1 || (comboStrokeCnt == 1 && Count() < 1))
-                    && State::isStrokableKey(decKey)) {
+                // // 同時打鍵列に入ったら、先頭打鍵の時(comboStrokeCnt==0)だけ stream を追加できる
+                //if ((comboStrokeCnt < 1 || (comboStrokeCnt == 1 && Count() < 1))
+                // 同時打鍵列に入ったら、StreamListが空の時だけ stream を追加できる
+                if ((comboStrokeCnt < 1 || Empty()) && State::isStrokableKey(decKey)) {
                     addStrokeStream(pRootNode);
                 }
                 LOG_DEBUGH(_T("{}: strokeStateList.Count={}"), name, Count());

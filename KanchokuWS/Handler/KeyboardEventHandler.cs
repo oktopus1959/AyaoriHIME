@@ -967,21 +967,21 @@ namespace KanchokuWS.Handler
                 ++keyDownCount;
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"bDecoderOn={bDecoderOn}, mod={mod:x}H, kanchokuCode={kanchokuCode}, normalDecKey={normalDecKey}, keyDownCount={keyDownCount}");
                 var determiner = CombinationKeyStroke.Determiner.Singleton;
-                var currentPool = CombinationKeyStroke.DeterminerLib.KeyCombinationPool.CurrentPool;
+                var comboPoolEnabled = CombinationKeyStroke.DeterminerLib.KeyCombinationPool._Enabled;
                 if (/*(bDecoderOn || currentPool.HasComboEffectiveAlways) &&*/
                     mod == 0 &&                                                                         // 修飾子がない
-                    currentPool.Enabled &&                                                              // 同時打鍵定義が有効
+                    comboPoolEnabled &&                   // 同時打鍵定義が有効
                     kanchokuCode >= 0 && kanchokuCode < DecoderKeys.STROKE_DECKEY_END &&                // 機能コード以外
                     ((kanchokuCode % DecoderKeys.PLANE_DECKEY_NUM) < DecoderKeys.NORMAL_DECKEY_NUM ||   // 通常キーであるか、
-                     currentPool.GetEntry(kanchokuCode) != null)                                        // 特殊キーであっても同時打鍵テーブルで使われている
+                     CombinationKeyStroke.DeterminerLib.KeyCombinationPool._GetEntry(kanchokuCode) != null)    // 特殊キーであっても同時打鍵テーブルで使われている
                     ) {
                     // KeyDown時処理を呼び出す。同時打鍵キーのオートリピートが開始されたら打鍵ガイドを切り替える
                     determiner.KeyDown(kanchokuCode, bDecoderOn, keyDownCount, (decKeys) => handleComboKeyRepeat(vkey, decKeys));
                     result = true;
                 } else {
                     // 直接ハンドラを呼び出す
-                    if (bDecoderOn && vkey == FuncVKeys.SPACE) logger.Warn($"invokeHandler Space: currentPool.Enabled={currentPool.Enabled}, mod={mod:x}H, kanchokuCode={kanchokuCode}");
-                    //if (bDecoderOn && vkey == FuncVKeys.HENKAN) logger.WarnH($"invokeHandler HENKAN: currentPool.Enabled={currentPool.Enabled}, mod={mod:x}H, kanchokuCode={kanchokuCode}");
+                    if (bDecoderOn && vkey == FuncVKeys.SPACE) logger.Warn($"invokeHandler Space: comboPoolEnabled={comboPoolEnabled}, mod={mod:x}H, kanchokuCode={kanchokuCode}");
+                    //if (bDecoderOn && vkey == FuncVKeys.HENKAN) logger.WarnH($"invokeHandler HENKAN: comboPoolEnabled={comboPoolEnabled}, mod={mod:x}H, kanchokuCode={kanchokuCode}");
                     result = invokeHandler(kanchokuCode, normalDecKey, mod, false);
                     //if (bDecoderOn && vkey == FuncVKeys.HENKAN) logger.WarnH($"invokeHandler HENKAN: result={result}");
                 }
@@ -1157,9 +1157,8 @@ namespace KanchokuWS.Handler
         /// <returns>キー入力を破棄する場合は true を返す。flase を返すとシステム側でキー入力処理が行われる</returns>
         private void keyboardUpHandler(bool bDecoderOn, uint vkey, bool leftCtrl, bool rightCtrl, uint modFlag)
         {
-            var currentPool = CombinationKeyStroke.DeterminerLib.KeyCombinationPool.CurrentPool;
             if (/*(bDecoderOn || currentPool.HasComboEffectiveAlways) &&*/
-                currentPool.Enabled &&  !leftCtrl && !rightCtrl && modFlag == 0) {
+                CombinationKeyStroke.DeterminerLib.KeyCombinationPool._Enabled &&  !leftCtrl && !rightCtrl && modFlag == 0) {
                 //int deckey = /* vkey == (int)Keys.Space ? DecoderKeys.STROKE_SPACE_DECKEY :*/ VKeyComboRepository.GetDecKeyFromCombo(0, normalDecKey); /* ここではまだ、Spaceはいったん文字として扱う */
                 int deckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
                 if (deckey >= 0 && deckey < DecoderKeys.STROKE_DECKEY_END) {
