@@ -1,7 +1,7 @@
 #include "string_utils.h"
 
 namespace DymazinBridge {
-    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty = 1000, int nonTerminalCost = 5000);
+    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty = 1000, int mazeConnPenalty = 1000, int nonTerminalCost = 5000);
 
     void dymazinFinalize();
 
@@ -9,5 +9,5 @@ namespace DymazinBridge {
 
     void dymazinSaveLog();
 
-    int dymazinCalcCost(const MString& str, std::vector<MString>& words, int mazePenalty, bool allowNonTerminal);
+    int dymazinCalcCost(const MString& str, std::vector<MString>& words, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal);
 }

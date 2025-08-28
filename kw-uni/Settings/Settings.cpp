@@ -129,6 +129,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(useMorphAnalyzer);
     SET_KEY_VALUE(morphMazeFormat);
     SET_INT_VALUE(morphMazeEntryPenalty);
+    SET_INT_VALUE(morphMazeConnectionPenalty);
     SET_INT_VALUE(morphNonTerminalCost);
     SET_INT_VALUE(ngramCostFactor);
     //SET_BOOL_VALUE(commitByPunctuation);

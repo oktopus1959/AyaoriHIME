@@ -1273,9 +1273,10 @@ namespace lattice2 {
 
             std::vector<MString> words;
             // まず、交ぜ書き優先で形態素解析する
-            int mazePenalty = -1;       // -SETTINGS->morphMazeEntryPenalty
-            _LOG_DETAIL(L"MorphBridge::morphCalcCost(_str={}, words, mazePenalty={}, allowNonTerminal=False)", to_wstr(_str), mazePenalty);
-            int cost = MorphBridge::morphCalcCost(_str, words, mazePenalty, false);
+            int mazePenalty = -1;           // -SETTINGS->morphMazeEntryPenalty
+            int mazeConnPenalty = 3000;     // -SETTINGS->morphMazeConnectionPenalty
+            _LOG_DETAIL(L"MorphBridge::morphCalcCost(_str={}, words, mazePenalty={}, mazeConnPenalty={}, allowNonTerminal=False)", to_wstr(_str), mazePenalty, mazeConnPenalty);
+            int cost = MorphBridge::morphCalcCost(_str, words, mazePenalty, mazeConnPenalty, false);
             _LOG_DETAIL(L"{}: orig morph cost={}, morph={}", to_wstr(_str), cost, to_wstr(utils::join(words, '/')));
             bool tailMaze = false;          // 末尾の交ぜ書きのみが置換される
             for (auto iter = words.rbegin(); iter != words.rend(); ++iter) {
@@ -1767,7 +1768,7 @@ namespace lattice2 {
             if (!s.empty()) {
                 // 形態素解析器の呼び出し
                 // mazePenalty = 0 なので、形態素解析器の中で、デフォルトの mazePenalty が加算される。
-                cost = MorphBridge::morphCalcCost(s, words, 0, true);
+                cost = MorphBridge::morphCalcCost(s, words, 0, 0, true);
 
                 _LOG_DETAIL(L"ENTER: {}: orig morph cost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(words, '/')));
                 std::vector<std::vector<MString>> wordItemsList;
