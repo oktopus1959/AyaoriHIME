@@ -97,7 +97,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.;KeysAndChars;Reporting;Settings;utils;..\DyMazin\DyMazinLib\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;KeysAndChars;Reporting;Settings;utils</AdditionalIncludeDirectories>
       <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
@@ -124,7 +124,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;KeysAndChars;Reporting;Settings;utils;..\DyMazin\DyMazinLib\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;KeysAndChars;Reporting;Settings;utils</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
@@ -233,6 +233,9 @@
     <ClInclude Include="ResidentState.h" />
     <ClInclude Include="StringNode.h" />
     <ClInclude Include="StrokeMerger\Lattice.h" />
+    <ClInclude Include="StrokeMerger\Lattice2_CandidateString.h" />
+    <ClInclude Include="StrokeMerger\Lattice2_Inner.h" />
+    <ClInclude Include="StrokeMerger\Lattice2_Kbest.h" />
     <ClInclude Include="StrokeMerger\Merger.h" />
     <ClInclude Include="StrokeMerger\StrokeMergerHistoryResidentState.h" />
     <ClInclude Include="StrokeTable.h" />
@@ -298,7 +301,9 @@
     <ClCompile Include="StateCommonInfo.cpp" />
     <ClCompile Include="ResidentState.cpp" />
     <ClCompile Include="StringState.cpp" />
+    <ClCompile Include="StrokeMerger\Lattice2_CandidateString.cpp" />
     <ClCompile Include="StrokeMerger\Lattice2.cpp" />
+    <ClCompile Include="StrokeMerger\Lattice2_Kbest.cpp" />
     <ClCompile Include="StrokeMerger\MergerHistoryState.cpp" />
     <ClCompile Include="StrokeTreeBuilder.cpp" />
     <ClCompile Include="dllmain.cpp" />

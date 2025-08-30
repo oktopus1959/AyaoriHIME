@@ -321,6 +321,15 @@
     <ClInclude Include="DeckeyUtil.h">
       <Filter>ヘッダー ファイル\KeysAndChars</Filter>
     </ClInclude>
+    <ClInclude Include="StrokeMerger\Lattice2_CandidateString.h">
+      <Filter>ヘッダー ファイル\StrokeMerger</Filter>
+    </ClInclude>
+    <ClInclude Include="StrokeMerger\Lattice2_Inner.h">
+      <Filter>ヘッダー ファイル\StrokeMerger</Filter>
+    </ClInclude>
+    <ClInclude Include="StrokeMerger\Lattice2_Kbest.h">
+      <Filter>ヘッダー ファイル\StrokeMerger</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -469,6 +478,12 @@
     </ClCompile>
     <ClCompile Include="Llama\LlamaBridge.cpp">
       <Filter>ソース ファイル\Llama</Filter>
+    </ClCompile>
+    <ClCompile Include="StrokeMerger\Lattice2_CandidateString.cpp">
+      <Filter>ソース ファイル\StrokeMerger</Filter>
+    </ClCompile>
+    <ClCompile Include="StrokeMerger\Lattice2_Kbest.cpp">
+      <Filter>ソース ファイル\StrokeMerger</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

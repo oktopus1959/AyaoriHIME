@@ -4,6 +4,8 @@
 #include "Mecab/MecabBridge.h"
 #include "DyMazin/DymazinBridge.h"
 
+#include "utils/path_utils.h"
+
 #ifndef _DEBUG
 #define USE_MORPHER 1
 #else

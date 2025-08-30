@@ -1,6 +1,6 @@
 #include "Logger.h"
 #include "DymazinBridge.h"
-#include "DyMazinLib.h"
+#include "../DyMazin/DyMazinLib/src/DyMazinLib.h"
 #include "Settings/Settings.h"
 
 #include "path_utils.h"
