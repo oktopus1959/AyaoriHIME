@@ -42,6 +42,10 @@ namespace MorphBridge {
 #endif //_DEBUG
     }
 
+    inline void morphReopenUserDics() {
+        DymazinBridge::dymazinReopenUserDics();
+    }
+
     inline void morphSetLogLevel(int logLevel) {
 #if USE_MORPHER
 #if USE_DYMAZIN

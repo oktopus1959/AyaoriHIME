@@ -54,6 +54,11 @@ namespace DymazinBridge {
         return result;
     }
 
+    void dymazinReopenUserDics() {
+        _LOG_INFOH(_T("CALLED"));
+        DymazinReopenUserDics();
+    }
+
     void dymazinFinalize() {
         _LOG_INFOH(_T("CALLED"));
         DymazinFinalize();

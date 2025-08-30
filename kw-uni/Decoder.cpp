@@ -392,6 +392,7 @@ public:
                 // 設定の再読み込み
                 //if (items.size() > 1 && !items[1].empty()) reloadSettings(items[1]);
                 reloadSettings();
+                MorphBridge::morphReopenUserDics();
             } else if (cmd == _T("addHistEntry") && HISTORY_DIC) {
                 // 履歴登録
                 if (items.size() >= 2 && !items[1].empty()) {
