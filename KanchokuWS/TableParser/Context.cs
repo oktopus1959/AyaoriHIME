@@ -966,6 +966,7 @@ namespace KanchokuWS.TableParser
         public bool bIgnoreWarningAll = false;
         public bool bIgnoreWarningBraceLevel = false;
         public bool bIgnoreWarningOverwrite = false;
+        public bool bAppendWhenConflict = false;
         public int braceLevel = 0;
 
         public HashSet<int> sequentialShiftKeys = new HashSet<int>();

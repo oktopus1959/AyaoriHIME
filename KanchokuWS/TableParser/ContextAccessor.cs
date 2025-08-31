@@ -78,6 +78,7 @@ namespace KanchokuWS.TableParser
         protected bool bIgnoreWarningAll { get { return Context.bIgnoreWarningAll; } set { Context.bIgnoreWarningAll = value; } }
         protected bool bIgnoreWarningBraceLevel { get { return Context.bIgnoreWarningBraceLevel; } set { Context.bIgnoreWarningBraceLevel = value; } }
         protected bool bIgnoreWarningOverwrite { get { return Context.bIgnoreWarningOverwrite; } set { Context.bIgnoreWarningOverwrite = value; } }
+        protected bool bAppendWhenConflict { get { return Context.bAppendWhenConflict; } set { Context.bAppendWhenConflict = value; } }
         protected int braceLevel { get { return Context.braceLevel; } set { Context.braceLevel = value; } }
 
         protected HashSet<int> sequentialShiftKeys => Context.sequentialShiftKeys;

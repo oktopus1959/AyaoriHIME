@@ -387,21 +387,20 @@ namespace KanchokuWS.TableParser
             if ((node.IsStringNode() || node.outputStr._notEmpty()) && node.outputStr._ne(outputStr)) {
                 if (outputStr._isEmpty() || IsFunctionNode() || !node.IsFunctionNode()) {
                     bOverwrite = outputStr._notEmpty() && !IsFunctionNode();
-#if false
-                    if (bOverwrite) {
+                    if (bOverwrite && ParserContext.Singleton.bAppendWhenConflict) {
                         // 文字が重複したら、"|"で区切って連結する
+                        logger.Info(() => $"Node._merge: Append outputStr: this={this.DebugString()}, node={node.DebugString()}");
                         var s1 = outputStr.GetSafeString();
                         bool isBare1 = outputStr.IsBare();
                         var s2 = node.outputStr.GetSafeString();
                         bool isBare2 = node.outputStr.IsBare();
                         var s = s1._isEmpty() ? s2 : s2._isEmpty() ? s1 : s1[0]._isKanji() ? s1 + "|" + s2 : s2 + "|" + s1;
                         outputStr = new OutputString(s, (s1._isEmpty() || s2._isEmpty()) && isBare1 && isBare2);
+                        logger.Info(() => $"Node._merge: New outputStr={this.DebugString()}");
+                        bOverwrite = false;
                     } else {
                         outputStr = node.outputStr;
                     }
-#else
-                    outputStr = node.outputStr;
-#endif
                     //isBareStr = node.isBareStr;
                 }
             }
@@ -480,6 +479,7 @@ namespace KanchokuWS.TableParser
         /// <param name=""></param>
         public (Node, bool) SetOrMergeNthSubNode(int n, Node node)
         {
+            if (Settings.LoggingTableFileInfo) logger.Info(() => $"CALLED: n={n}, node={node.DebugString()}");
             if (subTable != null) {
                 if (n >= 0 && n < subTable.Length) {
                     bool bOverwritten = false;

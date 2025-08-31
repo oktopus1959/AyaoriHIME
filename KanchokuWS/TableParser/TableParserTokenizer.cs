@@ -361,9 +361,14 @@ namespace KanchokuWS.TableParser
                         } else if (word == "overwrite") {
                             bIgnoreWarningOverwrite = flag;
                         }
+                    } else if (lcStr.StartsWith("appendwhen") || lcStr.StartsWith("overwritewhen")) {
+                        // 既存の定義がある場合に上書きするか、追記するか
+                        bAppendWhenConflict = lcStr.StartsWith("append");
+                        logger.Info($"set bAppendWhenConflict={bAppendWhenConflict} ({CurrentStr})");
                     } else {
                         // 上記以外は無視(コメント扱い) 
                         if (Settings.LoggingTableFileInfo) logger.Info(() => $"#{CurrentStr}");
+                        ParseError($"getToken: unknown directive: '{CurrentStr}'");
                     }
                     SkipToEndOfLine();
                     continue;
