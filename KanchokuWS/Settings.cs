@@ -1708,7 +1708,8 @@ namespace KanchokuWS
             //addDecoderSetting("historyUsedFile");
             //addDecoderSetting("historyExcludeFile");
             //addDecoderSetting("historyNgramFile");
-            MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "kwmaze.*.dic");
+            //MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "kwmaze.*.dic");
+            MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "");
 
             BackFileRotationGeneration = addDecoderSetting("backFileRotationGeneration", 3, 1); // 辞書ファイルの保存世代数
 
