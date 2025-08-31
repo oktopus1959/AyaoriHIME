@@ -286,7 +286,7 @@ void State::DoLastHistoryProc() {
 
 // ノードから生成した状態を後接させ、その状態を常駐させる
 void State::CreateStateAndStayResidentAtEndOfChain(Node* np) {
-    _LOG_DEBUGH(_T("ENTER: {}, nextNode: {}"), Name, NODE_NAME(NextNodeMaybe()));
+    LOG_INFOH(_T("ENTER: {}, nextNode: {}"), Name, NODE_NAME(NextNodeMaybe()));
     if (np) {
         if (pNext) {
             pNext->CreateStateAndStayResidentAtEndOfChain(np);
@@ -300,7 +300,7 @@ void State::CreateStateAndStayResidentAtEndOfChain(Node* np) {
             }
         }
     }
-    _LOG_DEBUGH(_T("LEAVE: {}"), Name);
+    LOG_INFOH(_T("LEAVE: {}"), Name);
 }
 
 // 居残っている一時状態の削除(デコーダのOFF->ON時に呼ばれる)

@@ -570,7 +570,7 @@ MazegakiCommonInfo* MazegakiCommonInfo::CommonInfo() {
 
 // MazegakiCommonInfo - 交ぜ書き共有情報の作成(辞書もロード)
 void MazegakiCommonInfo::CreateCommonInfo() {
-    LOG_INFO(_T("ENTER"));
+    LOG_INFOH(_T("ENTER"));
     if (!_commonInfo) {
         // 交ぜ書き辞書ファイル名
         auto mazeFile = SETTINGS->mazegakiFile;
@@ -590,7 +590,7 @@ void MazegakiCommonInfo::CreateCommonInfo() {
         // 共有ノードを生成する(このノードは、終了時に delete される)
         _commonInfo->_singleton.reset(new MazegakiNode());
     }
-    LOG_INFO(_T("LEAVE"));
+    LOG_INFOH(_T("LEAVE"));
 }
 
 // 初期化

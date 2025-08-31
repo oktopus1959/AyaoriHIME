@@ -1640,6 +1640,7 @@ void StrokeMergerHistoryNode::CreateSingleton() {
 
 // マージ履歴機能常駐ノードの初期化
 void StrokeMergerHistoryNode::Initialize() {
+    LOG_INFOH(L"ENTER");
     // 履歴入力辞書ファイル名
     auto histFile = SETTINGS->historyFile;
     LOG_DEBUGH(_T("histFile={}"), histFile);
@@ -1652,6 +1653,7 @@ void StrokeMergerHistoryNode::Initialize() {
     FunctionNodeManager::CreateFunctionNodeByName(_T("history"));
 
     StrokeMergerHistoryNode::CreateSingleton();
+    LOG_INFOH(L"LEAVE");
 }
 
 // -------------------------------------------------------------------

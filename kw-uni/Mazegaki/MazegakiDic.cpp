@@ -1074,7 +1074,7 @@ std::unique_ptr<MazegakiDic> MazegakiDic::Singleton;
 // xxx.user.yyy が存在しない場合は、xxx.*.yyy というファイル名を含んでいること
 // エラーがあったら例外を投げる
 int MazegakiDic::CreateMazegakiDic(StringRef mazeFile) {
-    LOG_DEBUGH(_T("ENTER: {}"), mazeFile);
+    LOG_INFOH(_T("ENTER: {}"), mazeFile);
 
     if (Singleton != 0) {
         LOG_DEBUGH(_T("already created: maze file: {}"), mazeFile);
@@ -1113,7 +1113,7 @@ int MazegakiDic::CreateMazegakiDic(StringRef mazeFile) {
     }
 #endif
 
-    LOG_DEBUGH(_T("LEAVE: result={}"), result);
+    LOG_INFOH(_T("LEAVE: result={}"), result);
     return result;
 }
 

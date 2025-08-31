@@ -113,6 +113,8 @@ public:
 
 // Lattice2
 class Lattice2 {
+    DECLARE_CLASS_LOGGER;
+
 public:
     // デストラクタ
     virtual ~Lattice2() { }

@@ -238,7 +238,7 @@ public:
     
     // settings の再ロードとストローク木の再構築
     void reloadSettings(bool bPreLoad = true) {
-        LOG_DEBUGH(_T("ENTER"));
+        LOG_INFOH(_T("ENTER"));
        
         // settings の事前ロード
         if (bPreLoad) loadSettings(decoderSettings);
@@ -269,12 +269,12 @@ public:
         // グローバルな後置書き換えマップファイルの読み込み
         Lattice2::reloadGlobalPostRewriteMapFile();
 
-        LOG_DEBUGH(_T("LEAVE"));
+        LOG_INFOH(_T("LEAVE"));
     }
 
     // settings のロード
     void loadSettings(const String & settings) {
-        LOG_DEBUGH(_T("ENTER: settings={}"), settings);
+        LOG_INFOH(_T("ENTER: settings={}"), settings);
         
         std::map<String, String> key_vals;
 
@@ -292,7 +292,7 @@ public:
 
         SETTINGS->SetValues(key_vals);
 
-        LOG_DEBUGH(_T("LEAVE"));
+        LOG_INFOH(_T("LEAVE"));
     }
 
     // Deckey から文字への変換インスタンスの構築

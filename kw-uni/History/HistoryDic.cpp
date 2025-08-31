@@ -1266,7 +1266,7 @@ namespace {
 // * の部分を {entry,recent,exclude,ngram} に置換したファイルが読み込まれる
 // エラーがあったら例外を投げる
 int HistoryDic::CreateHistoryDic(StringRef histFile) {
-    LOG_DEBUGH(_T("ENTER: histFile={}"), histFile);
+    LOG_INFOH(_T("ENTER: histFile={}"), histFile);
 
     if (Singleton != 0) {
         LOG_DEBUGH(_T("already created: hist file: {}"), histFile);
@@ -1296,7 +1296,7 @@ int HistoryDic::CreateHistoryDic(StringRef histFile) {
         readFile(replaceStar(path, pos, _T("exclude")), &HistoryDic::ReadExcludeFile);
         //readFile(replaceStar(path, pos, _T("ngram")), &HistoryDic::ReadNgramFile);
     }
-    LOG_DEBUGH(_T("LEAVE"));
+    LOG_INFOH(_T("LEAVE"));
     return 0;
 }
 

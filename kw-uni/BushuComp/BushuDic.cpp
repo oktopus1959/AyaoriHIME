@@ -1258,7 +1258,7 @@ namespace {
 // 部首合成辞書を作成する(ファイルが指定されていなくても作成する)
 // エラーがあったら例外を投げる
 int BushuDic::CreateBushuDic() {
-    LOG_INFO(_T("ENTER"));
+    LOG_INFOH(_T("ENTER"));
 
     // 部首合成辞書の読み込み(ファイルが指定されていなくても、辞書は構築する)
     // 部首合成辞書ファイル名
@@ -1284,7 +1284,7 @@ int BushuDic::CreateBushuDic() {
         result = -1;
     }
 
-    LOG_INFO(_T("LEAVE: result={}"), result);
+    LOG_INFOH(_T("LEAVE: result={}"), result);
     return result;
 }
 
