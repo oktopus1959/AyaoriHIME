@@ -143,9 +143,6 @@ namespace lattice2 {
     inline std::map<MString, int> systemNgram;
     inline int systemMaxFreq = 0;
 
-    // システムで用意したカタカナ単語コスト(3gram以上、sysCost < uesrCost のものだけ計上)
-    inline std::map<MString, int> KatakanaWordCosts;
-
     // 利用者が入力した文字列から抽出したNgram統計
     inline std::map<MString, int> realtimeNgram;
     inline int realtimeMaxFreq = 0;

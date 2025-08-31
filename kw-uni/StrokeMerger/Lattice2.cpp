@@ -41,6 +41,9 @@
 namespace lattice2 {
     DEFINE_LOCAL_LOGGER(lattice);
 
+    //// システムで用意したカタカナ単語コスト(3gram以上、sysCost < uesrCost のものだけ計上)
+    //inline std::map<MString, int> KatakanaWordCosts;
+
     int _calcTrigramBonus(const MString& word, int rtmCount, int sysCount = 0, int origSysCnt = 0, int usrCount = 0, int origRtmCnt = 0) {
         int bonumFactor = SETTINGS->realtimeTrigramBonusFactor;
         int numTier1 = SETTINGS->realtimeTrigramTier1Num;
@@ -210,6 +213,7 @@ namespace lattice2 {
                 }
             }
         }
+#if 0
         for (auto iter = KatakanaWordCosts.begin(); iter != KatakanaWordCosts.end(); ++iter) {
             const MString& word = iter->first;
             int cost = iter->second;
@@ -218,6 +222,7 @@ namespace lattice2 {
                 ngramCosts[word] = cost;
             }
         }
+#endif
         _LOG_DETAIL(L"LEAVE: ngramCosts.size={}", ngramCosts.size());
     }
 
@@ -251,9 +256,10 @@ namespace lattice2 {
         return maxFreq;
     }
 
+#if 0
     void _loadKatakanaCostFile() {
         auto path = utils::joinPath(SETTINGS->rootDir, KATAKANA_COST_FILE);
-        LOG_INFO(_T("LOAD: {}"), path.c_str());
+        LOG_INFOH(_T("LOAD: {}"), path.c_str());
         utils::IfstreamReader reader(path);
         if (reader.success()) {
             KatakanaWordCosts.clear();
@@ -270,11 +276,13 @@ namespace lattice2 {
                 }
             }
         }
+        LOG_INFOH(_T("DONE"));
     }
+#endif
 
     void __loadUserCostFile(StringRef file) {
         auto path = utils::joinPath(SETTINGS->rootDir, file);
-        LOG_INFO(_T("LOAD: {}"), path.c_str());
+        LOG_INFOH(_T("LOAD: {}"), path.c_str());
         utils::IfstreamReader reader(path);
         if (reader.success()) {
             for (const auto& line : reader.getAllLines()) {
@@ -303,6 +311,7 @@ namespace lattice2 {
                 }
             }
         }
+        LOG_INFOH(_T("DONE"));
     }
 
     void _loadUserCostFile() {
@@ -328,7 +337,7 @@ namespace lattice2 {
             if (realtimeMaxFreq <= 0 && SETTINGS->useTmpRealtimeNgramFile) {
                 realtimeMaxFreq = _loadNgramFile(REALTIME_NGRAM_MAIN_FILE, realtimeNgram);
             }
-            _loadKatakanaCostFile();
+            //_loadKatakanaCostFile();
         }
 #endif
         _loadUserCostFile();
@@ -1195,13 +1204,16 @@ namespace lattice2 {
 
 } // namespace lattice2
 
+DEFINE_CLASS_LOGGER(Lattice2);
 
 std::unique_ptr<Lattice2> Lattice2::Singleton;
 
 void Lattice2::createLattice() {
+    LOG_INFOH(L"ENTER");
     lattice2::loadCostAndNgramFile();
     lattice2::loadMazegakiPriorFile();
     Singleton.reset(new lattice2::LatticeImpl());
+    LOG_INFOH(L"LEAVE");
 }
 
 void Lattice2::reloadCostAndNgramFile() {
