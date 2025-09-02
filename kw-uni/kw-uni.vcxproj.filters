@@ -324,7 +324,7 @@
     <ClInclude Include="StrokeMerger\Lattice2_CandidateString.h">
       <Filter>ヘッダー ファイル\StrokeMerger</Filter>
     </ClInclude>
-    <ClInclude Include="StrokeMerger\Lattice2_Inner.h">
+    <ClInclude Include="StrokeMerger\Lattice2_Common.h">
       <Filter>ヘッダー ファイル\StrokeMerger</Filter>
     </ClInclude>
     <ClInclude Include="StrokeMerger\Lattice2_Kbest.h">

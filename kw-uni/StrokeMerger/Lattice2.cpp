@@ -8,16 +8,13 @@
 
 #include "settings.h"
 #include "StateCommonInfo.h"
-#include "Lattice.h"
 #include "MStringResult.h"
 #include "BushuComp/BushuComp.h"
 #include "BushuComp/BushuDic.h"
 #include "KeysAndChars/EasyChars.h"
 
-#include "MorphBridge.h"
-#include "Llama/LlamaBridge.h"
-
-#include "Lattice2_Inner.h"
+#include "Lattice.h"
+#include "Lattice2_Common.h"
 #include "Lattice2_CandidateString.h"
 #include "Lattice2_Kbest.h"
 
@@ -41,8 +38,133 @@
 namespace lattice2 {
     DEFINE_LOCAL_LOGGER(lattice);
 
+#define SYSTEM_NGRAM_FILE           L"files/mixed_all.ngram.txt"
+#define KATAKANA_COST_FILE          L"files/katakana.cost.txt"
+#define REALTIME_NGRAM_MAIN_FILE    L"files/realtime.ngram.txt"
+#define REALTIME_NGRAM_TEMP_FILE    L"files/realtime.ngram.tmp.txt"
+//#define USER_NGRAM_FILE           L"files/user.ngram.txt"
+#define USER_COST_FILE              L"files/userword.cost.txt"
+#define MAZEGAKI_PRIOR_FILE         L"files/mazegaki.prior.txt"
+
+    //// 漢字と長音が連続する場合のペナルティ
+    //int KANJI_CONSECUTIVE_PENALTY = 1000;
+
+    //// 漢字が連続する場合のボーナス
+    //int KANJI_CONSECUTIVE_BONUS = 0;
+
+    //// カタカナが連続する場合のボーナス
+    //int KATAKANA_CONSECUTIVE_BONUS = 1000;
+
+    //// 末尾がひらがなの連続にボーナスを与える場合のひらがな長
+    //int TAIL_HIRAGANA_LEN = 0;  // 4
+
+    //// 末尾がひらがなの連続場合のボーナス
+    //int TAIL_HIRAGANA_BONUS = 0; //1000;
+
+    //// 「漢字+の+漢字」の場合のボーナス
+    //int KANJI_NO_KANJI_BONUS = 1500;
+
+    // cost ファイルに登録がある場合のデフォルトのボーナス
+    int DEFAULT_WORD_BONUS = 1000;
+
+    // cost ファイルに登録がある unigram のデフォルトのボーナスカウント
+    int DEFAULT_UNIGRAM_BONUS_COUNT = 10000;
+
+    // 2文字以上の形態素で先頭が高頻度助詞、2文字目がひらがな以外の場合のボーナス
+    int HEAD_HIGH_FREQ_JOSHI_BONUS = 1000;
+
+    // 孤立した小書きカタカナのコスト
+    int ISOLATED_SMALL_KATAKANA_COST = 3000;
+
+    // 孤立したカタカナのコスト
+    int ISOLATED_KATAKANA_COST = 3000;
+
+    // 孤立した漢字のコスト
+    int ONE_KANJI_COST = 1000;
+
+    // 1スペースのコスト
+    int ONE_SPACE_COST = 20000;
+
+    // デフォルトの最大コスト
+    int DEFAULT_MAX_COST = 1000;
+
+    //// 形態素コストに対するNgramコストの係数
+    //int NGRAM_COST_FACTOR = 5;
+
+    // Realtime Ngram のカウントを水増しする係数
+    int REALTIME_FREQ_BOOST_FACTOR = 10;
+
+    // Realtime Ngram のカウントを水増ししたときの、カウント値をスムージングする際の閾値
+    int SYSTEM_NGRAM_COUNT_THRESHOLD = 3000;
+
     //// システムで用意したカタカナ単語コスト(3gram以上、sysCost < uesrCost のものだけ計上)
-    //inline std::map<MString, int> KatakanaWordCosts;
+    //std::map<MString, int> KatakanaWordCosts;
+
+    // Ngram統計によるコスト
+    // 1-2gramはポジティブコスト(そのまま計上)、3gram以上はネガティブコスト(DEFAULT_MAX_COST を引いて計上)として計算される
+    std::map<MString, int> ngramCosts;
+
+    // 利用者が手作業で作成した単語コスト(3gram以上、そのまま計上)
+    std::map<MString, int> userWordCosts;
+
+    // 利用者が手作業で作成したNgram統計
+    std::map<MString, int> userNgram;
+    int userMaxFreq = 0;
+
+    // システムで用意したNgram統計
+    std::map<MString, int> systemNgram;
+    int systemMaxFreq = 0;
+
+    // 利用者が入力した文字列から抽出したNgram統計
+    std::map<MString, int> realtimeNgram;
+    int realtimeMaxFreq = 0;
+
+    // 常用対数でNgram頻度を補正した値に掛けられる係数
+    int ngramLogFactor = 50;
+
+    // Ngram頻度がオンラインで更新されたか
+    bool realtimeNgram_updated = false;
+
+    // 交ぜ書き優先度
+    std::map<MString, int> mazegakiPriorDict;
+
+    // 交ぜ書き優先度がオンラインで更新されたか
+    bool mazegakiPrior_updated = false;
+
+    //--------------------------------------------------------------------------------------
+    inline bool isDecimalString(StringRef item) {
+        return utils::reMatch(item, L"[+\\-]?[0-9]+");
+    }
+
+    inline bool all_hiragana(const MString& word) {
+        return std::all_of(word.begin(), word.end(), [](mchar_t x) { return utils::is_hiragana(x);});
+    }
+
+    inline bool all_pure_katakana(const MString& word) {
+        return std::all_of(word.begin(), word.end(), [](mchar_t x) { return utils::is_pure_katakana(x);});
+    }
+
+    inline bool all_kanji(const MString& word) {
+        return std::all_of(word.begin(), word.end(), [](mchar_t x) { return utils::is_kanji(x);});
+    }
+
+    inline int count_kanji(const MString& word) {
+        return (int)std::count_if(word.begin(), word.end(), [](mchar_t c) { return utils::is_kanji(c); });
+    }
+
+    inline bool contains_half_or_more_kanji(const MString& word) {
+        int len = (int)word.length();
+        int nHalf = len / 2 + (len % 2);
+        return count_kanji(word) >= nHalf;
+    }
+
+    inline bool isHeadHighFreqJoshi(mchar_t mc) {
+        return mc == L'と' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は' || mc == L'が';
+    }
+
+    inline bool isSmallKatakana(mchar_t mc) {
+        return mc == L'ァ' || mc == L'ィ' || mc == L'ゥ' || mc == L'ェ' || mc == L'ォ' || mc == L'ャ' || mc == L'ュ' || mc == L'ョ';
+    }
 
     int _calcTrigramBonus(const MString& word, int rtmCount, int sysCount = 0, int origSysCnt = 0, int usrCount = 0, int origRtmCnt = 0) {
         int bonumFactor = SETTINGS->realtimeTrigramBonusFactor;
@@ -452,7 +574,7 @@ namespace lattice2 {
     }
 
     // 候補選択による、リアルタイムNgramの蒿上げと抑制
-    void _raiseAndDepressRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
+    void raiseAndDepressRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
         LOG_WARNH(L"CALLED: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
         size_t prefixLen = utils::commonPrefixLength(oldCand, newCand);
         if (prefixLen < newCand.size()) {
@@ -608,34 +730,6 @@ namespace lattice2 {
         return totalCost;
     }
 
-
-    MString substringBetweenPunctuations(const MString& str) {
-        int endPos = (int)(str.size());
-        // まず末尾の句読点をスキップ
-        for (; endPos > 0; --endPos) {
-            if (!utils::is_punct_or_commit_char(str[endPos - 1])) break;
-        }
-        // 前方に向かって句読点を検索
-        int startPos = endPos - 1;
-        for (; startPos > 0; --startPos) {
-            if (utils::is_punct_or_commit_char(str[startPos - 1])) break;
-        }
-        return utils::safe_substr(str, startPos, endPos - startPos);
-    }
-
-    MString substringBetweenNonJapaneseChars(const MString& str) {
-        int endPos = (int)(str.size());
-        // まず末尾の非日本語文字をスキップ
-        for (; endPos > 0; --endPos) {
-            if (!isCommitChar(str[endPos - 1])) break;
-        }
-        // 前方に向かって非日本語文字を検索
-        int startPos = endPos - 1;
-        for (; startPos > 0; --startPos) {
-            if (isCommitChar(str[startPos - 1])) break;
-        }
-        return utils::safe_substr(str, startPos, endPos - startPos);
-    }
 
 #if 1
     std::wregex kanjiDateTime(L"年[一二三四五六七八九十]+月?|[一二三四五六七八九十]+月[一二三四五六七八九十]?|月[一二三四五六七八九十]+日?|[一二三四五六七八九十]+日");
@@ -924,44 +1018,14 @@ namespace lattice2 {
         }
     }
 
-    // 先頭候補以外に、非優先候補ペナルティを与える (先頭候補のペナルティは 0 にする)
-    void arrangePenalties(std::vector<CandidateString>& candidates, size_t nSameLen) {
-        _LOG_DETAIL(_T("CALLED"));
-        candidates.front().zeroPenalty();
-        for (size_t i = 1; i < nSameLen; ++i) {
-            candidates[i].penalty(NON_PREFERRED_PENALTY * (int)i);
-        }
-    }
+    //// 表層形と交ぜ書き原形などの形態素情報
+    //class MorphInfo {
+    //    MString surface;
+    //    MString mazeBase;
 
-    // ストローク長の同じ候補の数を返す
-    size_t getNumOfSameStrokeLen(const std::vector<CandidateString>& candidates) {
-        size_t nSameLen = 0;
-        if (candidates.size() > 1) {
-            int strokeLen = candidates.front().strokeLen();
-            ++nSameLen;
-            for (auto iter = candidates.begin() + 1; iter != candidates.end() && iter->strokeLen() == strokeLen; ++iter) {
-                ++nSameLen;
-            }
-        }
-        return nSameLen;
-    }
+    //};
 
-    // 先頭候補を最優先候補にする
-    void selectFirst(std::vector<CandidateString>& candidates) {
-        size_t nSameLen = getNumOfSameStrokeLen(candidates);
-        if (nSameLen > 1) {
-            arrangePenalties(candidates, nSameLen);
-            LOG_INFO(_T("CALLED: First candidate preferred."));
-        }
-    }
-
-    // 表層形と交ぜ書き原形などの形態素情報
-    class MorphInfo {
-        MString surface;
-        MString mazeBase;
-
-    };
-
+    //--------------------------------------------------------------------------------------
     // Lattice
     class LatticeImpl : public Lattice2 {
         DECLARE_CLASS_LOGGER;
@@ -1204,6 +1268,7 @@ namespace lattice2 {
 
 } // namespace lattice2
 
+//--------------------------------------------------------------------------------------
 DEFINE_CLASS_LOGGER(Lattice2);
 
 std::unique_ptr<Lattice2> Lattice2::Singleton;

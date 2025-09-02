@@ -234,7 +234,7 @@
     <ClInclude Include="StringNode.h" />
     <ClInclude Include="StrokeMerger\Lattice.h" />
     <ClInclude Include="StrokeMerger\Lattice2_CandidateString.h" />
-    <ClInclude Include="StrokeMerger\Lattice2_Inner.h" />
+    <ClInclude Include="StrokeMerger\Lattice2_Common.h" />
     <ClInclude Include="StrokeMerger\Lattice2_Kbest.h" />
     <ClInclude Include="StrokeMerger\Merger.h" />
     <ClInclude Include="StrokeMerger\StrokeMergerHistoryResidentState.h" />

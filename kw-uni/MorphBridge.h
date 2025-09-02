@@ -62,10 +62,10 @@ namespace MorphBridge {
 #endif //_DEBUG
     }
 
-    inline int morphCalcCost(const MString& str, std::vector<MString>& words, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
+    inline int morphCalcCost(const MString& str, std::vector<MString>& morphs, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
 #if USE_MORPHER
 #if USE_DYMAZIN
-        return DymazinBridge::dymazinCalcCost(str, words, mazePenalty, mazeConnPenalty, allowNonTerminal);
+        return DymazinBridge::dymazinCalcCost(str, morphs, mazePenalty, mazeConnPenalty, allowNonTerminal);
 #else
         return MecabBridge::mecabCalcCost(str, words);
 #endif

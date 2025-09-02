@@ -6,7 +6,8 @@
 #include "BushuComp/BushuDic.h"
 #include "KeysAndChars/EasyChars.h"
 //
-#include "Lattice2_Inner.h"
+#include "Lattice.h"
+#include "Lattice2_Common.h"
 #include "Lattice2_CandidateString.h"
 
 #include "MorphBridge.h"
@@ -29,14 +30,12 @@
 #endif
 
 namespace lattice2 {
-    DECLARE_LOGGER;
+    DECLARE_LOGGER;     // defined in Lattice2.cpp
 
     DEFINE_CLASS_LOGGER(CandidateString);
 
-    extern std::map<MString, MString> globalPostRewriteMap;
-
     // 候補文字列
-        // 末尾文字列にマッチする RewriteInfo を取得する
+    // 末尾文字列にマッチする RewriteInfo を取得する
     std::tuple<const RewriteInfo*, int> CandidateString::matchWithTailString(const PostRewriteOneShotNode* rewriteNode) const {
         size_t maxlen = SETTINGS->kanaTrainingMode && ROOT_STROKE_NODE->hasOnlyUsualRewriteNdoe() ? 0 : 8;     // かな入力練習モードで濁点のみなら書き換えをやらない
         bool bRollOverStroke = STATE_COMMON->IsRollOverStroke();
@@ -60,7 +59,7 @@ namespace lattice2 {
         return { 0, 0 };
     }
 
-        // 複数文字が設定されているストロークを1文字ずつに分解
+    // 複数文字が設定されているストロークを1文字ずつに分解
     std::vector<MString> CandidateString::split_piece_str(const MString& s) const {
         if (s.size() == 1 && s.front() == '|') {
             return std::vector<MString>(1, s);
@@ -80,7 +79,7 @@ namespace lattice2 {
         return result;
     }
 
-        // グローバルな後置書き換えを適用する
+    // グローバルな後置書き換えを適用する
     MString CandidateString::applyGlobalPostRewrite(const MString& adder) const {
         size_t maxlen = SETTINGS->kanaTrainingMode && ROOT_STROKE_NODE->hasOnlyUsualRewriteNdoe() ? 0 : 8;     // かな入力練習モードで濁点のみなら書き換えをやらない
         if (maxlen > _str.size()) maxlen = _str.size();
@@ -97,7 +96,7 @@ namespace lattice2 {
         return _str + adder;
     }
 
-        // 自動部首合成の実行
+    // 自動部首合成の実行
     std::tuple<MString, int> CandidateString::applyAutoBushu(const WordPiece& piece, int strokeCount) const {
         LOG_DEBUGH(_T("CALLED: _str={}, _strokeLen={}, piece={}, strokeCount={}"), to_wstr(_str), piece.debugString(), _strokeLen, strokeCount);
         MStringResult resultOut;
@@ -130,7 +129,7 @@ namespace lattice2 {
         return { resultOut.resultStr(), resultOut.numBS() };
     }
 
-        // 部首合成の実行
+    // 部首合成の実行
     MString CandidateString::applyBushuComp() const {
         if (BUSHU_DIC) {
             if (_str.size() >= 2) {
@@ -156,7 +155,10 @@ namespace lattice2 {
         return EMPTY_MSTR;
     }
 
-        // 交ぜ書き変換の実行
+    // リアルタイムNgramの更新
+    void updateRealtimeNgram(const MString& str);
+
+    // 交ぜ書き変換の実行
     std::vector<CandidateString> CandidateString::applyMazegaki() const {
         _LOG_DETAIL(L"ENTER: {}", to_wstr(_str));
         EASY_CHARS->DumpEasyCharsMemory();
@@ -218,6 +220,9 @@ namespace lattice2 {
         return result;
     }
 
+    // 交ぜ書き優先度の取得
+    int getMazegakiPriorityCost(const MString& mazeFeat);
+
     void CandidateString::getDifficultMazeCands(const MString& surf, const MString& mazeCands, std::vector<MString>& result) const {
         auto cands = utils::split(mazeCands, '|');
         if (cands.size() <= 1) {
@@ -269,7 +274,7 @@ namespace lattice2 {
         }
     }
 
-        // 単語素片を末尾に適用してみる
+    // 単語素片を末尾に適用してみる
     std::vector<MString> CandidateString::applyPiece(const WordPiece& piece, int strokeCount, int paddingLen, bool isStrokeBS, bool bKatakanaConversion) const {
         LOG_DEBUGH(_T("ENTER: pieces={}, strokeCount={}, paddingLen={}, isStrokeBS={}, _strokeLen={}"), piece.debugString(), strokeCount, paddingLen, isStrokeBS, _strokeLen);
         std::vector<MString> ss;

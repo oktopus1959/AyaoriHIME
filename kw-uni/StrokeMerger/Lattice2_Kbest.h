@@ -1,13 +1,4 @@
-#include "Logger.h"
-
-#include "settings.h"
-#include "StateCommonInfo.h"
-
-#include "MorphBridge.h"
-#include "Llama/LlamaBridge.h"
-
-#include "Lattice2_Inner.h"
-#include "Lattice2_CandidateString.h"
+#pragma once
 
 namespace lattice2 {
 

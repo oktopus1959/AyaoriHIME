@@ -75,20 +75,20 @@ namespace DymazinBridge {
     }
 
 #if true
-    int dymazinCalcCost(const MString& str, std::vector<MString>& words, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
+    int dymazinCalcCost(const MString& str, std::vector<MString>& morphs, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
         _LOG_DEBUGH(_T("ENTER: str={}"), to_wstr(str));
         const size_t BUFSIZE = 1000;
         wchar_t wchbuf[BUFSIZE] = { '\0' };
         int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, mazePenalty, mazeConnPenalty, allowNonTerminal, false);
         //int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, mazePenalty, allowNonTerminal, false);
         for (const auto& s : utils::split(wchbuf, L'\n')) {
-            words.push_back(to_mstr(s));
+            morphs.push_back(to_mstr(s));
         }
-        _LOG_DEBUGH(_T("LEAVE: dymazinCost={}, words={}"), cost, to_wstr(utils::join(words, ' ')));
+        _LOG_DEBUGH(_T("LEAVE: dymazinCost={}, morphs={}"), cost, to_wstr(utils::join(morphs, ' ')));
         return cost;
     }
 #else
-    int dymazinCalcCost(const MString& str, std::vector<MString>& words) {
+    int dymazinCalcCost(const MString& str, std::vector<MString>& morphs) {
         return 10000;
     }
 #endif
