@@ -48,9 +48,6 @@ private:
     // 同時打鍵テーブルか
     bool _isComboTable = false;
 
-    // 順序あり同時打鍵テーブルか
-    bool _isOrderedComboTable = false;
-
 public:
     // コンストラクタ
     StrokeTableNode(int depth) : _depth(depth) {
@@ -89,16 +86,10 @@ public:
         _isComboTable = hasComboNode();
     }
 
-    inline void checkOrderedComboNode() {
-        _isOrderedComboTable = hasOrderedComboNode();
-    }
-
 private:
     int findPostRewriteNode(int result);
 
     bool hasComboNode();
-
-    bool hasOrderedComboNode();
 
 public:
     /* StrokeTableNode 独自メソッド */
@@ -147,12 +138,7 @@ public:
 
     // 同時打鍵テーブルか
     inline bool isComboTable() const {
-        return _isOrderedComboTable;
-    }
-
-    // 順序あり同時打鍵テーブルか
-    inline bool isOrderedComboTable() const {
-        return _isOrderedComboTable;
+        return _isComboTable;
     }
 
 private:
@@ -173,6 +159,10 @@ public:
     // ストロークガイドの構築
     void MakeStrokeGuide(StringRef targetChars, int tableId);
 
+    // 子ノード列を表す文字列を返す
+    String makeChildrenString() const;
+
+public:
     // ストローク木を構築する
     static StrokeTableNode* CreateStrokeTree(StringRef, std::vector<String>&);
 

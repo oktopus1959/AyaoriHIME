@@ -80,11 +80,19 @@ namespace KanchokuWS
         // ロールオーバー(順序あり)同時打鍵用修飾DECKEYの始まり (900)
         public const int ORDERED_COMBO_DECKEY_START = COMBO_DECKEY_START + PLANE_DECKEY_NUM;
 
+        // ロールオーバー(順序あり)同時打鍵用修飾DECKEYの終わり(の次) (1000)
+        public const int ORDERED_COMBO_DECKEY_END = ORDERED_COMBO_DECKEY_START + PLANE_DECKEY_NUM;
+
         // カバリング(StackLike)同時打鍵用修飾DECKEYの始まり (1000)
-        public const int STACKLIKE_COMBO_DECKEY_START = ORDERED_COMBO_DECKEY_START + PLANE_DECKEY_NUM;
+        public const int STACKLIKE_COMBO_DECKEY_START = ORDERED_COMBO_DECKEY_END;
+        public const int COVERING_COMBO_DECKEY_START = STACKLIKE_COMBO_DECKEY_START;
+
+        // カバリング(StackLike)同時打鍵用修飾DECKEYの終わり(の次) (1100)
+        public const int STACKLIKE_COMBO_DECKEY_END = STACKLIKE_COMBO_DECKEY_START + PLANE_DECKEY_NUM;
+        public const int COVERING_COMBO_DECKEY_END = STACKLIKE_COMBO_DECKEY_END;
 
         // 同時打鍵用修飾DECKEYの終わり(の次) (1100)
-        public const int COMBO_DECKEY_END = STACKLIKE_COMBO_DECKEY_START + PLANE_DECKEY_NUM;
+        public const int COMBO_DECKEY_END = STACKLIKE_COMBO_DECKEY_END;
 
         // 英数モード同時打鍵用修飾DECKEYの始まり (1100)
         public const int EISU_COMBO_DECKEY_START = COMBO_DECKEY_END;

@@ -98,6 +98,8 @@ public:
     // 次の処理のためのノードを取得する
     Node* NextNodeMaybe() const { return pNextNodeMaybe; }
 
+    bool StateListWalker(std::function<bool(const State*)> func) const;
+
 protected:
     //// コンストラクタ -- 派生クラスでコンストラクタを定義しなくて済むようにするため、下記 Initialize を使うようにした
     //State(const Node* pN) : pNode(pN) { }

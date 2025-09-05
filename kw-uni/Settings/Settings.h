@@ -120,7 +120,7 @@ struct Settings {
     int challengeNumForSameLeader = 4;      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
     int kanjiNoKanjiBonus = 1500;           // 「漢字+の+漢字」のような場合に与えるボーナス
     int depressedContinuousKanjiNum = 0;    // 連続するN文字の漢字列にはコストを与える
-    int exclusivePrefixCode = -1;           // 排他的なストローク処理を開始する文字のコード
+    int exclusivePrefixCode = -1;           // 排他的なストローク処理を開始する文字のコード。このコードから始まるストローク列が全て完了するまでは、途中から別のストロークを始めない 
     String mergerCandidateFile;             // 解候補ログファイル
     int realtimeTrigramBonusFactor = 100;   // Realtime 3gram のカウントからボーナス値を算出する際の係数
     int realtimeTrigramTier1Num = 5;        // Realtime 3gram の Tier1 の数

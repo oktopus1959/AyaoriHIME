@@ -69,6 +69,17 @@ State* State::SetNextState(State* p) {
     return pNext;
 }
 
+// 状態チェーンをたどりながら、func を実行する
+bool State::StateListWalker(std::function<bool(const State*)> func) const {
+    const State* p = this;
+    while (p) {
+        LOG_DEBUGH(_T("{}, NextNode={}"), p->Name, NODE_NAME(p->NextNodeMaybe()));
+        if (func(p)) return true;
+        p = p->NextState();
+    }
+    return false;
+}
+
 // 後続状態を削除する
 // さらに後続が生きていれば、それを自身の後続にする
 void State::DeleteNextState() {

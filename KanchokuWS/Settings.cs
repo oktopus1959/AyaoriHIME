@@ -222,7 +222,10 @@ namespace KanchokuWS
         /// <summary>連続するN文字の漢字列にはコストを与える</summary>
         public static int DepressedContinuousKanjiNum { get; set; } = 0;
 
-        /// <summary>排他的なストローク処理を開始する文字の集合</summary>
+        /// <summary>
+        /// 排他的なストローク処理を開始する文字のコード。<br/>
+        /// このコードから始まるストローク列が全て完了するまでは、途中から別のストロークを始めない 
+        /// </summary>
         public static int ExclusivePrefixCode { get; set; } = -1;
 
         /// <summary>解候補ログファイル</summary>

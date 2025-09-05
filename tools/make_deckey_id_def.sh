@@ -28,6 +28,8 @@ namespace deckey_id_defs { const wchar_t* GetDeckeyNameFromId(int id); }
 #define DECKEY_NAME_FROM_ID(id) deckey_id_defs::GetDeckeyNameFromId(id)
 EOS
 
+echo "$TGTFILE created"
+
 ###
 TGTFILE1=$TGTDIR/KeysAndChars/deckey_id_defs.cpp
 
@@ -55,3 +57,5 @@ cat <<EOS >> $TGTFILE1
 
 } // namespace deckey_id_defs
 EOS
+
+echo "$TGTFILE1 created"

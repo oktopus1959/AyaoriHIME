@@ -77,12 +77,6 @@ namespace {
             return p != nullptr ? p->IsRootKeyCombination() : false;
         }
 
-        // ルートテーブルは順序あり同時打鍵テーブルか
-        virtual bool IsRootTableOrderedCombination() {
-            auto p = dynamic_cast<StrokeTableState*>(PrevState());
-            return p != nullptr ? p->IsRootTableOrderedCombination() : false;
-        }
-
     public:
         // コンストラクタ
         StrokeTableState(StrokeTableNode* pN) {
@@ -112,38 +106,14 @@ namespace {
         void handleStrokeKeys(int deckey) {
             bool isRootCombo = IsRootKeyCombination();
             myChar = DECKEY_TO_CHARS->GetCharFromDeckey(origDeckey >= 0 ? origDeckey : deckey);
-            _LOG_DETAIL(_T("ENTER: {}: origDeckey={:x}H({}), deckey={:x}H({}), face={}, isRootCombo={}, nodeDepth={}, pN={:p}"),
-                Name, origDeckey, origDeckey, deckey, deckey, myChar, isRootCombo, DEPTH, (void*)myNode());
+            _LOG_DETAIL(_T("ENTER: {}:{}: origDeckey={:x}H({}), deckey={:x}H({}), face={}, isRootCombo={}, nodeDepth={}, pN={:p}"),
+                Name, myNode()->makeChildrenString(), origDeckey, origDeckey, deckey, deckey, myChar, isRootCombo, DEPTH, (void*)myNode());
             if (!isRootCombo) {
                 // RootStrokeTableState が作成されたときに OrigString はクリアされている。この処理はEisuModeなどへの対応のために必要
                 // ただしRootStrokeTableStateが同時打鍵の開始だった場合は、OrigStringを返さない
                 STATE_COMMON->AppendOrigString(myChar);
             }
-#if 0
-            // 漢直・かな融合のとき、漢直の第2シフトがShiftされている場合に、Unshiftする処理をやめた。
-            // ")"を入力したいのに、それが第2シフトとして扱われて漢直側の文字が入力されてしまったりするため
-            //if (!myNode()->isRootStrokeTableNode() && !IsRootKeyCombination()) {
-            //    // 自身がRootStrokeNodeでなく、かつRootStrokeKeyが同時打鍵キーでなければ通常面に落としこむ
-            //    // 同時打鍵の場合は、重複回避のため、第２キーはシフト化されてくる場合がある。その場合は、UNSHIFTしない
-            //    deckey = UNSHIFT_DECKEY(deckey);
-            //    _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
-            //}
-#else
-            //if (!myNode()->isRootStrokeTableNode() && !IsRootKeyCombination() && DeckeyUtil::is_ordered_combo(deckey)) {
-            //    // 自身がRootStrokeNodeでなく、かつRootStrokeKeyが同時打鍵キーでもなく、第2キーが順序ありの同時打鍵なら通常面に落としこむ。
-            //    // かな配列側で「い→ら」⇒「いう」が順序ありで定義されている場合に、「大使ら」をロールオーバーで打鍵しても「使」の2ストローク目を通常面として扱える。
-            //    // また、漢直側で「い→ら」⇒「運」を順序ありで再定義する必要もなくなる
-            //    deckey = UNSHIFT_DECKEY(deckey);
-            //    _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
-            if (DeckeyUtil::is_ordered_combo(deckey) && !NEXT_NODE(deckey) /*!IsRootTableOrderedCombination()*/) {
-                // //当キーが順序ありの同時打鍵で、RootStrokeTableが同時打鍵テーブルでないなら通常面に落としこむ。
-                // 当キーが順序ありの同時打鍵だが、該当するノード(SubTable)がないなら通常面に落としこむ。
-                // 漢直側でスペース前置の「<SP> O I」⇒「乖」を順序ありで再定義する必要がなくなる
-                deckey = UNSHIFT_DECKEY(deckey);
-                _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
-            }
-            //}
-#endif
+
             if (STATE_COMMON->IsDecodeKeyboardCharMode()) {
                 // キーボードフェイス文字を返すモード
                 _LOG_DETAIL(_T("SetNextNodeMaybe: MY_CHAR_NODE"));
@@ -178,7 +148,7 @@ namespace {
                 LOG_DEBUGH(_T("{}, rootKeyHiraganaized={}"), Name, IsRootKeyHiraganaized());
                 STATE_COMMON->SetHiraganaToKatakana();   // 通常面の平仮名を片仮名に変換するモード
             }
-            _LOG_DETAIL(_T("LEAVE"));
+            _LOG_DETAIL(_T("LEAVE: {}:{}"), Name, myNode()->makeChildrenString());
         }
 
         // Shift飾修されたキー
@@ -376,12 +346,6 @@ namespace {
             return bCombination;
         }
 
-        // ルートテーブルは順序あり同時打鍵テーブルか
-        bool IsRootTableOrderedCombination() override {
-            LOG_DEBUGH(_T("CALLED: {}, combination={}"), Name, myNode()->isOrderedComboTable());
-            return myNode()->isOrderedComboTable();
-        }
-
     public:
         // コンストラクタ
         RootStrokeTableState(StrokeTableNode* pN)
@@ -393,14 +357,8 @@ namespace {
 
         // StrokeTableNode を処理する
         void handleStrokeKeys(int deckey) {
-            _LOG_DETAIL(_T("ENTER: {}: isCombo={}: deckey={:x}H({})"), Name, myNode()->isOrderedComboTable(), deckey, deckey);
+            _LOG_DETAIL(_T("ENTER: {}:{}: isCombo={}: deckey={:x}H({})"), Name, myNode()->makeChildrenString(), myNode()->isComboTable(), deckey, deckey);
             STATE_COMMON->SyncFirstStrokeKeyCount();    // 第1ストロークキーカウントの同期
-            if (!myNode()->isOrderedComboTable() && DeckeyUtil::is_ordered_combo(deckey)) {
-                // 逐次打鍵テーブルであり、かつキーが順序ありの同時打鍵なら通常面に落としこむ。
-                // 漢直側で「い→ら」⇒「運」を順序ありで再定義する必要がなくなる
-                deckey = UNSHIFT_DECKEY(deckey);
-                _LOG_DETAIL(_T("UNSHIFT_DECKEY: {}: deckey={:x}H({})"), Name, deckey, deckey);
-            }
             if (deckey >= COMBO_DECKEY_START && deckey < EISU_COMBO_DECKEY_END) {
                 bCombination = true;
             }
@@ -413,7 +371,7 @@ namespace {
             //    // 次ノードがなく、拡張修飾キーの類なら、入力された拡張修飾類キーをそのまま返す
             //    setThroughDeckeyFlag();
             //}
-            _LOG_DETAIL(_T("LEAVE: {}"), Name);
+            _LOG_DETAIL(_T("LEAVE: {}:{}"), Name, myNode()->makeChildrenString());
         }
 
         // Shift飾修されたキー
@@ -589,6 +547,17 @@ void StrokeTableNode::MakeStrokeGuide(StringRef targetChars, int tableId) {
     }
 }
 
+// 子ノード列を表す文字列を返す
+String StrokeTableNode::makeChildrenString() const {
+    String result;
+    for (size_t i = 10; i < 20; ++i) {
+        Node* p = children[i];
+        result += (p && p->isStringLikeNode()) ? to_wstr(p->getString()) : L"□";
+    }
+    return result;
+}
+
+
 // 後置書き換え子ノードありか
 bool StrokeTableNode::hasPostRewriteNode() {
     if (iHasPostRewriteNode == 0) {
@@ -634,19 +603,6 @@ bool StrokeTableNode::hasComboNode() {
     _LOG_DETAIL(_T("ENTER"));
     bool result = false;
     for (int i = COMBO_DECKEY_START; i < (int)children.size(); ++i) {
-        if (children[i]) {
-            result = true;
-            break;
-        }
-    }
-    _LOG_DETAIL(_T("LEAVE: {}"), result);
-    return result;
-}
-
-bool StrokeTableNode::hasOrderedComboNode() {
-    _LOG_DETAIL(_T("ENTER"));
-    bool result = false;
-    for (int i = ORDERED_COMBO_DECKEY_START; i < (int)children.size(); ++i) {
         if (children[i]) {
             result = true;
             break;
