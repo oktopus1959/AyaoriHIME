@@ -81,7 +81,7 @@ namespace Utils
 
         public static string FindAppDataLocalDir()
         {
-            return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)._joinPath("KanchokuWS");
+            return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)._joinPath("KanchokuWime");
         }
 
         /// <summary>

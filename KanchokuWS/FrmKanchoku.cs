@@ -322,7 +322,7 @@ namespace KanchokuWS
 
             IMEHandler.MainWnd = this.Handle;
 
-            this.notifyIcon1.Text = "漢直WS " + Settings.Version;
+            this.notifyIcon1.Text = Settings.ProductKanjiName + " " + Settings.Version;
 
             // kanchoku.user.ini が存在しなければ、初期状態で作成しておく
             if (!UserKanchokuIni.Singleton.IsIniFileExist) {
@@ -398,7 +398,7 @@ namespace KanchokuWS
             // デバッグ用テーブルファイルの出力
             if (Settings.OutputDebugTableFiles) dumpDebugTableFiles();
 
-            //Text = "漢直WS";
+            //Text = Settings.ProductKanjiName;
 
             // 仮想鍵盤フォームを隠す
             if (!Settings.ShowEisuVkb || Settings.SplashWindowShowDuration > 0) frmVkb.Hide();
@@ -637,7 +637,7 @@ namespace KanchokuWS
             DeactivateDecoderWithModifiersOff();
 
             logger.Info($"ConfirmOnClose={Settings.ConfirmOnClose}");
-            if (!Settings.ConfirmOnClose || SystemHelper.OKCancelDialog("漢直WSを終了します。\r\nよろしいですか。")) {
+            if (!Settings.ConfirmOnClose || SystemHelper.OKCancelDialog($"{Settings.ProductKanjiName}を終了します。\r\nよろしいですか。")) {
                 logger.Info("CLOSING...");
                 Close();
             }
@@ -657,8 +657,8 @@ namespace KanchokuWS
 
             logger.Info($"bNoSave={bNoSave}, ConfirmOnRestart={Settings.ConfirmOnRestart}");
             var msg = bNoSave ?
-                "漢直WSを再起動します。\r\nデコーダが保持している辞書内容はファイルに保存されません。\r\nよろしいですか。" :
-                "漢直WSを再起動します。\r\nデコーダが保持している辞書内容をファイルに書き出すので、\r\nユーザーが直接辞書ファイルに加えた変更は失われます。\r\nよろしいですか。";
+                $"{Settings.ProductKanjiName}を再起動します。\r\nデコーダが保持している辞書内容はファイルに保存されません。\r\nよろしいですか。" :
+                $"{Settings.ProductKanjiName}を再起動します。\r\nデコーダが保持している辞書内容をファイルに書き出すので、\r\nユーザーが直接辞書ファイルに加えた変更は失われます。\r\nよろしいですか。";
             if (!Settings.ConfirmOnRestart || SystemHelper.OKCancelDialog(msg)) {
                 logger.Info("RESTARTING...");
                 bRestart = true;
@@ -1493,7 +1493,7 @@ namespace KanchokuWS
                 frmVkb.StrokeHelpShiftPlane = 0;
                 frmVkb.DecKeysForNextTableStrokeHelp.Clear();
                 frmVkb.DrawInitialVkb();
-                //Text = "漢直WS - ON";
+                //Text = $"{Settings.ProductKanjiName} - ON";
                 notifyIcon1.Icon = Properties.Resources.kanmini1;
                 //// 仮想鍵盤を移動させる
                 //MoveFormVirtualKeyboard();
@@ -2651,7 +2651,7 @@ namespace KanchokuWS
             KanaTrainingModeToggle();
         }
 
-        /// <summary> 漢直WSの一時停止/再開 </summary>
+        /// <summary> 漢直Wimeの一時停止/再開 </summary>
         private void Stop_ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DecoderSuspendToggle();

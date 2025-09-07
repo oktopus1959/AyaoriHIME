@@ -15,8 +15,11 @@ namespace KanchokuWS
         private static Logger logger = Logger.GetLogger();
 
         //-------------------------------------------------------------------------------------
+        /// <summary>製品名</summary>
+        public static string ProductName => "KanchokuWime";
+        public static string ProductKanjiName => "漢直Wime";
         /// <summary> バージョン </summary>
-        public static string Version => "1.3.0-α7";
+        public static string Version => "2.0.0-α7";
         public static string Version2 => "";
 
         //-------------------------------------------------------------------------------------

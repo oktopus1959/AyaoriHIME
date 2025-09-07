@@ -32,7 +32,7 @@ namespace KanchokuWS
             // タイトルバーを消す
             FormBorderStyle = FormBorderStyle.None;
 
-            label_version.Text += Settings.Version;
+            label_version.Text = $"{Settings.ProductKanjiName} Ver. {Settings.Version}";
             label_version2.Text = Settings.Version2;
 
             double dpiRate = ScreenInfo.Singleton.GetScreenDpiRate(this.Left, this.Top);
@@ -44,8 +44,6 @@ namespace KanchokuWS
             label2.Left = (int)(label2.Left * dpiRate);
             label3.Top = (int)(label3.Top * dpiRate);
             label3.Left = (int)(label3.Left * dpiRate);
-            label4.Top = (int)(label4.Top * dpiRate);
-            label4.Left = (int)(label4.Left * dpiRate);
             label_initializing.Top = (int)(label_initializing.Top * dpiRate);
             label_initializing.Left = (int)(label_initializing.Left * dpiRate);
             buttonOK.Top = (int)(buttonOK.Top * dpiRate);

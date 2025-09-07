@@ -30,7 +30,6 @@ namespace KanchokuWS
         {
             this.components = new System.ComponentModel.Container();
             this.buttonOK = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label_version = new System.Windows.Forms.Label();
@@ -52,31 +51,21 @@ namespace KanchokuWS
             this.buttonOK.Visible = false;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label4.Location = new System.Drawing.Point(59, 87);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(65, 12);
-            this.label4.TabIndex = 9;
-            this.label4.Text = "or Spoiler";
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label3.Location = new System.Drawing.Point(39, 70);
+            this.label3.Location = new System.Drawing.Point(84, 69);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(143, 12);
+            this.label3.Size = new System.Drawing.Size(35, 12);
             this.label3.TabIndex = 8;
-            this.label3.Text = "Shin, Second, Sharp, ..";
+            this.label3.Text = "I M E";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label2.Location = new System.Drawing.Point(77, 52);
+            this.label2.Location = new System.Drawing.Point(80, 52);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(47, 12);
             this.label2.TabIndex = 7;
@@ -86,11 +75,11 @@ namespace KanchokuWS
             // 
             this.label_version.AutoSize = true;
             this.label_version.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_version.Location = new System.Drawing.Point(48, 18);
+            this.label_version.Location = new System.Drawing.Point(41, 18);
             this.label_version.Name = "label_version";
-            this.label_version.Size = new System.Drawing.Size(71, 12);
+            this.label_version.Size = new System.Drawing.Size(83, 12);
             this.label_version.TabIndex = 6;
-            this.label_version.Text = "漢直WS Ver.";
+            this.label_version.Text = "漢直Wime Ver.";
             // 
             // label_initializing
             // 
@@ -135,7 +124,6 @@ namespace KanchokuWS
             this.Controls.Add(this.label_version2);
             this.Controls.Add(this.buttonSettings);
             this.Controls.Add(this.buttonOK);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label_version);
@@ -155,7 +143,6 @@ namespace KanchokuWS
         #endregion
 
         private System.Windows.Forms.Button buttonOK;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label_version;
