@@ -327,7 +327,9 @@ namespace KanchokuWS
             // kanchoku.user.ini が存在しなければ、初期状態で作成しておく
             if (!UserKanchokuIni.Singleton.IsIniFileExist) {
                 logger.WriteInfo("kanchoku.user.ini not found. Create.");
+                UserKanchokuIni.Singleton.IsUserIniAbsent = true;
                 UserKanchokuIni.Singleton.SetInt("logLevel", Logger.LogLevelWarnH);
+                Settings.SetUserIni("tableFile", "tables\\漢直系\\tutr.tbl");
             }
             // デバッグ用設定の読み込み
             Settings.ReadIniFileForDebug();
@@ -1414,7 +1416,9 @@ namespace KanchokuWS
 
         public void ToggleDecoder(int activatorCode = 0)
         {
-            ToggleActiveState(true, activatorCode);
+            if (Settings.TableFile._notEmpty()) {
+                ToggleActiveState(true, activatorCode);
+            }
         }
 
         // アクティブと非アクティブを切り替える
@@ -2539,6 +2543,7 @@ namespace KanchokuWS
             logger.Info("ENTER");
 
             // 初期化
+            UserKanchokuIni.Singleton.IsUserIniAbsent = false;
             KeyComboRepository.Initialize();
             ExtraModifiers.Initialize();
             DlgModConversion.Initialize();

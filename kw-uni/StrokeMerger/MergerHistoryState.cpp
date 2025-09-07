@@ -1483,17 +1483,24 @@ namespace {
     void createStrokeTree(StringRef tableFile, void(*treeCreator)(StringRef, std::vector<String>&)) {
         _LOG_INFOH(_T("ENTER: tableFile={}"), tableFile);
 
-        utils::IfstreamReader reader(tableFile);
-        if (reader.success()) {
-            //auto lines = utils::IfstreamReader(tableFile).getAllLines();
-            auto lines = reader.getAllLines();
-            // ストロークノード木の構築
-            treeCreator(tableFile, lines);
-            _LOG_INFOH(_T("close table file: {}"), tableFile);
+        if (tableFile.empty()) {
+            std::vector<String> emptyLines;
+            LOG_DEBUGH(_T("No table file specified"));
+            treeCreator(tableFile, emptyLines);
+            LOG_DEBUGH(_T("empty table file created"));
         } else {
-            // エラー
-            LOG_ERROR(_T("Can't read table file: {}"), tableFile);
-            ERROR_HANDLER->Error(std::format(_T("テーブルファイル({})が開けません"), tableFile));
+            utils::IfstreamReader reader(tableFile);
+            if (reader.success()) {
+                //auto lines = utils::IfstreamReader(tableFile).getAllLines();
+                auto lines = reader.getAllLines();
+                // ストロークノード木の構築
+                treeCreator(tableFile, lines);
+                _LOG_INFOH(_T("close table file: {}"), tableFile);
+            } else {
+                // エラー
+                LOG_ERROR(_T("Can't read table file: {}"), tableFile);
+                ERROR_HANDLER->Error(std::format(_T("テーブルファイル({})が開けません"), tableFile));
+            }
         }
 
         _LOG_INFOH(_T("LEAVE"));
@@ -1562,19 +1569,16 @@ State* StrokeMergerHistoryNode::CreateState() {
 void StrokeMergerHistoryNode::createStrokeTrees(bool bForceSecondary) {
 #define STROKE_TREE_CREATOR(F) [](StringRef file, std::vector<String>& lines) {F(file, lines);}
 
-    if (!SETTINGS->tableFile.empty()) {
-        // 主テーブルファイルの構築
-        createStrokeTree(utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile1.tbl")), STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree));
-    }
+    // 主テーブルファイルの構築
+    auto tableFile1 = SETTINGS->tableFile.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile1.tbl"));
+    createStrokeTree(tableFile1, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree));
 
-    if (bForceSecondary || !SETTINGS->tableFile2.empty()) {
-        // 副テーブルファイルの構築
-        createStrokeTree(utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile2.tbl")), STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree2));
-    }
+    // 副テーブルファイルの構築
+    auto tableFile2 = !bForceSecondary && SETTINGS->tableFile2.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile2.tbl"));
+    createStrokeTree(tableFile2, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree2));
 
-    if (!SETTINGS->tableFile3.empty()) {
-        // 第3テーブルファイルの構築
-        createStrokeTree(utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile3.tbl")), STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree3));
-    }
+    // 第3テーブルファイルの構築
+    auto tableFile3 = SETTINGS->tableFile3.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile3.tbl"));
+    createStrokeTree(tableFile3, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree3));
 }
 

@@ -1684,7 +1684,7 @@ namespace KanchokuWS
             DecoderSettings.Clear();
             DecoderSettings["logLevel"] = DecoderLogLevel.ToString();
             DecoderSettings["rootDir"] = KanchokuIni.Singleton.KanchokuDir;
-            DecoderSettings["firstUse"] = $"{!UserKanchokuIni.Singleton.IsIniFileExist}";
+            DecoderSettings["firstUse"] = $"{!UserKanchokuIni.Singleton.IsUserIniAbsent}";
             DecoderSettings["isJPmode"] = $"{Domain.DecoderKeyVsVKey.IsJPmode}";
             MultiStreamMode = addDecoderSetting("multiStreamMode", false);
             BushuAssocFile = addDecoderSetting("bushuAssocFile", "kwassoc.txt");
