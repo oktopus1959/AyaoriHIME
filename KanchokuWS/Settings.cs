@@ -1698,7 +1698,8 @@ namespace KanchokuWS
             //}
             setDecoderSetting("charsDefFile", TempCharsDefFile);
             EasyCharsFile = addDecoderSetting("easyCharsFile", "easy_chars.txt");
-            TableFile = addDecoderSetting("tableFile", $"{TableFileDir}\\漢直系\\tutr.tbl");
+            //TableFile = addDecoderSetting("tableFile", $"{TableFileDir}\\漢直系\\tutr.tbl");
+            TableFile = addDecoderSetting("tableFile", "");
             TableFile2 = addDecoderSetting("tableFile2", "");
 #if DEBUG
 #else
