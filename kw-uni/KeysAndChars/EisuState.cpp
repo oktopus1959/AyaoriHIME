@@ -1,22 +1,9 @@
-#include "Logger.h"
-#include "string_utils.h"
-#include "file_utils.h"
-#include "path_utils.h"
-
-#include "KanchokuIni.h"
-#include "Constants.h"
-#include "DeckeyToChars.h"
 #include "Settings.h"
-#include "ErrorHandler.h"
-#include "Node.h"
-#include "State.h"
-#include "StrokeTable.h"
-#include "OutputStack.h"
 #include "StrokeMerger/StrokeMergerHistoryResidentState.h"
 
 #include "Eisu.h"
 
-#if 0 || defined(_DEBUG)
+#if 1 || defined(_DEBUG)
 #undef LOG_INFO
 #undef LOG_DEBUGH
 #undef LOG_DEBUG

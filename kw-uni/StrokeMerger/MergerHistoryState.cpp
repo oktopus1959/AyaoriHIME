@@ -392,6 +392,11 @@ namespace {
             myChar = '\0';
 
             LOG_DEBUGH(_T("NextState={}"), STATE_NAME(NextState()));
+            if (DeckeyUtil::is_combo_deckey(deckey) && !DeckeyUtil::is_ordered_combo(deckey) && NextState() && NextState()->GetName() == L"EisuState") {
+                // 英数モード中の同時打鍵なら、EisuStateを終了する
+                LOG_DEBUG(L"deckey is combo and NextState is EisuState: delete it");
+                this->DeleteNextState();
+            }
             if (NextState()) {
                 LOG_DEBUGH(_T("NextState: FOUND"));
                 // 後続状態があれば、そちらを呼び出す

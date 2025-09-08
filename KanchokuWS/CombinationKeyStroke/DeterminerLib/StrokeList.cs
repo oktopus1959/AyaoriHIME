@@ -367,8 +367,10 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
                 keyCombo = KeyCombinationPool._GetEntry(list);
                 logger.InfoH(() =>
                     $"combo={(keyCombo == null ? "(none)" : "FOUND")}, decKeyList={(keyCombo == null ? "(none)" : keyCombo.DecKeysDebugString())}, " +
-                    $"Terminal={keyCombo?.IsTerminal ?? false}, isComboBlocked={keyCombo?.IsComboBlocked ?? false}, isStackLike={keyCombo?.IsStackLikeCombo ?? false}" +
-                    $"OnlyCharKeysComboShouldBeCoveringCombo={Settings.OnlyCharKeysComboShouldBeCoveringCombo}, ContainsTwoCharacterKeys={keyCombo?.ContainsTwoCharacterKeys ?? false}" +
+                    $"Terminal={keyCombo?.IsTerminal ?? false}, isComboBlocked={keyCombo?.IsComboBlocked ?? false}, " +
+                    $"isStackLike={keyCombo?.IsStackLikeCombo ?? false}, " +
+                    $"OnlyCharKeysComboShouldBeCoveringCombo={Settings.OnlyCharKeysComboShouldBeCoveringCombo}, " +
+                    $"ContainsTwoCharacterKeys={keyCombo?.ContainsTwoCharacterKeys ?? false}, " +
                     $"comboKeyList={(keyCombo == null ? "(none)" : keyCombo.ComboKeysString())}");
                 if (keyCombo != null && keyCombo.DecKeyList != null && (keyCombo.IsTerminal || keyCombo.IsComboBlocked) &&
                     !((Settings.OnlyCharKeysComboShouldBeCoveringCombo || keyCombo.IsStackLikeCombo) && keyCombo.ContainsTwoCharacterKeys)) {

@@ -385,15 +385,15 @@ namespace KanchokuWS.CombinationKeyStroke
                 } else {
                     if (lastRepeatedDecKey != decKey) bAutoRepeated = false;
                     lastRepeatedDecKey = decKey;
-                    if (frmMain.DecoderOutput.IsDecoderEisuMode()) {
-                        // デコーダが英数モードだったので、そのまま返す
-                        logger.InfoH("decoder is EISU mode");
-                        result = makeSingleHitResult();
-                    //} else if (combo?.IsTerminal == true && KeyCombinationPool._IsRepeatableKey(decKey)) {
-                    //    // 終端、かつキーリピートが可能なキーだった(BackSpaceとか)ので、それを返す
-                    //    logger.InfoH("terminal and repeatable key");
+                    //if (frmMain.DecoderOutput.IsDecoderEisuMode()) {
+                    //    // デコーダが英数モードだったので、そのまま返す
+                    //    logger.InfoH("decoder is EISU mode");
                     //    result = makeSingleHitResult();
-                    } else {
+                    ////} else if (combo?.IsTerminal == true && KeyCombinationPool._IsRepeatableKey(decKey)) {
+                    ////    // 終端、かつキーリピートが可能なキーだった(BackSpaceとか)ので、それを返す
+                    ////    logger.InfoH("terminal and repeatable key");
+                    ////    result = makeSingleHitResult();
+                    //} else {
                         logger.InfoH(() => stroke.DebugString());
 
                         // キーリピートのチェック
@@ -504,7 +504,7 @@ namespace KanchokuWS.CombinationKeyStroke
                                 result = makeSingleHitResult();
                             }
                         }
-                    }
+                    //}
                 }
             } catch (Exception ex) {
                 logger.Error(ex._getErrorMsg());

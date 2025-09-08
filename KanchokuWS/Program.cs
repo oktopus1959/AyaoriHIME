@@ -16,7 +16,7 @@ namespace KanchokuWS
         [STAThread]
         static void Main(string[] args)
         {
-            Logger.LogFilename = $"{Settings.ProductKanjiName}.log";
+            Logger.LogFilename = $"{Settings.ProductName}.log";
             Logger.LogLevel = Settings.GetLogLevel();
 
             if (args.Length > 0) {
@@ -64,7 +64,7 @@ namespace KanchokuWS
 
     public static class MultiAppChecker
     {
-        static string mutexName = $"{Settings.ProductKanjiName}-4C1B35AB-0759-41C0-9109-FFFDCE2A0621";
+        static string mutexName = $"{Settings.ProductName}-4C1B35AB-0759-41C0-9109-FFFDCE2A0621";
 
         static System.Threading.Mutex mutex = null;
 

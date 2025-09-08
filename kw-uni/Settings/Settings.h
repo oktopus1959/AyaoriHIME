@@ -1,6 +1,6 @@
 #pragma once
 
-#include "string_type.h"
+#include "std_utils.h"
 
 struct Settings {
     bool firstUse = true;      // 最初の起動か

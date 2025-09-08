@@ -4,9 +4,10 @@ BINDIR=$(dirname $0)
 
 TAILOPT=-f
 PROGDIR=bin/Release
+LOGFILE=KanchokuWime
 SCRIPT=kanchokuws
 LINENUM=
-LOGFILE=
+LOGPATH=
 LESS_CMD=
 
 while [ "$1" ]; do
@@ -17,6 +18,7 @@ while [ "$1" ]; do
         PROGDIR=bin/Debug
         shift
     elif [ "$1" == "-u" ]; then
+        LOGFILE=kw-uni
         SCRIPT=kw-uni
         shift
     elif [ "$1" == "-n" ]; then
@@ -31,7 +33,7 @@ while [ "$1" ]; do
         if [[ $1 =~ ^[0-9]+ ]]; then
             LINENUM=$1
         else
-            LOGFILE=$1
+            LOGPATH=$1
         fi
         shift
     fi
@@ -42,8 +44,8 @@ if [ "$LINENUM" ]; then
     LESS_CMD="| less -R -F -X"
 fi
 
-[ $LOGFILE ] || LOGFILE=$PROGDIR/${SCRIPT}.log
+[ $LOGPATH ] || LOGPATH=$PROGDIR/${LOGFILE}.log
 
-CMD="tail $TAILOPT $LINENUM $LOGFILE | $BINDIR/${SCRIPT}_colorcat.sh $LESS_CMD"
+CMD="tail $TAILOPT $LINENUM $LOGPATH | $BINDIR/${SCRIPT}_colorcat.sh $LESS_CMD"
 echo "$CMD"
 eval "$CMD"
