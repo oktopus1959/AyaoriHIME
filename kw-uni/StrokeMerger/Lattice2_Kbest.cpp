@@ -1,5 +1,4 @@
 #include "Logger.h"
-
 #include "settings.h"
 #include "StateCommonInfo.h"
 
@@ -76,6 +75,9 @@ namespace lattice2 {
 
     // 非優先候補に与えるペナルティ
     int NON_PREFERRED_PENALTY = 1000000;
+
+    // パディング候補に与えるペナルティ(ペナルティの中で最大値; 候補のCostがこれ以上なら、その候補に Padding Piece が含まれていることが分かるようにする)
+    int PADDING_PENALTY = 100000000;
 
     //--------------------------------------------------------------------------------------
     inline bool isHighFreqJoshi(mchar_t mc) {
@@ -675,6 +677,7 @@ namespace lattice2 {
         }
 
         // beamSize を超えた部分を削除する
+        // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
         void truncateTailCandidates(std::vector<CandidateString>& newCandidates) {
             _LOG_DETAIL(_T("ENTER: newCandidates.size={}"), newCandidates.size());
             if (IS_LOG_DEBUGH_ENABLED) {
@@ -685,6 +688,7 @@ namespace lattice2 {
             std::set<MString> uniGrams;
             const size_t beamSize = SETTINGS->multiStreamBeamSize;
             const size_t beamSize2 = beamSize + (int)(beamSize * SETTINGS->extraBeamSizeRate);
+            bool bNonPaddingFound = false;  // Padding piece を含まない候補が見つかったか
             size_t pos = 0;
             while (pos < newCandidates.size()) {
                 auto iter = newCandidates.begin() + pos;
@@ -692,54 +696,58 @@ namespace lattice2 {
                 const MString uni = str.size() >= 1 ? utils::safe_tailstr(str, 1) : EMPTY_MSTR;
                 const MString bi = str.size() >= 2 ? utils::safe_tailstr(str, 2) : EMPTY_MSTR;
                 const MString tri = str.size() >= 3 ? utils::safe_tailstr(str, 3) : EMPTY_MSTR;
-                if (pos < beamSize) {
-                    if (!uni.empty()) uniGrams.insert(uni);
-                    if (!bi.empty()) biGrams.insert(bi);
-                    if (!tri.empty()) triGrams.insert(tri);
-                    _LOG_DETAIL(_T("[{}] string={}: OK"), pos, to_wstr(str));
-                    ++pos;
-                } else {
-                    if (IS_LOG_DEBUGH_ENABLED && pos == beamSize) {
-                        _LOG_DETAIL(_T("uniGrams={}"), to_wstr(utils::join(uniGrams, ',')));
-                        _LOG_DETAIL(_T("biGrams={}"), to_wstr(utils::join(biGrams, ',')));
-                        _LOG_DETAIL(_T("triGrams={}"), to_wstr(utils::join(triGrams, ',')));
-                    }
-                    if (iter->isNonTerminal()) {
-                        // 非終端は残す
-                        _LOG_DETAIL(_T("REMAIN: non terminal: {}"), to_wstr(str));
+                if (iter->penalty() < PADDING_PENALTY) bNonPaddingFound = true;
+                if (!bNonPaddingFound || iter->penalty() < PADDING_PENALTY) {
+                    if (pos < beamSize) {
+                        if (!uni.empty()) uniGrams.insert(uni);
+                        if (!bi.empty()) biGrams.insert(bi);
+                        if (!tri.empty()) triGrams.insert(tri);
+                        _LOG_DETAIL(_T("[{}] string={}: OK"), pos, to_wstr(str));
                         ++pos;
                         continue;
-                    }
-                    if (!tri.empty()) {
-                        if (triGrams.size() < beamSize2 && triGrams.find(tri) == triGrams.end()) {
-                            // 未見のtrigramであり、まだ余裕がある
-                            triGrams.insert(tri);
-                            _LOG_DETAIL(_T("[{}] string={}: triGram OK, triGrams.size={}"), pos, to_wstr(str), triGrams.size());
+                    } else {
+                        if (IS_LOG_DEBUGH_ENABLED && pos == beamSize) {
+                            _LOG_DETAIL(_T("uniGrams={}"), to_wstr(utils::join(uniGrams, ',')));
+                            _LOG_DETAIL(_T("biGrams={}"), to_wstr(utils::join(biGrams, ',')));
+                            _LOG_DETAIL(_T("triGrams={}"), to_wstr(utils::join(triGrams, ',')));
+                        }
+                        if (iter->isNonTerminal()) {
+                            // 非終端は残す
+                            _LOG_DETAIL(_T("REMAIN: non terminal: {}"), to_wstr(str));
                             ++pos;
                             continue;
                         }
-                    }
-                    if (!bi.empty()) {
-                        if (biGrams.size() < beamSize2 && biGrams.find(bi) == biGrams.end()) {
-                            // 未見のbigramであり、まだ余裕がある
-                            biGrams.insert(bi);
-                            _LOG_DETAIL(_T("[{}] string={}: biGram OK, biGrams.size={}"), pos, to_wstr(str), biGrams.size());
-                            ++pos;
-                            continue;
+                        if (!tri.empty()) {
+                            if (triGrams.size() < beamSize2 && triGrams.find(tri) == triGrams.end()) {
+                                // 未見のtrigramであり、まだ余裕がある
+                                triGrams.insert(tri);
+                                _LOG_DETAIL(_T("[{}] string={}: triGram OK, triGrams.size={}"), pos, to_wstr(str), triGrams.size());
+                                ++pos;
+                                continue;
+                            }
+                        }
+                        if (!bi.empty()) {
+                            if (biGrams.size() < beamSize2 && biGrams.find(bi) == biGrams.end()) {
+                                // 未見のbigramであり、まだ余裕がある
+                                biGrams.insert(bi);
+                                _LOG_DETAIL(_T("[{}] string={}: biGram OK, biGrams.size={}"), pos, to_wstr(str), biGrams.size());
+                                ++pos;
+                                continue;
+                            }
+                        }
+                        if (!uni.empty()) {
+                            if (uniGrams.size() < beamSize2 && uniGrams.find(uni) == uniGrams.end()) {
+                                // 未見のunigramであり、まだ余裕がある
+                                uniGrams.insert(uni);
+                                _LOG_DETAIL(_T("[{}] string={}: uniGram OK, uniGrams.size={}"), pos, to_wstr(str), uniGrams.size());
+                                ++pos;
+                                continue;
+                            }
                         }
                     }
-                    if (!uni.empty()) {
-                        if (uniGrams.size() < beamSize2 && uniGrams.find(uni) == uniGrams.end()) {
-                            // 未見のunigramであり、まだ余裕がある
-                            uniGrams.insert(uni);
-                            _LOG_DETAIL(_T("[{}] string={}: uniGram OK, uniGrams.size={}"), pos, to_wstr(str), uniGrams.size());
-                            ++pos;
-                            continue;
-                        }
-                    }
-                    _LOG_DETAIL(_T("[{}] string={}: erased"), pos, to_wstr(str));
-                    newCandidates.erase(iter);
                 }
+                _LOG_DETAIL(_T("[{}] string={}: erased"), pos, to_wstr(str));
+                newCandidates.erase(iter);
             }
             if (pos < newCandidates.size()) {
                 newCandidates.resize(pos);
@@ -817,6 +825,11 @@ namespace lattice2 {
                 if (isStrokeBS || bStrokeCountMatched) {
                     // 素片のストロークと適合する候補
                     int penalty = cand.penalty();
+                    if (piece.isPadding()) {
+                        // パディング素片の場合はペナルティを加算
+                        penalty += PADDING_PENALTY;
+                        _LOG_DETAIL(L"Padding piece penalty, total penalty={}", penalty);
+                    }
                     if (singleHitHighFreqJoshiCost > 0) {
                         // 複数ストロークによる入力で、2打鍵目がロールオーバーでなかったらペナルティ
                         penalty += singleHitHighFreqJoshiCost;
@@ -1021,6 +1034,11 @@ namespace lattice2 {
             std::vector<CandidateString> newCandidates;
             int penalty = getKanjiPrefferredPenalty(dummyCand, piece);
             if (penalty == 0) {
+                if (piece.isPadding()) {
+                    // パディング素片の場合はペナルティを加算
+                    penalty += PADDING_PENALTY;
+                    _LOG_DETAIL(L"Padding piece penalty, total penalty={}", penalty);
+                }
                 std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
                 for (MString s : ss) {
                     CandidateString newCandStr(s, strokeCount, 0, penalty);
