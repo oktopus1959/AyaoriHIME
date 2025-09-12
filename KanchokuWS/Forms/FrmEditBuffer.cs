@@ -540,13 +540,15 @@ namespace KanchokuWS.Forms
             //if (fRight >= rect.X + rect.Width) fX = cX - fW - Math.Abs(xOffset);
             //if (fBottom >= rect.Y + rect.Height) fY = cY - fH - Math.Abs(yOffset);
             // スクリーンからはみ出したとき
+            bool bOutOfScreen = false;
             if (fRight >= rect.X + rect.Width) {
+                bOutOfScreen = true;
                 fX = cX - fW - Math.Abs(xOffset);
                 if (fY >= cY && fY <= cY + cH || fY < cY && fY + fH >= cY) {
                     fY = cY + cH;
                 }
             }
-            if (bLog) logger.InfoH($"MOVE: X={fX}, Y={fY}, W={fW}, H={fH}");
+            if (bLog) logger.InfoH($"MOVE: X={fX}, Y={fY}, W={fW}, H={fH}, fRight={fRight}, rect.Right={rect.X + rect.Width}, outOfScreen={bOutOfScreen}");
             MoveWindow(this.Handle, fX, fY, fW, fH, true);
 
             ShowNonActive();
@@ -569,6 +571,14 @@ namespace KanchokuWS.Forms
             resetFormSize();
             //if (EditText._notEmpty()) ShowNonActive();
             //logger.InfoH($"text={EditText}");
+            // フォームが画面からはみ出していたら、画面内に収める
+            Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(this.Location.X, this.Location.Y + this.Height / 2);
+            if (rect != Rectangle.Empty) {
+                if (this.Location.X + this.Width + 8> rect.X + rect.Width) {
+                    this.Location = new Point(rect.X + rect.Width - this.Width - 100, this.Location.Y);
+                    MoveWindow(this.Handle, this.Location.X, this.Location.Y, this.Width, this.Height, true);
+                }
+            }
         }
     }
 }
