@@ -1603,7 +1603,7 @@ namespace KanchokuWS
                             frmVkb.MoveWindow(activeWinSettings, activeWinCaretPos, bFixedPosWinClass, bLog);
                         }
                         if (IsDecoderActive) {
-                            frmEditBuf.MoveWindow(activeWinSettings, activeWinCaretPos, bDiffWin, bFixedPosWinClass, bLog);
+                            frmEditBuf.MoveWindow(/*activeWinSettings,*/ activeWinCaretPos, bDiffWin, bFixedPosWinClass, bLog);
                         }
                         prevCaretPos = activeWinCaretPos;
                     }

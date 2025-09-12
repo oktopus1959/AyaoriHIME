@@ -187,7 +187,7 @@ namespace KanchokuWS.Gui
             dgvAbout.Rows[iRow].Cells[0].Value = "アプリケーション名／バージョン";
             dgvAbout.Rows[iRow++].Cells[1].Value = $"{Settings.ProductName} Ver.{Settings.Version}";
             dgvAbout.Rows[iRow].Cells[0].Value = "別名";
-            dgvAbout.Rows[iRow++].Cells[1].Value = $"{Settings.ProductKanjiName} (Kanchoku Win IME; 漢直ウィミー)";
+            dgvAbout.Rows[iRow++].Cells[1].Value = $"{Settings.ProductKanjiName} - {Settings.ProductExplanation}";
             dgvAbout.Rows[iRow].Cells[0].Value = "プログラムパス";
             dgvAbout.Rows[iRow++].Cells[1].Value = SystemHelper.GetExePath();
             dgvAbout.Rows[iRow].Cells[0].Value = "ルートフォルダ";

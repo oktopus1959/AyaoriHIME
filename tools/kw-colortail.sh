@@ -4,7 +4,7 @@ BINDIR=$(dirname $0)
 
 TAILOPT=-f
 PROGDIR=bin/Release
-LOGFILE=KanchokuWime
+LOGFILE=AYAORIHIME
 SCRIPT=kanchokuws
 LINENUM=
 LOGPATH=

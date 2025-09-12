@@ -30,19 +30,20 @@ namespace KanchokuWS
         {
             this.components = new System.ComponentModel.Container();
             this.buttonOK = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.label_subName = new System.Windows.Forms.Label();
             this.label_version = new System.Windows.Forms.Label();
             this.label_initializing = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.buttonSettings = new System.Windows.Forms.Button();
             this.label_version2 = new System.Windows.Forms.Label();
+            this.label_explanation = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // buttonOK
             // 
+            this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonOK.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.buttonOK.Location = new System.Drawing.Point(41, 110);
+            this.buttonOK.Location = new System.Drawing.Point(41, 92);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(50, 21);
             this.buttonOK.TabIndex = 10;
@@ -51,25 +52,15 @@ namespace KanchokuWS
             this.buttonOK.Visible = false;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
-            // label3
+            // label_subName
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label3.Location = new System.Drawing.Point(84, 69);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(35, 12);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "I M E";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label2.Location = new System.Drawing.Point(80, 52);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(47, 12);
-            this.label2.TabIndex = 7;
-            this.label2.Text = "漢直Win";
+            this.label_subName.AutoSize = true;
+            this.label_subName.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_subName.Location = new System.Drawing.Point(57, 45);
+            this.label_subName.Name = "label_subName";
+            this.label_subName.Size = new System.Drawing.Size(77, 12);
+            this.label_subName.TabIndex = 7;
+            this.label_subName.Text = "製品名(漢字)";
             // 
             // label_version
             // 
@@ -77,15 +68,16 @@ namespace KanchokuWS
             this.label_version.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label_version.Location = new System.Drawing.Point(41, 18);
             this.label_version.Name = "label_version";
-            this.label_version.Size = new System.Drawing.Size(83, 12);
+            this.label_version.Size = new System.Drawing.Size(77, 12);
             this.label_version.TabIndex = 6;
-            this.label_version.Text = "漢直Wime Ver.";
+            this.label_version.Text = "Product Ver.";
             // 
             // label_initializing
             // 
+            this.label_initializing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label_initializing.AutoSize = true;
             this.label_initializing.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_initializing.Location = new System.Drawing.Point(22, 114);
+            this.label_initializing.Location = new System.Drawing.Point(22, 96);
             this.label_initializing.Name = "label_initializing";
             this.label_initializing.Size = new System.Drawing.Size(167, 12);
             this.label_initializing.TabIndex = 11;
@@ -97,8 +89,9 @@ namespace KanchokuWS
             // 
             // buttonSettings
             // 
+            this.buttonSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonSettings.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.buttonSettings.Location = new System.Drawing.Point(108, 110);
+            this.buttonSettings.Location = new System.Drawing.Point(108, 92);
             this.buttonSettings.Name = "buttonSettings";
             this.buttonSettings.Size = new System.Drawing.Size(50, 21);
             this.buttonSettings.TabIndex = 12;
@@ -116,16 +109,26 @@ namespace KanchokuWS
             this.label_version2.Size = new System.Drawing.Size(0, 12);
             this.label_version2.TabIndex = 13;
             // 
+            // label_explanation
+            // 
+            this.label_explanation.AutoSize = true;
+            this.label_explanation.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_explanation.Location = new System.Drawing.Point(52, 66);
+            this.label_explanation.Name = "label_explanation";
+            this.label_explanation.Size = new System.Drawing.Size(83, 12);
+            this.label_explanation.TabIndex = 14;
+            this.label_explanation.Text = "製品名 - 説明";
+            // 
             // FrmSplash
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(205, 139);
+            this.ClientSize = new System.Drawing.Size(205, 121);
+            this.Controls.Add(this.label_explanation);
             this.Controls.Add(this.label_version2);
             this.Controls.Add(this.buttonSettings);
             this.Controls.Add(this.buttonOK);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label_subName);
             this.Controls.Add(this.label_version);
             this.Controls.Add(this.label_initializing);
             this.Name = "FrmSplash";
@@ -143,12 +146,12 @@ namespace KanchokuWS
         #endregion
 
         private System.Windows.Forms.Button buttonOK;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label_subName;
         private System.Windows.Forms.Label label_version;
         private System.Windows.Forms.Label label_initializing;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Button buttonSettings;
         private System.Windows.Forms.Label label_version2;
+        private System.Windows.Forms.Label label_explanation;
     }
 }

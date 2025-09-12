@@ -125,6 +125,8 @@ struct Settings {
     int realtimeTrigramBonusFactor = 100;   // Realtime 3gram のカウントからボーナス値を算出する際の係数
     int realtimeTrigramTier1Num = 5;        // Realtime 3gram の Tier1 の数
     int realtimeTrigramTier2Num = 10;       // Realtime 3gram の Tier2 の数
+    int mergerCandidateMin = 3;             // 解候補ログに出力する最小解数
+    int mergerCandidateMax = 10;            // 解候補ログに出力する最大解数
     String editBufferCaretChar = L"▴";      // 編集バッファのカレット文字
 
     // for Debug

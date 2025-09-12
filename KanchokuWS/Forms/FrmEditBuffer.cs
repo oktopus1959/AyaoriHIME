@@ -505,7 +505,7 @@ namespace KanchokuWS.Forms
         /// 表示・編集バッファをカレットの近くに移動する<br/>
         /// これが呼ばれるのはデコーダがONのときだけ
         /// </summary>
-        public void MoveWindow(Settings.WindowsClassSettings activeWinSettings, Rectangle activeWinCaretPos, bool bDiffWin, bool bFixedPosWinClass, bool bLog)
+        public void MoveWindow(/*Settings.WindowsClassSettings activeWinSettings,*/ Rectangle activeWinCaretPos, bool bDiffWin, bool bFixedPosWinClass, bool bLog)
         {
             //if (bDiffWin) {
             //    var font = FontInfo.GetActiveWindowFont(1.0f);
@@ -513,8 +513,8 @@ namespace KanchokuWS.Forms
             //    if (font != null) editTextBox.Font = font;
             //}
 
-            int xOffset = (activeWinSettings?.CaretOffset)._getNth(0, 2);
-            int yOffset = (activeWinSettings?.CaretOffset)._getNth(1, 2);
+            int xOffset = 2; // (activeWinSettings?.CaretOffset)._getNth(0, 2);
+            int yOffset = 2; // (activeWinSettings?.CaretOffset)._getNth(1, 2);
             //double dpiRatio = 1.0; //FrmVkb.GetDeviceDpiRatio();
 
             int cX = activeWinCaretPos.X;
@@ -526,29 +526,47 @@ namespace KanchokuWS.Forms
             int fW = this.Size.Width;
             int fH = this.Size.Height;
 
-            if (bLog) logger.InfoH($"fW={fW}, fH={fH}, cX={cX}, cY={cY}, cW={cW}, cH={cH}");
-
             int fX = cX + (xOffset >= 0 ? cW : -fW) + xOffset;
             if (fX < 0) fX = cX + cW + Math.Abs(xOffset);
 
             int fY = cY + (cH - fH) / 2 + 1;      // カレットとTextBoxの中心より若干下に位置させる
             if (fY < 0) fY = cY + cH + Math.Abs(yOffset);
 
-            int fRight = fX + fW;
-            int fBottom = fY + fH;
+            if (bLog) logger.InfoH($"FORM: fX={fX}, fY={fY}, fW={fW}, fH={fH}, cX={cX}, cY={cY}, cW={cW}, cH={cH}");
+
             Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(cX, cY);
-            //if (fRight >= rect.X + rect.Width) fX = cX - fW - Math.Abs(xOffset);
-            //if (fBottom >= rect.Y + rect.Height) fY = cY - fH - Math.Abs(yOffset);
-            // スクリーンからはみ出したとき
-            bool bOutOfScreen = false;
-            if (fRight >= rect.X + rect.Width) {
-                bOutOfScreen = true;
-                fX = cX - fW - Math.Abs(xOffset);
-                if (fY >= cY && fY <= cY + cH || fY < cY && fY + fH >= cY) {
-                    fY = cY + cH;
+            if (rect != Rectangle.Empty) {
+                int rX = rect.X;
+                int rY = rect.Y;
+                int rRight = rect.X + rect.Width;
+                int rBottom = rect.Y + rect.Height;
+                if (bLog) logger.InfoH($"SCREEN: X={rX}, Y={rY}, Right={rRight}, Bottom={rBottom}");
+                //if (fRight >= rect.X + rect.Width) fX = cX - fW - Math.Abs(xOffset);
+                //if (fBottom >= rect.Y + rect.Height) fY = cY - fH - Math.Abs(yOffset);
+                // スクリーンからはみ出したとき
+                bool bOutOfScreen = false;
+                if (fX < rX) {
+                    fX = rX;
+                    bOutOfScreen = true;
                 }
+                if (fY < rY) {
+                    fY = rY;
+                    bOutOfScreen = true;
+                }
+                int fRight = fX + fW;
+                int fBottom = fY + fH;
+                if (fRight >= rRight) {
+                    bOutOfScreen = true;
+                    fX = rRight - fW - Math.Abs(xOffset);
+                }
+                if (fBottom >= rBottom) {
+                    bOutOfScreen = true;
+                    fY = rBottom - fH - Math.Abs(yOffset);
+                }
+                if (bLog) logger.InfoH($"MOVE: fX={fX}, fY={fY}, fW={fW}, fH={fH}, fRight={fRight}, rect.Right={rect.X + rect.Width}, outOfScreen={bOutOfScreen}");
+            } else {
+                if (bLog) logger.InfoH($"MOVE: fX={fX}, fY={fY}, fW={fW}, fH={fH}, rect.Right={rect.X + rect.Width}");
             }
-            if (bLog) logger.InfoH($"MOVE: X={fX}, Y={fY}, W={fW}, H={fH}, fRight={fRight}, rect.Right={rect.X + rect.Width}, outOfScreen={bOutOfScreen}");
             MoveWindow(this.Handle, fX, fY, fW, fH, true);
 
             ShowNonActive();
@@ -574,8 +592,9 @@ namespace KanchokuWS.Forms
             // フォームが画面からはみ出していたら、画面内に収める
             Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(this.Location.X, this.Location.Y + this.Height / 2);
             if (rect != Rectangle.Empty) {
-                if (this.Location.X + this.Width + 8> rect.X + rect.Width) {
-                    this.Location = new Point(rect.X + rect.Width - this.Width - 100, this.Location.Y);
+                int rRight = rect.X + rect.Width;
+                if (this.Location.X + this.Width + 8 > rRight) {
+                    this.Location = new Point(rRight - this.Width - 100, this.Location.Y);
                     MoveWindow(this.Handle, this.Location.X, this.Location.Y, this.Width, this.Height, true);
                 }
             }

@@ -32,18 +32,24 @@ namespace KanchokuWS
             // タイトルバーを消す
             FormBorderStyle = FormBorderStyle.None;
 
-            label_version.Text = $"{Settings.ProductKanjiName} Ver. {Settings.Version}";
+            label_version.Text = $"{Settings.ProductName} Ver. {Settings.Version}";
             label_version2.Text = Settings.Version2;
+            label_subName.Text = $"{Settings.ProductKanjiName}";
+            label_explanation.Text = $"{Settings.ProductExplanation}";
+
+            label_version.Left = (this.ClientSize.Width - label_version.Width) / 2;
+            label_explanation.Left = (this.ClientSize.Width - label_explanation.Width) / 2;
+            label_subName.Left = (this.ClientSize.Width - label_subName.Width) / 2;
+            buttonOK.Left = (this.ClientSize.Width / 2) - 10 - buttonOK.Width;
+            buttonSettings.Left = (this.ClientSize.Width / 2) + 10;
 
             double dpiRate = ScreenInfo.Singleton.GetScreenDpiRate(this.Left, this.Top);
             this.Width = (int)(this.Width * dpiRate);
             this.Height = (int)(this.Height * dpiRate);
             label_version.Top = (int)(label_version.Top * dpiRate);
             label_version.Left = (int)(label_version.Left * dpiRate);
-            label2.Top = (int)(label2.Top * dpiRate);
-            label2.Left = (int)(label2.Left * dpiRate);
-            label3.Top = (int)(label3.Top * dpiRate);
-            label3.Left = (int)(label3.Left * dpiRate);
+            label_subName.Top = (int)(label_subName.Top * dpiRate);
+            label_subName.Left = (int)(label_subName.Left * dpiRate);
             label_initializing.Top = (int)(label_initializing.Top * dpiRate);
             label_initializing.Left = (int)(label_initializing.Left * dpiRate);
             buttonOK.Top = (int)(buttonOK.Top * dpiRate);

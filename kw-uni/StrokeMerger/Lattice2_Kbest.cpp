@@ -479,8 +479,10 @@ namespace lattice2 {
         std::vector<MString> getCandStringsInSelectedBlock() const override {
             _LOG_DETAIL(L"ENTER: _candidates.size={}, _origFirstCand={}, _selectedCandPos={}", _candidates.size(), _origFirstCand, _selectedCandPos);
             std::vector<MString> result;
+            // ブロックサイズ (最初は最小数, 選択開始後は最大数)
+            const int BLOCK_SIZE = selectedCandPos() < 0 ? SETTINGS->mergerCandidateMin : SETTINGS->mergerCandidateMax;
             int nSameLen = getNumOfSameStrokeLen();
-            if (nSameLen <= 0) {
+            if (nSameLen <= 0 || BLOCK_SIZE <= 0) {
                 _LOG_DETAIL(L"LEAVE: nSameLen<=0");
                 return result;
             }
@@ -498,8 +500,7 @@ namespace lattice2 {
             int selPos = selectedCandPos();   // -1 の場合は未選択
             if (selPos < 0 || selPos >= (int)ordered.size()) selPos = 0;
 
-            // ブロック計算 (10件単位)
-            const int BLOCK_SIZE = 10;
+            // ブロック計算
             int blockStart = (selPos / BLOCK_SIZE) * BLOCK_SIZE;
             int blockEnd = std::min(blockStart + BLOCK_SIZE, (int)ordered.size());
 

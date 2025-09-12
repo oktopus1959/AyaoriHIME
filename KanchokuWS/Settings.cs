@@ -16,10 +16,11 @@ namespace KanchokuWS
 
         //-------------------------------------------------------------------------------------
         /// <summary>製品名</summary>
-        public static string ProductName => "KanchokuWime";
-        public static string ProductKanjiName => "漢直Wime";
+        public static string ProductName => "AYAORIHIME";
+        public static string ProductKanjiName => "漢織姫";
+        public static string ProductExplanation => "漢字とかなを織り交ぜるIME";
         /// <summary> バージョン </summary>
-        public static string Version => "2.0.0-α7";
+        public static string Version => "0.9.0.7";
         public static string Version2 => "";
 
         //-------------------------------------------------------------------------------------
@@ -239,6 +240,12 @@ namespace KanchokuWS
 
         /// <summary>編集バッファをフラッシュさせる文字</summary>
         public static string EditBufferFlushChar { get; set; } = "、。";
+
+        /// <summary>複数候補表示の最小数</summary>
+        public static int MergerCandidateMin { get; set; } = 3;
+
+        /// <summary>複数候補表示の最小数</summary>
+        public static int MergerCandidateMax { get; set; } = 10;
 
         //-------------------------------------------------------------------------------------
         // 各種ファイル
@@ -683,6 +690,7 @@ namespace KanchokuWS
         public static int HistDelDeckeyId { get; private set; }
         public static int HistNumDeckeyId { get; private set; }
 
+        /// <summary>履歴候補の横列鍵盤表示の際の最大候補数</summary>
         public static int HistHorizontalCandMax { get; private set; }
         public static bool HistMoveShortestAt2nd { get; private set; }
 
@@ -1811,6 +1819,8 @@ namespace KanchokuWS
             RealtimeTrigramBonusFactor = addDecoderSetting("realtimeTrigramBonusFactor", 10);   // Realtime 3gram のカウントからボーナス値を算出する際の係数
             RealtimeTrigramTier1Num = addDecoderSetting("realtimeTrigramTier1Num", 50);         // Realtime 3gram の Tier1 の数
             RealtimeTrigramTier2Num = addDecoderSetting("realtimeTrigramTier2Num", 100);        // Realtime 3gram の Tier2 の数
+            MergerCandidateMin = addDecoderSetting("mergerCandidateMin", 3, 0, 10);             // 複数候補表示の最小数
+            MergerCandidateMax = addDecoderSetting("mergerCandidateMax", 10, 0, 10);            // 複数候補表示の最大数
             setDecoderSetting("mergerCandidateFile", MergerCandidateFile );                     // 解候補ログファイル
 
             // キー割当

@@ -220,7 +220,7 @@ namespace KanchokuWS.Forms
             // 選択候補を表示
             resetControls(0, 0, 0);
             int nRow = 0;
-            for (int i = 0; i < LongVkeyNum; ++i) {
+            for (int i = 0; i < LongVkeyNum && i < Settings.MergerCandidateMax; ++i) {
                 //logger.Warn(decoderOutput.candidateStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
                 if (drawHorizontalCandidateCharsWithColor(decoderOutput, i, decoderOutput.candidateStrings)) ++nRow;
             }
@@ -283,13 +283,15 @@ namespace KanchokuWS.Forms
         {
             //bool isWaitingCandSelect() { return decoderOutput.nextExpectedKeyType == DlgKanchoku.ExpectedKeyType.CandSelect; }
 
+            int candidateMax = Settings.MergerCandidateMax;
+            if (candidateMax <= 0) return false;
 
             Color makeSpecifiedColor()
             {
                 if (decoderOutput.IsArrowKeysRequired()) {
                     string name = null;
                     // decoderOutput.nextSelectPos が負ならば、未選択状態であることを示す(選択位置は 0)
-                    if ((decoderOutput.nextSelectPos % LongVkeyNum) == nth) {
+                    if ((decoderOutput.nextSelectPos % candidateMax) == nth) {
                         name = Settings.BgColorOnSelected;
                     } else if (decoderOutput.nextSelectPos < 0 && nth == 0) {
                         name = Settings.BgColorForFirstCandidate;
@@ -309,8 +311,8 @@ namespace KanchokuWS.Forms
                 if (len < 0) len = LongVkeyCharSize;
                 if (len > 0) {
                     StringBuilder sb = new StringBuilder();
-                    int candidateNum = ((decoderOutput.nextSelectPos < 0 ? 0 : decoderOutput.nextSelectPos) / LongVkeyNum) * LongVkeyNum + nth + 1;
-                    if (candidateNum < 10)  sb.Append(' ');
+                    int candidateNum = ((decoderOutput.nextSelectPos < 0 ? 0 : decoderOutput.nextSelectPos) / candidateMax) * candidateMax + nth + 1;
+                    if (candidateNum < 10) sb.Append(' ');
                     sb.Append(candidateNum).Append(' ').Append(chars, pos, len);
                     if (pos + len < chars.Length && chars[pos + len] != '\0') sb.Append('…');
                     //logger.Info($"drawString={drawString}, nth={nth}, pos={pos}, len={len}");
@@ -319,6 +321,7 @@ namespace KanchokuWS.Forms
                     return true;
                 }
             }
+
             return false;
         }
 

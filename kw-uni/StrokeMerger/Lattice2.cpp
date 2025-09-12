@@ -1237,7 +1237,7 @@ namespace lattice2 {
             // 解候補を仮想鍵盤に表示する
             //std::vector<MString> candStrings = _kBestList->getTopCandStrings();
             std::vector<MString> candStrings = _kBestList->getCandStringsInSelectedBlock();
-            if (candStrings.size() > 1) {
+            if (candStrings.size() > 1 || _kBestList->selectedCandPos() >= 0) {
                 STATE_COMMON->SetVirtualKeyboardStrings(VkbLayout::MultiStreamCandidates, EMPTY_MSTR, candStrings);
                 STATE_COMMON->SetWaitingCandSelect(_kBestList->selectedCandPos());
             }
