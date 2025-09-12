@@ -316,7 +316,7 @@ public:
         LOG_DEBUGH(_T("CALLED: pos={}"), pos);
         nextSelectPos = pos;
     }
-
+    
     inline bool IsResultFlagOn(ResultFlags flag) const { return (resultFlags & (UINT32)flag) != 0; }
     inline bool IsResultFlagOn(UINT32 flag) const { return (resultFlags & flag) != 0; }
     inline bool IsDeckeyToVkey() const { return IsResultFlagOn(ResultFlags::DeckeyToVkey); }

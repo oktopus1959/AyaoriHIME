@@ -47,6 +47,8 @@ namespace lattice2 {
 
         virtual std::vector<MString> getTopCandStrings() const = 0;
 
+        virtual std::vector<MString> getCandStringsInSelectedBlock() const = 0;
+
         virtual String debugCandidates(size_t maxLn = 100000) const = 0;
 
         virtual String debugKBestString(size_t maxLn = 100000) const = 0;

@@ -475,6 +475,52 @@ namespace lattice2 {
             return result;
         }
 
+        // 選択位置を含む、同一ストローク長の候補ブロック(最大10件)を返す
+        std::vector<MString> getCandStringsInSelectedBlock() const override {
+            _LOG_DETAIL(L"ENTER: _candidates.size={}, _origFirstCand={}, _selectedCandPos={}", _candidates.size(), _origFirstCand, _selectedCandPos);
+            std::vector<MString> result;
+            int nSameLen = getNumOfSameStrokeLen();
+            if (nSameLen <= 0) {
+                _LOG_DETAIL(L"LEAVE: nSameLen<=0");
+                return result;
+            }
+
+            int first = cookedOrigFirstCand();
+            if (first > nSameLen) first = nSameLen;
+
+            // cookedOrigFirstCand() を始点とする順序で並べ替えた「表示用順序」配列を作る
+            std::vector<MString> ordered;
+            ordered.reserve(nSameLen);
+            for (int i = first; i < nSameLen; ++i) ordered.push_back(_candidates[i].string());
+            for (int i = 0; i < first; ++i) ordered.push_back(_candidates[i].string());
+
+            // 選択位置 (表示用順序でのインデックス)
+            int selPos = selectedCandPos();   // -1 の場合は未選択
+            if (selPos < 0 || selPos >= (int)ordered.size()) selPos = 0;
+
+            // ブロック計算 (10件単位)
+            const int BLOCK_SIZE = 10;
+            int blockStart = (selPos / BLOCK_SIZE) * BLOCK_SIZE;
+            int blockEnd = std::min(blockStart + BLOCK_SIZE, (int)ordered.size());
+
+            for (int i = blockStart; i < blockEnd; ++i) result.push_back(ordered[i]);
+
+            // 末尾最大12文字表示にトリミング (getTopCandStrings と同様)
+            size_t maxLen = 0;
+            for (const auto& s : result) if (maxLen < s.size()) maxLen = s.size();
+            size_t dispLen = 12;
+            size_t cutPos = maxLen > dispLen ? maxLen - dispLen : 0;
+            if (cutPos > 0) {
+                for (auto& s : result) {
+                    if (s.size() > cutPos) s = s.substr(cutPos);
+                }
+            }
+
+            _LOG_DETAIL(L"LEAVE: nSameLen={}, first={}, selPos={}, blockStart={}, blockEnd={}, result.size()={}",
+                nSameLen, first, selPos, blockStart, blockEnd, result.size());
+            return result;
+        }
+
         String debugCandidates(size_t maxLn = 100000) const override {
             String result;
             for (size_t i = 0; i < _candidates.size() && i < maxLn; ++i) {

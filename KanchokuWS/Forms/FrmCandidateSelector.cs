@@ -16,6 +16,9 @@ using Utils;
 
 namespace KanchokuWS.Forms
 {
+    /// <summary>
+    /// 融合モードにおける選択候補表示フォーム
+    /// </summary>
     public partial class FrmCandidateSelector : Form
     {
         private static Logger logger = Logger.GetLogger();
@@ -73,7 +76,7 @@ namespace KanchokuWS.Forms
             // 各種パラメータの初期化
             resetDrawParameters(ScreenInfo.Singleton.PrimaryScreenDpi);
 
-            // 横列鍵盤用グリッドの初期化
+            // 候補表示用グリッドの初期化
             initializeHorizontalDgv((int)DgvNormalWidth);
 
             // モニタのDPIが変化したたときに呼ばれるハンドラを登録
@@ -116,7 +119,7 @@ namespace KanchokuWS.Forms
         }
 
         //-------------------------------------------------------------------------------
-        /// <summary> 横列鍵盤用フォント情報 </summary>
+        /// <summary> 候補表示用フォント情報 </summary>
         private FontInfo horizontalFontInfo = new FontInfo("Horizontal", false, false);
 
         private bool renewHorizontalFontInfo()
@@ -124,7 +127,7 @@ namespace KanchokuWS.Forms
             return renewFontInfo(horizontalFontInfo, Settings.HorizontalVkbFontSpec);
         }
 
-        // 横列鍵盤用グリッドの初期化
+        // 候補表示用グリッドの初期化
         private void initializeHorizontalDgv(int cellWidth)
         {
             //logger.WarnH($"ENTER");
@@ -170,7 +173,7 @@ namespace KanchokuWS.Forms
 
         private void resetDrawParameters(int dpi)
         {
-            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"CALLED: dpi={dpi}");
+            //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"CALLED: dpi={dpi}");
             //float rate = (float)ScreenInfo.Singleton.PrimaryScreenDpiRate._lowLimit(1.0);
             float rate = dpi / 96.0f;
 
@@ -180,12 +183,12 @@ namespace KanchokuWS.Forms
             DgvCellWidth = mulRate(18);
 
 
-            DgvNormalWidth = DgvCellWidth * 10 + 1;
+            DgvNormalWidth = DgvCellWidth * LongVkeyNum + 1;
 
 
 
             this.Width = (int)(DgvNormalWidth + 2);
-            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}");
+            //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}");
         }
 
         /// <summary>
@@ -193,10 +196,10 @@ namespace KanchokuWS.Forms
         /// </summary>
         private void redrawDgv()
         {
-            //横書き鍵盤の再初期化
+            //候補表示盤の再初期化
             renewHorizontalDgv();
 
-            // 仮想鍵盤の再描画
+            // 候補表示盤の再描画
             if (frmMain.IsDecoderActive) DrawCandidates();
         }
 
@@ -206,7 +209,7 @@ namespace KanchokuWS.Forms
         {
             var decoderOutput = frmMain.DecoderOutput;
 
-            //logger.WarnH(() => $"CALLED: layout={decoderOutput.layout}, faceString={decoderOutput.candidateStrings._toString()}");
+            //logger.Warn(() => $"ENTER: layout={decoderOutput.layout}, selectPos={decoderOutput.nextSelectPos}, faceString={decoderOutput.candidateStrings._toString()}");
 
             if (frmEditBuf.IsEmpty || decoderOutput.layout != (int)VkbLayout.MultiStreamCandidates || decoderOutput.candidateStrings._isEmpty() || decoderOutput.candidateStrings[0] == 0) {
                 this.Hide();
@@ -218,18 +221,19 @@ namespace KanchokuWS.Forms
             resetControls(0, 0, 0);
             int nRow = 0;
             for (int i = 0; i < LongVkeyNum; ++i) {
-                //logger.Info(decoderOutput.candidateStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
+                //logger.Warn(decoderOutput.candidateStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
                 if (drawHorizontalCandidateCharsWithColor(decoderOutput, i, decoderOutput.candidateStrings)) ++nRow;
             }
-            //logger.WarnH($"nRow={nRow}");
             dgvHorizontal.CurrentCell = null;   // どのセルも選択されていない状態にする
             dgvHorizontal.Height = (int)(DgvCellHeight * nRow + 1);
             //changeFormHeight(dgvHorizontal.Top + dgvHorizontal.Height + 1);
             MoveWindow();
             ShowNonActive();
+
+            //logger.Warn($"LEAVE: nRow={nRow}");
         }
 
-        // 仮想鍵盤の高さを変更し、必要ならウィンドウを移動する
+        // 候補表示盤の高さを変更し、必要ならウィンドウを移動する
         public void MoveWindow()
         {
             int oldHeight = this.Height;
@@ -239,15 +243,20 @@ namespace KanchokuWS.Forms
             int fW = dgvHorizontal.Width + 2;
             int fH = dgvHorizontal.Height + 2;
             //logger.WarnH(() => $"MoveWindow: fX={fX}, fY={fY}, fW={fW}, fH={fH}");
+            Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(frmEditBuf.Location.X, frmEditBuf.Location.Y);
+            if (rect != Rectangle.Empty) {
+                if ((fX + fW) >= rect.X + rect.Width) fX = rect.X + rect.Width - fW - 2;
+                if ((fY + fH) >= rect.Y + rect.Height) fY = frmEditBuf.Location.Y - fH;
+            }
             MoveWindow(this.Handle, fX, fY, fW, fH, true);
         }
 
         /// <summary>
-        /// 仮想鍵盤を構成するコントロールの再配置
+        /// 候補表示盤を構成するコントロールの再配置
         /// </summary>
         private void resetControls(float picBoxWidth, float picBoxHeight, float centerHeight)
         {
-            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"picBoxWidth={picBoxWidth:f3}, picBoxHeight={picBoxHeight:f3}, centerHeight={centerHeight:f3}");
+            //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"picBoxWidth={picBoxWidth:f3}, picBoxHeight={picBoxHeight:f3}, centerHeight={centerHeight:f3}");
             //renewMinibufFont();
             renewHorizontalDgv();
             //dgvHorizontal.Top = topTextBox.Height;
@@ -260,25 +269,27 @@ namespace KanchokuWS.Forms
                 dgvHorizontal.Width = (int)DgvNormalWidth;
                 dgvHorizontal.Show();
                 //dgvHorizontal.Top = topTextBox.Height;
-                if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"dgv.Top={dgvHorizontal.Top}, dgv.Width={dgvHorizontal.Width}");
+                //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"dgv.Top={dgvHorizontal.Top}, dgv.Width={dgvHorizontal.Width}");
             }
             this.Width = (int)(DgvNormalWidth + 2);
-            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}");
+            //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}");
         }
 
         //--------------------------------------------------------------------------------------
-        // 横列鍵盤サポート
+        // 候補表示盤サポート
 
-        /// <summary> 出力内容に応じて背景色を変えて横列鍵盤に文字列を出力する</summary>
+        /// <summary> 出力内容に応じて背景色を変えて候補表示盤に文字列を出力する</summary>
         private bool drawHorizontalCandidateCharsWithColor(DecoderOutParams decoderOutput, int nth, char[] chars)
         {
             //bool isWaitingCandSelect() { return decoderOutput.nextExpectedKeyType == DlgKanchoku.ExpectedKeyType.CandSelect; }
+
 
             Color makeSpecifiedColor()
             {
                 if (decoderOutput.IsArrowKeysRequired()) {
                     string name = null;
-                    if (decoderOutput.nextSelectPos == nth) {
+                    // decoderOutput.nextSelectPos が負ならば、未選択状態であることを示す(選択位置は 0)
+                    if ((decoderOutput.nextSelectPos % LongVkeyNum) == nth) {
                         name = Settings.BgColorOnSelected;
                     } else if (decoderOutput.nextSelectPos < 0 && nth == 0) {
                         name = Settings.BgColorForFirstCandidate;
@@ -296,11 +307,13 @@ namespace KanchokuWS.Forms
                 int pos = nth * LongVkeyCharSize;
                 int len = chars._findIndex(pos, pos + LongVkeyCharSize, '\0') - pos;
                 if (len < 0) len = LongVkeyCharSize;
-                StringBuilder sb = new StringBuilder();
-                sb.Append((nth + 1) % 10).Append(' ').Append(chars, pos, len);
-                if (pos + len < chars.Length && chars[pos + len] != '\0') sb.Append('…');
-                //logger.Info($"drawString={drawString}, nth={nth}, pos={pos}, len={len}");
-                if (sb.Length > 2) {
+                if (len > 0) {
+                    StringBuilder sb = new StringBuilder();
+                    int candidateNum = ((decoderOutput.nextSelectPos < 0 ? 0 : decoderOutput.nextSelectPos) / LongVkeyNum) * LongVkeyNum + nth + 1;
+                    if (candidateNum < 10)  sb.Append(' ');
+                    sb.Append(candidateNum).Append(' ').Append(chars, pos, len);
+                    if (pos + len < chars.Length && chars[pos + len] != '\0') sb.Append('…');
+                    //logger.Info($"drawString={drawString}, nth={nth}, pos={pos}, len={len}");
                     dgvHorizontal.Rows[nth].Cells[0].Value = sb.ToString();
                     dgvHorizontal.Rows[nth].Cells[0].Style.BackColor = makeSpecifiedColor();
                     return true;

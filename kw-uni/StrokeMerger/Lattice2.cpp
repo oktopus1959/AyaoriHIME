@@ -1235,7 +1235,8 @@ namespace lattice2 {
 
             //LOG_DEBUGH(L"H:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             // 解候補を仮想鍵盤に表示する
-            std::vector<MString> candStrings = _kBestList->getTopCandStrings();
+            //std::vector<MString> candStrings = _kBestList->getTopCandStrings();
+            std::vector<MString> candStrings = _kBestList->getCandStringsInSelectedBlock();
             if (candStrings.size() > 1) {
                 STATE_COMMON->SetVirtualKeyboardStrings(VkbLayout::MultiStreamCandidates, EMPTY_MSTR, candStrings);
                 STATE_COMMON->SetWaitingCandSelect(_kBestList->selectedCandPos());

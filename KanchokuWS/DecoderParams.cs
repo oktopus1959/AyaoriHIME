@@ -169,7 +169,7 @@ namespace KanchokuWS
         /// <summary>その他の状態か</summary>
         public static bool IsOtherStatus(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.OtherStatus; }
 
-        /// <summary>矢印キーの要求されるレイアウトか</summary>
+        /// <summary>↑↓←→キーの要求されるレイアウトか</summary>
         public static bool IsArrowKeysRequired(this DecoderOutParams output) {
             return output.layout >= (int)VkbLayout.Vertical && output.layout <= (int)VkbLayout.Horizontal || output.layout == (int)VkbLayout.MultiStreamCandidates;
         }
