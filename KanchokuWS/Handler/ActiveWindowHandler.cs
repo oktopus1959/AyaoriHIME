@@ -301,6 +301,7 @@ namespace KanchokuWS.Handler
                     IsVkbWinActive = frmVkb.IsMyWinClassName(ActiveWinClassName);
                     if (bDiffWin && frmVkb != null && !IsVkbWinActive) {
                         // 直前のものとクラス名が異なっていれば、それを仮想鍵盤上部に表示する (ただし、仮想鍵盤自身を除く)
+                        if (bLog) logger.Info(() => $"SHOW: ActiveWinClassName={ActiveWinClassName}");
                         frmVkb.SetTopText(ActiveWinClassName);
                     }
                 } catch (Exception e) {

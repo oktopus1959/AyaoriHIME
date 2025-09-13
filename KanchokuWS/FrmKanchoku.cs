@@ -1509,21 +1509,21 @@ namespace KanchokuWS
                 frmMode.SetKanjiMode();
                 if (Settings.VirtualKeyboardShowStrokeCount == 1) {
                     sendClearStrokeToDecoder(); // デコーダを第1打鍵待ちに戻しておく
-                    frmVkb.SetTopText(ActiveWindowHandler.Singleton.ActiveWinClassName);
+                    frmVkb.SetTopText(ActiveWindowHandler.Singleton.ActiveWinClassName); // ウィンドウクラス名を仮想鍵盤上部に表示する
                     ShowFrmVkb();       // Show NonActive
                 }
-                string vkbMsg = "";
+                string vkbTopMsg = "";
                 if (Settings.UseTmpRealtimeNgramFile) {
-                    vkbMsg = "一時的なリアルタイムNgramファイル。";
+                    vkbTopMsg = "一時的なリアルタイムNgramファイル。";
                 } else if (Settings.IsAnyDevFlagEnabled) {
                     if (Logger.LogLevel > 2) {
-                        vkbMsg = "ログレベルを確認してください。";
+                        vkbTopMsg = "ログレベルを確認してください。";
                     } else {
-                        vkbMsg = "開発者用の設定が有効になっています。";
+                        vkbTopMsg = "開発者用の設定が有効になっています。";
                     }
-                    //SystemHelper.ShowWarningMessageBox(vkbMsg);
+                    //SystemHelper.ShowWarningMessageBox(vkbTopMsg);
                 }
-                frmVkb.SetTopText(vkbMsg);
+                if (vkbTopMsg._notEmpty()) frmVkb.SetTopText(vkbTopMsg);
                 ShowFrmEditBuf();
             } finally {
             }
