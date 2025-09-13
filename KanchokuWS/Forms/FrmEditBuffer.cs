@@ -81,6 +81,7 @@ namespace KanchokuWS.Forms
         /// <param name="chars"></param>
         public void PutString(char[] chars, int numBS, bool bFlushAll = false)
         {
+            bool bWasEmpty = editTextBox.Text._isEmpty();
             var str = chars._toString();
 
             logger.InfoH(() => $"CALLED: str={str}, numBS={numBS}, bFlushAll={bFlushAll}");
@@ -236,6 +237,12 @@ namespace KanchokuWS.Forms
                 frmMain.ToDeactivateDecoder();
             }
             if (EditText._notEmpty()) {
+                if (bWasEmpty && Settings.OutputSpaceAndBsAtFirstInChrome &&
+                    ActiveWindowHandler.Singleton.ActiveWinClassName._startsWith("Chrome_WidgetWin")) {
+                    // Spaceを送出してからBSを送出する
+                    SendInputHandler.Singleton.SendString(new char[] {' '}, 1, 0);
+                    SendInputHandler.Singleton.SendString(null, 0, 1);
+                }
                 ShowNonActive();
             } else {
                 this.Hide();

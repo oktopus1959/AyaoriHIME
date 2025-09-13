@@ -247,6 +247,9 @@ namespace KanchokuWS
         /// <summary>複数候補表示の最小数</summary>
         public static int MergerCandidateMax { get; set; } = 10;
 
+        /// <summary>Chrome では、最初に編集バッファを表示する時、カレット位置を調整するために Space+BS を出力してみる</summary>
+        public static bool OutputSpaceAndBsAtFirstInChrome { get; set; } = false;
+
         //-------------------------------------------------------------------------------------
         // 各種ファイル
         //-------------------------------------------------------------------------------------
@@ -1821,6 +1824,7 @@ namespace KanchokuWS
             RealtimeTrigramTier2Num = addDecoderSetting("realtimeTrigramTier2Num", 100);        // Realtime 3gram の Tier2 の数
             MergerCandidateMin = addDecoderSetting("mergerCandidateMin", 3, 0, 10);             // 複数候補表示の最小数
             MergerCandidateMax = addDecoderSetting("mergerCandidateMax", 10, 0, 10);            // 複数候補表示の最大数
+            OutputSpaceAndBsAtFirstInChrome = addDecoderSetting("outputSpaceAndBsAtFirstInChrome", false);  // Chrome では、最初に編集バッファを表示する時、カレット位置を調整するために Space+BS を出力してみる
             setDecoderSetting("mergerCandidateFile", MergerCandidateFile );                     // 解候補ログファイル
 
             // キー割当
