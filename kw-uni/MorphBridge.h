@@ -14,6 +14,8 @@
 #define USE_DYMAZIN 1
 
 namespace MorphBridge {
+    inline bool initializeSucceeded = false;
+
     inline void morphInitialize(Reporting::Logger& logger) {
 #if USE_MORPHER
         int unkMax = 3;
@@ -26,8 +28,9 @@ namespace MorphBridge {
         auto dicdir = utils::joinPath(SETTINGS->rootDir, _T("mecab/dic/ipadic"));
         int ret = MecabBridge::mecabInitialize(rcfile, dicdir, unkMax);
 #endif
-        if (ret != 0) {
-            LOG_INFOH(_T("Morpher Initialize FAILED: rcfile={}, dicdir={}, unMax={}"), rcfile, dicdir, unkMax);
+        initializeSucceeded = (ret == 0);
+        if (!initializeSucceeded) {
+            LOG_ERROR(_T("Morpher Initialize FAILED: rcfile={}, dicdir={}, unMax={}"), rcfile, dicdir, unkMax);
         }
 #endif //_DEBUG
     }
@@ -43,7 +46,9 @@ namespace MorphBridge {
     }
 
     inline void morphReopenUserDics() {
-        DymazinBridge::dymazinReopenUserDics();
+        if (initializeSucceeded) {
+            DymazinBridge::dymazinReopenUserDics();
+        }
     }
 
     inline void morphSetLogLevel(int logLevel) {
@@ -63,6 +68,8 @@ namespace MorphBridge {
     }
 
     inline int morphCalcCost(const MString& str, std::vector<MString>& morphs, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
+        if (!initializeSucceeded) return 0;
+
 #if USE_MORPHER
 #if USE_DYMAZIN
         return DymazinBridge::dymazinCalcCost(str, morphs, mazePenalty, mazeConnPenalty, allowNonTerminal);

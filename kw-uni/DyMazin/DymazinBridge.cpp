@@ -29,7 +29,8 @@ namespace DymazinBridge {
         av.push_back(L"-d");
         av.push_back(dicdir.c_str());
         av.push_back(L"--userdic");
-        av.push_back(utils::join_path(dicdir, L"user.dic").c_str());
+        String userDic = utils::join_path(dicdir, L"user.dic");
+        av.push_back(userDic.c_str());
         String maxGroupSize(L"--max-grouping-size=");
         maxGroupSize.append(std::to_wstring(unkMax));
         av.push_back(maxGroupSize.c_str());
