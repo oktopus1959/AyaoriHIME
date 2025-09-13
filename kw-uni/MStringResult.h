@@ -15,6 +15,8 @@ class MStringResult {
     int _numBS;
     // 自動部首合成
     bool _bBushuComp;
+    // OutputStackの削除文字数
+    int _numBSofOutputStack;
 
 public:
     PostRewriteOneShotNode* rewriteNode() const { return _rewriteNode; }
@@ -22,19 +24,20 @@ public:
     size_t rewritableLen() const { return _rewritableLen; }
     bool isBushuComp() const { return _bBushuComp; }
     int numBS() const { return _numBS >= 0 ? _numBS : 0; }
+    int numBSofOutputStack() const { return _numBSofOutputStack; }
 
     MStringResult() : MStringResult(0) {
     }
 
-    MStringResult(PostRewriteOneShotNode* rewriteNode) : _rewriteNode(rewriteNode), _rewritableLen(0), _numBS(0), _bBushuComp(true) {
+    MStringResult(PostRewriteOneShotNode* rewriteNode) : _rewriteNode(rewriteNode), _rewritableLen(0), _numBS(0), _bBushuComp(true), _numBSofOutputStack(0) {
     }
 
     MStringResult(const MString& str, int nBS = 0)
-        : _rewriteNode(0), _resultStr(str), _rewritableLen(0), _numBS(nBS), _bBushuComp(true) {
+        : _rewriteNode(0), _resultStr(str), _rewritableLen(0), _numBS(nBS), _bBushuComp(true), _numBSofOutputStack(0) {
     }
 
     MStringResult(const MString& str, size_t rewLen, bool bushuComp, int nBS = 0)
-        : _rewriteNode(0), _resultStr(str), _rewritableLen(rewLen), _numBS(nBS), _bBushuComp(bushuComp) {
+        : _rewriteNode(0), _resultStr(str), _rewritableLen(rewLen), _numBS(nBS), _bBushuComp(bushuComp), _numBSofOutputStack(0) {
     }
 
     bool isDefault() const {
@@ -51,19 +54,26 @@ public:
         _rewritableLen = 0;
         _numBS = 0;
         _bBushuComp = true;
+        _numBSofOutputStack = 0;
     }
 
     void setResult(mchar_t mc) {
         _resultStr.assign(1, mc);
     }
 
-    void setResult(const MString& str, int nBS = -1) {
+    void setResult(const MString& str, int nBS = -1, int nBSofOutputStack = -1) {
         _resultStr = str;
         if (nBS >= 0) _numBS = nBS;
+        if (nBSofOutputStack == -1) nBSofOutputStack = nBS;
+        if (nBSofOutputStack >= 0) _numBSofOutputStack = nBSofOutputStack;
     }
 
     void setNumBS(int nBS) {
         _numBS = nBS;
+    }
+
+    void setNumBSofOutputStack(int nBS) {
+        _numBSofOutputStack = nBS;
     }
 
     const PostRewriteOneShotNode* getRewriteNode() const {
@@ -81,18 +91,21 @@ public:
     }
 
     void setResult(const MStringResult& result) {
-        setResult(result._resultStr, result._rewritableLen, result._bBushuComp, result._numBS);
+        setResult(result._resultStr, result._rewritableLen, result._bBushuComp, result._numBS, result._numBSofOutputStack);
     }
 
-    void setResult(const MString& str, size_t rewLen, bool bushuComp, int nBS) {
+    void setResult(const MString& str, size_t rewLen, bool bushuComp, int nBS, int nBSofOutputStack = -1) {
         _resultStr = str;
         _rewritableLen = rewLen;
         _numBS = nBS;
         _bBushuComp = bushuComp;
+        if (nBSofOutputStack == -1) nBSofOutputStack = nBS;
+        _numBSofOutputStack = nBSofOutputStack;
     }
 
     String debugString() {
-        return _T("str=") + to_wstr(_resultStr) + _T(", rewLen=") + std::to_wstring(_rewritableLen) + _T(", numBS=") + std::to_wstring(_numBS) + _T(", bushuComp=") + std::to_wstring(_bBushuComp);
+        return _T("str=") + to_wstr(_resultStr) + _T(", rewLen=") + std::to_wstring(_rewritableLen) +
+            _T(", numBS=") + std::to_wstring(_numBS) + _T(", numBSofOutputStack=") + std::to_wstring(_numBSofOutputStack) + _T(", bushuComp=") + std::to_wstring(_bBushuComp);
     }
 };
 

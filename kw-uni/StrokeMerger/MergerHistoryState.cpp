@@ -696,6 +696,7 @@ namespace {
                 }
 
                 LOG_DEBUGH(_T("CHECKPOINT-6: getLatticeResult"));
+                int pieceNumBS = pieces.empty() ? 0 : pieces.back().numBS();
                 // Lattice処理
                 auto result = getLatticeResult(pieces);
                 _strokeBack = false;
@@ -706,9 +707,9 @@ namespace {
 
                 LOG_DEBUGH(_T("CHECKPOINT-7: check result"));
                 // 新しい文字列が得られたらそれを返す
-                if (!result.outStr.empty() || result.numBS > 0) {
+                if (!result.outStr.empty() || result.numBS > 0 || pieceNumBS > 0) {
                     LOG_DEBUGH(_T("CHECKPOINT-7-A: setResult"));
-                    resultOut.setResult(result.outStr, (int)(result.numBS));
+                    resultOut.setResult(result.outStr, (int)(result.numBS), pieceNumBS);
                     SetTranslatedOutString(resultOut);
                     //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
                 } else {
@@ -1055,10 +1056,10 @@ namespace {
                         // ワイルドカードパターンでなかった
                         LOG_DEBUGH(_T("NOT WILDCARD, GetLastKanjiOrKatakanaOrHirakanaOrAsciiKey"));
                         // 出力文字から、ひらがな交じりやASCIIもキーとして取得する
-                        auto jaKey = OUTPUT_STACK->GetLastKanjiOrKatakanaOrHirakanaOrAsciiKey<MString>(SETTINGS->histMapKeyMaxLength);
+                        auto jaKey = OUTPUT_STACK->GetLastKanjiOrKatakanaOrHirakanaOrAlphabetKey<MString>(SETTINGS->histMapKeyMaxLength);
                         LOG_DEBUGH(_T("HistSearch: jaKey={}"), to_wstr(jaKey));
-                        if (jaKey.size() >= 9 || (!jaKey.empty() && is_ascii_char(jaKey.back()))) {
-                            // 同種の文字列で9文以上取れたか、またはASCIIだったので、これをキーとする
+                        if (jaKey.size() >= 9 || (!jaKey.empty() && is_alphabet(jaKey.back()))) {
+                            // 同種の文字列で9文以上取れたか、またはアルファベットだったので、これをキーとする
                             return jaKey;
                         }
                         // 最終的には末尾8文字をキーとする('*' は含まない。'?' は含んでいる可能性あり)
@@ -1074,7 +1075,7 @@ namespace {
                         LOG_DEBUGH(_T("HistSearch: PATH 8: key={}, prevKey={}, maybeEditedBySubState={}"),
                             to_wstr(key), to_wstr(STROKE_MERGER_NODE->GetPrevKey()), maybeEditedBySubState);
                         auto histCandsChecker = [this](const std::vector<MString>& words, const MString& ky) {
-                            LOG_DEBUGH(_T("HistSearch: CANDS CHECKER: words.size()={}, key={}"), words.size(), to_wstr(ky));
+                            LOG_DEBUGH(_T("HistSearch: CANDS CHECKER: words({})={}, key={}"), words.size(), to_wstr(utils::join(words, '/', 10)), to_wstr(ky));
                             if (words.empty() || (words.size() == 1 && (words[0].empty() || words[0] == ky))) {
                                 LOG_DEBUGH(_T("HistSearch: CANDS CHECKER-A: cands size <= 1"));
                                 // 候補が1つだけで、keyに一致するときは履歴選択状態にはしない

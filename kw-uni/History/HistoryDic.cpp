@@ -15,7 +15,7 @@
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughHistory)
 
-#if 0
+#if 1
 #undef _DEBUG_SENT
 #undef LOG_DEBUG
 #undef LOG_DEBUGH
@@ -978,7 +978,8 @@ namespace {
 
 #define IS_LIST_EMPTY() (resultList.Empty())
 
-                bool bIsRomanKey = utils::isAsciiString(key);
+                // 英大文字でない文字を含む(ローマ字キーとみなす)
+                bool bIsRomanKey = utils::isAsciiString(key) && !utils::isUpperAlphabetString(key);
                 bool bListEmpty = IS_LIST_EMPTY();
                 bool bAll = SETTINGS->histGatherAllCandidates && bListEmpty;
 
@@ -996,6 +997,7 @@ namespace {
                 // keyが5文字以上の場合には、先頭からマッチングさせる(4文字以下の場合は、この後の Phase-B で試される)
                 if ((bAll || bListEmpty) && keySize >= 5) {
                     // "■■■■■" (5)
+                    _LOG_DEBUGH(_T("CHECK-POINT-A"));
                     CHECK_LIST_EMPTY(0);    // 最終的にマッチすれば、先頭からのマッチになるので 0 でよい
                     extract_and_copy_for_longer_than_4(key, minlen, 0);
                 }
@@ -1004,6 +1006,7 @@ namespace {
                 // 上記がマッチせず、keyが6文字以上の非romanキーの場合には、key.substr(1) について試す
                 if ((bAll || bListEmpty) && keySize >= 6 && !bIsRomanKey) {
                     // "□■■■■■" (6)
+                    _LOG_DEBUGH(_T("CHECK-POINT-B"));
                     CHECK_LIST_EMPTY(5);
                     extract_and_copy_for_longer_than_4(key, minlen, 1);
                 }
@@ -1013,6 +1016,7 @@ namespace {
                 if ((bAll || bListEmpty) && keySize >= 7 && !bIsRomanKey) {
                     if (keySize >= 8) {
                         // "□□■■■■■■" (8)
+                        _LOG_DEBUGH(_T("CHECK-POINT-C"));
                         CHECK_LIST_EMPTY(6);
                         extract_and_copy_for_longer_than_4(key, minlen, keySize - resultKeyLen);
                     }
@@ -1020,6 +1024,7 @@ namespace {
                     if (keySize == 7 || (bAll || bListEmpty)) {
                         // "□□■■■■■" (7)
                         // "□□□■■■■■" (8)
+                        _LOG_DEBUGH(_T("CHECK-POINT-D"));
                         CHECK_LIST_EMPTY(5);
                         extract_and_copy_for_longer_than_4(key, minlen, keySize - resultKeyLen);
                     }
@@ -1032,7 +1037,7 @@ namespace {
                     size_t minKata = SETTINGS->histKatakanaKeyLength;
                     size_t minKanj = SETTINGS->histKanjiKeyLength;
                     size_t minRoma = SETTINGS->histRomanKeyLength;
-                    _LOG_DEBUGH(_T("minKana={}, minKata={}, minKanj={}, minRoma={}"), minKana, minKata, minKanj, minRoma);
+                    _LOG_DEBUGH(_T("CHECK-POINT-E: minKana={}, minKata={}, minKanj={}, minRoma={}"), minKana, minKata, minKanj, minRoma);
 
                     auto checkFunc = [key, bCheckMinKeyLen, minKana, minKata, minKanj, minRoma](size_t len) {
                         _LOG_DEBUGH(_T("checkFunc(key={}, bCheckMinKeyLen={}, len={})"), to_wstr(key), bCheckMinKeyLen, len);
@@ -1048,6 +1053,7 @@ namespace {
                     };
 
                     if (checkFunc(4)) {
+                        _LOG_DEBUGH(_T("CHECK-POINT-4"));
                         CHECK_LIST_EMPTY(4);
                         extract_and_copy_for_tail_n(key, 4, minlen);
                         _LOG_DEBUGH(_T("histDic4: resultList.size()={}"), resultList.Size());
@@ -1056,6 +1062,7 @@ namespace {
 
                     if ((bAll || bListEmpty) && (!bIsRomanKey || keySize <= 3)) {
                         if (checkFunc(3)) {
+                            _LOG_DEBUGH(_T("CHECK-POINT-3"));
                             CHECK_LIST_EMPTY(3);
                             extract_and_copy_for_tail_n(key, 3, minlen);
                             _LOG_DEBUGH(_T("histDic3: resultList.size()={}"), resultList.Size());
@@ -1063,13 +1070,16 @@ namespace {
                         bListEmpty = IS_LIST_EMPTY();
                         if ((bAll || bListEmpty) && (!bIsRomanKey || keySize <= 2)) {
                             if (checkFunc(2)) {
+                                _LOG_DEBUGH(_T("CHECK-POINT-2"));
                                 CHECK_LIST_EMPTY(2);
                                 extract_and_copy_for_tail_n(key, 2, minlen);
                                 _LOG_DEBUGH(_T("histDic2: resultList.size()={}"), resultList.Size());
                             }
                             bListEmpty = IS_LIST_EMPTY();
-                            if ((bAll || bListEmpty) && (!bIsRomanKey || keySize <= 1)) {
+                            if ((bAll || bListEmpty) && (!bIsRomanKey || keySize <= 1) && !is_ascii_char(tail_char(key))) {
+                                // 末尾1文字がASCII文字のものは対象外
                                 if (checkFunc(1)) {
+                                    _LOG_DEBUGH(_T("CHECK-POINT-1"));
                                     CHECK_LIST_EMPTY(1);
                                     extract_and_copy_for_tail_n(key, 1, minlen);
                                     _LOG_DEBUGH(_T("histDic1: resultList.size()={}"), resultList.Size());
@@ -1079,15 +1089,16 @@ namespace {
                     }
                 }
 
+                _LOG_DEBUGH(_T("CHECK-POINT-F"));
                 if (resultList.Empty()) {
-                    _LOG_DEBUGH(_T("resultList.Empty"));
+                    _LOG_DEBUGH(_T("CHECK-POINT-G: resultList.Empty"));
                     // 履歴検索で結果がなかった場合
                     if ((!bCheckMinKeyLen || key.size() >= SETTINGS->histRomanKeyLength) && is_ascii_str(key)) {
-                        _LOG_DEBUGH(_T("find ASCII key: {}"), to_wstr(key));
+                        _LOG_DEBUGH(_T("CHECK-POINT-H: find ASCII key: {}"), to_wstr(key));
                         // 英大文字で区切って検索、なければローマ字化
                         auto words = splitByCapitalLetter(key);
                         if (words.size() > 1) {
-                            _LOG_DEBUGH(_T("splitted words={}"), to_wstr(utils::join(words, ':')));
+                            _LOG_DEBUGH(_T("CHECK-POINT-I: splitted words={}"), to_wstr(utils::join(words, ':')));
                             MString joinedWord;
                             for (const auto& w : words) {
                                 if (w.size() > 1) {
@@ -1108,24 +1119,29 @@ namespace {
                                     joinedWord.append(1, w[0]);
                                 }
                             }
-                            _LOG_DEBUGH(_T("Join Katakana"));
+                            _LOG_DEBUGH(_T("CHECK-POINT-J: Join Katakana"));
                             resultList.ClearKeyInfo();
                             resultList.PushHistory(key, key + MSTR_VERT_BAR + MSTR_HASH_MARK + joinedWord);
                         } else {
+                            _LOG_DEBUGH(_T("CHECK-POINT-K"));
                             pushRomanEntry(key);
                         }
+                        _LOG_DEBUGH(_T("CHECK-POINT-L"));
                         resultKey = key;   // 全体がマッチ
                     } else {
+                        _LOG_DEBUGH(_T("CHECK-POINT-M"));
                         resultKey.clear();
                     }
                 } else {
+                    _LOG_DEBUGH(_T("CHECK-POINT-N"));
                     resultKey = resultKeyLen == 0 ? key : utils::last_substr(key, resultKeyLen);    // resultKeyLen == 0 なら全体がマッチ
                 }
-                _LOG_DEBUGH(_T("resultKey={}, resultKeyLen={}, resultList.size()={}"), to_wstr(resultKey), resultKeyLen, resultList.Size());
+                _LOG_DEBUGH(_T("CHECK-POINT-O: resultKey={}, resultKeyLen={}, resultList.size()={}"), to_wstr(resultKey), resultKeyLen, resultList.Size());
             }
 
             if (SETTINGS->histMoveShortestAt2nd) {
                 // 最短語を少なくとも先頭から2番目に移動する
+                _LOG_DEBUGH(_T("CHECK-POINT-P"));
                 resultList.MoveShortestHistAt2nd();
             }
 

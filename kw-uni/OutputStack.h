@@ -78,6 +78,7 @@ public:
         if (!stack.empty() && stack.back().chr == '\n') stack.pop_back();
     }
 
+    // 末尾のn文字を削除する (nがスタックサイズより大きい場合はスタック全体を削除)
     inline void pop(size_t n) {
         if (n > 0) {
             uint32_t lastFlag = 0;
@@ -97,6 +98,7 @@ public:
         }
     }
 
+    // 末尾1文字を削除する
     inline void pop() {
         pop(1);
     }
@@ -500,10 +502,28 @@ public:
         return utils::find_tail_japanese_str(backStringUpto(len, OutputStack::FLAG_BLOCK_HIST));
     }
 
+    // ブロッカー以降で、出力履歴の末尾から len 文字までのアルファベット文字列を取得する
+    template<typename T>
+    inline T GetLastAlphabetKey(size_t len) const {
+        return utils::find_tail_alphabet_str(backStringUpto(len, OutputStack::FLAG_BLOCK_HIST));
+    }
+
     // ブロッカー以降で、出力履歴の末尾から len 文字までのASCII文字列を取得する
     template<typename T>
     inline T GetLastAsciiKey(size_t len) const {
         return utils::find_tail_ascii_str(backStringUpto(len, OutputStack::FLAG_BLOCK_HIST));
+    }
+
+    // 出力履歴の末尾から4文字以上(ただしブロッカー以降)の漢字列またはカタカナ列をとり出す
+    // 3文字以下だったら、ひらがなも含めて4文字まで取り出す
+    // 末尾に漢字、カタカナ、ひらがながなかったら、アルファベット文字列を取り出す
+    template<typename T>
+    inline T GetLastKanjiOrKatakanaOrHirakanaOrAlphabetKey(size_t alphaMaxLen) const {
+        T key = GetLastKanjiOrKatakanaKey<T>(HIST_KEY_MAX_LEN);
+        if (key.size() >= 4) return key;
+        key = GetLastJapaneseKey<T>(4);
+        if (!key.empty()) return key;
+        return GetLastAlphabetKey<T>(alphaMaxLen);
     }
 
     // 出力履歴の末尾から4文字以上(ただしブロッカー以降)の漢字列またはカタカナ列をとり出す

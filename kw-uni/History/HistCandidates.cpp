@@ -5,7 +5,7 @@
 
 #include "HistCandidates.h"
 
-#if 0
+#if 1
 #undef _LOG_DEBUGH
 #define _LOG_DEBUGH LOG_INFOH
 #endif

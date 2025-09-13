@@ -665,8 +665,8 @@ public:
         OutParams->strokeTableNum = StrokeTableNode::GetCurrentStrokeTableNum();
 
         // 出力履歴に BackSpaces を反映
-        LOG_INFO(_T("pop numBS={}, outStack={}"), OutParams->numBackSpaces, OUTPUT_STACK->OutputStackBackStrForDebug(10));
-        OUTPUT_STACK->pop(OutParams->numBackSpaces);
+        LOG_INFO(_T("pop numBS={}, numBSofOutputStack={}, outStack={}"), OutParams->numBackSpaces, resultStr.numBSofOutputStack(), OUTPUT_STACK->OutputStackBackStrForDebug(10));
+        if (resultStr.numBSofOutputStack() > 0) OUTPUT_STACK->pop((size_t)resultStr.numBSofOutputStack()); // これはやめて、MergerHistoryResidentState の中でやることにする
         // 出力文字列を履歴に反映 (全角の＊と？は半角に変換しておく⇒ワイルドカードを含む交ぜ書き変換で使う)
         LOG_INFO(_T("outStr={}, outStack={}"), OutParams->outString, OUTPUT_STACK->OutputStackBackStrForDebug(10));
         OUTPUT_STACK->push(utils::convert_star_and_question_to_hankaku(OutParams->outString));

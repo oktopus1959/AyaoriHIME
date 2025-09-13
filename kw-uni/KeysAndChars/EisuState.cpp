@@ -75,7 +75,7 @@ namespace {
             }
 
             // 必要ならブロッカーを設定する
-            if (blockerNeeded) OUTPUT_STACK->setHistBlocker();
+            //if (blockerNeeded) OUTPUT_STACK->setHistBlocker();
             //setEisuModeMarker();
 
             // 英数モードフラグの設定

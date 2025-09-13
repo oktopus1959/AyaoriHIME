@@ -67,6 +67,14 @@ namespace {
 
     inline mchar_t to_lower(mchar_t ch) { return mchar_t(langedge::CtypeUtil::toLower(ch)); }
 
+    inline mchar_t tail_char(const MString& s) {
+        return s.empty() ? 0 : s.back();
+    }
+
+    inline wchar_t tail_char(const String& s) {
+        return s.empty() ? 0 : s.back();
+    }
+
     //inline bool is_ascii_char(mchar_t ch) {
     //    return ch >= 0x20 && ch <= 0x7f;
     //}
@@ -139,10 +147,26 @@ namespace {
         return true;
     }
 
+    inline bool is_upper_alphabet_str(const MString& s) {
+        if (s.empty()) return false;
+        for (auto c : s) {
+            if (!is_upper_alphabet(c)) return false;
+        }
+        return true;
+    }
+
     inline bool is_ascii_str(StringRef s) {
         if (s.empty()) return false;
         for (auto c : s) {
             if (!is_ascii_char(c)) return false;
+        }
+        return true;
+    }
+
+    inline bool is_upper_alphabet_str(StringRef s) {
+        if (s.empty()) return false;
+        for (auto c : s) {
+            if (!is_upper_alphabet(c)) return false;
         }
         return true;
     }
@@ -989,6 +1013,20 @@ namespace utils
     }
 
     template<typename T>
+    inline T find_tail_alphabet_str(const T& s) {
+        if (!s.empty()) {
+            size_t len = s.size();
+            size_t i = len;
+            for (; i > 0; --i) {
+                auto ch = wchar_t(s[i - 1]);
+                if (!is_alphabet(ch)) break;
+            }
+            if (i < len) return s.substr(i, len - i);
+        }
+        return T();
+    }
+
+    template<typename T>
     inline T find_tail_ascii_str(const T& s) {
         if (!s.empty()) {
             size_t len = s.size();
@@ -1403,8 +1441,16 @@ namespace utils
         return is_ascii_str(s);
     }
 
+    inline bool isUpperAlphabetString(const MString& s) {
+        return is_upper_alphabet_str(s);
+    }
+
     inline bool isAsciiString(StringRef s) {
         return is_ascii_str(s);
+    }
+
+    inline bool isUpperAlphabetString(StringRef s) {
+        return is_upper_alphabet_str(s);
     }
 
     inline String boolToString(bool flag) {
