@@ -757,7 +757,7 @@ namespace KanchokuWS
         /// <summary> Decoder へ入力DECKEYキーを送信する </summary>
         /// <param name="decoder"></param>
         [DllImport("kw-uni.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void HandleDeckeyDecoder(IntPtr decoder, int keyId, uint targetChar, int inputFlags, ref DecoderOutParams outParams);
+        static extern void HandleDeckeyDecoder(IntPtr decoder, IntPtr decParam, int keyId, uint targetChar, int inputFlags, ref DecoderOutParams outParams);
 
         /// <summary> Decoder へ各種データを送信する </summary>
         [DllImport("kw-uni.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -1902,6 +1902,38 @@ namespace KanchokuWS
             return result;
         }
 
+        private const int HANDLE_DECKEY_DATA_SIZE = 64;
+
+        /// <summary> Decoder コマンド呼び出し用の構造体 </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct DecoderHandleDeckeyParams
+        {
+            // 種々の受け渡しデータ
+            [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = HANDLE_DECKEY_DATA_SIZE)]
+            public char[] editBufferData;
+        }
+
+        private void CallHandleDeckeyDecoder(Action<IntPtr> decoderCaller)
+        {
+            // 構造体の初期化
+            var prm = new DecoderHandleDeckeyParams() {
+                //hWnd = this.Handle,
+                editBufferData = new char[HANDLE_DECKEY_DATA_SIZE],
+            };
+            // 編集バッファの内容をコピー
+            var cleanText = frmEditBuf.GetCleanText();
+            Array.Copy(cleanText._toCharArray(), prm.editBufferData, cleanText.Length._highLimit(prm.editBufferData.Length - 1));
+            // アンマネージド構造体のメモリ確保
+            int size = Marshal.SizeOf(typeof(DecoderHandleDeckeyParams));
+            System.IntPtr paramsPtr = Marshal.AllocCoTaskMem(size);
+            // マネージド構造体をアンマネージドにコピーする
+            Marshal.StructureToPtr(prm, paramsPtr, false);
+            // デコーダの呼び出し
+            decoderCaller.Invoke(paramsPtr);
+            // アンマネージドのメモリを解放
+            Marshal.FreeCoTaskMem(paramsPtr);
+        }
+
         /// <summary>
         /// デコーダの呼び出し
         /// </summary>
@@ -1913,7 +1945,9 @@ namespace KanchokuWS
             logger.InfoH(() => $"targetChar={targetChar}, bRomanStrokeGuideMode={bRomanStrokeGuideMode}, bUpperRomanStrokeGuideMode={bUpperRomanStrokeGuideMode}");
 
             // デコーダの呼び出し
-            HandleDeckeyDecoder(decoderPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode, rollOverStroke), ref decoderOutput);
+            CallHandleDeckeyDecoder(cmdParamsPtr => {
+                HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode, rollOverStroke), ref decoderOutput);
+            });
 
             logger.InfoH(() =>
                 $"HandleDeckeyDecoder: RESULT: table#={decoderOutput.strokeTableNum}, strokeDepth={decoderOutput.GetStrokeCount()}, layout={decoderOutput.layout}, " +
@@ -2106,7 +2140,9 @@ namespace KanchokuWS
                 $"targetChar={targetChar}, bRomanStrokeGuideMode={bRomanStrokeGuideMode}, bUpperRomanStrokeGuideMode={bUpperRomanStrokeGuideMode}");
 
             // デコーダの呼び出し
-            HandleDeckeyDecoder(decoderPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode), ref decoderOutput);
+            CallHandleDeckeyDecoder(cmdParamsPtr => {
+                HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode), ref decoderOutput);
+            });
 
             logger.Info(() =>
                 $"HandleDeckeyDecoder: RESULT: table#={decoderOutput.strokeTableNum}, strokeDepth={decoderOutput.GetStrokeCount()}, layout={decoderOutput.layout}, " +
@@ -2133,7 +2169,9 @@ namespace KanchokuWS
                 $"targetChar={targetChar}, bRomanStrokeGuideMode={bRomanStrokeGuideMode}, bUpperRomanStrokeGuideMode={bUpperRomanStrokeGuideMode}");
 
             // デコーダの呼び出し
-            HandleDeckeyDecoder(decoderPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode), ref decoderOutput);
+            CallHandleDeckeyDecoder(cmdParamsPtr => {
+                HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode), ref decoderOutput);
+            });
 
             // 送出文字列中に特殊機能キー(tabやleftArrowなど)が含まれているか
             bool bFuncVkeyContained = isFuncVkeyContained(decoderOutput.outString);
@@ -2169,7 +2207,9 @@ namespace KanchokuWS
         private void sendDeckeyToDecoder(int deckey)
         {
             logger.Info(() => $"CLLED: deckey={deckey:x}H({deckey})");
-            HandleDeckeyDecoder(decoderPtr, deckey, 0, 0, ref decoderOutput);
+            CallHandleDeckeyDecoder(cmdParamsPtr => {
+                HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, 0, 0, ref decoderOutput);
+            });
             if (IsDecoderActive) {
                 // 中央鍵盤文字列の取得
                 getCenterString();

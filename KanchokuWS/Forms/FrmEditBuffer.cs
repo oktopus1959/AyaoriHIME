@@ -31,6 +31,10 @@ namespace KanchokuWS.Forms
 
         public bool IsEmpty => EditText._isEmpty();
 
+        /// <summary> カレット文字を除いた編集バッファの文字列を返す</summary>
+        /// <returns></returns>
+        public string GetCleanText() => EditText._safeReplace(Settings.EditBufferCaretChar, "");
+
         //------------------------------------------------------------------------------------
         /// <summary> コンストラクタ </summary>
         /// <param name="form"></param>

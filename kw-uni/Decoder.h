@@ -21,6 +21,15 @@ struct DecoderCommandParams {
     wchar_t inOutData[IN_OUT_DATA_SIZE];
 };
 
+#define HANDLE_DECKEY_DATA_SIZE 64
+
+/// <summary> Decoder コマンド呼び出し用の構造体 </summary>
+struct DecoderHandleDeckeyParams {
+    // 種々の受け渡しデータ
+    //[MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = HANDLE_DECKEY_DATA_SIZE)]
+    wchar_t editBufferData[HANDLE_DECKEY_DATA_SIZE];
+};
+
 // -------------------------------------------------------------------
 // デコーダでのDECKEY処理の結果をUI側に送信するために用いる構造体
 struct DecoderOutParams
@@ -105,7 +114,7 @@ public:
     virtual void ExecCmd(DecoderCommandParams*, DecoderOutParams*) = 0;
 
     // DECKEY処理
-    virtual void HandleDeckey(int, mchar_t, int, DecoderOutParams*) = 0;
+    virtual void HandleDeckey(int, mchar_t, int, DecoderHandleDeckeyParams*, DecoderOutParams*) = 0;
 
 }; // class Decoder
 
@@ -118,7 +127,7 @@ extern "C" {
     __declspec(dllexport) int ResetDecoder(void*);
     __declspec(dllexport) int SaveDictsDecoder(void*);
     __declspec(dllexport) int MakeInitialVkbTableDecoder(void* decoder, DecoderOutParams* table);
-    __declspec(dllexport) int HandleDeckeyDecoder(void*, int, mchar_t, int, DecoderOutParams*);
+    __declspec(dllexport) int HandleDeckeyDecoder(void*, DecoderHandleDeckeyParams*, int, mchar_t, int, DecoderOutParams*);
     __declspec(dllexport) int ExecCmdDecoder(void*, DecoderCommandParams*, DecoderOutParams*);
 }
 

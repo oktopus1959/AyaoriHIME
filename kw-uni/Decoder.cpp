@@ -615,13 +615,13 @@ public:
     }
 
     // DECKEY処理
-    void HandleDeckey(int keyId, mchar_t targetChar, int intputFlags, DecoderOutParams* outParams) override {
+    void HandleDeckey(int keyId, mchar_t targetChar, int intputFlags, DecoderHandleDeckeyParams* deckeyParams, DecoderOutParams* outParams) override {
         bool decodeKeyboardChar = (intputFlags & (int)InputFlags::DecodeKeyboardChar) != 0;
         bool upperRomanGuideMode = (intputFlags & (int)InputFlags::UpperRomanGuideMode) != 0;
         bool rollOverStroke = (intputFlags & (int)InputFlags::RollOverStroke) != 0;
 
-        LOG_INFO(_T("\nENTER: keyId={:x}H({}={}), targetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}"),
-            keyId, keyId, DECKEY_TO_CHARS->GetDeckeyNameFromId(keyId), to_wstr(targetChar), decodeKeyboardChar, upperRomanGuideMode);
+        LOG_INFO(_T("\nENTER: keyId={:x}H({}={}), targetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}, editBuffer={}"),
+            keyId, keyId, DECKEY_TO_CHARS->GetDeckeyNameFromId(keyId), to_wstr(targetChar), decodeKeyboardChar, upperRomanGuideMode, deckeyParams->editBufferData);
 
         OutParams = outParams;
         initializeOutParams();
@@ -1144,8 +1144,8 @@ int MakeInitialVkbTableDecoder(void* pDecoder, DecoderOutParams* table) {
 
 // DECKEYハンドラ
 // 引数: keyId = DECKEY ID, targetChar = 入力しようとしている文字
-int HandleDeckeyDecoder(void* pDecoder, int keyId, mchar_t targetChar, int inputFlags, DecoderOutParams* params) {
-    auto method_call = [pDecoder, keyId, targetChar, inputFlags, params]() { ((Decoder*)pDecoder)->HandleDeckey(keyId, targetChar, inputFlags, params); };
+int HandleDeckeyDecoder(void* pDecoder, DecoderHandleDeckeyParams* deckeyParams, int keyId, mchar_t targetChar, int inputFlags, DecoderOutParams* params) {
+    auto method_call = [pDecoder, keyId, targetChar, inputFlags, deckeyParams, params]() { ((Decoder*)pDecoder)->HandleDeckey(keyId, targetChar, inputFlags, deckeyParams, params); };
     return invokeDecoderMethod(method_call, nullptr);
 }
 

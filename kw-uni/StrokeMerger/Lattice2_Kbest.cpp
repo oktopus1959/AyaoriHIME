@@ -635,7 +635,7 @@ namespace lattice2 {
             if (!newCandidates.empty()) {
                 for (auto iter = newCandidates.begin(); iter != newCandidates.end(); ++iter) {
                     int otherCost = iter->totalCost();
-                    LOG_DEBUGH(_T("    otherStr={}, otherCost={}"), to_wstr(iter->string()), otherCost);
+                    //LOG_DEBUGH(_T("    otherStr={}, otherCost={}"), to_wstr(iter->string()), otherCost);
                     if (totalCost < otherCost) {
                         iter = newCandidates.insert(iter, newCandStr);    // iter は挿入したノードを指す
                         bAdded = true;
