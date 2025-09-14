@@ -1180,8 +1180,68 @@ namespace {
             LOG_DEBUGH(_T("LEAVE: {}\n"), Name);
         }
 
+    private:
+        void copyEditBufferToOutputStack() {
+            LOG_DEBUGH(_T("ENTER: {}"), Name);
+            auto editBuf = STATE_COMMON->GetEditBufferString();
+            auto blockedTail = OUTPUT_STACK->GetLastOutputStackStrUptoBlocker(20);
+            if (!blockedTail.empty()) {
+                auto cleanTail = OUTPUT_STACK->BackStringUptoNewLine(blockedTail.size() + 8);
+                size_t cleanStemLen = cleanTail.size() > blockedTail.size() ? cleanTail.size() - blockedTail.size() : 0;
+                if (cleanStemLen > 0) {
+                    auto cleanStem = cleanTail.substr(0, cleanStemLen);
+                    // cleanStem の末尾部分と editBuf の中間部分(末尾を除く)で一致する最大部分を探索
+                    if (editBuf.size() > 1) {
+                        size_t bestPos = MString::npos;
+                        size_t bestLen = 0;
+                        size_t maxCheckLen = std::min(cleanStemLen, editBuf.size() - 1); // 中間に収まる最大長
+
+                        for (size_t len = maxCheckLen; len > 0; --len) {
+                            // cleanStem の末尾 len 文字
+                            auto suffix = cleanStem.substr(cleanStemLen - len, len);
+
+                            // editBuf 内を探索（中間: 位置 >=0 かつ 末尾にかからない）
+                            size_t searchStart = 0;
+                            while (searchStart + len < editBuf.size()) {
+                                size_t pos = editBuf.find(suffix, searchStart);
+                                if (pos == MString::npos) break;
+                                if (pos + len < editBuf.size()) {
+                                    bestPos = pos;
+                                    bestLen = len;
+                                    goto FOUND_OVERLAP; // 最大長から降順なので最初に見つかったものが最大
+                                }
+                                searchStart = pos + 1;
+                            }
+                        }
+                    FOUND_OVERLAP:
+                        // 見つかった場合は editBuf.insert(.substr(bestPos+bestLen) をOutput 
+                        if (bestLen > 0 && bestPos != MString::npos) {
+                            LOG_DEBUGH(_T("Overlap FOUND: {}"), to_wstr(editBuf.substr(bestPos, bestLen)));
+                            LOG_DEBUGH(_T("Insert '|' at {} in EditBufString={}"), bestPos + bestLen, to_wstr(editBuf));
+                            editBuf.insert(bestPos + bestLen, 1, '|');
+                        }
+                    }
+                }
+            }
+            // OUTPUT_STACK に editBuf を追加する
+            LOG_DEBUG(_T("LEAVE: Push EditBuffer to OutputStack: {}"), to_wstr(editBuf));
+            OUTPUT_STACK->pushNewString(STATE_COMMON->GetEditBufferString());
+        }
+
+        bool isCandSelectable() const {
+            //size_t tail_size = OUTPUT_STACK->TailSizeUptoMazeOrHistBlockerOrPunct();
+            //if (tail_size > 0) return false;
+            //auto blockedTail = OUTPUT_STACK->OutputStackBackStrWithFlagUpto(20);
+            //if (blockedTail.empty() || blockedTail.back() != '|') return false;
+            //size_t tail_pos = blockedTail.size() - 1;
+            //size_t pos = blockedTail.rfind('|', tail_pos);
+            return OUTPUT_STACK->tail_size() > 0 && OUTPUT_STACK->TailSizeUptoMazeOrHistBlockerOrPunct() == 0;
+        }
+
+    public:
         // (Ctrl or Shift)+Space の処理 -- 履歴検索の開始、次の候補を返す
         void handleNextOrPrevCandTrigger(bool bNext) {
+            bCandSelectable = isCandSelectable();
             LOG_DEBUGH(_T("\nCALLED: {}: bCandSelectable={}, selectPos={}, bNext={}"), Name, bCandSelectable, HIST_CAND->GetSelectPos(), bNext);
             // これにより、前回のEnterによる改行点挿入やFullEscapeによるブロッカーフラグが削除される⇒(2021/12/18)workしなくなっていたので、いったん削除
             //OUTPUT_STACK->clearFlagAndPopNewLine();
@@ -1193,6 +1253,7 @@ namespace {
 
             if (!bCandSelectable) {
                 // 履歴候補選択可能状態でなければ、前回の履歴検索との比較、新しい履歴検索の開始
+                copyEditBufferToOutputStack();
                 historySearch(true);
             }
             if (bCandSelectable) {

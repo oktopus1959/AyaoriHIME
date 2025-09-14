@@ -148,6 +148,9 @@ class StateCommonInfo {
     // 次の選択候補位置
     int nextSelectPos = 0;
 
+    // フロント側の編集バッファに格納されていた文字列
+    MString editBufferString;
+
     // DECKEYを発行した元の文字キーの列 (打鍵途中でスペースが打たれた時に送られる)
     MString origString;
 
@@ -336,6 +339,10 @@ public:
 //    inline void OutputDeckeyChar(/*int numBS = -1*/) { SetOutString(GetDeckeyChar()); }
 //    inline void OutputOrigChar(int numBS = -1) { SetOutString(origString, numBS); }
 //    inline void OutputOrigString(int numBS = -1) { SetOutString(origString, numBS); }
+
+    inline void ClearEditBufferString() { editBufferString.clear(); }
+    inline void SetEditBufferString(const wchar_t* buf) { editBufferString = to_mstr(buf); }
+    inline const MString& GetEditBufferString() { return editBufferString; }
 
     inline void ClearOrigString() { origString.clear(); }
     inline void SetOrigString(mchar_t ch) { origString = ch; }

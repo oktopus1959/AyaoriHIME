@@ -253,8 +253,10 @@ namespace {
     MString to_mstr(const wchar_t* wp) {
         MString result;
         size_t pos = 0;
-        while (wp[pos] != 0) {
-            result.push_back(make_mchar(wp, &pos));
+        if (wp) {
+            while (wp[pos] != 0) {
+                result.push_back(make_mchar(wp, &pos));
+            }
         }
         return result;
     }
@@ -262,8 +264,10 @@ namespace {
     MString to_mstr(const wchar_t* wp, size_t len) {
         MString result;
         size_t pos = 0;
-        while (pos < len) {
-            result.push_back(make_mchar(wp, &pos));
+        if (wp) {
+            while (pos < len) {
+                result.push_back(make_mchar(wp, &pos));
+            }
         }
         return result;
     }
