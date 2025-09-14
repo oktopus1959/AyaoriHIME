@@ -359,10 +359,10 @@ int BushuAssocDic::CreateBushuAssocDic(StringRef bushuAssocFile) {
         if (reader.success()) {
             Singleton->ReadFile(reader.getAllLines());
             LOG_DEBUGH(_T("close bushu assoc file: {}"), bushuAssocFile);
-        } else if (!SETTINGS->firstUse) {
-            // エラーメッセージを表示
-            LOG_WARN(_T("Can't read bushu assoc file: {}"), bushuAssocFile);
-            ERROR_HANDLER->Warn(std::format(_T("部首連想入力辞書ファイル({})が開けません"), bushuAssocFile));
+        //} else if (!SETTINGS->firstUse) {
+        //    // エラーメッセージを表示
+        //    LOG_WARN(_T("Can't read bushu assoc file: {}"), bushuAssocFile);
+        //    ERROR_HANDLER->Warn(std::format(_T("部首連想入力辞書ファイル({})が開けません"), bushuAssocFile));
         }
     }
 
@@ -378,10 +378,10 @@ void BushuAssocDic::MergeBushuAssocDic(StringRef path) {
         if (reader.success()) {
             Singleton->MergeFile(reader.getAllLines());
             LOG_DEBUGH(_T("close bushu assoc file: {}"), path);
-        } else if (!SETTINGS->firstUse) {
-            // エラーメッセージを表示
-            LOG_WARN(_T("Can't read bushu assoc file: {}"), path);
-            ERROR_HANDLER->Warn(std::format(_T("部首連想入力辞書ファイル({})が開けません"), path));
+        //} else if (!SETTINGS->firstUse) {
+        //    // エラーメッセージを表示
+        //    LOG_WARN(_T("Can't read bushu assoc file: {}"), path);
+        //    ERROR_HANDLER->Warn(std::format(_T("部首連想入力辞書ファイル({})が開けません"), path));
         }
     }
 }
@@ -390,14 +390,18 @@ void BushuAssocDic::MergeBushuAssocDic(StringRef path) {
 void BushuAssocDic::WriteBushuAssocDic(StringRef path) {
     LOG_DEBUGH(_T("CALLED: path={}"), path);
     if (!path.empty() && Singleton) {
-        if (Singleton->IsDirty() || SETTINGS->firstUse) {
-            if (utils::moveFileToBackDirWithRotation(path, SETTINGS->backFileRotationGeneration)) {
-                utils::OfstreamWriter writer(path);
+        if (Singleton->IsDirty()) {
+            // 一旦、一時ファイルに書き込み
+            auto pathTmp = path + L".tmp";
+            {
+                utils::OfstreamWriter writer(pathTmp);
                 if (writer.success()) {
                     LOG_DEBUGH(_T("WriteFile"));
                     Singleton->WriteFile(writer);
                 }
             }
+            // pathTmp ファイルのサイズが path ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
+            utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, SETTINGS->backFileRotationGeneration);
         }
     }
 }

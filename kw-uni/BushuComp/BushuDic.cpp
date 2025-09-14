@@ -1203,11 +1203,11 @@ namespace {
         if (reader.success()) {
             pDic->ReadFile(reader.getAllLines());
             LOG_INFO(_T("close bushu file: {}"), path);
-        } else if (!SETTINGS->firstUse) {
-            // エラーメッセージを表示
-            LOG_WARN(_T("Can't read bushu file: {}"), path);
-            ERROR_HANDLER->Warn(std::format(_T("部首合成入力辞書ファイル({})が開けません"), path));
-            return false;
+        //} else if (!SETTINGS->firstUse) {
+        //    // エラーメッセージを表示
+        //    LOG_WARN(_T("Can't read bushu file: {}"), path);
+        //    ERROR_HANDLER->Warn(std::format(_T("部首合成入力辞書ファイル({})が開けません"), path));
+        //    return false;
         }
         return true;
     }
@@ -1242,13 +1242,17 @@ namespace {
         LOG_INFO(_T("write auto bushu file: {}, dirty={}"), path, pDic && pDic->IsAutoDirty());
         if (!path.empty() && pDic) {
             if (pDic->IsAutoDirty()) {
-                if (utils::moveFileToBackDirWithRotation(path, SETTINGS->backFileRotationGeneration)) {
-                    utils::OfstreamWriter writer(path);
+                // 一旦、一時ファイルに書き込み
+                auto pathTmp = path + L".tmp";
+                {
+                    utils::OfstreamWriter writer(pathTmp);
                     if (writer.success()) {
+                        LOG_DEBUGH(_T("WriteFile"));
                         pDic->WriteAutoDicFile(writer);
-                        return true;
                     }
                 }
+                // pathTmp ファイルのサイズが path ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
+                return utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, SETTINGS->backFileRotationGeneration);
             }
         }
         return false;

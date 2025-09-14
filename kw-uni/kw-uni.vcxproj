@@ -317,6 +317,7 @@
     <ClCompile Include="Decoder.cpp" />
     <ClCompile Include="StrokeTableState.cpp" />
     <ClCompile Include="Template\TemplateState.cpp" />
+    <ClCompile Include="utils\path_utils.cpp" />
     <ClCompile Include="utils\utf_utils.cpp" />
   </ItemGroup>
   <ItemGroup>

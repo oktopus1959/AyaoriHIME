@@ -15,15 +15,6 @@ namespace KanchokuWS
         private static Logger logger = Logger.GetLogger();
 
         //-------------------------------------------------------------------------------------
-        /// <summary>製品名</summary>
-        public static string ProductName => "AYAORIHIME";
-        public static string ProductKanjiName => "漢織姫";
-        public static string ProductExplanation => "漢字とかなを織り交ぜるIME";
-        /// <summary> バージョン </summary>
-        public static string Version => "0.9.0.7";
-        public static string Version2 => "";
-
-        //-------------------------------------------------------------------------------------
         /// <summary> テーブルファイルなど内部で設定された値 </summary>
         private static Dictionary<string, string> internalSetValues = new Dictionary<string, string>();
 
@@ -1698,7 +1689,7 @@ namespace KanchokuWS
             DecoderSettings.Clear();
             DecoderSettings["logLevel"] = DecoderLogLevel.ToString();
             DecoderSettings["rootDir"] = KanchokuIni.Singleton.KanchokuDir;
-            DecoderSettings["firstUse"] = $"{!UserKanchokuIni.Singleton.IsUserIniAbsent}";
+            DecoderSettings["firstUse"] = $"{UserKanchokuIni.Singleton.IsUserIniAbsent}";
             DecoderSettings["isJPmode"] = $"{Domain.DecoderKeyVsVKey.IsJPmode}";
             MultiStreamMode = addDecoderSetting("multiStreamMode", false);
             BushuAssocFile = addDecoderSetting("bushuAssocFile", "kwassoc.txt");

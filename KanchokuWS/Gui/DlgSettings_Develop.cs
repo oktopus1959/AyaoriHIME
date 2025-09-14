@@ -185,9 +185,9 @@ namespace KanchokuWS.Gui
 
             int iRow = 0;
             dgvAbout.Rows[iRow].Cells[0].Value = "アプリケーション名／バージョン";
-            dgvAbout.Rows[iRow++].Cells[1].Value = $"{Settings.ProductName} Ver.{Settings.Version}";
+            dgvAbout.Rows[iRow++].Cells[1].Value = $"{KanchokuWS.ProductVersion.ProductName} Ver.{KanchokuWS.ProductVersion.Version}";
             dgvAbout.Rows[iRow].Cells[0].Value = "別名";
-            dgvAbout.Rows[iRow++].Cells[1].Value = $"{Settings.ProductKanjiName} - {Settings.ProductExplanation}";
+            dgvAbout.Rows[iRow++].Cells[1].Value = $"{KanchokuWS.ProductVersion.ProductKanjiName} - {KanchokuWS.ProductVersion.ProductExplanation}";
             dgvAbout.Rows[iRow].Cells[0].Value = "プログラムパス";
             dgvAbout.Rows[iRow++].Cells[1].Value = SystemHelper.GetExePath();
             dgvAbout.Rows[iRow].Cells[0].Value = "ルートフォルダ";

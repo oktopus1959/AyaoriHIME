@@ -32,10 +32,10 @@ namespace KanchokuWS
             // タイトルバーを消す
             FormBorderStyle = FormBorderStyle.None;
 
-            label_version.Text = $"{Settings.ProductName} Ver. {Settings.Version}";
-            label_version2.Text = Settings.Version2;
-            label_subName.Text = $"{Settings.ProductKanjiName}";
-            label_explanation.Text = $"{Settings.ProductExplanation}";
+            label_version.Text = $"{KanchokuWS.ProductVersion.ProductName} Ver. {KanchokuWS.ProductVersion.Version}";
+            label_version2.Text = KanchokuWS.ProductVersion.Version2;
+            label_subName.Text = $"{KanchokuWS.ProductVersion.ProductKanjiName}";
+            label_explanation.Text = $"{KanchokuWS.ProductVersion.ProductExplanation}";
 
             label_version.Left = (this.ClientSize.Width - label_version.Width) / 2;
             label_explanation.Left = (this.ClientSize.Width - label_explanation.Width) / 2;

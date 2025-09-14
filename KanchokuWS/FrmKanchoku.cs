@@ -322,7 +322,7 @@ namespace KanchokuWS
 
             IMEHandler.MainWnd = this.Handle;
 
-            this.notifyIcon1.Text = Settings.ProductKanjiName + " " + Settings.Version;
+            this.notifyIcon1.Text = KanchokuWS.ProductVersion.ProductKanjiName + " " + KanchokuWS.ProductVersion.Version;
 
             // kanchoku.user.ini が存在しなければ、初期状態で作成しておく
             if (!UserKanchokuIni.Singleton.IsIniFileExist) {
@@ -637,7 +637,7 @@ namespace KanchokuWS
             DeactivateDecoderWithModifiersOff();
 
             logger.Info($"ConfirmOnClose={Settings.ConfirmOnClose}");
-            if (!Settings.ConfirmOnClose || SystemHelper.OKCancelDialog($"{Settings.ProductKanjiName}を終了します。\r\nよろしいですか。")) {
+            if (!Settings.ConfirmOnClose || SystemHelper.OKCancelDialog($"{KanchokuWS.ProductVersion.ProductKanjiName}を終了します。\r\nよろしいですか。")) {
                 logger.Info("CLOSING...");
                 Close();
             }
@@ -657,8 +657,8 @@ namespace KanchokuWS
 
             logger.Info($"bNoSave={bNoSave}, ConfirmOnRestart={Settings.ConfirmOnRestart}");
             var msg = bNoSave ?
-                $"{Settings.ProductKanjiName}を再起動します。\r\nデコーダが保持している辞書内容はファイルに保存されません。\r\nよろしいですか。" :
-                $"{Settings.ProductKanjiName}を再起動します。\r\nデコーダが保持している辞書内容をファイルに書き出すので、\r\nユーザーが直接辞書ファイルに加えた変更は失われます。\r\nよろしいですか。";
+                $"{KanchokuWS.ProductVersion.ProductKanjiName}を再起動します。\r\nデコーダが保持している辞書内容はファイルに保存されません。\r\nよろしいですか。" :
+                $"{KanchokuWS.ProductVersion.ProductKanjiName}を再起動します。\r\nデコーダが保持している辞書内容をファイルに書き出すので、\r\nユーザーが直接辞書ファイルに加えた変更は失われます。\r\nよろしいですか。";
             if (!Settings.ConfirmOnRestart || SystemHelper.OKCancelDialog(msg)) {
                 logger.Info("RESTARTING...");
                 bRestart = true;
@@ -2533,7 +2533,7 @@ namespace KanchokuWS
             }
 #endif
             // 辞書の自動保存
-            if (dtNow >= saveDictsPlannedDt || (IsDecoderActive && dtNow >= saveDictsChallengeDt)) {
+            if (dtNow >= saveDictsPlannedDt || (!IsDecoderActive && dtNow >= saveDictsChallengeDt)) {
                 reinitializeSaveDictsChallengeDt();
                 if (decoderPtr != IntPtr.Zero) {
                     logger.Info("CALL SaveDictsDecoder");
@@ -2583,7 +2583,7 @@ namespace KanchokuWS
             logger.Info("ENTER");
 
             // 初期化
-            UserKanchokuIni.Singleton.IsUserIniAbsent = false;
+            //UserKanchokuIni.Singleton.IsUserIniAbsent = false;
             KeyComboRepository.Initialize();
             ExtraModifiers.Initialize();
             DlgModConversion.Initialize();

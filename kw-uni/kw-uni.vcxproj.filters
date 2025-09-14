@@ -138,9 +138,6 @@
     <ClInclude Include="FunctionNodeBuilderList.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="utils\path_utils.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="ResidentState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -330,6 +327,9 @@
     <ClInclude Include="StrokeMerger\Lattice2_Kbest.h">
       <Filter>ヘッダー ファイル\StrokeMerger</Filter>
     </ClInclude>
+    <ClInclude Include="utils\path_utils.h">
+      <Filter>ヘッダー ファイル\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -484,6 +484,9 @@
     </ClCompile>
     <ClCompile Include="StrokeMerger\Lattice2_Kbest.cpp">
       <Filter>ソース ファイル\StrokeMerger</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\path_utils.cpp">
+      <Filter>ソース ファイル\utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

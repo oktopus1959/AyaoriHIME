@@ -221,7 +221,7 @@ namespace lattice2 {
     }
 
     // 交ぜ書き優先度の取得
-    int getMazegakiPriorityCost(const MString& mazeFeat);
+    int getMazegakiPreferenceCost(const MString& mazeFeat);
 
     void CandidateString::getDifficultMazeCands(const MString& surf, const MString& mazeCands, std::vector<MString>& result) const {
         auto cands = utils::split(mazeCands, '|');
@@ -258,8 +258,8 @@ namespace lattice2 {
             std::stable_sort(result.begin(), result.end(), [](const MString& a, const MString& b) {
                 auto aItems = utils::split(a, '@');
                 auto bItems = utils::split(b, '@');
-                int aPriCost = aItems.size() > 1 ? getMazegakiPriorityCost(aItems[1]) : 0;
-                int bPriCost = bItems.size() > 1 ? getMazegakiPriorityCost(bItems[1]) : 0;
+                int aPriCost = aItems.size() > 1 ? getMazegakiPreferenceCost(aItems[1]) : 0;
+                int bPriCost = bItems.size() > 1 ? getMazegakiPreferenceCost(bItems[1]) : 0;
                 _LOG_DETAIL(L"aPriCost={}, bPriCost={}", aPriCost, bPriCost);
                 return aPriCost < bPriCost;
                 });

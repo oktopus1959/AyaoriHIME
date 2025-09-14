@@ -22,10 +22,13 @@
 #undef _LOG_DEBUGH
 #undef _LOG_DEBUGH_COND
 #define _DEBUG_SENT(x) x
+#define LOG_SAVE_DICT LOG_WARNH
 #define LOG_DEBUG LOG_INFOH
 #define LOG_DEBUGH LOG_INFOH
 #define _LOG_DEBUGH LOG_INFOH
 #define _LOG_DEBUGH_COND LOG_INFOH_COND
+#else
+#define LOG_SAVE_DICT LOG_INFOH
 #endif
 
 namespace {
@@ -1166,7 +1169,7 @@ namespace {
 
         // 辞書内容の保存
         void WriteFile(utils::OfstreamWriter& writer) override {
-            LOG_DEBUGH(_T("CALLED"));
+            LOG_SAVE_DICT(_T("CALLED: Save Main Entries"));
             for (const auto& word : hashToStrMap.GetAllWords()) {
                 if (word.find(MSTR_VERT_BAR_2) == MString::npos) {
                     // '||' を含むものは除く
@@ -1189,7 +1192,7 @@ namespace {
 
         // 使用辞書内容の保存
         void WriteUsedFile(utils::OfstreamWriter& writer) override {
-            LOG_DEBUGH(_T("CALLED"));
+            LOG_SAVE_DICT(_T("CALLED: Save User Entries"));
             usedList.WriteFile(writer);
         }
 
@@ -1205,7 +1208,7 @@ namespace {
 
         // 除外辞書内容の保存
         void WriteExcludeFile(utils::OfstreamWriter& writer) override {
-            LOG_DEBUGH(_T("CALLED"));
+            LOG_SAVE_DICT(_T("CALLED: Save Exclude Entries"));
             exclList.WriteFile(writer);
         }
 
@@ -1221,7 +1224,7 @@ namespace {
 
         // Nグラム辞書内容の保存
         void WriteNgramFile(utils::OfstreamWriter& writer) override {
-            LOG_DEBUGH(_T("CALLED"));
+            LOG_SAVE_DICT(_T("CALLED: Save Ngram Entries"));
             ngramDic.WriteFile(writer);
         }
 
@@ -1266,13 +1269,14 @@ namespace {
 
     // 辞書ファイルの内容の書き出し
     void writeFile(StringRef path, WRITE_FUNC func) {
-        LOG_DEBUGH(_T("CALLED: path={}"), path);
+        LOG_SAVE_DICT(_T("ENTER: path={}"), path);
         if (!path.empty() && HISTORY_DIC) {
             utils::OfstreamWriter writer(path);
             if (writer.success()) {
                 (HISTORY_DIC.get()->*func)(writer);
             }
         }
+        LOG_SAVE_DICT(_T("LEAVE: path={}"), path);
     }
 
 }
@@ -1318,20 +1322,23 @@ int HistoryDic::CreateHistoryDic(StringRef histFile) {
 
 // 辞書ファイルの内容の書き出し
 void HistoryDic::WriteHistoryDic(StringRef histFile) {
-    LOG_DEBUGH(_T("CALLED: path={}"), histFile);
+    LOG_SAVE_DICT(_T("ENTER: path={}"), histFile);
     if (Singleton) {
         auto path = utils::joinPath(SETTINGS->rootDir, utils::contains(histFile, _T("*")) ? histFile : _T("kwhist.*.txt"));
         size_t pos = path.find(_T("*"));
-        if (Singleton->IsHistDicDirty() || SETTINGS->firstUse) {
+        if (Singleton->IsHistDicDirty()) {
             auto pathEntry = replaceStar(path, pos, _T("entry"));
-            if (utils::moveFileToBackDirWithRotation(pathEntry, SETTINGS->backFileRotationGeneration)) {
-                writeFile(pathEntry, &HistoryDic::WriteFile);
-            }
+            // 一旦、一時ファイルに書き込み
+            auto pathEntryTmp = pathEntry + L".tmp";
+            writeFile(pathEntryTmp, &HistoryDic::WriteFile);
+            // pathEntryTmp ファイルのサイズが PathEntry ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
+            utils::compareAndMoveFileToBackDirWithRotation(pathEntryTmp, pathEntry, SETTINGS->backFileRotationGeneration);
         }
         if (Singleton->IsUsedDicDirty()) writeFile(replaceStar(path, pos, _T("recent")), &HistoryDic::WriteUsedFile);
         if (Singleton->IsExcludeDicDirty()) writeFile(replaceStar(path, pos, _T("exclude")), &HistoryDic::WriteExcludeFile);
         //if (Singleton->IsNgramDicDirty()) writeFile(replaceStar(path, pos, _T("ngram")), &HistoryDic::WriteNgramFile);
     }
+    LOG_SAVE_DICT(_T("LEAVE: path={}"), histFile);
 }
 
 // 辞書ファイルの内容の書き出し

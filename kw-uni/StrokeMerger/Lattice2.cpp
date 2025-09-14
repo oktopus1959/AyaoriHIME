@@ -18,16 +18,19 @@
 #include "Lattice2_CandidateString.h"
 #include "Lattice2_Kbest.h"
 
+#define LOG_SAVE_DICT LOG_INFOH
 #define _LOG_INFOH LOG_INFO
 #define _LOG_DETAIL LOG_DEBUG
 #if 1
 #undef IS_LOG_DEBUGH_ENABLED
 #define IS_LOG_DEBUGH_ENABLED true
+#undef LOG_SAVE_DICT
 #undef _LOG_INFOH
 #undef _LOG_DETAIL
 #undef LOG_INFO
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
+#define LOG_SAVE_DICT LOG_WARNH
 #define _LOG_INFOH LOG_WARN
 #define _LOG_DETAIL LOG_WARN
 #define LOG_INFO LOG_INFOH
@@ -44,7 +47,7 @@ namespace lattice2 {
 #define REALTIME_NGRAM_TEMP_FILE    L"files/realtime.ngram.tmp.txt"
 //#define USER_NGRAM_FILE           L"files/user.ngram.txt"
 #define USER_COST_FILE              L"files/userword.cost.txt"
-#define MAZEGAKI_PRIOR_FILE         L"files/mazegaki.prior.txt"
+#define MAZEGAKI_PREFERENCE_FILE    L"files/mazegaki.pref.txt"
 
     //// 漢字と長音が連続する場合のペナルティ
     //int KANJI_CONSECUTIVE_PENALTY = 1000;
@@ -125,11 +128,11 @@ namespace lattice2 {
     // Ngram頻度がオンラインで更新されたか
     bool realtimeNgram_updated = false;
 
-    // 交ぜ書き優先度
-    std::map<MString, int> mazegakiPriorDict;
+    // 交ぜ書き優先度辞書
+    std::map<MString, int> mazegakiPrefDict;
 
     // 交ぜ書き優先度がオンラインで更新されたか
-    bool mazegakiPrior_updated = false;
+    bool mazegakiPref_updated = false;
 
     //--------------------------------------------------------------------------------------
     inline bool isDecimalString(StringRef item) {
@@ -470,13 +473,15 @@ namespace lattice2 {
     }
 
     void saveRealtimeNgramFile() {
-        LOG_INFO(L"CALLED: file={}, realtimeNgram_updated={}", REALTIME_NGRAM_FILE, realtimeNgram_updated);
+        LOG_SAVE_DICT(L"ENTER: file={}, realtimeNgram_updated={}", REALTIME_NGRAM_FILE, realtimeNgram_updated);
 #ifndef _DEBUG
         auto path = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
         if (realtimeNgram_updated) {
-            if (utils::moveFileToBackDirWithRotation(path, SETTINGS->backFileRotationGeneration)) {
-                LOG_INFO(_T("SAVE: realtime ngram file path={}"), path.c_str());
-                utils::OfstreamWriter writer(path);
+            // 一旦、一時ファイルに書き込み
+            auto pathTmp = path + L".tmp";
+            {
+                LOG_SAVE_DICT(_T("SAVE: realtime ngram file pathTmp={}"), pathTmp.c_str());
+                utils::OfstreamWriter writer(pathTmp);
                 if (writer.success()) {
                     for (const auto& pair : realtimeNgram) {
                         String line;
@@ -491,10 +496,13 @@ namespace lattice2 {
                     }
                     realtimeNgram_updated = false;
                 }
-                LOG_INFO(_T("DONE: entries count={}"), realtimeNgram.size());
+                LOG_SAVE_DICT(_T("DONE: entries count={}"), realtimeNgram.size());
             }
+            // pathTmp ファイルのサイズが path ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
+            utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, SETTINGS->backFileRotationGeneration);
         }
 #endif
+        LOG_SAVE_DICT(L"LEAVE: file={}", REALTIME_NGRAM_FILE);
     }
 
     inline bool is_space_or_vbar(mchar_t ch) {
@@ -946,8 +954,8 @@ namespace lattice2 {
     }
 
     // 交ぜ書き優先辞書の読み込み
-    void loadMazegakiPriorFile() {
-        auto path = utils::joinPath(SETTINGS->rootDir, MAZEGAKI_PRIOR_FILE);
+    void loadMazegakiPrefFile() {
+        auto path = utils::joinPath(SETTINGS->rootDir, MAZEGAKI_PREFERENCE_FILE);
         LOG_INFO(_T("LOAD: {}"), path.c_str());
         utils::IfstreamReader reader(path);
         if (reader.success()) {
@@ -956,20 +964,20 @@ namespace lattice2 {
                 if (!items.empty() && !items[0].empty() && items[0][0] != L'#') {
                     MString mazeFeat = to_mstr(items[0]);
                     if (items.size() >= 2 && isDecimalString(items[1])) {
-                        mazegakiPriorDict[mazeFeat] = std::stoi(items[1]);
+                        mazegakiPrefDict[mazeFeat] = std::stoi(items[1]);
                     } else {
-                        mazegakiPriorDict[mazeFeat] = -DEFAULT_WORD_BONUS;       // mazegaki優先度のデフォルトは -DEFAULT_WORD_BONUS
+                        mazegakiPrefDict[mazeFeat] = -DEFAULT_WORD_BONUS;       // mazegaki優先度のデフォルトは -DEFAULT_WORD_BONUS
                     }
                 }
             }
-            LOG_INFO(_T("DONE: entries count={}"), mazegakiPriorDict.size());
+            LOG_INFO(_T("DONE: entries count={}"), mazegakiPrefDict.size());
         }
     }
 
     // 交ぜ書き優先度の取得
-    int getMazegakiPriorityCost(const MString& mazeFeat) {
-        auto iter = mazegakiPriorDict.find(mazeFeat);
-        if (iter == mazegakiPriorDict.end()) {
+    int getMazegakiPreferenceCost(const MString& mazeFeat) {
+        auto iter = mazegakiPrefDict.find(mazeFeat);
+        if (iter == mazegakiPrefDict.end()) {
             return 0;
         } else {
             return iter->second;
@@ -977,15 +985,17 @@ namespace lattice2 {
     }
 
     // 交ぜ書き優先辞書の書き込み
-    void saveMazegakiPriorFile() {
-        LOG_INFO(L"CALLED: file={}, mazegakiPrior_updated={}", MAZEGAKI_PRIOR_FILE, mazegakiPrior_updated);
-        auto path = utils::joinPath(SETTINGS->rootDir, MAZEGAKI_PRIOR_FILE);
-        if (mazegakiPrior_updated) {
-            if (utils::moveFileToBackDirWithRotation(path, SETTINGS->backFileRotationGeneration)) {
-                LOG_INFO(_T("SAVE: mazegaki prior file path={}"), path.c_str());
-                utils::OfstreamWriter writer(path);
+    void saveMazegakiPrefFile() {
+        LOG_SAVE_DICT(L"ENTER: file={}, mazegakiPref_updated={}", MAZEGAKI_PREFERENCE_FILE, mazegakiPref_updated);
+        auto path = utils::joinPath(SETTINGS->rootDir, MAZEGAKI_PREFERENCE_FILE);
+        if (mazegakiPref_updated) {
+            // 一旦、一時ファイルに書き込み
+            auto pathTmp = path + L".tmp";
+            {
+                LOG_SAVE_DICT(_T("SAVE: mazegaki preferencele pathTmp={}"), pathTmp.c_str());
+                utils::OfstreamWriter writer(pathTmp);
                 if (writer.success()) {
-                    for (const auto& pair : mazegakiPriorDict) {
+                    for (const auto& pair : mazegakiPrefDict) {
                         String line;
                         int count = pair.second;
                         if (count < 0 || count > 1 || (count == 1 && Reporting::Logger::IsWarnEnabled())) {
@@ -996,25 +1006,28 @@ namespace lattice2 {
                             writer.writeLine(utils::utf8_encode(line));
                         }
                     }
-                    mazegakiPrior_updated = false;
+                    mazegakiPref_updated = false;
                 }
-                LOG_INFO(_T("DONE: entries count={}"), mazegakiPriorDict.size());
+                LOG_SAVE_DICT(_T("DONE: entries count={}"), mazegakiPrefDict.size());
             }
+            // pathTmp ファイルのサイズが path ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
+            utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, SETTINGS->backFileRotationGeneration);
         }
+        LOG_SAVE_DICT(L"LEAVE: file={}", MAZEGAKI_PREFERENCE_FILE);
     }
 
     // 交ぜ書き優先度の更新
-    void updateMazegakiPriority(const CandidateString& raised, const CandidateString& depressed) {
+    void updateMazegakiPreference(const CandidateString& raised, const CandidateString& depressed) {
         _LOG_DETAIL(L"ENTER: raised={}, depressed={}", raised.debugString(), depressed.debugString());
         if (!raised.mazeFeat().empty()) {
-            mazegakiPriorDict[raised.mazeFeat()] += -DEFAULT_WORD_BONUS;
-            _LOG_DETAIL(L"raised: mazegakiPriorDict[{}]={}", to_wstr(raised.mazeFeat()), mazegakiPriorDict[raised.mazeFeat()]);
-            mazegakiPrior_updated = true;
+            mazegakiPrefDict[raised.mazeFeat()] += -DEFAULT_WORD_BONUS;
+            _LOG_DETAIL(L"raised: mazegakiPrefDict[{}]={}", to_wstr(raised.mazeFeat()), mazegakiPrefDict[raised.mazeFeat()]);
+            mazegakiPref_updated = true;
         }
         if (!depressed.mazeFeat().empty()) {
-            mazegakiPriorDict[depressed.mazeFeat()] += DEFAULT_WORD_BONUS;
-            _LOG_DETAIL(L"depressed: mazegakiPriorDict[{}]={}", to_wstr(depressed.mazeFeat()), mazegakiPriorDict[depressed.mazeFeat()]);
-            mazegakiPrior_updated = true;
+            mazegakiPrefDict[depressed.mazeFeat()] += DEFAULT_WORD_BONUS;
+            _LOG_DETAIL(L"depressed: mazegakiPrefDict[{}]={}", to_wstr(depressed.mazeFeat()), mazegakiPrefDict[depressed.mazeFeat()]);
+            mazegakiPref_updated = true;
         }
     }
 
@@ -1277,7 +1290,7 @@ std::unique_ptr<Lattice2> Lattice2::Singleton;
 void Lattice2::createLattice() {
     LOG_INFOH(L"ENTER");
     lattice2::loadCostAndNgramFile();
-    lattice2::loadMazegakiPriorFile();
+    lattice2::loadMazegakiPrefFile();
     Singleton.reset(new lattice2::LatticeImpl());
     LOG_INFOH(L"LEAVE");
 }
@@ -1312,7 +1325,7 @@ void Lattice2::depressRealtimeNgram(const MString& str) {
 
 void Lattice2::saveLatticeRelatedFiles() {
     lattice2::saveRealtimeNgramFile();
-    lattice2::saveMazegakiPriorFile();
+    lattice2::saveMazegakiPrefFile();
 }
 
 void Lattice2::reloadGlobalPostRewriteMapFile() {

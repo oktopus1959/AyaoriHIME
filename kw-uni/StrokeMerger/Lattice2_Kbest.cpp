@@ -276,7 +276,7 @@ namespace lattice2 {
     int getNgramCost(const MString& str, const std::vector<MString>& morphs);
 
     // 交ぜ書き優先度の更新
-    void updateMazegakiPriority(const CandidateString& raised, const CandidateString& depressed);
+    void updateMazegakiPreference(const CandidateString& raised, const CandidateString& depressed);
 
     // 候補選択による、リアルタイムNgramの蒿上げと抑制
     void raiseAndDepressRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand);
@@ -359,7 +359,7 @@ namespace lattice2 {
             if (_origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
                 // 候補選択がなされていて、元の先頭候補以外が選択された
                 raiseAndDepressRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
-                updateMazegakiPriority(_candidates[0], _candidates[_origFirstCand]);
+                updateMazegakiPreference(_candidates[0], _candidates[_origFirstCand]);
                 removeOtherThanFirst();
                 _LOG_DETAIL(L"kBest:\n{}", debugCandidates(10));
             }

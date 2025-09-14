@@ -121,27 +121,21 @@ namespace utils {
         CopyFile(src.c_str(), dest.c_str(), FALSE);
     }
 
+    // ファイルのサイズを返す。ファイルが存在しないかエラーの場合は
+    inline uintmax_t getFileSize(StringRef path) {
+        if (!isFileExistent(path)) return 0;
+        std::error_code ec;
+        auto result = std::filesystem::file_size(path, ec);
+        return ec ? 0 : result;
+    }
+
     using sx = utils::StringUtil;
 
     // ファイルを back ディレクトリに移動(backファイルのローテートもやる)
-    inline bool moveFileToBackDirWithRotation(StringRef path, int genNum = 3, bool bCopy = false) {
-        // path と同じ階層に back ディレクトリを作成
-        auto backDirPath = utils::joinPath(utils::getParentDirPath(path), L"back");
-        if (!utils::makeDirectory(backDirPath)) return false;
+    bool moveFileToBackDirWithRotation(StringRef path, int genNum = 3, bool bCopy = false);
 
-        // backファイルのローテーション
-        auto backFilePath = utils::joinPath(backDirPath, utils::getFileName(path)) + L".";
-        while (genNum > 1) {
-            utils::moveFile(sx::catAny(backFilePath, genNum - 1), sx::catAny(backFilePath, genNum));
-            --genNum;
-        }
-        // path を back/filename.1 に move or copy
-        if (bCopy)
-            utils::copyFile(path, sx::catAny(backFilePath, 1));
-        else
-            utils::moveFile(path, sx::catAny(backFilePath, 1));
-        return true;
-    }
+    // tmpファイルとcurrentファイルのサイズを比較し、tmpのサイズの方が大きかったら、current を back ディレクトリに移動し、tmp を current にする
+    bool compareAndMoveFileToBackDirWithRotation(StringRef pathTmp, StringRef pathCurrent, int genNum = 3, bool bCopy = false);
 
     // ファイルを back ディレクトリにコピー(backファイルのローテートもやる)
     inline bool copyFileToBackDirWithRotation(StringRef path, int genNum = 3) {
