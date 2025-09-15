@@ -149,7 +149,7 @@ public:
         reloadSettings(false);
 
         // 形態素解析器の初期化
-        MorphBridge::morphInitialize(logger);
+        MorphBridge::morphInitialize();
 
         //// llama.cpp の初期化
         //LlamaBridge::llamaInitialize();
@@ -393,6 +393,11 @@ public:
                 //if (items.size() > 1 && !items[1].empty()) reloadSettings(items[1]);
                 reloadSettings();
                 MorphBridge::morphReopenUserDics();
+            } else if (cmd == _T("compileAndLoadUserDic")) {
+                // ユーザー交ぜ書き辞書のコンパイルと読み込み (引数: dicDir, ソースファイル名)
+                if (items.size() > 2) {
+                    MorphBridge::morphCompileAndLoadUserDic(items[1], items[2]);
+                }
             } else if (cmd == _T("addHistEntry") && HISTORY_DIC) {
                 // 履歴登録
                 if (items.size() >= 2 && !items[1].empty()) {

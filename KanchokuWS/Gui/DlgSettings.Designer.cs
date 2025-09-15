@@ -392,6 +392,10 @@ namespace KanchokuWS.Gui
             this.radioButton_excludeFollowings = new System.Windows.Forms.RadioButton();
             this.radioButton_includeFollowings = new System.Windows.Forms.RadioButton();
             this.tabPage_history = new System.Windows.Forms.TabPage();
+            this.groupBox53 = new System.Windows.Forms.GroupBox();
+            this.button_ImportUserDIc = new System.Windows.Forms.Button();
+            this.label169 = new System.Windows.Forms.Label();
+            this.textBox_userDicSourceFile = new System.Windows.Forms.TextBox();
             this.groupBox44 = new System.Windows.Forms.GroupBox();
             this.label113 = new System.Windows.Forms.Label();
             this.textBox_mazeHistRegisterMinLen = new System.Windows.Forms.TextBox();
@@ -656,6 +660,7 @@ namespace KanchokuWS.Gui
             this.groupBox_globalCtrlKeys.SuspendLayout();
             this.groupBox11.SuspendLayout();
             this.tabPage_history.SuspendLayout();
+            this.groupBox53.SuspendLayout();
             this.groupBox44.SuspendLayout();
             this.groupBox23.SuspendLayout();
             this.groupBox17.SuspendLayout();
@@ -4974,6 +4979,7 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_history
             // 
+            this.tabPage_history.Controls.Add(this.groupBox53);
             this.tabPage_history.Controls.Add(this.groupBox44);
             this.tabPage_history.Controls.Add(this.groupBox23);
             this.tabPage_history.Controls.Add(this.groupBox17);
@@ -4993,6 +4999,49 @@ namespace KanchokuWS.Gui
             this.tabPage_history.Text = "履歴・交ぜ書き";
             this.tabPage_history.ToolTipText = "履歴機能と交ぜ書き変換機能に関する設定";
             this.tabPage_history.UseVisualStyleBackColor = true;
+            // 
+            // groupBox53
+            // 
+            this.groupBox53.Controls.Add(this.button_ImportUserDIc);
+            this.groupBox53.Controls.Add(this.label169);
+            this.groupBox53.Controls.Add(this.textBox_userDicSourceFile);
+            this.groupBox53.Location = new System.Drawing.Point(333, 102);
+            this.groupBox53.Name = "groupBox53";
+            this.groupBox53.Size = new System.Drawing.Size(361, 100);
+            this.groupBox53.TabIndex = 27;
+            this.groupBox53.TabStop = false;
+            this.groupBox53.Text = "交ぜ書きユーザー辞書";
+            // 
+            // button_ImportUserDIc
+            // 
+            this.button_ImportUserDIc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_ImportUserDIc.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_ImportUserDIc.Location = new System.Drawing.Point(275, 67);
+            this.button_ImportUserDIc.Name = "button_ImportUserDIc";
+            this.button_ImportUserDIc.Size = new System.Drawing.Size(80, 23);
+            this.button_ImportUserDIc.TabIndex = 28;
+            this.button_ImportUserDIc.Text = "インポート(&I)";
+            this.button_ImportUserDIc.UseVisualStyleBackColor = true;
+            this.button_ImportUserDIc.Click += new System.EventHandler(this.button_ImportUserDIc_Click);
+            // 
+            // label169
+            // 
+            this.label169.AutoSize = true;
+            this.label169.Location = new System.Drawing.Point(11, 23);
+            this.label169.Name = "label169";
+            this.label169.Size = new System.Drawing.Size(127, 15);
+            this.label169.TabIndex = 27;
+            this.label169.Text = "ユーザー辞書ソースファイル";
+            this.label169.Visible = false;
+            // 
+            // textBox_userDicSourceFile
+            // 
+            this.textBox_userDicSourceFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textBox_userDicSourceFile.Location = new System.Drawing.Point(14, 44);
+            this.textBox_userDicSourceFile.Name = "textBox_userDicSourceFile";
+            this.textBox_userDicSourceFile.Size = new System.Drawing.Size(214, 19);
+            this.textBox_userDicSourceFile.TabIndex = 4;
+            this.textBox_userDicSourceFile.Text = "userFiles\\userDic.csv";
             // 
             // groupBox44
             // 
@@ -5058,9 +5107,9 @@ namespace KanchokuWS.Gui
             this.groupBox23.Controls.Add(this.checkBox_mazeRemoveHeadSpace);
             this.groupBox23.Controls.Add(this.checkBox_mazeBlockerTail);
             this.groupBox23.Controls.Add(this.checkBox_mazegakiSelectFirstCand);
-            this.groupBox23.Location = new System.Drawing.Point(332, 107);
+            this.groupBox23.Location = new System.Drawing.Point(333, 252);
             this.groupBox23.Name = "groupBox23";
-            this.groupBox23.Size = new System.Drawing.Size(292, 191);
+            this.groupBox23.Size = new System.Drawing.Size(292, 59);
             this.groupBox23.TabIndex = 4;
             this.groupBox23.TabStop = false;
             this.groupBox23.Text = "交ぜ書き変換";
@@ -7743,6 +7792,8 @@ namespace KanchokuWS.Gui
             this.groupBox11.PerformLayout();
             this.tabPage_history.ResumeLayout(false);
             this.tabPage_history.PerformLayout();
+            this.groupBox53.ResumeLayout(false);
+            this.groupBox53.PerformLayout();
             this.groupBox44.ResumeLayout(false);
             this.groupBox44.PerformLayout();
             this.groupBox23.ResumeLayout(false);
@@ -8389,5 +8440,9 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.GroupBox groupBox52;
         private System.Windows.Forms.GroupBox groupBox51;
         private System.Windows.Forms.Button button_developSaveLog;
+        private System.Windows.Forms.GroupBox groupBox53;
+        private System.Windows.Forms.Button button_ImportUserDIc;
+        private System.Windows.Forms.Label label169;
+        private System.Windows.Forms.TextBox textBox_userDicSourceFile;
     }
 }

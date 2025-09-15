@@ -241,11 +241,12 @@ namespace KanchokuWS.Forms
                 frmMain.ToDeactivateDecoder();
             }
             if (EditText._notEmpty()) {
-                if (bWasEmpty && Settings.OutputSpaceAndBsAtFirstInChrome &&
-                    ActiveWindowHandler.Singleton.ActiveWinClassName._startsWith("Chrome_WidgetWin")) {
-                    // Spaceを送出してからBSを送出する
-                    SendInputHandler.Singleton.SendString(new char[] {' '}, 1, 0);
-                    SendInputHandler.Singleton.SendString(null, 0, 1);
+                if (bWasEmpty && Settings.OutputSpaceAndBsAtFirstInChrome) {
+                    if (ActiveWindowHandler.Singleton.ActiveWinClassName._startsWith("Chrome_WidgetWin")) {
+                        // Spaceを送出してからBSを送出することで、カレット位置が正しくなることを期待する
+                        SendInputHandler.Singleton.SendString(new char[] { ' ' }, 1, 0);
+                        SendInputHandler.Singleton.SendString(null, 0, 1);
+                    }
                 }
                 ShowNonActive();
             } else {

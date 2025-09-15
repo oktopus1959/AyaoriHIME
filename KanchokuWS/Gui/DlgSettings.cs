@@ -1804,6 +1804,14 @@ namespace KanchokuWS.Gui
             }
         }
 
+        private void button_ImportUserDIc_Click(object sender, EventArgs e)
+        {
+            var dicDir = SystemHelper.MakeAbsPathUnderKanchokuRootDir("dymazin/dic/mazedic");
+            //var userDicPath = openFileByDialog("ユーザー辞書ファイルを選択してください", "テキストファイル (*.txt;*.csv)|*.txt;*.csv|すべてのファイル (*.*)|*.*", dicDir);
+            var userDicPath = SystemHelper.MakeAbsPathUnderKanchokuRootDir(textBox_userDicSourceFile.Text._orElse("userFiles/userDic.csv"));
+            frmMain?.ExecCmdDecoder("compileAndLoadUserDic", $"{dicDir}\t{userDicPath}");
+        }
+
         private void checkBox_autoHistEnabled_CheckedChanged(object sender, EventArgs e)
         {
             //checkBox_histSearchByCtrlSpace.Enabled = !checkBox_autoHistEnabled.Checked;

@@ -24,6 +24,9 @@ public:
     // 警告情報を格納するが、継続する
     void Warn(StringRef msg);
 
+    // Info情報を格納するが、継続する
+    void Info(StringRef msg);
+
     int GetErrorLevel() const { return errorLevel; }
 
     StringRef GetErrorMsg() const { return errorMsg; }

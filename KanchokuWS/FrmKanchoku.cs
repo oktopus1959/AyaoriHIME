@@ -842,13 +842,19 @@ namespace KanchokuWS
                 // アンマネージドのメモリを解放
                 Marshal.FreeCoTaskMem(cmdParamsPtr);
 
-                if (result >= 1) {
+                if (result == 1) {
+                    var infoMsg = prm.inOutData._toString();
+                    if (infoMsg._notEmpty()) {
+                        logger.InfoH(infoMsg);
+                        SystemHelper.ShowInfoMessageBox(infoMsg);
+                    }
+                } else if (result >= 2) {
                     if (frmSplash != null) {
                         //frmSplash._invoke(() => frmSplash.Fallback());
                         this._invoke(() => this.closeSplash());
                     }
                     var errMsg = prm.inOutData._toString();
-                    if (result == 1) {
+                    if (result == 2) {
                         logger.WarnH(errMsg);
                         SystemHelper.ShowWarningMessageBox(errMsg);
                     } else {

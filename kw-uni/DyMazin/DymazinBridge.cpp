@@ -60,6 +60,12 @@ namespace DymazinBridge {
         DymazinReopenUserDics();
     }
 
+    int dymazinCompileAndLoadUserDic(StringRef dicDir, StringRef srcFilePath) {
+        _LOG_INFOH(_T("CALLED"));
+        String userDic = utils::join_path(dicDir, L"user.dic");
+        return DymazinCompileAndLoadUserDic(dicDir.c_str(), srcFilePath.c_str(), userDic.c_str());
+    }
+
     void dymazinFinalize() {
         _LOG_INFOH(_T("CALLED"));
         DymazinFinalize();

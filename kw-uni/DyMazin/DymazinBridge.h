@@ -7,6 +7,8 @@ namespace DymazinBridge {
 
     void dymazinReopenUserDics();
 
+    int dymazinCompileAndLoadUserDic(StringRef dicDir, StringRef srcFilePath);
+
     void dymazinFinalize();
 
     void dymazinSetLogLevel(int logLevel);
