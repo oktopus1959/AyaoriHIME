@@ -842,30 +842,33 @@ namespace KanchokuWS
                 // アンマネージドのメモリを解放
                 Marshal.FreeCoTaskMem(cmdParamsPtr);
 
-                if (result == 1) {
-                    var infoMsg = prm.inOutData._toString();
-                    if (infoMsg._notEmpty()) {
-                        logger.InfoH(infoMsg);
-                        SystemHelper.ShowInfoMessageBox(infoMsg);
-                    }
-                } else if (result >= 2) {
-                    if (frmSplash != null) {
-                        //frmSplash._invoke(() => frmSplash.Fallback());
-                        this._invoke(() => this.closeSplash());
-                    }
-                    var errMsg = prm.inOutData._toString();
-                    if (result == 2) {
+                logger.Info(() => $"result={result}: cmd={cmd}, bInit={bInit}");
+                if (result != 0) {
+                    if (result == Logger.LogLevelInfo) {
+                        var infoMsg = prm.inOutData._toString();
+                        if (infoMsg._notEmpty()) {
+                            logger.InfoH(infoMsg);
+                            SystemHelper.ShowInfoMessageBox(infoMsg);
+                        }
+                    } else if (result <= Logger.LogLevelWarn) {
+                        if (frmSplash != null) {
+                            //frmSplash._invoke(() => frmSplash.Fallback());
+                            this._invoke(() => this.closeSplash());
+                        }
+                        var errMsg = prm.inOutData._toString();
+                        if (result == Logger.LogLevelError) {
+                            logger.Error(errMsg);
+                            SystemHelper.ShowErrorMessageBox(errMsg);
+                            resultFlag = false;
+                        } else {
+                            logger.WarnH(errMsg);
+                            SystemHelper.ShowWarningMessageBox(errMsg);
+                        }
+                    } else if (result < 0) {
+                        var errMsg = "Some error occured when Decoder called";
                         logger.WarnH(errMsg);
                         SystemHelper.ShowWarningMessageBox(errMsg);
-                    } else {
-                        logger.Error(errMsg);
-                        SystemHelper.ShowErrorMessageBox(errMsg);
-                        resultFlag = false;
                     }
-                } else if (result < 0) {
-                    var errMsg = "Some error occured when Decoder called";
-                    logger.WarnH(errMsg);
-                    SystemHelper.ShowWarningMessageBox(errMsg);
                 }
             }
             logger.Info(() => $"LEAVE: resultFlag={resultFlag}");
@@ -1333,7 +1336,7 @@ namespace KanchokuWS
                 && Settings.CtrlKeyTargetClassNamesHash.Any(name => name._notEmpty() && activeWinClassName.StartsWith(name));
             bool ctrlTarget = !(Settings.UseClassNameListAsInclusion ^ contained);
             if (Settings.LoggingDecKeyInfo && Logger.IsInfoEnabled) {
-                logger.Info($"ctrlTarget={ctrlTarget} (=!({Settings.UseClassNameListAsInclusion} (Inclusion) XOR {contained} (ContainedInList)");
+                logger.Info($"ctrlTarget={ctrlTarget} (=!({Settings.UseClassNameListAsInclusion} (Inclusion) XOR {contained} (ContainedInList))), winClass={activeWinClassName}, targetClasses={Settings.CtrlKeyTargetClassNamesHash._join("|")}");
             }
             return ctrlTarget;
         }

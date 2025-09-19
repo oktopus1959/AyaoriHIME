@@ -1551,7 +1551,7 @@ namespace KanchokuWS
             UseLeftControlToConversion = GetString("useLeftControlToConversion")._parseBool(true);
             UseRightControlToConversion = GetString("useRightControlToConversion")._parseBool(false);
             UseClassNameListAsInclusion = GetString("useClassNameListAsInclusion")._parseBool(false);
-            CtrlKeyTargetClassNames = GetString("ctrlKeyTargetClassNames", "ctrlKeyTargetlassNames", "").Trim();
+            CtrlKeyTargetClassNames = GetString("ctrlKeyTargetClassNames", "ctrlKeyTargetClassNames", "").Trim();
             CtrlKeyTargetClassNamesHash = new HashSet<string>(CtrlKeyTargetClassNames._toLower()._split('|'));
 
             UseCtrlJasEnter = GetString("useCtrlJasEnter")._parseBool(false);

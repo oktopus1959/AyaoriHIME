@@ -19,7 +19,7 @@ void ErrorHandler::Clear() {
 void ErrorHandler::setErrorInfo(int level, StringRef msg) {
     if (errorLevel < level) errorLevel = level;
     if (errorMsg.size() + msg.size() < 800) {
-        if (level >= 3 || errorMsg.size() + msg.size() < 500) {
+        if (level == Reporting::Logger::LogLevelError || errorMsg.size() + msg.size() < 500) {
             if (!errorMsg.empty()) errorMsg.append(_T("\r\n\r\n"));
             errorMsg.append(msg);
         }
@@ -28,16 +28,16 @@ void ErrorHandler::setErrorInfo(int level, StringRef msg) {
 
 // エラー情報を格納
 void ErrorHandler::Error(StringRef msg) {
-    setErrorInfo(3, msg);
+    setErrorInfo(Reporting::Logger::LogLevelError, msg);
     //throw ERROR_HANDLER.get();
 }
 
 // 警告情報を格納
 void ErrorHandler::Warn(StringRef msg) {
-    setErrorInfo(2, msg);
+    setErrorInfo(Reporting::Logger::LogLevelWarn, msg);
 }
 
 // Info情報を格納
 void ErrorHandler::Info(StringRef msg) {
-    setErrorInfo(1, msg);
+    setErrorInfo(Reporting::Logger::LogLevelInfo, msg);
 }
