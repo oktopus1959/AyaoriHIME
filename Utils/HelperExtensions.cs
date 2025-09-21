@@ -919,6 +919,18 @@ namespace Utils
         }
 
         /// <summary>
+        /// 文字列が指定の文字列で始まるか(大文字小文字を区別しない)
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool _startsWithIgnoreCase(this string str, string value)
+        {
+            return str._notEmpty() && str.StartsWith(value, true, null);
+
+        }
+
+        /// <summary>
         /// 文字列が指定の文字列で終わるか
         /// </summary>
         /// <param name="str"></param>
@@ -927,6 +939,18 @@ namespace Utils
         public static bool _endsWith(this string str, string value)
         {
             return str._notEmpty() && str.EndsWith(value);
+
+        }
+
+        /// <summary>
+        /// 文字列が指定の文字列で終わるか(大文字小文字を区別しない)
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool _endsWithIgnoreCase(this string str, string value)
+        {
+            return str._notEmpty() && str.EndsWith(value, true, null);
 
         }
 

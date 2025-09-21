@@ -1085,7 +1085,7 @@ namespace {
             ERROR_HANDLER->Clear();
             method_call();
             result = ERROR_HANDLER->GetErrorLevel();
-            if (result > 0 && params) wcscpy_s(params->inOutData, ERROR_HANDLER->GetErrorMsg().c_str());
+            if (result < 0 && params) wcscpy_s(params->inOutData, ERROR_HANDLER->GetErrorMsg().c_str());
             return result;
         }
         catch (ErrorHandler* pErr) {
@@ -1112,9 +1112,6 @@ int InitializeDecoder(void* , DecoderCommandParams* ) {
     LOG_INFO_UC(_T("\n======== kw-uni START ========"));
     LOG_INFO(_T("LogLevel={}"), Reporting::Logger::LogLevel());
     Reporting::Logger::Close();
-
-    // エラーハンドラの生成
-    ErrorHandler::CreateSingleton();
 
     return 0;
 }

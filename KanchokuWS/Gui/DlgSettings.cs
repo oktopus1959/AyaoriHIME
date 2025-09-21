@@ -1680,6 +1680,9 @@ namespace KanchokuWS.Gui
             textBox_mazeGobiLikeTailLen.Text = $"{Settings.MazeGobiLikeTailLen}";
             textBox_histMapGobiMaxLength.Text = $"{Settings.HistMapGobiMaxLength}";
             textBox_mazeHistRegisterMinLen.Text = $"{Settings.MazeHistRegisterMinLen}";
+
+            textBox_mazeUserDicSourceFile.Text = $"{Settings.GetUserIni("mazeUserDicSourceFile")}";
+            button_ImportUserDIc.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
         }
 
         private void setHistoryStatusChecker()
@@ -1725,6 +1728,8 @@ namespace KanchokuWS.Gui
             checkerHistory.Add(textBox_mazeGobiLikeTailLen);
             checkerHistory.Add(textBox_histMapGobiMaxLength);
             checkerHistory.Add(textBox_mazeHistRegisterMinLen);
+
+            //checkerHistory.Add(textBox_mazeUserDicSourceFile);
 
             checkerAll.Add(checkerHistory);
         }
@@ -1775,6 +1780,8 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("histMapGobiMaxLength", textBox_histMapGobiMaxLength.Text.Trim());
             Settings.SetUserIni("mazeHistRegisterMinLen", textBox_mazeHistRegisterMinLen.Text.Trim());
 
+            //Settings.SetUserIni("mazeUserDicSourceFile", textBox_mazeUserDicSourceFile.Text.Trim());
+
             Settings.ReadIniFile(false);
             // 各種定義ファイルの再読み込み
             frmMain?.ReloadSettingsAndDefFiles();
@@ -1804,12 +1811,30 @@ namespace KanchokuWS.Gui
             }
         }
 
+        private void textBox_mazeUserDicSourceFile_TextChanged(object sender, EventArgs e)
+        {
+            button_ImportUserDIc.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
+        }
+
         private void button_ImportUserDIc_Click(object sender, EventArgs e)
         {
             var dicDir = SystemHelper.MakeAbsPathUnderKanchokuRootDir("dymazin/dic/mazedic");
-            //var userDicPath = openFileByDialog("ユーザー辞書ファイルを選択してください", "テキストファイル (*.txt;*.csv)|*.txt;*.csv|すべてのファイル (*.*)|*.*", dicDir);
-            var userDicPath = SystemHelper.MakeAbsPathUnderKanchokuRootDir(textBox_userDicSourceFile.Text._orElse("userFiles/userDic.csv"));
-            frmMain?.ExecCmdDecoder("compileAndLoadUserDic", $"{dicDir}\t{userDicPath}");
+            if (textBox_mazeUserDicSourceFile.Text._notEmpty()) {
+                var userDicPath = SystemHelper.MakeAbsPathUnderKanchokuRootDir(textBox_mazeUserDicSourceFile.Text);
+                frmMain?.ExecCmdDecoder("compileAndLoadUserDic", $"{dicDir}\t{userDicPath}");
+                Settings.SetUserIni("mazeUserDicSourceFile", textBox_mazeUserDicSourceFile.Text.Trim());
+            }
+        }
+
+        private void button_selecFile_Click(object sender, EventArgs e)
+        {
+            var filePath = SystemHelper.SelectFileThroughOpenFileDialog(
+                "ユーザー辞書ファイルを選択してください",
+                "テキストファイル (*.txt;*.csv)",
+                "", SystemHelper.FindKanchokuRootDir()._joinPath("userFiles"));
+            if (filePath._notEmpty()) {
+                textBox_mazeUserDicSourceFile.Text = filePath;
+            }
         }
 
         private void checkBox_autoHistEnabled_CheckedChanged(object sender, EventArgs e)

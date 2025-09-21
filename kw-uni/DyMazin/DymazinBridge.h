@@ -5,7 +5,7 @@
 namespace DymazinBridge {
     int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty = 1000, int mazeConnPenalty = 1000, int nonTerminalCost = 5000);
 
-    void dymazinReopenUserDics();
+    int dymazinReopenUserDics();
 
     int dymazinCompileAndLoadUserDic(StringRef dicDir, StringRef srcFilePath);
 

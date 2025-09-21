@@ -2,6 +2,7 @@
 #include "DymazinBridge.h"
 #include "../DyMazin/DyMazinLib/src/DyMazinLib.h"
 #include "Settings/Settings.h"
+#include "Reporting/ErrorHandler.h"
 
 #include "path_utils.h"
 
@@ -55,23 +56,30 @@ namespace DymazinBridge {
 
         int result = DymazinInitialize(av.size(), av.data(), L"dymazin.log", errMsgBuf, ARRAY_SIZE);
 
-        _LOG_INFOH(_T("LEAVE: result={}"), result);
+        ERROR_HANDLER->SetErrorInfo(result, errMsgBuf);
+        _LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
         return result;
     }
 
-    void dymazinReopenUserDics() {
-        _LOG_INFOH(_T("CALLED"));
+    int dymazinReopenUserDics() {
+        _LOG_INFOH(_T("ENTER"));
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
-        DymazinReopenUserDics(errMsgBuf, ARRAY_SIZE);
+        int result = DymazinReopenUserDics(errMsgBuf, ARRAY_SIZE);
+        ERROR_HANDLER->SetErrorInfo(result, errMsgBuf);
+        _LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
+        return result;
     }
 
     int dymazinCompileAndLoadUserDic(StringRef dicDir, StringRef srcFilePath) {
-        _LOG_INFOH(_T("CALLED"));
+        _LOG_INFOH(_T("ENTER"));
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
         String userDic = utils::join_path(dicDir, L"user.dic");
-        return DymazinCompileAndLoadUserDic(dicDir.c_str(), srcFilePath.c_str(), userDic.c_str(), errMsgBuf, ARRAY_SIZE);
+        int result = DymazinCompileAndLoadUserDic(dicDir.c_str(), srcFilePath.c_str(), userDic.c_str(), errMsgBuf, ARRAY_SIZE);
+        if (result < 0) ERROR_HANDLER->SetErrorInfo(result, errMsgBuf);
+        _LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
+        return result;
     }
 
     void dymazinFinalize() {
@@ -101,6 +109,10 @@ namespace DymazinBridge {
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
         int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, mazePenalty, mazeConnPenalty, allowNonTerminal, false, errMsgBuf, ARRAY_SIZE);
+        if (cost < 0) {
+            LOG_WARN(_T("DymazinAnalyze FAILED: result={}, errMsg={}"), cost, errMsgBuf);
+            return cost;
+        }
         //int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, mazePenalty, allowNonTerminal, false);
         for (const auto& s : utils::split(wchbuf, L'\n')) {
             morphs.push_back(to_mstr(s));

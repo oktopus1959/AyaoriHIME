@@ -393,9 +393,10 @@ namespace KanchokuWS.Gui
             this.radioButton_includeFollowings = new System.Windows.Forms.RadioButton();
             this.tabPage_history = new System.Windows.Forms.TabPage();
             this.groupBox53 = new System.Windows.Forms.GroupBox();
+            this.button_selecFile = new System.Windows.Forms.Button();
             this.button_ImportUserDIc = new System.Windows.Forms.Button();
             this.label169 = new System.Windows.Forms.Label();
-            this.textBox_userDicSourceFile = new System.Windows.Forms.TextBox();
+            this.textBox_mazeUserDicSourceFile = new System.Windows.Forms.TextBox();
             this.groupBox44 = new System.Windows.Forms.GroupBox();
             this.label113 = new System.Windows.Forms.Label();
             this.textBox_mazeHistRegisterMinLen = new System.Windows.Forms.TextBox();
@@ -5002,15 +5003,28 @@ namespace KanchokuWS.Gui
             // 
             // groupBox53
             // 
+            this.groupBox53.Controls.Add(this.button_selecFile);
             this.groupBox53.Controls.Add(this.button_ImportUserDIc);
             this.groupBox53.Controls.Add(this.label169);
-            this.groupBox53.Controls.Add(this.textBox_userDicSourceFile);
+            this.groupBox53.Controls.Add(this.textBox_mazeUserDicSourceFile);
             this.groupBox53.Location = new System.Drawing.Point(333, 102);
             this.groupBox53.Name = "groupBox53";
             this.groupBox53.Size = new System.Drawing.Size(361, 100);
             this.groupBox53.TabIndex = 27;
             this.groupBox53.TabStop = false;
             this.groupBox53.Text = "交ぜ書きユーザー辞書";
+            // 
+            // button_selecFile
+            // 
+            this.button_selecFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_selecFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_selecFile.Location = new System.Drawing.Point(14, 67);
+            this.button_selecFile.Name = "button_selecFile";
+            this.button_selecFile.Size = new System.Drawing.Size(100, 23);
+            this.button_selecFile.TabIndex = 29;
+            this.button_selecFile.Text = "ファイル選択(&O)";
+            this.button_selecFile.UseVisualStyleBackColor = true;
+            this.button_selecFile.Click += new System.EventHandler(this.button_selecFile_Click);
             // 
             // button_ImportUserDIc
             // 
@@ -5034,14 +5048,14 @@ namespace KanchokuWS.Gui
             this.label169.Text = "ユーザー辞書ソースファイル";
             this.label169.Visible = false;
             // 
-            // textBox_userDicSourceFile
+            // textBox_mazeUserDicSourceFile
             // 
-            this.textBox_userDicSourceFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_userDicSourceFile.Location = new System.Drawing.Point(14, 44);
-            this.textBox_userDicSourceFile.Name = "textBox_userDicSourceFile";
-            this.textBox_userDicSourceFile.Size = new System.Drawing.Size(214, 19);
-            this.textBox_userDicSourceFile.TabIndex = 4;
-            this.textBox_userDicSourceFile.Text = "userFiles\\userDic.csv";
+            this.textBox_mazeUserDicSourceFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textBox_mazeUserDicSourceFile.Location = new System.Drawing.Point(14, 44);
+            this.textBox_mazeUserDicSourceFile.Name = "textBox_mazeUserDicSourceFile";
+            this.textBox_mazeUserDicSourceFile.Size = new System.Drawing.Size(341, 19);
+            this.textBox_mazeUserDicSourceFile.TabIndex = 4;
+            this.textBox_mazeUserDicSourceFile.TextChanged += new System.EventHandler(this.textBox_mazeUserDicSourceFile_TextChanged);
             // 
             // groupBox44
             // 
@@ -5113,6 +5127,7 @@ namespace KanchokuWS.Gui
             this.groupBox23.TabIndex = 4;
             this.groupBox23.TabStop = false;
             this.groupBox23.Text = "交ぜ書き変換";
+            this.groupBox23.Visible = false;
             // 
             // checkBox_mazeNoIfxConnectAny
             // 
@@ -5718,6 +5733,7 @@ namespace KanchokuWS.Gui
             this.groupBox34.TabIndex = 26;
             this.groupBox34.TabStop = false;
             this.groupBox34.Text = "交ぜ書きブロッカーとは";
+            this.groupBox34.Visible = false;
             // 
             // label91
             // 
@@ -8443,6 +8459,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.GroupBox groupBox53;
         private System.Windows.Forms.Button button_ImportUserDIc;
         private System.Windows.Forms.Label label169;
-        private System.Windows.Forms.TextBox textBox_userDicSourceFile;
+        private System.Windows.Forms.TextBox textBox_mazeUserDicSourceFile;
+        private System.Windows.Forms.Button button_selecFile;
     }
 }

@@ -844,19 +844,22 @@ namespace KanchokuWS
 
                 logger.Info(() => $"result={result}: cmd={cmd}, bInit={bInit}");
                 if (result != 0) {
-                    if (result == Logger.LogLevelInfo) {
+                    if (result == -1) {
+                        // INFO レベルのメッセージ
                         var infoMsg = prm.inOutData._toString();
                         if (infoMsg._notEmpty()) {
                             logger.InfoH(infoMsg);
                             SystemHelper.ShowInfoMessageBox(infoMsg);
                         }
-                    } else if (result <= Logger.LogLevelWarn) {
+                    } else if (result <= -2) {
+                        // WARN/ERROR レベルのメッセージ
                         if (frmSplash != null) {
                             //frmSplash._invoke(() => frmSplash.Fallback());
                             this._invoke(() => this.closeSplash());
                         }
                         var errMsg = prm.inOutData._toString();
-                        if (result == Logger.LogLevelError) {
+                        if (result == -2) {
+                            // ERROR レベルのメッセージ
                             logger.Error(errMsg);
                             SystemHelper.ShowErrorMessageBox(errMsg);
                             resultFlag = false;

@@ -104,12 +104,37 @@ namespace Utils
             return path._isAbsPath() ? path : FindKanchokuDataDir()._joinPath(path);
         }
 
+        public static string MakePathRelativeToKanchokuRootDir(string absPath)
+        {
+            if (absPath._notEmpty()) {
+                var dataDir = FindKanchokuDataDir();
+                if (dataDir._notEmpty()) {
+                    if (absPath._startsWithIgnoreCase(dataDir)) {
+                        var relaPath = absPath.Substring(dataDir.Length);
+                        if (relaPath._startsWith("\\") || relaPath._startsWith("/")) relaPath = relaPath.Substring(1);
+                        return relaPath;
+                    }
+                }
+            }
+            return absPath;
+        }
         /// <summary>
         /// 情報メッセージダイアログボックスの表示
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="caption"></param>
         static public void ShowInfoMessageBox(string msg, string caption = null)
+        {
+            if (string.IsNullOrEmpty(caption)) caption = "情報";
+            MessageBox.Show(msg, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1/*, MessageBoxOptions.DefaultDesktopOnly*/);
+        }
+
+        /// <summary>
+        /// 情報メッセージダイアログボックスの表示
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="caption"></param>
+        static public void ShowInfoMessageBoxWithSound(string msg, string caption = null)
         {
             if (string.IsNullOrEmpty(caption)) caption = "情報";
             MessageBox.Show(msg, caption, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1/*, MessageBoxOptions.DefaultDesktopOnly*/);
@@ -166,6 +191,37 @@ namespace Utils
         {
             if (string.IsNullOrEmpty(caption)) caption = "確認";
             return MessageBox.Show(msg, caption, MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2/*, MessageBoxOptions.DefaultDesktopOnly*/) == DialogResult.OK;
+        }
+
+        /// <summary>
+        /// OpenFileDialog を使ってファイルを選択する。
+        /// </summary>
+        /// <param name="title">タイトル</param>
+        /// <param name="filter">フィルター ("CSVファイル(*.csv)|TSVファイル(*.tsv)" など)</param>
+        /// <param name="defaultFilename">既定のファイルパス</param>
+        /// <returns></returns>
+        static public string SelectFileThroughOpenFileDialog(string title, string filter, string defaultFilename,
+            string initialDir = null, Action<string> initialDirSaver = null)
+        {
+            using (var ofd = new OpenFileDialog()) {
+                ofd.FileName = defaultFilename;
+                ofd.InitialDirectory = initialDir._notEmpty() ? initialDir : s_KanchokuRootDir;
+                ofd.Filter = filter._isEmpty()
+                    ? "すべてのファイル(*.*)|*.*"
+                    : filter._split('|').Select(f => $"{f}|{f._reScan(@"\((.*)\)")._getSecond()}")._join("|") + "|すべてのファイル(*.*)|*.*";
+                ofd.FilterIndex = 0;
+                ofd.Title = title;
+                if (ofd.ShowDialog() == DialogResult.OK) {
+                    var path = ofd.FileName;
+                    if (path._notEmpty() && initialDirSaver != null) {
+                        var dir = path._getDirPath();
+                        if (dir._notEmpty() && dir != ".") initialDirSaver.Invoke(dir);
+                    }
+                    return path;
+                }
+            }
+            return "";
+
         }
 
         /// <summary>
