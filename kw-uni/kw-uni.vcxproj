@@ -234,6 +234,8 @@
     <ClInclude Include="StrokeMerger\Lattice2_CandidateString.h" />
     <ClInclude Include="StrokeMerger\Lattice2_Common.h" />
     <ClInclude Include="StrokeMerger\Lattice2_Kbest.h" />
+    <ClInclude Include="StrokeMerger\Lattice2_Morpher.h" />
+    <ClInclude Include="StrokeMerger\Lattice2_Ngram.h" />
     <ClInclude Include="StrokeMerger\Merger.h" />
     <ClInclude Include="StrokeMerger\StrokeMergerHistoryResidentState.h" />
     <ClInclude Include="StrokeTable.h" />
@@ -300,6 +302,8 @@
     <ClCompile Include="StrokeMerger\Lattice2_CandidateString.cpp" />
     <ClCompile Include="StrokeMerger\Lattice2.cpp" />
     <ClCompile Include="StrokeMerger\Lattice2_Kbest.cpp" />
+    <ClCompile Include="StrokeMerger\Lattice2_Morpher.cpp" />
+    <ClCompile Include="StrokeMerger\Lattice2_Ngram.cpp" />
     <ClCompile Include="StrokeMerger\MergerHistoryState.cpp" />
     <ClCompile Include="StrokeTreeBuilder.cpp" />
     <ClCompile Include="dllmain.cpp" />

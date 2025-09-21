@@ -4,6 +4,23 @@
 
 //#include "Lattice.h"
 
+#define LOG_SAVE_DICT LOG_INFOH
+#define _LOG_DETAIL LOG_DEBUG
+#if 1
+#undef IS_LOG_DEBUGH_ENABLED
+#define IS_LOG_DEBUGH_ENABLED true
+#undef LOG_SAVE_DICT
+#undef _LOG_DETAIL
+#undef LOG_INFO
+#undef LOG_DEBUGH
+#undef LOG_DEBUG
+#define LOG_SAVE_DICT LOG_WARNH
+#define _LOG_DETAIL LOG_WARN
+#define LOG_INFO LOG_INFOH
+#define LOG_DEBUGH LOG_INFOH
+#define LOG_DEBUG LOG_INFOH
+#endif
+
 namespace lattice2 {
 
     // ビームサイズ
@@ -16,8 +33,12 @@ namespace lattice2 {
     //int TIER1_NUM = 5;
     //int TIER2_NUM = 10;
 
-    // グローバルな後置書き換えマップ
-    inline std::map<MString, MString> globalPostRewriteMap;
+    // cost ファイルに登録がある場合のデフォルトのボーナス
+    inline int DEFAULT_WORD_BONUS = 1000;
+
+    inline bool isDecimalString(StringRef item) {
+        return utils::reMatch(item, L"[+\\-]?[0-9]+");
+    }
 
 } // namespace lattice2
 

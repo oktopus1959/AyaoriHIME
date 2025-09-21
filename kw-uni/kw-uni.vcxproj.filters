@@ -324,6 +324,12 @@
     <ClInclude Include="utils\path_utils.h">
       <Filter>ヘッダー ファイル\utils</Filter>
     </ClInclude>
+    <ClInclude Include="StrokeMerger\Lattice2_Morpher.h">
+      <Filter>ヘッダー ファイル\StrokeMerger</Filter>
+    </ClInclude>
+    <ClInclude Include="StrokeMerger\Lattice2_Ngram.h">
+      <Filter>ヘッダー ファイル\StrokeMerger</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -475,6 +481,12 @@
     </ClCompile>
     <ClCompile Include="utils\path_utils.cpp">
       <Filter>ソース ファイル\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="StrokeMerger\Lattice2_Ngram.cpp">
+      <Filter>ソース ファイル\StrokeMerger</Filter>
+    </ClCompile>
+    <ClCompile Include="StrokeMerger\Lattice2_Morpher.cpp">
+      <Filter>ソース ファイル\StrokeMerger</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

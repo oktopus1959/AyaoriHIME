@@ -2,9 +2,15 @@
 
 #include "string_utils.h"
 
+#include "Lattice.h"
+
 class RewriteInfo;
+class PostRewriteOneShotNode;
 
 namespace lattice2 {
+
+    // グローバルな後置書き換えマップファイルの読み込み
+    void readGlobalPostRewriteMapFile();
 
     // 候補文字列
     class CandidateString {

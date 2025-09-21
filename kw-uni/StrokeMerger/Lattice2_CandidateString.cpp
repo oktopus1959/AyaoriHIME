@@ -1,4 +1,5 @@
 #include "Logger.h"
+#include "file_utils.h"
 //
 #include "settings.h"
 #include "StateCommonInfo.h"
@@ -12,25 +13,36 @@
 
 #include "MorphBridge.h"
 
-#define _LOG_INFOH LOG_INFO
-#define _LOG_DETAIL LOG_DEBUG
-#if 1
-#undef IS_LOG_DEBUGH_ENABLED
-#define IS_LOG_DEBUGH_ENABLED true
-#undef _LOG_INFOH
-#undef _LOG_DETAIL
-#undef LOG_INFO
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
-#define _LOG_INFOH LOG_WARN
-#define _LOG_DETAIL LOG_WARN
-#define LOG_INFO LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFOH
-#endif
-
 namespace lattice2 {
     DECLARE_LOGGER;     // defined in Lattice2.cpp
+
+#define GLOBAL_POST_REWRITE_FILE    L"files/global-post-rewrite-map.txt"
+
+    // グローバルな後置書き換えマップ
+    std::map<MString, MString> globalPostRewriteMap;
+
+    // グローバルな後置書き換えマップファイルの読み込み
+    void readGlobalPostRewriteMapFile() {
+        globalPostRewriteMap.clear();
+        auto path = utils::joinPath(SETTINGS->rootDir, GLOBAL_POST_REWRITE_FILE);
+        LOG_INFO(_T("LOAD: {}"), path.c_str());
+        utils::IfstreamReader reader(path);
+        int count = 0;
+        if (reader.success()) {
+            LOG_INFO(_T("FOUND: {}"), path.c_str());
+            for (const auto& line : reader.getAllLines()) {
+                auto items = utils::split(utils::replace_all(utils::strip(line), L"[>: ]+", L"\t"), '\t');
+                if (items.size() == 2 &&
+                    items[0].size() >= 1 && items[1].size() >= 1 &&
+                    items[0][0] != L'#' && items[0][0] != L';') {
+
+                   globalPostRewriteMap[to_mstr(items[0])] = to_mstr(items[1]);
+                   ++count;
+                }
+            }
+        }
+        LOG_INFO(_T("LEAVE: count={}"), count);
+    }
 
     DEFINE_CLASS_LOGGER(CandidateString);
 
