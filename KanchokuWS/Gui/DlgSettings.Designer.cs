@@ -53,6 +53,8 @@ namespace KanchokuWS.Gui
             this.button_openEasyCharsFile = new System.Windows.Forms.Button();
             this.button_openKeyCharMapFile = new System.Windows.Forms.Button();
             this.button_openTableFile = new System.Windows.Forms.Button();
+            this.label6 = new System.Windows.Forms.Label();
+            this.textBox_mazegakiFile = new System.Windows.Forms.TextBox();
             this.button_openKeyboardFile = new System.Windows.Forms.Button();
             this.textBox_strokeHelpFile = new System.Windows.Forms.TextBox();
             this.label47 = new System.Windows.Forms.Label();
@@ -62,8 +64,6 @@ namespace KanchokuWS.Gui
             this.label10 = new System.Windows.Forms.Label();
             this.textBox_historyFile = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.textBox_mazegakiFile = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.textBox_bushuAssocFile = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.textBox_bushuCompFile = new System.Windows.Forms.TextBox();
@@ -393,7 +393,8 @@ namespace KanchokuWS.Gui
             this.radioButton_includeFollowings = new System.Windows.Forms.RadioButton();
             this.tabPage_history = new System.Windows.Forms.TabPage();
             this.groupBox53 = new System.Windows.Forms.GroupBox();
-            this.button_selecFile = new System.Windows.Forms.Button();
+            this.button_openUserDicFile = new System.Windows.Forms.Button();
+            this.button_selecUserDicFile = new System.Windows.Forms.Button();
             this.button_ImportUserDIc = new System.Windows.Forms.Button();
             this.label169 = new System.Windows.Forms.Label();
             this.textBox_mazeUserDicSourceFile = new System.Windows.Forms.TextBox();
@@ -402,18 +403,6 @@ namespace KanchokuWS.Gui
             this.textBox_mazeHistRegisterMinLen = new System.Windows.Forms.TextBox();
             this.label112 = new System.Windows.Forms.Label();
             this.textBox_histMapGobiMaxLength = new System.Windows.Forms.TextBox();
-            this.groupBox23 = new System.Windows.Forms.GroupBox();
-            this.checkBox_mazeNoIfxConnectAny = new System.Windows.Forms.CheckBox();
-            this.checkBox_mazeNoIfxConnectKanji = new System.Windows.Forms.CheckBox();
-            this.label89 = new System.Windows.Forms.Label();
-            this.textBox_mazeGobiLikeTailLen = new System.Windows.Forms.TextBox();
-            this.label46 = new System.Windows.Forms.Label();
-            this.textBox_mazeGobiMaxLen = new System.Windows.Forms.TextBox();
-            this.label45 = new System.Windows.Forms.Label();
-            this.textBox_mazeYomiMaxLen = new System.Windows.Forms.TextBox();
-            this.checkBox_mazeRemoveHeadSpace = new System.Windows.Forms.CheckBox();
-            this.checkBox_mazeBlockerTail = new System.Windows.Forms.CheckBox();
-            this.checkBox_mazegakiSelectFirstCand = new System.Windows.Forms.CheckBox();
             this.groupBox17 = new System.Windows.Forms.GroupBox();
             this.checkBox_selectHistCandByNumberKey = new System.Windows.Forms.CheckBox();
             this.checkBox_newLineWhenHistEnter = new System.Windows.Forms.CheckBox();
@@ -454,8 +443,6 @@ namespace KanchokuWS.Gui
             this.label22 = new System.Windows.Forms.Label();
             this.button_histClose = new System.Windows.Forms.Button();
             this.button_histEnter = new System.Windows.Forms.Button();
-            this.groupBox34 = new System.Windows.Forms.GroupBox();
-            this.label91 = new System.Windows.Forms.Label();
             this.checkBox_mazeRightShiftYomiPos = new System.Windows.Forms.CheckBox();
             this.tabPage_misc = new System.Windows.Forms.TabPage();
             this.groupBox33 = new System.Windows.Forms.GroupBox();
@@ -663,11 +650,9 @@ namespace KanchokuWS.Gui
             this.tabPage_history.SuspendLayout();
             this.groupBox53.SuspendLayout();
             this.groupBox44.SuspendLayout();
-            this.groupBox23.SuspendLayout();
             this.groupBox17.SuspendLayout();
             this.groupBox14.SuspendLayout();
             this.groupBox12.SuspendLayout();
-            this.groupBox34.SuspendLayout();
             this.tabPage_misc.SuspendLayout();
             this.groupBox33.SuspendLayout();
             this.groupBox48.SuspendLayout();
@@ -1037,6 +1022,28 @@ namespace KanchokuWS.Gui
             this.button_openTableFile.UseVisualStyleBackColor = true;
             this.button_openTableFile.Click += new System.EventHandler(this.button_openTableFile_Click);
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(15, 257);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(108, 15);
+            this.label6.TabIndex = 6;
+            this.label6.Text = "交ぜ書き辞書ファイル";
+            this.label6.Visible = false;
+            // 
+            // textBox_mazegakiFile
+            // 
+            this.textBox_mazegakiFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_mazegakiFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textBox_mazegakiFile.Location = new System.Drawing.Point(129, 255);
+            this.textBox_mazegakiFile.Name = "textBox_mazegakiFile";
+            this.textBox_mazegakiFile.Size = new System.Drawing.Size(218, 19);
+            this.textBox_mazegakiFile.TabIndex = 17;
+            this.toolTip1.SetToolTip(this.textBox_mazegakiFile, resources.GetString("textBox_mazegakiFile.ToolTip"));
+            this.textBox_mazegakiFile.Visible = false;
+            // 
             // button_openKeyboardFile
             // 
             this.button_openKeyboardFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -1129,28 +1136,6 @@ namespace KanchokuWS.Gui
             this.label7.Size = new System.Drawing.Size(89, 15);
             this.label7.TabIndex = 8;
             this.label7.Text = "入力履歴ファイル";
-            // 
-            // textBox_mazegakiFile
-            // 
-            this.textBox_mazegakiFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_mazegakiFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_mazegakiFile.Location = new System.Drawing.Point(129, 255);
-            this.textBox_mazegakiFile.Name = "textBox_mazegakiFile";
-            this.textBox_mazegakiFile.Size = new System.Drawing.Size(218, 19);
-            this.textBox_mazegakiFile.TabIndex = 17;
-            this.toolTip1.SetToolTip(this.textBox_mazegakiFile, resources.GetString("textBox_mazegakiFile.ToolTip"));
-            this.textBox_mazegakiFile.Visible = false;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(15, 257);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(108, 15);
-            this.label6.TabIndex = 6;
-            this.label6.Text = "交ぜ書き辞書ファイル";
-            this.label6.Visible = false;
             // 
             // textBox_bushuAssocFile
             // 
@@ -4985,7 +4970,6 @@ namespace KanchokuWS.Gui
             // 
             this.tabPage_history.Controls.Add(this.groupBox53);
             this.tabPage_history.Controls.Add(this.groupBox44);
-            this.tabPage_history.Controls.Add(this.groupBox23);
             this.tabPage_history.Controls.Add(this.groupBox17);
             this.tabPage_history.Controls.Add(this.groupBox14);
             this.tabPage_history.Controls.Add(this.label121);
@@ -4994,7 +4978,6 @@ namespace KanchokuWS.Gui
             this.tabPage_history.Controls.Add(this.groupBox12);
             this.tabPage_history.Controls.Add(this.button_histClose);
             this.tabPage_history.Controls.Add(this.button_histEnter);
-            this.tabPage_history.Controls.Add(this.groupBox34);
             this.tabPage_history.Controls.Add(this.checkBox_mazeRightShiftYomiPos);
             this.tabPage_history.Location = new System.Drawing.Point(4, 24);
             this.tabPage_history.Name = "tabPage_history";
@@ -5006,7 +4989,8 @@ namespace KanchokuWS.Gui
             // 
             // groupBox53
             // 
-            this.groupBox53.Controls.Add(this.button_selecFile);
+            this.groupBox53.Controls.Add(this.button_openUserDicFile);
+            this.groupBox53.Controls.Add(this.button_selecUserDicFile);
             this.groupBox53.Controls.Add(this.button_ImportUserDIc);
             this.groupBox53.Controls.Add(this.label169);
             this.groupBox53.Controls.Add(this.textBox_mazeUserDicSourceFile);
@@ -5017,17 +5001,31 @@ namespace KanchokuWS.Gui
             this.groupBox53.TabStop = false;
             this.groupBox53.Text = "交ぜ書きユーザー辞書";
             // 
-            // button_selecFile
+            // button_openUserDicFile
             // 
-            this.button_selecFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_selecFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_selecFile.Location = new System.Drawing.Point(14, 67);
-            this.button_selecFile.Name = "button_selecFile";
-            this.button_selecFile.Size = new System.Drawing.Size(100, 23);
-            this.button_selecFile.TabIndex = 29;
-            this.button_selecFile.Text = "ファイル選択(&O)";
-            this.button_selecFile.UseVisualStyleBackColor = true;
-            this.button_selecFile.Click += new System.EventHandler(this.button_selecFile_Click);
+            this.button_openUserDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_openUserDicFile.Location = new System.Drawing.Point(157, 67);
+            this.button_openUserDicFile.Name = "button_openUserDicFile";
+            this.button_openUserDicFile.Size = new System.Drawing.Size(58, 23);
+            this.button_openUserDicFile.TabIndex = 30;
+            this.button_openUserDicFile.Text = "開く(&O)";
+            this.toolTip1.SetToolTip(this.button_openUserDicFile, "ユーザー辞書ソースファイルを開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n\r\nファイルの内容を修正した場合は、「インポート" +
+        "」を実行すると、\r\nその内容が反映されます。\r\n");
+            this.button_openUserDicFile.UseVisualStyleBackColor = true;
+            this.button_openUserDicFile.Click += new System.EventHandler(this.button_openUserDicFile_Click);
+            // 
+            // button_selecUserDicFile
+            // 
+            this.button_selecUserDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_selecUserDicFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_selecUserDicFile.Location = new System.Drawing.Point(14, 67);
+            this.button_selecUserDicFile.Name = "button_selecUserDicFile";
+            this.button_selecUserDicFile.Size = new System.Drawing.Size(100, 23);
+            this.button_selecUserDicFile.TabIndex = 29;
+            this.button_selecUserDicFile.Text = "ファイル選択(&D)";
+            this.toolTip1.SetToolTip(this.button_selecUserDicFile, "ファイルダイアログでユーザー辞書ソースファイルを選択します。");
+            this.button_selecUserDicFile.UseVisualStyleBackColor = true;
+            this.button_selecUserDicFile.Click += new System.EventHandler(this.button_selecFile_Click);
             // 
             // button_ImportUserDIc
             // 
@@ -5038,6 +5036,7 @@ namespace KanchokuWS.Gui
             this.button_ImportUserDIc.Size = new System.Drawing.Size(80, 23);
             this.button_ImportUserDIc.TabIndex = 28;
             this.button_ImportUserDIc.Text = "インポート(&I)";
+            this.toolTip1.SetToolTip(this.button_ImportUserDIc, "指定のユーザー辞書ソースをコンパイルして、結果のバイナリー辞書をロードします。");
             this.button_ImportUserDIc.UseVisualStyleBackColor = true;
             this.button_ImportUserDIc.Click += new System.EventHandler(this.button_ImportUserDIc_Click);
             // 
@@ -5072,6 +5071,7 @@ namespace KanchokuWS.Gui
             this.groupBox44.TabIndex = 2;
             this.groupBox44.TabStop = false;
             this.groupBox44.Text = "交ぜ書き変換履歴";
+            this.groupBox44.Visible = false;
             // 
             // label113
             // 
@@ -5110,143 +5110,6 @@ namespace KanchokuWS.Gui
             this.textBox_histMapGobiMaxLength.TabIndex = 1;
             this.textBox_histMapGobiMaxLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_histMapGobiMaxLength, resources.GetString("textBox_histMapGobiMaxLength.ToolTip"));
-            // 
-            // groupBox23
-            // 
-            this.groupBox23.Controls.Add(this.checkBox_mazeNoIfxConnectAny);
-            this.groupBox23.Controls.Add(this.checkBox_mazeNoIfxConnectKanji);
-            this.groupBox23.Controls.Add(this.label89);
-            this.groupBox23.Controls.Add(this.textBox_mazeGobiLikeTailLen);
-            this.groupBox23.Controls.Add(this.label46);
-            this.groupBox23.Controls.Add(this.textBox_mazeGobiMaxLen);
-            this.groupBox23.Controls.Add(this.label45);
-            this.groupBox23.Controls.Add(this.textBox_mazeYomiMaxLen);
-            this.groupBox23.Controls.Add(this.checkBox_mazeRemoveHeadSpace);
-            this.groupBox23.Controls.Add(this.checkBox_mazeBlockerTail);
-            this.groupBox23.Controls.Add(this.checkBox_mazegakiSelectFirstCand);
-            this.groupBox23.Location = new System.Drawing.Point(333, 252);
-            this.groupBox23.Name = "groupBox23";
-            this.groupBox23.Size = new System.Drawing.Size(292, 59);
-            this.groupBox23.TabIndex = 4;
-            this.groupBox23.TabStop = false;
-            this.groupBox23.Text = "交ぜ書き変換";
-            this.groupBox23.Visible = false;
-            // 
-            // checkBox_mazeNoIfxConnectAny
-            // 
-            this.checkBox_mazeNoIfxConnectAny.AutoSize = true;
-            this.checkBox_mazeNoIfxConnectAny.Location = new System.Drawing.Point(20, 101);
-            this.checkBox_mazeNoIfxConnectAny.Name = "checkBox_mazeNoIfxConnectAny";
-            this.checkBox_mazeNoIfxConnectAny.Size = new System.Drawing.Size(203, 19);
-            this.checkBox_mazeNoIfxConnectAny.TabIndex = 5;
-            this.checkBox_mazeNoIfxConnectAny.Text = "無活用語には任意の語尾を許可する";
-            this.toolTip1.SetToolTip(this.checkBox_mazeNoIfxConnectAny, resources.GetString("checkBox_mazeNoIfxConnectAny.ToolTip"));
-            this.checkBox_mazeNoIfxConnectAny.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_mazeNoIfxConnectKanji
-            // 
-            this.checkBox_mazeNoIfxConnectKanji.AutoSize = true;
-            this.checkBox_mazeNoIfxConnectKanji.Location = new System.Drawing.Point(20, 81);
-            this.checkBox_mazeNoIfxConnectKanji.Name = "checkBox_mazeNoIfxConnectKanji";
-            this.checkBox_mazeNoIfxConnectKanji.Size = new System.Drawing.Size(193, 19);
-            this.checkBox_mazeNoIfxConnectKanji.TabIndex = 4;
-            this.checkBox_mazeNoIfxConnectKanji.Text = "無活用語には漢字語尾を許可する";
-            this.toolTip1.SetToolTip(this.checkBox_mazeNoIfxConnectKanji, resources.GetString("checkBox_mazeNoIfxConnectKanji.ToolTip"));
-            this.checkBox_mazeNoIfxConnectKanji.UseVisualStyleBackColor = true;
-            // 
-            // label89
-            // 
-            this.label89.AutoSize = true;
-            this.label89.Location = new System.Drawing.Point(21, 168);
-            this.label89.Name = "label89";
-            this.label89.Size = new System.Drawing.Size(107, 15);
-            this.label89.TabIndex = 28;
-            this.label89.Text = "語尾に含める末尾長";
-            // 
-            // textBox_mazeGobiLikeTailLen
-            // 
-            this.textBox_mazeGobiLikeTailLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_mazeGobiLikeTailLen.Location = new System.Drawing.Point(146, 166);
-            this.textBox_mazeGobiLikeTailLen.Name = "textBox_mazeGobiLikeTailLen";
-            this.textBox_mazeGobiLikeTailLen.Size = new System.Drawing.Size(42, 19);
-            this.textBox_mazeGobiLikeTailLen.TabIndex = 8;
-            this.textBox_mazeGobiLikeTailLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_mazeGobiLikeTailLen, resources.GetString("textBox_mazeGobiLikeTailLen.ToolTip"));
-            // 
-            // label46
-            // 
-            this.label46.AutoSize = true;
-            this.label46.Location = new System.Drawing.Point(21, 146);
-            this.label46.Name = "label46";
-            this.label46.Size = new System.Drawing.Size(77, 15);
-            this.label46.TabIndex = 30;
-            this.label46.Text = "語尾の最大長";
-            // 
-            // textBox_mazeGobiMaxLen
-            // 
-            this.textBox_mazeGobiMaxLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_mazeGobiMaxLen.Location = new System.Drawing.Point(146, 144);
-            this.textBox_mazeGobiMaxLen.Name = "textBox_mazeGobiMaxLen";
-            this.textBox_mazeGobiMaxLen.Size = new System.Drawing.Size(42, 19);
-            this.textBox_mazeGobiMaxLen.TabIndex = 7;
-            this.textBox_mazeGobiMaxLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_mazeGobiMaxLen, "交ぜ書き変換時の語尾の最大長\r\n\r\n交ぜ書き変換時に、変換形に対して語尾を最大何文字まで与えるかを\r\n指定します。\r\n0 を設定すると、活用語尾を持つエントリは検" +
-        "索の対象になりません。\r\n\r\n例：\r\n 最大語尾長を2と設定した場合は、「あ/う /会/」というエントリに対して\r\n「あった」は「会った」に変換できますが、「会" +
-        "わせる」は変換対象外と\r\nなります。");
-            // 
-            // label45
-            // 
-            this.label45.AutoSize = true;
-            this.label45.Location = new System.Drawing.Point(21, 124);
-            this.label45.Name = "label45";
-            this.label45.Size = new System.Drawing.Size(100, 15);
-            this.label45.TabIndex = 29;
-            this.label45.Text = "読み入力の最大長";
-            // 
-            // textBox_mazeYomiMaxLen
-            // 
-            this.textBox_mazeYomiMaxLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_mazeYomiMaxLen.Location = new System.Drawing.Point(146, 122);
-            this.textBox_mazeYomiMaxLen.Name = "textBox_mazeYomiMaxLen";
-            this.textBox_mazeYomiMaxLen.Size = new System.Drawing.Size(42, 19);
-            this.textBox_mazeYomiMaxLen.TabIndex = 6;
-            this.textBox_mazeYomiMaxLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_mazeYomiMaxLen, "交ぜ書き変換時の読み入力の最大長\r\n\r\n交ぜ書き変換時に入力として扱う読みの長さの\r\n最大文字数を指定します。");
-            // 
-            // checkBox_mazeRemoveHeadSpace
-            // 
-            this.checkBox_mazeRemoveHeadSpace.AutoSize = true;
-            this.checkBox_mazeRemoveHeadSpace.Location = new System.Drawing.Point(20, 61);
-            this.checkBox_mazeRemoveHeadSpace.Name = "checkBox_mazeRemoveHeadSpace";
-            this.checkBox_mazeRemoveHeadSpace.Size = new System.Drawing.Size(219, 19);
-            this.checkBox_mazeRemoveHeadSpace.TabIndex = 3;
-            this.checkBox_mazeRemoveHeadSpace.Text = "変換後に読みの先頭の空白文字を削除";
-            this.toolTip1.SetToolTip(this.checkBox_mazeRemoveHeadSpace, "ONにすると、交ぜ書き変換後、読みの先頭の空白文字が削除されます。\n（ひらがな⇒カタカナ変換時にも適用されます）\n\n例：「明日彼女にあう」の「あう」を「逢う」に変" +
-        "換したい場合、\n「彼女にあう」を変換すると「彼女似合う」になってしまいます。\nこれを避けるには、当項目をONにして、「彼女に あう」のように\n「に」と「あう」の" +
-        "間に空白を入れてから変換すると、「彼女に逢う」\nのように変換されます。");
-            this.checkBox_mazeRemoveHeadSpace.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_mazeBlockerTail
-            // 
-            this.checkBox_mazeBlockerTail.AutoSize = true;
-            this.checkBox_mazeBlockerTail.Location = new System.Drawing.Point(20, 41);
-            this.checkBox_mazeBlockerTail.Name = "checkBox_mazeBlockerTail";
-            this.checkBox_mazeBlockerTail.Size = new System.Drawing.Size(224, 19);
-            this.checkBox_mazeBlockerTail.TabIndex = 1;
-            this.checkBox_mazeBlockerTail.Text = "変換形＋活用語尾の後にブロッカーを置く";
-            this.toolTip1.SetToolTip(this.checkBox_mazeBlockerTail, resources.GetString("checkBox_mazeBlockerTail.ToolTip"));
-            this.checkBox_mazeBlockerTail.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_mazegakiSelectFirstCand
-            // 
-            this.checkBox_mazegakiSelectFirstCand.AutoSize = true;
-            this.checkBox_mazegakiSelectFirstCand.Location = new System.Drawing.Point(20, 21);
-            this.checkBox_mazegakiSelectFirstCand.Name = "checkBox_mazegakiSelectFirstCand";
-            this.checkBox_mazegakiSelectFirstCand.Size = new System.Drawing.Size(179, 19);
-            this.checkBox_mazegakiSelectFirstCand.TabIndex = 0;
-            this.checkBox_mazegakiSelectFirstCand.Text = "文末最長一致候補を自動選択";
-            this.toolTip1.SetToolTip(this.checkBox_mazegakiSelectFirstCand, resources.GetString("checkBox_mazegakiSelectFirstCand.ToolTip"));
-            this.checkBox_mazegakiSelectFirstCand.UseVisualStyleBackColor = true;
             // 
             // groupBox17
             // 
@@ -5726,28 +5589,6 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.button_histEnter, "設定内容を適用して kanchoku.user.ini に書き込みます");
             this.button_histEnter.UseVisualStyleBackColor = true;
             this.button_histEnter.Click += new System.EventHandler(this.button_histEnter_Click);
-            // 
-            // groupBox34
-            // 
-            this.groupBox34.Controls.Add(this.label91);
-            this.groupBox34.Location = new System.Drawing.Point(333, 318);
-            this.groupBox34.Name = "groupBox34";
-            this.groupBox34.Size = new System.Drawing.Size(127, 39);
-            this.groupBox34.TabIndex = 26;
-            this.groupBox34.TabStop = false;
-            this.groupBox34.Text = "交ぜ書きブロッカーとは";
-            this.groupBox34.Visible = false;
-            // 
-            // label91
-            // 
-            this.label91.AutoSize = true;
-            this.label91.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label91.Location = new System.Drawing.Point(10, 19);
-            this.label91.Name = "label91";
-            this.label91.Size = new System.Drawing.Size(104, 15);
-            this.label91.TabIndex = 2;
-            this.label91.Text = "詳細はツールチップで";
-            this.toolTip1.SetToolTip(this.label91, resources.GetString("label91.ToolTip"));
             // 
             // checkBox_mazeRightShiftYomiPos
             // 
@@ -7815,16 +7656,12 @@ namespace KanchokuWS.Gui
             this.groupBox53.PerformLayout();
             this.groupBox44.ResumeLayout(false);
             this.groupBox44.PerformLayout();
-            this.groupBox23.ResumeLayout(false);
-            this.groupBox23.PerformLayout();
             this.groupBox17.ResumeLayout(false);
             this.groupBox17.PerformLayout();
             this.groupBox14.ResumeLayout(false);
             this.groupBox14.PerformLayout();
             this.groupBox12.ResumeLayout(false);
             this.groupBox12.PerformLayout();
-            this.groupBox34.ResumeLayout(false);
-            this.groupBox34.PerformLayout();
             this.tabPage_misc.ResumeLayout(false);
             this.tabPage_misc.PerformLayout();
             this.groupBox33.ResumeLayout(false);
@@ -8109,8 +7946,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label73;
         private System.Windows.Forms.Label label72;
         private System.Windows.Forms.Button button_showPaddingsDesc;
-        private System.Windows.Forms.GroupBox groupBox23;
-        private System.Windows.Forms.CheckBox checkBox_mazegakiSelectFirstCand;
         private System.Windows.Forms.TextBox textBox_hankakuKatakanaOneShotKeySeq;
         private System.Windows.Forms.Label label75;
         private System.Windows.Forms.ComboBox comboBox_tabKey;
@@ -8155,23 +7990,13 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.ComboBox comboBox_homeKey;
         private System.Windows.Forms.Label label85;
         private System.Windows.Forms.RadioButton radioButton_noVkb;
-        private System.Windows.Forms.Label label89;
-        private System.Windows.Forms.TextBox textBox_mazeGobiLikeTailLen;
-        private System.Windows.Forms.CheckBox checkBox_mazeBlockerTail;
-        private System.Windows.Forms.CheckBox checkBox_mazeRemoveHeadSpace;
         private System.Windows.Forms.CheckBox checkBox_mazeRightShiftYomiPos;
-        private System.Windows.Forms.Label label46;
-        private System.Windows.Forms.TextBox textBox_mazeGobiMaxLen;
-        private System.Windows.Forms.Label label45;
-        private System.Windows.Forms.TextBox textBox_mazeYomiMaxLen;
         private System.Windows.Forms.GroupBox groupBox19;
         private System.Windows.Forms.Label label_saveAutoBushu;
         private System.Windows.Forms.Button button_saveAutoBushuCompFile;
         private System.Windows.Forms.Label label_autoBushuComp;
         private System.Windows.Forms.TextBox textBox_autoBushuComp;
         private System.Windows.Forms.Button button_enterAutoBushu;
-        private System.Windows.Forms.GroupBox groupBox34;
-        private System.Windows.Forms.Label label91;
         private System.Windows.Forms.RadioButton radioButton_vkbFixedPos;
         private System.Windows.Forms.TextBox textBox_vkbFixedPosY;
         private System.Windows.Forms.TextBox textBox_vkbFixedPosX;
@@ -8226,8 +8051,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label105;
         private System.Windows.Forms.TextBox textBox_historyFewCharsKeySeq;
         private System.Windows.Forms.Label label106;
-        private System.Windows.Forms.CheckBox checkBox_mazeNoIfxConnectKanji;
-        private System.Windows.Forms.CheckBox checkBox_mazeNoIfxConnectAny;
         private System.Windows.Forms.Label label108;
         private System.Windows.Forms.TextBox textBox_saveDictsCalmTime;
         private System.Windows.Forms.Label label107;
@@ -8463,6 +8286,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Button button_ImportUserDIc;
         private System.Windows.Forms.Label label169;
         private System.Windows.Forms.TextBox textBox_mazeUserDicSourceFile;
-        private System.Windows.Forms.Button button_selecFile;
+        private System.Windows.Forms.Button button_selecUserDicFile;
+        private System.Windows.Forms.Button button_openUserDicFile;
     }
 }

@@ -65,7 +65,7 @@ namespace DymazinBridge {
         _LOG_INFOH(_T("ENTER"));
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
-        int result = DymazinReopenUserDics(errMsgBuf, ARRAY_SIZE);
+        int result = DymazinReloadUserDics(errMsgBuf, ARRAY_SIZE);
         ERROR_HANDLER->SetErrorInfo(result, errMsgBuf);
         _LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
         return result;

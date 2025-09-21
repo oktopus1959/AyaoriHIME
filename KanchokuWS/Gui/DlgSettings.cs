@@ -1667,22 +1667,23 @@ namespace KanchokuWS.Gui
             comboBox_histDelDeckeyId.SelectedIndex = Settings.HistDelDeckeyId._lowLimit(41)._highLimit(48) - 41;
             comboBox_histNumDeckeyId.SelectedIndex = Settings.HistNumDeckeyId._lowLimit(41)._highLimit(48) - 41;
 
-            // 交ぜ書き
-            //checkBox_mazegakiByShiftSpace.Checked = Settings.MazegakiByShiftSpace;
-            checkBox_mazegakiSelectFirstCand.Checked = Settings.MazegakiSelectFirstCand;
-            checkBox_mazeBlockerTail.Checked = !Settings.MazeBlockerTail;
-            checkBox_mazeRemoveHeadSpace.Checked = Settings.MazeRemoveHeadSpace;
-            checkBox_mazeRightShiftYomiPos.Checked = Settings.MazeRightShiftYomiPos;
-            checkBox_mazeNoIfxConnectKanji.Checked = Settings.MazeNoIfxConnectKanji;
-            checkBox_mazeNoIfxConnectAny.Checked = Settings.MazeNoIfxConnectAny;
-            textBox_mazeYomiMaxLen.Text = $"{Settings.MazeYomiMaxLen}";
-            textBox_mazeGobiMaxLen.Text = $"{Settings.MazeGobiMaxLen}";
-            textBox_mazeGobiLikeTailLen.Text = $"{Settings.MazeGobiLikeTailLen}";
-            textBox_histMapGobiMaxLength.Text = $"{Settings.HistMapGobiMaxLength}";
-            textBox_mazeHistRegisterMinLen.Text = $"{Settings.MazeHistRegisterMinLen}";
+            //// 交ぜ書き
+            ////checkBox_mazegakiByShiftSpace.Checked = Settings.MazegakiByShiftSpace;
+            //checkBox_mazegakiSelectFirstCand.Checked = Settings.MazegakiSelectFirstCand;
+            //checkBox_mazeBlockerTail.Checked = !Settings.MazeBlockerTail;
+            //checkBox_mazeRemoveHeadSpace.Checked = Settings.MazeRemoveHeadSpace;
+            //checkBox_mazeRightShiftYomiPos.Checked = Settings.MazeRightShiftYomiPos;
+            //checkBox_mazeNoIfxConnectKanji.Checked = Settings.MazeNoIfxConnectKanji;
+            //checkBox_mazeNoIfxConnectAny.Checked = Settings.MazeNoIfxConnectAny;
+            //textBox_mazeYomiMaxLen.Text = $"{Settings.MazeYomiMaxLen}";
+            //textBox_mazeGobiMaxLen.Text = $"{Settings.MazeGobiMaxLen}";
+            //textBox_mazeGobiLikeTailLen.Text = $"{Settings.MazeGobiLikeTailLen}";
+            //textBox_histMapGobiMaxLength.Text = $"{Settings.HistMapGobiMaxLength}";
+            //textBox_mazeHistRegisterMinLen.Text = $"{Settings.MazeHistRegisterMinLen}";
 
             textBox_mazeUserDicSourceFile.Text = $"{Settings.GetUserIni("mazeUserDicSourceFile")}";
             button_ImportUserDIc.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
+            button_openUserDicFile.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
         }
 
         private void setHistoryStatusChecker()
@@ -1716,18 +1717,18 @@ namespace KanchokuWS.Gui
             checkerHistory.Add(comboBox_histNumDeckeyId);
 
             // 交ぜ書き
-            //checkerHistory.Add(checkBox_mazegakiByShiftSpace);
-            checkerHistory.Add(checkBox_mazegakiSelectFirstCand);
-            checkerHistory.Add(checkBox_mazeBlockerTail);
-            checkerHistory.Add(checkBox_mazeRemoveHeadSpace);
-            checkerHistory.Add(checkBox_mazeRightShiftYomiPos);
-            checkerHistory.Add(checkBox_mazeNoIfxConnectKanji);
-            checkerHistory.Add(checkBox_mazeNoIfxConnectAny);
-            checkerHistory.Add(textBox_mazeYomiMaxLen);
-            checkerHistory.Add(textBox_mazeGobiMaxLen);
-            checkerHistory.Add(textBox_mazeGobiLikeTailLen);
-            checkerHistory.Add(textBox_histMapGobiMaxLength);
-            checkerHistory.Add(textBox_mazeHistRegisterMinLen);
+            ////checkerHistory.Add(checkBox_mazegakiByShiftSpace);
+            //checkerHistory.Add(checkBox_mazegakiSelectFirstCand);
+            //checkerHistory.Add(checkBox_mazeBlockerTail);
+            //checkerHistory.Add(checkBox_mazeRemoveHeadSpace);
+            //checkerHistory.Add(checkBox_mazeRightShiftYomiPos);
+            //checkerHistory.Add(checkBox_mazeNoIfxConnectKanji);
+            //checkerHistory.Add(checkBox_mazeNoIfxConnectAny);
+            //checkerHistory.Add(textBox_mazeYomiMaxLen);
+            //checkerHistory.Add(textBox_mazeGobiMaxLen);
+            //checkerHistory.Add(textBox_mazeGobiLikeTailLen);
+            //checkerHistory.Add(textBox_histMapGobiMaxLength);
+            //checkerHistory.Add(textBox_mazeHistRegisterMinLen);
 
             //checkerHistory.Add(textBox_mazeUserDicSourceFile);
 
@@ -1768,17 +1769,17 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("histNumDeckeyId", comboBox_histNumDeckeyId.Text.Trim()._substring(0, 2));
 
             //Settings.SetUserIni("mazegakiByShiftSpace", checkBox_mazegakiByShiftSpace.Checked);
-            Settings.SetUserIni("mazegakiSelectFirstCand", checkBox_mazegakiSelectFirstCand.Checked);
-            Settings.SetUserIni("mazeBlockerTail", !checkBox_mazeBlockerTail.Checked);
-            Settings.SetUserIni("mazeRemoveHeadSpace", checkBox_mazeRemoveHeadSpace.Checked);
-            Settings.SetUserIni("mazeRightShiftYomiPos", checkBox_mazeRightShiftYomiPos.Checked);
-            Settings.SetUserIni("mazeNoIfxConnectKanji", checkBox_mazeNoIfxConnectKanji.Checked);
-            Settings.SetUserIni("mazeNoIfxConnectAny", checkBox_mazeNoIfxConnectAny.Checked);
-            Settings.SetUserIni("mazeGobiMaxLen", textBox_mazeGobiMaxLen.Text.Trim());
-            Settings.SetUserIni("mazeYomiMaxLen", textBox_mazeYomiMaxLen.Text.Trim());
-            Settings.SetUserIni("mazeGobiLikeTailLen", textBox_mazeGobiLikeTailLen.Text.Trim());
-            Settings.SetUserIni("histMapGobiMaxLength", textBox_histMapGobiMaxLength.Text.Trim());
-            Settings.SetUserIni("mazeHistRegisterMinLen", textBox_mazeHistRegisterMinLen.Text.Trim());
+            //Settings.SetUserIni("mazegakiSelectFirstCand", checkBox_mazegakiSelectFirstCand.Checked);
+            //Settings.SetUserIni("mazeBlockerTail", !checkBox_mazeBlockerTail.Checked);
+            //Settings.SetUserIni("mazeRemoveHeadSpace", checkBox_mazeRemoveHeadSpace.Checked);
+            //Settings.SetUserIni("mazeRightShiftYomiPos", checkBox_mazeRightShiftYomiPos.Checked);
+            //Settings.SetUserIni("mazeNoIfxConnectKanji", checkBox_mazeNoIfxConnectKanji.Checked);
+            //Settings.SetUserIni("mazeNoIfxConnectAny", checkBox_mazeNoIfxConnectAny.Checked);
+            //Settings.SetUserIni("mazeGobiMaxLen", textBox_mazeGobiMaxLen.Text.Trim());
+            //Settings.SetUserIni("mazeYomiMaxLen", textBox_mazeYomiMaxLen.Text.Trim());
+            //Settings.SetUserIni("mazeGobiLikeTailLen", textBox_mazeGobiLikeTailLen.Text.Trim());
+            //Settings.SetUserIni("histMapGobiMaxLength", textBox_histMapGobiMaxLength.Text.Trim());
+            //Settings.SetUserIni("mazeHistRegisterMinLen", textBox_mazeHistRegisterMinLen.Text.Trim());
 
             //Settings.SetUserIni("mazeUserDicSourceFile", textBox_mazeUserDicSourceFile.Text.Trim());
 
@@ -1814,6 +1815,7 @@ namespace KanchokuWS.Gui
         private void textBox_mazeUserDicSourceFile_TextChanged(object sender, EventArgs e)
         {
             button_ImportUserDIc.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
+            button_openUserDicFile.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
         }
 
         private void button_ImportUserDIc_Click(object sender, EventArgs e)
@@ -1834,6 +1836,15 @@ namespace KanchokuWS.Gui
                 "", SystemHelper.FindKanchokuRootDir()._joinPath("userFiles"));
             if (filePath._notEmpty()) {
                 textBox_mazeUserDicSourceFile.Text = filePath;
+            }
+        }
+
+        private void button_openUserDicFile_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            var filename = textBox_mazeUserDicSourceFile.Text;
+            if (filename._notEmpty()) {
+                openFileByTxtAssociatedProgram(filename);
             }
         }
 
