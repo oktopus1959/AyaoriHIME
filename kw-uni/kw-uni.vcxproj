@@ -210,8 +210,6 @@
     <ClInclude Include="KeysAndChars\VkbTableMaker.h" />
     <ClInclude Include="KeysAndChars\Zenkaku.h" />
     <ClInclude Include="Llama\LlamaBridge.h" />
-    <ClInclude Include="Mazegaki\Mazegaki.h" />
-    <ClInclude Include="Mazegaki\MazegakiDic.h" />
     <ClInclude Include="ModalStateUtil.h" />
     <ClInclude Include="MorphBridge.h" />
     <ClInclude Include="MStringResult.h" />
@@ -284,8 +282,6 @@
     <ClCompile Include="KeysAndChars\VkbTableMaker.cpp" />
     <ClCompile Include="KeysAndChars\ZenkakuState.cpp" />
     <ClCompile Include="Llama\LlamaBridge.cpp" />
-    <ClCompile Include="Mazegaki\Mazegaki.cpp" />
-    <ClCompile Include="Mazegaki\MazegakiDic.cpp" />
     <ClCompile Include="ModalStateUtil.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="OneShot\HankakuKatakanaOneShotState.cpp" />

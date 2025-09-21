@@ -1,6 +1,6 @@
 #include "StrokeTable.h"
 #include "ResidentState.h"
-#include "Mazegaki/Mazegaki.h"
+//#include "Mazegaki/Mazegaki.h"
 #include "BushuComp/BushuComp.h"
 #include "BushuComp/BushuDic.h"
 
@@ -17,7 +17,7 @@
 void ResidentState::handleEsc() {
     _LOG_DEBUGH(_T("ENTER"));
 
-    HANDLE_ESC_FOR_MAZEGAKI(resultStr);
+    //HANDLE_ESC_FOR_MAZEGAKI(resultStr);
     HANDLE_ESC_FOR_AUTO_COMP(resultStr);
 
     _LOG_DEBUGH(_T("CALL State::handleEsc()"));

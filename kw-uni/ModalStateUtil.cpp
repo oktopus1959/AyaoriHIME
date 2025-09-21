@@ -1,6 +1,6 @@
 #include "ModalStateUtil.h"
 #include "State.h"
-#include "Mazegaki/Mazegaki.h"
+//#include "Mazegaki/Mazegaki.h"
 #include "Eisu.h"
 #include "Zenkaku.h"
 #include "Katakana.h"
@@ -39,18 +39,18 @@ int ModalStateUtil::ModalStatePreProc(State* pState, int deckey, bool isStrokabl
     // つまり、状態チェーンの末端であって、打鍵中でない場合
     if (!pState->NextState()) {
         _LOG_DEBUGH(_T("NextNode FOUND"));
-        // 交ぜ書き状態から抜けた直後にブロッカーや変換開始位置のシフトをやる場合のための処理
-        if (MAZEGAKI_INFO && !MAZEGAKI_INFO->IsInMazegakiMode()) {
-            _LOG_DEBUGH(_T("PATH-C"));
-            // ブロッカーや読み開始位置を左右にシフト -- 読み位置がシフトされて再変換モードになったら、交ぜ書き状態を生成する
-            if (MAZEGAKI_INFO->LeftRightShiftBlockerOrStartPos(deckey, [pState]() {if (MAZEGAKI_INFO->IsReXferMode()) pState->SetNextNodeMaybe(MAZEGAKI_NODE);})) {
-                //シフトできた場合
-                _LOG_DEBUGH(_T("LEAVE: true: LeftRightShiftBlockerOrStartPos: SUCCEEDED\nLEAVE: {}, NextNode={}"), pState->GetName(), NODE_NAME(pState->NextNodeMaybe()));
-                return deckey;
-            }
-            _LOG_DEBUGH(_T("PATH-D"));
-            //MAZEGAKI_INFO->ClearBlockerShiftFlag();
-        }
+        //// 交ぜ書き状態から抜けた直後にブロッカーや変換開始位置のシフトをやる場合のための処理
+        //if (MAZEGAKI_INFO && !MAZEGAKI_INFO->IsInMazegakiMode()) {
+        //    _LOG_DEBUGH(_T("PATH-C"));
+        //    // ブロッカーや読み開始位置を左右にシフト -- 読み位置がシフトされて再変換モードになったら、交ぜ書き状態を生成する
+        //    if (MAZEGAKI_INFO->LeftRightShiftBlockerOrStartPos(deckey, [pState]() {if (MAZEGAKI_INFO->IsReXferMode()) pState->SetNextNodeMaybe(MAZEGAKI_NODE);})) {
+        //        //シフトできた場合
+        //        _LOG_DEBUGH(_T("LEAVE: true: LeftRightShiftBlockerOrStartPos: SUCCEEDED\nLEAVE: {}, NextNode={}"), pState->GetName(), NODE_NAME(pState->NextNodeMaybe()));
+        //        return deckey;
+        //    }
+        //    _LOG_DEBUGH(_T("PATH-D"));
+        //    //MAZEGAKI_INFO->ClearBlockerShiftFlag();
+        //}
         _LOG_DEBUGH(_T("PATH-E"));
 
         Node* pNode = pState->MyNode();

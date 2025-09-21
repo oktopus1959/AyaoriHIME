@@ -34,8 +34,8 @@
 #include "BushuComp/BushuAssocDic.h"
 //#include "StrokeMerger/History.h"
 #include "History/HistoryDic.h"
-#include "Mazegaki/Mazegaki.h"
-#include "Mazegaki/MazegakiDic.h"
+//#include "Mazegaki/Mazegaki.h"
+//#include "Mazegaki/MazegakiDic.h"
 
 #include "StrokeMerger/Lattice.h"
 #include "StrokeMerger/Merger.h"
@@ -176,8 +176,8 @@ public:
         // PrevCharNode - 直前キー文字を返すノードのSingleton生成
         PrevCharNode::CreateSingleton();
 
-        // 交ぜ書き共有情報の初期化
-        MazegakiCommonInfo::CreateCommonInfo();
+        //// 交ぜ書き共有情報の初期化
+        //MazegakiCommonInfo::CreateCommonInfo();
 
         // 部首合成辞書の生成
         BushuDic::CreateBushuDic();
@@ -324,7 +324,7 @@ public:
         STATE_COMMON->ClearAllStateInfo();
         OUTPUT_STACK->pushNewLine();    // 履歴ブロッカーとして改行を追加
         if (startState) startState->Reactivate();
-        if (MAZEGAKI_INFO) MAZEGAKI_INFO->Initialize(false);
+        //if (MAZEGAKI_INFO) MAZEGAKI_INFO->Initialize(false);
         if (WORD_LATTICE) WORD_LATTICE->clear();
         if (startState) {
             LOG_INFO(_T("LEAVE: states={} (len={}), flags={:x}, stack={}\n"),
@@ -357,7 +357,7 @@ public:
             BUSHU_DIC->WriteAutoBushuDic();
         }
         if (BUSHU_ASSOC_DIC) BUSHU_ASSOC_DIC->WriteBushuAssocDic();
-        if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
+        //if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
         if (HISTORY_DIC) {
             HISTORY_DIC->WriteHistoryDic();
             //HISTORY_DIC->WriteHistUsedDic();
@@ -437,18 +437,18 @@ public:
             } else if (cmd == _T("saveBushuAssocDic") && BUSHU_ASSOC_DIC) {
                 // 部首連想辞書の保存
                 BUSHU_ASSOC_DIC->WriteBushuAssocDic();
-            } else if (cmd == _T("addMazegakiEntry")) {
-                LOG_DEBUGH(_T("addMazegakiEntry: {}"), items.size() >= 2 && !items[1].empty() ? items[1] : _T("none"));
-                if (MAZEGAKI_DIC && items.size() >= 2 && !items[1].empty()) {
-                    // 交ぜ書きエントリの追加
-                    MAZEGAKI_DIC->AddMazeDicEntry(items[1], true, false);
-                }
-            } else if (cmd == _T("readMazegakiDic") && BUSHU_ASSOC_DIC) {
-                // 交ぜ書き辞書の読み込み
-                if (MAZEGAKI_DIC) MAZEGAKI_DIC->ReadMazegakiDic(items[1]);
-            } else if (cmd == _T("saveMazegakiDic") && BUSHU_ASSOC_DIC) {
-                // 交ぜ書き辞書の保存
-                if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
+            //} else if (cmd == _T("addMazegakiEntry")) {
+            //    LOG_DEBUGH(_T("addMazegakiEntry: {}"), items.size() >= 2 && !items[1].empty() ? items[1] : _T("none"));
+            //    if (MAZEGAKI_DIC && items.size() >= 2 && !items[1].empty()) {
+            //        // 交ぜ書きエントリの追加
+            //        MAZEGAKI_DIC->AddMazeDicEntry(items[1], true, false);
+            //    }
+            //} else if (cmd == _T("readMazegakiDic") && BUSHU_ASSOC_DIC) {
+            //    // 交ぜ書き辞書の読み込み
+            //    if (MAZEGAKI_DIC) MAZEGAKI_DIC->ReadMazegakiDic(items[1]);
+            //} else if (cmd == _T("saveMazegakiDic") && BUSHU_ASSOC_DIC) {
+            //    // 交ぜ書き辞書の保存
+            //    if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
             } else if (cmd == _T("saveLatticeRelatedFiles")) {
                 // リアルタイムNgramファイルの保存
                 Lattice2::saveLatticeRelatedFiles();
@@ -686,11 +686,11 @@ public:
             OUTPUT_STACK->setHistBlocker();
             LOG_DEBUGH(_T("OUTPUT_STACK->setHistBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
         }
-        // 出力履歴に MazeBlock を反映
-        if (STATE_COMMON->IsSetMazegakiBlockFlag()) {
-            OUTPUT_STACK->setMazeBlocker(STATE_COMMON->GetMazegakiBlockerPosition());
-            LOG_DEBUGH(_T("OUTPUT_STACK->setMazeBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
-        }
+        //// 出力履歴に MazeBlock を反映
+        //if (STATE_COMMON->IsSetMazegakiBlockFlag()) {
+        //    OUTPUT_STACK->setMazeBlocker(STATE_COMMON->GetMazegakiBlockerPosition());
+        //    LOG_DEBUGH(_T("OUTPUT_STACK->setMazeBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
+        //}
         // 出力履歴に Rewritable を反映
         //LOG_DEBUGH(_T("OUTPUT_STACK->setRewritable({})"), STATE_COMMON->RewritableLen());
         //OUTPUT_STACK->setRewritable(STATE_COMMON->RewritableLen());
@@ -888,9 +888,11 @@ public:
         // 書き換えありの場合、OrigString に '?' がアペンドされてしまうと、後で書き換えのときに同一部分判定で問題が生じるため
         if (STATE_COMMON->IsWaiting2ndStroke() && !(ROOT_STROKE_NODE && ROOT_STROKE_NODE->hasPostRewriteNode())) origLen = STATE_COMMON->OrigString().size();
         size_t topBufSize = utils::array_length(OutParams->topString);
-        size_t prevMazeLen = MAZEGAKI_INFO ? MAZEGAKI_INFO->GetPrevOutputLen() : 0;
-        LOG_DEBUGH(_T("topBufSize={}, origLen={}, prevMazeLen={}"), topBufSize, origLen, prevMazeLen);
-        auto s = OUTPUT_STACK->OutputStackBackStrWithFlagUpto(topBufSize - origLen - 1, prevMazeLen);        // ブロッカーを反映した文字列を取得
+        //size_t prevMazeLen = MAZEGAKI_INFO ? MAZEGAKI_INFO->GetPrevOutputLen() : 0;
+        //LOG_DEBUGH(_T("topBufSize={}, origLen={}, prevMazeLen={}"), topBufSize, origLen, prevMazeLen);
+        //auto s = OUTPUT_STACK->OutputStackBackStrWithFlagUpto(topBufSize - origLen - 1, prevMazeLen);        // ブロッカーを反映した文字列を取得
+        LOG_DEBUGH(_T("topBufSize={}, origLen={}"), topBufSize, origLen);
+        auto s = OUTPUT_STACK->OutputStackBackStrWithFlagUpto(topBufSize - origLen - 1);        // ブロッカーを反映した文字列を取得
         LOG_DEBUGH(_T("OutputStackBackStrWithFlagUpto({})={}"), (topBufSize - origLen - 1), to_wstr(s));
         size_t pos = copy_mstr(s, OutParams->topString, topBufSize);
         if (origLen > 0) copy_mstr(STATE_COMMON->OrigString(), OutParams->topString + pos, origLen);

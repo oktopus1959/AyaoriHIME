@@ -11,7 +11,7 @@
 #include "StrokeHelp.h"
 #include "Settings.h"
 #include "StrokeTable.h"
-#include "Mazegaki/Mazegaki.h"
+//#include "Mazegaki/Mazegaki.h"
 #include "KeysAndChars/Eisu.h"
 #include "KeysAndChars/Katakana.h"
 #include "KeysAndChars/Zenkaku.h"

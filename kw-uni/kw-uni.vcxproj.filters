@@ -186,12 +186,6 @@
     <ClInclude Include="KeysAndChars\Zenkaku.h">
       <Filter>ヘッダー ファイル\KeysAndChars</Filter>
     </ClInclude>
-    <ClInclude Include="Mazegaki\Mazegaki.h">
-      <Filter>ヘッダー ファイル\Mazegaki</Filter>
-    </ClInclude>
-    <ClInclude Include="Mazegaki\MazegakiDic.h">
-      <Filter>ヘッダー ファイル\Mazegaki</Filter>
-    </ClInclude>
     <ClInclude Include="OneShot\HankakuKatakanaOneShot.h">
       <Filter>ヘッダー ファイル\OneShot</Filter>
     </ClInclude>
@@ -412,12 +406,6 @@
     </ClCompile>
     <ClCompile Include="KeysAndChars\ZenkakuState.cpp">
       <Filter>ソース ファイル\KeysAndChars</Filter>
-    </ClCompile>
-    <ClCompile Include="Mazegaki\Mazegaki.cpp">
-      <Filter>ソース ファイル\Mazegaki</Filter>
-    </ClCompile>
-    <ClCompile Include="Mazegaki\MazegakiDic.cpp">
-      <Filter>ソース ファイル\Mazegaki</Filter>
     </ClCompile>
     <ClCompile Include="OneShot\HankakuKatakanaOneShotState.cpp">
       <Filter>ソース ファイル\OneShot</Filter>

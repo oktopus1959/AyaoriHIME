@@ -6,7 +6,7 @@
 #include "KeysAndChars/MyPrevChar.h"
 #include "BushuComp/BushuComp.h"
 #include "BushuComp/BushuAssoc.h"
-#include "Mazegaki/Mazegaki.h"
+//#include "Mazegaki/Mazegaki.h"
 #include "History/History.h"
 #include "EscapeNode.h"
 #include "KeysAndChars/Zenkaku.h"
@@ -26,8 +26,8 @@ void FunctionNodeManager::AddFunctionNodeBuilders() {
     addFunctionNodeBuilder(_T("b"), _T("bushuComp"), new BushuCompNodeBuilder());
     addFunctionNodeBuilder(_T("A"), _T("bushuAssoc"), new BushuAssocNodeBuilder());
     addFunctionNodeBuilder(_T("a"), _T("bushuAssocDirect"), new BushuAssocExNodeBuilder());
-    addFunctionNodeBuilder(_T("M"), _T("mazegaki"), new MazegakiNodeBuilder());
-    addFunctionNodeBuilder(_T("m"), _T("mazegaki"), new MazegakiNodeBuilder());
+    //addFunctionNodeBuilder(_T("M"), _T("mazegaki"), new MazegakiNodeBuilder());
+    //addFunctionNodeBuilder(_T("m"), _T("mazegaki"), new MazegakiNodeBuilder());
     addFunctionNodeBuilder(_T("!"), _T("history"), new HistoryNodeBuilder());
     addFunctionNodeBuilder(_T("1"), _T("historyOneChar"), new HistoryOneCharNodeBuilder());
     addFunctionNodeBuilder(_T("?"), _T("historyFewChars"), new HistoryFewCharsNodeBuilder());

@@ -822,6 +822,8 @@ namespace KanchokuWS.Gui
             this.groupBox2.Controls.Add(this.button_openEasyCharsFile);
             this.groupBox2.Controls.Add(this.button_openKeyCharMapFile);
             this.groupBox2.Controls.Add(this.button_openTableFile);
+            this.groupBox2.Controls.Add(this.label6);
+            this.groupBox2.Controls.Add(this.textBox_mazegakiFile);
             this.groupBox2.Controls.Add(this.button_openKeyboardFile);
             this.groupBox2.Controls.Add(this.textBox_strokeHelpFile);
             this.groupBox2.Controls.Add(this.label47);
@@ -831,8 +833,6 @@ namespace KanchokuWS.Gui
             this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Controls.Add(this.textBox_historyFile);
             this.groupBox2.Controls.Add(this.label7);
-            this.groupBox2.Controls.Add(this.textBox_mazegakiFile);
-            this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.textBox_bushuAssocFile);
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.textBox_bushuCompFile);
@@ -841,7 +841,7 @@ namespace KanchokuWS.Gui
             this.groupBox2.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.groupBox2.Location = new System.Drawing.Point(271, 10);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(392, 278);
+            this.groupBox2.Size = new System.Drawing.Size(392, 254);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "ファイル";
@@ -940,7 +940,7 @@ namespace KanchokuWS.Gui
             // button_openHistoryFile
             // 
             this.button_openHistoryFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openHistoryFile.Location = new System.Drawing.Point(352, 252);
+            this.button_openHistoryFile.Location = new System.Drawing.Point(352, 228);
             this.button_openHistoryFile.Name = "button_openHistoryFile";
             this.button_openHistoryFile.Size = new System.Drawing.Size(34, 23);
             this.button_openHistoryFile.TabIndex = 20;
@@ -952,13 +952,14 @@ namespace KanchokuWS.Gui
             // button_openMazeFile
             // 
             this.button_openMazeFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openMazeFile.Location = new System.Drawing.Point(352, 228);
+            this.button_openMazeFile.Location = new System.Drawing.Point(352, 253);
             this.button_openMazeFile.Name = "button_openMazeFile";
             this.button_openMazeFile.Size = new System.Drawing.Size(34, 23);
             this.button_openMazeFile.TabIndex = 18;
             this.button_openMazeFile.Text = "開く";
             this.toolTip1.SetToolTip(this.button_openMazeFile, "ユーザー交ぜ書き辞書ファイルを開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n");
             this.button_openMazeFile.UseVisualStyleBackColor = true;
+            this.button_openMazeFile.Visible = false;
             this.button_openMazeFile.Click += new System.EventHandler(this.button_openMazeFile_Click);
             // 
             // button_bushuAssocFile
@@ -1114,7 +1115,7 @@ namespace KanchokuWS.Gui
             this.textBox_historyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_historyFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_historyFile.Location = new System.Drawing.Point(129, 254);
+            this.textBox_historyFile.Location = new System.Drawing.Point(129, 230);
             this.textBox_historyFile.Name = "textBox_historyFile";
             this.textBox_historyFile.Size = new System.Drawing.Size(218, 19);
             this.textBox_historyFile.TabIndex = 19;
@@ -1123,7 +1124,7 @@ namespace KanchokuWS.Gui
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(15, 256);
+            this.label7.Location = new System.Drawing.Point(15, 232);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(89, 15);
             this.label7.TabIndex = 8;
@@ -1134,20 +1135,22 @@ namespace KanchokuWS.Gui
             this.textBox_mazegakiFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_mazegakiFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_mazegakiFile.Location = new System.Drawing.Point(129, 230);
+            this.textBox_mazegakiFile.Location = new System.Drawing.Point(129, 255);
             this.textBox_mazegakiFile.Name = "textBox_mazegakiFile";
             this.textBox_mazegakiFile.Size = new System.Drawing.Size(218, 19);
             this.textBox_mazegakiFile.TabIndex = 17;
             this.toolTip1.SetToolTip(this.textBox_mazegakiFile, resources.GetString("textBox_mazegakiFile.ToolTip"));
+            this.textBox_mazegakiFile.Visible = false;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(15, 232);
+            this.label6.Location = new System.Drawing.Point(15, 257);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(108, 15);
             this.label6.TabIndex = 6;
             this.label6.Text = "交ぜ書き辞書ファイル";
+            this.label6.Visible = false;
             // 
             // textBox_bushuAssocFile
             // 
