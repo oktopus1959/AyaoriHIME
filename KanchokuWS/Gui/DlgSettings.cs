@@ -323,7 +323,7 @@ namespace KanchokuWS.Gui
             checkBox_suspendByPauseKey.Checked = Settings.SuspendByPauseKey;
 
             //複数配列の融合モードか
-            checkBox_multiStreamMode.Checked = Settings.MultiStreamMode;
+            //checkBox_multiStreamMode.Checked = Settings.MultiStreamMode;
 
             // ファイル
             comboBox_keyboardFile.Text = getKeyboardName(Settings.KeyboardFile);
@@ -379,7 +379,7 @@ namespace KanchokuWS.Gui
             checkerBasic.Add(checkBox_suspendByPauseKey);
 
             //複数配列の融合モードか
-            checkerBasic.Add(checkBox_multiStreamMode);
+            //checkerBasic.Add(checkBox_multiStreamMode);
 
             // ファイル
             checkerBasic.Add(comboBox_keyboardFile);
@@ -431,7 +431,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("suspendByPauseKey", checkBox_suspendByPauseKey.Checked);
 
             //複数配列の融合モードか
-            Settings.SetUserIni("multiStreamMode", checkBox_multiStreamMode.Checked);
+            //Settings.SetUserIni("multiStreamMode", checkBox_multiStreamMode.Checked);
 
             // 漢直モードトグルキー
             Settings.SetUserIni("unmodifiedHotKey", comboBox_unmodifiedToggleKey.Text.Trim()._reReplace(" .*", "")._orElse("X"));

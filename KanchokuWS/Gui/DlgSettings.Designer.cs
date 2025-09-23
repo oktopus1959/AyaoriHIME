@@ -32,7 +32,6 @@ namespace KanchokuWS.Gui
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DlgSettings));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_basic = new System.Windows.Forms.TabPage();
-            this.checkBox_multiStreamMode = new System.Windows.Forms.CheckBox();
             this.label_initialMsg = new System.Windows.Forms.Label();
             this.label_reloadBasic = new System.Windows.Forms.Label();
             this.button_document = new System.Windows.Forms.Button();
@@ -703,7 +702,6 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_basic
             // 
-            this.tabPage_basic.Controls.Add(this.checkBox_multiStreamMode);
             this.tabPage_basic.Controls.Add(this.label_initialMsg);
             this.tabPage_basic.Controls.Add(this.label_reloadBasic);
             this.tabPage_basic.Controls.Add(this.button_document);
@@ -724,18 +722,6 @@ namespace KanchokuWS.Gui
             this.tabPage_basic.Text = "基本設定";
             this.tabPage_basic.ToolTipText = "基本的な情報・振る舞いの設定";
             this.tabPage_basic.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_multiStreamMode
-            // 
-            this.checkBox_multiStreamMode.AutoSize = true;
-            this.checkBox_multiStreamMode.Location = new System.Drawing.Point(32, 316);
-            this.checkBox_multiStreamMode.Name = "checkBox_multiStreamMode";
-            this.checkBox_multiStreamMode.Size = new System.Drawing.Size(125, 19);
-            this.checkBox_multiStreamMode.TabIndex = 13;
-            this.checkBox_multiStreamMode.Text = "漢直・かな融合モード";
-            this.toolTip1.SetToolTip(this.checkBox_multiStreamMode, "当アプリ終了時の確認ダイアログの有無\r\n\r\n当アプリは、以下のいずれかを右クリックして表示される\r\nコンテキストメニューから「終了」を選択すると終了できます。\r\n" +
-        "その際に確認ダイアログを表示するかどうかを設定します。\r\n\r\n・ タスクトレイのアイコン\r\n・仮想鍵盤\r\n・モード標識\r\n");
-            this.checkBox_multiStreamMode.UseVisualStyleBackColor = true;
             // 
             // label_initialMsg
             // 
@@ -8227,7 +8213,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label155;
         private System.Windows.Forms.TextBox textBox_charKeyComboMinOverlappingTime;
         private System.Windows.Forms.Label label156;
-        private System.Windows.Forms.CheckBox checkBox_multiStreamMode;
         private System.Windows.Forms.CheckBox checkBox_selectHistCandByNumberKey;
         private System.Windows.Forms.CheckBox checkBox_postRewriteCompatibleWithGoogle;
         private ColorTextBox textBox_onMultiStreamMode;

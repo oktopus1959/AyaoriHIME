@@ -146,7 +146,7 @@ namespace KanchokuWS
         // 配列融合と編集バッファ
         //-------------------------------------------------------------------------------------
         /// <summary> 複数配列の融合モードか </summary>        
-        public static bool MultiStreamMode { get; set; } = false;
+        public static bool MultiStreamMode { get; set; } = true;
 
         /// <summary>複数配列の融合モード時の従配列番号(1始まり; 通常は漢直側)</summary>
         public static int SecondaryTableWhenMultiStream { get; set; } = 2;
@@ -1700,7 +1700,7 @@ namespace KanchokuWS
             DecoderSettings["rootDir"] = KanchokuIni.Singleton.KanchokuDir;
             DecoderSettings["firstUse"] = $"{UserKanchokuIni.Singleton.IsUserIniAbsent}";
             DecoderSettings["isJPmode"] = $"{Domain.DecoderKeyVsVKey.IsJPmode}";
-            MultiStreamMode = addDecoderSetting("multiStreamMode", false);
+            MultiStreamMode = addDecoderSetting("multiStreamMode", true);
             BushuAssocFile = addDecoderSetting("bushuAssocFile", "kwassoc.txt");
             BushuFile = addDecoderSetting("bushuFile", "bushu", "kwbushu.rev");
             AutoBushuFile = addDecoderSetting("autoBushuFile", "bushuAuto", "kwbushu.aut");
