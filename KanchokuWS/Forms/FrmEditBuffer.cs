@@ -88,11 +88,13 @@ namespace KanchokuWS.Forms
             bool bWasEmpty = editTextBox.Text._isEmpty();
             var str = chars._toString();
 
-            logger.InfoH(() => $"CALLED: str={str}, numBS={numBS}, bFlushAll={bFlushAll}");
+            logger.InfoH(() => $"ENTER: str='{str}', numBS={numBS}, bFlushAll={bFlushAll}");
 
             if (str._isEmpty() && numBS <= 0 && !bFlushAll) return;
 
-            if (editTextBox.Text._isEmpty() && (str._isEmpty() || HandlerUtils.IsFKeySpec(str) || HandlerUtils.IsTernaryOperator(str))) {
+            if (editTextBox.Text._isEmpty() &&
+                (str._isEmpty() || (Settings.OutputHeadSpace && str._safeCount() == 1 && chars[0] == ' ') ||
+                HandlerUtils.IsFKeySpec(str) || HandlerUtils.IsTernaryOperator(str))) {
                 logger.InfoH($"REDIRECT");
                 var kf = HandlerUtils.GetFKeySpec(str);
                 if (kf != null && kf.IsFunction) {
@@ -103,6 +105,7 @@ namespace KanchokuWS.Forms
                     logger.InfoH(() => $"CALL: SendStringViaClipboardIfNeeded({str}, {numBS}, true)");
                     SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(chars, numBS, true);
                 }
+                logger.InfoH($"LEAVE: REDIRECT");
                 return;
             }
 

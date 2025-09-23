@@ -351,9 +351,10 @@ namespace KanchokuWS.TableParser
         /// <param name="bForKanchoku"></param>
         public void ReadAllLines(string filename, bool bPrimary, bool bForKanchoku)
         {
+            if (Settings.LoggingTableFileInfo) logger.InfoH($"ENTER: filename={filename}, bPrimary={bPrimary}, bForKanchoku={bForKanchoku}");
             Initialize(bPrimary, bForKanchoku);
             tableLines.AddRange(readAllLines(filename, false));
-            if (Settings.LoggingTableFileInfo) logger.Info(() => $"CurrentLine:{LineNumber}:{CurrentLine}");
+            if (Settings.LoggingTableFileInfo) logger.Info(() => $"LEAVE:{LineNumber}:{CurrentLine}");
         }
 
         /// <summary>
@@ -909,8 +910,8 @@ namespace KanchokuWS.TableParser
     class ParserContext {
         private static Logger logger = Logger.GetLogger();
 
-        // テーブルの融合モードでの従テーブルか
-        public bool isSecondaryTableOnMultiStream = false;
+        // 主副両テーブルが使われているか
+        public bool isDualTable = false;
 
         public TableLines tableLines;
 
@@ -1022,17 +1023,17 @@ namespace KanchokuWS.TableParser
         /// </summary>
         /// <param name="pool">対象となる KeyComboPool</param>
         /// <param name="comboDkStart"></param>
-        private ParserContext(TableLines tableLines, KeyCombinationPool pool, int comboDkStart, bool secondaryOnMulti)
+        private ParserContext(TableLines tableLines, KeyCombinationPool pool, int comboDkStart, bool bDualTable)
         {
             this.tableLines = tableLines;
             keyComboPool = pool;
             _comboDeckeyStart = comboDkStart;
-            isSecondaryTableOnMultiStream = secondaryOnMulti;
+            isDualTable = bDualTable;
         }
 
-        public static void CreateSingleton(TableLines tableLines, KeyCombinationPool pool, int comboDkStart, bool secondaryOnMulti)
+        public static void CreateSingleton(TableLines tableLines, KeyCombinationPool pool, int comboDkStart, bool bDualTable)
         {
-            Singleton = new ParserContext(tableLines, pool, comboDkStart, secondaryOnMulti);
+            Singleton = new ParserContext(tableLines, pool, comboDkStart, bDualTable);
         }
 
         public static void FinalizeSingleton()

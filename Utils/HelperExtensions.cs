@@ -1097,6 +1097,14 @@ namespace Utils
             return set.Contains(tgt);
         }
 
+        static public bool _safeContainsKanji(this string str)
+        {
+            foreach (var ch in str) {
+                if (ch._isKanji()) return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// アンカーとして ^ と $ を扱える Contains
         /// </summary>

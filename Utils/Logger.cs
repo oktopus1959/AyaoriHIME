@@ -70,7 +70,7 @@ namespace Utils
         private static System.IO.StreamWriter m_sw = null;
         private static object m_sync = new object();
 
-        private static int QUEUE_SIZE = 10000;
+        private static int QUEUE_SIZE = 30000;
         private static int QUEUE_EXTRA_SIZE = 1000;
         private static Queue<String> traceLogQueue = new Queue<String>();
 

@@ -252,14 +252,18 @@ namespace KanchokuWS.CombinationKeyStroke
             KeyCombinationPool.Initialize();
             Clear();
 
-            new TableFileParser().ParseTableFile(tableFile, "tmp/tableFile1.tbl", KeyCombinationPool.SingletonK1, KeyCombinationPool.SingletonA1, 1, false, bTest);
+            bool bDualTable = tableFile._notEmpty() && tableFile2._notEmpty();
+
+            if (tableFile._notEmpty()) {
+                new TableFileParser().ParseTableFile(tableFile, "tmp/tableFile1.tbl", KeyCombinationPool.SingletonK1, KeyCombinationPool.SingletonA1, 1, bDualTable, bTest);
+            }
 
             if (tableFile2._notEmpty()) {
-                new TableFileParser().ParseTableFile(tableFile2, "tmp/tableFile2.tbl", KeyCombinationPool.SingletonK2, KeyCombinationPool.SingletonA2, 2, Settings.MultiStreamMode, bTest);
+                new TableFileParser().ParseTableFile(tableFile2, "tmp/tableFile2.tbl", KeyCombinationPool.SingletonK2, KeyCombinationPool.SingletonA2, 2, bDualTable, bTest);
             }
 
             if (tableFile3._notEmpty()) {
-                new TableFileParser().ParseTableFile(tableFile3, "tmp/tableFile3.tbl", KeyCombinationPool.SingletonK3, KeyCombinationPool.SingletonA3, 3, false, bTest);
+                new TableFileParser().ParseTableFile(tableFile3, "tmp/tableFile3.tbl", KeyCombinationPool.SingletonK3, KeyCombinationPool.SingletonA3, 3, bDualTable, bTest);
             }
             logger.Info("LEAVE");
         }

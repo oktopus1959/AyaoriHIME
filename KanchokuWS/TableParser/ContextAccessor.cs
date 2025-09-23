@@ -29,7 +29,7 @@ namespace KanchokuWS.TableParser
             //context = ctx;
         }
 
-        protected bool IsSecondaryTableOnMultiStream => Context.isSecondaryTableOnMultiStream;
+        protected bool IsDualTable => Context.isDualTable;
 
         protected TableLines tableLines => Context.tableLines;
 

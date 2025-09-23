@@ -1428,7 +1428,7 @@ namespace KanchokuWS
 
         public void ToggleDecoder(int activatorCode = 0)
         {
-            if (Settings.TableFile._notEmpty()) {
+            if (Settings.TableFile._notEmpty() || Settings.TableFile2._notEmpty()) {
                 ToggleActiveState(true, activatorCode);
             }
         }

@@ -241,6 +241,9 @@ namespace KanchokuWS
         /// <summary>Chrome では、最初に編集バッファを表示する時、カレット位置を調整するために Space+BS を出力してみる</summary>
         public static bool OutputSpaceAndBsAtFirstInChrome { get; set; } = false;
 
+        /// <summary>デュアルテーブルの時に、漢直用のテーブルと見なす漢字数</summary>
+        public static int KanjiTableThresholdForDualTable { get; set; } = 300;
+
         //-------------------------------------------------------------------------------------
         // 各種ファイル
         //-------------------------------------------------------------------------------------
@@ -1667,6 +1670,7 @@ namespace KanchokuWS
             CommitMultiStreamElapsedTime = GetString("commitMultiStreamElapsedTime")._parseInt(0);      // 前回のデコーダ呼び出しから一定時間が経過したら、MultiStreamCommit を発行
             EditBufferCaretChar = "▴"; // GetString("editBufferCaretChar", "▴");                        // 編集バッファのカレット文字
             EditBufferFlushChar = GetString("editBufferFlushChar", "");                                 // 編集バッファをフラッシュさせる文字
+            KanjiTableThresholdForDualTable = GetString("kanjiTableThresholdForDualTable")._parseInt(300);      // デュアルテーブルの時に、漢直用のテーブルと見なす漢字数
 
             //-------------------------------------------------------------------------------------
             // ClassName ごとの設定

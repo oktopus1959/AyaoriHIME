@@ -7,6 +7,7 @@ using Utils;
 using KanchokuWS.Domain;
 using KanchokuWS.CombinationKeyStroke;
 using KanchokuWS.CombinationKeyStroke.DeterminerLib;
+using System.Text.RegularExpressions;
 
 namespace KanchokuWS.TableParser
 {
@@ -516,7 +517,7 @@ namespace KanchokuWS.TableParser
             }
             if (str._safeContains("|")) bBare = false;
             // TODO ひらがなや記号の削除については、ユーザーに指定させるようにする
-            if (!IsSecondaryTableOnMultiStream || str._reMatch("^@[v^]") || (!str._isHiragana() && /*!str._isZenkakuSymbol() &&*/ !str._startsWith("@"))) {
+            //if (/*!IsSecondaryTableOnMultiStream ||*/ str._reMatch("^@[v^]") || (!str._isHiragana() && /*!str._isZenkakuSymbol() &&*/ !str._startsWith("@"))) {
                 addTerminalNode(idx, Node.MakeStringNode($"{str}", bBare), true);
                 if (!StrokePathDict.ContainsKey(str)) {
                     // 初めての文字ならストロークパスを登録
@@ -528,9 +529,9 @@ namespace KanchokuWS.TableParser
                     keyComboPool?.AddRepeatableKey(idx);
                 }
                 if (Settings.LoggingTableFileInfo) logger.Info(() => $"LEAVE: depth={Depth}");
-            } else {
-                if (Settings.LoggingTableFileInfo) logger.Info(() => $"LEAVE: Secondary table: IGNORE: {str}");
-            }
+            //} else {
+            //    if (Settings.LoggingTableFileInfo) logger.Info(() => $"LEAVE: Secondary table: IGNORE: {str}");
+            //}
         }
 
         public virtual void AddStringPairNode(OutputString[] stringPair = null)
@@ -547,12 +548,12 @@ namespace KanchokuWS.TableParser
         {
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"ENTER: depth={Depth}, str={funcMarker}");
             // 終端ノードの追加と同時打鍵列の組合せの登録
-            if (!IsSecondaryTableOnMultiStream || funcMarker == "v" || funcMarker == "^") {
+            //if (/*!IsSecondaryTableOnMultiStream ||*/ funcMarker == "v" || funcMarker == "^") {
                 addTerminalNode(idx, Node.MakeFunctionNode(funcMarker), false);
                 if (IsPrimary) savePresetFunction(idx, funcMarker);
-            } else {
-                if (Settings.LoggingTableFileInfo) logger.Info(() => $"LEAVE: Secondary table: IGNORE: {funcMarker}");
-            }
+            //} else {
+            //    if (Settings.LoggingTableFileInfo) logger.Info(() => $"LEAVE: Secondary table: IGNORE: {funcMarker}");
+            //}
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"LEAVE: depth={Depth}");
         }
 
@@ -1488,15 +1489,42 @@ namespace KanchokuWS.TableParser
         /// <param name="filename"></param>
         /// <param name="outFilename"></param>
         /// <param name="pool">対象となる KeyComboPool</param>
-        public void ParseTableFile(string filename, string outFilename, KeyCombinationPool poolK, KeyCombinationPool poolA, int tableNo, bool secondaryOnMulti, bool bTest)
+        public void ParseTableFile(string filename, string outFilename, KeyCombinationPool poolK, KeyCombinationPool poolA, int tableNo, bool bDualTable, bool bTest)
         {
-            if (Settings.LoggingTableFileInfo) logger.Info(() => $"ENTER: filename={filename}");
+            logger.InfoH(() => $"ENTER: filename={filename}, tableNo={tableNo}, bDualTable={bDualTable}");
 
             List<string> outputLines = new List<string>();
 
+            bool isKanchokuTable()
+            {
+                if (Settings.KanjiTableThresholdForDualTable > 0) {
+                    int n = 0;
+                    foreach (var line in outputLines) {
+                        if (line._notEmpty() && line[0] == '-' && line._safeContainsKanji()) {
+                            ++n;
+                            if (n >= Settings.KanjiTableThresholdForDualTable) return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            void removeHiraganaLines()
+            {
+                Regex regex = new Regex(@">""?[ぁ-ゖ\|]""?$");
+                int i = 0;
+                while (i < outputLines.Count) {
+                    if (outputLines[i]._reMatch(regex)) {
+                        outputLines.RemoveAt(i);
+                    } else {
+                        ++i;
+                    }
+                }
+            }
+
             void parseRootTable(TableLines tblLines, KeyCombinationPool pool, bool bKanchoku)
             {
-                ParserContext.CreateSingleton(tblLines, pool, DecoderKeys.GetComboDeckeyStart(bKanchoku), secondaryOnMulti);
+                ParserContext.CreateSingleton(tblLines, pool, DecoderKeys.GetComboDeckeyStart(bKanchoku), bDualTable);
                 var parser = new RootTableParser(bKanchoku);
                 parser.ParseRootTable();
                 //writeAllLines(outFilename, ParserContext.Singleton.OutputLines);
@@ -1508,7 +1536,7 @@ namespace KanchokuWS.TableParser
             string errorMsg = "";
 
             // 漢直モードの解析
-            if (Settings.LoggingTableFileInfo) logger.Info(() => $"Analyze for KANCHOKU mode");
+            if (Settings.LoggingTableFileInfo) logger.Info(() => $"Analyze for KANCHOKU/KANA mode");
             TableLines tableLines = new TableLines();
             tableLines.ReadAllLines(filename, tableNo == 1, true);
             if (tableLines.NotEmpty) {
@@ -1521,7 +1549,13 @@ namespace KanchokuWS.TableParser
                 parseRootTable(tableLines, poolA, false);
                 if (errorMsg._isEmpty()) errorMsg = tableLines.getErrorMessage();
                 // 解析結果の出力
+                if (bDualTable && isKanchokuTable()) {
+                    // 両テーブルモードで、テーブルに漢字が300個以上含まれている場合、かな文字の行を削除する
+                    logger.InfoH("DualTable and KanjiTable: remove Hiragana Entries");
+                    removeHiraganaLines();
+                }
                 writeAllLines(outFilename, outputLines);
+            if (Settings.LoggingTableFileInfo) logger.Info("LEAVE");
             } else {
                 tableLines.Error($"テーブルファイル({filename})が開けないか、内容が空でした。");
             }
@@ -1530,7 +1564,7 @@ namespace KanchokuWS.TableParser
                 SystemHelper.ShowWarningMessageBox(errorMsg);
             }
 
-            if (Settings.LoggingTableFileInfo) logger.Info("LEAVE");
+            logger.InfoH("LEAVE");
         }
 
         /// <summary>
