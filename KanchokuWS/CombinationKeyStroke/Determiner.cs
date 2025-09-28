@@ -155,19 +155,19 @@ namespace KanchokuWS.CombinationKeyStroke
                 isDecoderOnA = bDecoderOn;
                 timerA.Interval = ms;
                 timerA.Start();
-                logger.InfoH(() => $"TIMER-A STARTED");
+                logger.InfoH(() => $"TIMER-A STARTED: decKey={decKey}");
             } else if (timerB != null && !timerB.Enabled) {
                 decKeyForTimerB = decKey;
                 isDecoderOnB = bDecoderOn;
                 timerB.Interval = ms;
                 timerB.Start();
-                logger.InfoH(() => $"TIMER-B STARTED");
+                logger.InfoH(() => $"TIMER-B STARTED: decKey={decKey}");
             } else if (timerC != null && !timerC.Enabled) {
                 decKeyForTimerC = decKey;
                 isDecoderOnC = bDecoderOn;
                 timerC.Interval = ms;
                 timerC.Start();
-                logger.InfoH(() => $"TIMER-C STARTED");
+                logger.InfoH(() => $"TIMER-C STARTED: decKey={decKey}");
             }
         }
 

@@ -6369,9 +6369,9 @@ namespace KanchokuWS.Gui
             this.checkBox_outputHeadSpace.AutoSize = true;
             this.checkBox_outputHeadSpace.Location = new System.Drawing.Point(27, 141);
             this.checkBox_outputHeadSpace.Name = "checkBox_outputHeadSpace";
-            this.checkBox_outputHeadSpace.Size = new System.Drawing.Size(252, 19);
+            this.checkBox_outputHeadSpace.Size = new System.Drawing.Size(298, 19);
             this.checkBox_outputHeadSpace.TabIndex = 71;
-            this.checkBox_outputHeadSpace.Text = "編集バッファの先頭のスペースをそのまま出力する";
+            this.checkBox_outputHeadSpace.Text = "編集バッファの先頭のスペースや記号類をそのまま出力する";
             this.checkBox_outputHeadSpace.UseVisualStyleBackColor = true;
             // 
             // textBox_remainingStrokeSize

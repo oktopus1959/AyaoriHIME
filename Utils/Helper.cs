@@ -359,7 +359,7 @@ namespace Utils
 
         public static bool IsZenkakuSymbol(char ch)
         {
-            return (ch >= 0x3001 && ch <= 0x303f && ch != '々') || ch == '・' || ch == '…' || ch == '～' || ch == '●';
+            return (ch >= 0x3001 && ch <= 0x303f && ch != '々') || ch == '・' || ch == '…' || ch == '～' || ch == '●' || ch == '※';
         }
 
         public static bool IsHiragana(char ch)
@@ -370,6 +370,11 @@ namespace Utils
         public static bool IsPureKatakana(char ch)
         {
             return ch >= 'ァ' && ch <= 'ヶ';
+        }
+
+        public static bool IsJapaneseChar(char ch)
+        {
+            return IsHiragana(ch) || IsPureKatakana(ch) || (ch >= 0x4e00 && ch <= 0x9faf) || ch == 'ー' || ch == '々';
         }
 
         public static char ConvertKatakanaToHiragana(char ch)
@@ -384,6 +389,11 @@ namespace Utils
                 result.Append(ConvertKatakanaToHiragana(kc));
             }
             return result.ToString();
+        }
+
+        public static bool IsAlphaNumeric(char ch)
+        {
+            return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9');
         }
 
         //-----------------------------------------------------------------------------

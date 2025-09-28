@@ -92,8 +92,14 @@ namespace KanchokuWS.Forms
 
             if (str._isEmpty() && numBS <= 0 && !bFlushAll) return;
 
+            bool isNonAlaphaNumericZenkakuJapanese(char ch)
+            {
+                return (ch == ' ' || ch == '　' || !(Helper.IsAlphaNumeric(ch) || Helper.IsJapaneseChar(ch)));
+            }
+
             if (editTextBox.Text._isEmpty() &&
-                (str._isEmpty() || (Settings.OutputHeadSpace && str._safeCount() == 1 && chars[0] == ' ') ||
+                (str._isEmpty() ||
+                (Settings.OutputHeadSpace && str._safeCount() == 1 && isNonAlaphaNumericZenkakuJapanese(chars[0])) ||
                 HandlerUtils.IsFKeySpec(str) || HandlerUtils.IsTernaryOperator(str))) {
                 logger.InfoH($"REDIRECT");
                 var kf = HandlerUtils.GetFKeySpec(str);
