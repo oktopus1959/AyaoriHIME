@@ -563,7 +563,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         public static bool IsComboShift(int keyCode)
         {
             //return ComboShiftKeyPool.IsComboShift(CurrentPool.GetShiftKeyKind(keyCode));
-            return _foo(keyCode, ck => ComboShiftKeyPool.IsComboShift(ck));
+            return _checkDualPool(keyCode, ck => ComboShiftKeyPool.IsComboShift(ck));
         }
 
         /// <summary>keyCode が SpaceOrFuncComboShiftKeyとしても扱われるか否かを返す</summary>
@@ -576,35 +576,34 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         public static bool IsComboSuccessive(int keyCode)
         {
             //return ComboShiftKeyPool.IsSuccessiveShift(CurrentPool.GetShiftKeyKind(keyCode));
-            return _foo(keyCode, ck => ComboShiftKeyPool.IsSuccessiveShift(ck));
+            return _checkDualPool(keyCode, ck => ComboShiftKeyPool.IsSuccessiveShift(ck));
         }
 
         /// <summary>keyCode がワンショットシフトとしても扱われるか否かを返す</summary>
         public static bool IsComboOneshot(int keyCode)
         {
             //return ComboShiftKeyPool.IsOneshotShift(CurrentPool.GetShiftKeyKind(keyCode));
-            return _foo(keyCode, ck => ComboShiftKeyPool.IsOneshotShift(ck));
+            return _checkDualPool(keyCode, ck => ComboShiftKeyPool.IsOneshotShift(ck));
         }
 
         /// <summary>keyCode が前置シフトとしても扱われるか否かを返す</summary>
         public static bool IsComboPrefix(int keyCode)
         {
             //return ComboShiftKeyPool.IsPrefixShift(CurrentPool.GetShiftKeyKind(keyCode));
-            return _foo(keyCode, ck => ComboShiftKeyPool.IsPrefixShift(ck));
+            return _checkDualPool(keyCode, ck => ComboShiftKeyPool.IsPrefixShift(ck));
         }
 
         /// <summary>keyCode が順次シフトか否かを返す</summary>
         public static bool IsSequential(int keyCode)
         {
             //return ComboShiftKeyPool.IsSequentialShift(CurrentPool.GetShiftKeyKind(keyCode));
-            return _foo(keyCode, ck => ComboShiftKeyPool.IsSequentialShift(ck));
+            return _checkDualPool(keyCode, ck => ComboShiftKeyPool.IsSequentialShift(ck));
         }
 
-        private static bool _foo(int keyCode, Func<ComboKind, bool> func)
+        private static bool _checkDualPool(int keyCode, Func<ComboKind, bool> func)
         {
-            return CurrentPool1 != null ? func(CurrentPool1.GetShiftKeyKind(keyCode))
-                 : CurrentPool2 != null ? func(CurrentPool2.GetShiftKeyKind(keyCode))
-                 : false;
+            return CurrentPool1 != null && func(CurrentPool1.GetShiftKeyKind(keyCode)) ||
+                   CurrentPool2 != null && func(CurrentPool2.GetShiftKeyKind(keyCode));
         }
 
         public void DebugPrint(bool bAll = false)
