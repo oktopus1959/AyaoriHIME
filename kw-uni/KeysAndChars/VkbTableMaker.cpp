@@ -261,7 +261,7 @@ namespace VkbTableMaker {
                     } else if (blk->isStringLikeNode() || blk->isFunctionNode()) {
                         ch = utils::safe_front(blk->getString());
                     } else {
-                        ch = _T("・")[0];
+                        ch = L'・';
                     }
                 }
             }
@@ -350,7 +350,7 @@ namespace VkbTableMaker {
                 set_facestr(0, faces + i * 2);
             }
             for (size_t i = STROKE_SPACE_DECKEY; i < NORMAL_DECKEY_NUM; ++i) {
-                wchar_t ch = _T("・")[0];
+                wchar_t ch = L'・';
                 auto blk = ROOT_STROKE_NODE->getNth(i);
                 if (blk /*&& blk->isFunctionNode()*/) {
                     ch = (wchar_t)utils::safe_front(blk->getString());
@@ -570,7 +570,7 @@ namespace VkbTableMaker {
                         FunctionNode* fp = dynamic_cast<FunctionNode*>(np);
                         if (fp) {
                             writer.writeLine(utils::utf8_encode(
-                                std::format(_T("{}\t@{}"), origPath, to_wstr(fp->getString()))));
+                                std::format(_T("{}\t@{}"), origPath, fp->getNodeName())));
                         }
                     }
                 }

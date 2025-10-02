@@ -20,6 +20,13 @@
 
 
 #if 0
+#undef IS_LOG_DEBUGH_ENABLED
+#undef _DEBUG_SENT
+#undef _DEBUG_FLAG
+#undef LOG_DEBUGH
+#undef LOG_DEBUG
+#undef _LOG_DEBUGH
+#undef _LOG_DEBUGH_COND
 #define IS_LOG_DEBUGH_ENABLED true
 #define _DEBUG_SENT(x) x
 #define _DEBUG_FLAG(x) (x)
@@ -97,8 +104,10 @@ namespace {
         case BuiltInMarker::NumberInCircle:
             return new StringNode(makeNumberInCircle(prevNum));
         case BuiltInMarker::WidePrevChar:
+            // 全角文字に変換
             return new StringNode(makeFullWideChar(DECKEY_TO_CHARS->GetCharFromDeckey(prevNum)));
         case BuiltInMarker::WideShiftPrevChar:
+            // シフト全角文字に変換
             return new StringNode(makeFullWideChar(DECKEY_TO_CHARS->GetCharFromDeckey(prevNum + SHIFT_DECKEY_START)));
         default:
             return FunctionNodeManager::CreateFunctionNode(marker);
