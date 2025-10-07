@@ -2185,6 +2185,8 @@ namespace KanchokuWS
                 HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode), ref decoderOutput);
             });
 
+            logger.Info(() => $"HandleDeckeyDecoder: RESULT: {decoderOutput.outString._toString()}");
+
             // 送出文字列中に特殊機能キー(tabやleftArrowなど)が含まれているか
             bool bFuncVkeyContained = isFuncVkeyContained(decoderOutput.outString);
             // BSと文字送出(もしあれば)
@@ -2200,8 +2202,11 @@ namespace KanchokuWS
             }
 #endif
             // 前置書き換え対象文字なら、許容時間をセットする
-            if (decoderOutput.outString._strlen() > 0 || decoderOutput.numBackSpaces > 0)
+            if (decoderOutput.outString._strlen() > 0 || decoderOutput.numBackSpaces > 0) {
                 CombinationKeyStroke.Determiner.Singleton.SetPreRewriteTime(decoderOutput.outString._toString());
+            }
+            
+            logger.Info(() => $"LEAVE");
         }
 
         /// <summary>
@@ -2508,7 +2513,7 @@ namespace KanchokuWS
                     initialSettingsDialogOpened = true; // 今回限りの起動とする
                     openSettingsDialog(true);
                 }
-                if (frmSplash == null) ActiveWindowHandler.Singleton.GetActiveWindowInfo(moveWindows, frmVkb);
+                ActiveWindowHandler.Singleton.GetActiveWindowInfo(moveWindows, frmVkb);
                 activeWinInfoCount = Settings.GetActiveWindowInfoIntervalMillisec / timerInterval;
             }
 

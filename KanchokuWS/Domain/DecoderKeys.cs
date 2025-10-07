@@ -157,6 +157,7 @@ namespace KanchokuWS
         public const int DECKEY_STROKE_46 = 46;
         public const int DECKEY_STROKE_47 = 47;
         public const int DECKEY_STROKE_48 = 48;
+        public const int SELF_DECKEY = 49;                          // 単打を自身の同時打鍵として扱う
 
         // Ctrl-A
         public const int DECKEY_CTRL_A = CTRL_DECKEY_START;
@@ -352,7 +353,7 @@ namespace KanchokuWS
         public const int STROKE_BACK_DECKEY = KANJI_PREFERRED_NEXT_DECKEY + 1;              // ストロークを1つ前に戻す
         public const int FLUSH_OUTPUT_STRING_DECKEY = STROKE_BACK_DECKEY + 1;               // 出力バッファに溜まっている文字列をフラッシュする
 
-        public const int UNDEFINED_DECKEY = FLUSH_OUTPUT_STRING_DECKEY + 1;                 // 未定義のキー
+        public const int UNDEFINED_DECKEY = FLUSH_OUTPUT_STRING_DECKEY + 1;                                // 未定義のキー
         public const int GLOBAL_DECKEY_ID_END = SPECIAL_DECKEY_ID_BASE + 100;
 
         // END_OF_AUTO_MAKE
