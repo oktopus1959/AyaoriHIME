@@ -1573,7 +1573,6 @@ namespace KanchokuWS.TableParser
         /// テーブル定義を読んでディレクティブだけを解析する
         /// </summary>
         /// <param name="filename"></param>
-        /// <param name="outFilename"></param>
         /// <param name="pool">対象となる KeyComboPool</param>
         public void ReadDirectives(string filename, bool primary)
         {

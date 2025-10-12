@@ -283,9 +283,7 @@ namespace KanchokuWS.Handler
                         }
                         busyCount = 0;
                     }
-                    if (Logger.IsInfoEnabled && frmVkb != null && !frmVkb.IsMyWinClassName(ActiveWinClassName)) {
-                        logger.Info("LEAVE: In Progress");
-                    }
+                    if (bLog) logger.Info("LEAVE: In Progress");
                     return;
                 }
             }

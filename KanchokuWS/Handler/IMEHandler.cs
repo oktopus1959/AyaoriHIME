@@ -93,7 +93,7 @@ namespace KanchokuWS.Handler
         /// <returns></returns>
         public static bool GetImeStateChanged(FrmVirtualKeyboard frmVkb)
         {
-            logger.Debug(() => $"CALLED: ImeInputModeChanged={ImeInputModeChanged}");
+            //logger.Debug(() => $"CALLED: ImeInputModeChanged={ImeInputModeChanged}");
             if (!ImeInputModeChanged) {
                 //IME状態の取得
                 IntPtr imeWnd = new Handler.GUIThreadInfo().GetDefaultIMEWnd();
@@ -106,7 +106,7 @@ namespace KanchokuWS.Handler
                         // 状態が変化した
                         ActiveWindowHandler.Singleton.GetActiveWindowInfo(null, frmVkb);
                         if (frmVkb == null || !frmVkb.IsMyWinClassName()) {
-                            logger.DebugH(() => $"IME State Changed: imeWnd={imeWnd}, imeEnabled={imeEnabled}, convMode={imeConvMode}");
+                            logger.Info(() => $"IME State Changed: imeWnd={imeWnd}, imeEnabled={imeEnabled}, convMode={imeConvMode}");
                             ImeEnabled = imeEnabled;
                             ImeConversionMode = imeConvMode;
                             return true;

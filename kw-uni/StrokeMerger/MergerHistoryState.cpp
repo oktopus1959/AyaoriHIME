@@ -409,6 +409,7 @@ namespace {
                     _LOG_DETAIL(L"Clear streamLists");
                     clearStreamLists();
                     _strokeBack = false;
+                    bool doDefault = false;
                     switch (deckey) {
                         //case ENTER_DECKEY:
                         //    LOG_DEBUGH(_T("EnterKey: clear streamList"));
@@ -448,8 +449,10 @@ namespace {
                         if (WORD_LATTICE->isEmpty()) State::handleBS();
                         break;
                     case DOWN_ARROW_DECKEY:
-                        if (WORD_LATTICE->isEmpty()) {
-                            State::handleDownArrow();
+                        LOG_DEBUGH(_T("DOWN_ARROW_DECKEY: select next candidate"));
+                        if (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || WORD_LATTICE->isEmpty()) {
+                            //State::handleDownArrow();
+                            doDefault = true;
                             break;
                         }
                         [[fallthrough]];
@@ -459,8 +462,10 @@ namespace {
                         WORD_LATTICE->selectNext();
                         break;
                     case UP_ARROW_DECKEY:
-                        if (WORD_LATTICE->isEmpty()) {
-                            State::handleUpArrow();
+                        LOG_DEBUGH(_T("UP_ARROW_DECKEY: select next candidate"));
+                        if (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || WORD_LATTICE->isEmpty()) {
+                            //State::handleUpArrow();
+                            doDefault = true;
                             break;
                         }
                         [[fallthrough]];
@@ -533,6 +538,10 @@ namespace {
                         break;
                     default:
                         LOG_DEBUGH(_T("OTHER"));
+                        doDefault = true;
+                        break;
+                    }
+                    if (doDefault) {
                         if (deckey == ENTER_DECKEY) {
                             WORD_LATTICE->raiseAndDepressByCandSelection();
                         }
@@ -540,7 +549,6 @@ namespace {
                         WORD_LATTICE->clearAll();
                         //MarkUnnecessary();
                         State::dispatchDeckey(deckey);
-                        break;
                     }
                 } else {
                     if (deckey == SETTINGS->exclusivePrefixCode) {
@@ -934,6 +942,10 @@ namespace {
             // どれかの候補が選択されている状態なら、それを確定し、履歴キーをクリアしておく
             STROKE_MERGER_NODE->ClearPrevHistState();
             HIST_CAND->ClearKeyInfo();
+        }
+
+        bool IsHistorySelectableByArrowKey() const override {
+            return SETTINGS->useArrowToSelCand && bCandSelectable;
         }
 
     protected:

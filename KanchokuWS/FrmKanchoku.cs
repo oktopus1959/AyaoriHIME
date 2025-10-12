@@ -1036,6 +1036,7 @@ namespace KanchokuWS
                         //    break;
 
                         case DecoderKeys.VKB_SHOW_HIDE_DECKEY:
+                            logger.Info("VKB_SHOW_HIDE_DECKEY");
                             if (IsVkbHiddenTemporay) {
                                 IsVkbHiddenTemporay = false;
                                 ShowFrmVkb();
@@ -1045,14 +1046,19 @@ namespace KanchokuWS
                             }
                             return true;
                         case DecoderKeys.STROKE_HELP_ROTATION_DECKEY:
+                            logger.Info("STROKE_HELP_ROTATION_DECKEY");
                             return rotateStrokeHelp(1);
                         case DecoderKeys.STROKE_HELP_UNROTATION_DECKEY:
+                            logger.Info("STROKE_HELP_UNROTATION_DECKEY");
                             return rotateStrokeHelp(-1);
                         case DecoderKeys.DATE_STRING_ROTATION_DECKEY:
+                            logger.Info("DATE_STRING_ROTATION_DECKEY");
                             return !isActiveWinExcel() && rotateDateString(1);
                         case DecoderKeys.DATE_STRING_UNROTATION_DECKEY:
+                            logger.Info("DATE_STRING_UNROTATION_DECKEY");
                             return !isActiveWinExcel() && rotateDateString(-1);
                         case DecoderKeys.STROKE_HELP_DECKEY:
+                            logger.Info("STROKE_HELP_DECKEY");
                             if (prevDeckey != deckey || prevFuncTotalCount + 1 < DeckeyTotalCount) {
                                 ShowStrokeHelp(null);
                             } else {
@@ -1060,9 +1066,11 @@ namespace KanchokuWS
                             }
                             return true;
                         case DecoderKeys.BUSHU_COMP_HELP_DECKEY:
+                            logger.Info("BUSHU_COMP_HELP_DECKEY");
                             ShowBushuCompHelp();
                             return true;
                         case DecoderKeys.TOGGLE_ROMAN_STROKE_GUIDE_DECKEY:
+                            logger.Info("TOGGLE_ROMAN_STROKE_GUIDE_DECKEY");
                             if (IsDecoderActive) {
                                 rotateStrokeHelp(0);
                                 bRomanStrokeGuideMode = !bRomanStrokeGuideMode && !bRomanMode;
@@ -1070,6 +1078,7 @@ namespace KanchokuWS
                             }
                             return true;
                         case DecoderKeys.TOGGLE_UPPER_ROMAN_STROKE_GUIDE_DECKEY:
+                            logger.Info("TOGGLE_UPPER_ROMAN_STROKE_GUIDE_DECKEY");
                             if (IsDecoderActive) {
                                 rotateStrokeHelp(0);
                                 bUpperRomanStrokeGuideMode = !bUpperRomanStrokeGuideMode && !bRomanMode;
@@ -1077,6 +1086,7 @@ namespace KanchokuWS
                             }
                             return true;
                         case DecoderKeys.TOGGLE_HIRAGANA_STROKE_GUIDE_DECKEY:
+                            logger.Info("TOGGLE_HIRAGANA_STROKE_GUIDE_DECKEY");
                             if (IsDecoderActive) {
                                 rotateStrokeHelp(0);
                                 bHiraganaStrokeGuideMode = !bHiraganaStrokeGuideMode;
@@ -1091,11 +1101,11 @@ namespace KanchokuWS
                             }
                             return true;
                         case DecoderKeys.EXCHANGE_CODE_TABLE_DECKEY:
-                            logger.Info("EXCHANGE_CODE_TABLE");
+                            logger.Info("EXCHANGE_CODE_TABLE_DECKEY");
                             ExchangeCodeTable();
                             return true;
                         case DecoderKeys.EXCHANGE_CODE_TABLE2_DECKEY:
-                            logger.Info("EXCHANGE_CODE_TABLE2");
+                            logger.Info("EXCHANGE_CODE_TABLE2_DECKEY");
                             ExchangeCodeTable(true);
                             return true;
                         case DecoderKeys.SELECT_CODE_TABLE1_DECKEY:
@@ -1185,12 +1195,15 @@ namespace KanchokuWS
                             }
 
                         default:
+                            logger.Info("DEFAULT");
                             break;
                     }
                     bPrevDtUpdate = true;
                     if (IsDecoderActive && (deckey < DecoderKeys.DECKEY_CTRL_A || deckey > DecoderKeys.DECKEY_CTRL_Z)) {
+                        logger.Info("InvokeDecoder");
                         return InvokeDecoder(deckey, origDeckey, mod, rollOverStroke);
                     } else {
+                        logger.Info("sendVkeyFromDeckey");
                         return sendVkeyFromDeckey(deckey, origDeckey, mod);
                     }
                 } else {

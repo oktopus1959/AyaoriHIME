@@ -538,6 +538,7 @@ namespace KanchokuWS.TableParser
                     // ツリーのスレッドを leaderStr として、終端ノードの文字列を出力
                     outputString(outLines, leaderStr);
                 }
+                logger.Info($"outputString: {outLines._getLast()}");
             }
             if (HasSubNode()) {
                 // ツリーノード
