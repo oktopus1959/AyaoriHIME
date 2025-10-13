@@ -85,6 +85,8 @@ namespace KanchokuWS.Forms
         /// <param name="chars"></param>
         public void PutString(char[] chars, int numBS, bool bFlushAll = false)
         {
+            prevVkey = 0;
+
             bool bWasEmpty = editTextBox.Text._isEmpty();
             var str = chars._toString();
 
@@ -270,6 +272,8 @@ namespace KanchokuWS.Forms
             logger.InfoH(() => $"LEAVE: EditText={EditText}, pos={editTextBox.Text._safeIndexOf(Settings.EditBufferCaretChar[0])}");
         }
 
+        uint prevVkey = 0;
+
         public void PutVkeyCombo(uint modifier, uint vkey)
         {
             if (/*modifier != 0 ||*/ editTextBox.Text._isEmpty()) {
@@ -305,12 +309,19 @@ namespace KanchokuWS.Forms
                     logger.InfoH($"Enter");
                     FlushBuffer(true);
                     break;
+                case (uint)Keys.Escape:
+                    logger.InfoH($"Escape");
+                    if (prevVkey == vkey) {
+                        FlushBuffer(true);
+                    }
+                    break;
             }
             if (EditText._notEmpty()) {
                 ShowNonActive();
             } else {
                 this.Hide();
             }
+            prevVkey = vkey;
         }
 
         private string makeEditText(string preText, string postText)

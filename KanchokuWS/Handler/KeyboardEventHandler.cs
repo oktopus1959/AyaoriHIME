@@ -620,6 +620,8 @@ namespace KanchokuWS.Handler
         bool bRCtrlShifted = false;
         bool bLShiftShifted = false;
 
+        bool bWinKeyOn = false ;
+
         /// <summary>キーボード押下時のハンドラ</summary>
         /// <param name="vkey"></param>
         /// <param name="extraInfo"></param>
@@ -640,6 +642,19 @@ namespace KanchokuWS.Handler
                 logger.Info(() =>
                     $"\nENTER: IsVkbTopTextFocused={isVkbTopTextFocused()}, vkey={vkey:x}H({vkey}), scanCode={scanCode:x}H, extraInfo={extraInfo}\n" +
                     keyInfoManager.modifiersStateStr());
+            }
+
+            if (vkey == 0x5b || vkey == 0x5c) {
+                // LWIN or RWIN
+                bWinKeyOn = true;
+                if (Settings.LoggingDecKeyInfo) logger.Info("WinKey On");
+                return false;
+            }
+
+            if (bWinKeyOn) {
+                // LWIN or RWIN が押されているときは、他のキー入力を無視する
+                if (Settings.LoggingDecKeyInfo) logger.Info($"WinKey On: thru {vkey:x}");
+                return false;
             }
 
             if (DecoderKeyVsVKey.IsUSonJPmode || DecoderKeyVsVKey.IsEisuDisabled) {
@@ -1012,6 +1027,19 @@ namespace KanchokuWS.Handler
             if (Settings.LoggingDecKeyInfo) {
                 logger.Info(() =>
                     $"\nENTER: IsVkbTopTextFocused={isVkbTopTextFocused()}, vkey={vkey:x}H({vkey}), scanCode={scanCode:x}H, extraInfo={extraInfo}");
+            }
+
+            if (vkey == 0x5b || vkey == 0x5c) {
+                // LWIN or RWIN
+                bWinKeyOn = false;
+                if (Settings.LoggingDecKeyInfo) logger.Info("WinKey Off");
+                return false;
+            }
+
+            if (bWinKeyOn) {
+                // LWIN or RWIN が押されているときは、他のキー入力を無視する
+                if (Settings.LoggingDecKeyInfo) logger.Info($"WinKey On: thru {vkey:x}");
+                return false;
             }
 
             // 半/全キーは、US-on-JP モードなら true(入力破棄; つまり無視) JPモードなら false (システム処理; つまりIMEのON/OFF)を返す
