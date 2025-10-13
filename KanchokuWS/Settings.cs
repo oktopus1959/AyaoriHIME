@@ -232,6 +232,9 @@ namespace KanchokuWS
         /// <summary>編集バッファをフラッシュさせる文字</summary>
         public static string EditBufferFlushChar { get; set; } = "、。";
 
+        /// <summary>英大文字を入力されたら編集バッファをフラッシュする</summary>
+        public static bool FlushEditBufferWhenCaptalAlphabet { get; set; } = false;
+
         /// <summary>複数候補表示の最小数</summary>
         public static int MergerCandidateMin { get; set; } = 3;
 
@@ -1671,6 +1674,7 @@ namespace KanchokuWS
             EditBufferCaretChar = "▴"; // GetString("editBufferCaretChar", "▴");                        // 編集バッファのカレット文字
             EditBufferFlushChar = GetString("editBufferFlushChar", "");                                 // 編集バッファをフラッシュさせる文字
             KanjiTableThresholdForDualTable = GetString("kanjiTableThresholdForDualTable")._parseInt(300);      // デュアルテーブルの時に、漢直用のテーブルと見なす漢字数
+            FlushEditBufferWhenCaptalAlphabet = GetString("flushEditBufferWhenCaptalAlphabet")._parseBool(false); // 大文字アルファベット入力で編集バッファをフラッシュするか
 
             //-------------------------------------------------------------------------------------
             // ClassName ごとの設定

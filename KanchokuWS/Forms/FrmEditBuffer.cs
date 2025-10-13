@@ -211,33 +211,53 @@ namespace KanchokuWS.Forms
                 if (str == " " && editTextBox.Text._isEmpty() && (Settings.OutputHeadSpace || SendInputHandler.IsShiftKeyPressed())) {
                     // 先頭のSpace
                     toFlush = true;
+                    toFlush = bFlushAll = false;
                 } else {
-                    while (pos < str.Length && !toFlush) {
-                        if (str[pos] == '!' && pos + 1 < str.Length && str[pos + 1] == '{') {
-                            // "!{...}"
-                            pos += 2;
-                            var sb = new StringBuilder();
-                            while (pos < str.Length && str[pos] != '}') {
-                                sb.Append(str[pos++]);
-                            }
-                            handleFunctionalKey(sb.ToString());
-                        } else {
-                            if (str[pos] == '(' && str[str.Length - 1] == ')') {
-                                var value = Handler.HandlerUtils.ParseTernaryOperator(str._safeSubstring(pos), "@");
-                                logger.InfoH($"value={value}");
-                                if (value._notEmpty()) {
-                                    str = value;
-                                    pos = 0;
-                                    continue;
-                                }
-                            }
-                            preText += str[pos];
-                            if (pos == str.Length - 1 && Settings.EditBufferFlushChar._safeIndexOf(str[pos]) >= 0) {
-                                // 末尾のフラッシュ文字
-                                toFlush = true;
+                    bool bFlushWhenCaptalAlphabet = false;
+                    if (Settings.FlushEditBufferWhenCaptalAlphabet && str[0] >= 'A' && str[0] <= 'Z') {
+                        int len = editTextBox.Text._safeCount();
+                        if (len > 0) {
+                            if (editTextBox.Text[len - 1]._isAlphabet()) {
+                                bFlushWhenCaptalAlphabet = false;
+                            } else if (len > 1 && editTextBox.Text[len - 1] == Settings.EditBufferCaretChar[0] && editTextBox.Text[len - 2]._isAlphabet()) {
+                                bFlushWhenCaptalAlphabet = false;
+                            } else {
+                                bFlushWhenCaptalAlphabet = true;
                             }
                         }
-                        ++pos;
+                    }
+                    if (bFlushWhenCaptalAlphabet) {
+                        FlushBuffer(true);
+                        preText = str;
+                        postText = "";
+                    } else {
+                        while (pos < str.Length && !toFlush) {
+                            if (str[pos] == '!' && pos + 1 < str.Length && str[pos + 1] == '{') {
+                                // "!{...}"
+                                pos += 2;
+                                var sb = new StringBuilder();
+                                while (pos < str.Length && str[pos] != '}') {
+                                    sb.Append(str[pos++]);
+                                }
+                                handleFunctionalKey(sb.ToString());
+                            } else {
+                                if (str[pos] == '(' && str[str.Length - 1] == ')') {
+                                    var value = Handler.HandlerUtils.ParseTernaryOperator(str._safeSubstring(pos), "@");
+                                    logger.InfoH($"value={value}");
+                                    if (value._notEmpty()) {
+                                        str = value;
+                                        pos = 0;
+                                        continue;
+                                    }
+                                }
+                                preText += str[pos];
+                                if (pos == str.Length - 1 && Settings.EditBufferFlushChar._safeIndexOf(str[pos]) >= 0) {
+                                    // 末尾のフラッシュ文字
+                                    toFlush = true;
+                                }
+                            }
+                            ++pos;
+                        }
                     }
                 }
             }
