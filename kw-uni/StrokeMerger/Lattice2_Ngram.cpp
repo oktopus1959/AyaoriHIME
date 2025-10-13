@@ -538,7 +538,7 @@ namespace lattice2 {
 
     // 候補選択による、リアルタイムNgramの蒿上げと抑制
     void raiseAndDepressRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
-        LOG_WARNH(L"CALLED: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
+        LOG_WARNH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
         size_t prefixLen = utils::commonPrefixLength(oldCand, newCand);
         if (prefixLen < newCand.size()) {
             for (int delta = 2; delta > 0; --delta) {
@@ -564,6 +564,7 @@ namespace lattice2 {
             // 異なっている部分について抑制する
             depressRealtimeNgram(oldCand.substr(prefixLen));
         }
+        LOG_WARNH(L"LEAVE");
     }
 
     //void updateRealtimeNgram() {

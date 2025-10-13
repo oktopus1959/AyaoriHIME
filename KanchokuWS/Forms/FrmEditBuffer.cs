@@ -111,6 +111,7 @@ namespace KanchokuWS.Forms
                     logger.InfoH(() => $"CALL: SendStringViaClipboardIfNeeded({str}, {numBS}, true)");
                     SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(chars, numBS, true);
                 }
+                frmMain.ExecCmdDecoder("clearMultiStream", "");
                 logger.InfoH($"LEAVE: REDIRECT");
                 return;
             }
@@ -389,6 +390,7 @@ namespace KanchokuWS.Forms
         /// <summary>編集バッファをフラッシュして、アプリケーションに文字列を送出する</summary>
         public void FlushBuffer(bool bFlushAll)
         {
+            logger.Info($"ENTER: FlushAll={bFlushAll}");
             string result;
             int pos = editTextBox.Text._safeIndexOf(Settings.EditBufferCaretChar);
             if (bFlushAll || pos <= 0 || pos == editTextBox.Text.Length - 1) {
@@ -409,7 +411,7 @@ namespace KanchokuWS.Forms
             SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(result._toCharArray(), 0, winClass == "mintty" || winClass == "PuTTY");
             //this.ShowNonActive();
             frmMain.ExecCmdDecoder("clearMultiStream", result);
-            //logger.InfoH($"CALLED");
+            logger.Info("LEAVE");
         }
 
         /// <summary>Decoderの非活性化時に編集バッファをフラッシュして、アプリケーションに文字列を送出する</summary>

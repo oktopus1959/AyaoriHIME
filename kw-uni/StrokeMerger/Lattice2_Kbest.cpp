@@ -191,11 +191,13 @@ namespace lattice2 {
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
         void raiseAndDepressByCandSelection() override {
             if (_origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
+                _LOG_DETAIL(L"ENTER");
                 // 候補選択がなされていて、元の先頭候補以外が選択された
                 raiseAndDepressRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
                 updateMazegakiPreference(_candidates[0], _candidates[_origFirstCand]);
-                removeOtherThanFirst();
-                _LOG_DETAIL(L"kBest:\n{}", debugCandidates(10));
+                removeOtherThanFirstForEachStroke();
+                _origFirstCand = -1;
+                _LOG_DETAIL(L"LEAVE: CAND_SELECT:\nkBest:\n{}", debugCandidates(10));
             }
         }
 
@@ -220,6 +222,21 @@ namespace lattice2 {
             if (_candidates.size() > 0) {
                 _candidates.erase(_candidates.begin() + 1, _candidates.end());
                 _candidates.front().zeroPenalty();
+            }
+        }
+
+        void removeOtherThanFirstForEachStroke() override {
+            if (_candidates.size() > 0) {
+                const MString& first = _candidates[0].string();
+                size_t n = 1;
+                while (n < _candidates.size()) {
+                    if (!utils::startsWith(first, _candidates[n].string())) {
+                        _candidates.erase(_candidates.begin() + n);
+                    } else {
+                        _candidates[n].zeroPenalty();
+                        ++n;
+                    }
+                }
             }
         }
 

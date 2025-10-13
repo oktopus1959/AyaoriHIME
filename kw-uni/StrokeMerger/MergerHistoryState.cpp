@@ -402,8 +402,8 @@ namespace {
                 // 後続状態があれば、そちらを呼び出す
                 NextState()->HandleDeckeyChain(deckey);
             } else {
-                _streamList1.DebugPrintStatesChain(_T("ENTER: streamList1"));
-                _streamList2.DebugPrintStatesChain(_T("ENTER: streamList2"));
+                _streamList1.DebugPrintStatesChain(_T("HandleDeckeyChain::BEGIN: streamList1"));
+                _streamList2.DebugPrintStatesChain(_T("HandleDeckeyChain::BEGIN: streamList2"));
 
                 if (/*deckey != CLEAR_STROKE_DECKEY && */ ((deckey >= FUNC_DECKEY_START && deckey < FUNC_DECKEY_END) || deckey >= CTRL_DECKEY_START)) {
                     _LOG_DETAIL(L"Clear streamLists");
@@ -450,7 +450,8 @@ namespace {
                         break;
                     case DOWN_ARROW_DECKEY:
                         LOG_DEBUGH(_T("DOWN_ARROW_DECKEY: select next candidate"));
-                        if (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || WORD_LATTICE->isEmpty()) {
+                        if (!WORD_LATTICE->hasMultiCandidates() &&
+                            (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || WORD_LATTICE->isEmpty())) {
                             //State::handleDownArrow();
                             doDefault = true;
                             break;
@@ -463,7 +464,8 @@ namespace {
                         break;
                     case UP_ARROW_DECKEY:
                         LOG_DEBUGH(_T("UP_ARROW_DECKEY: select next candidate"));
-                        if (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || WORD_LATTICE->isEmpty()) {
+                        if (!WORD_LATTICE->hasMultiCandidates() &&
+                            (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || WORD_LATTICE->isEmpty())) {
                             //State::handleUpArrow();
                             doDefault = true;
                             break;
@@ -639,8 +641,8 @@ namespace {
             _LOG_DETAIL(_T("\nENTER: {}, resultStr={}"), Name, resultStr.debugString());
             //LOG_DEBUGH(L"A:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
-            _streamList1.DebugPrintStatesChain(_T("ENTER: streamList1"));
-            _streamList2.DebugPrintStatesChain(_T("ENTER: streamList2"));
+            _streamList1.DebugPrintStatesChain(_T("GetResultStringChain::BEGIN: streamList1"));
+            _streamList2.DebugPrintStatesChain(_T("GetResultStringChain::BEGIN: streamList2"));
 
             STATE_COMMON->SetCurrentModeIsMultiStreamInput();
 
@@ -735,8 +737,8 @@ namespace {
             }
             LOG_DEBUGH(_T("CHECKPOINT-9"));
 
-            _streamList1.DebugPrintStatesChain(_T("LEAVE: streamList1"));
-            _streamList2.DebugPrintStatesChain(_T("LEAVE: streamList2"));
+            _streamList1.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList1"));
+            _streamList2.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList2"));
 
             _LOG_DETAIL(_T("LEAVE: {}: resultStr=[{}]\n"), Name, resultOut.debugString());
         }
@@ -766,8 +768,8 @@ namespace {
             LOG_DEBUGH(_T("streamList2: deleteUnnecessaryNextState"));
             _streamList2.DeleteUnnecessaryNextStates();
 
-            _streamList1.DebugPrintStatesChain(_T("LEAVE: streamList1"));
-            _streamList2.DebugPrintStatesChain(_T("LEAVE: streamList2"));
+            _streamList1.DebugPrintStatesChain(_T("DeleteUnnecessary::DONE: streamList1"));
+            _streamList2.DebugPrintStatesChain(_T("DeleteUnnecessary::DONE: streamList2"));
 
             State::DeleteUnnecessarySuccessorStateChain();
 

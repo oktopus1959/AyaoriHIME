@@ -382,7 +382,7 @@ public:
         auto items = utils::split(cmdParams->inOutData, '\t');
         if (!items.empty()) {
             const auto& cmd = items[0];
-            LOG_DEBUGH(_T("cmd={}, items.size()={}"), cmd, items.size());
+            LOG_INFOH(_T("cmd={}, items.size()={}"), cmd, items.size());
             if (cmd == _T("presendSettings")) {
                 // 設定の先行送出
                 if (items.size() > 2 && !items[2].empty()) presendSettings(utils::toLower(items[1]) == _T("true"), items[2]);

@@ -22,6 +22,8 @@ namespace lattice2 {
 
         virtual void removeOtherThanFirst() = 0;
 
+        virtual void removeOtherThanFirstForEachStroke() = 0;
+
         virtual bool isEmpty() const = 0;
 
         virtual int size() const = 0;

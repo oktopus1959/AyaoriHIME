@@ -151,6 +151,13 @@ namespace lattice2 {
             _kBestList->updateByMazegaki();
         }
 
+        bool hasMultiCandidates() const override {
+            if (_kBestList->selectedCandPos() >= 0) return true;
+
+            std::vector<MString> candStrings = _kBestList->getCandStringsInSelectedBlock();
+            return candStrings.size() > 1;
+        }
+
     public:
         // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
         // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
@@ -164,7 +171,7 @@ namespace lattice2 {
             _LOG_DETAIL(_T("INPUT: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, strokeBack={}, rollOver={}, pieces: {}"),
                 _kBestList->size(), _kBestList->origFirstCand(), totalStrokeCount, currentStrokeCount, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
 
-            _LOG_DETAIL(L"kBest:\n{}", _kBestList->debugCandidates(10));
+            _LOG_DETAIL(L"CURRENT:\nkBest:\n{}", _kBestList->debugCandidates(10));
 
             if (pieces.empty()) {
                 // pieces が空になるのは、同時打鍵の途中の状態などで、文字が確定していない場合

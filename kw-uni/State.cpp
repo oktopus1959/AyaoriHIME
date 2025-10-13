@@ -50,8 +50,10 @@ void State::Initialize(StringRef name, Node* pN) {
 
 String State::JoinedName() const {
     String myName = Name;
+    LOG_DEBUG(_T("ENTER: myName={}"), myName);
     if (IsUnnecessary()) myName += _T("(-)");
     if (pNext) myName += _T("-") + pNext->JoinedName();
+    LOG_DEBUG(_T("LEAVE: joinedName={}"), myName);
     return myName;
 }
 

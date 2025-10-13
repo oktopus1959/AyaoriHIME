@@ -94,6 +94,7 @@ namespace lattice2 {
             _LOG_DETAIL(L"depressed: mazegakiPrefDict[{}]={}", to_wstr(depressed.mazeFeat()), mazegakiPrefDict[depressed.mazeFeat()]);
             mazegakiPref_updated = true;
         }
+        _LOG_DETAIL(L"LEAVE");
     }
 
     //--------------------------------------------------------------------------------------
