@@ -300,6 +300,9 @@ namespace KanchokuWS.TableParser
             return mergedNode;
         }
 
+        /// <summary>
+        /// 縦棒形式のテーブルの解析用ヘルパー
+        /// </summary>
         protected static class VBarSeparationHelper
         {
             public static int calcRow(int idx, int currentRow)
@@ -396,7 +399,7 @@ namespace KanchokuWS.TableParser
                         break;
 
                     case TOKEN.NEW_LINE:           // 次の行
-                        if (prevToken == TOKEN.VBAR || prevPrevToken == TOKEN.VBAR) {
+                        if (prevToken == TOKEN.VBAR || (prevToken != TOKEN.NEW_LINE && prevPrevToken == TOKEN.VBAR)) {
                             idx = VBarSeparationHelper.calcNewLinedIndex(++row);
                         }
                         break;
