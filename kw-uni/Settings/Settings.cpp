@@ -127,6 +127,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(collectRealtimeNgram);
     SET_BOOL_VALUE(useTmpRealtimeNgramFile);
     SET_BOOL_VALUE(useMorphAnalyzer);
+    SET_BOOL_VALUE(morphCostWithoutEOS);
     SET_KEY_VALUE(morphMazeFormat);
     SET_INT_VALUE(morphMazeEntryPenalty);
     SET_INT_VALUE(morphMazeConnectionPenalty);

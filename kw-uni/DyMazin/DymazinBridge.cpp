@@ -21,8 +21,8 @@ namespace DymazinBridge {
     DEFINE_LOCAL_LOGGER(DymazinBridge);
 
     int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty, int mazeConnPenalty, int nonTerminalCost) {
-        _LOG_INFOH(_T("ENTER: rcfile={}, dicdir={}, unkMax={}, mazePenalty={}, mazeConnPenalty={}, nonTerminalCost={}, -O{}"),
-            rcfile, dicdir, unkMax, mazePenalty, mazeConnPenalty, nonTerminalCost, SETTINGS->morphMazeFormat);
+        _LOG_INFOH(_T("ENTER: rcfile={}, dicdir={}, unkMax={}, mazePenalty={}, mazeConnPenalty={}, nonTerminalCost={}, costWithoutEOS={}, -O{}"),
+            rcfile, dicdir, unkMax, mazePenalty, mazeConnPenalty, nonTerminalCost, SETTINGS->morphCostWithoutEOS, SETTINGS->morphMazeFormat);
 
         std::vector<const wchar_t*> av;
         av.push_back(L"-r");
@@ -49,7 +49,7 @@ namespace DymazinBridge {
         String nonTerminalCostOpt(L"--non-terminal-cost=");
         nonTerminalCostOpt.append(std::to_wstring(nonTerminalCost));
         av.push_back(nonTerminalCostOpt.c_str());
-        av.push_back(L"--ignore-eos");
+        if (SETTINGS->morphCostWithoutEOS) av.push_back(L"--ignore-eos");
 
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
