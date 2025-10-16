@@ -84,6 +84,21 @@ namespace lattice2 {
         return utils::safe_substr(str, startPos, endPos - startPos);
     }
 
+    // 末尾が漢字1文字で、その前が漢字でない場合に true を返す
+    bool isTailIsolatedKanji(const MString& str) {
+        if (str.size() >= 1) {
+            size_t pos = str.size() - 1;
+            if (utils::is_kanji(str[pos])) {
+                // 末尾が漢字1文字
+                if (pos == 0 || !utils::is_kanji(str[pos - 1])) {
+                    // その前が漢字でない
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // 先頭候補以外に、非優先候補ペナルティを与える (先頭候補のペナルティは 0 にする)
     void arrangePenalties(std::vector<CandidateString>& candidates, size_t nSameLen) {
         _LOG_DETAIL(_T("CALLED"));
@@ -431,23 +446,24 @@ namespace lattice2 {
         }
 
         // 新しい候補を追加
-        bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, const MString& subStr, bool isStrokeBS) {
+        // targetStr は日本語としての妥当性をチェックするための文字列 (句読点や記号を除いたもの)
+        bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, const MString& targetStr, bool isStrokeBS) {
             _LOG_DETAIL(_T("\nENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
             bool bAdded = false;
             //bool bIgnored = false;
             const MString& candStr = newCandStr.string();
-            //MString subStr = substringBetweenPunctuations(candStr);
-            //MString subStr = substringBetweenNonJapaneseChars(candStr);
-            _LOG_DETAIL(_T("subStr={}"), to_wstr(subStr));
+            //MString targetStr = substringBetweenPunctuations(candStr);
+            //MString targetStr = substringBetweenNonJapaneseChars(candStr);
+            _LOG_DETAIL(_T("targetStr={}"), to_wstr(targetStr));
 
             std::vector<MString> morphs;
 
             // 形態素解析コスト
             // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
-            //int morphCost = !SETTINGS->useMorphAnalyzer || subStr.size() <= 1 ? 5000 : calcMorphCost(subStr, morphs);
-            int morphCost = !SETTINGS->useMorphAnalyzer || subStr.empty() ? 0 : calcMorphCost(subStr, morphs);
-            if (subStr.size() == 1) {
-                if (utils::is_katakana(subStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
+            //int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.size() <= 1 ? 5000 : calcMorphCost(targetStr, morphs);
+            int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.empty() ? 0 : calcMorphCost(targetStr, morphs);
+            if (targetStr.size() == 1) {
+                if (utils::is_katakana(targetStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
             }
             if (!morphs.empty() && isNonTerminalMorph(morphs.back())) {
                 _LOG_DETAIL(_T("NON TERMINAL morph={}"), to_wstr(morphs.back()));
@@ -455,7 +471,7 @@ namespace lattice2 {
             }
 
             // Ngramコスト
-            int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr, morphs) * SETTINGS->ngramCostFactor;
+            int ngramCost = targetStr.empty() ? 0 : getNgramCost(targetStr, morphs) * SETTINGS->ngramCostFactor;
             //int morphCost = 0;
             //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
             //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;
@@ -747,21 +763,24 @@ namespace lattice2 {
                         if (!s.empty()) {
                             _LOG_DETAIL(_T("AutoBush FOUND"));
                             CandidateString newCandStr(s, strokeCount, 0, penalty, cand.mazeFeat());
+                            // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
                             addCandidate(newCandidates, newCandStr, s, isStrokeBS);
                             bAutoBushuFound = true;
                         }
                     }
+                    // 複数文字指定などの解析も行う
                     std::vector<MString> ss = cand.applyPiece(piece, strokeCount, paddingLen, isStrokeBS, bKatakanaConversion);
                     int idx = 0;
                     for (MString s : ss) {
                         int _iniCost = 0;
-                        MString subStr = substringBetweenNonJapaneseChars(s);
-                        if (subStr.length() == 1) {
-                            // 1文字以下なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
+                        if (isTailIsolatedKanji(s)) {
+                            // 末尾が孤立した漢字なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
                             _iniCost = HEAD_SINGLE_CHAR_ORDER_COST * idx;
                             ++idx;
                         }
                         CandidateString newCandStr(s, strokeCount, _iniCost, penalty, cand.mazeFeat());
+                        // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
+                        MString subStr = substringBetweenNonJapaneseChars(s);
                         addCandidate(newCandidates, newCandStr, subStr, isStrokeBS);
                     }
                     // pieceが確定文字の場合
