@@ -104,7 +104,7 @@ namespace lattice2 {
         _LOG_DETAIL(_T("CALLED"));
         candidates.front().zeroPenalty();
         for (size_t i = 1; i < nSameLen; ++i) {
-            candidates[i].penalty(NON_PREFERRED_PENALTY * (int)i);
+            candidates[i].setPenalty(NON_PREFERRED_PENALTY * (int)i);
         }
     }
 
@@ -480,8 +480,7 @@ namespace lattice2 {
             int llamaCost = 0;
 
             // 総コスト
-            int candCost = morphCost + ngramCost + llamaCost;
-            newCandStr.addCost(candCost);
+            newCandStr.addCost(morphCost, ngramCost);
 
             //// 「漢字+の+漢字」のような場合はペナルティを解除
             //size_t len = candStr.size();
@@ -491,6 +490,7 @@ namespace lattice2 {
 
             int totalCost = newCandStr.totalCost();
 
+            int candCost = morphCost + ngramCost + llamaCost;
             _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[<{}>], ngram={})"),
                 to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost);
 
@@ -762,7 +762,8 @@ namespace lattice2 {
                         std::tie(s, numBS) = cand.applyAutoBushu(piece, strokeCount);  // 自動部首合成
                         if (!s.empty()) {
                             _LOG_DETAIL(_T("AutoBush FOUND"));
-                            CandidateString newCandStr(s, strokeCount, 0, penalty, cand.mazeFeat());
+                            CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
+                            newCandStr.setPenalty(penalty);
                             // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
                             addCandidate(newCandidates, newCandStr, s, isStrokeBS);
                             bAutoBushuFound = true;
@@ -772,13 +773,13 @@ namespace lattice2 {
                     std::vector<MString> ss = cand.applyPiece(piece, strokeCount, paddingLen, isStrokeBS, bKatakanaConversion);
                     int idx = 0;
                     for (MString s : ss) {
-                        int _iniCost = 0;
+                        CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
+                        newCandStr.setPenalty(penalty);
                         if (isTailIsolatedKanji(s)) {
                             // 末尾が孤立した漢字なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
-                            _iniCost = HEAD_SINGLE_CHAR_ORDER_COST * idx;
+                            newCandStr.addCost(0, HEAD_SINGLE_CHAR_ORDER_COST * idx);
                             ++idx;
                         }
-                        CandidateString newCandStr(s, strokeCount, _iniCost, penalty, cand.mazeFeat());
                         // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
                         MString subStr = substringBetweenNonJapaneseChars(s);
                         addCandidate(newCandidates, newCandStr, subStr, isStrokeBS);
@@ -958,7 +959,8 @@ namespace lattice2 {
                 }
                 std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
                 for (MString s : ss) {
-                    CandidateString newCandStr(s, strokeCount, 0, penalty);
+                    CandidateString newCandStr(s, strokeCount);
+                    newCandStr.setPenalty(penalty);
                     newCandidates.push_back(newCandStr);
                 }
             }
@@ -1101,10 +1103,10 @@ namespace lattice2 {
 
         // 交ぜ書き変換
         void updateByMazegaki() override {
-            _LOG_DETAIL(_T("CALLED"));
+            _LOG_DETAIL(_T("ENTER"));
             if (!_candidates.empty()) {
                 updateByConversions(_candidates.front().applyMazegaki());
-                _LOG_DETAIL(L"kBest:\n{}", debugCandidates(SETTINGS->multiStreamBeamSize));
+                _LOG_DETAIL(L"LEAVE\nkBest:\n{}", debugCandidates(SETTINGS->multiStreamBeamSize));
             }
         }
 

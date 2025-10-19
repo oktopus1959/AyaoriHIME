@@ -18,7 +18,8 @@ namespace lattice2 {
 
         MString _str;
         int _strokeLen;
-        int _cost;
+        int _morphCost;
+        int _ngramCost;
         int _penalty;
         bool _isNonTerminal;
         MString _mazeFeat;
@@ -37,31 +38,23 @@ namespace lattice2 {
 
     public:
         CandidateString()
-            : _strokeLen(0), _cost(0), _penalty(0), _isNonTerminal(false) {
+            : _strokeLen(0), _morphCost(0), _ngramCost(0), _penalty(0), _isNonTerminal(false) {
         }
 
         CandidateString(const MString& s, int len)
-            : _str(s), _strokeLen(len), _cost(0), _penalty(0), _isNonTerminal(false) {
-        }
-
-        CandidateString(const MString& s, int len, int cost, int penalty)
-            : _str(s), _strokeLen(len), _cost(cost), _penalty(penalty), _isNonTerminal(false) {
+            : _str(s), _strokeLen(len), _morphCost(0), _ngramCost(0), _penalty(0), _isNonTerminal(false) {
         }
 
         CandidateString(const MString& s, int len, const MString& mazeFeat)
-            : _str(s), _strokeLen(len), _cost(0), _penalty(0), _isNonTerminal(false), _mazeFeat(mazeFeat) {
-        }
-
-        CandidateString(const MString& s, int len, int cost, int penalty, const MString& mazeFeat)
-            : _str(s), _strokeLen(len), _cost(cost), _penalty(penalty), _isNonTerminal(false), _mazeFeat(mazeFeat) {
+            : _str(s), _strokeLen(len), _morphCost(0), _ngramCost(0), _penalty(0), _isNonTerminal(false), _mazeFeat(mazeFeat) {
         }
 
         CandidateString(const CandidateString& cand)
-            : _str(cand._str), _strokeLen(cand._strokeLen), _cost(cand._cost), _penalty(cand._penalty), _isNonTerminal(cand._isNonTerminal), _mazeFeat(cand._mazeFeat) {
+            : _str(cand._str), _strokeLen(cand._strokeLen), _morphCost(cand._morphCost), _ngramCost(cand._ngramCost), _penalty(cand._penalty), _isNonTerminal(cand._isNonTerminal), _mazeFeat(cand._mazeFeat) {
         }
 
         CandidateString(const CandidateString& cand, int strokeDelta)
-            : _str(cand._str), _strokeLen(cand._strokeLen + strokeDelta), _cost(cand._cost), _penalty(cand._penalty), _isNonTerminal(false), _mazeFeat(cand._mazeFeat) {
+            : _str(cand._str), _strokeLen(cand._strokeLen + strokeDelta), _morphCost(cand._morphCost), _ngramCost(cand._ngramCost), _penalty(cand._penalty), _isNonTerminal(false), _mazeFeat(cand._mazeFeat) {
         }
 
         // 自動部首合成の実行
@@ -101,11 +94,12 @@ namespace lattice2 {
         }
 
         inline int totalCost() const {
-            return _cost + _penalty;
+            return _morphCost + _ngramCost + _penalty;
         }
 
-        inline void addCost(int cost) {
-            _cost += cost;
+        inline void addCost(int morphCost, int ngramCost) {
+            _morphCost += morphCost;
+            _ngramCost += ngramCost;
         }
 
         //inline void zeroCost() {
@@ -116,7 +110,7 @@ namespace lattice2 {
             return _penalty;
         }
 
-        inline void penalty(int penalty) {
+        inline void setPenalty(int penalty) {
             _penalty = penalty;
         }
 

@@ -218,11 +218,13 @@ namespace lattice2 {
             int c = realtimeNgram[word] + 10;
             if (c > count) count = c;
             realtimeNgram[word] = count;
+            LOG_WARNH(L"word={}, count={}", to_wstr(word), count);
         } else if (word.length() == 2) {
             count = realtimeNgram[word];
             if (count < 0) count = 0;
             else count += bJust2ByGUI ? 1000 : 10;
             realtimeNgram[word] = count;
+            LOG_WARNH(L"word={}, count={}", to_wstr(word), count);
         }
         _updateNgramCost(word, 0, 0, count);
         realtimeNgram_updated = true;
@@ -496,7 +498,7 @@ namespace lattice2 {
 
     // リアルタイムNgramの蒿上げ
     void raiseRealtimeNgram(const MString& str, bool bByGUI) {
-        LOG_DEBUGH(L"CALLED: str={}", to_wstr(str));
+        LOG_DEBUGH(L"ENTER: str={}, byGUI={}", to_wstr(str), bByGUI);
         int strlen = (int)str.size();
         for (int pos = 0; pos < strlen; ++pos) {
             if (!utils::is_japanese_char_except_nakaguro(str[pos])) continue;
@@ -513,6 +515,7 @@ namespace lattice2 {
             //// 4-gram
             //_raiseRealtimeNgramByWord(str.substr(pos, 4));
         }
+        LOG_DEBUGH(L"LEAVE: str={}", to_wstr(str));
     }
 
     // リアルタイムNgramの抑制

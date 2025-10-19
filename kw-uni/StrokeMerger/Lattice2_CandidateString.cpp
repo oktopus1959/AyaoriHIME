@@ -344,7 +344,8 @@ namespace lattice2 {
     String CandidateString::debugString() const {
         return to_wstr(_str)
             + _T(" (totalCost=") + std::to_wstring(totalCost())
-            + _T("(_cost=") + std::to_wstring(_cost)
+            + _T("(_morph=") + std::to_wstring(_morphCost)
+            + _T(",_ngram=") + std::to_wstring(_ngramCost)
             + _T(",_penalty=") + std::to_wstring(_penalty)
             //+ _T(",_llama_loss=") + std::to_wstring(_llama_loss)
             + _T("), strokeLen=") + std::to_wstring(_strokeLen)
