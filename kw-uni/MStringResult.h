@@ -61,11 +61,10 @@ public:
         _resultStr.assign(1, mc);
     }
 
-    void setResult(const MString& str, int nBS = -1, int nBSofOutputStack = -1) {
+    void setResult(const MString& str, int nBS = -1) {
         _resultStr = str;
         if (nBS >= 0) _numBS = nBS;
-        if (nBSofOutputStack == -1) nBSofOutputStack = nBS;
-        if (nBSofOutputStack >= 0) _numBSofOutputStack = nBSofOutputStack;
+        if (nBS >= 0) _numBSofOutputStack = nBS;
     }
 
     void setNumBS(int nBS) {

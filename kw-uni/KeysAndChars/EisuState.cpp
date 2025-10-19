@@ -217,6 +217,12 @@ namespace {
             //MERGER_HISTORY_RESIDENT_STATE->handleBS();
             if (is_upper_alphabet(OUTPUT_STACK->back()) && capitalCharCnt > 0) --capitalCharCnt;
             resultStr.setNumBS(1);
+            resultStr.setNumBSofOutputStack(1);
+        }
+
+        void handleStrokeBack() {
+            _LOG_DEBUGH(_T("CALLED: {}"), Name);
+            handleBS();
         }
 
         // その他の特殊キー (常駐の履歴機能があればそれを呼び出す)

@@ -718,8 +718,11 @@ namespace {
                 LOG_DEBUGH(_T("CHECKPOINT-7: check result"));
                 // 新しい文字列が得られたらそれを返す
                 if (!result.outStr.empty() || result.numBS > 0 || pieceNumBS > 0) {
-                    LOG_DEBUGH(_T("CHECKPOINT-7-A: setResult"));
-                    resultOut.setResult(result.outStr, (int)(result.numBS), pieceNumBS);
+                    LOG_DEBUGH(_T("CHECKPOINT-7-A: setResult: outStr={}, numBS={}, pieceNumBS={}"), to_wstr(result.outStr), result.numBS, pieceNumBS);
+                    resultOut.setResult(result.outStr, (int)(result.numBS));
+                    if (pieceNumBS >= 0) {
+                        resultOut.setNumBSofOutputStack(pieceNumBS);
+                    }
                     SetTranslatedOutString(resultOut);
                     //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
                 } else {
