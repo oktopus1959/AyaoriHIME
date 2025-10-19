@@ -1946,7 +1946,7 @@ namespace KanchokuWS
                 editBufferData = new char[HANDLE_DECKEY_DATA_SIZE],
             };
             // 編集バッファの内容をコピー
-            var cleanText = frmEditBuf.GetCleanText();
+            var cleanText = frmEditBuf.GetPreText();
             Array.Copy(cleanText._toCharArray(), prm.editBufferData, cleanText.Length._highLimit(prm.editBufferData.Length - 1));
             // アンマネージド構造体のメモリ確保
             int size = Marshal.SizeOf(typeof(DecoderHandleDeckeyParams));
@@ -2136,23 +2136,19 @@ namespace KanchokuWS
         {
             if (numBS <= 0) return 0;
 
-            var topString = frmVkb.TopText;
-            int topLen = topString._safeLength();
-            if (topLen > 0 && topString.Last() == '|') {
-                // 末尾がブロッカーフラグだったので、それを削除しておく
-                --topLen;
-                topString = topString.Substring(0, topLen);
-            }
-            if (Settings.LoggingDecKeyInfo) logger.Info($"ENTER: topString={topString}, topLen={topLen}, outString={outString._toString()}, outLen={outLen}, numBS={numBS}");
+            //var editString = frmVkb.TopText;
+            var editString = frmEditBuf.GetPreText();
+            int editLen = editString._safeLength();
+            if (Settings.LoggingDecKeyInfo) logger.Info($"ENTER: editString={editString}, editLen={editLen}, outString={outString._toString()}, outLen={outLen}, numBS={numBS}");
 
-            if (topLen <= 0) return 0;
+            if (editLen <= 0) return 0;
 
-            int topPos = topLen - numBS;
-            if (topPos < 0) return 0;
+            int editPos = editLen - numBS;
+            if (editPos < 0) return 0;
 
-            if (Settings.LoggingDecKeyInfo) logger.Info($"topLen={topLen}, topPos={topPos}, outLen={outLen}");
+            if (Settings.LoggingDecKeyInfo) logger.Info($"editLen={editLen}, editPos={editPos}, outLen={outLen}");
             int i = 0;
-            while (topPos + i < topLen && i < outLen && topString[topPos + i] == outString[i]) {
+            while (editPos + i < editLen && i < outLen && editString[editPos + i] == outString[i]) {
                 ++i;
             }
             if (Settings.LoggingDecKeyInfo) logger.Info($"LEAVE: LeadingLen={i}");
@@ -2171,7 +2167,7 @@ namespace KanchokuWS
 
             logger.Info(() =>
                 $"HandleDeckeyDecoder: RESULT: table#={decoderOutput.strokeTableNum}, strokeDepth={decoderOutput.GetStrokeCount()}, layout={decoderOutput.layout}, " +
-                $"numBS={decoderOutput.numBackSpaces}, resultFlags={decoderOutput.resultFlags:x}H, output={decoderOutput.outString._toString()}, topString={decoderOutput.topString._toString()}, " +
+                $"numBS={decoderOutput.numBackSpaces}, resultFlags={decoderOutput.resultFlags:x}H, output={decoderOutput.outString._toString()}, editString={decoderOutput.topString._toString()}, " +
                 $"IsDeckeyToVkey={decoderOutput.IsDeckeyToVkey()}, nextStrokeDeckey={decoderOutput.nextStrokeDeckey}");
 
             // 前置書き換え対象文字なら、許容時間をセットする

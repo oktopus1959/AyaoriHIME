@@ -35,6 +35,15 @@ namespace KanchokuWS.Forms
         /// <returns></returns>
         public string GetCleanText() => EditText._safeReplace(Settings.EditBufferCaretChar, "");
 
+        /// <summary> 編集バッファ内で、先頭からカレット文字までの文字列を返す</summary>
+        /// <returns></returns>
+        public string GetPreText()
+        {
+            int prePos = editTextBox.Text._safeIndexOf(Settings.EditBufferCaretChar[0]);
+            if (prePos < 0) prePos = editTextBox.Text.Length;
+            return editTextBox.Text._safeSubstring(0, prePos);
+        }
+
         //------------------------------------------------------------------------------------
         /// <summary> コンストラクタ </summary>
         /// <param name="form"></param>
@@ -90,7 +99,7 @@ namespace KanchokuWS.Forms
             bool bWasEmpty = editTextBox.Text._isEmpty();
             var str = chars._toString();
 
-            logger.InfoH(() => $"ENTER: str='{str}', numBS={numBS}, bFlushAll={bFlushAll}");
+            logger.InfoH(() => $"ENTER: EditText='{EditText}', str='{str}', numBS={numBS}, bFlushAll={bFlushAll}");
 
             if (str._isEmpty() && numBS <= 0 && !bFlushAll) return;
 
@@ -289,7 +298,7 @@ namespace KanchokuWS.Forms
             //    // フラッシュの後の余った入力は、SendInputする
             //    SendInputHandler.Singleton.SendString(str._safeSubstring(pos)._toCharArray(), str.Length - pos, 0);
             //}
-            logger.InfoH(() => $"LEAVE: EditText={EditText}, pos={editTextBox.Text._safeIndexOf(Settings.EditBufferCaretChar[0])}");
+            logger.InfoH(() => $"LEAVE: EditText='{EditText}', pos={editTextBox.Text._safeIndexOf(Settings.EditBufferCaretChar[0])}");
         }
 
         uint prevVkey = 0;
