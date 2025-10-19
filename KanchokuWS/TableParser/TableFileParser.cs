@@ -348,7 +348,7 @@ namespace KanchokuWS.TableParser
                 if (HasRootTable) idx = ShiftDecKey(idx);   // ルートパーザの場合は、 idx を Shiftしておく
                 switch (currentToken) {
                     case TOKEN.LBRACE:
-                        if (HasRootTable) logger.InfoH($"LBRACE: shiftPlane={ShiftPlane}");
+                        if (HasRootTable) logger.Info($"LBRACE: shiftPlane={ShiftPlane}");
                         AddTreeNode(idx)?.ParseNodeBlock();
                         break;
 
@@ -427,7 +427,7 @@ namespace KanchokuWS.TableParser
             }
 
             if (HasRootTable) {
-                logger.InfoH($"RBRACE: shiftPlane and placeHolders initialized");
+                logger.Info($"RBRACE: shiftPlane and placeHolders initialized");
                 Context.shiftPlane = 0;
                 placeHolders.Initialize();
             }
@@ -791,7 +791,7 @@ namespace KanchokuWS.TableParser
                 case TOKEN.LBRACE:
                     // ブロック開始
                     // ルートパーザの場合は、 UnhandledArrowIndex はすでに Shiftされている
-                    if (HasRootTable) logger.InfoH($"LBRACE: shiftPlane={ShiftPlane}");
+                    if (HasRootTable) logger.Info($"LBRACE: shiftPlane={ShiftPlane}");
                     AddTreeNode(UnhandledArrowIndex, comboBlockerDepth)?.ParseNodeBlock();
                     break;
 
@@ -865,7 +865,7 @@ namespace KanchokuWS.TableParser
                 ParseError($"parseArrowBundleNode: TOKEN.LBRACE is excpected, but {currentToken}");
                 return myNode;
             }
-            if (HasRootTable) logger.InfoH($"LBRACE: shiftPlane={ShiftPlane}");
+            if (HasRootTable) logger.Info($"LBRACE: shiftPlane={ShiftPlane}");
 
             TOKEN prevToken = 0;
             TOKEN prevPrevToken = 0;
@@ -912,7 +912,7 @@ namespace KanchokuWS.TableParser
             }
 
             if (HasRootTable) {
-                logger.InfoH($"RBRACE: shiftPlane and placeHolders initialized");
+                logger.Info($"RBRACE: shiftPlane and placeHolders initialized");
                 Context.shiftPlane = 0;
                 placeHolders.Initialize();
             }
@@ -1300,7 +1300,7 @@ namespace KanchokuWS.TableParser
             while (Context.currentToken != TOKEN.END) {
                 switch (Context.currentToken) {
                     case TOKEN.LBRACE:
-                        if (HasRootTable) logger.InfoH($"LBRACE: shiftPlane={ShiftPlane}");
+                        if (HasRootTable) logger.Info($"LBRACE: shiftPlane={ShiftPlane}");
                         ParseNodeBlock();
                         break;
 

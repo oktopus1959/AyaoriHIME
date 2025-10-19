@@ -389,14 +389,14 @@ namespace KanchokuWS.TableParser
                     bOverwrite = outputStr._notEmpty() && !IsFunctionNode();
                     if (bOverwrite && ParserContext.Singleton.bAppendWhenConflict) {
                         // 文字が重複したら、"|"で区切って連結する
-                        logger.Info(() => $"Node._merge: Append outputStr: this={this.DebugString()}, node={node.DebugString()}");
+                        logger.DebugH(() => $"Node._merge: Append outputStr: this={this.DebugString()}, node={node.DebugString()}");
                         var s1 = outputStr.GetSafeString();
                         bool isBare1 = outputStr.IsBare();
                         var s2 = node.outputStr.GetSafeString();
                         bool isBare2 = node.outputStr.IsBare();
                         var s = s1._isEmpty() ? s2 : s2._isEmpty() ? s1 : s1[0]._isKanji() ? s1 + "|" + s2 : s2 + "|" + s1;
                         outputStr = new OutputString(s, (s1._isEmpty() || s2._isEmpty()) && isBare1 && isBare2);
-                        logger.Info(() => $"Node._merge: New outputStr={this.DebugString()}");
+                        logger.DebugH(() => $"Node._merge: New outputStr={this.DebugString()}");
                         bOverwrite = false;
                     } else {
                         outputStr = node.outputStr;
@@ -434,7 +434,7 @@ namespace KanchokuWS.TableParser
 
         public void UpsertRewritePair(string tgtStr, Node rewriteNode)
         {
-            if (Settings.LoggingTableFileInfo) logger.Info(() => $"CALLED: tgtStr={tgtStr}, rewriteNode={rewriteNode.DebugString()}");
+            if (Settings.LoggingTableFileInfo) logger.DebugH(() => $"CALLED: tgtStr={tgtStr}, rewriteNode={rewriteNode.DebugString()}");
             if (tgtStr._notEmpty() && rewriteNode != null) {
                 upsertRewrteMap(tgtStr, rewriteNode);
             }
@@ -479,7 +479,7 @@ namespace KanchokuWS.TableParser
         /// <param name=""></param>
         public (Node, bool) SetOrMergeNthSubNode(int n, Node node)
         {
-            if (Settings.LoggingTableFileInfo) logger.Info(() => $"CALLED: n={n}, node={node.DebugString()}");
+            if (Settings.LoggingTableFileInfo) logger.DebugH(() => $"CALLED: n={n}, node={node.DebugString()}");
             if (subTable != null) {
                 if (n >= 0 && n < subTable.Length) {
                     bool bOverwritten = false;
@@ -538,7 +538,7 @@ namespace KanchokuWS.TableParser
                     // ツリーのスレッドを leaderStr として、終端ノードの文字列を出力
                     outputString(outLines, leaderStr);
                 }
-                logger.Info($"outputString: {outLines._getLast()}");
+                logger.DebugH($"outputString: {outLines._getLast()}");
             }
             if (HasSubNode()) {
                 // ツリーノード
