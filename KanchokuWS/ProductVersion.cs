@@ -9,7 +9,7 @@ namespace KanchokuWS
         public static string ProductKanjiName => "漢織姫";
         public static string ProductExplanation => "漢字とかなを織り交ぜるIME";
         /// <summary> バージョン </summary>
-        public static string Version => "0.9.0.10";
+        public static string Version => "0.9.0.11";
         public static string Version2 => "";
 
     }
