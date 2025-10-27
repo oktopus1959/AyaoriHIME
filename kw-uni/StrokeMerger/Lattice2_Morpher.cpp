@@ -148,24 +148,26 @@ namespace lattice2 {
                 const auto& items = *iter;
                 const MString& w = items[0];
                 const MString& feat = items[2];
-                if (w.size() == 1 && utils::is_hiragana(w[0])) {
-                    // 1文字ひらがなが2つ続いて、その前後もひらがなのケース
-                    // 「開発させる」⇒「さ きれ て さ せる」
-                    if (iter != wordItemsList.begin() && iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
-                        auto iter0 = iter - 1;
-                        auto iter1 = iter + 1;
-                        auto iter2 = iter + 2;
-                        const MString& w1 = iter1->front();
-                        if (w1.size() == 1 && utils::is_hiragana(w1[0])) {
-                            // 1文字ひらがなが2つ続いた
-                            if (utils::is_hiragana(iter0->front().back()) && utils::is_hiragana(iter2->front().front())) {
-                                // その前後もひらがながだった
-                                cost += MORPH_ISOLATED_HIRAGANA_COST;
-                                _LOG_DETAIL(L"{} {}: ADD ISOLATED_HIRAGANA_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), MORPH_ISOLATED_HIRAGANA_COST, cost);
-                            }
-                        }
-                    }
-                }
+
+                //if (w.size() == 1 && utils::is_hiragana(w[0])) {
+                //    // 1文字ひらがなが2つ続いて、その前後もひらがなのケース
+                //    // 「開発させる」⇒「さ きれ て さ せる」
+                //    if (iter != wordItemsList.begin() && iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
+                //        auto iter0 = iter - 1;
+                //        auto iter1 = iter + 1;
+                //        auto iter2 = iter + 2;
+                //        const MString& w1 = iter1->front();
+                //        if (w1.size() == 1 && utils::is_hiragana(w1[0])) {
+                //            // 1文字ひらがなが2つ続いた
+                //            if (utils::is_hiragana(iter0->front().back()) && utils::is_hiragana(iter2->front().front())) {
+                //                // その前後もひらがながだった
+                //                cost += MORPH_ISOLATED_HIRAGANA_COST;
+                //                _LOG_DETAIL(L"{} {}: ADD ISOLATED_HIRAGANA_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), MORPH_ISOLATED_HIRAGANA_COST, cost);
+                //            }
+                //        }
+                //    }
+                //}
+
                 if (SETTINGS->depressedContinuousKanjiNum > 0) {
                     if (w.size() == 1 && utils::is_pure_kanji(w[0])) {
                         if (SETTINGS->depressedContinuousKanjiNum == 2) {
