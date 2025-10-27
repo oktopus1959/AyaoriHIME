@@ -242,6 +242,7 @@ namespace KanchokuWS.Forms
             int fY = frmEditBuf.Location.Y + frmEditBuf.Height + 4;
             int fW = dgvHorizontal.Width + 2;
             int fH = dgvHorizontal.Height + 2;
+            if (fW < frmEditBuf.Width) fX = frmEditBuf.Right - fW;      // EditBuffer に合わせて右寄せ
             //logger.WarnH(() => $"MoveWindow: fX={fX}, fY={fY}, fW={fW}, fH={fH}");
             Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(frmEditBuf.Location.X, frmEditBuf.Location.Y);
             if (rect != Rectangle.Empty) {

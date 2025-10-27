@@ -391,6 +391,8 @@ namespace KanchokuWS.Gui
             this.radioButton_excludeFollowings = new System.Windows.Forms.RadioButton();
             this.radioButton_includeFollowings = new System.Windows.Forms.RadioButton();
             this.tabPage_history = new System.Windows.Forms.TabPage();
+            this.label_histReload = new System.Windows.Forms.Label();
+            this.button_histReload = new System.Windows.Forms.Button();
             this.groupBox53 = new System.Windows.Forms.GroupBox();
             this.button_openUserDicFile = new System.Windows.Forms.Button();
             this.button_selecUserDicFile = new System.Windows.Forms.Button();
@@ -427,6 +429,8 @@ namespace KanchokuWS.Gui
             this.label_okResultHist = new System.Windows.Forms.Label();
             this.textBox_histMaxLength = new System.Windows.Forms.TextBox();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
+            this.textBox_histRomanKeyLen = new System.Windows.Forms.TextBox();
+            this.label45 = new System.Windows.Forms.Label();
             this.checkBox_showHistCandsFromFirst = new System.Windows.Forms.CheckBox();
             this.textBox_histHorizontalCandMax = new System.Windows.Forms.TextBox();
             this.label79 = new System.Windows.Forms.Label();
@@ -4954,6 +4958,8 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_history
             // 
+            this.tabPage_history.Controls.Add(this.label_histReload);
+            this.tabPage_history.Controls.Add(this.button_histReload);
             this.tabPage_history.Controls.Add(this.groupBox53);
             this.tabPage_history.Controls.Add(this.groupBox44);
             this.tabPage_history.Controls.Add(this.groupBox17);
@@ -4973,6 +4979,32 @@ namespace KanchokuWS.Gui
             this.tabPage_history.ToolTipText = "履歴機能と交ぜ書き変換機能に関する設定";
             this.tabPage_history.UseVisualStyleBackColor = true;
             // 
+            // label_histReload
+            // 
+            this.label_histReload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label_histReload.AutoSize = true;
+            this.label_histReload.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_histReload.Location = new System.Drawing.Point(321, 345);
+            this.label_histReload.Name = "label_histReload";
+            this.label_histReload.Size = new System.Drawing.Size(77, 15);
+            this.label_histReload.TabIndex = 38;
+            this.label_histReload.Text = "再読込しました";
+            this.label_histReload.Visible = false;
+            this.label_histReload.VisibleChanged += new System.EventHandler(this.label_histReload_VisibleChanged);
+            // 
+            // button_histReload
+            // 
+            this.button_histReload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_histReload.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_histReload.Location = new System.Drawing.Point(320, 363);
+            this.button_histReload.Name = "button_histReload";
+            this.button_histReload.Size = new System.Drawing.Size(80, 23);
+            this.button_histReload.TabIndex = 37;
+            this.button_histReload.Text = "再読込(&R)";
+            this.toolTip1.SetToolTip(this.button_histReload, "各種ファイルの内容を再読み込みします。\r\n\r\n辞書を除く各種INIファイル、定義ファイルの内容をリロードして、\r\n内部の設定状態を更新します。\r\n");
+            this.button_histReload.UseVisualStyleBackColor = true;
+            this.button_histReload.Click += new System.EventHandler(this.button_histReload_Click);
+            // 
             // groupBox53
             // 
             this.groupBox53.Controls.Add(this.button_openUserDicFile);
@@ -4990,13 +5022,13 @@ namespace KanchokuWS.Gui
             // button_openUserDicFile
             // 
             this.button_openUserDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openUserDicFile.Location = new System.Drawing.Point(157, 67);
+            this.button_openUserDicFile.Location = new System.Drawing.Point(211, 67);
             this.button_openUserDicFile.Name = "button_openUserDicFile";
             this.button_openUserDicFile.Size = new System.Drawing.Size(58, 23);
-            this.button_openUserDicFile.TabIndex = 30;
+            this.button_openUserDicFile.TabIndex = 2;
             this.button_openUserDicFile.Text = "開く(&O)";
-            this.toolTip1.SetToolTip(this.button_openUserDicFile, "ユーザー辞書ソースファイルを開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n\r\nファイルの内容を修正した場合は、「インポート" +
-        "」を実行すると、\r\nその内容が反映されます。\r\n");
+            this.toolTip1.SetToolTip(this.button_openUserDicFile, "ユーザー辞書ソースファイルをエディター等で開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n（当刻ソースファイルの実際の拡張子" +
+        "にかかわらず）\r\n\r\nファイルの内容を修正した場合は、「インポート」を実行すると、\r\nその内容が読み込まれて、システムに反映されます。\r\n");
             this.button_openUserDicFile.UseVisualStyleBackColor = true;
             this.button_openUserDicFile.Click += new System.EventHandler(this.button_openUserDicFile_Click);
             // 
@@ -5004,10 +5036,10 @@ namespace KanchokuWS.Gui
             // 
             this.button_selecUserDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_selecUserDicFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_selecUserDicFile.Location = new System.Drawing.Point(14, 67);
+            this.button_selecUserDicFile.Location = new System.Drawing.Point(13, 67);
             this.button_selecUserDicFile.Name = "button_selecUserDicFile";
-            this.button_selecUserDicFile.Size = new System.Drawing.Size(100, 23);
-            this.button_selecUserDicFile.TabIndex = 29;
+            this.button_selecUserDicFile.Size = new System.Drawing.Size(90, 23);
+            this.button_selecUserDicFile.TabIndex = 1;
             this.button_selecUserDicFile.Text = "ファイル選択(&D)";
             this.toolTip1.SetToolTip(this.button_selecUserDicFile, "ファイルダイアログでユーザー辞書ソースファイルを選択します。");
             this.button_selecUserDicFile.UseVisualStyleBackColor = true;
@@ -5020,9 +5052,9 @@ namespace KanchokuWS.Gui
             this.button_ImportUserDIc.Location = new System.Drawing.Point(275, 67);
             this.button_ImportUserDIc.Name = "button_ImportUserDIc";
             this.button_ImportUserDIc.Size = new System.Drawing.Size(80, 23);
-            this.button_ImportUserDIc.TabIndex = 28;
+            this.button_ImportUserDIc.TabIndex = 3;
             this.button_ImportUserDIc.Text = "インポート(&I)";
-            this.toolTip1.SetToolTip(this.button_ImportUserDIc, "指定のユーザー辞書ソースをコンパイルして、結果のバイナリー辞書をロードします。");
+            this.toolTip1.SetToolTip(this.button_ImportUserDIc, "指定のユーザー辞書ソースをコンパイルして、\r\n結果のバイナリー辞書をロードします。");
             this.button_ImportUserDIc.UseVisualStyleBackColor = true;
             this.button_ImportUserDIc.Click += new System.EventHandler(this.button_ImportUserDIc_Click);
             // 
@@ -5034,15 +5066,14 @@ namespace KanchokuWS.Gui
             this.label169.Size = new System.Drawing.Size(127, 15);
             this.label169.TabIndex = 27;
             this.label169.Text = "ユーザー辞書ソースファイル";
-            this.label169.Visible = false;
             // 
             // textBox_mazeUserDicSourceFile
             // 
             this.textBox_mazeUserDicSourceFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.textBox_mazeUserDicSourceFile.Location = new System.Drawing.Point(14, 44);
             this.textBox_mazeUserDicSourceFile.Name = "textBox_mazeUserDicSourceFile";
-            this.textBox_mazeUserDicSourceFile.Size = new System.Drawing.Size(341, 19);
-            this.textBox_mazeUserDicSourceFile.TabIndex = 4;
+            this.textBox_mazeUserDicSourceFile.Size = new System.Drawing.Size(340, 19);
+            this.textBox_mazeUserDicSourceFile.TabIndex = 0;
             this.textBox_mazeUserDicSourceFile.TextChanged += new System.EventHandler(this.textBox_mazeUserDicSourceFile_TextChanged);
             // 
             // groupBox44
@@ -5051,9 +5082,9 @@ namespace KanchokuWS.Gui
             this.groupBox44.Controls.Add(this.textBox_mazeHistRegisterMinLen);
             this.groupBox44.Controls.Add(this.label112);
             this.groupBox44.Controls.Add(this.textBox_histMapGobiMaxLength);
-            this.groupBox44.Location = new System.Drawing.Point(11, 326);
+            this.groupBox44.Location = new System.Drawing.Point(369, 232);
             this.groupBox44.Name = "groupBox44";
-            this.groupBox44.Size = new System.Drawing.Size(307, 60);
+            this.groupBox44.Size = new System.Drawing.Size(280, 60);
             this.groupBox44.TabIndex = 2;
             this.groupBox44.TabStop = false;
             this.groupBox44.Text = "交ぜ書き変換履歴";
@@ -5109,9 +5140,9 @@ namespace KanchokuWS.Gui
             this.groupBox17.Controls.Add(this.comboBox_histDelDeckeyId);
             this.groupBox17.Controls.Add(this.label42);
             this.groupBox17.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox17.Location = new System.Drawing.Point(11, 193);
+            this.groupBox17.Location = new System.Drawing.Point(11, 222);
             this.groupBox17.Name = "groupBox17";
-            this.groupBox17.Size = new System.Drawing.Size(307, 127);
+            this.groupBox17.Size = new System.Drawing.Size(307, 131);
             this.groupBox17.TabIndex = 1;
             this.groupBox17.TabStop = false;
             this.groupBox17.Text = "履歴選択・削除";
@@ -5386,6 +5417,8 @@ namespace KanchokuWS.Gui
             // 
             // groupBox12
             // 
+            this.groupBox12.Controls.Add(this.textBox_histRomanKeyLen);
+            this.groupBox12.Controls.Add(this.label45);
             this.groupBox12.Controls.Add(this.checkBox_showHistCandsFromFirst);
             this.groupBox12.Controls.Add(this.textBox_histHorizontalCandMax);
             this.groupBox12.Controls.Add(this.label79);
@@ -5402,18 +5435,39 @@ namespace KanchokuWS.Gui
             this.groupBox12.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.groupBox12.Location = new System.Drawing.Point(11, 4);
             this.groupBox12.Name = "groupBox12";
-            this.groupBox12.Size = new System.Drawing.Size(307, 185);
+            this.groupBox12.Size = new System.Drawing.Size(307, 212);
             this.groupBox12.TabIndex = 0;
             this.groupBox12.TabStop = false;
             this.groupBox12.Text = "履歴検索";
             // 
+            // textBox_histRomanKeyLen
+            // 
+            this.textBox_histRomanKeyLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_histRomanKeyLen.Location = new System.Drawing.Point(253, 97);
+            this.textBox_histRomanKeyLen.Name = "textBox_histRomanKeyLen";
+            this.textBox_histRomanKeyLen.Size = new System.Drawing.Size(34, 19);
+            this.textBox_histRomanKeyLen.TabIndex = 4;
+            this.textBox_histRomanKeyLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_histRomanKeyLen, "自動履歴検索がONの場合、ここで設定した文字数だけ英字が\r\n入力されたら、履歴を検索します。\r\n\r\nたとえば、3に設定すると、3文字続けて英字(ローマ字)が入力さ" +
+        "れたら\r\n履歴検索が実行されます。英字2文字だけでは実行されません。\r\n\r\nなお、英字を含む文字列は自動的な履歴登録の対象外です。\r\n「辞書登録」タブで登録する" +
+        "か、仮想鍵盤のミニバッファに文字列を\r\nコピペすることで登録できます。\r\n");
+            // 
+            // label45
+            // 
+            this.label45.AutoSize = true;
+            this.label45.Location = new System.Drawing.Point(36, 99);
+            this.label45.Name = "label45";
+            this.label45.Size = new System.Drawing.Size(190, 15);
+            this.label45.TabIndex = 10;
+            this.label45.Text = "自動履歴検索に使う英字列の最小長";
+            // 
             // checkBox_showHistCandsFromFirst
             // 
             this.checkBox_showHistCandsFromFirst.AutoSize = true;
-            this.checkBox_showHistCandsFromFirst.Location = new System.Drawing.Point(20, 143);
+            this.checkBox_showHistCandsFromFirst.Location = new System.Drawing.Point(20, 165);
             this.checkBox_showHistCandsFromFirst.Name = "checkBox_showHistCandsFromFirst";
             this.checkBox_showHistCandsFromFirst.Size = new System.Drawing.Size(205, 19);
-            this.checkBox_showHistCandsFromFirst.TabIndex = 7;
+            this.checkBox_showHistCandsFromFirst.TabIndex = 8;
             this.checkBox_showHistCandsFromFirst.Text = "初回選択時は横列候補表示をしない";
             this.toolTip1.SetToolTip(this.checkBox_showHistCandsFromFirst, "ここをチェックすると、自動履歴検索が有効になっていない場合に、\r\n履歴検索・候補選択キーによる初回の履歴候補検索時には\r\n検索された候補の出力だけを行い、横列の履" +
         "歴候補表示を\r\n行いません。\r\n\r\n続けて履歴検索・候補選択キーによる履歴候補検索を行うと、\r\n横列候補が表示されます。");
@@ -5422,20 +5476,20 @@ namespace KanchokuWS.Gui
             // textBox_histHorizontalCandMax
             // 
             this.textBox_histHorizontalCandMax.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_histHorizontalCandMax.Location = new System.Drawing.Point(151, 162);
+            this.textBox_histHorizontalCandMax.Location = new System.Drawing.Point(151, 184);
             this.textBox_histHorizontalCandMax.Name = "textBox_histHorizontalCandMax";
             this.textBox_histHorizontalCandMax.Size = new System.Drawing.Size(34, 19);
-            this.textBox_histHorizontalCandMax.TabIndex = 8;
+            this.textBox_histHorizontalCandMax.TabIndex = 10;
             this.textBox_histHorizontalCandMax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_histHorizontalCandMax, "履歴候補を横列表示する際の最大候補数\r\n\r\n最小値は 1、 最大値は 10 です。");
             // 
             // label79
             // 
             this.label79.AutoSize = true;
-            this.label79.Location = new System.Drawing.Point(17, 164);
+            this.label79.Location = new System.Drawing.Point(17, 186);
             this.label79.Name = "label79";
             this.label79.Size = new System.Drawing.Size(125, 15);
-            this.label79.TabIndex = 8;
+            this.label79.TabIndex = 9;
             this.label79.Text = "横列候補表示の最大数";
             // 
             // comboBox_historySearchKey
@@ -5443,10 +5497,10 @@ namespace KanchokuWS.Gui
             this.comboBox_historySearchKey.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_historySearchKey.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
             this.comboBox_historySearchKey.FormattingEnabled = true;
-            this.comboBox_historySearchKey.Location = new System.Drawing.Point(199, 121);
+            this.comboBox_historySearchKey.Location = new System.Drawing.Point(199, 143);
             this.comboBox_historySearchKey.Name = "comboBox_historySearchKey";
             this.comboBox_historySearchKey.Size = new System.Drawing.Size(89, 20);
-            this.comboBox_historySearchKey.TabIndex = 6;
+            this.comboBox_historySearchKey.TabIndex = 7;
             this.toolTip1.SetToolTip(this.comboBox_historySearchKey, "履歴検索および選択を実行する Ctrlキーを選択します\r\n\r\n自動履歴検索がOFFの状態でも、ここで設定したキーを押すと\r\n履歴検索を実行します。\r\nまた、キーを" +
         "続けて押すと履歴候補を上から順に選択していきます。\r\n(同時にShiftを押すと、逆順に選択します)");
             this.comboBox_historySearchKey.DropDown += new System.EventHandler(this.comboBox_historySearchKey_DropDown);
@@ -5488,10 +5542,10 @@ namespace KanchokuWS.Gui
             // checkBox_historySearchKey
             // 
             this.checkBox_historySearchKey.AutoSize = true;
-            this.checkBox_historySearchKey.Location = new System.Drawing.Point(20, 122);
+            this.checkBox_historySearchKey.Location = new System.Drawing.Point(20, 144);
             this.checkBox_historySearchKey.Name = "checkBox_historySearchKey";
             this.checkBox_historySearchKey.Size = new System.Drawing.Size(185, 19);
-            this.checkBox_historySearchKey.TabIndex = 5;
+            this.checkBox_historySearchKey.TabIndex = 6;
             this.checkBox_historySearchKey.Text = "履歴検索・候補選択する     Ctrl-";
             this.toolTip1.SetToolTip(this.checkBox_historySearchKey, "Ctrl修飾キーで履歴検索を実行し、同時に先頭候補を選択できるようにします。\n\n連続して押すことで、次の候補を選択することもできます。\nこれは自動履歴検索がOFF" +
         "の場合でも有効です。\n\n履歴検索・選択は、 「その他設定 > 拡張修飾キー」の「設定」をクリックして開く\n「拡張修飾キー設定」ダイアログで、適当なキーに His" +
@@ -5502,10 +5556,10 @@ namespace KanchokuWS.Gui
             // checkBox_selectFirstCandByEnter
             // 
             this.checkBox_selectFirstCandByEnter.AutoSize = true;
-            this.checkBox_selectFirstCandByEnter.Location = new System.Drawing.Point(40, 98);
+            this.checkBox_selectFirstCandByEnter.Location = new System.Drawing.Point(40, 120);
             this.checkBox_selectFirstCandByEnter.Name = "checkBox_selectFirstCandByEnter";
             this.checkBox_selectFirstCandByEnter.Size = new System.Drawing.Size(210, 19);
-            this.checkBox_selectFirstCandByEnter.TabIndex = 4;
+            this.checkBox_selectFirstCandByEnter.TabIndex = 5;
             this.checkBox_selectFirstCandByEnter.Text = "Enterキーで先頭候補を選択・確定する";
             this.toolTip1.SetToolTip(this.checkBox_selectFirstCandByEnter, "自動履歴検索で横列表示された候補の先頭候補を\nEnterキーで選択・確定するかを設定します。\n\n当設定をOFFに設定してあるのに、つい選択するつもりで\nEnter" +
         "を押してしまった場合は、出力先ウィンドウでEnter前の\n位置にカレットを移動させてからブロッカーを解除して手動で\n履歴検索を実行してください。\n\nなお、履歴候" +
@@ -8273,5 +8327,9 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.TextBox textBox_mazeUserDicSourceFile;
         private System.Windows.Forms.Button button_selecUserDicFile;
         private System.Windows.Forms.Button button_openUserDicFile;
+        private System.Windows.Forms.Label label_histReload;
+        private System.Windows.Forms.Button button_histReload;
+        private System.Windows.Forms.TextBox textBox_histRomanKeyLen;
+        private System.Windows.Forms.Label label45;
     }
 }

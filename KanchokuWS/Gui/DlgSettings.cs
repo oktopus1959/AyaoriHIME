@@ -1651,6 +1651,7 @@ namespace KanchokuWS.Gui
             textBox_histKanjiKeyLen.Text = $"{Settings.HistKanjiKeyLength}";
             textBox_histKatakanaKeyLen.Text = $"{Settings.HistKatakanaKeyLength}";
             textBox_histHiraganaKeyLen.Text = $"{Settings.HistHiraganaKeyLength}";
+            textBox_histRomanKeyLen.Text = $"{Settings.HistRomanKeyLength}";
             textBox_histHorizontalCandMax.Text = $"{Settings.HistHorizontalCandMax}";
             checkBox_autoHistEnabled.Checked = Settings.AutoHistSearchEnabled;
             comboBox_historySearchKey.Enabled = checkBox_historySearchKey.Checked;
@@ -1701,6 +1702,7 @@ namespace KanchokuWS.Gui
             checkerHistory.Add(textBox_histKanjiKeyLen);
             checkerHistory.Add(textBox_histKatakanaKeyLen);
             checkerHistory.Add(textBox_histHiraganaKeyLen);
+            checkerHistory.Add(textBox_histRomanKeyLen);
             checkerHistory.Add(textBox_histHorizontalCandMax);
             checkerHistory.Add(checkBox_autoHistEnabled);
             checkerHistory.Add(checkBox_historySearchKey);
@@ -1753,6 +1755,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("histKatakanaWordMaxLength", textBox_histKatakanaWordMaxLength.Text.Trim());
             //Settings.SetUserIni("histMaxLength", textBox_histMaxLength.Text.Trim());
             Settings.SetUserIni("histHiraganaKeyLength", textBox_histHiraganaKeyLen.Text.Trim());
+            Settings.SetUserIni("histRomanKeyLength", textBox_histRomanKeyLen.Text.Trim());
             Settings.SetUserIni("histHorizontalCandMax", textBox_histHorizontalCandMax.Text.Trim());
             Settings.SetUserIni("histKatakanaKeyLength", textBox_histKatakanaKeyLen.Text.Trim());
             Settings.SetUserIni("histKanjiKeyLength", textBox_histKanjiKeyLen.Text.Trim());
@@ -1798,6 +1801,14 @@ namespace KanchokuWS.Gui
             label_okResultHist.Show();
 
             logger.Info("LEAVE");
+        }
+
+        private void button_histReload_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            reloadIniFileAndDefFiles();
+            label_histReload.Show();
+
         }
 
         private void button_histClose_Click(object sender, EventArgs e)
@@ -2393,6 +2404,7 @@ namespace KanchokuWS.Gui
                     label_imeComboReload.Hide();
                     label_keyAssignReload.Hide();
                     label_ctrlReload.Hide();
+                    label_histReload.Hide();
                     label_miscRomanOut.Hide();
                     label_miscEelllJsOut.Hide();
                     label_miscReload.Hide();
@@ -2459,6 +2471,11 @@ namespace KanchokuWS.Gui
         }
 
         private void label_ctrlReload_VisibleChanged(object sender, EventArgs e)
+        {
+            okResultCount = okResultCountMax;
+        }
+
+        private void label_histReload_VisibleChanged(object sender, EventArgs e)
         {
             okResultCount = okResultCountMax;
         }
