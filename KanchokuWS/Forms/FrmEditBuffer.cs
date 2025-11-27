@@ -341,7 +341,8 @@ namespace KanchokuWS.Forms
                 case (uint)Keys.Escape:
                     logger.InfoH($"Escape");
                     if (prevVkey == vkey) {
-                        FlushBuffer(true);
+                        //FlushBuffer(true);
+                        ClearBuffer();
                     }
                     break;
             }
