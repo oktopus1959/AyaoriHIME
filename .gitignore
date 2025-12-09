@@ -3,6 +3,7 @@ test_script.txt
 bin/
 Debug/
 DyMazin/
+NgramAnalyzer/
 Release/
 ipch/
 obj/

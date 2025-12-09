@@ -385,7 +385,7 @@ namespace KanchokuWS
             return NumBSforShiftLeftArrowDelete > 0 && numBS >= NumBSforShiftLeftArrowDelete && ShiftLeftArrowDeleteClassNamesHash._safeContains(className._toLower());
         }
 
-        /// <summary>BS で全打鍵を取り消すか</summary>
+        /// <summary>BS で直前打鍵のみを取り消すか</summary>
         public static bool RemoveOneStrokeByBackspace { get; set; }
 
         /// <summary> 同時打鍵ではないテーブルで、ノード重複の警告を表示するか </summary>

@@ -786,6 +786,7 @@ namespace lattice2 {
                     }
                     // pieceが確定文字の場合
                     if (pieceStr.size() == 1 && lattice2::isCommitChar(pieceStr[0])) {
+                        _LOG_DETAIL(_T("pieceStr[0] is commit char"));
                         // 先頭候補だけを残す
                         break;
                     }
@@ -832,12 +833,12 @@ namespace lattice2 {
         }
 
         // CurrentStroke の候補を削除する
-        void removeCurrentStrokeCandidates(std::vector<CandidateString>& newCandidates, int strokeCount) {
-            _LOG_DETAIL(L"ENTER: _candidates.size={}, prevBS={}, strokeCount={}", _candidates.size(), _prevBS, strokeCount);
+        void removeCurrentStrokeCandidates(std::vector<CandidateString>& newCandidates, int strokeCount, int removeLen) {
+            _LOG_DETAIL(L"ENTER: _candidates.size={}, prevBS={}, strokeCount={}, removeLen={}", _candidates.size(), _prevBS, strokeCount, removeLen);
             if (!_prevBS) {
                 if (!_candidates.empty()) {
                     const auto& firstCand = _candidates.front();
-                    int delta = 2;
+                    int delta = removeLen + 1;
                     for (const auto& cand : _candidates) {
                         if (cand.strokeLen() + delta <= strokeCount) {
                             if (cand.string() == firstCand.string()) {
@@ -862,6 +863,25 @@ namespace lattice2 {
                 }
             }
             _LOG_DETAIL(L"LEAVE: {} candidates", newCandidates.size());
+        }
+
+        // 末尾文字を削除して残った文字列と同じ候補があれば、そのストローク長まで候候を削除する
+        void removeLastCharCandidate(std::vector<CandidateString>& newCandidates, int strokeCount) {
+            if (!_candidates.empty()) {
+                int removeLen = 0;
+                const auto& firstCand = _candidates.front();
+                _LOG_DETAIL(L"remove last char candidate: {}", to_wstr(_candidates.front().string()));
+                const MString str = utils::safe_substr(_candidates.front().string(), 0, -1);
+                for (const auto& cand : _candidates) {
+                    if (str == cand.string()) {
+                        _LOG_DETAIL(L"FOUND same candidate: {}", cand.debugString());
+                        removeLen = firstCand.strokeLen() - cand.strokeLen();
+                        break;
+                    }
+                }
+                if (removeLen <= 0) removeLen = 1;
+                removeCurrentStrokeCandidates(newCandidates, strokeCount, removeLen);
+            }
         }
 
         //// Strokeを一つ進める
@@ -899,7 +919,7 @@ namespace lattice2 {
                 _LOG_DETAIL(_T("strokeBack"));
                 // strokeBackの場合
                 //_LOG_DETAIL(L"strokeBack");
-                removeCurrentStrokeCandidates(newCandidates, strokeCount);
+                removeCurrentStrokeCandidates(newCandidates, strokeCount, 1);
                 if (!newCandidates.empty()) {
                     _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
                     return newCandidates;
@@ -910,6 +930,18 @@ namespace lattice2 {
             bool isPaddingPiece = pieces.size() == 1 && pieces.front().isPadding();
             bool isBSpiece = pieces.size() == 1 && pieces.front().isBS();
             _LOG_DETAIL(_T("isPaddingPiece={}, isBSpiece={}"), isPaddingPiece, isBSpiece);
+
+            //if (isBSpiece) {
+            //    // 末尾文字を削除して残った文字列と同じ候補があれば、そのストローク長まで候補を削除する
+            //    //removeLastCharCandidate(newCandidates, strokeCount);
+            //    removeCurrentStrokeCandidates(newCandidates, strokeCount, 1);
+            //    if (!newCandidates.empty()) {
+            //        _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
+            //        return newCandidates;
+            //    }
+            //    // 以前のストロークの候補が無ければ、通常のBSの動作とする
+            //    removeOtherThanFirst();
+            //}
             _prevBS = isBSpiece;
 
             if (!isPaddingPiece && !isBSpiece) {
