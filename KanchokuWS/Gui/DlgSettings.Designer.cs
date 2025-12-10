@@ -500,6 +500,8 @@ namespace KanchokuWS.Gui
             this.checkBox_convertJaComma = new System.Windows.Forms.CheckBox();
             this.checkBox_convertJaPeriod = new System.Windows.Forms.CheckBox();
             this.tabPage_fusion = new System.Windows.Forms.TabPage();
+            this.textBox_maxStrokeBackCount = new System.Windows.Forms.TextBox();
+            this.label46 = new System.Windows.Forms.Label();
             this.groupBox52 = new System.Windows.Forms.GroupBox();
             this.button_checkModifiers = new System.Windows.Forms.Button();
             this.checkBox_leftCtrl = new System.Windows.Forms.CheckBox();
@@ -6259,6 +6261,8 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_fusion
             // 
+            this.tabPage_fusion.Controls.Add(this.textBox_maxStrokeBackCount);
+            this.tabPage_fusion.Controls.Add(this.label46);
             this.tabPage_fusion.Controls.Add(this.groupBox52);
             this.tabPage_fusion.Controls.Add(this.groupBox51);
             this.tabPage_fusion.Controls.Add(this.checkBox_outputHeadSpace);
@@ -6296,6 +6300,24 @@ namespace KanchokuWS.Gui
             this.tabPage_fusion.TabIndex = 11;
             this.tabPage_fusion.Text = "配列融合";
             this.tabPage_fusion.UseVisualStyleBackColor = true;
+            // 
+            // textBox_maxStrokeBackCount
+            // 
+            this.textBox_maxStrokeBackCount.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_maxStrokeBackCount.Location = new System.Drawing.Point(45, 135);
+            this.textBox_maxStrokeBackCount.Name = "textBox_maxStrokeBackCount";
+            this.textBox_maxStrokeBackCount.Size = new System.Drawing.Size(34, 19);
+            this.textBox_maxStrokeBackCount.TabIndex = 76;
+            this.textBox_maxStrokeBackCount.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label46
+            // 
+            this.label46.AutoSize = true;
+            this.label46.Location = new System.Drawing.Point(81, 137);
+            this.label46.Name = "label46";
+            this.label46.Size = new System.Drawing.Size(201, 15);
+            this.label46.TabIndex = 77;
+            this.label46.Text = "回の連続BS打鍵で本来のBS動作に戻る";
             // 
             // groupBox52
             // 
@@ -6421,7 +6443,7 @@ namespace KanchokuWS.Gui
             // checkBox_outputHeadSpace
             // 
             this.checkBox_outputHeadSpace.AutoSize = true;
-            this.checkBox_outputHeadSpace.Location = new System.Drawing.Point(27, 141);
+            this.checkBox_outputHeadSpace.Location = new System.Drawing.Point(27, 164);
             this.checkBox_outputHeadSpace.Name = "checkBox_outputHeadSpace";
             this.checkBox_outputHeadSpace.Size = new System.Drawing.Size(298, 19);
             this.checkBox_outputHeadSpace.TabIndex = 71;
@@ -6431,7 +6453,7 @@ namespace KanchokuWS.Gui
             // textBox_remainingStrokeSize
             // 
             this.textBox_remainingStrokeSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(188, 116);
+            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(156, 94);
             this.textBox_remainingStrokeSize.Name = "textBox_remainingStrokeSize";
             this.textBox_remainingStrokeSize.Size = new System.Drawing.Size(34, 19);
             this.textBox_remainingStrokeSize.TabIndex = 69;
@@ -6440,16 +6462,16 @@ namespace KanchokuWS.Gui
             // label168
             // 
             this.label168.AutoSize = true;
-            this.label168.Location = new System.Drawing.Point(43, 118);
+            this.label168.Location = new System.Drawing.Point(24, 96);
             this.label168.Name = "label168";
-            this.label168.Size = new System.Drawing.Size(142, 15);
+            this.label168.Size = new System.Drawing.Size(130, 15);
             this.label168.TabIndex = 70;
-            this.label168.Text = "残しておく多ストロークの範囲";
+            this.label168.Text = "残しておくストロークの範囲";
             // 
             // checkBox_strokeBackByBS
             // 
             this.checkBox_strokeBackByBS.AutoSize = true;
-            this.checkBox_strokeBackByBS.Location = new System.Drawing.Point(27, 96);
+            this.checkBox_strokeBackByBS.Location = new System.Drawing.Point(26, 116);
             this.checkBox_strokeBackByBS.Name = "checkBox_strokeBackByBS";
             this.checkBox_strokeBackByBS.Size = new System.Drawing.Size(158, 19);
             this.checkBox_strokeBackByBS.TabIndex = 68;
@@ -6553,7 +6575,7 @@ namespace KanchokuWS.Gui
             "▴",
             "⏐",
             "‸"});
-            this.comboBox_editBufferCaretChar.Location = new System.Drawing.Point(197, 280);
+            this.comboBox_editBufferCaretChar.Location = new System.Drawing.Point(197, 303);
             this.comboBox_editBufferCaretChar.Name = "comboBox_editBufferCaretChar";
             this.comboBox_editBufferCaretChar.Size = new System.Drawing.Size(55, 20);
             this.comboBox_editBufferCaretChar.TabIndex = 57;
@@ -6562,7 +6584,7 @@ namespace KanchokuWS.Gui
             // label163
             // 
             this.label163.AutoSize = true;
-            this.label163.Location = new System.Drawing.Point(25, 282);
+            this.label163.Location = new System.Drawing.Point(25, 305);
             this.label163.Name = "label163";
             this.label163.Size = new System.Drawing.Size(132, 15);
             this.label163.TabIndex = 55;
@@ -6571,7 +6593,7 @@ namespace KanchokuWS.Gui
             // textBox_editBufferFlushChar
             // 
             this.textBox_editBufferFlushChar.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_editBufferFlushChar.Location = new System.Drawing.Point(197, 302);
+            this.textBox_editBufferFlushChar.Location = new System.Drawing.Point(197, 325);
             this.textBox_editBufferFlushChar.Name = "textBox_editBufferFlushChar";
             this.textBox_editBufferFlushChar.Size = new System.Drawing.Size(175, 19);
             this.textBox_editBufferFlushChar.TabIndex = 54;
@@ -6579,7 +6601,7 @@ namespace KanchokuWS.Gui
             // label158
             // 
             this.label158.AutoSize = true;
-            this.label158.Location = new System.Drawing.Point(25, 304);
+            this.label158.Location = new System.Drawing.Point(25, 327);
             this.label158.Name = "label158";
             this.label158.Size = new System.Drawing.Size(166, 15);
             this.label158.TabIndex = 53;
@@ -6624,7 +6646,7 @@ namespace KanchokuWS.Gui
             // textBox_realtimeTrigramTier2Num
             // 
             this.textBox_realtimeTrigramTier2Num.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_realtimeTrigramTier2Num.Location = new System.Drawing.Point(338, 242);
+            this.textBox_realtimeTrigramTier2Num.Location = new System.Drawing.Point(338, 265);
             this.textBox_realtimeTrigramTier2Num.Name = "textBox_realtimeTrigramTier2Num";
             this.textBox_realtimeTrigramTier2Num.Size = new System.Drawing.Size(34, 19);
             this.textBox_realtimeTrigramTier2Num.TabIndex = 49;
@@ -6633,7 +6655,7 @@ namespace KanchokuWS.Gui
             // label161
             // 
             this.label161.AutoSize = true;
-            this.label161.Location = new System.Drawing.Point(25, 244);
+            this.label161.Location = new System.Drawing.Point(25, 267);
             this.label161.Name = "label161";
             this.label161.Size = new System.Drawing.Size(278, 15);
             this.label161.TabIndex = 48;
@@ -6642,7 +6664,7 @@ namespace KanchokuWS.Gui
             // textBox_realtimeTrigramTier1Num
             // 
             this.textBox_realtimeTrigramTier1Num.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_realtimeTrigramTier1Num.Location = new System.Drawing.Point(338, 220);
+            this.textBox_realtimeTrigramTier1Num.Location = new System.Drawing.Point(338, 243);
             this.textBox_realtimeTrigramTier1Num.Name = "textBox_realtimeTrigramTier1Num";
             this.textBox_realtimeTrigramTier1Num.Size = new System.Drawing.Size(34, 19);
             this.textBox_realtimeTrigramTier1Num.TabIndex = 47;
@@ -6651,7 +6673,7 @@ namespace KanchokuWS.Gui
             // label160
             // 
             this.label160.AutoSize = true;
-            this.label160.Location = new System.Drawing.Point(25, 222);
+            this.label160.Location = new System.Drawing.Point(25, 245);
             this.label160.Name = "label160";
             this.label160.Size = new System.Drawing.Size(284, 15);
             this.label160.TabIndex = 46;
@@ -6660,7 +6682,7 @@ namespace KanchokuWS.Gui
             // textBox_realtimeTrigramBonusFactor
             // 
             this.textBox_realtimeTrigramBonusFactor.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_realtimeTrigramBonusFactor.Location = new System.Drawing.Point(338, 198);
+            this.textBox_realtimeTrigramBonusFactor.Location = new System.Drawing.Point(338, 221);
             this.textBox_realtimeTrigramBonusFactor.Name = "textBox_realtimeTrigramBonusFactor";
             this.textBox_realtimeTrigramBonusFactor.Size = new System.Drawing.Size(34, 19);
             this.textBox_realtimeTrigramBonusFactor.TabIndex = 45;
@@ -6669,7 +6691,7 @@ namespace KanchokuWS.Gui
             // label159
             // 
             this.label159.AutoSize = true;
-            this.label159.Location = new System.Drawing.Point(25, 200);
+            this.label159.Location = new System.Drawing.Point(25, 223);
             this.label159.Name = "label159";
             this.label159.Size = new System.Drawing.Size(310, 15);
             this.label159.TabIndex = 44;
@@ -6688,7 +6710,7 @@ namespace KanchokuWS.Gui
             // textBox_challengeNumForSameLeader
             // 
             this.textBox_challengeNumForSameLeader.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_challengeNumForSameLeader.Location = new System.Drawing.Point(26, 167);
+            this.textBox_challengeNumForSameLeader.Location = new System.Drawing.Point(26, 190);
             this.textBox_challengeNumForSameLeader.Name = "textBox_challengeNumForSameLeader";
             this.textBox_challengeNumForSameLeader.Size = new System.Drawing.Size(34, 19);
             this.textBox_challengeNumForSameLeader.TabIndex = 40;
@@ -6697,7 +6719,7 @@ namespace KanchokuWS.Gui
             // label157
             // 
             this.label157.AutoSize = true;
-            this.label157.Location = new System.Drawing.Point(62, 169);
+            this.label157.Location = new System.Drawing.Point(62, 192);
             this.label157.Name = "label157";
             this.label157.Size = new System.Drawing.Size(257, 15);
             this.label157.TabIndex = 41;
@@ -8331,5 +8353,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Button button_histReload;
         private System.Windows.Forms.TextBox textBox_histRomanKeyLen;
         private System.Windows.Forms.Label label45;
+        private System.Windows.Forms.TextBox textBox_maxStrokeBackCount;
+        private System.Windows.Forms.Label label46;
     }
 }

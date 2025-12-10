@@ -1822,7 +1822,7 @@ namespace KanchokuWS
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード
             OutputHeadSpace = addDecoderSetting("outputHeadSpace", true);                       // 先頭のスペースをそのまま出力する
             StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う
-            MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 2);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
+            MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 4);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
             MultiStreamBeamSize = addDecoderSetting("multiStreamBeamSize", 5);                  // 融合モードにおける解探索のビームサイズ
             ExtraBeamSizeRate = addDecoderSetting("extraBeamSizeRate", 0.5);                    // 余分に残しておく候補の割合
             RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲

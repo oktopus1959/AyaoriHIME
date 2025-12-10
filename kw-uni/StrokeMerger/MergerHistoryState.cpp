@@ -436,7 +436,7 @@ namespace {
                         LOG_DEBUGH(_T("BS"));
                         _strokeCountBS = (int)STATE_COMMON->GetTotalDecKeyCount();
                         if (_strokeCountBS != _prevStrokeCountBS + 1) _startStrokeCountBS = _strokeCountBS;
-                        if (SETTINGS->strokeBackByBS && _strokeCountBS - _startStrokeCountBS < SETTINGS->maxStrokeBackCount) {
+                        if (SETTINGS->strokeBackByBS && (SETTINGS->maxStrokeBackCount <= 0 || _strokeCountBS - _startStrokeCountBS < SETTINGS->maxStrokeBackCount)) {
                             // 打鍵取消
                             LOG_DEBUGH(_T("stroke back by BS"));
                             _strokeBack = true;

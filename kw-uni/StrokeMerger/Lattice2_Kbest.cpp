@@ -139,7 +139,7 @@ namespace lattice2 {
 
         std::vector<MString> _bestStack;
 
-        bool _prevBS = false;
+        //bool _prevBS = false;
 
         // 次候補/前候補選択された時の元の先頭候補位置 (-1なら候補選択されていないことを示す)
         int _origFirstCand = -1;
@@ -195,13 +195,13 @@ namespace lattice2 {
         }
 
     public:
-        void setPrevBS(bool flag) override {
-            _prevBS = flag;
-        }
+        //void setPrevBS(bool flag) override {
+        //    _prevBS = flag;
+        //}
 
-        bool isPrevBS() const override {
-            return _prevBS;
-        }
+        //bool isPrevBS() const override {
+        //    return _prevBS;
+        //}
 
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
         void raiseAndDepressByCandSelection() override {
@@ -834,31 +834,29 @@ namespace lattice2 {
 
         // CurrentStroke の候補を削除する
         void removeCurrentStrokeCandidates(std::vector<CandidateString>& newCandidates, int strokeCount, int removeLen) {
-            _LOG_DETAIL(L"ENTER: _candidates.size={}, prevBS={}, strokeCount={}, removeLen={}", _candidates.size(), _prevBS, strokeCount, removeLen);
-            if (!_prevBS) {
-                if (!_candidates.empty()) {
-                    const auto& firstCand = _candidates.front();
-                    int delta = removeLen + 1;
-                    for (const auto& cand : _candidates) {
-                        if (cand.strokeLen() + delta <= strokeCount) {
-                            if (cand.string() == firstCand.string()) {
-                                // 先頭と同じ文字列の候補だったら、そのストローク数の他の候補も残さない
-                                ++delta;
-                                continue;
-                            }
-                            // 1ストローク以上前の候補を残す
-                            CandidateString newCand(cand, delta);
-                            _LOG_DETAIL(L"add cand={}", newCand.debugString());
-                            newCandidates.push_back(newCand);
+            _LOG_DETAIL(L"ENTER: _candidates.size={}, strokeCount={}, removeLen={}", _candidates.size(), strokeCount, removeLen);
+            if (!_candidates.empty()) {
+                const auto& firstCand = _candidates.front();
+                int delta = removeLen + 1;
+                for (const auto& cand : _candidates) {
+                    if (cand.strokeLen() + delta <= strokeCount) {
+                        if (cand.string() == firstCand.string()) {
+                            // 先頭と同じ文字列の候補だったら、そのストローク数の他の候補も残さない
+                            ++delta;
+                            continue;
                         }
+                        // 1ストローク以上前の候補を残す
+                        CandidateString newCand(cand, delta);
+                        _LOG_DETAIL(L"add cand={}", newCand.debugString());
+                        newCandidates.push_back(newCand);
                     }
-                    if (!newCandidates.empty() && newCandidates.front().strokeLen() != strokeCount) {
-                        // 一つ前のストローク候補が無くなっていたら、それ以下のものを繰り上げる
-                        delta = strokeCount - newCandidates.front().strokeLen();
-                        _LOG_DETAIL(L"raise candidates: frontCand.strokeLen={}, delta={}", newCandidates.front().strokeLen(), delta);
-                        for (auto& cand : newCandidates) {
-                            cand.addStrokeCount(delta);
-                        }
+                }
+                if (!newCandidates.empty() && newCandidates.front().strokeLen() != strokeCount) {
+                    // 一つ前のストローク候補が無くなっていたら、それ以下のものを繰り上げる
+                    delta = strokeCount - newCandidates.front().strokeLen();
+                    _LOG_DETAIL(L"raise candidates: frontCand.strokeLen={}, delta={}", newCandidates.front().strokeLen(), delta);
+                    for (auto& cand : newCandidates) {
+                        cand.addStrokeCount(delta);
                     }
                 }
             }
@@ -942,7 +940,7 @@ namespace lattice2 {
             //    // 以前のストロークの候補が無ければ、通常のBSの動作とする
             //    removeOtherThanFirst();
             //}
-            _prevBS = isBSpiece;
+            //_prevBS = isBSpiece;
 
             if (!isPaddingPiece && !isBSpiece) {
                 raiseAndDepressByCandSelection();

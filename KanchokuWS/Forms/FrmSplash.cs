@@ -36,9 +36,11 @@ namespace KanchokuWS
             label_version2.Text = KanchokuWS.ProductVersion.Version2;
             label_subName.Text = $"{KanchokuWS.ProductVersion.ProductKanjiName}";
             label_explanation.Text = $"{KanchokuWS.ProductVersion.ProductExplanation}";
+            label_explanation2.Text = $"{KanchokuWS.ProductVersion.ProductExplanation2}";
 
             label_version.Left = (this.ClientSize.Width - label_version.Width) / 2;
             label_explanation.Left = (this.ClientSize.Width - label_explanation.Width) / 2;
+            label_explanation2.Left = (this.ClientSize.Width - label_explanation2.Width) / 2;
             label_subName.Left = (this.ClientSize.Width - label_subName.Width) / 2;
             buttonOK.Left = (this.ClientSize.Width / 2) - 10 - buttonOK.Width;
             buttonSettings.Left = (this.ClientSize.Width / 2) + 10;

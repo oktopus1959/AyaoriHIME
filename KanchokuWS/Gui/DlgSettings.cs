@@ -1876,6 +1876,7 @@ namespace KanchokuWS.Gui
             checkBox_outputHeadSpace.Checked = Settings.OutputHeadSpace;
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
+            textBox_maxStrokeBackCount.Text = $"{Settings.MaxStrokeBackCount}";
             textBox_challengeNumForSameLeader.Text = $"{Settings.ChallengeNumForSameLeader}";
             textBox_realtimeTrigramBonusFactor.Text = $"{Settings.RealtimeTrigramBonusFactor}";
             textBox_realtimeTrigramTier1Num.Text = $"{Settings.RealtimeTrigramTier1Num}";
@@ -1914,6 +1915,7 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(checkBox_outputHeadSpace);
             checkerFusion.Add(textBox_multiStreamBeamSize);
             checkerFusion.Add(textBox_remainingStrokeSize);
+            checkerFusion.Add(textBox_maxStrokeBackCount);
             checkerFusion.Add(textBox_challengeNumForSameLeader);
             checkerFusion.Add(textBox_realtimeTrigramBonusFactor);
             checkerFusion.Add(textBox_realtimeTrigramTier1Num);
@@ -1943,6 +1945,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("outputHeadSpace", checkBox_outputHeadSpace.Checked);
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
+            Settings.SetUserIni("maxStrokeBackCount", textBox_maxStrokeBackCount.Text);
             Settings.SetUserIni("challengeNumForSameLeader", textBox_challengeNumForSameLeader.Text);
             Settings.SetUserIni("realtimeTrigramBonusFactor", textBox_realtimeTrigramBonusFactor.Text);
             Settings.SetUserIni("realtimeTrigramTier1Num", textBox_realtimeTrigramTier1Num.Text);

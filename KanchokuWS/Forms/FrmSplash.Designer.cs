@@ -37,13 +37,14 @@ namespace KanchokuWS
             this.buttonSettings = new System.Windows.Forms.Button();
             this.label_version2 = new System.Windows.Forms.Label();
             this.label_explanation = new System.Windows.Forms.Label();
+            this.label_explanation2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // buttonOK
             // 
             this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonOK.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.buttonOK.Location = new System.Drawing.Point(41, 92);
+            this.buttonOK.Location = new System.Drawing.Point(41, 107);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(50, 21);
             this.buttonOK.TabIndex = 10;
@@ -77,7 +78,7 @@ namespace KanchokuWS
             this.label_initializing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label_initializing.AutoSize = true;
             this.label_initializing.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_initializing.Location = new System.Drawing.Point(22, 96);
+            this.label_initializing.Location = new System.Drawing.Point(22, 111);
             this.label_initializing.Name = "label_initializing";
             this.label_initializing.Size = new System.Drawing.Size(167, 12);
             this.label_initializing.TabIndex = 11;
@@ -91,7 +92,7 @@ namespace KanchokuWS
             // 
             this.buttonSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonSettings.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.buttonSettings.Location = new System.Drawing.Point(108, 92);
+            this.buttonSettings.Location = new System.Drawing.Point(108, 107);
             this.buttonSettings.Name = "buttonSettings";
             this.buttonSettings.Size = new System.Drawing.Size(50, 21);
             this.buttonSettings.TabIndex = 12;
@@ -119,11 +120,22 @@ namespace KanchokuWS
             this.label_explanation.TabIndex = 14;
             this.label_explanation.Text = "製品名 - 説明";
             // 
+            // label_explanation2
+            // 
+            this.label_explanation2.AutoSize = true;
+            this.label_explanation2.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_explanation2.Location = new System.Drawing.Point(52, 82);
+            this.label_explanation2.Name = "label_explanation2";
+            this.label_explanation2.Size = new System.Drawing.Size(89, 12);
+            this.label_explanation2.TabIndex = 15;
+            this.label_explanation2.Text = "製品名 - 説明2";
+            // 
             // FrmSplash
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(205, 121);
+            this.ClientSize = new System.Drawing.Size(212, 136);
+            this.Controls.Add(this.label_explanation2);
             this.Controls.Add(this.label_explanation);
             this.Controls.Add(this.label_version2);
             this.Controls.Add(this.buttonSettings);
@@ -153,5 +165,6 @@ namespace KanchokuWS
         private System.Windows.Forms.Button buttonSettings;
         private System.Windows.Forms.Label label_version2;
         private System.Windows.Forms.Label label_explanation;
+        private System.Windows.Forms.Label label_explanation2;
     }
 }

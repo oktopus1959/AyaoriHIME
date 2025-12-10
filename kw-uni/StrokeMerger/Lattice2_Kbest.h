@@ -9,9 +9,9 @@ namespace lattice2 {
     // デストラクタ
         virtual ~KBestList() { }
 
-        virtual void setPrevBS(bool flag) = 0;
+        //virtual void setPrevBS(bool flag) = 0;
 
-        virtual bool isPrevBS() const = 0;
+        //virtual bool isPrevBS() const = 0;
 
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
         virtual void raiseAndDepressByCandSelection() = 0;
