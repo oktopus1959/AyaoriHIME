@@ -200,13 +200,13 @@ namespace lattice2 {
                 //if (w.size() >= 2 && std::any_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_kanji(c); })) {
                 //    cost -= MORPH_ANY_KANJI_BONUS * (int)(w.size() - 1);
                 //}
-                if (w.size() >= 2) {
-                    int kCnt = (int)std::count_if(w.begin(), w.end(), [](mchar_t c) { return utils::is_kanji(c); });
-                    if (kCnt > 0) {
-                        cost -= MORPH_ANY_KANJI_BONUS * kCnt;
-                        _LOG_DETAIL(L"{}: SUB ANY_KANJI_BONUS({}): morphCost={}", to_wstr(w), MORPH_ANY_KANJI_BONUS * kCnt, cost);
-                    }
-                }
+                //if (w.size() >= 2) {
+                //    int kCnt = (int)std::count_if(w.begin(), w.end(), [](mchar_t c) { return utils::is_kanji(c); });
+                //    if (kCnt > 0) {
+                //        cost -= MORPH_ANY_KANJI_BONUS * kCnt;
+                //        _LOG_DETAIL(L"{}: SUB ANY_KANJI_BONUS({}): morphCost={}", to_wstr(w), MORPH_ANY_KANJI_BONUS * kCnt, cost);
+                //    }
+                //}
                 if (w.size() >= 3 && !utils::endsWith(feat, MS_MAZE) && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_hiragana(c); })) {
                     cost -= MORPH_ALL_HIRAGANA_BONUS;
                     _LOG_DETAIL(L"{}: SUB ALL_HIRAGANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_HIRAGANA_BONUS, cost);

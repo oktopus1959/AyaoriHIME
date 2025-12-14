@@ -25,6 +25,7 @@ namespace DymazinBridge {
             rcfile, dicdir, unkMax, mazePenalty, mazeConnPenalty, nonTerminalCost, SETTINGS->morphCostWithoutEOS, SETTINGS->morphMazeFormat);
 
         std::vector<const wchar_t*> av;
+        av.push_back(L"dymazin");
         av.push_back(L"-r");
         av.push_back(rcfile.c_str());
         av.push_back(L"-d");

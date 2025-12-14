@@ -6,6 +6,8 @@
 #include "Lattice2_Common.h"
 #include "Lattice2_Ngram.h"
 
+#include "Ngram/NgramBridge.h"
+
 namespace lattice2 {
     DECLARE_LOGGER;     // defined in Lattice2.cpp
 
@@ -66,7 +68,7 @@ namespace lattice2 {
 
     //// システムで用意したカタカナ単語コスト(3gram以上、sysCost < uesrCost のものだけ計上)
     //std::map<MString, int> KatakanaWordCosts;
-
+#if 0
     // Ngram統計によるコスト
     // 1-2gramはポジティブコスト(そのまま計上)、3gram以上はネガティブコスト(DEFAULT_MAX_COST を引いて計上)として計算される
     std::map<MString, int> ngramCosts;
@@ -85,6 +87,9 @@ namespace lattice2 {
     // 利用者が入力した文字列から抽出したNgram統計
     std::map<MString, int> realtimeNgram;
     int realtimeMaxFreq = 0;
+#endif
+    // 利用者の選択によって抑制されるNgramに課されるペナルティを計算するためのベースとなるカウント
+    std::map<MString, int> realtimeNgramDepressCounts;
 
     // 常用対数でNgram頻度を補正した値に掛けられる係数
     int ngramLogFactor = 50;
@@ -153,6 +158,7 @@ namespace lattice2 {
         return bonusTotal;
     }
 
+#if 0
     void _updateNgramCost(const MString& word, int sysCount, int usrCount, int rtmCount) {
         int origSysCnt = sysCount;
         int origRtmCnt = rtmCount;
@@ -202,8 +208,10 @@ namespace lattice2 {
         _updateNgramCost(word, 0, 0, count);
         realtimeNgram_updated = true;
     }
+#endif
 
     void _raiseRealtimeNgramByWord(const MString& word, bool bJust2ByGUI = false) {
+#if 0
         LOG_WARNH(L"CALLED: word={}, just2ByGUI={}", to_wstr(word), bJust2ByGUI);
         int count = SETTINGS->realtimeTrigramTier1Num;
         if (word.length() >= 4) {
@@ -227,10 +235,13 @@ namespace lattice2 {
             LOG_WARNH(L"word={}, count={}", to_wstr(word), count);
         }
         _updateNgramCost(word, 0, 0, count);
+#endif
+        realtimeNgramDepressCounts[word] -= 1;
         realtimeNgram_updated = true;
     }
 
     void _depressRealtimeNgramByWord(const MString& word, bool bJust2ByGUI = false) {
+#if 0
         int count = 0;
         if (word.length() >= 4) {
             // 4gramの抑制をやってみたが、いまいちなので採用しない(2025/2/4)
@@ -251,9 +262,12 @@ namespace lattice2 {
         }
         LOG_WARNH(L"CALLED: _updateNgramCost(word={}, rtmCnt={}), just2ByGUI", to_wstr(word), count, bJust2ByGUI);
         _updateNgramCost(word, 0, 0, count);
+#endif
+        realtimeNgramDepressCounts[word] += 1;
         realtimeNgram_updated = true;
     }
 
+#if 0
     // ngramCosts の初期作成
     void makeInitialNgramCostMap() {
         ngramLogFactor = (int)((DEFAULT_MAX_COST - 50) / std::log(systemMaxFreq + userMaxFreq + realtimeMaxFreq * REALTIME_FREQ_BOOST_FACTOR));
@@ -306,6 +320,7 @@ namespace lattice2 {
 #endif
         _LOG_DETAIL(L"LEAVE: ngramCosts.size={}", ngramCosts.size());
     }
+#endif
 
     int _loadNgramFile(StringRef ngramFile, std::map<MString, int>& ngramMap) {
         auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
@@ -324,12 +339,12 @@ namespace lattice2 {
                     MString word = to_mstr(items[0]);
                     ngramMap[word] = count;
                     if (maxFreq < count) maxFreq = count;
-                    if (IS_LOG_DEBUGH_ENABLED) {
-                        String ws = to_wstr(word);
-                        if (ws == L"ている" || ws == L"いるな" || ws == L"ていか" || ws == L"いかな") {
-                            LOG_WARNH(L"file={}, word={}, count={}", ngramFile, ws, count);
-                        }
-                    }
+                    //if (IS_LOG_DEBUGH_ENABLED) {
+                    //    String ws = to_wstr(word);
+                    //    if (ws == L"ている" || ws == L"いるな" || ws == L"ていか" || ws == L"いかな") {
+                    //        LOG_WARNH(L"file={}, word={}, count={}", ngramFile, ws, count);
+                    //    }
+                    //}
                 }
             }
         }
@@ -361,6 +376,7 @@ namespace lattice2 {
     }
 #endif
 
+#if 0
     void __loadUserCostFile(StringRef file) {
         auto path = utils::joinPath(SETTINGS->rootDir, file);
         LOG_INFOH(_T("LOAD: {}"), path.c_str());
@@ -402,10 +418,13 @@ namespace lattice2 {
         //__loadUserCostFile(USER_NGRAM_FILE);
     }
 
+#endif
+
 #define REALTIME_NGRAM_FILE (SETTINGS->useTmpRealtimeNgramFile ? REALTIME_NGRAM_TEMP_FILE : REALTIME_NGRAM_MAIN_FILE)
 
     void loadCostAndNgramFile(bool systemNgramFile, bool realtimeNgramFile) {
         LOG_INFO(L"ENTER: systemNgramFile={}, realtimeNgramFile={}", systemNgramFile, realtimeNgramFile);
+#if 0
 #ifndef _DEBUG
         if (systemNgramFile) {
             systemMaxFreq = _loadNgramFile(SYSTEM_NGRAM_FILE, systemNgram);
@@ -424,7 +443,8 @@ namespace lattice2 {
 #endif
         _loadUserCostFile();
         makeInitialNgramCostMap();
-
+#endif
+        _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgramDepressCounts);
         maxCandidatesSize = 0;
         LOG_INFO(L"LEAVE");
     }
@@ -440,7 +460,7 @@ namespace lattice2 {
                 LOG_SAVE_DICT(_T("SAVE: realtime ngram file pathTmp={}"), pathTmp.c_str());
                 utils::OfstreamWriter writer(pathTmp);
                 if (writer.success()) {
-                    for (const auto& pair : realtimeNgram) {
+                    for (const auto& pair : realtimeNgramDepressCounts) {
                         String line;
                         int count = pair.second;
                         if (count < 0 || count > 1 || (count == 1 && Reporting::Logger::IsWarnEnabled())) {
@@ -453,7 +473,7 @@ namespace lattice2 {
                     }
                     realtimeNgram_updated = false;
                 }
-                LOG_SAVE_DICT(_T("DONE: entries count={}"), realtimeNgram.size());
+                LOG_SAVE_DICT(_T("DONE: entries count={}"), realtimeNgramDepressCounts.size());
             }
             // pathTmp ファイルのサイズが path ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
             utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, SETTINGS->backFileRotationGeneration);
@@ -468,6 +488,7 @@ namespace lattice2 {
 
     // リアルタイムNgramの更新
     void updateRealtimeNgram(const MString& str) {
+#if 0
         _LOG_DETAIL(L"CALLED: str={}, collectRealtimeNgram={}", to_wstr(str), SETTINGS->collectRealtimeNgram);
         if (!SETTINGS->collectRealtimeNgram) return;
 
@@ -494,6 +515,7 @@ namespace lattice2 {
             //// 4-gram
             //_raiseRealtimeNgramByWord(str.substr(pos, 4));
         }
+#endif
     }
 
     // リアルタイムNgramの蒿上げ
@@ -539,9 +561,68 @@ namespace lattice2 {
         }
     }
 
+    // 候補選択による、リアルタイムNgramの嵩上げ
+    void _raiseRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
+        LOG_WARNH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
+        int prevDiffPos = -10;
+        int oldSize = (int)oldCand.size();
+        int newSize = (int)newCand.size();
+        for (int pos = 0; pos < newSize; ++pos) {
+            bool currentDiff = pos < oldSize || oldCand[pos] != newCand[pos];
+            if (currentDiff || prevDiffPos + 2 == pos) {
+                if (pos >= 2) {
+                    // 2文字前から3gramについて嵩上げする
+                    _raiseRealtimeNgramByWord(newCand.substr(pos - 2, 3));
+                }
+            }
+            if (currentDiff || prevDiffPos + 1 == pos) {
+                if (pos >= 1) {
+                    if (utils::is_kanji(newCand[pos - 1]) || pos + 1 == newSize) {
+                        // 1文字前が漢字あるいは当位置で文字列が終了の場合は、2gramも嵩上げする
+                        _raiseRealtimeNgramByWord(newCand.substr(pos - 1, 2));
+                    }
+                }
+            }
+            if (currentDiff) {
+                prevDiffPos = pos;
+            }
+        }
+        LOG_WARNH(L"LEAVE");
+    }
+
+    // 候補選択による、リアルタイムNgramの抑制
+    void _depressRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
+        LOG_WARNH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
+        int prevDiffPos = -10;
+        int oldSize = (int)oldCand.size();
+        int newSize = (int)newCand.size();
+        for (int pos = 0; pos < oldSize; ++pos) {
+            bool currentDiff = pos < newSize || oldCand[pos] != newCand[pos];
+            if (currentDiff || prevDiffPos + 2 == pos) {
+                if (pos >= 2) {
+                    // 2文字前から3gramについて抑制をする
+                    _depressRealtimeNgramByWord(oldCand.substr(pos - 2, 3));
+                }
+            }
+            if (currentDiff || prevDiffPos + 1 == pos) {
+                if (pos >= 1) {
+                    if (utils::is_kanji(oldCand[pos - 1]) || pos + 1 == oldSize) {
+                        // 1文字前が漢字あるいは当位置で文字列が終了の場合は、2gramも抑制する
+                        _depressRealtimeNgramByWord(oldCand.substr(pos - 1, 2));
+                    }
+                }
+            }
+            if (currentDiff) {
+                prevDiffPos = pos;
+            }
+        }
+        LOG_WARNH(L"LEAVE");
+    }
+
     // 候補選択による、リアルタイムNgramの蒿上げと抑制
     void raiseAndDepressRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
         LOG_WARNH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
+#if 0
         size_t prefixLen = utils::commonPrefixLength(oldCand, newCand);
         if (prefixLen < newCand.size()) {
             for (int delta = 2; delta > 0; --delta) {
@@ -567,9 +648,14 @@ namespace lattice2 {
             // 異なっている部分について抑制する
             depressRealtimeNgram(oldCand.substr(prefixLen));
         }
+#else
+        _raiseRealtimeNgramForDiffPart(oldCand, newCand);
+        _depressRealtimeNgramForDiffPart(oldCand, newCand);
+#endif
         LOG_WARNH(L"LEAVE");
     }
 
+#if 0
     //void updateRealtimeNgram() {
     //    updateRealtimeNgram(OUTPUT_STACK->backStringUptoPunctWithFlag());
     //}
@@ -619,11 +705,26 @@ namespace lattice2 {
         }
         return xCost;
     }
+#endif
+
+    int getDepressedNgramPenalty(const MString& word) {
+        auto iter = realtimeNgramDepressCounts.find(word);
+        if (iter != realtimeNgramDepressCounts.end()) {
+            int depressCount = iter->second;
+            if (depressCount > 0) {
+                int depressCost = depressCount * SETTINGS->ngramDepressPenaltyFactor;
+                _LOG_DETAIL(L"{}: depressCount={}, depressCost={}", to_wstr(word), depressCount, depressCost);
+                return depressCost;
+            }
+        }
+        return 0;
+    }
 
     //int getWordConnCost(const MString& s1, const MString& s2) {
     //    return get_base_ngram_cost(utils::last_substr(s1, 1) + utils::safe_substr(s2, 0, 1)) / 2;
     //}
 
+#if 0
     int findKatakanaLen(const MString& s, size_t pos) {
         int len = 0;
         for (; (size_t)(pos + len) < s.size(); ++len) {
@@ -696,13 +797,24 @@ namespace lattice2 {
         }
         return totalCost;
     }
-
+#endif
 
     std::wregex kanjiDateTime(L"年[一二三四五六七八九十]+月?|[一二三四五六七八九十]+月[一二三四五六七八九十]?|月[一二三四五六七八九十]+日?|[一二三四五六七八九十]+日");
 
     // Ngramコストの取得
     int getNgramCost(const MString& str, const std::vector<MString>& morphs) {
         _LOG_DETAIL(L"ENTER: str={}", to_wstr(str));
+        std::vector<MString> ngrams;
+        int cost = NgramBridge::ngramCalcCost(str, ngrams, false);
+        if (str.size() >= 2) {
+            for (size_t pos = 0 ; pos < str.size() - 1; ++pos) {
+                cost += getDepressedNgramPenalty(utils::safe_substr(str, pos, 2));
+                if (pos + 2 < str.size()) {
+                    cost += getDepressedNgramPenalty(utils::safe_substr(str, pos, 3));
+                }
+            }
+        }
+#if 0
         int cost = 0;
         size_t strLen = str.size();
 
@@ -869,6 +981,7 @@ namespace lattice2 {
                 }
             }
         }
+#endif
         _LOG_DETAIL(L"LEAVE: cost={}, adjusted cost={} (* NGRAM_COST_FACTOR({}))", cost, cost* SETTINGS->ngramCostFactor, SETTINGS->ngramCostFactor);
         return cost;
     }

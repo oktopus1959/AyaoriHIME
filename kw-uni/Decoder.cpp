@@ -42,6 +42,7 @@
 #include "StrokeMerger/StrokeMergerHistoryResidentState.h"
 
 #include "MorphBridge.h"
+#include "Ngram/NgramBridge.h"
 #include "Llama/LlamaBridge.h"
 
 #if 1 || defined(_DEBUG)
@@ -151,6 +152,9 @@ public:
         // 形態素解析器の初期化
         MorphBridge::morphInitialize();
 
+        // Ngram解析器の初期化
+        NgramBridge::ngramInitialize();
+
         //// llama.cpp の初期化
         //LlamaBridge::llamaInitialize();
 
@@ -208,6 +212,8 @@ public:
     // 終了
     void Destroy() override {
         LOG_INFOH(_T("CALLED"));
+        // Ngram解析器の終了
+        NgramBridge::ngramFinalize();
         // 形態素解析器の終了
         MorphBridge::morphFinalize();
         //// llama.cpp の終了
@@ -289,6 +295,7 @@ public:
         int logLevel = utils::strToInt(utils::safe_get(key_vals, String(_T("logLevel"))));
         Reporting::Logger::SetLogLevel(logLevel);
         MorphBridge::morphSetLogLevel(logLevel);
+        NgramBridge::ngramSetLogLevel(logLevel);
 
         SETTINGS->SetValues(key_vals);
 
@@ -613,6 +620,7 @@ public:
             } else if (cmd == _T("saveTraceLog")) {
                 Reporting::Logger::SaveLog();
                 MorphBridge::morphSaveLog();
+                NgramBridge::ngramSaveLog();
             } else if (cmd == _T("closeLogger")) {
                 Reporting::Logger::Close();
             }

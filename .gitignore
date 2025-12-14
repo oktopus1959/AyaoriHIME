@@ -4,6 +4,7 @@ bin/
 Debug/
 DyMazin/
 NgramAnalyzer/
+Ngram/
 Release/
 ipch/
 obj/

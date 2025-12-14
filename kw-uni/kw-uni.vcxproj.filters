@@ -94,6 +94,12 @@
     <Filter Include="ヘッダー ファイル\Llama">
       <UniqueIdentifier>{f6f13aa8-abd7-4258-bb09-927722a7e66b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Ngram">
+      <UniqueIdentifier>{41ca4d0d-33ff-4cad-8208-4643746fe43b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Ngram">
+      <UniqueIdentifier>{b1807999-6322-4549-9e39-bc0e687c0eff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -330,6 +336,12 @@
     <ClInclude Include="StrokeMerger\Lattice2_Ngram.h">
       <Filter>ヘッダー ファイル\StrokeMerger</Filter>
     </ClInclude>
+    <ClInclude Include="Ngram\NgramBridge.h">
+      <Filter>ヘッダー ファイル\Ngram</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NgramAnalyzer\NgramLib\src\NgramLib.h">
+      <Filter>ヘッダー ファイル\Ngram</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -487,6 +499,9 @@
     </ClCompile>
     <ClCompile Include="StrokeMerger\Lattice2_Morpher.cpp">
       <Filter>ソース ファイル\StrokeMerger</Filter>
+    </ClCompile>
+    <ClCompile Include="Ngram\NgramBridge.cpp">
+      <Filter>ソース ファイル\Ngram</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
