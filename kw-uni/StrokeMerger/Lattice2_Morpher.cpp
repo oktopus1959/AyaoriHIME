@@ -207,10 +207,11 @@ namespace lattice2 {
                 //        _LOG_DETAIL(L"{}: SUB ANY_KANJI_BONUS({}): morphCost={}", to_wstr(w), MORPH_ANY_KANJI_BONUS * kCnt, cost);
                 //    }
                 //}
-                if (w.size() >= 3 && !utils::endsWith(feat, MS_MAZE) && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_hiragana(c); })) {
-                    cost -= MORPH_ALL_HIRAGANA_BONUS;
-                    _LOG_DETAIL(L"{}: SUB ALL_HIRAGANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_HIRAGANA_BONUS, cost);
-                }
+                //if (w.size() >= 3 && !utils::endsWith(feat, MS_MAZE) && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_hiragana(c); })) {
+                //    cost -= MORPH_ALL_HIRAGANA_BONUS;
+                //    _LOG_DETAIL(L"{}: SUB ALL_HIRAGANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_HIRAGANA_BONUS, cost);
+                //}
+#if 0
                 if (w.size() >= 2 && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_katakana(c); })) {
                     auto iter1 = iter + 1;
                     bool flag = iter1 == wordItemsList.end();
@@ -225,6 +226,7 @@ namespace lattice2 {
                         _LOG_DETAIL(L"{}: SUB ALL_KATAKANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_KATAKANA_BONUS, cost);
                     }
                 }
+#endif
             }
             _LOG_DETAIL(L"LEAVE: {}: total morphCost={}", to_wstr(s), cost);
         }

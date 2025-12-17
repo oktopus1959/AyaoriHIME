@@ -193,6 +193,7 @@ namespace Reporting {
 #define DEFINE_LOCAL_LOGGER(name)       DEFINE_LOGGER_STR("LOCAL." #name)
 #define DEFINE_NAMESPACE_LOGGER(name)   DEFINE_LOGGER_STR("NAMESPACE." #name)
 
+#define IS_LOG_INFOH_ENABLED    (Reporting::Logger::IsInfoHEnabled()) 
 #define IS_LOG_DEBUGH_ENABLED   (Reporting::Logger::IsDebugHEnabled()) 
 
 #define _SAFE_CHAR(ch) (ch > 0 ? ch : ' ')

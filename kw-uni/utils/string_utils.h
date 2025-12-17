@@ -51,6 +51,8 @@ namespace {
 
     const MString MSTR_MINUS = to_mstr('-');
 
+    const MString MSTR_GETA = to_mstr(L'〓');
+
     const MString MSTR_CMD_HEADER = MString({mchar_t('!'), mchar_t('{')});
 
     const mchar_t strip_delims[] = {' ', '\r', '\n', '\0' };

@@ -805,7 +805,10 @@ namespace lattice2 {
     int getNgramCost(const MString& str, const std::vector<MString>& morphs) {
         _LOG_DETAIL(L"ENTER: str={}", to_wstr(str));
         std::vector<MString> ngrams;
-        int cost = NgramBridge::ngramCalcCost(str, ngrams, false);
+        int cost = NgramBridge::ngramCalcCost(MSTR_GETA + str, ngrams, IS_LOG_INFOH_ENABLED);
+        if (IS_LOG_INFOH_ENABLED) {
+            LOG_INFOH(L"ngrams:\n--------\n{}\n--------", to_wstr(utils::join(ngrams, '\n')));
+        }
         if (str.size() >= 2) {
             for (size_t pos = 0 ; pos < str.size() - 1; ++pos) {
                 cost += getDepressedNgramPenalty(utils::safe_substr(str, pos, 2));
