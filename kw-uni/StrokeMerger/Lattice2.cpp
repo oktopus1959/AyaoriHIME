@@ -286,19 +286,15 @@ void Lattice2::reloadUserCostFile() {
     lattice2::loadCostAndNgramFile(false, false);
 }
 
-void Lattice2::updateRealtimeNgram() {
-    //lattice2::updateRealtimeNgram();
-}
-
 void Lattice2::updateRealtimeNgram(const MString& str) {
     lattice2::updateRealtimeNgram(str);
 }
 
-void Lattice2::raiseRealtimeNgram(const MString& str) {
+void Lattice2::raiseRealtimeNgramByGUI(const MString& str) {
     lattice2::raiseRealtimeNgram(str, true);
 }
 
-void Lattice2::depressRealtimeNgram(const MString& str) {
+void Lattice2::depressRealtimeNgramByGUI(const MString& str) {
     lattice2::depressRealtimeNgram(str, true);
 }
 

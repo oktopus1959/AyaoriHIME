@@ -326,7 +326,6 @@ public:
 
     // デコーダ状態のリセット (Decoder が ON になったときに呼ばれる)
     void Reset() override {
-        Lattice2::updateRealtimeNgram();
         deleteRemainingState();
         STATE_COMMON->ClearAllStateInfo();
         OUTPUT_STACK->pushNewLine();    // 履歴ブロッカーとして改行を追加
@@ -577,10 +576,10 @@ public:
                 WORD_LATTICE->clearAll();
             } else if (cmd == _T("raiseRealtimeNgram")) {
                 // リアルタイムNgramの蒿上げ
-                if (items.size() >= 2) WORD_LATTICE->raiseRealtimeNgram(to_mstr(items[1]));
+                if (items.size() >= 2) WORD_LATTICE->raiseRealtimeNgramByGUI(to_mstr(items[1]));
             } else if (cmd == _T("depressRealtimeNgram")) {
                 // リアルタイムNgramの抑制
-                if (items.size() >= 2) WORD_LATTICE->depressRealtimeNgram(to_mstr(items[1]));
+                if (items.size() >= 2) WORD_LATTICE->depressRealtimeNgramByGUI(to_mstr(items[1]));
             } else if (cmd == _T("exchangeCodeTable")) {
                 // 主・副テーブルを切り替える
                 outParams->strokeTableNum = StrokeTableNode::ExchangeStrokeTable();
@@ -1112,7 +1111,7 @@ namespace {
             LOG_ERROR(_T("Some exception caught"));
         }
         ROOT_STROKE_NODE = 0;
-        return -1;
+        return ErrorHandler::LEVEL_ERROR;
     }
 }
 

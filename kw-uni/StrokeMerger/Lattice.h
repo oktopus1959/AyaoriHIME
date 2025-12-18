@@ -162,13 +162,11 @@ public:
 
     static void reloadUserCostFile();
 
-    static void updateRealtimeNgram();
-
     static void updateRealtimeNgram(const MString& str);
 
-    static void raiseRealtimeNgram(const MString& str);
+    static void raiseRealtimeNgramByGUI(const MString& str);
 
-    static void depressRealtimeNgram(const MString& str);
+    static void depressRealtimeNgramByGUI(const MString& str);
     
     //static void saveRealtimeNgramFile();
 

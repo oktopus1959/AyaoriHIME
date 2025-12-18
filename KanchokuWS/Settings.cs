@@ -183,7 +183,10 @@ namespace KanchokuWS
         public static int NgramCostFactor { get; set; } = 5;
 
         /// <summary>抑制されたNgramに与えるペナルティの係数</summary>
-        public static int NgramDepressPenaltyFactor { get; set; } = 1000;
+        public static int NgramDepressPenaltyFactor { get; set; } = 100;
+
+        /// <summary>候補選択によるNgram抑制カウントの係数</summary>
+        public static int NgramDepressCountFactor { get; set; } = 10;
 
         ///// <summary>句読点でコミットする</summary>
         //public static bool CommitByPunctuation { get; set; }
@@ -1821,6 +1824,7 @@ namespace KanchokuWS
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
             NgramDepressPenaltyFactor = addDecoderSetting("ngramDepressPenaltyFactor", 100);    // 抑制されたNgramに与えるペナルティの係数
+            NgramDepressCountFactor = addDecoderSetting("ngramDepressCountFactor", 10);         // 候補選択によるNgram抑制カウントの係数
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             DepressedContinuousKanjiNum = addDecoderSetting("depressedContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード

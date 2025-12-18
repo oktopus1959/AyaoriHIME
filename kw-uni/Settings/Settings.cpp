@@ -134,6 +134,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(morphNonTerminalCost);
     SET_INT_VALUE(ngramCostFactor);
     SET_INT_VALUE(ngramDepressPenaltyFactor);
+    SET_INT_VALUE(ngramDepressCountFactor);
     //SET_BOOL_VALUE(commitByPunctuation);
     SET_BOOL_VALUE(outputHeadSpace);
     SET_BOOL_VALUE(strokeBackByBS);
