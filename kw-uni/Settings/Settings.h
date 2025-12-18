@@ -111,8 +111,8 @@ struct Settings {
     int morphMazeConnectionPenalty = 1000;  // 交ぜ書きエントリの接続に対するペナルティ
     int morphNonTerminalCost = 5000;        // 非終端形態素の単語コスト
     int ngramCostFactor = 5;                // 形態素コストに対するNgramコストの係数
-    int ngramDepressPenaltyFactor = 100;    // 抑制されたNgramに与えるペナルティの係数;
-    int ngramDepressCountFactor = 10;       // 候補選択によるNgram抑制カウントの係数
+    int ngramBonusPointFactor = 100;        // 嵩上げされたNgramに与えるボーナスの係数;
+    int ngramManualSelectDelta = 10;        // 候補選択によるNgramカウントの変動幅
     //bool commitByPunctuation = true;        // 句読点でコミットする
     bool outputHeadSpace = true;            // 先頭のスペースをそのまま出力する
     bool strokeBackByBS = false;            // BSで打鍵取消を行う
@@ -122,7 +122,7 @@ struct Settings {
     int remainingStrokeSize = 5;            // 残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
     int challengeNumForSameLeader = 4;      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
     int kanjiNoKanjiBonus = 1500;           // 「漢字+の+漢字」のような場合に与えるボーナス
-    int depressedContinuousKanjiNum = 0;    // 連続するN文字の漢字列にはコストを与える
+    int loweredContinuousKanjiNum = 0;      // 連続するN文字の漢字列にはコストを与える
     int exclusivePrefixCode = -1;           // 排他的なストローク処理を開始する文字のコード。このコードから始まるストローク列が全て完了するまでは、途中から別のストロークを始めない 
     String mergerCandidateFile;             // 解候補ログファイル
     int realtimeTrigramBonusFactor = 100;   // Realtime 3gram のカウントからボーナス値を算出する際の係数

@@ -14,7 +14,7 @@ namespace lattice2 {
         //virtual bool isPrevBS() const = 0;
 
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
-        virtual void raiseAndDepressByCandSelection() = 0;
+        virtual void raiseAndLowerByCandSelection() = 0;
 
         virtual void clearKbests(bool clearAll) = 0;
 

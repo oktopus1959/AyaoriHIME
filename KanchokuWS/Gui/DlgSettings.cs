@@ -1975,17 +1975,17 @@ namespace KanchokuWS.Gui
             label_fusionReload.Show();
         }
 
-        private void button_depressRealtimeNgram_Click(object sender, EventArgs e)
+        private void button_decreaseRealtimeNgram_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("depressRealtimeNgram", textBox_realtimeNgram.Text);
+            if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("decreaseRealtimeNgram", textBox_realtimeNgram.Text);
             //textBox_realtimeNgram.Text = "";
         }
 
-        private void button_raiseRealtimeNgram_Click(object sender, EventArgs e)
+        private void button_increaseRealtimeNgram_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("raiseRealtimeNgram", textBox_realtimeNgram.Text);
+            if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("increaseRealtimeNgram", textBox_realtimeNgram.Text);
             //textBox_realtimeNgram.Text = "";
         }
 

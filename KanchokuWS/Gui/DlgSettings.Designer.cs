@@ -6534,7 +6534,7 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.button_depressRealtimeNgram, "デコーダが保持している自動部首合成辞書の内容をファイルに保存します。\r\nただし、利用者による登録がない場合は、保存は行いません。\r\n\r\n保存の際、現在のファイルを" +
         " .1 という拡張子を付加して\r\nback フォルダに移動します。");
             this.button_depressRealtimeNgram.UseVisualStyleBackColor = true;
-            this.button_depressRealtimeNgram.Click += new System.EventHandler(this.button_depressRealtimeNgram_Click);
+            this.button_depressRealtimeNgram.Click += new System.EventHandler(this.button_decreaseRealtimeNgram_Click);
             // 
             // label166
             // 
@@ -6565,7 +6565,7 @@ namespace KanchokuWS.Gui
             this.button_raiseRealtimeNgram.TabIndex = 1;
             this.button_raiseRealtimeNgram.Text = "蒿上げ";
             this.button_raiseRealtimeNgram.UseVisualStyleBackColor = true;
-            this.button_raiseRealtimeNgram.Click += new System.EventHandler(this.button_raiseRealtimeNgram_Click);
+            this.button_raiseRealtimeNgram.Click += new System.EventHandler(this.button_increaseRealtimeNgram_Click);
             // 
             // comboBox_editBufferCaretChar
             // 

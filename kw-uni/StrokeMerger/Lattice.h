@@ -146,7 +146,7 @@ public:
 
     virtual void selectPrev() = 0;
 
-    virtual void raiseAndDepressByCandSelection() = 0;
+    virtual void raiseAndLowerByCandSelection() = 0;
 
     virtual void updateByBushuComp() = 0;
 
@@ -164,9 +164,9 @@ public:
 
     static void updateRealtimeNgram(const MString& str);
 
-    static void raiseRealtimeNgramByGUI(const MString& str);
+    static void increaseRealtimeNgramByGUI(const MString& str);
 
-    static void depressRealtimeNgramByGUI(const MString& str);
+    static void decreaseRealtimeNgramByGUI(const MString& str);
     
     //static void saveRealtimeNgramFile();
 

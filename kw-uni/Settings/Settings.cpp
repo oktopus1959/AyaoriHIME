@@ -133,8 +133,8 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(morphMazeConnectionPenalty);
     SET_INT_VALUE(morphNonTerminalCost);
     SET_INT_VALUE(ngramCostFactor);
-    SET_INT_VALUE(ngramDepressPenaltyFactor);
-    SET_INT_VALUE(ngramDepressCountFactor);
+    SET_INT_VALUE(ngramBonusPointFactor);
+    SET_INT_VALUE(ngramManualSelectDelta);
     //SET_BOOL_VALUE(commitByPunctuation);
     SET_BOOL_VALUE(outputHeadSpace);
     SET_BOOL_VALUE(strokeBackByBS);
@@ -150,7 +150,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(mergerCandidateMin);
     SET_INT_VALUE(mergerCandidateMax);
     SET_KEY_VALUE(editBufferCaretChar);
-    SET_INT_VALUE(depressedContinuousKanjiNum);
+    SET_INT_VALUE(loweredContinuousKanjiNum);
     SET_INT_VALUE2(exclusivePrefixCode, -1);
     SET_KEY_VALUE(mergerCandidateFile);
 

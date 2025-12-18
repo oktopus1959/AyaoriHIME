@@ -204,11 +204,11 @@ namespace lattice2 {
         //}
 
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
-        void raiseAndDepressByCandSelection() override {
+        void raiseAndLowerByCandSelection() override {
             if (_origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
                 _LOG_DETAIL(L"ENTER");
                 // 候補選択がなされていて、元の先頭候補以外が選択された
-                raiseAndDepressRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
+                updateRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
                 updateMazegakiPreference(_candidates[0], _candidates[_origFirstCand]);
                 removeOtherThanFirstForEachStroke();
                 _origFirstCand = -1;
@@ -943,7 +943,7 @@ namespace lattice2 {
             //_prevBS = isBSpiece;
 
             if (!isPaddingPiece && !isBSpiece) {
-                raiseAndDepressByCandSelection();
+                raiseAndLowerByCandSelection();
             }
 
             // BS でないか、以前の候補が無くなっていた

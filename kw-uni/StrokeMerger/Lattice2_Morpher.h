@@ -13,7 +13,7 @@ namespace lattice2 {
     int getMazegakiPreferenceCost(const MString& mazeFeat);
 
     // 交ぜ書き優先度の更新
-    void updateMazegakiPreference(const CandidateString& raised, const CandidateString& depressed);
+    void updateMazegakiPreference(const CandidateString& raised, const CandidateString& lowered);
 
     // 交ぜ書き優先辞書の書き込み
     void saveMazegakiPrefFile();

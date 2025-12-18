@@ -182,11 +182,11 @@ namespace KanchokuWS
         /// <summary>形態素コストに対するNgramコストの係数</summary>
         public static int NgramCostFactor { get; set; } = 5;
 
-        /// <summary>抑制されたNgramに与えるペナルティの係数</summary>
-        public static int NgramDepressPenaltyFactor { get; set; } = 100;
+        /// <summary>嵩上げされたNgramに与えるボーナスの係数</summary>
+        public static int NngramBonusPointFactor { get; set; } = 100;
 
-        /// <summary>候補選択によるNgram抑制カウントの係数</summary>
-        public static int NgramDepressCountFactor { get; set; } = 10;
+        /// <summary>候補選択によるNgramカウントの変動幅</summary>
+        public static int NgramManualSelectDelta { get; set; } = 10;
 
         ///// <summary>句読点でコミットする</summary>
         //public static bool CommitByPunctuation { get; set; }
@@ -225,7 +225,7 @@ namespace KanchokuWS
         public static int RealtimeTrigramTier2Num {  get; set; }
 
         /// <summary>連続するN文字の漢字列にはコストを与える</summary>
-        public static int DepressedContinuousKanjiNum { get; set; } = 0;
+        public static int LoweredContinuousKanjiNum { get; set; } = 0;
 
         /// <summary>
         /// 排他的なストローク処理を開始する文字のコード。<br/>
@@ -1823,10 +1823,10 @@ namespace KanchokuWS
             MorphMazeConnectionPenalty = addDecoderSetting("morphMazeConnectionPenalty", 1000); // 交ぜ書きエントリの接続に対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
-            NgramDepressPenaltyFactor = addDecoderSetting("ngramDepressPenaltyFactor", 100);    // 抑制されたNgramに与えるペナルティの係数
-            NgramDepressCountFactor = addDecoderSetting("ngramDepressCountFactor", 10);         // 候補選択によるNgram抑制カウントの係数
+            NngramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 100);           // 嵩上げされたNgramに与えるボーナスの係数
+            NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 10);           // 候補選択によるNgramカウントの変動幅
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
-            DepressedContinuousKanjiNum = addDecoderSetting("depressedContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
+            LoweredContinuousKanjiNum = addDecoderSetting("loweredContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード
             OutputHeadSpace = addDecoderSetting("outputHeadSpace", true);                       // 先頭のスペースをそのまま出力する
             StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う

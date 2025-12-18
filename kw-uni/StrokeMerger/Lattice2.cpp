@@ -135,8 +135,8 @@ namespace lattice2 {
         }
 
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
-        void raiseAndDepressByCandSelection() override {
-            _kBestList->raiseAndDepressByCandSelection();
+        void raiseAndLowerByCandSelection() override {
+            _kBestList->raiseAndLowerByCandSelection();
         }
 
         // 部首合成
@@ -290,12 +290,12 @@ void Lattice2::updateRealtimeNgram(const MString& str) {
     lattice2::updateRealtimeNgram(str);
 }
 
-void Lattice2::raiseRealtimeNgramByGUI(const MString& str) {
-    lattice2::raiseRealtimeNgram(str, true);
+void Lattice2::increaseRealtimeNgramByGUI(const MString& str) {
+    lattice2::increaseRealtimeNgram(str, true);
 }
 
-void Lattice2::depressRealtimeNgramByGUI(const MString& str) {
-    lattice2::depressRealtimeNgram(str, true);
+void Lattice2::decreaseRealtimeNgramByGUI(const MString& str) {
+    lattice2::decreaseRealtimeNgram(str, true);
 }
 
 //void Lattice2::saveRealtimeNgramFile() {

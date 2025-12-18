@@ -82,16 +82,16 @@ namespace lattice2 {
     }
 
     // 交ぜ書き優先度の更新
-    void updateMazegakiPreference(const CandidateString& raised, const CandidateString& depressed) {
-        _LOG_DETAIL(L"ENTER: raised={}, depressed={}", raised.debugString(), depressed.debugString());
+    void updateMazegakiPreference(const CandidateString& raised, const CandidateString& lowered) {
+        _LOG_DETAIL(L"ENTER: raised={}, lowered={}", raised.debugString(), lowered.debugString());
         if (!raised.mazeFeat().empty()) {
             mazegakiPrefDict[raised.mazeFeat()] += -DEFAULT_WORD_BONUS;
             _LOG_DETAIL(L"raised: mazegakiPrefDict[{}]={}", to_wstr(raised.mazeFeat()), mazegakiPrefDict[raised.mazeFeat()]);
             mazegakiPref_updated = true;
         }
-        if (!depressed.mazeFeat().empty()) {
-            mazegakiPrefDict[depressed.mazeFeat()] += DEFAULT_WORD_BONUS;
-            _LOG_DETAIL(L"depressed: mazegakiPrefDict[{}]={}", to_wstr(depressed.mazeFeat()), mazegakiPrefDict[depressed.mazeFeat()]);
+        if (!lowered.mazeFeat().empty()) {
+            mazegakiPrefDict[lowered.mazeFeat()] += DEFAULT_WORD_BONUS;
+            _LOG_DETAIL(L"lowered: mazegakiPrefDict[{}]={}", to_wstr(lowered.mazeFeat()), mazegakiPrefDict[lowered.mazeFeat()]);
             mazegakiPref_updated = true;
         }
         _LOG_DETAIL(L"LEAVE");
@@ -168,9 +168,9 @@ namespace lattice2 {
                 //    }
                 //}
 
-                if (SETTINGS->depressedContinuousKanjiNum > 0) {
+                if (SETTINGS->loweredContinuousKanjiNum > 0) {
                     if (w.size() == 1 && utils::is_pure_kanji(w[0])) {
-                        if (SETTINGS->depressedContinuousKanjiNum == 2) {
+                        if (SETTINGS->loweredContinuousKanjiNum == 2) {
                             // 単漢字が2つ続くケース (「耳調量序高い」（これってけっこう高い）)
                             if (iter + 1 != wordItemsList.end()) {
                                 auto iter1 = iter + 1;
@@ -181,7 +181,7 @@ namespace lattice2 {
                                         to_wstr(w), to_wstr(w1), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
                                 }
                             }
-                        } else if (SETTINGS->depressedContinuousKanjiNum > 2) {
+                        } else if (SETTINGS->loweredContinuousKanjiNum > 2) {
                             // 単漢字が3つ続くケース (「耳調量序高い」（これってけっこう高い）)
                             if (iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
                                 auto iter1 = iter + 1;

@@ -574,12 +574,12 @@ public:
                 // 融合ストリームのクリア
                 WORD_LATTICE->updateRealtimeNgram(items.size() >= 2 ? to_mstr(items[1]) : EMPTY_MSTR);
                 WORD_LATTICE->clearAll();
-            } else if (cmd == _T("raiseRealtimeNgram")) {
+            } else if (cmd == _T("increaseRealtimeNgram")) {
                 // リアルタイムNgramの蒿上げ
-                if (items.size() >= 2) WORD_LATTICE->raiseRealtimeNgramByGUI(to_mstr(items[1]));
-            } else if (cmd == _T("depressRealtimeNgram")) {
+                if (items.size() >= 2) WORD_LATTICE->increaseRealtimeNgramByGUI(to_mstr(items[1]));
+            } else if (cmd == _T("decreaseRealtimeNgram")) {
                 // リアルタイムNgramの抑制
-                if (items.size() >= 2) WORD_LATTICE->depressRealtimeNgramByGUI(to_mstr(items[1]));
+                if (items.size() >= 2) WORD_LATTICE->decreaseRealtimeNgramByGUI(to_mstr(items[1]));
             } else if (cmd == _T("exchangeCodeTable")) {
                 // 主・副テーブルを切り替える
                 outParams->strokeTableNum = StrokeTableNode::ExchangeStrokeTable();
