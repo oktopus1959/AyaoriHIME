@@ -1939,8 +1939,6 @@ namespace KanchokuWS.Gui
             logger.Info("ENTER");
             //frmMain?.ExecCmdDecoder("stopRealtimeNgramCollection", "");
             frmMain?.ExecCmdDecoder("saveRealtimeNgramFile", "");
-
-                
             frmMain?.DeactivateDecoderWithModifiersOff();
 
             Settings.SetUserIni("collectRealtimeNgram", checkBox_collectRealtimeNgram.Checked);
@@ -1973,6 +1971,7 @@ namespace KanchokuWS.Gui
         private void button_fusionReload_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
+            frmMain?.ExecCmdDecoder("saveRealtimeNgramFile", "");
             reloadIniFileAndDefFiles();
             label_fusionReload.Show();
         }

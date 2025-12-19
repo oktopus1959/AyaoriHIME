@@ -145,36 +145,30 @@ namespace lattice2 {
         realtimeNgram_updated = true;
     }
 
-    //void _increaseRealtimeNgramCountByWord(const MString& word, bool manualSelect) {
-    //    _updateRealtimeNgramCountByWord(true, word, manualSelect);
-    //}
-
-    //void _decreaseRealtimeNgramCountByWord(const MString& word, bool manualSelect) {
-    //    _updateRealtimeNgramCountByWord(false, word, manualSelect);
-    //}
-
     // リアルタイムNgramの更新
     void _updateRealtimeNgram(bool bIncrease, const MString& str, bool bManual) {
         LOG_DEBUGH(L"ENTER: bIncrease={}, str={}, byGUI={}", bIncrease, to_wstr(str), bManual);
         int strlen = (int)str.size();
-        int hiraganaLen = 0;
+        int hirakanLen = 0;
         int kanjiLen = 0;
         for (int pos = 0; pos < strlen; ++pos) {
             int charLen = 0;
             if (utils::is_hiragana(str[pos])) {
                 kanjiLen = 0;
-                charLen = ++hiraganaLen;
+                ++hirakanLen;
             } else if (utils::is_kanji(str[pos])) {
-                hiraganaLen = 0;
-                charLen = ++kanjiLen;
+                ++kanjiLen;
+                ++hirakanLen;
             } else {
-                hiraganaLen = 0;
+                hirakanLen = 0;
                 kanjiLen = 0;
             }
-            if (charLen >= 3 && pos >= 2) {
+            if (hirakanLen >= 3 && pos >= 2) {
+                // ひらがなor漢字が3文字以上連続している場合は、3gramを更新する
                 _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 2, 3), bManual);
             }
-            if (charLen >= 2 && pos >= 1) {
+            if (kanjiLen >= 2 && pos >= 1) {
+                // 漢字が2文字以上連続している場合は、2gramを更新する
                 _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 2), bManual);
             }
         }
