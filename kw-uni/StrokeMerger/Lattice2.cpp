@@ -279,11 +279,11 @@ void Lattice2::createLattice() {
 }
 
 void Lattice2::reloadCostAndNgramFile() {
-    lattice2::loadCostAndNgramFile(false);
+    lattice2::loadCostAndNgramFile(true);
 }
 
 void Lattice2::reloadUserCostFile() {
-    lattice2::loadCostAndNgramFile(false, false);
+    //lattice2::loadCostAndNgramFile();
 }
 
 void Lattice2::updateRealtimeNgram(const MString& str) {
@@ -298,9 +298,9 @@ void Lattice2::decreaseRealtimeNgramByGUI(const MString& str) {
     lattice2::decreaseRealtimeNgram(str, true);
 }
 
-//void Lattice2::saveRealtimeNgramFile() {
-//    lattice2::saveRealtimeNgramFile();
-//}
+void Lattice2::saveRealtimeNgramFile() {
+    lattice2::saveRealtimeNgramFile();
+}
 
 void Lattice2::saveLatticeRelatedFiles() {
     lattice2::saveRealtimeNgramFile();

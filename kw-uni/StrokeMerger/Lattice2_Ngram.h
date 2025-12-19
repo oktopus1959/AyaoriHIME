@@ -6,7 +6,7 @@
 namespace lattice2 {
 
     // コストとNgramファイルの読み込み
-    void loadCostAndNgramFile(bool systemNgramFile = true, bool realtimeNgramFile = true);
+    void loadCostAndNgramFile(bool bReload = false);
 
     // リアルタイムNgramの保存
     void saveRealtimeNgramFile();

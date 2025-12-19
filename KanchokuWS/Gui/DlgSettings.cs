@@ -1937,6 +1937,10 @@ namespace KanchokuWS.Gui
         private void button_fusionEnter_Click(object sender, EventArgs e)
         {
             logger.Info("ENTER");
+            //frmMain?.ExecCmdDecoder("stopRealtimeNgramCollection", "");
+            frmMain?.ExecCmdDecoder("saveRealtimeNgramFile", "");
+
+                
             frmMain?.DeactivateDecoderWithModifiersOff();
 
             Settings.SetUserIni("collectRealtimeNgram", checkBox_collectRealtimeNgram.Checked);
@@ -1957,8 +1961,6 @@ namespace KanchokuWS.Gui
             Settings.ReadIniFile(false);
             // 各種定義ファイルの再読み込み
             frmMain?.ReloadSettingsAndDefFiles();
-
-            frmMain?.ExecCmdDecoder("reloadCostAndNgramFile", "");
 
             readSettings_tabFusion();
             checkerFusion.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)

@@ -89,8 +89,11 @@ namespace lattice2 {
 
 #define REALTIME_NGRAM_FILE (SETTINGS->useTmpRealtimeNgramFile ? REALTIME_NGRAM_TEMP_FILE : REALTIME_NGRAM_MAIN_FILE)
 
-    void loadCostAndNgramFile(bool systemNgramFile, bool realtimeNgramFile) {
-        LOG_INFO(L"ENTER: systemNgramFile={}, realtimeNgramFile={}", systemNgramFile, realtimeNgramFile);
+    void loadCostAndNgramFile(bool bReload) {
+        LOG_INFO(L"ENTER: bReload={}", bReload);
+        if (bReload) {
+            realtimeNgramBonusCounts.clear();
+        }
         _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgramBonusCounts);
         maxCandidatesSize = 0;
         LOG_INFO(L"LEAVE");
