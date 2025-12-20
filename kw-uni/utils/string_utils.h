@@ -275,6 +275,7 @@ namespace {
     }
 
     const MString MSTR_VERT_BAR_2 = to_mstr(_T("||"));
+    const MString MSTR_VERT_BAR_3 = to_mstr(_T(" ||| "));
 
     void push_back_wstr(mchar_t m, String& ws) {
         auto mp = decomp_mchar(m);

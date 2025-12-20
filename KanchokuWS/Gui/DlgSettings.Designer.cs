@@ -6428,6 +6428,7 @@ namespace KanchokuWS.Gui
             this.radioButton_mainRtNgramFile.TabStop = true;
             this.radioButton_mainRtNgramFile.Text = "メインファイル";
             this.radioButton_mainRtNgramFile.UseVisualStyleBackColor = true;
+            this.radioButton_mainRtNgramFile.CheckedChanged += new System.EventHandler(this.radioButton_mainRtNgramFile_CheckedChanged);
             // 
             // radioButton_tempRtNgramFile
             // 

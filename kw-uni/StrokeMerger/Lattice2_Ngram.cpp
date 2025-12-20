@@ -11,18 +11,21 @@
 namespace lattice2 {
     DECLARE_LOGGER;     // defined in Lattice2.cpp
 
-#define SYSTEM_NGRAM_FILE           L"files/mixed_all.ngram.txt"
-#define KATAKANA_COST_FILE          L"files/katakana.cost.txt"
+//#define SYSTEM_NGRAM_FILE           L"files/mixed_all.ngram.txt"
+//#define KATAKANA_COST_FILE          L"files/katakana.cost.txt"
 #define REALTIME_NGRAM_MAIN_FILE    L"files/realtime.ngram.txt"
 #define REALTIME_NGRAM_TEMP_FILE    L"files/realtime.ngram.tmp.txt"
-//#define USER_NGRAM_FILE           L"files/user.ngram.txt"
-#define USER_COST_FILE              L"files/userword.cost.txt"
+#define USER_NGRAM_FILE             L"files/user.ngram.txt"
+//#define USER_COST_FILE              L"files/userword.cost.txt"
 
     // 利用者の選択によって嵩上げされるNgramに課されるボーナスを計算するためのベースとなるカウント
     std::map<MString, int> realtimeNgramBonusCounts;
 
     // Ngram頻度がオンラインで更新されたか
     bool realtimeNgram_updated = false;
+
+    // 利用者定義のボーナスを計算するためのカウント
+    std::map<MString, int> userNgramBonusCounts;
 
     //--------------------------------------------------------------------------------------
 #if 0
@@ -63,23 +66,16 @@ namespace lattice2 {
         int maxFreq = 0;
         utils::IfstreamReader reader(path);
         if (reader.success()) {
-            ngramMap.clear();
             for (const auto& line : reader.getAllLines()) {
                 auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
                 if (items.size() == 2 &&
-                    items[0].size() >= 1 && items[0].size() <= 3 &&         // 1-3gramに限定
+                    items[0].size() >= 2 && items[0].size() <= 3 &&         // 2-3gramに限定
                     items[0][0] != L'#' && isDecimalString(items[1])) {
 
                     int count = std::stoi(items[1]);
                     MString word = to_mstr(items[0]);
                     ngramMap[word] = count;
                     if (maxFreq < count) maxFreq = count;
-                    //if (IS_LOG_DEBUGH_ENABLED) {
-                    //    String ws = to_wstr(word);
-                    //    if (ws == L"ている" || ws == L"いるな" || ws == L"ていか" || ws == L"いかな") {
-                    //        LOG_WARNH(L"file={}, word={}, count={}", ngramFile, ws, count);
-                    //    }
-                    //}
                 }
             }
         }
@@ -89,16 +85,17 @@ namespace lattice2 {
 
 #define REALTIME_NGRAM_FILE (SETTINGS->useTmpRealtimeNgramFile ? REALTIME_NGRAM_TEMP_FILE : REALTIME_NGRAM_MAIN_FILE)
 
-    void loadCostAndNgramFile(bool bReload) {
-        LOG_INFO(L"ENTER: bReload={}", bReload);
-        if (bReload) {
-            realtimeNgramBonusCounts.clear();
-        }
+    void loadNgramFiles() {
+        LOG_INFO(L"ENTER");
+        realtimeNgramBonusCounts.clear();
         _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgramBonusCounts);
+        userNgramBonusCounts.clear();
+        _loadNgramFile(USER_NGRAM_FILE, userNgramBonusCounts);
         maxCandidatesSize = 0;
         LOG_INFO(L"LEAVE");
     }
 
+    // リアルタイムNgramファイルの保存
     void saveRealtimeNgramFile() {
         LOG_SAVE_DICT(L"ENTER: file={}, realtimeNgram_updated={}", REALTIME_NGRAM_FILE, realtimeNgram_updated);
 #ifndef _DEBUG
@@ -143,16 +140,16 @@ namespace lattice2 {
         }
         realtimeNgramBonusCounts[word] += delta;
         realtimeNgram_updated = true;
+        LOG_DEBUGH(L"realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), realtimeNgramBonusCounts[word], delta);
     }
 
     // リアルタイムNgramの更新
     void _updateRealtimeNgram(bool bIncrease, const MString& str, bool bManual) {
-        LOG_DEBUGH(L"ENTER: bIncrease={}, str={}, byGUI={}", bIncrease, to_wstr(str), bManual);
+        LOG_DEBUGH(L"ENTER: bIncrease={}, str={}, bManual={}", bIncrease, to_wstr(str), bManual);
         int strlen = (int)str.size();
         int hirakanLen = 0;
         int kanjiLen = 0;
         for (int pos = 0; pos < strlen; ++pos) {
-            int charLen = 0;
             if (utils::is_hiragana(str[pos])) {
                 kanjiLen = 0;
                 ++hirakanLen;
@@ -219,29 +216,17 @@ namespace lattice2 {
         LOG_WARNH(L"LEAVE");
     }
 
-    //// 候補選択による、リアルタイムNgramの嵩上げ
-    //void _increaseRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
-    //    _updateRealtimeNgramForDiffPart(true, oldCand, newCand);
-    //}
-
-    //// 候補選択による、リアルタイムNgramの抑制
-    //void _decreaseRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
-    //    _updateRealtimeNgramForDiffPart(false, newCand, oldCand);
-    //}
-
     // 候補選択による、リアルタイムNgramの蒿上げと抑制
     void updateRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
         LOG_WARNH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
-        //_increaseRealtimeNgramForDiffPart(oldCand, newCand);
         _updateRealtimeNgramForDiffPart(true, oldCand, newCand);
-        //_decreaseRealtimeNgramForDiffPart(oldCand, newCand);
         _updateRealtimeNgramForDiffPart(false, newCand, oldCand);
         LOG_WARNH(L"LEAVE");
     }
 
-    int getRealtimeNgramBonus(const MString& word) {
-        auto iter = realtimeNgramBonusCounts.find(word);
-        if (iter != realtimeNgramBonusCounts.end()) {
+    int _getNgramBonus(const MString& word, std::map<MString, int>& ngramMap) {
+        auto iter = ngramMap.find(word);
+        if (iter != ngramMap.end()) {
             int bonusCount = iter->second;
             if (bonusCount > 0) {
                 int bonusPoint = bonusCount * SETTINGS->ngramBonusPointFactor;
@@ -252,6 +237,11 @@ namespace lattice2 {
         return 0;
     }
 
+    // realtimeおよびユーザー定義による2gramと3gramのボーナスを取得
+    int getNgramBonus(const MString& word) {
+        return _getNgramBonus(word, realtimeNgramBonusCounts) + _getNgramBonus(word, userNgramBonusCounts);
+    }
+
     //int getWordConnCost(const MString& s1, const MString& s2) {
     //    return get_base_ngram_cost(utils::last_substr(s1, 1) + utils::safe_substr(s2, 0, 1)) / 2;
     //}
@@ -259,7 +249,7 @@ namespace lattice2 {
     std::wregex kanjiDateTime(L"年[一二三四五六七八九十]+月?|[一二三四五六七八九十]+月[一二三四五六七八九十]?|月[一二三四五六七八九十]+日?|[一二三四五六七八九十]+日");
 
     // Ngramコストの取得
-    int getNgramCost(const MString& str, const std::vector<MString>& morphs) {
+    int getNgramCost(const MString& str, const std::vector<MString>& /*morphs*/) {
         _LOG_DETAIL(L"ENTER: str={}", to_wstr(str));
         std::vector<MString> ngrams;
         int cost = NgramBridge::ngramCalcCost(MSTR_GETA + str, ngrams, IS_LOG_INFOH_ENABLED);
@@ -268,9 +258,10 @@ namespace lattice2 {
         }
         if (str.size() >= 2) {
             for (size_t pos = 0 ; pos < str.size() - 1; ++pos) {
-                cost -= getRealtimeNgramBonus(utils::safe_substr(str, pos, 2));
+                // realtimeおよびユーザー定義による2gramと3gramのボーナスを差し引く
+                cost -= getNgramBonus(utils::safe_substr(str, pos, 2));
                 if (pos + 2 < str.size()) {
-                    cost -= getRealtimeNgramBonus(utils::safe_substr(str, pos, 3));
+                    cost -= getNgramBonus(utils::safe_substr(str, pos, 3));
                 }
             }
         }

@@ -272,14 +272,14 @@ std::unique_ptr<Lattice2> Lattice2::Singleton;
 
 void Lattice2::createLattice() {
     LOG_INFOH(L"ENTER");
-    lattice2::loadCostAndNgramFile();
+    lattice2::loadNgramFiles();
     lattice2::loadMazegakiPrefFile();
     Singleton.reset(new lattice2::LatticeImpl());
     LOG_INFOH(L"LEAVE");
 }
 
-void Lattice2::reloadCostAndNgramFile() {
-    lattice2::loadCostAndNgramFile(true);
+void Lattice2::reloadNgramFiles() {
+    lattice2::loadNgramFiles();
 }
 
 void Lattice2::reloadUserCostFile() {

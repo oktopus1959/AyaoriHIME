@@ -52,7 +52,7 @@ namespace LlamaBridge {
 #endif
     }
 
-    float llamaCalcCost(const MString& str, std::vector<float>& logits) {
+    float llamaCalcCost(const MString& /*str*/, std::vector<float>& /*logits*/) {
 #if USE_LLAMA
         LOG_DEBUGH(_T("ENTER: str={}"), to_wstr(str));
         float cost = 0.0;

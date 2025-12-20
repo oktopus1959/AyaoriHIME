@@ -2726,7 +2726,7 @@ namespace KanchokuWS
         /// <summary> 単語コストファイルの再読込</summary>
         private void ReloadCostFile_ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ExecCmdDecoder("reloadCostAndNgramFile", "");
+            ExecCmdDecoder("reloadNgramFiles", "");
         }
     }
 

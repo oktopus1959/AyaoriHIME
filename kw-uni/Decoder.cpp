@@ -461,9 +461,9 @@ public:
             } else if (cmd == _T("saveLatticeRelatedFiles")) {
                 // リアルタイムNgramファイルの保存
                 Lattice2::saveLatticeRelatedFiles();
-            } else if (cmd == _T("reloadCostAndNgramFile")) {
+            } else if (cmd == _T("reloadNgramFiles")) {
                 // 単語コストファイルとNgramファイルの読み込み
-                Lattice2::reloadCostAndNgramFile();
+                Lattice2::reloadNgramFiles();
             } else if (cmd == _T("showStrokeHelp") && STROKE_HELP) {
                 // ストロークヘルプの表示
                 //OutParams = outParams;

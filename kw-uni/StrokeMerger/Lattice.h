@@ -158,7 +158,7 @@ public:
 
     static void createLattice();
 
-    static void reloadCostAndNgramFile();
+    static void reloadNgramFiles();
 
     static void reloadUserCostFile();
 

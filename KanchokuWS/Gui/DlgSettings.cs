@@ -1938,6 +1938,7 @@ namespace KanchokuWS.Gui
         {
             logger.Info("ENTER");
             //frmMain?.ExecCmdDecoder("stopRealtimeNgramCollection", "");
+            bool rtNgramFiledChanged = (Settings.UseTmpRealtimeNgramFile != radioButton_tempRtNgramFile.Checked);
             frmMain?.ExecCmdDecoder("saveRealtimeNgramFile", "");
             frmMain?.DeactivateDecoderWithModifiersOff();
 
@@ -1959,6 +1960,9 @@ namespace KanchokuWS.Gui
             Settings.ReadIniFile(false);
             // 各種定義ファイルの再読み込み
             frmMain?.ReloadSettingsAndDefFiles();
+            if (rtNgramFiledChanged) {
+                frmMain?.ExecCmdDecoder("reloadNgramFiles", "");
+            }
 
             readSettings_tabFusion();
             checkerFusion.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
@@ -1968,6 +1972,11 @@ namespace KanchokuWS.Gui
             logger.Info("LEAVE");
         }
 
+        private void radioButton_mainRtNgramFile_CheckedChanged(object sender, EventArgs e)
+        {
+        }
+
+        /// <summary> 設定ファイルの再読み込み</summary>
         private void button_fusionReload_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
@@ -2002,10 +2011,11 @@ namespace KanchokuWS.Gui
             }
         }
 
-        /// <summary> 単語コストファイルの再読込</summary>
+        /// <summary> リアルタイムNgramとユーザー定義Ngramファイルの再読み込み</summary>
         private void button_reloadDict_Click(object sender, EventArgs e)
         {
-            frmMain?.ExecCmdDecoder("reloadCostAndNgramFile", "");
+            frmMain?.ExecCmdDecoder("saveRealtimeNgramFile", "");
+            frmMain?.ExecCmdDecoder("reloadNgramFiles", "");
         }
 
         private void button_showCandidates_Click(object sender, EventArgs e)

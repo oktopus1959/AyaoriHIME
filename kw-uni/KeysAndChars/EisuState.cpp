@@ -58,7 +58,7 @@ namespace {
             }
 
             // ブロッカーフラグを先に取得しておく
-            bool blockerNeeded = MY_NODE->blockerNeeded;
+            //bool blockerNeeded = MY_NODE->blockerNeeded;
             MY_NODE->blockerNeeded = false;
 
             if (firstTotalCnt == prevCapitalCnt + 1) {
