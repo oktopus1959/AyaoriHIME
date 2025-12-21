@@ -10,6 +10,7 @@
 #include "Lattice.h"
 #include "Lattice2_Common.h"
 #include "Lattice2_CandidateString.h"
+#include "Lattice2_Ngram.h"
 
 #include "MorphBridge.h"
 
@@ -193,16 +194,27 @@ namespace lattice2 {
         return utils::join(tmp, outer_sep);
     }
 
+    struct SortedItem {
+        MString str;
+        MString feat;
+        int cost;
+    };
+
     void enumerate_compound_bunsetsu_variation(
         size_t index,
         const std::vector<std::vector<MString>>& vectors,
-        int strokeLen,
         size_t maxCandidateNum,
         std::vector<MString>& words,
         std::vector<MString>& feats,
-        std::vector<CandidateString>& out) {
+        std::vector<SortedItem>& out) {
         if (index == vectors.size()) {
-            out.push_back(CandidateString(utils::join(words, EMPTY_MSTR), strokeLen, utils::join(feats, MSTR_VERT_BAR)));
+            MString str = utils::join(words, EMPTY_MSTR);
+            MString feat = utils::join(feats, MSTR_VERT_BAR);
+            std::vector<MString> morphs;
+            int cost = MorphBridge::morphCalcCost(str, morphs, 0, 0, false);
+            morphs.clear();
+            cost += getNgramCost(str, morphs);
+            out.push_back(SortedItem{std::move(str), std::move(feat), cost});
             return;
         }
 
@@ -212,12 +224,29 @@ namespace lattice2 {
             auto old_size = words.size();
             words.push_back(items[0]);
             feats.push_back(items.size() > 1 ? items[1] : EMPTY_MSTR);
-            enumerate_compound_bunsetsu_variation(index + 1, vectors, strokeLen, maxCandidateNum, words, feats, out);
+            enumerate_compound_bunsetsu_variation(index + 1, vectors, maxCandidateNum, words, feats, out);
             words.resize(old_size);
             feats.resize(old_size);
             ++count;
             if (count >= maxCandidateNum) break;  // 各ベクトルから指定の最大数まで選択
         }
+    }
+
+    std::vector<CandidateString> generate_candidateString_from_items_sorted_by_cost(std::vector<SortedItem>& items, int strokeLen, size_t k) {
+        std::stable_sort(items.begin(), items.end(),
+            [](const SortedItem& a, const SortedItem& b) {
+                return a.cost < b.cost;
+            });
+
+        std::vector<CandidateString> results;
+        results.reserve(k);
+        size_t j = 0;
+        for (const auto& it : items) {
+            results.push_back(CandidateString(it.str, strokeLen, it.feat));     // ムーブで取り出し
+            ++j;
+            if (j >= k) break;
+        }
+        return results;
     }
 
     // 交ぜ書き変換の実行
@@ -292,24 +321,27 @@ namespace lattice2 {
         _LOG_DETAIL(L"vecCands={}", to_wstr(join_all(vecCands, to_mstr(L"|"), to_mstr(L" ||| "))));
 
         // 交せ書き候補によるバリエーション
-        std::vector<CandidateString> results;
+#define MAX_MAZEGAKI_MORPHS 5
+#define MAX_MORPH_CAND_NUM 3
+#define MAX_ITEM_NUM 300    /* >= pow(MAX_MORPH_CAND_NUM, MAX_MAZEGAKI_MORPHS) */
+#define MAX_CANDITATE_STR_NUM 20
         std::vector<MString> morphs;
         std::vector<MString> feats;
-#define MAX_MAZEGAKI_BUNSETSU 4
         size_t index = 0;
-        size_t numBunsetsu = vecCands.size();
+        size_t numMorph = vecCands.size();
         // 文節数が多すぎる場合は、前のほうをまとめる
-        while (numBunsetsu > MAX_MAZEGAKI_BUNSETSU) {
+        while (numMorph > MAX_MAZEGAKI_MORPHS) {
             auto items = utils::split(vecCands[index][0], '@');
             morphs.push_back(items[0]);
             feats.push_back(items.size() > 1 ? items[1] : EMPTY_MSTR);
             ++index;
-            --numBunsetsu;
+            --numMorph;
         }
-        size_t maxCandNum = numBunsetsu >= 4 ? 2 : numBunsetsu == 3 ? 3 : numBunsetsu == 2 ? 4 : 8;
-        enumerate_compound_bunsetsu_variation(index, vecCands, strokeLen(), maxCandNum, morphs, feats, results);
-        _LOG_DETAIL(L"LEAVE: results={}", join_all(results, L" || "));
-        return results;
+        std::vector<SortedItem> sortedItems;
+        sortedItems.reserve(MAX_ITEM_NUM);
+        enumerate_compound_bunsetsu_variation(index, vecCands, MAX_MORPH_CAND_NUM, morphs, feats, sortedItems);
+        _LOG_DETAIL(L"num of sortedItems={}", sortedItems.size());
+        return generate_candidateString_from_items_sorted_by_cost(sortedItems, strokeLen(), MAX_CANDITATE_STR_NUM);
     }
 
     // 交ぜ書き優先度の取得
