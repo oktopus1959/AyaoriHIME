@@ -4,6 +4,8 @@
 
 //#include "Lattice.h"
 
+#define MAZE_TRANSLATION_FEATURE_DELIM   '|'
+
 namespace lattice2 {
 
     // 交ぜ書き優先辞書の読み込み

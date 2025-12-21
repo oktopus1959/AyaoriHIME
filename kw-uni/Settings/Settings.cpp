@@ -135,6 +135,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(ngramCostFactor);
     SET_INT_VALUE(ngramBonusPointFactor);
     SET_INT_VALUE(ngramManualSelectDelta);
+    SET_INT_VALUE(mazegakiBonusPointFactor);
     //SET_BOOL_VALUE(commitByPunctuation);
     SET_BOOL_VALUE(outputHeadSpace);
     SET_BOOL_VALUE(strokeBackByBS);

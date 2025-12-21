@@ -45,7 +45,7 @@ namespace lattice2 {
         if (iter == mazegakiPrefDict.end()) {
             return 0;
         } else {
-            return iter->second;
+            return iter->second * SETTINGS->mazegakiBonusPointFactor;
         }
     }
 
@@ -85,14 +85,21 @@ namespace lattice2 {
     void updateMazegakiPreference(const CandidateString& raised, const CandidateString& lowered) {
         _LOG_DETAIL(L"ENTER: raised={}, lowered={}", raised.debugString(), lowered.debugString());
         if (!raised.mazeFeat().empty()) {
-            mazegakiPrefDict[raised.mazeFeat()] += -DEFAULT_WORD_BONUS;
-            _LOG_DETAIL(L"raised: mazegakiPrefDict[{}]={}", to_wstr(raised.mazeFeat()), mazegakiPrefDict[raised.mazeFeat()]);
-            mazegakiPref_updated = true;
-        }
-        if (!lowered.mazeFeat().empty()) {
-            mazegakiPrefDict[lowered.mazeFeat()] += DEFAULT_WORD_BONUS;
-            _LOG_DETAIL(L"lowered: mazegakiPrefDict[{}]={}", to_wstr(lowered.mazeFeat()), mazegakiPrefDict[lowered.mazeFeat()]);
-            mazegakiPref_updated = true;
+            auto raisedFeats = utils::split(raised.mazeFeat(), MAZE_TRANSLATION_FEATURE_DELIM);
+            auto loweredFeats = utils::split(lowered.mazeFeat(), MAZE_TRANSLATION_FEATURE_DELIM);
+            if (raisedFeats.size() != loweredFeats.size()) {
+                _LOG_DETAIL(L"LEAVE: raisedFeats.size({}) != loweredFeats.size({})", raisedFeats.size(), loweredFeats.size());
+                return;
+            }
+            for (size_t i = 0; i < raisedFeats.size(); ++i) {
+                if (raisedFeats[i] != loweredFeats[i]) {
+                    mazegakiPrefDict[raisedFeats[i]] -= 2;
+                    _LOG_DETAIL(L"raised: mazegakiPrefDict[{}]={}", to_wstr(raisedFeats[i]), mazegakiPrefDict[raisedFeats[i]]);
+                    if (mazegakiPrefDict[loweredFeats[i]] < 0) ++mazegakiPrefDict[loweredFeats[i]];
+                    _LOG_DETAIL(L"lowered: mazegakiPrefDict[{}]={}", to_wstr(loweredFeats[i]), mazegakiPrefDict[loweredFeats[i]]);
+                    mazegakiPref_updated = true;
+                }
+            }
         }
         _LOG_DETAIL(L"LEAVE");
     }
@@ -147,26 +154,6 @@ namespace lattice2 {
             for (auto iter = wordItemsList.begin(); iter != wordItemsList.end(); ++iter) {
                 const auto& items = *iter;
                 const MString& w = items[0];
-                const MString& feat = items[2];
-
-                //if (w.size() == 1 && utils::is_hiragana(w[0])) {
-                //    // 1文字ひらがなが2つ続いて、その前後もひらがなのケース
-                //    // 「開発させる」⇒「さ きれ て さ せる」
-                //    if (iter != wordItemsList.begin() && iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
-                //        auto iter0 = iter - 1;
-                //        auto iter1 = iter + 1;
-                //        auto iter2 = iter + 2;
-                //        const MString& w1 = iter1->front();
-                //        if (w1.size() == 1 && utils::is_hiragana(w1[0])) {
-                //            // 1文字ひらがなが2つ続いた
-                //            if (utils::is_hiragana(iter0->front().back()) && utils::is_hiragana(iter2->front().front())) {
-                //                // その前後もひらがながだった
-                //                cost += MORPH_ISOLATED_HIRAGANA_COST;
-                //                _LOG_DETAIL(L"{} {}: ADD ISOLATED_HIRAGANA_COST({}): morphCost={}", to_wstr(w), to_wstr(w1), MORPH_ISOLATED_HIRAGANA_COST, cost);
-                //            }
-                //        }
-                //    }
-                //}
 
                 if (SETTINGS->loweredContinuousKanjiNum > 0) {
                     if (w.size() == 1 && utils::is_pure_kanji(w[0])) {
@@ -211,43 +198,11 @@ namespace lattice2 {
                 //    cost -= MORPH_ALL_HIRAGANA_BONUS;
                 //    _LOG_DETAIL(L"{}: SUB ALL_HIRAGANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_HIRAGANA_BONUS, cost);
                 //}
-#if 0
-                if (w.size() >= 2 && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_katakana(c); })) {
-                    auto iter1 = iter + 1;
-                    bool flag = iter1 == wordItemsList.end();
-                    if (!flag) {
-                        const MString& w2 = iter1->front();
-                        // 次がカタカナ連でないか、合計で6文以上
-                        flag = !std::all_of(w2.begin(), w2.end(), [](mchar_t c) { return utils::is_katakana(c); }) || w.size() + w2.size() >= 6;
-                    }
-                    if (flag) {
-                        // 次がカタカナ連でないか、合計で6文以上なら
-                        cost -= MORPH_ALL_KATAKANA_BONUS;
-                        _LOG_DETAIL(L"{}: SUB ALL_KATAKANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_KATAKANA_BONUS, cost);
-                    }
-                }
-#endif
             }
             _LOG_DETAIL(L"LEAVE: {}: total morphCost={}", to_wstr(s), cost);
         }
         return cost;
     }
-
-    //// 表層形と交ぜ書き原形などの形態素情報
-    //class MorphInfo {
-    //    MString surface;
-    //    MString mazeBase;
-
-    //};
-
-#if 0
-    int totalCostWithMorph(const MString& candStr) {
-        std::vector<MString> morphs;
-        int morphCost = calcMorphCost(candStr, morphs);
-        return morphCost;
-    }
-#endif
-
 
 } // namespace lattice2
 

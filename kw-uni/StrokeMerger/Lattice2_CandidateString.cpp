@@ -11,6 +11,7 @@
 #include "Lattice2_Common.h"
 #include "Lattice2_CandidateString.h"
 #include "Lattice2_Ngram.h"
+#include "Lattice2_Morpher.h"
 
 #include "MorphBridge.h"
 
@@ -171,7 +172,17 @@ namespace lattice2 {
     // リアルタイムNgramの更新
     void updateRealtimeNgram(const MString& str);
 
-    MString join_all(
+    struct MorphCand {
+        MString str;
+        MString feat;
+        int cost = 0;
+
+        String toString() const {
+            return to_wstr(str) + L"@" + to_wstr(feat) + L"(" + std::to_wstring(cost) + L")";
+        }
+    };
+
+    MString join_all_flatten(
         const std::vector<std::vector<MString>>& vectors,
         const MString& inner_sep,
         const MString& outer_sep) {
@@ -185,7 +196,51 @@ namespace lattice2 {
         return utils::join(tmp, outer_sep);
     }
 
-    String join_all(const std::vector<CandidateString>& vectors, const String& outer_sep) {
+    MString join_words(const std::vector<MorphCand>& vectors) {
+        std::vector<MString> tmp;
+        tmp.reserve(vectors.size());
+        for (const auto& cand : vectors) {
+            tmp.push_back(cand.str);
+        }
+        return utils::join(tmp, EMPTY_MSTR);
+    }
+
+    MString join_feats(const std::vector<MorphCand>& vectors) {
+        std::vector<MString> tmp;
+        tmp.reserve(vectors.size());
+        for (const auto& cand : vectors) {
+            tmp.push_back(cand.feat);
+        }
+        return utils::join(tmp, MAZE_TRANSLATION_FEATURE_DELIM);
+    }
+
+    int accum_cost(const std::vector<MorphCand>& vectors) {
+        int cost = 0;
+        for (const auto& cand : vectors) {
+            cost += cand.cost;
+        }
+        return cost;
+    }
+
+    String join_all_cands_for_debug(const std::vector<MorphCand>& vectors) {
+        std::vector<String> tmp;
+        tmp.reserve(vectors.size());
+        for (const auto& cand : vectors) {
+            tmp.push_back(cand.toString());
+        }
+        return utils::join(tmp, L"||");
+    }
+
+    String join_all_cands_vector_for_debug(const std::vector<std::vector<MorphCand>>& vectors) {
+        std::vector<String> tmp;
+        tmp.reserve(vectors.size());
+        for (const auto& cands : vectors) {
+            tmp.push_back(join_all_cands_for_debug(cands));
+        }
+        return utils::join(tmp, L" ||| ");
+    }
+
+    String join_all_candidates(const std::vector<CandidateString>& vectors, const String& outer_sep) {
         std::vector<String> tmp;
         tmp.reserve(vectors.size());
         for (const auto& words : vectors) {
@@ -194,47 +249,38 @@ namespace lattice2 {
         return utils::join(tmp, outer_sep);
     }
 
-    struct SortedItem {
-        MString str;
-        MString feat;
-        int cost;
-    };
-
     void enumerate_compound_bunsetsu_variation(
         size_t index,
-        const std::vector<std::vector<MString>>& vectors,
+        const std::vector<std::vector<MorphCand>>& vectors,
         size_t maxCandidateNum,
-        std::vector<MString>& words,
-        std::vector<MString>& feats,
-        std::vector<SortedItem>& out) {
+        std::vector<MorphCand>& vecWork,
+        std::vector<MorphCand>& out) {
         if (index == vectors.size()) {
-            MString str = utils::join(words, EMPTY_MSTR);
-            MString feat = utils::join(feats, MSTR_VERT_BAR);
+            MString str = join_words(vecWork);
+            MString feat = join_feats(vecWork);
+            int cost = accum_cost(vecWork);
             std::vector<MString> morphs;
-            int cost = MorphBridge::morphCalcCost(str, morphs, 0, 0, false);
+            cost += MorphBridge::morphCalcCost(str, morphs, 0, 0, false);
             morphs.clear();
             cost += getNgramCost(str, morphs);
-            out.push_back(SortedItem{std::move(str), std::move(feat), cost});
+            out.push_back(MorphCand{std::move(str), std::move(feat), cost});
             return;
         }
 
         size_t count = 0;
-        for (const auto& s : vectors[index]) {
-            auto items = utils::split(s, '@');      // 変換形@属性
-            auto old_size = words.size();
-            words.push_back(items[0]);
-            feats.push_back(items.size() > 1 ? items[1] : EMPTY_MSTR);
-            enumerate_compound_bunsetsu_variation(index + 1, vectors, maxCandidateNum, words, feats, out);
-            words.resize(old_size);
-            feats.resize(old_size);
+        for (const auto& c : vectors[index]) {
+            auto old_size = vecWork.size();
+            vecWork.push_back(c);
+            enumerate_compound_bunsetsu_variation(index + 1, vectors, maxCandidateNum, vecWork, out);
+            vecWork.resize(old_size);
             ++count;
             if (count >= maxCandidateNum) break;  // 各ベクトルから指定の最大数まで選択
         }
     }
 
-    std::vector<CandidateString> generate_candidateString_from_items_sorted_by_cost(std::vector<SortedItem>& items, int strokeLen, size_t k) {
+    std::vector<CandidateString> generate_candidateString_from_items_sorted_by_cost(std::vector<MorphCand>& items, int strokeLen, size_t k) {
         std::stable_sort(items.begin(), items.end(),
-            [](const SortedItem& a, const SortedItem& b) {
+            [](const MorphCand& a, const MorphCand& b) {
                 return a.cost < b.cost;
             });
 
@@ -247,6 +293,59 @@ namespace lattice2 {
             if (j >= k) break;
         }
         return results;
+    }
+
+    void add_maze_cand(std::vector<MorphCand>& result, const MString& morph) {
+        auto items = utils::split(morph, '@');
+        if (items.size() > 1) {
+            _LOG_DETAIL(L"cand feat={}", to_wstr(items[1]));
+            result.push_back(MorphCand{ items[0], items[1], getMazegakiPreferenceCost(items[1]) });
+        } else {
+            result.push_back(MorphCand{ items[0], EMPTY_MSTR, 0 });
+        }
+    }
+
+    // 難字を含む交ぜ書き候補を優先的に取得する
+    void getDifficultMazeCands(const MString& surf, const MString& mazeCands, std::vector<MorphCand>& result) {
+        _LOG_DETAIL(L"ENTER: surf={}, mazeCands={}, result={}", to_wstr(surf), to_wstr(mazeCands), join_all_cands_for_debug(result));
+        auto cands = utils::split(mazeCands, '|');
+        if (cands.size() <= 1) {
+            _LOG_DETAIL(L"put single mazeCands={}", to_wstr(mazeCands));
+            add_maze_cand(result, mazeCands);
+        } else {
+            std::set<mchar_t> surfKanjis;
+            for (mchar_t mc : surf) {
+                if (utils::is_kanji(mc)) surfKanjis.insert(mc);
+            }
+            std::vector<MString> rests;
+            for (const auto& cand : cands) {
+                auto items = utils::split(cand, '@');
+                bool found = false;
+                for (mchar_t mc : items[0]) {
+                    if (surfKanjis.find(mc) != surfKanjis.end() && !EASY_CHARS->IsEasyChar(mc)) {
+                        // 難字を含む候補が見つかったので、こちらを優先して出力
+                        _LOG_DETAIL(L"put difficult cand={}", to_wstr(cand));
+                        add_maze_cand(result, cand);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    rests.push_back(cand);
+                }
+            }
+            // 難字を含まない残りの候補を追加
+            _LOG_DETAIL(L"rests={}", to_wstr(utils::join(rests, to_mstr(L" ||| "))));
+            for (const auto& cand : rests) {
+                add_maze_cand(result, cand);
+            }
+
+            // feature部による交ぜ書き優先度でソート
+            std::stable_sort(result.begin(), result.end(), [](const MorphCand& a, const MorphCand& b) {
+                return a.cost < b.cost;
+            });
+        }
+        _LOG_DETAIL(L"LEAVE: result={}", join_all_cands_for_debug(result));
     }
 
     // 交ぜ書き変換の実行
@@ -307,92 +406,38 @@ namespace lattice2 {
         //    }
         //}
 
-        std::vector<std::vector<MString>> vecCands;
+        std::vector<std::vector<MorphCand>> vecMorphCands;
         for (auto iter = words.begin(); iter != words.end(); ++iter) {
             _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
             auto items = utils::split(*iter, '\t');
             if (!items.empty()) {
                 const MString& surf = items[0];
-                vecCands.emplace_back();
+                vecMorphCands.emplace_back();
                 const MString& mazeCands = items[1];
-                getDifficultMazeCands(surf, mazeCands, vecCands.back());
+                getDifficultMazeCands(surf, mazeCands, vecMorphCands.back());
             }
         }
-        _LOG_DETAIL(L"vecCands={}", to_wstr(join_all(vecCands, to_mstr(L"|"), to_mstr(L" ||| "))));
+        _LOG_DETAIL(L"vecMorphCands={}", join_all_cands_vector_for_debug(vecMorphCands));
 
         // 交せ書き候補によるバリエーション
 #define MAX_MAZEGAKI_MORPHS 5
 #define MAX_MORPH_CAND_NUM 3
 #define MAX_ITEM_NUM 300    /* >= pow(MAX_MORPH_CAND_NUM, MAX_MAZEGAKI_MORPHS) */
 #define MAX_CANDITATE_STR_NUM 20
-        std::vector<MString> morphs;
-        std::vector<MString> feats;
+        std::vector<MorphCand> morphs;
         size_t index = 0;
-        size_t numMorph = vecCands.size();
+        size_t numMorph = vecMorphCands.size();
         // 文節数が多すぎる場合は、前のほうをまとめる
         while (numMorph > MAX_MAZEGAKI_MORPHS) {
-            auto items = utils::split(vecCands[index][0], '@');
-            morphs.push_back(items[0]);
-            feats.push_back(items.size() > 1 ? items[1] : EMPTY_MSTR);
+            morphs.push_back(vecMorphCands[index][0]);
             ++index;
             --numMorph;
         }
-        std::vector<SortedItem> sortedItems;
+        std::vector<MorphCand> sortedItems;
         sortedItems.reserve(MAX_ITEM_NUM);
-        enumerate_compound_bunsetsu_variation(index, vecCands, MAX_MORPH_CAND_NUM, morphs, feats, sortedItems);
+        enumerate_compound_bunsetsu_variation(index, vecMorphCands, MAX_MORPH_CAND_NUM, morphs, sortedItems);
         _LOG_DETAIL(L"num of sortedItems={}", sortedItems.size());
         return generate_candidateString_from_items_sorted_by_cost(sortedItems, strokeLen(), MAX_CANDITATE_STR_NUM);
-    }
-
-    // 交ぜ書き優先度の取得
-    int getMazegakiPreferenceCost(const MString& mazeFeat);
-
-    void CandidateString::getDifficultMazeCands(const MString& surf, const MString& mazeCands, std::vector<MString>& result) const {
-        _LOG_DETAIL(L"ENTER: surf={}, mazeCands={}, result={}", to_wstr(surf), to_wstr(mazeCands), to_wstr(utils::join(result, to_mstr(L" ||| "))));
-        auto cands = utils::split(mazeCands, '|');
-        if (cands.size() <= 1) {
-            _LOG_DETAIL(L"put single mazeCands={}", to_wstr(mazeCands));
-            result.push_back(mazeCands);
-        } else {
-            std::set<mchar_t> surfKanjis;
-            for (mchar_t mc : surf) {
-                if (utils::is_kanji(mc)) surfKanjis.insert(mc);
-            }
-            std::vector<MString> unused;
-            for (const auto& cand : cands) {
-                auto items = utils::split(cand, '@');
-                bool found = false;
-                for (mchar_t mc : items[0]) {
-                    if (surfKanjis.find(mc) != surfKanjis.end() && !EASY_CHARS->IsEasyChar(mc)) {
-                        // 難字を含む候補が見つかったので、こちらを優先して出力
-                        _LOG_DETAIL(L"put difficult cand={}", to_wstr(cand));
-                        result.push_back(cand);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    unused.push_back(cand);
-                }
-            }
-            //if (result.empty()) {
-            //    std::copy(cands.begin(), cands.end(), std::back_inserter(result));
-            //}
-            _LOG_DETAIL(L"unused={}", to_wstr(utils::join(unused, to_mstr(L" ||| "))));
-            for (const auto& cand : unused) {
-                result.push_back(cand);
-            }
-
-            std::stable_sort(result.begin(), result.end(), [](const MString& a, const MString& b) {
-                auto aItems = utils::split(a, '@');
-                auto bItems = utils::split(b, '@');
-                int aPriCost = aItems.size() > 1 ? getMazegakiPreferenceCost(aItems[1]) : 0;
-                int bPriCost = bItems.size() > 1 ? getMazegakiPreferenceCost(bItems[1]) : 0;
-                //_LOG_DETAIL(L"aPriCost={}, bPriCost={}", aPriCost, bPriCost);
-                return aPriCost < bPriCost;
-                });
-        }
-        _LOG_DETAIL(L"LEAVE: result={}", to_wstr(utils::join(result, to_mstr(L" ||| "))));
     }
 
     CandidateString CandidateString::makeCandWithFeat(const std::vector<MString>& items, int strkLen) const {

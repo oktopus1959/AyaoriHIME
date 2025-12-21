@@ -66,7 +66,7 @@ namespace lattice2 {
         // 交ぜ書き変換の実行
         std::vector<CandidateString> applyMazegaki() const;
 
-        void getDifficultMazeCands(const MString& surf, const MString& mazeCands, std::vector<MString>& result) const;
+        //void getDifficultMazeCands(const MString& surf, const MString& mazeCands, std::vector<MorphCand>& result) const;
 
         CandidateString makeCandWithFeat(const std::vector<MString>& items, int strkLen) const;
 

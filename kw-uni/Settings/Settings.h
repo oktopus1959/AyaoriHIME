@@ -113,6 +113,7 @@ struct Settings {
     int ngramCostFactor = 5;                // 形態素コストに対するNgramコストの係数
     int ngramBonusPointFactor = 100;        // 嵩上げされたNgramに与えるボーナスの係数;
     int ngramManualSelectDelta = 10;        // 候補選択によるNgramカウントの変動幅
+    int mazegakiBonusPointFactor = 1000;    // 交ぜ書きで選択された候補に対するボーナス
     //bool commitByPunctuation = true;        // 句読点でコミットする
     bool outputHeadSpace = true;            // 先頭のスペースをそのまま出力する
     bool strokeBackByBS = false;            // BSで打鍵取消を行う
