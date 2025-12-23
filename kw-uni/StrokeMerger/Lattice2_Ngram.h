@@ -24,7 +24,8 @@ namespace lattice2 {
     void updateRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand);
 
     // Ngramコストの取得
-    int getNgramCost(const MString& str, const std::vector<MString>& morphs);
+    //int getNgramCost(const MString& str, const std::vector<MString>& morphs);
+    int getNgramCost(const MString& str, bool bUseGeta = true);
 
 } // namespace lattice2
 

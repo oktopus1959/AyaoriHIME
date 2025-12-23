@@ -471,7 +471,7 @@ namespace lattice2 {
             }
 
             // Ngramコスト
-            int ngramCost = targetStr.empty() ? 0 : getNgramCost(targetStr, morphs) * SETTINGS->ngramCostFactor;
+            int ngramCost = targetStr.empty() ? 0 : getNgramCost(targetStr) * SETTINGS->ngramCostFactor;
             //int morphCost = 0;
             //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
             //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;

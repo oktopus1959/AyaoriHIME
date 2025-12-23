@@ -249,7 +249,7 @@ namespace lattice2 {
         return utils::join(tmp, outer_sep);
     }
 
-    void enumerate_compound_bunsetsu_variation(
+    void enumerate_contiguous_morphs_combination(
         size_t index,
         const std::vector<std::vector<MorphCand>>& vectors,
         size_t maxCandidateNum,
@@ -261,8 +261,8 @@ namespace lattice2 {
             int cost = accum_cost(vecWork);
             std::vector<MString> morphs;
             cost += MorphBridge::morphCalcCost(str, morphs, 0, 0, false);
-            morphs.clear();
-            cost += getNgramCost(str, morphs);
+            //morphs.clear();
+            cost += getNgramCost(str, false);
             out.push_back(MorphCand{std::move(str), std::move(feat), cost});
             return;
         }
@@ -271,7 +271,7 @@ namespace lattice2 {
         for (const auto& c : vectors[index]) {
             auto old_size = vecWork.size();
             vecWork.push_back(c);
-            enumerate_compound_bunsetsu_variation(index + 1, vectors, maxCandidateNum, vecWork, out);
+            enumerate_contiguous_morphs_combination(index + 1, vectors, maxCandidateNum, vecWork, out);
             vecWork.resize(old_size);
             ++count;
             if (count >= maxCandidateNum) break;  // 各ベクトルから指定の最大数まで選択
@@ -364,53 +364,11 @@ namespace lattice2 {
         int cost = MorphBridge::morphCalcCost(_str, words, mazePenalty, mazeConnPenalty, false);
         _LOG_DETAIL(L"{}: orig morph cost={}, morph={}", to_wstr(_str), cost, to_wstr(utils::join(words, to_mstr(L" ||| "))));
 
-        //MString tail;
-        //MString head;
-        //std::vector<MString> cands;
-        //bool tailMaze = false;          // 末尾の交ぜ書きのみが置換される
-        //for (auto iter = words.rbegin(); iter != words.rend(); ++iter) {
-        //    _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
-        //    auto items = utils::split(*iter, '\t');
-        //    if (!items.empty()) {
-        //        const MString& surf = items[0];
-        //        if (tailMaze) {
-        //            head.insert(0, surf);
-        //        } else if (items.size() == 1 || items[1] == MSTR_MINUS) {
-        //            // 変換後文字列が定義されていない
-        //            tail.insert(0, surf);
-        //        } else {
-        //            const MString& mazeCands = items[1];
-        //            getDifficultMazeCands(surf, mazeCands, cands);
-        //            // 末尾の交ぜ書きを実行したら、残りは元の表層形を出力
-        //            tailMaze = true;
-        //        }
-        //    }
-        //}
-        //std::vector<CandidateString> result;
-        //if (cands.empty()) {
-        //    // 交ぜ書き候補が無かった
-        //    result.push_back(CandidateString(head + tail, strokeLen()));
-        //    _LOG_DETAIL(L"maze result (no cands): {}", result.back().debugString());
-        //} else {
-        //    // 交せ書き候補によるバリエーション
-        //    for (const auto& c : cands) {
-        //        //result.push_back(CandidateString(head + c + tail, strokeLen()));
-        //        auto items = utils::split(c, '@');      // 変換形@属性
-        //        auto word = head + items[0] + tail;
-        //        if (items.size() > 1) {
-        //            result.push_back(CandidateString(word, strokeLen(), items[1]));
-        //        } else {
-        //            result.push_back(CandidateString(word, strokeLen()));
-        //        }
-        //        _LOG_DETAIL(L"maze result: {}", result.back().debugString());
-        //    }
-        //}
-
         std::vector<std::vector<MorphCand>> vecMorphCands;
         for (auto iter = words.begin(); iter != words.end(); ++iter) {
             _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
             auto items = utils::split(*iter, '\t');
-            if (!items.empty()) {
+            if (items.size() > 1) {
                 const MString& surf = items[0];
                 vecMorphCands.emplace_back();
                 const MString& mazeCands = items[1];
@@ -435,7 +393,7 @@ namespace lattice2 {
         }
         std::vector<MorphCand> sortedItems;
         sortedItems.reserve(MAX_ITEM_NUM);
-        enumerate_compound_bunsetsu_variation(index, vecMorphCands, MAX_MORPH_CAND_NUM, morphs, sortedItems);
+        enumerate_contiguous_morphs_combination(index, vecMorphCands, MAX_MORPH_CAND_NUM, morphs, sortedItems);
         _LOG_DETAIL(L"num of sortedItems={}", sortedItems.size());
         return generate_candidateString_from_items_sorted_by_cost(sortedItems, strokeLen(), MAX_CANDITATE_STR_NUM);
     }

@@ -249,10 +249,11 @@ namespace lattice2 {
     std::wregex kanjiDateTime(L"年[一二三四五六七八九十]+月?|[一二三四五六七八九十]+月[一二三四五六七八九十]?|月[一二三四五六七八九十]+日?|[一二三四五六七八九十]+日");
 
     // Ngramコストの取得
-    int getNgramCost(const MString& str, const std::vector<MString>& /*morphs*/) {
+    int getNgramCost(const MString& str, bool bUseGeta) {
         _LOG_DETAIL(L"ENTER: str={}", to_wstr(str));
         std::vector<MString> ngrams;
-        int cost = NgramBridge::ngramCalcCost(MSTR_GETA + str, ngrams, IS_LOG_INFOH_ENABLED);
+        MString targetStr = bUseGeta ? MSTR_GETA + str : str;
+        int cost = NgramBridge::ngramCalcCost(targetStr, ngrams, IS_LOG_INFOH_ENABLED);
         if (IS_LOG_INFOH_ENABLED) {
             LOG_INFOH(L"ngrams:\n--------\n{}\n--------", to_wstr(utils::join(ngrams, '\n')));
         }
