@@ -1115,12 +1115,11 @@ namespace lattice2 {
             }
         }
 
-        void updateByConversions(const std::vector<CandidateString>& convs) {
-            selectFirst();
-            for (auto iter = convs.rbegin(); iter != convs.rend(); ++iter) {
-                insertCandidate(*iter);
-            }
-        }
+        //void insertCandidatesReverse(const std::vector<CandidateString>& convs) {
+        //    for (auto iter = convs.rbegin(); iter != convs.rend(); ++iter) {
+        //        insertCandidate(*iter);
+        //    }
+        //}
 
     public:
         // 部首合成
@@ -1135,7 +1134,16 @@ namespace lattice2 {
         void updateByMazegaki() override {
             _LOG_DETAIL(_T("ENTER"));
             if (!_candidates.empty()) {
-                updateByConversions(_candidates.front().applyMazegaki());
+                removeOtherThanFirst();
+                const CandidateString& firstCand = _candidates.front();
+                auto canditates = firstCand.applyMazegaki();
+                MString firstStr = firstCand.string();
+                for (auto iter = canditates.rbegin(); iter != canditates.rend(); ++iter) {
+                    if (iter->string() != firstStr) {
+                        // 変換元と同一のものは除く
+                        insertCandidate(*iter);
+                    }
+                }
                 _LOG_DETAIL(L"LEAVE\nkBest:\n{}", debugCandidates(SETTINGS->multiStreamBeamSize));
             }
         }
