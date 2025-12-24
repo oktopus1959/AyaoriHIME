@@ -217,7 +217,7 @@ namespace lattice2 {
         }
 
         void clearKbests(bool clearAll) override {
-            //LOG_INFO(L"CALLED: clearAll={}", clearAll);
+            _LOG_DETAIL(L"CALLED: clearAll={}", clearAll);
             _candidates.clear();
             _bestStack.clear();
             _highFreqJoshiStroke.clear();
@@ -228,12 +228,14 @@ namespace lattice2 {
         }
 
         void removeOtherThanKBest() override {
+            _LOG_DETAIL(L"CALLED");
             if ((int)_candidates.size() > SETTINGS->multiStreamBeamSize) {
                 _candidates.erase(_candidates.begin() + SETTINGS->multiStreamBeamSize, _candidates.end());
             }
         }
 
         void removeOtherThanFirst() override {
+            _LOG_DETAIL(L"CALLED");
             if (_candidates.size() > 0) {
                 _candidates.erase(_candidates.begin() + 1, _candidates.end());
                 _candidates.front().zeroPenalty();
@@ -241,6 +243,7 @@ namespace lattice2 {
         }
 
         void removeOtherThanFirstForEachStroke() override {
+            _LOG_DETAIL(L"CALLED");
             if (_candidates.size() > 0) {
                 const MString& first = _candidates[0].string();
                 size_t n = 1;
@@ -1134,6 +1137,7 @@ namespace lattice2 {
         void updateByMazegaki() override {
             _LOG_DETAIL(_T("ENTER"));
             if (!_candidates.empty()) {
+                raiseAndLowerByCandSelection();
                 removeOtherThanFirst();
                 const CandidateString& firstCand = _candidates.front();
                 auto canditates = firstCand.applyMazegaki();
