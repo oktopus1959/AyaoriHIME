@@ -115,7 +115,7 @@ struct Settings {
     int ngramManualSelectDelta = 10;        // 候補選択によるNgramカウントの変動幅
     int mazegakiBonusPointFactor = 1000;    // 交ぜ書きで選択された候補に対するボーナス
     //bool commitByPunctuation = true;        // 句読点でコミットする
-    bool outputHeadSpace = true;            // 先頭のスペースをそのまま出力する
+    bool outputHeadSymbol = true;           // 先頭の記号類をそのまま出力する
     bool strokeBackByBS = false;            // BSで打鍵取消を行う
     int maxStrokeBackCount = 4;             // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
     int multiStreamBeamSize = 5;            // multi-stream モードでのBeamSize

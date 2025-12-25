@@ -137,7 +137,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(ngramManualSelectDelta);
     SET_INT_VALUE(mazegakiBonusPointFactor);
     //SET_BOOL_VALUE(commitByPunctuation);
-    SET_BOOL_VALUE(outputHeadSpace);
+    SET_BOOL_VALUE(outputHeadSymbol);
     SET_BOOL_VALUE(strokeBackByBS);
     SET_INT_VALUE(maxStrokeBackCount);
     SET_INT_VALUE(multiStreamBeamSize);

@@ -103,14 +103,20 @@ namespace KanchokuWS.Forms
 
             if (str._isEmpty() && numBS <= 0 && !bFlushAll) return;
 
+            bool isSpace(char ch)
+            {
+                return (ch == ' ' || ch == '　');
+            }
+
             bool isNonAlaphaNumericZenkakuJapanese(char ch)
             {
-                return (ch == ' ' || ch == '　' || !(Helper.IsAlphaNumeric(ch) || Helper.IsJapaneseChar(ch)));
+                return (!(Helper.IsAlphaNumeric(ch) || Helper.IsJapaneseChar(ch)));
             }
 
             if (editTextBox.Text._isEmpty() &&
                 (str._isEmpty() ||
-                (Settings.OutputHeadSpace && str._safeCount() == 1 && isNonAlaphaNumericZenkakuJapanese(chars[0])) ||
+                (str._safeCount() == 1 && isSpace(chars[0])) ||
+                (Settings.OutputHeadSymbol && str._safeCount() == 1 && isNonAlaphaNumericZenkakuJapanese(chars[0])) ||
                 HandlerUtils.IsFKeySpec(str) || HandlerUtils.IsTernaryOperator(str))) {
                 logger.InfoH($"REDIRECT");
                 var kf = HandlerUtils.GetFKeySpec(str);
@@ -217,7 +223,7 @@ namespace KanchokuWS.Forms
 
             int pos = 0;
             if (str._notEmpty()) {
-                if (str == " " && editTextBox.Text._isEmpty() && (Settings.OutputHeadSpace || SendInputHandler.IsShiftKeyPressed())) {
+                if (str == " " && editTextBox.Text._isEmpty() && (Settings.OutputHeadSymbol || SendInputHandler.IsShiftKeyPressed())) {
                     // 先頭のSpace
                     toFlush = true;
                     toFlush = bFlushAll = false;

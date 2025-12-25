@@ -1873,7 +1873,7 @@ namespace KanchokuWS.Gui
             checkBox_collectRealtimeNgram.Checked = Settings.CollectRealtimeNgram;
             checkBox_useMorphAnalyzer.Checked = Settings.UseMorphAnalyzer;
             checkBox_strokeBackByBS.Checked = Settings.StrokeBackByBS;
-            checkBox_outputHeadSpace.Checked = Settings.OutputHeadSpace;
+            checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbol;
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
             textBox_maxStrokeBackCount.Text = $"{Settings.MaxStrokeBackCount}";
@@ -1912,7 +1912,7 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(checkBox_collectRealtimeNgram);
             checkerFusion.Add(checkBox_useMorphAnalyzer);
             checkerFusion.Add(checkBox_strokeBackByBS);
-            checkerFusion.Add(checkBox_outputHeadSpace);
+            checkerFusion.Add(checkBox_outputHeadSymbol);
             checkerFusion.Add(textBox_multiStreamBeamSize);
             checkerFusion.Add(textBox_remainingStrokeSize);
             checkerFusion.Add(textBox_maxStrokeBackCount);
@@ -1945,7 +1945,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("collectRealtimeNgram", checkBox_collectRealtimeNgram.Checked);
             Settings.SetUserIni("useMorphAnalyzer", checkBox_useMorphAnalyzer.Checked);
             Settings.SetUserIni("strokeBackByBS", checkBox_strokeBackByBS.Checked);
-            Settings.SetUserIni("outputHeadSpace", checkBox_outputHeadSpace.Checked);
+            Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
             Settings.SetUserIni("maxStrokeBackCount", textBox_maxStrokeBackCount.Text);

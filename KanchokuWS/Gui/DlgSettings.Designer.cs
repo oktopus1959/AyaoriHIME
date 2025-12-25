@@ -513,7 +513,7 @@ namespace KanchokuWS.Gui
             this.groupBox51 = new System.Windows.Forms.GroupBox();
             this.radioButton_mainRtNgramFile = new System.Windows.Forms.RadioButton();
             this.radioButton_tempRtNgramFile = new System.Windows.Forms.RadioButton();
-            this.checkBox_outputHeadSpace = new System.Windows.Forms.CheckBox();
+            this.checkBox_outputHeadSymbol = new System.Windows.Forms.CheckBox();
             this.textBox_remainingStrokeSize = new System.Windows.Forms.TextBox();
             this.label168 = new System.Windows.Forms.Label();
             this.checkBox_strokeBackByBS = new System.Windows.Forms.CheckBox();
@@ -6265,7 +6265,7 @@ namespace KanchokuWS.Gui
             this.tabPage_fusion.Controls.Add(this.label46);
             this.tabPage_fusion.Controls.Add(this.groupBox52);
             this.tabPage_fusion.Controls.Add(this.groupBox51);
-            this.tabPage_fusion.Controls.Add(this.checkBox_outputHeadSpace);
+            this.tabPage_fusion.Controls.Add(this.checkBox_outputHeadSymbol);
             this.tabPage_fusion.Controls.Add(this.textBox_remainingStrokeSize);
             this.tabPage_fusion.Controls.Add(this.label168);
             this.tabPage_fusion.Controls.Add(this.checkBox_strokeBackByBS);
@@ -6441,15 +6441,16 @@ namespace KanchokuWS.Gui
             this.radioButton_tempRtNgramFile.Text = "一時ファイル";
             this.radioButton_tempRtNgramFile.UseVisualStyleBackColor = true;
             // 
-            // checkBox_outputHeadSpace
+            // checkBox_outputHeadSymbol
             // 
-            this.checkBox_outputHeadSpace.AutoSize = true;
-            this.checkBox_outputHeadSpace.Location = new System.Drawing.Point(27, 164);
-            this.checkBox_outputHeadSpace.Name = "checkBox_outputHeadSpace";
-            this.checkBox_outputHeadSpace.Size = new System.Drawing.Size(298, 19);
-            this.checkBox_outputHeadSpace.TabIndex = 71;
-            this.checkBox_outputHeadSpace.Text = "編集バッファの先頭のスペースや記号類をそのまま出力する";
-            this.checkBox_outputHeadSpace.UseVisualStyleBackColor = true;
+            this.checkBox_outputHeadSymbol.AutoSize = true;
+            this.checkBox_outputHeadSymbol.Location = new System.Drawing.Point(27, 164);
+            this.checkBox_outputHeadSymbol.Name = "checkBox_outputHeadSymbol";
+            this.checkBox_outputHeadSymbol.Size = new System.Drawing.Size(252, 19);
+            this.checkBox_outputHeadSymbol.TabIndex = 71;
+            this.checkBox_outputHeadSymbol.Text = "編集バッファの先頭の記号類をそのまま出力する";
+            this.toolTip1.SetToolTip(this.checkBox_outputHeadSymbol, "この設定がOFFであってもスペースはそのまま出力されます。");
+            this.checkBox_outputHeadSymbol.UseVisualStyleBackColor = true;
             // 
             // textBox_remainingStrokeSize
             // 
@@ -8338,7 +8339,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.CheckBox checkBox_strokeBackByBS;
         private System.Windows.Forms.TextBox textBox_remainingStrokeSize;
         private System.Windows.Forms.Label label168;
-        private System.Windows.Forms.CheckBox checkBox_outputHeadSpace;
+        private System.Windows.Forms.CheckBox checkBox_outputHeadSymbol;
         private System.Windows.Forms.RadioButton radioButton_tempRtNgramFile;
         private System.Windows.Forms.RadioButton radioButton_mainRtNgramFile;
         private System.Windows.Forms.GroupBox groupBox52;
