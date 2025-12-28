@@ -44,7 +44,7 @@ namespace KanchokuWS
             // 
             this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonOK.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.buttonOK.Location = new System.Drawing.Point(41, 107);
+            this.buttonOK.Location = new System.Drawing.Point(56, 132);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(50, 21);
             this.buttonOK.TabIndex = 10;
@@ -56,12 +56,12 @@ namespace KanchokuWS
             // label_subName
             // 
             this.label_subName.AutoSize = true;
-            this.label_subName.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_subName.Font = new System.Drawing.Font("HGS正楷書体", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label_subName.Location = new System.Drawing.Point(57, 45);
             this.label_subName.Name = "label_subName";
-            this.label_subName.Size = new System.Drawing.Size(77, 12);
+            this.label_subName.Size = new System.Drawing.Size(111, 33);
             this.label_subName.TabIndex = 7;
-            this.label_subName.Text = "製品名(漢字)";
+            this.label_subName.Text = "漢織媛";
             // 
             // label_version
             // 
@@ -78,7 +78,7 @@ namespace KanchokuWS
             this.label_initializing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label_initializing.AutoSize = true;
             this.label_initializing.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_initializing.Location = new System.Drawing.Point(22, 111);
+            this.label_initializing.Location = new System.Drawing.Point(22, 136);
             this.label_initializing.Name = "label_initializing";
             this.label_initializing.Size = new System.Drawing.Size(167, 12);
             this.label_initializing.TabIndex = 11;
@@ -92,7 +92,7 @@ namespace KanchokuWS
             // 
             this.buttonSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonSettings.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.buttonSettings.Location = new System.Drawing.Point(108, 107);
+            this.buttonSettings.Location = new System.Drawing.Point(126, 132);
             this.buttonSettings.Name = "buttonSettings";
             this.buttonSettings.Size = new System.Drawing.Size(50, 21);
             this.buttonSettings.TabIndex = 12;
@@ -114,7 +114,7 @@ namespace KanchokuWS
             // 
             this.label_explanation.AutoSize = true;
             this.label_explanation.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_explanation.Location = new System.Drawing.Point(52, 66);
+            this.label_explanation.Location = new System.Drawing.Point(65, 87);
             this.label_explanation.Name = "label_explanation";
             this.label_explanation.Size = new System.Drawing.Size(83, 12);
             this.label_explanation.TabIndex = 14;
@@ -124,7 +124,7 @@ namespace KanchokuWS
             // 
             this.label_explanation2.AutoSize = true;
             this.label_explanation2.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_explanation2.Location = new System.Drawing.Point(52, 82);
+            this.label_explanation2.Location = new System.Drawing.Point(60, 107);
             this.label_explanation2.Name = "label_explanation2";
             this.label_explanation2.Size = new System.Drawing.Size(89, 12);
             this.label_explanation2.TabIndex = 15;
@@ -134,7 +134,8 @@ namespace KanchokuWS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(212, 136);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(201)))), ((int)(((byte)(171)))), ((int)(((byte)(160)))));
+            this.ClientSize = new System.Drawing.Size(224, 161);
             this.Controls.Add(this.label_explanation2);
             this.Controls.Add(this.label_explanation);
             this.Controls.Add(this.label_version2);
