@@ -287,17 +287,22 @@ namespace KanchokuWS.Forms
                 ClearBuffer();
                 frmMain.ToDeactivateDecoder();
             }
-            if (EditText._notEmpty()) {
-                if (bWasEmpty && Settings.OutputSpaceAndBsAtFirstInChrome) {
-                    if (ActiveWindowHandler.Singleton.ActiveWinClassName._startsWith("Chrome_WidgetWin")) {
-                        // Spaceを送出してからBSを送出することで、カレット位置が正しくなることを期待する
-                        SendInputHandler.Singleton.SendString(new char[] { ' ' }, 1, 0);
-                        SendInputHandler.Singleton.SendString(null, 0, 1);
+            if (Settings.UseEditBuffer) {
+                if (EditText._notEmpty()) {
+                    if (bWasEmpty && Settings.OutputSpaceAndBsAtFirstInChrome) {
+                        if (ActiveWindowHandler.Singleton.ActiveWinClassName._startsWith("Chrome_WidgetWin")) {
+                            // Spaceを送出してからBSを送出することで、カレット位置が正しくなることを期待する
+                            SendInputHandler.Singleton.SendString(new char[] { ' ' }, 1, 0);
+                            SendInputHandler.Singleton.SendString(null, 0, 1);
+                        }
                     }
+                    ShowNonActive();
+                } else {
+                    this.Hide();
                 }
-                ShowNonActive();
             } else {
-                this.Hide();
+                logger.InfoH(() => $"SendString: chars='{chars._toString()}', numBS={numBS}");
+                SendInputHandler.Singleton.SendString(chars, chars.Length, numBS);
             }
 
             //if (toFlush && pos < str.Length) {
@@ -352,10 +357,14 @@ namespace KanchokuWS.Forms
                     }
                     break;
             }
-            if (EditText._notEmpty()) {
-                ShowNonActive();
+            if (Settings.UseEditBuffer) {
+                if (EditText._notEmpty()) {
+                    ShowNonActive();
+                } else {
+                    this.Hide();
+                }
             } else {
-                this.Hide();
+                SendInputHandler.Singleton.SendVKeyCombo(modifier, vkey, 1);
             }
             prevVkey = vkey;
         }
@@ -421,7 +430,7 @@ namespace KanchokuWS.Forms
                 string pre = ts[0]._safeSubstring(0, -1);
                 editTextBox.Text = makeEditText(pre, ts[1]);
             } else {
-                SendInputHandler.Singleton.SendVKeyCombo(modifier, vkey, 1);
+                //SendInputHandler.Singleton.SendVKeyCombo(modifier, vkey, 1);
             }
         }
 
@@ -451,12 +460,14 @@ namespace KanchokuWS.Forms
                 editTextBox.SelectionStart = 0;
             }
             this.Hide();
-            //frmCands?.Hide();
-            //Helper.WaitMilliSeconds(10);
-            //System.Windows.Forms.Application.DoEvents();
-            var winClass = ActiveWindowHandler.Singleton.ActiveWinClassName;
-            SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(result._toCharArray(), 0, winClass == "mintty" || winClass == "PuTTY");
-            //this.ShowNonActive();
+            if (Settings.UseEditBuffer) {
+                //frmCands?.Hide();
+                //Helper.WaitMilliSeconds(10);
+                //System.Windows.Forms.Application.DoEvents();
+                var winClass = ActiveWindowHandler.Singleton.ActiveWinClassName;
+                SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(result._toCharArray(), 0, winClass == "mintty" || winClass == "PuTTY");
+                //this.ShowNonActive();
+            }
             frmMain.ExecCmdDecoder("clearMultiStream", result);
             logger.Info("LEAVE");
         }
@@ -568,7 +579,7 @@ namespace KanchokuWS.Forms
         /// <summary>バッファが空でない場合に入力フォームを表示する</summary>
         public void ShowNonActive()
         {
-            if (EditText._notEmpty()) ShowWindow(this.Handle, SW_SHOWNA);   // NonActive
+            if (Settings.UseEditBuffer && EditText._notEmpty()) ShowWindow(this.Handle, SW_SHOWNA);   // NonActive
         }
 
         /// <summary>

@@ -539,6 +539,14 @@ namespace Utils
         }
 
         /// <summary>
+        /// 配列の末尾の要素を取得する。配列が空なら null を返す。
+        /// </summary>
+        public static T _getLast<T>(this T[] ary)
+        {
+            return ary._isEmpty() ? default(T) : ary[ary.Length - 1];
+        }
+
+        /// <summary>
         /// 配列のN番目(0始まり)の要素を取得する。配列長がN未満なら defVal を返す。
         /// </summary>
         public static T _getNth<T>(this T[] ary, int n, T defVal = default(T))

@@ -2060,7 +2060,6 @@ namespace KanchokuWS
                         sendClearStrokeToDecoder();
                     }
                     if (decoderOutput.numBackSpaces > 0) {
-                        //SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(null, decoderOutput.numBackSpaces, true);
                         frmEditBuf.PutString(null, decoderOutput.numBackSpaces);
                     }
                 }
@@ -2094,7 +2093,6 @@ namespace KanchokuWS
                         var outStr = leadLen > 0 ? outString.Skip(leadLen).ToArray() : outString;
                         /*if (Settings.LoggingDecKeyInfo)*/ logger.InfoH(() => $"outString={outString._toString()}, numBS={numBS}, leadLen={leadLen}, outStr={outStr._toString()}");
                         WriteStrokeLog(outStr._toString());
-                        //SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(outStr, numBS - leadLen, bFuncVkeyContained);
                         frmEditBuf.PutString(outStr, numBS - leadLen, bFlush);
 #if false
                         if (bFuncVkeyContained) {

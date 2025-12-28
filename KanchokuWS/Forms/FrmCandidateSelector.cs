@@ -86,12 +86,12 @@ namespace KanchokuWS.Forms
         /// <summary> フォームのロード </summary>
         private void FrmCandidateSelector_Load(object sender, EventArgs e)
         {
-            //logger.WarnH($"ENTER");
+            logger.InfoH($"ENTER");
 
             this.Width = (int)(DgvNormalWidth + 2);
             this.Height = 0;
 
-            //logger.WarnH($"LEAVE");
+            logger.InfoH($"LEAVE");
         }
 
         /// <summary>フォームのクローズ</summary>
@@ -130,7 +130,7 @@ namespace KanchokuWS.Forms
         // 候補表示用グリッドの初期化
         private void initializeHorizontalDgv(int cellWidth)
         {
-            //logger.WarnH($"ENTER");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.InfoH($"ENTER");
             var dgv = dgvHorizontal;
             dgv._defaultSetup(0, (int)DgvCellHeight);       // headerHeight=0 -> ヘッダーを表示しない
             dgv._setSelectionColorReadOnly();
@@ -143,19 +143,19 @@ namespace KanchokuWS.Forms
             //dgv.Rows.Add(nRow);
 
             renewHorizontalDgv();
-            //logger.WarnH($"LEAVE");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.InfoH($"LEAVE");
         }
 
         private void renewHorizontalDgv()
         {
             var dgv = dgvHorizontal;
-            //logger.WarnH($"ENTER: dgv.Rows.Count={dgv.Rows.Count}, dgv.Columns.Count={dgv.Columns.Count}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"ENTER: dgv.Rows.Count={dgv.Rows.Count}, dgv.Columns.Count={dgv.Columns.Count}");
 
             int cellWidth = (int)DgvNormalWidth - 1;
             int cellHeight = (int)DgvCellHeight;
             dgv.RowTemplate.Height = cellHeight;
             if (dgv.Columns.Count <= 0) {
-                //logger.WarnH($"LEAVE");
+                if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE");
                 return;
             }
 
@@ -167,13 +167,13 @@ namespace KanchokuWS.Forms
 
             if (dgv.Rows.Count == 0) dgv.Rows.Add(LongVkeyNum);
 
-            //logger.WarnH($"LEAVE: dgv.Rows.Count={dgv.Rows.Count}, dgv.Top={dgv.Top}, dgv.Width={dgv.Width}, cellHeight={cellHeight}, cellWidth={cellWidth}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: dgv.Rows.Count={dgv.Rows.Count}, dgv.Top={dgv.Top}, dgv.Width={dgv.Width}, cellHeight={cellHeight}, cellWidth={cellWidth}");
                 
         }
 
         private void resetDrawParameters(int dpi)
         {
-            //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"CALLED: dpi={dpi}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"CALLED: dpi={dpi}");
             //float rate = (float)ScreenInfo.Singleton.PrimaryScreenDpiRate._lowLimit(1.0);
             float rate = dpi / 96.0f;
 
@@ -188,7 +188,7 @@ namespace KanchokuWS.Forms
 
 
             this.Width = (int)(DgvNormalWidth + 2);
-            //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}");
         }
 
         /// <summary>
@@ -209,11 +209,14 @@ namespace KanchokuWS.Forms
         {
             var decoderOutput = frmMain.DecoderOutput;
 
-            //logger.Warn(() => $"ENTER: layout={decoderOutput.layout}, selectPos={decoderOutput.nextSelectPos}, faceString={decoderOutput.candidateStrings._toString()}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.InfoH(() => $"ENTER: layout={decoderOutput.layout}, selectPos={decoderOutput.nextSelectPos}, faceString={decoderOutput.candidateStrings._toString()}");
 
-            if (frmEditBuf.IsEmpty || decoderOutput.layout != (int)VkbLayout.MultiStreamCandidates || decoderOutput.candidateStrings._isEmpty() || decoderOutput.candidateStrings[0] == 0) {
+            if ((Settings.UseEditBuffer && frmEditBuf.IsEmpty)
+                || decoderOutput.layout != (int)VkbLayout.MultiStreamCandidates
+                || decoderOutput.candidateStrings._isEmpty()
+                || decoderOutput.candidateStrings[0] == 0) {
                 this.Hide();
-                //logger.WarnH("Hide");
+                if (Settings.LoggingVirtualKeyboardInfo) logger.InfoH("Hide");
                 return;
             }
 
@@ -221,7 +224,7 @@ namespace KanchokuWS.Forms
             resetControls(0, 0, 0);
             int nRow = 0;
             for (int i = 0; i < LongVkeyNum && i < Settings.MergerCandidateMax; ++i) {
-                //logger.Warn(decoderOutput.candidateStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
+                if (Settings.LoggingVirtualKeyboardInfo) logger.InfoH(decoderOutput.candidateStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
                 if (drawHorizontalCandidateCharsWithColor(decoderOutput, i, decoderOutput.candidateStrings)) ++nRow;
             }
             dgvHorizontal.CurrentCell = null;   // どのセルも選択されていない状態にする
@@ -230,7 +233,7 @@ namespace KanchokuWS.Forms
             MoveWindow();
             ShowNonActive();
 
-            //logger.Warn($"LEAVE: nRow={nRow}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.InfoH($"LEAVE: nRow={nRow}");
         }
 
         // 候補表示盤の高さを変更し、必要ならウィンドウを移動する
@@ -243,7 +246,7 @@ namespace KanchokuWS.Forms
             int fW = dgvHorizontal.Width + 2;
             int fH = dgvHorizontal.Height + 2;
             if (fW < frmEditBuf.Width) fX = frmEditBuf.Right - fW;      // EditBuffer に合わせて右寄せ
-            //logger.WarnH(() => $"MoveWindow: fX={fX}, fY={fY}, fW={fW}, fH={fH}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info(() => $"MoveWindow: fX={fX}, fY={fY}, fW={fW}, fH={fH}");
             Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(frmEditBuf.Location.X, frmEditBuf.Location.Y);
             if (rect != Rectangle.Empty) {
                 if ((fX + fW) >= rect.X + rect.Width) fX = rect.X + rect.Width - fW - 2;
@@ -257,7 +260,7 @@ namespace KanchokuWS.Forms
         /// </summary>
         private void resetControls(float picBoxWidth, float picBoxHeight, float centerHeight)
         {
-            //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"picBoxWidth={picBoxWidth:f3}, picBoxHeight={picBoxHeight:f3}, centerHeight={centerHeight:f3}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"picBoxWidth={picBoxWidth:f3}, picBoxHeight={picBoxHeight:f3}, centerHeight={centerHeight:f3}");
             //renewMinibufFont();
             renewHorizontalDgv();
             //dgvHorizontal.Top = topTextBox.Height;
@@ -270,10 +273,10 @@ namespace KanchokuWS.Forms
                 dgvHorizontal.Width = (int)DgvNormalWidth;
                 dgvHorizontal.Show();
                 //dgvHorizontal.Top = topTextBox.Height;
-                //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"dgv.Top={dgvHorizontal.Top}, dgv.Width={dgvHorizontal.Width}");
+                if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"dgv.Top={dgvHorizontal.Top}, dgv.Width={dgvHorizontal.Width}");
             }
             this.Width = (int)(DgvNormalWidth + 2);
-            //if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}");
         }
 
         //--------------------------------------------------------------------------------------
@@ -305,7 +308,7 @@ namespace KanchokuWS.Forms
                 return Color.GhostWhite;
             }
 
-            //logger.Info($"chars.Length={chars.Length}, rows={dgvHorizontal._rowsCount()}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.InfoH($"chars.Length={chars.Length}, rows={dgvHorizontal._rowsCount()}");
             if (nth >= 0 && nth < dgvHorizontal._rowsCount()) {
                 int pos = nth * LongVkeyCharSize;
                 int len = chars._findIndex(pos, pos + LongVkeyCharSize, '\0') - pos;
@@ -316,7 +319,7 @@ namespace KanchokuWS.Forms
                     if (candidateNum < 10) sb.Append(' ');
                     sb.Append(candidateNum).Append(' ').Append(chars, pos, len);
                     if (pos + len < chars.Length && chars[pos + len] != '\0') sb.Append('…');
-                    //logger.Info($"drawString={drawString}, nth={nth}, pos={pos}, len={len}");
+                    if (Settings.LoggingVirtualKeyboardInfo) logger.InfoH($"drawString={sb.ToString()}, nth={nth}, pos={pos}, len={len}");
                     dgvHorizontal.Rows[nth].Cells[0].Value = sb.ToString();
                     dgvHorizontal.Rows[nth].Cells[0].Style.BackColor = makeSpecifiedColor();
                     return true;

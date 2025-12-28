@@ -131,6 +131,7 @@ struct Settings {
     int realtimeTrigramTier2Num = 10;       // Realtime 3gram の Tier2 の数
     int mergerCandidateMin = 3;             // 解候補ログに出力する最小解数
     int mergerCandidateMax = 10;            // 解候補ログに出力する最大解数
+    bool useEditBuffer = false;             // 編集バッファを使用するか
     String editBufferCaretChar = L"▴";      // 編集バッファのカレット文字
 
     // for Debug

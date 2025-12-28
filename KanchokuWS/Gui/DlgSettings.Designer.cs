@@ -32,6 +32,8 @@ namespace KanchokuWS.Gui
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DlgSettings));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_basic = new System.Windows.Forms.TabPage();
+            this.groupBox23 = new System.Windows.Forms.GroupBox();
+            this.checkBox_useEditBuffer = new System.Windows.Forms.CheckBox();
             this.label_initialMsg = new System.Windows.Forms.Label();
             this.label_reloadBasic = new System.Windows.Forms.Label();
             this.button_document = new System.Windows.Forms.Button();
@@ -616,6 +618,7 @@ namespace KanchokuWS.Gui
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
+            this.groupBox23.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox13.SuspendLayout();
@@ -708,6 +711,7 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_basic
             // 
+            this.tabPage_basic.Controls.Add(this.groupBox23);
             this.tabPage_basic.Controls.Add(this.label_initialMsg);
             this.tabPage_basic.Controls.Add(this.label_reloadBasic);
             this.tabPage_basic.Controls.Add(this.button_document);
@@ -728,6 +732,27 @@ namespace KanchokuWS.Gui
             this.tabPage_basic.Text = "基本設定";
             this.tabPage_basic.ToolTipText = "基本的な情報・振る舞いの設定";
             this.tabPage_basic.UseVisualStyleBackColor = true;
+            // 
+            // groupBox23
+            // 
+            this.groupBox23.Controls.Add(this.checkBox_useEditBuffer);
+            this.groupBox23.Location = new System.Drawing.Point(11, 228);
+            this.groupBox23.Name = "groupBox23";
+            this.groupBox23.Size = new System.Drawing.Size(250, 42);
+            this.groupBox23.TabIndex = 2;
+            this.groupBox23.TabStop = false;
+            this.groupBox23.Text = "編集バッファ";
+            // 
+            // checkBox_useEditBuffer
+            // 
+            this.checkBox_useEditBuffer.AutoSize = true;
+            this.checkBox_useEditBuffer.Location = new System.Drawing.Point(21, 18);
+            this.checkBox_useEditBuffer.Name = "checkBox_useEditBuffer";
+            this.checkBox_useEditBuffer.Size = new System.Drawing.Size(144, 19);
+            this.checkBox_useEditBuffer.TabIndex = 2;
+            this.checkBox_useEditBuffer.Text = "編集バッファを有効にする";
+            this.toolTip1.SetToolTip(this.checkBox_useEditBuffer, resources.GetString("checkBox_useEditBuffer.ToolTip"));
+            this.checkBox_useEditBuffer.UseVisualStyleBackColor = true;
             // 
             // label_initialMsg
             // 
@@ -1192,7 +1217,7 @@ namespace KanchokuWS.Gui
             this.groupBox4.Location = new System.Drawing.Point(11, 132);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(250, 90);
-            this.groupBox4.TabIndex = 2;
+            this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "仮想鍵盤表示";
             // 
@@ -1302,7 +1327,7 @@ namespace KanchokuWS.Gui
             this.groupBox13.Controls.Add(this.textBox_splashWindowShowDuration);
             this.groupBox13.Controls.Add(this.label24);
             this.groupBox13.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox13.Location = new System.Drawing.Point(11, 228);
+            this.groupBox13.Location = new System.Drawing.Point(11, 278);
             this.groupBox13.Name = "groupBox13";
             this.groupBox13.Size = new System.Drawing.Size(250, 79);
             this.groupBox13.TabIndex = 3;
@@ -7642,6 +7667,8 @@ namespace KanchokuWS.Gui
             this.tabControl1.ResumeLayout(false);
             this.tabPage_basic.ResumeLayout(false);
             this.tabPage_basic.PerformLayout();
+            this.groupBox23.ResumeLayout(false);
+            this.groupBox23.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -8357,5 +8384,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label45;
         private System.Windows.Forms.TextBox textBox_maxStrokeBackCount;
         private System.Windows.Forms.Label label46;
+        private System.Windows.Forms.GroupBox groupBox23;
+        private System.Windows.Forms.CheckBox checkBox_useEditBuffer;
     }
 }

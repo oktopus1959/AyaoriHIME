@@ -149,6 +149,9 @@ namespace KanchokuWS
         /// <summary> 複数配列の融合モードか </summary>        
         public static bool MultiStreamMode { get; set; } = true;
 
+        /// <summary> 編集バッファを使用するか </summary>
+        public static bool UseEditBuffer { get; set; } = true;
+
         /// <summary>複数配列の融合モード時の従配列番号(1始まり; 通常は漢直側)</summary>
         public static int SecondaryTableWhenMultiStream { get; set; } = 2;
 
@@ -241,6 +244,11 @@ namespace KanchokuWS
 
         /// <summary>編集バッファをフラッシュさせる文字</summary>
         public static string EditBufferFlushChar { get; set; } = "、。";
+
+        public static bool IsEditBufferFlushChar(char ch)
+        {
+            return EditBufferFlushChar._safeIndexOf(ch) >= 0;
+        }
 
         /// <summary>英大文字を入力されたら編集バッファをフラッシュする</summary>
         public static bool FlushEditBufferWhenCaptalAlphabet { get; set; } = false;
@@ -1687,9 +1695,10 @@ namespace KanchokuWS
 
             //------------------------------------------------------------------------------
             // 配列融合・編集バッファ
-            CommitMultiStreamElapsedTime = GetString("commitMultiStreamElapsedTime")._parseInt(0);      // 前回のデコーダ呼び出しから一定時間が経過したら、MultiStreamCommit を発行
-            EditBufferCaretChar = "▴"; // GetString("editBufferCaretChar", "▴");                        // 編集バッファのカレット文字
-            EditBufferFlushChar = GetString("editBufferFlushChar", "");                                 // 編集バッファをフラッシュさせる文字
+            CommitMultiStreamElapsedTime = GetString("commitMultiStreamElapsedTime")._parseInt(0);              // 前回のデコーダ呼び出しから一定時間が経過したら、MultiStreamCommit を発行
+            UseEditBuffer = GetString("useEditBuffer")._parseBool(false);                                       // 編集バッファを使用するか
+            EditBufferCaretChar = "▴"; // GetString("editBufferCaretChar", "▴");                                // 編集バッファのカレット文字
+            EditBufferFlushChar = GetString("editBufferFlushChar", "");                                         // 編集バッファをフラッシュさせる文字
             KanjiTableThresholdForDualTable = GetString("kanjiTableThresholdForDualTable")._parseInt(300);      // デュアルテーブルの時に、漢直用のテーブルと見なす漢字数
             FlushEditBufferWhenCaptalAlphabet = GetString("flushEditBufferWhenCaptalAlphabet")._parseBool(false); // 大文字アルファベット入力で編集バッファをフラッシュするか
 
