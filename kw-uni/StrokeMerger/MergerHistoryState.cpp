@@ -479,7 +479,7 @@ namespace {
                         // 現在の先頭候補以外を削除する
                         LOG_DEBUGH(_T("MULTI_STREAM_SELECT_FIRST: commit first candidate"));
                         //WORD_LATTICE->selectFirst();
-                        WORD_LATTICE->clearKanjiPreferredNextCands();
+                        WORD_LATTICE->clearKanjiXorHiraganaPreferredNextCands();
                         WORD_LATTICE->removeOtherThanFirst();
                         break;
                     case HISTORY_FULL_CAND_DECKEY:
@@ -527,11 +527,17 @@ namespace {
                         //    }
                         //}
                         break;
-                    case KANJI_PREFERRED_NEXT_DECKEY:
+                    case MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY:
                         // 次の打鍵を漢字のみ通す
-                        LOG_DEBUGH(_T("KANJI_PREFERRED_NEXT_DECKEY"));
-                        WORD_LATTICE->removeOtherThanFirst();
-                        WORD_LATTICE->setKanjiPreferredNextCands();
+                        LOG_DEBUGH(_T("MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY"));
+                        //WORD_LATTICE->removeOtherThanFirst();
+                        WORD_LATTICE->setKanjiXorHiraganaPreferredNextCands(true);
+                        break;
+                    case MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY:
+                        // 次の打鍵をひらがなのみ通す
+                        LOG_DEBUGH(_T("MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY"));
+                        //WORD_LATTICE->removeOtherThanFirst();
+                        WORD_LATTICE->setKanjiXorHiraganaPreferredNextCands(false);
                         break;
                     case CLEAR_STROKE_DECKEY:
                         _LOG_DETAIL(_T("CLEAR_STROKE_DECKEY: DO NOTHING"));

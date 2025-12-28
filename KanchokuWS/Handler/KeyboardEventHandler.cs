@@ -929,6 +929,7 @@ namespace KanchokuWS.Handler
             if (kanchokuCode < 0 && isVkbTopTextFocused()) return false;
 
             if (kanchokuCode < 0 && modEx != 0 && !ctrl && !shift) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-B: IN: kanchokuCode={kanchokuCode}, modEx={modEx:x}, ctrl={ctrl}, shift={shift}");
                 // 拡張シフトが有効なのは、Ctrlキーが押されておらず、Shiftも押されていないか、Shift+SpaceをSandSとして扱わない場合とする
                 kanchokuCode = KeyComboRepository.GetModConvertedDecKeyFromCombo(modEx, normalDecKey);
                 if (kanchokuCode < 0) {
@@ -940,10 +941,11 @@ namespace KanchokuWS.Handler
                         kanchokuCode += shiftPlane * DecoderKeys.PLANE_DECKEY_NUM;
                     }
                 }
-                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-B: kanchokuCode={kanchokuCode:x}H({kanchokuCode}), modEx={modEx:x}, ctrl={ctrl}, shift={shift}");
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-B: OUT: kanchokuCode={kanchokuCode:x}H({kanchokuCode}), modEx={modEx:x}, ctrl={ctrl}, shift={shift}");
             }
 
             if (kanchokuCode < 0) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-C: IN: kanchokuCode={kanchokuCode}, ctrl={ctrl}, shift={shift}");
                 if (leftCtrl) {
                     // mod-conversion.txt で lctrl に定義されているものを検索
                     kanchokuCode = KeyComboRepository.GetModConvertedDecKeyFromCombo(KeyModifiers.MOD_LCTRL, normalDecKey);
@@ -959,7 +961,7 @@ namespace KanchokuWS.Handler
                         : KeyComboRepository.GetDecKeyFromCombo(mod, normalDecKey);
                 }
                 if (kanchokuCode >= 0) mod = 0;     // 何かのコードに変換されたら、 Ctrl や Shift の修飾は無かったことにしておく
-                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-C: kanchokuCode={kanchokuCode:x}H({kanchokuCode}), ctrl={ctrl}, shift={shift}");
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-C: OUT: kanchokuCode={kanchokuCode:x}H({kanchokuCode}), ctrl={ctrl}, shift={shift}");
             }
 
             // SandS の一時シフト状態をリセットする

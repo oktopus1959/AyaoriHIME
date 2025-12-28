@@ -337,6 +337,9 @@ public:
     // KanjiPreferredNext ハンドラ
     virtual void handleKanjiPreferredNext();
 
+    // HiraganaPreferredNext ハンドラ
+    virtual void handleHiraganaPreferredNext();
+
     // StrokeBack ハンドラ
     virtual void handleStrokeBack();
 

@@ -501,8 +501,10 @@ void State::dispatchDeckey(int deckey) {
         handleDecoderOff();
     } else if (deckey == FLUSH_OUTPUT_STRING_DECKEY) {
         handleFlushOutputString();
-    } else if (deckey == KANJI_PREFERRED_NEXT_DECKEY) {
+    } else if (deckey == MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY) {
         handleKanjiPreferredNext();
+    } else if (deckey == MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY) {
+        handleHiraganaPreferredNext();
     } else if (deckey == STROKE_BACK_DECKEY) {
         handleStrokeBack();
     } else if (deckey == FULL_ESCAPE_DECKEY) {
@@ -664,7 +666,10 @@ void State::handleSpecialKeys(int /*deckey*/) {
 }
 
 // KanjiPreferredNext デフォルトハンドラ
-void State::handleKanjiPreferredNext() { LOG_INFO(_T("CALLED")); handleSpecialKeys(KANJI_PREFERRED_NEXT_DECKEY); }
+void State::handleKanjiPreferredNext() { LOG_INFO(_T("CALLED")); handleSpecialKeys(MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY); }
+
+// HiraganaPreferredNext デフォルトハンドラ
+void State::handleHiraganaPreferredNext() { LOG_INFO(_T("CALLED")); handleSpecialKeys(MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY); }
 
 // StrokeBack デフォルトハンドラ
 void State::handleStrokeBack() { LOG_INFO(_T("CALLED")); handleSpecialKeys(STROKE_BACK_DECKEY); }

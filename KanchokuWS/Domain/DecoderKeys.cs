@@ -348,9 +348,10 @@ namespace KanchokuWS
         public const int MULTI_STREAM_PREV_CAND_DECKEY = MULTI_STREAM_NEXT_CAND_DECKEY + 1;     // 漢直・かな配列の融合時の前候補選択
         public const int MULTI_STREAM_SELECT_FIRST_DECKEY = MULTI_STREAM_PREV_CAND_DECKEY + 1;  // 漢直・かな配列の融合時に先頭候補を選択
         public const int MULTI_STREAM_COMMIT_DECKEY = MULTI_STREAM_SELECT_FIRST_DECKEY + 1;     // 漢直・かな配列の融合時に先頭候補だけを残して初期化する(ENTERと同じ動作)
+        public const int MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY = MULTI_STREAM_COMMIT_DECKEY + 1;                     // 漢直・かな配列の融合時に次の打鍵では漢字を優先する
+        public const int MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY = MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY + 1;    // 漢直・かな配列の融合時に次の打鍵ではひらがなを優先する
 
-        public const int KANJI_PREFERRED_NEXT_DECKEY = MULTI_STREAM_COMMIT_DECKEY + 1;      // 次の打鍵では漢字を優先する
-        public const int STROKE_BACK_DECKEY = KANJI_PREFERRED_NEXT_DECKEY + 1;              // ストロークを1つ前に戻す
+        public const int STROKE_BACK_DECKEY = MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY + 1;  // ストロークを1つ前に戻す
         public const int FLUSH_OUTPUT_STRING_DECKEY = STROKE_BACK_DECKEY + 1;               // 出力バッファに溜まっている文字列をフラッシュする
 
         public const int UNDEFINED_DECKEY = FLUSH_OUTPUT_STRING_DECKEY + 1;                                // 未定義のキー

@@ -151,7 +151,10 @@ namespace lattice2 {
         //int _extendedCandNum = 0;
 
         // 次のストロークをスキップする候補文字列
-        std::set<MString> _kanjiPreferredNextCands;
+        std::set<MString> _kanjiXorHiraganaPreferredNextCands;
+
+        bool _isKanjiPreferredNext = false;
+        bool _isHiraganaPreferredNext = false;
 
         static bool _isEmpty(const std::vector<CandidateString> cands) {
             //return cands.empty() || cands.size() == 1 && cands.front().string().empty();
@@ -224,7 +227,7 @@ namespace lattice2 {
             _rollOverStroke.clear();
             _origFirstCand = -1;
             //_extendedCandNum = 0;
-            if (clearAll) clearKanjiPreferredNextCands();
+            if (clearAll) clearKanjiXorHiraganaPreferredNextCands();
         }
 
         void removeOtherThanKBest() override {
@@ -403,7 +406,7 @@ namespace lattice2 {
         }
 
         String debugKBestString(size_t maxLn = 100000) const override {
-            String result = L"kanjiPreferredNextCands=" + kanjiPreferredNextCandsDebug() + L"\n\n";
+            String result = L"kanjiPreferredNextCands=" + kanjiXorHiraganaPreferredNextCandsDebug() + L"\n\n";
             result.append(_debugLog);
             result.append(std::format(L"\nTotal candidates={}\n", _candidates.size()));
             result.append(L"\nKBest:\n");
@@ -680,39 +683,41 @@ namespace lattice2 {
         }
 
     public:
-        void setKanjiPreferredNextCands() override {
+        void setKanjiXorHiraganaPreferredNextCands(bool bKanji) override {
             //LOG_INFO(L"ENTER");
-            _kanjiPreferredNextCands.clear();
+            _isKanjiPreferredNext = bKanji;
+            _isHiraganaPreferredNext = !bKanji;
+            _kanjiXorHiraganaPreferredNextCands.clear();
             if (!_candidates.empty()) {
                 int topStrokeCnt = _candidates.front().strokeLen();
                 for (const auto& c : _candidates) {
                     if (c.strokeLen() != topStrokeCnt) break;
-                    _kanjiPreferredNextCands.insert(c.string());
+                    _kanjiXorHiraganaPreferredNextCands.insert(c.string());
                 }
             }
-            if (_kanjiPreferredNextCands.empty()) _kanjiPreferredNextCands.insert(EMPTY_MSTR);
+            if (_kanjiXorHiraganaPreferredNextCands.empty()) _kanjiXorHiraganaPreferredNextCands.insert(EMPTY_MSTR);
             //LOG_INFO(L"LEAVE: kanjiPreferredNextCands={}", kanjiPreferredNextCandsDebug());
         }
 
-        void clearKanjiPreferredNextCands() override {
-            _LOG_DETAIL(_T("CALLED: _kanjiPreferredNextCands={}"), kanjiPreferredNextCandsDebug());
-            _kanjiPreferredNextCands.clear();
+        void clearKanjiXorHiraganaPreferredNextCands() override {
+            _LOG_DETAIL(_T("CALLED: _kanjiPreferredNextCands={}"), kanjiXorHiraganaPreferredNextCandsDebug());
+            _kanjiXorHiraganaPreferredNextCands.clear();
         }
 
-        String kanjiPreferredNextCandsDebug() const override {
-            return std::to_wstring(_kanjiPreferredNextCands.size()) + L":['" + to_wstr(utils::join(_kanjiPreferredNextCands, L"', '")) + L"']";
+        String kanjiXorHiraganaPreferredNextCandsDebug() const override {
+            return std::to_wstring(_kanjiXorHiraganaPreferredNextCands.size()) + L":['" + to_wstr(utils::join(_kanjiXorHiraganaPreferredNextCands, L"', '")) + L"']";
         }
 
     private:
-        int getKanjiPrefferredPenalty(const CandidateString& cand, const WordPiece& piece) {
-            bool contained = _kanjiPreferredNextCands.contains(cand.string());
-            _LOG_DETAIL(L"cand.string()=\"{}\", {} in kanjiPreferred={}", to_wstr(cand.string()), contained ? L"CONTAINED" : L"NOT", kanjiPreferredNextCandsDebug());
+        int getKanjiXorHiraganaPrefferredPenalty(const CandidateString& cand, const WordPiece& piece) {
+            bool contained = _kanjiXorHiraganaPreferredNextCands.contains(cand.string());
+            _LOG_DETAIL(L"cand.string()=\"{}\", {} in kanjiPreferred={}", to_wstr(cand.string()), contained ? L"CONTAINED" : L"NOT", kanjiXorHiraganaPreferredNextCandsDebug());
             int penalty = 0;
             const MString& pieceStr = piece.getString();
             if (contained
                 && piece.numBS() <= 0 && !pieceStr.empty()
-                && (piece.strokeLen() == 1 || utils::is_hiragana(pieceStr[0]))) {
-                // 漢字優先
+                && ((_isKanjiPreferredNext && utils::is_hiragana(pieceStr[0])) || (_isHiraganaPreferredNext && utils::is_kanji(pieceStr[0])))) {
+                // 漢字xorひらがな優先
                 _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
                 penalty += NON_PREFERRED_PENALTY;
             }
@@ -728,7 +733,7 @@ namespace lattice2 {
             const MString& pieceStr = piece.getString();
             //int topStrokeLen = -1;
 
-            LOG_DEBUGH(L"kanjiPreferredNextCands={}", kanjiPreferredNextCandsDebug());
+            LOG_DEBUGH(L"kanjiPreferredNextCands={}", kanjiXorHiraganaPreferredNextCandsDebug());
 
             if (pieceStr.size() == 1) setHighFreqJoshiStroke(strokeCount, pieceStr[0]);
 
@@ -754,7 +759,7 @@ namespace lattice2 {
                     }
 
                     // 漢字優先か
-                    int kanjiPrefPenalty = getKanjiPrefferredPenalty(cand, piece);
+                    int kanjiPrefPenalty = getKanjiXorHiraganaPrefferredPenalty(cand, piece);
                     if (kanjiPrefPenalty > 0) continue;
 
                     penalty += kanjiPrefPenalty;
@@ -983,7 +988,7 @@ namespace lattice2 {
             _LOG_DETAIL(_T("ENTER: dummyCand.string()=\"{}\", piece.string()={}, strokeCount={}, paddingLen={}"),
                 to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount, paddingLen);
             std::vector<CandidateString> newCandidates;
-            int penalty = getKanjiPrefferredPenalty(dummyCand, piece);
+            int penalty = getKanjiXorHiraganaPrefferredPenalty(dummyCand, piece);
             if (penalty == 0) {
                 if (piece.isPadding()) {
                     // パディング素片の場合はペナルティを加算

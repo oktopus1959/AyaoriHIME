@@ -1409,22 +1409,29 @@ namespace KanchokuWS
             // デコーダON/OFF系機能の呼び出し
             if (ActiveKey != 0) {
                 if (DeactiveKey == 0) {
+                    logger.Info($"Set TOGGLE_DECKEY({DecoderKeys.TOGGLE_DECKEY}) for DecKey={DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKey)}(ActiveVKey={ActiveKey})");
                     KeyComboRepository.AddDecKeyAndCombo(DecoderKeys.TOGGLE_DECKEY, 0, DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKey));
                 } else {
+                    logger.Info($"Set ACTIVE_DECKEY({DecoderKeys.ACTIVE_DECKEY}) for DecKey={DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKey)}(ActiveVKey={ActiveKey})");
                     KeyComboRepository.AddDecKeyAndCombo(DecoderKeys.ACTIVE_DECKEY, 0, DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKey));
+                    logger.Info($"Set DEACTIVE_DECKEY({DecoderKeys.DEACTIVE_DECKEY}) for DecKey={DecoderKeyVsVKey.GetDecKeyFromVKey(DeactiveKey)}(ActiveVKey={DeactiveKey})");
                     KeyComboRepository.AddDecKeyAndCombo(DecoderKeys.DEACTIVE_DECKEY, 0, DecoderKeyVsVKey.GetDecKeyFromVKey(DeactiveKey));
                 }
             }
             if (ActiveKeyWithCtrl != 0) {
                 if (DeactiveKeyWithCtrl == 0) {
                     // Ctrlありの場合はカレットへの追従を再開する
+                    logger.Info($"Set MODE_TOGGLE_FOLLOW_CARET_DECKEY({DecoderKeys.MODE_TOGGLE_FOLLOW_CARET_DECKEY}) for DecKey={DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKeyWithCtrl)}(ActiveVKey={ActiveKeyWithCtrl}) with Ctrl");
                     KeyComboRepository.AddDecKeyAndCombo(DecoderKeys.MODE_TOGGLE_FOLLOW_CARET_DECKEY, KeyModifiers.MOD_CONTROL, DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKeyWithCtrl));
                 } else {
+                    logger.Info($"Set ACTIVE_DECKEY({DecoderKeys.ACTIVE_DECKEY}) for DecKey={DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKeyWithCtrl)}(ActiveVKey={ActiveKeyWithCtrl}) with Ctrl");
                     KeyComboRepository.AddDecKeyAndCombo(DecoderKeys.ACTIVE_DECKEY, KeyModifiers.MOD_CONTROL, DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKeyWithCtrl));
+                    logger.Info($"Set DEACTIVE_DECKEY({DecoderKeys.DEACTIVE_DECKEY}) for DecKey={DecoderKeyVsVKey.GetDecKeyFromVKey(DeactiveKeyWithCtrl)}(ActiveVKey={DeactiveKeyWithCtrl}) with Ctrl");
                     KeyComboRepository.AddDecKeyAndCombo(DecoderKeys.DEACTIVE_DECKEY, KeyModifiers.MOD_CONTROL, DecoderKeyVsVKey.GetDecKeyFromVKey(DeactiveKeyWithCtrl));
                 }
             }
             if (ActiveKeyWithCtrl2 != 0) {
+                logger.Info($"Set MODE_TOGGLE_FOLLOW_CARET_DECKEY2({DecoderKeys.MODE_TOGGLE_FOLLOW_CARET_DECKEY2}) for DecKey={DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKeyWithCtrl2)}(ActiveVKey={ActiveKeyWithCtrl2}) with Ctrl");
                 KeyComboRepository.AddDecKeyAndCombo(DecoderKeys.MODE_TOGGLE_FOLLOW_CARET_DECKEY2, KeyModifiers.MOD_CONTROL, DecoderKeyVsVKey.GetDecKeyFromVKey(ActiveKeyWithCtrl2));
             }
 

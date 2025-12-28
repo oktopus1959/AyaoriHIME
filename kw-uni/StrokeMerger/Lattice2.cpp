@@ -95,14 +95,15 @@ namespace lattice2 {
             _kBestList->removeOtherThanFirst();
         }
 
-        void setKanjiPreferredNextCands() override {
+        void setKanjiXorHiraganaPreferredNextCands(bool bKanji) override {
             _LOG_DETAIL(_T("CALLED"));
-            _kBestList->setKanjiPreferredNextCands();
+            _kBestList->setKanjiXorHiraganaPreferredNextCands(bKanji);
             if (_startStrokeCount == 1) _startStrokeCount = 0;  // 先頭での漢字優先なら、0 クリアしておく(この後、clear()が呼ばれるので、それと状態を合わせるため)
         }
-        void clearKanjiPreferredNextCands() override {
+
+        void clearKanjiXorHiraganaPreferredNextCands() override {
             _LOG_DETAIL(_T("CALLED"));
-            _kBestList->clearKanjiPreferredNextCands();
+            _kBestList->clearKanjiXorHiraganaPreferredNextCands();
         }
 
         bool isEmpty() override {
@@ -239,7 +240,7 @@ namespace lattice2 {
             }
             //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
-            _LOG_DETAIL(_T("LEAVE:\nkanjiPreferredNextCands={}\nkBest:\n{}"), _kBestList->kanjiPreferredNextCandsDebug(),  _kBestList->debugCandidates(10));
+            _LOG_DETAIL(_T("LEAVE:\nkanjiPreferredNextCands={}\nkBest:\n{}"), _kBestList->kanjiXorHiraganaPreferredNextCandsDebug(),  _kBestList->debugCandidates(10));
             return LatticeResult(outStr, numBS);
         }
 
