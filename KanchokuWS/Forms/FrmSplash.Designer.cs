@@ -43,13 +43,15 @@ namespace KanchokuWS
             // buttonOK
             // 
             this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonOK.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.buttonOK.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.buttonOK.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.buttonOK.Location = new System.Drawing.Point(56, 132);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(50, 21);
             this.buttonOK.TabIndex = 10;
             this.buttonOK.Text = "OK";
-            this.buttonOK.UseVisualStyleBackColor = true;
+            this.buttonOK.UseVisualStyleBackColor = false;
             this.buttonOK.Visible = false;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
@@ -66,10 +68,10 @@ namespace KanchokuWS
             // label_version
             // 
             this.label_version.AutoSize = true;
-            this.label_version.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_version.Font = new System.Drawing.Font("游ゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label_version.Location = new System.Drawing.Point(41, 18);
             this.label_version.Name = "label_version";
-            this.label_version.Size = new System.Drawing.Size(77, 12);
+            this.label_version.Size = new System.Drawing.Size(73, 16);
             this.label_version.TabIndex = 6;
             this.label_version.Text = "Product Ver.";
             // 
@@ -91,13 +93,15 @@ namespace KanchokuWS
             // buttonSettings
             // 
             this.buttonSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonSettings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.buttonSettings.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.buttonSettings.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.buttonSettings.Location = new System.Drawing.Point(126, 132);
             this.buttonSettings.Name = "buttonSettings";
             this.buttonSettings.Size = new System.Drawing.Size(50, 21);
             this.buttonSettings.TabIndex = 12;
             this.buttonSettings.Text = "設定";
-            this.buttonSettings.UseVisualStyleBackColor = true;
+            this.buttonSettings.UseVisualStyleBackColor = false;
             this.buttonSettings.Visible = false;
             this.buttonSettings.Click += new System.EventHandler(this.buttonSettings_Click);
             // 
@@ -114,7 +118,7 @@ namespace KanchokuWS
             // 
             this.label_explanation.AutoSize = true;
             this.label_explanation.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_explanation.Location = new System.Drawing.Point(65, 87);
+            this.label_explanation.Location = new System.Drawing.Point(65, 89);
             this.label_explanation.Name = "label_explanation";
             this.label_explanation.Size = new System.Drawing.Size(83, 12);
             this.label_explanation.TabIndex = 14;

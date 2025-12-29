@@ -32,7 +32,7 @@ namespace KanchokuWS
             // タイトルバーを消す
             FormBorderStyle = FormBorderStyle.None;
 
-            label_version.Text = $"{KanchokuWS.ProductVersion.ProductName} Ver. {KanchokuWS.ProductVersion.Version}";
+            label_version.Text = $"{KanchokuWS.ProductVersion.ProductName} - {KanchokuWS.ProductVersion.Version}";
             label_version2.Text = KanchokuWS.ProductVersion.Version2;
             label_subName.Text = $"{KanchokuWS.ProductVersion.ProductKanjiName}";
             label_explanation.Text = $"{KanchokuWS.ProductVersion.ProductExplanation}";
