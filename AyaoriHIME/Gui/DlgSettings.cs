@@ -1834,7 +1834,7 @@ namespace KanchokuWS.Gui
 
         private void button_ImportUserDic_Click(object sender, EventArgs e)
         {
-            var dicDir = SystemHelper.MakeAbsPathUnderKanchokuRootDir("dymazin/dic/mazedic");
+            var dicDir = SystemHelper.MakeAbsPathUnderKanchokuRootDir(Settings.SystemFilesFolder._joinPath("dymazin/dic/mazedic"));
             if (textBox_mazeUserDicSourceFile.Text._notEmpty()) {
                 var userDicPath = SystemHelper.MakeAbsPathUnderKanchokuRootDir(textBox_mazeUserDicSourceFile.Text);
                 frmMain?.ExecCmdDecoder("compileAndLoadUserDic", $"{dicDir}\t{userDicPath}");
@@ -1842,7 +1842,7 @@ namespace KanchokuWS.Gui
             }
         }
 
-        private void button_selecFile_Click(object sender, EventArgs e)
+        private void button_selectUserDicFile_Click(object sender, EventArgs e)
         {
             var filePath = SystemHelper.SelectFileThroughOpenFileDialog(
                 "ユーザー辞書ファイルを選択してください",

@@ -45,7 +45,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_ROOT_FILE_PATH(tableFile);
     SET_ROOT_FILE_PATH(tableFile2);
     SET_ROOT_FILE_PATH(tableFile3);
-    SET_USER_FILE_PATH(charsDefFile);
+    SET_ROOT_FILE_PATH(charsDefFile);
     SET_USER_FILE_PATH(easyCharsFile);
     SET_USER_FILE_PATH(kanjiYomiFile);
     SET_USER_FILE_PATH(bushuFile);

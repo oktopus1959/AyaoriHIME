@@ -92,7 +92,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KanchokuWS\KanchokuWS.csproj">
+    <ProjectReference Include="..\AyaoriHIME\AyaoriHIME.csproj">
       <Project>{30a6b7d5-8934-49ba-b357-fe723e0cc612}</Project>
       <Name>KanchokuWS</Name>
     </ProjectReference>

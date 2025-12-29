@@ -41,8 +41,16 @@ namespace KanchokuWS
         {
             return internalSetValues._safeGet(key._toLower());
         }
-        //-------------------------------------------------------------------------------------
 
+        //-------------------------------------------------------------------------------------
+        // URL
+        //-------------------------------------------------------------------------------------
+        public static string SystemFilesFolder => "systemFiles";
+        public static string UserFilesFolder => "userFiles";
+
+        //-------------------------------------------------------------------------------------
+        // URL
+        //-------------------------------------------------------------------------------------
         /// <summary> ドキュメントへのURL </summary>
         public static string ReadmeUrl => "https://github.com/oktopus1959/KanchokuWS#readme";
         public static string ManualUrl => "https://github.com/oktopus1959/KanchokuWS/blob/main/MANUAL.md#top";
@@ -1750,7 +1758,7 @@ namespace KanchokuWS
             TableFile3 = addDecoderSetting("tableFile3", "");
 #endif
             KanjiYomiFile = addDecoderSetting("kanjiYomiFile", "kanji-yomi.txt");
-            AltKanjiFile = addDecoderSetting("altKanjiFile", "files/alt-kanji.txt");
+            AltKanjiFile = addDecoderSetting("altKanjiFile", "alt-kanji.txt");
             //addDecoderSetting("strokeHelpFile");
             HistoryFile = addDecoderSetting("historyFile", "kwhist.*.txt");
             //addDecoderSetting("historyUsedFile");

@@ -5070,7 +5070,7 @@ namespace KanchokuWS.Gui
             this.button_selecUserDicFile.Text = "ファイル選択(&D)";
             this.toolTip1.SetToolTip(this.button_selecUserDicFile, "ファイルダイアログでユーザー辞書ソースファイルを選択します。");
             this.button_selecUserDicFile.UseVisualStyleBackColor = true;
-            this.button_selecUserDicFile.Click += new System.EventHandler(this.button_selecFile_Click);
+            this.button_selecUserDicFile.Click += new System.EventHandler(this.button_selectUserDicFile_Click);
             // 
             // button_ImportUserDIc
             // 

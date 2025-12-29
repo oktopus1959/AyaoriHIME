@@ -879,9 +879,13 @@ namespace KanchokuWS.TableParser
             var reBlank = @"[\t ]+";
 
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"filename: {filename}, bSecondKanjiMap={bSecondKanjiMap}");
-            var lines = Helper.ReadAllLines(KanchokuIni.MakeFullPath(filename), e => {
-                logger.Error($"Can't open: {filename}");
-                FileOpenError(filename);
+            var fullPath = KanchokuIni.MakeFullPath(Settings.UserFilesFolder._joinPath(filename));
+            if (!Helper.FileExists(fullPath)) {
+                fullPath = KanchokuIni.MakeFullPath(Settings.SystemFilesFolder._joinPath(filename));
+            }
+            var lines = Helper.ReadAllLines(fullPath, e => {
+                logger.Error($"Can't open: {fullPath}");
+                FileOpenError(fullPath);
             });
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"lines.size(): {lines.Length}");
             if (lines._notEmpty() && kanjiConvMap != null) {

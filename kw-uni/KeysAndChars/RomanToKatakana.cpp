@@ -2,6 +2,7 @@
 #include "file_utils.h"
 #include "path_utils.h"
 #include "Settings.h"
+#include "Constants.h"
 
 #include "RomanToKatakana.h"
 
@@ -467,7 +468,10 @@ namespace RomanToKatakana {
     // ローマ字定義ファイルを読み込む
     void ReadRomanDefFile(StringRef defFile) {
         LOG_INFO(_T("open roman def file: {}"), defFile);
-        auto path = utils::joinPath(SETTINGS->rootDir, defFile);
+        auto path = utils::joinPath(SETTINGS->rootDir, utils::joinPath(USER_FILES_FOLDER, defFile));
+        if (!utils::isFileExistent(path)) {
+            path = utils::joinPath(SETTINGS->rootDir, utils::joinPath(SYSTEM_FILES_FOLDER, defFile));
+        }
         utils::IfstreamReader reader(path);
         if (reader.success()) {
             loadRomanDefLines(reader.getAllLines());

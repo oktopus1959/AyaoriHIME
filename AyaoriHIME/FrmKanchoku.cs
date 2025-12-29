@@ -426,8 +426,8 @@ namespace KanchokuWS
             {
                 var rootDir = KanchokuIni.Singleton.KanchokuDir;
                 var sampleFilename = filename._safeReplace(".txt", ".sample.txt");
-                var sampleFilePath = rootDir._joinPath(sampleFilename);
-                var prodFilePath = rootDir._joinPath(filename);
+                var sampleFilePath = rootDir._joinPath(Settings.SystemFilesFolder, sampleFilename);
+                var prodFilePath = rootDir._joinPath(Settings.UserFilesFolder, filename);
                 if (Helper.FileExists(sampleFilePath) && !Helper.FileExists(prodFilePath)) {
                     logger.WriteInfo($"COPY {sampleFilename} to {filename}.");
                     Helper.CopyFile(sampleFilePath, prodFilePath);
@@ -1519,7 +1519,7 @@ namespace KanchokuWS
                 frmVkb.DecKeysForNextTableStrokeHelp.Clear();
                 frmVkb.DrawInitialVkb();
                 //Text = $"{Settings.ProductKanjiName} - ON";
-                notifyIcon1.Icon = Properties.Resources.kanmini1;
+                notifyIcon1.Icon = AyaoriHIME.Properties.Resources.kanmini1;
                 //// 仮想鍵盤を移動させる
                 //MoveFormVirtualKeyboard();
                 //// 表示・編集バッファを移動させる
@@ -1571,7 +1571,7 @@ namespace KanchokuWS
                     frmVkb.Hide();
                 }
                 frmMode.Hide();
-                notifyIcon1.Icon = Properties.Resources.kanmini0;
+                notifyIcon1.Icon = AyaoriHIME.Properties.Resources.kanmini0;
                 frmMode.SetKanjiMode();
                 if (Settings.VirtualKeyboardShowStrokeCount != 1) {
                     frmMode.SetAlphaMode();
@@ -2666,9 +2666,9 @@ namespace KanchokuWS
             if (Settings.DecoderSuspended) {
                 DeactivateDecoderWithModifiersOff();
                 frmVkb.Hide();
-                notifyIcon1.Icon = Properties.Resources.kanmini2;
+                notifyIcon1.Icon = AyaoriHIME.Properties.Resources.kanmini2;
             } else {
-                notifyIcon1.Icon = Properties.Resources.kanmini0;
+                notifyIcon1.Icon = AyaoriHIME.Properties.Resources.kanmini0;
                 if (Settings.ShowEisuVkb) {
                     frmVkb.DrawEisuVkb();
                     frmVkb.Show();

@@ -7,8 +7,8 @@
     <ProjectGuid>{30A6B7D5-8934-49BA-B357-FE723E0CC612}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KanchokuWS</RootNamespace>
-    <AssemblyName>KanchokuWS</AssemblyName>
+    <RootNamespace>AyaoriHIME</RootNamespace>
+    <AssemblyName>AyaoriHIME</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

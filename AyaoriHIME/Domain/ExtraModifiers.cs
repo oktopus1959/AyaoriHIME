@@ -283,7 +283,7 @@ namespace KanchokuWS.Domain
             disabledExtKeyLines.Clear();
             var sbCompCmds = new StringBuilder();   // 複合コマンド定義文字列
             if (filename._notEmpty()) {
-                var filePath = KanchokuIni.Singleton.KanchokuDir._joinPath(filename);
+                var filePath = KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.UserFilesFolder, filename);
                 if (Settings.LoggingDecKeyInfo) logger.Info($"modConversion file path={filePath}");
                 var lines = Helper.GetFileContent(filePath, Encoding.UTF8);
                 if (lines == null) {

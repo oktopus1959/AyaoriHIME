@@ -451,7 +451,10 @@ namespace KanchokuWS
 
         public static void ReadKanjiYomiFile(string filename)
         {
-            var filePath = KanchokuIni.Singleton.KanchokuDir._joinPath(filename);
+            var filePath = KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.UserFilesFolder, filename);
+            if (!Helper.FileExists(filePath)) {
+                filePath = KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.SystemFilesFolder, filename);
+            }
             if (Settings.LoggingVirtualKeyboardInfo) logger.DebugH(() => $"ENTER: filePath={filePath}");
             if (Helper.FileExists(filePath)) {
                 try {
