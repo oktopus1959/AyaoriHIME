@@ -63,6 +63,16 @@ namespace AyaoriHIME.Properties {
         /// <summary>
         ///   (アイコン) に類似した型 System.Drawing.Icon のローカライズされたリソースを検索します。
         /// </summary>
+        internal static System.Drawing.Icon ayaorihime {
+            get {
+                object obj = ResourceManager.GetObject("ayaorihime", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   (アイコン) に類似した型 System.Drawing.Icon のローカライズされたリソースを検索します。
+        /// </summary>
         internal static System.Drawing.Icon kanchoku {
             get {
                 object obj = ResourceManager.GetObject("kanchoku", resourceCulture);

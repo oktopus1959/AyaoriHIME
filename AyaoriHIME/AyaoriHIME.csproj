@@ -50,7 +50,7 @@
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>kanchoku.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\kanchoku.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -334,6 +334,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="kanchoku.ico" />
+    <None Include="Resources\ayaorihime.ico" />
     <Content Include="Resources\kanchoku.ico" />
     <Content Include="Resources\kanmini2.ico" />
     <Content Include="Resources\kanmini0.ico" />
