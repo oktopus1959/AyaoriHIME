@@ -18,7 +18,7 @@
 namespace lattice2 {
     DECLARE_LOGGER;     // defined in Lattice2.cpp
 
-#define GLOBAL_POST_REWRITE_FILE    L"files/global-post-rewrite-map.txt"
+#define GLOBAL_POST_REWRITE_FILE    USER_FILES_FOLDER L"/global-post-rewrite-map.txt"
 
     // グローバルな後置書き換えマップ
     std::map<MString, MString> globalPostRewriteMap;

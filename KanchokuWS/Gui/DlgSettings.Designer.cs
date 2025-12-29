@@ -5083,7 +5083,7 @@ namespace KanchokuWS.Gui
             this.button_ImportUserDIc.Text = "インポート(&I)";
             this.toolTip1.SetToolTip(this.button_ImportUserDIc, "指定のユーザー辞書ソースをコンパイルして、\r\n結果のバイナリー辞書をロードします。");
             this.button_ImportUserDIc.UseVisualStyleBackColor = true;
-            this.button_ImportUserDIc.Click += new System.EventHandler(this.button_ImportUserDIc_Click);
+            this.button_ImportUserDIc.Click += new System.EventHandler(this.button_ImportUserDic_Click);
             // 
             // label169
             // 

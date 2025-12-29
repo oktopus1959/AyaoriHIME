@@ -10,7 +10,7 @@
 namespace lattice2 {
     DECLARE_LOGGER;     // defined in Lattice2.cpp
 
-#define MAZEGAKI_PREFERENCE_FILE    L"files/mazegaki.pref.txt"
+#define MAZEGAKI_PREFERENCE_FILE    USER_FILES_FOLDER  L"/mazegaki.pref.txt"
 
     // 交ぜ書き優先度辞書
     std::map<MString, int> mazegakiPrefDict;

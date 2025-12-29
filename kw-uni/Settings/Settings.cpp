@@ -3,6 +3,7 @@
 #include "path_utils.h"
 #include "string_utils.h"
 
+#include "Constants.h"
 #include "StrokeTable.h"
 #include "Settings.h"
 
@@ -13,6 +14,10 @@ namespace {
         return filepath.empty() ? filepath : utils::joinPath(dirpath, filepath);
     }
 
+    inline String make_path(StringRef dirpath, StringRef parentDirPath, StringRef filepath) {
+        return make_path(utils::joinPath(dirpath, parentDirPath), filepath);
+    }
+
     inline wchar_t safe_get_head_char(StringRef s) {
         return s.empty() ? '\0' : s[0];
     }
@@ -21,7 +26,9 @@ namespace {
 void Settings::SetValues(const std::map<String, String>& dict) {
 
 #define SET_KEY_VALUE(k) k = utils::safe_get(dict, String(_T(#k))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_FILE_PATH(k) k = make_path(SETTINGS->rootDir, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_ROOT_FILE_PATH(k) k = make_path(SETTINGS->rootDir, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_SYSTEM_FILE_PATH(k) k = make_path(SETTINGS->rootDir, SYSTEM_FILES_FOLDER, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_USER_FILE_PATH(k) k = make_path(SETTINGS->rootDir, USER_FILES_FOLDER, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_CHAR_VALUE(k) k = safe_get_head_char(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_INT_VALUE(k) k = utils::strToInt(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_INT_VALUE2(k,d) k = utils::strToInt(utils::safe_get(dict, String(_T(#k))), d); LOG_DEBUGH(_T(#k "={}"), k)
@@ -35,21 +42,21 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(isJPmode);
 
     SET_KEY_VALUE(rootDir);
-    SET_FILE_PATH(tableFile);
-    SET_FILE_PATH(tableFile2);
-    SET_FILE_PATH(tableFile3);
-    SET_FILE_PATH(charsDefFile);
-    SET_FILE_PATH(easyCharsFile);
-    SET_FILE_PATH(kanjiYomiFile);
-    SET_FILE_PATH(bushuFile);
-    SET_FILE_PATH(autoBushuFile);
-    SET_FILE_PATH(bushuAssocFile);
+    SET_ROOT_FILE_PATH(tableFile);
+    SET_ROOT_FILE_PATH(tableFile2);
+    SET_ROOT_FILE_PATH(tableFile3);
+    SET_USER_FILE_PATH(charsDefFile);
+    SET_USER_FILE_PATH(easyCharsFile);
+    SET_USER_FILE_PATH(kanjiYomiFile);
+    SET_USER_FILE_PATH(bushuFile);
+    SET_USER_FILE_PATH(autoBushuFile);
+    SET_USER_FILE_PATH(bushuAssocFile);
     //SET_FILE_PATH(mazegakiFile);
     SET_KEY_VALUE(mazegakiFile);
-    SET_FILE_PATH(historyFile);
-    SET_FILE_PATH(historyUsedFile);
-    SET_FILE_PATH(historyExcludeFile);
-    SET_FILE_PATH(historyNgramFile);
+    SET_USER_FILE_PATH(historyFile);
+    SET_USER_FILE_PATH(historyUsedFile);
+    SET_USER_FILE_PATH(historyExcludeFile);
+    SET_USER_FILE_PATH(historyNgramFile);
 
     SET_INT_VALUE(backFileRotationGeneration);
 

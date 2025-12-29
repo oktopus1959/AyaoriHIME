@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Reporting/Logger.h"
+#include "Constants.h"
 #include "DyMazin/DymazinBridge.h"
 #include "Reporting/ErrorHandler.h"
 
@@ -9,8 +10,8 @@
 #define USE_MORPHER 1
 #define USE_DYMAZIN 1
 
-#define DYMAZIN_MORPHRC _T("dymazin/etc/morphrc")
-#define DYMAZIN_DICDIR  _T("dymazin/dic/mazedic")
+#define DYMAZIN_MORPHRC SYSTEM_FILES_FOLDER _T("/dymazin/etc/morphrc")
+#define DYMAZIN_DICDIR  SYSTEM_FILES_FOLDER _T("/dymazin/dic/mazedic")
 
 namespace MorphBridge {
     inline DEFINE_NAMESPACE_LOGGER(MorphBridge);

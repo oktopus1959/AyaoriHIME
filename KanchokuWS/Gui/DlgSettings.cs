@@ -1832,7 +1832,7 @@ namespace KanchokuWS.Gui
             button_openUserDicFile.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
         }
 
-        private void button_ImportUserDIc_Click(object sender, EventArgs e)
+        private void button_ImportUserDic_Click(object sender, EventArgs e)
         {
             var dicDir = SystemHelper.MakeAbsPathUnderKanchokuRootDir("dymazin/dic/mazedic");
             if (textBox_mazeUserDicSourceFile.Text._notEmpty()) {

@@ -2,6 +2,7 @@
 
 #include "string_utils.h"
 
+#include "Constants.h"
 #include "FunctionNode.h"
 #include "OneShot/PostRewriteOneShot.h"
 #include "Logger.h"

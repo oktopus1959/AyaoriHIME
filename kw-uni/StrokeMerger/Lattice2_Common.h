@@ -1,6 +1,7 @@
 #pragma once
 
 #include "string_type.h"
+#include "Constants.h"
 
 //#include "Lattice.h"
 
