@@ -338,7 +338,7 @@ namespace KanchokuWS
             CombinationKeyStroke.Determiner.Singleton.InitializeTimer(this);
 
             // 各種サンプルから本番ファイルをコピー(もし無ければ)
-            copySampleFiles();
+            copySystemFiles();
 
             // 仮想鍵盤フォームの作成
             frmVkb = new FrmVirtualKeyboard(this);
@@ -420,23 +420,27 @@ namespace KanchokuWS
         }
 
         // 各種サンプルから本番ファイルをコピー(もし無ければ)
-        private void copySampleFiles()
+        private void copySystemFiles()
         {
-            void copySampleFile(string filename)
+            void copyFile(string filename, bool bSample)
             {
                 var rootDir = KanchokuIni.Singleton.KanchokuDir;
-                var sampleFilename = filename._safeReplace(".txt", ".sample.txt");
-                var sampleFilePath = rootDir._joinPath(Settings.SystemFilesFolder, sampleFilename);
-                var prodFilePath = rootDir._joinPath(Settings.UserFilesFolder, filename);
-                if (Helper.FileExists(sampleFilePath) && !Helper.FileExists(prodFilePath)) {
-                    logger.WriteInfo($"COPY {sampleFilename} to {filename}.");
-                    Helper.CopyFile(sampleFilePath, prodFilePath);
+                var systemFilename = bSample ? filename._safeReplace(".txt", ".sample.txt") : filename;
+                var systemFilePath = rootDir._joinPath(Settings.SystemFilesFolder, systemFilename);
+                var userFilePath = rootDir._joinPath(Settings.UserFilesFolder, filename);
+                logger.InfoH($"systemFile={systemFilePath}, userFile={userFilePath}");
+                if (Helper.FileExists(systemFilePath) && !Helper.FileExists(userFilePath)) {
+                    logger.WriteInfo($"COPY {systemFilename} to {filename}.");
+                    Helper.CopyFile(systemFilePath, userFilePath);
                 }
             }
 
-            copySampleFile("easy_chars.txt");
-            copySampleFile("stroke-help.txt");
-            copySampleFile("mod-conversion.txt");
+            copyFile("easy_chars.txt", true);
+            copyFile("stroke-help.txt", true);
+            copyFile("mod-conversion.txt", true);
+            copyFile("alt-kanji.txt", false);
+            copyFile("kanji-yomi.txt", false);
+            copyFile("kwroman.def.txt", false);
         }
 
         /// <summary> キーボードファイルと文字定義ファイルの読み込み (成功したら true, 失敗したら false を返す) </summary>

@@ -270,7 +270,8 @@ namespace KanchokuWS.Gui
         {
             try {
                 if (filename._notEmpty() && txtAssociatedProgramPath._notEmpty()) {
-                    System.Diagnostics.Process.Start(txtAssociatedProgramPath, KanchokuIni.Singleton.KanchokuDir._joinPath(filename));
+                    System.Diagnostics.Process.Start(txtAssociatedProgramPath,
+                        KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.UserFilesFolder, filename));
                 }
             } catch { }
         }

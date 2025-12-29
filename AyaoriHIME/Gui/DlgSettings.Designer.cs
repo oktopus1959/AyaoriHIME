@@ -736,9 +736,9 @@ namespace KanchokuWS.Gui
             // groupBox23
             // 
             this.groupBox23.Controls.Add(this.checkBox_useEditBuffer);
-            this.groupBox23.Location = new System.Drawing.Point(11, 228);
+            this.groupBox23.Location = new System.Drawing.Point(15, 206);
             this.groupBox23.Name = "groupBox23";
-            this.groupBox23.Size = new System.Drawing.Size(250, 42);
+            this.groupBox23.Size = new System.Drawing.Size(250, 48);
             this.groupBox23.TabIndex = 2;
             this.groupBox23.TabStop = false;
             this.groupBox23.Text = "編集バッファ";
@@ -746,7 +746,7 @@ namespace KanchokuWS.Gui
             // checkBox_useEditBuffer
             // 
             this.checkBox_useEditBuffer.AutoSize = true;
-            this.checkBox_useEditBuffer.Location = new System.Drawing.Point(21, 18);
+            this.checkBox_useEditBuffer.Location = new System.Drawing.Point(21, 21);
             this.checkBox_useEditBuffer.Name = "checkBox_useEditBuffer";
             this.checkBox_useEditBuffer.Size = new System.Drawing.Size(144, 19);
             this.checkBox_useEditBuffer.TabIndex = 2;
@@ -1214,9 +1214,9 @@ namespace KanchokuWS.Gui
             this.groupBox4.Controls.Add(this.radioButton_modeMarker);
             this.groupBox4.Controls.Add(this.radioButton_normalVkb);
             this.groupBox4.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox4.Location = new System.Drawing.Point(11, 132);
+            this.groupBox4.Location = new System.Drawing.Point(15, 132);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(250, 90);
+            this.groupBox4.Size = new System.Drawing.Size(250, 68);
             this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "仮想鍵盤表示";
@@ -1224,7 +1224,7 @@ namespace KanchokuWS.Gui
             // checkBox_showEisuVkb
             // 
             this.checkBox_showEisuVkb.AutoSize = true;
-            this.checkBox_showEisuVkb.Location = new System.Drawing.Point(14, 19);
+            this.checkBox_showEisuVkb.Location = new System.Drawing.Point(18, 42);
             this.checkBox_showEisuVkb.Name = "checkBox_showEisuVkb";
             this.checkBox_showEisuVkb.Size = new System.Drawing.Size(208, 19);
             this.checkBox_showEisuVkb.TabIndex = 0;
@@ -1236,7 +1236,7 @@ namespace KanchokuWS.Gui
             // radioButton_noVkb
             // 
             this.radioButton_noVkb.AutoSize = true;
-            this.radioButton_noVkb.Location = new System.Drawing.Point(130, 65);
+            this.radioButton_noVkb.Location = new System.Drawing.Point(175, 20);
             this.radioButton_noVkb.Name = "radioButton_noVkb";
             this.radioButton_noVkb.Size = new System.Drawing.Size(61, 19);
             this.radioButton_noVkb.TabIndex = 3;
@@ -1249,7 +1249,7 @@ namespace KanchokuWS.Gui
             // 
             this.textBox_vkbShowStrokeCount.Enabled = false;
             this.textBox_vkbShowStrokeCount.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_vkbShowStrokeCount.Location = new System.Drawing.Point(103, 42);
+            this.textBox_vkbShowStrokeCount.Location = new System.Drawing.Point(157, 65);
             this.textBox_vkbShowStrokeCount.Name = "textBox_vkbShowStrokeCount";
             this.textBox_vkbShowStrokeCount.Size = new System.Drawing.Size(21, 19);
             this.textBox_vkbShowStrokeCount.TabIndex = 4;
@@ -1257,40 +1257,40 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.textBox_vkbShowStrokeCount, "標準の仮想鍵盤表示までの打鍵数を設定します。\r\n\r\n「0」を設定すると仮想鍵盤は表示されなくなります。\r\n(Ctrl-T または Ctrl-Shift-T で一時" +
         "的に表示することは可能)\r\n\r\n「1」を設定すると常時仮想鍵盤が表示されます。\r\n\r\n「2」を設定すると最初はモード標識が表示され、1打鍵後に\r\n2打鍵目用のヘ" +
         "ルプが表示されます。\r\n\r\n「3」以降も同様です。");
+            this.textBox_vkbShowStrokeCount.Visible = false;
             // 
             // label59
             // 
             this.label59.AutoSize = true;
-            this.label59.Location = new System.Drawing.Point(123, 44);
+            this.label59.Location = new System.Drawing.Point(177, 67);
             this.label59.Name = "label59";
             this.label59.Size = new System.Drawing.Size(74, 15);
             this.label59.TabIndex = 5;
             this.label59.Text = "打鍵から表示";
+            this.label59.Visible = false;
             // 
             // radioButton_modeMarker
             // 
             this.radioButton_modeMarker.AutoSize = true;
-            this.radioButton_modeMarker.Location = new System.Drawing.Point(14, 65);
+            this.radioButton_modeMarker.Location = new System.Drawing.Point(95, 20);
             this.radioButton_modeMarker.Name = "radioButton_modeMarker";
             this.radioButton_modeMarker.Size = new System.Drawing.Size(74, 19);
             this.radioButton_modeMarker.TabIndex = 2;
             this.radioButton_modeMarker.TabStop = true;
             this.radioButton_modeMarker.Text = "モード標識";
-            this.toolTip1.SetToolTip(this.radioButton_modeMarker, "漢直モードに入ったときにモード標識を表示します。\r\n\r\n「標準鍵盤を第0打鍵から表示」という設定と同じ動きになります。\r\n第1打鍵ヘルプローテーションキー(Ctr" +
-        "l-Tなど)により、一時的に\r\n標準鍵盤表示になります。");
+            this.toolTip1.SetToolTip(this.radioButton_modeMarker, "漢直モードに入ったときにモード標識を表示します。\r\n\r\n第1打鍵ヘルプローテーションキー(Ctrl-Tなど)により、一時的に\r\n標準鍵盤表示になります。");
             this.radioButton_modeMarker.UseVisualStyleBackColor = true;
             // 
             // radioButton_normalVkb
             // 
             this.radioButton_normalVkb.AutoSize = true;
-            this.radioButton_normalVkb.Location = new System.Drawing.Point(14, 42);
+            this.radioButton_normalVkb.Location = new System.Drawing.Point(18, 20);
             this.radioButton_normalVkb.Name = "radioButton_normalVkb";
-            this.radioButton_normalVkb.Size = new System.Drawing.Size(94, 19);
+            this.radioButton_normalVkb.Size = new System.Drawing.Size(73, 19);
             this.radioButton_normalVkb.TabIndex = 1;
             this.radioButton_normalVkb.TabStop = true;
-            this.radioButton_normalVkb.Text = "標準鍵盤を第";
-            this.toolTip1.SetToolTip(this.radioButton_normalVkb, "漢直モードに入ったときに標準の仮想鍵盤を表示します。\r\n\r\nただし、「第□打鍵から表示」に2以上の数を設定すると、そこで\r\n指定した打鍵までは、モード標識が表示さ" +
-        "れます。\r\n\r\nたとえば「3」を設定すると、2打鍵前まではモード標識が表示され、\r\n2打鍵後に3打鍵目の打鍵ヘルプが表示されます。\r\n");
+            this.radioButton_normalVkb.Text = "標準鍵盤";
+            this.toolTip1.SetToolTip(this.radioButton_normalVkb, "漢直モードに入ったときに標準の仮想鍵盤を表示します。");
             this.radioButton_normalVkb.UseVisualStyleBackColor = true;
             this.radioButton_normalVkb.CheckedChanged += new System.EventHandler(this.radioButton_normalVkb_CheckedChanged);
             // 
@@ -1327,7 +1327,7 @@ namespace KanchokuWS.Gui
             this.groupBox13.Controls.Add(this.textBox_splashWindowShowDuration);
             this.groupBox13.Controls.Add(this.label24);
             this.groupBox13.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox13.Location = new System.Drawing.Point(11, 278);
+            this.groupBox13.Location = new System.Drawing.Point(15, 261);
             this.groupBox13.Name = "groupBox13";
             this.groupBox13.Size = new System.Drawing.Size(250, 79);
             this.groupBox13.TabIndex = 3;
@@ -1414,7 +1414,7 @@ namespace KanchokuWS.Gui
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox1.Location = new System.Drawing.Point(11, 10);
+            this.groupBox1.Location = new System.Drawing.Point(15, 10);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(250, 116);
             this.groupBox1.TabIndex = 0;
