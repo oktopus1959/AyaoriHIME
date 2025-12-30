@@ -11,6 +11,11 @@
 //#include "BushuAssoc.h"
 #include "BushuAssocDic.h"
 
+#if 1
+#undef LOG_DEBUGH
+#define LOG_DEBUGH LOG_INFOH
+#endif
+
 // -------------------------------------------------------------------
 namespace {
     inline bool isDelim(mchar_t m) { return m == 0 || m == wchar_t('\r') || m == wchar_t('\n'); }
@@ -303,6 +308,7 @@ namespace {
         }
 
         BushuAssocEntry* GetEntry(mchar_t k) {
+            LOG_DEBUGH(L"ENTER: key={}", to_wstr(k));
             BushuAssocEntryImpl* entp = 0;
 
             auto iter = bscEntries.find(k);
@@ -318,6 +324,7 @@ namespace {
                 bDirty = true;
             }
 
+            LOG_DEBUGH(L"LEAVE: list={}", entp ? to_wstr(entp->GetList().data()) : L"empty");
             return entp;
         }
 

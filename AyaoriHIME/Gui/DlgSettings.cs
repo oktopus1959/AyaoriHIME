@@ -271,9 +271,24 @@ namespace KanchokuWS.Gui
             try {
                 if (filename._notEmpty() && txtAssociatedProgramPath._notEmpty()) {
                     System.Diagnostics.Process.Start(txtAssociatedProgramPath,
-                        KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.UserFilesFolder, filename));
+                        KanchokuIni.Singleton.KanchokuDir._joinPath(filename));
                 }
             } catch { }
+        }
+
+        private void openFileUnderRootDir(string filename)
+        {
+            openFileByTxtAssociatedProgram(filename);
+        }
+
+        private void openFileInSystemFolder(string filename)
+        {
+            openFileByTxtAssociatedProgram(Settings.SystemFilesFolder._joinPath(filename));
+        }
+
+        private void openFileInUserFolder(string filename)
+        {
+            openFileByTxtAssociatedProgram(Settings.UserFilesFolder._joinPath(filename));
         }
 
         //----------------------------------------------------------------------------------------
@@ -335,7 +350,6 @@ namespace KanchokuWS.Gui
             textBox_strokeHelpFile.Text = Settings.StrokeHelpFile;
             textBox_bushuCompFile.Text = Settings.BushuFile;
             textBox_bushuAssocFile.Text = Settings.BushuAssocFile;
-            textBox_mazegakiFile.Text = Settings.MazegakiFile;
             textBox_historyFile.Text = Settings.HistoryFile;
 
             if (Settings.TableFile._notEmpty()) comboBox_tableFile.Text = getTableName(KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.TableFile));
@@ -394,7 +408,6 @@ namespace KanchokuWS.Gui
             checkerBasic.Add(textBox_strokeHelpFile);
             checkerBasic.Add(textBox_bushuCompFile);
             checkerBasic.Add(textBox_bushuAssocFile);
-            checkerBasic.Add(textBox_mazegakiFile);
             checkerBasic.Add(textBox_historyFile);
 
             checkerAll.Add(checkerBasic);
@@ -459,7 +472,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("strokeHelpFile", textBox_strokeHelpFile.Text.Trim());
             Settings.SetUserIni("bushuFile", textBox_bushuCompFile.Text.Trim());
             Settings.SetUserIni("bushuAssocFile", textBox_bushuAssocFile.Text.Trim());
-            Settings.SetUserIni("mazegakiFile", textBox_mazegakiFile.Text.Trim());
             Settings.SetUserIni("historyFile", textBox_historyFile.Text.Trim());
 
             //Settings.ReadIniFile();
@@ -929,7 +941,7 @@ namespace KanchokuWS.Gui
             //        System.Diagnostics.Process.Start(TableFileDir._joinPath(Settings.KanjiYomiFile));
             //    }
             //} catch { }
-            openFileByTxtAssociatedProgram(Settings.KanjiYomiFile);
+            openFileInUserFolder(Settings.KanjiYomiFile);
         }
 
         private void button_advancedClose_Click(object sender, EventArgs e)
@@ -1311,8 +1323,6 @@ namespace KanchokuWS.Gui
             setEnabled(textBox_historyOneCharKeySeq, Settings.HistoryOneCharKeySeq_PropName);
             textBox_historyFewCharsKeySeq.Text = Settings.HistoryFewCharsKeySeq._orElse(() => makePresetString(Settings.HistoryFewCharsKeySeq_Preset));
             setEnabled(textBox_historyFewCharsKeySeq, Settings.HistoryFewCharsKeySeq_PropName);
-            textBox_mazegakiKeySeq.Text = Settings.MazegakiKeySeq._orElse(() => makePresetString(Settings.MazegakiKeySeq_Preset));
-            setEnabled(textBox_mazegakiKeySeq, Settings.MazegakiKeySeq_PropName);
             textBox_bushuCompKeySeq.Text = Settings.BushuCompKeySeq._orElse(() => makePresetString(Settings.BushuCompKeySeq_Preset));
             setEnabled(textBox_bushuCompKeySeq, Settings.BushuCompKeySeq_PropName);
             textBox_bushuAssocKeySeq.Text = Settings.BushuAssocKeySeq._orElse(() => makePresetString(Settings.BushuAssocKeySeq_Preset));
@@ -1350,7 +1360,6 @@ namespace KanchokuWS.Gui
             checkerKeyAssign.Add(textBox_historyKeySeq);
             checkerKeyAssign.Add(textBox_historyOneCharKeySeq);
             checkerKeyAssign.Add(textBox_historyFewCharsKeySeq);
-            checkerKeyAssign.Add(textBox_mazegakiKeySeq);
             checkerKeyAssign.Add(textBox_bushuCompKeySeq);
             checkerKeyAssign.Add(textBox_bushuAssocKeySeq);
             checkerKeyAssign.Add(textBox_bushuAssocDirectKeySeq);
@@ -1387,7 +1396,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("historyKeySeq", revertPresetString(textBox_historyKeySeq.Text));
             Settings.SetUserIni("historyOneCharKeySeq", revertPresetString(textBox_historyOneCharKeySeq.Text));
             Settings.SetUserIni("historyFewCharsKeySeq", revertPresetString(textBox_historyFewCharsKeySeq.Text));
-            Settings.SetUserIni("mazegakiKeySeq", revertPresetString(textBox_mazegakiKeySeq.Text));
             Settings.SetUserIni("bushuCompKeySeq", revertPresetString(textBox_bushuCompKeySeq.Text));
             Settings.SetUserIni("bushuAssocKeySeq", revertPresetString(textBox_bushuAssocKeySeq.Text));
             Settings.SetUserIni("bushuAssocDirectKeySeq", revertPresetString(textBox_bushuAssocDirectKeySeq.Text));
@@ -1630,7 +1638,7 @@ namespace KanchokuWS.Gui
             //        System.Diagnostics.Process.Start(TableFileDir._joinPath(Settings.ModConversionFile));
             //    }
             //} catch { }
-            openFileByTxtAssociatedProgram(textBox_modConversionFile.Text);
+            openFileInUserFolder(textBox_modConversionFile.Text);
         }
 
         private void button_ctrlReload_Click(object sender, EventArgs e)
@@ -1859,7 +1867,7 @@ namespace KanchokuWS.Gui
             logger.Info("CALLED");
             var filename = textBox_mazeUserDicSourceFile.Text;
             if (filename._notEmpty()) {
-                openFileByTxtAssociatedProgram(filename);
+                openFileInUserFolder(filename);
             }
         }
 
@@ -1882,9 +1890,6 @@ namespace KanchokuWS.Gui
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
             textBox_maxStrokeBackCount.Text = $"{Settings.MaxStrokeBackCount}";
             textBox_challengeNumForSameLeader.Text = $"{Settings.ChallengeNumForSameLeader}";
-            textBox_realtimeTrigramBonusFactor.Text = $"{Settings.RealtimeTrigramBonusFactor}";
-            textBox_realtimeTrigramTier1Num.Text = $"{Settings.RealtimeTrigramTier1Num}";
-            textBox_realtimeTrigramTier2Num.Text = $"{Settings.RealtimeTrigramTier2Num}";
             comboBox_editBufferCaretChar.Text = $"{Settings.EditBufferCaretChar}";
             if (comboBox_editBufferCaretChar.Text._isEmpty() && comboBox_editBufferCaretChar.Text._isEmpty()) {
                 selectComboBoxItem(comboBox_editBufferCaretChar, "▴");
@@ -1921,9 +1926,6 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(textBox_remainingStrokeSize);
             checkerFusion.Add(textBox_maxStrokeBackCount);
             checkerFusion.Add(textBox_challengeNumForSameLeader);
-            checkerFusion.Add(textBox_realtimeTrigramBonusFactor);
-            checkerFusion.Add(textBox_realtimeTrigramTier1Num);
-            checkerFusion.Add(textBox_realtimeTrigramTier2Num);
             checkerFusion.Add(comboBox_editBufferCaretChar);
             checkerFusion.Add(textBox_editBufferFlushChar);
             checkerFusion.Add(radioButton_mainRtNgramFile);
@@ -1954,9 +1956,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
             Settings.SetUserIni("maxStrokeBackCount", textBox_maxStrokeBackCount.Text);
             Settings.SetUserIni("challengeNumForSameLeader", textBox_challengeNumForSameLeader.Text);
-            Settings.SetUserIni("realtimeTrigramBonusFactor", textBox_realtimeTrigramBonusFactor.Text);
-            Settings.SetUserIni("realtimeTrigramTier1Num", textBox_realtimeTrigramTier1Num.Text);
-            Settings.SetUserIni("realtimeTrigramTier2Num", textBox_realtimeTrigramTier2Num.Text);
             Settings.SetUserIni("editBufferCaretChar", comboBox_editBufferCaretChar.Text.Trim());
             Settings.SetUserIni("editBufferFlushChar", textBox_editBufferFlushChar.Text.Trim());
             Settings.SetUserIni("useTmpRealtimeNgramFile", radioButton_tempRtNgramFile.Checked);
@@ -2963,20 +2962,20 @@ namespace KanchokuWS.Gui
             logger.Info("CALLED");
             var filename = getKeyboardFileName(comboBox_keyboardFile.Text);
             if (filename._notEmpty() && filename._toLower() != "jp" && filename._toLower() != "us") {
-                openFileByTxtAssociatedProgram(Settings.KeyboardFileDir._joinPath(filename));
+                openFileUnderRootDir(Settings.KeyboardFileDir._joinPath(filename));
             }
         }
 
         private void button_openTableFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            openFileByTxtAssociatedProgram(getTableFileName(comboBox_tableFile.Text));
+            openFileUnderRootDir(getTableFileName(comboBox_tableFile.Text));
         }
 
         private void button_openTableFile2_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            openFileByTxtAssociatedProgram(getTableFileName(comboBox_tableFile2.Text));
+            openFileUnderRootDir(getTableFileName(comboBox_tableFile2.Text));
         }
 
         private void button_openKeyCharMapFile_Click(object sender, EventArgs e)
@@ -2984,45 +2983,39 @@ namespace KanchokuWS.Gui
             logger.Info("CALLED");
             var filename = getKeyboardFileName(comboBox_deckeyCharsFile.Text);
             if (filename._notEmpty()) {
-                openFileByTxtAssociatedProgram(Settings.KeyboardFileDir._joinPath(filename));
+                openFileUnderRootDir(Settings.KeyboardFileDir._joinPath(filename));
             }
         }
 
         private void button_openEasyCharsFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            openFileByTxtAssociatedProgram(Settings.EasyCharsFile);
+            openFileInUserFolder(Settings.EasyCharsFile);
         }
 
         private void button_openStrokeHelpFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            openFileByTxtAssociatedProgram(Settings.StrokeHelpFile);
+            openFileInUserFolder(Settings.StrokeHelpFile);
         }
 
         private void button_openBushuCompFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            openFileByTxtAssociatedProgram(Settings.BushuFile);
-            openFileByTxtAssociatedProgram(Settings.AutoBushuFile);
+            openFileInUserFolder(Settings.BushuFile);
+            openFileInUserFolder(Settings.AutoBushuFile);
         }
 
         private void button_bushuAssocFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            openFileByTxtAssociatedProgram(Settings.BushuAssocFile);
-        }
-
-        private void button_openMazeFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            openFileByTxtAssociatedProgram(Settings.MazegakiFile._safeReplace("*", "user"));
+            openFileInUserFolder(Settings.BushuAssocFile);
         }
 
         private void button_openHistoryFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            openFileByTxtAssociatedProgram(Settings.HistoryFile._safeReplace("*", "entry"));
+            openFileInUserFolder(Settings.HistoryFile._safeReplace("*", "entry"));
         }
 
         private void button_setModConversion_Click(object sender, EventArgs e)

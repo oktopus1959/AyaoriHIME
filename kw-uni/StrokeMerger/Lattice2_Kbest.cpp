@@ -456,56 +456,58 @@ namespace lattice2 {
         bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, const MString& targetStr, bool isStrokeBS) {
             _LOG_DETAIL(_T("\nENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
             bool bAdded = false;
+            int totalCost = 0;
+
             //bool bIgnored = false;
             const MString& candStr = newCandStr.string();
             //MString targetStr = substringBetweenPunctuations(candStr);
             //MString targetStr = substringBetweenNonJapaneseChars(candStr);
             _LOG_DETAIL(_T("targetStr={}"), to_wstr(targetStr));
 
-            std::vector<MString> morphs;
-
-            // 形態素解析コスト
-            // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
-            //int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.size() <= 1 ? 5000 : calcMorphCost(targetStr, morphs);
-            int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.empty() ? 0 : calcMorphCost(targetStr, morphs);
-            if (targetStr.size() == 1) {
-                if (utils::is_katakana(targetStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
-            }
-            if (!morphs.empty() && isNonTerminalMorph(morphs.back())) {
-                _LOG_DETAIL(_T("NON TERMINAL morph={}"), to_wstr(morphs.back()));
-                newCandStr.setNonTerminal();
-            }
-
-            // Ngramコスト
-            int ngramCost = targetStr.empty() ? 0 : getNgramCost(targetStr) * SETTINGS->ngramCostFactor;
-            //int morphCost = 0;
-            //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
-            //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;
-
-            // llamaコスト
-            int llamaCost = 0;
-
-            // 総コスト
-            newCandStr.addCost(morphCost, ngramCost);
-
-            //// 「漢字+の+漢字」のような場合はペナルティを解除
-            //size_t len = candStr.size();
-            //if (len >= 3 && candStr[len - 2] == L'の' && !utils::is_hiragana(candStr[len - 3]) && !utils::is_hiragana(candStr[len - 1])) {
-            //    newCandStr.zeroPenalty();
-            //}
-
-            int totalCost = newCandStr.totalCost();
-
-            int candCost = morphCost + ngramCost + llamaCost;
-            _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[<{}>], ngram={})"),
-                to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost);
-
-            if (IS_LOG_DEBUGH_ENABLED) {
-                if (!isStrokeBS) _debugLog.append(std::format(L"candStr={}, totalCost={}, candCost={} (morph={} [<{}>] , ngram = {})\n",
-                    to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost));
-            }
-
             if (!newCandidates.empty()) {
+                std::vector<MString> morphs;
+
+                // 形態素解析コスト
+                // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
+                //int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.size() <= 1 ? 5000 : calcMorphCost(targetStr, morphs);
+                int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.empty() ? 0 : calcMorphCost(targetStr, morphs);
+                if (targetStr.size() == 1) {
+                    if (utils::is_katakana(targetStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
+                }
+                if (!morphs.empty() && isNonTerminalMorph(morphs.back())) {
+                    _LOG_DETAIL(_T("NON TERMINAL morph={}"), to_wstr(morphs.back()));
+                    newCandStr.setNonTerminal();
+                }
+
+                // Ngramコスト
+                int ngramCost = targetStr.empty() ? 0 : getNgramCost(targetStr) * SETTINGS->ngramCostFactor;
+                //int morphCost = 0;
+                //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
+                //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;
+
+                // llamaコスト
+                int llamaCost = 0;
+
+                // 総コスト
+                newCandStr.addCost(morphCost, ngramCost);
+
+                //// 「漢字+の+漢字」のような場合はペナルティを解除
+                //size_t len = candStr.size();
+                //if (len >= 3 && candStr[len - 2] == L'の' && !utils::is_hiragana(candStr[len - 3]) && !utils::is_hiragana(candStr[len - 1])) {
+                //    newCandStr.zeroPenalty();
+                //}
+
+                totalCost = newCandStr.totalCost();
+
+                int candCost = morphCost + ngramCost + llamaCost;
+                _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[<{}>], ngram={})"),
+                    to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost);
+
+                if (IS_LOG_DEBUGH_ENABLED) {
+                    if (!isStrokeBS) _debugLog.append(std::format(L"candStr={}, totalCost={}, candCost={} (morph={} [<{}>] , ngram = {})\n",
+                        to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost));
+                }
+
                 for (auto iter = newCandidates.begin(); iter != newCandidates.end(); ++iter) {
                     int otherCost = iter->totalCost();
                     //LOG_DEBUGH(_T("    otherStr={}, otherCost={}"), to_wstr(iter->string()), otherCost);
@@ -523,10 +525,10 @@ namespace lattice2 {
                         //    }
                         //}
                         break;
-                    //} else if (hasLongerCommonSuffixThanOrSameStr(candStr, iter->string(), LastSameLen)) {
-                    //    // 末尾文字列の共通部分が指定の長さより長いか、同じ文字列
-                    //    bIgnored = true;
-                    //    break;
+                        //} else if (hasLongerCommonSuffixThanOrSameStr(candStr, iter->string(), LastSameLen)) {
+                        //    // 末尾文字列の共通部分が指定の長さより長いか、同じ文字列
+                        //    bIgnored = true;
+                        //    break;
                     }
                 }
             }

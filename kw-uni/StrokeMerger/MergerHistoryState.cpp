@@ -215,45 +215,48 @@ namespace {
         }
 
         // DECKEY 処理の前半部
-        void HandleDeckeyProc(StrokeTableNode* pRootNode, int decKey, int comboStrokeCnt, int comboDeckey) {
+        void HandleDeckeyProc(bool bMulti, StrokeTableNode* pRootNode, int decKey, int comboStrokeCnt, int comboDeckey) {
             LOG_DEBUGH(_T("ENTER: {}: pRootNode={:p}, decKey={}, comboStrokeCnt={}, strokeStateList.Count={}"), name, (void*)pRootNode, decKey, comboStrokeCnt, Count());
-            // 各ストリーム(StrokeTable)に対してDECKEY処理を行う
-            bool bRollOverFound = false;
-            forEach([decKey, &bRollOverFound, this](const StrokeStreamUptr& pStream) {
-                if (!bRollOverFound) {
-                    int prevDecKey = pStream->GetDecKey();
-                    LOG_DEBUGH(_T("{}: pStream prevDecKey={}"), name, prevDecKey);
-                    pStream->HandleDeckeyChain(decKey);
-                    if (DeckeyUtil::is_ordered_combo(prevDecKey) && pStream->IsTailStringNode()) {
-                        // ロールオーバー打鍵で有効な文字列が得られた場合は、ここで処理を終了する
-                        // (今回のストロークから開始されるストリームも作成しない)
-                        // 多ストローク配列では、ロールオーバー打鍵を使用しないようにするのが安全
-                        LOG_DEBUGH(_T("{}: RollOver Found: stroke={}:{}"), name, prevDecKey, decKey);
-                        bRollOverFound = true;
-                    }
-                }
-            });
-            if (pRootNode && !bRollOverFound) {
-                // 同時打鍵列に入ったら、同時打鍵の開始か、先頭がロールオーバーの場合だけ、stream を追加できる
-                if (comboStrokeCnt < 1 || (comboStrokeCnt == 1 && DeckeyUtil::is_combo_deckey(decKey)) ||
-                    (comboStrokeCnt > 1 && DeckeyUtil::is_ordered_combo(comboDeckey))) {
-                    LOG_DEBUGH(_T("{}: add new StrokeStream: decKey={}"), name, decKey);
-                    {
-                        auto& pStream = addStrokeStream(pRootNode);
-                        pStream->SetDecKey(decKey);
+            if (pRootNode != nullptr) {
+                // 各ストリーム(StrokeTable)に対してDECKEY処理を行う
+                bool bRollOverFound = false;
+                forEach([decKey, &bRollOverFound, this](const StrokeStreamUptr& pStream) {
+                    if (!bRollOverFound) {
+                        int prevDecKey = pStream->GetDecKey();
+                        LOG_DEBUGH(_T("{}: pStream prevDecKey={}"), name, prevDecKey);
                         pStream->HandleDeckeyChain(decKey);
+                        if (DeckeyUtil::is_ordered_combo(prevDecKey) && pStream->IsTailStringNode()) {
+                            // ロールオーバー打鍵で有効な文字列が得られた場合は、ここで処理を終了する
+                            // (今回のストロークから開始されるストリームも作成しない)
+                            // 多ストローク配列では、ロールオーバー打鍵を使用しないようにするのが安全
+                            LOG_DEBUGH(_T("{}: RollOver Found: stroke={}:{}"), name, prevDecKey, decKey);
+                            bRollOverFound = true;
+                        }
                     }
-                    if (comboStrokeCnt == 1 && DeckeyUtil::is_ordered_combo(decKey)) {
-                        // ロールオーバー打鍵なら、通常キーのストリームも追加する
-                        // (かなテーブルではロールオーバーとして定義されているが、漢字配列ではロールオーバーになっていない可能性を考慮)
-                        auto& pStream = addStrokeStream(pRootNode);
-                        int dk = DeckeyUtil::unshiftDeckey(decKey);
-                        pStream->SetDecKey(dk);
-                        pStream->HandleDeckeyChain(dk);
-                        LOG_DEBUGH(_T("{}: add unshifted StrokeStream: decKey={}"), name, dk);
+                    });
+                // 複数配列の場合は新しいストリームを追加できる
+                if (Empty() || (bMulti && !bRollOverFound)) {
+                    // 同時打鍵列に入ったら、同時打鍵の開始か、先頭がロールオーバーの場合だけ、stream を追加できる
+                    if (comboStrokeCnt < 1 || (comboStrokeCnt == 1 && DeckeyUtil::is_combo_deckey(decKey)) ||
+                        (comboStrokeCnt > 1 && DeckeyUtil::is_ordered_combo(comboDeckey))) {
+                        LOG_DEBUGH(_T("{}: add new StrokeStream: decKey={}"), name, decKey);
+                        {
+                            auto& pStream = addStrokeStream(pRootNode);
+                            pStream->SetDecKey(decKey);
+                            pStream->HandleDeckeyChain(decKey);
+                        }
+                        if (comboStrokeCnt == 1 && DeckeyUtil::is_ordered_combo(decKey)) {
+                            // ロールオーバー打鍵なら、通常キーのストリームも追加する
+                            // (かなテーブルではロールオーバーとして定義されているが、漢字配列ではロールオーバーになっていない可能性を考慮)
+                            auto& pStream = addStrokeStream(pRootNode);
+                            int dk = DeckeyUtil::unshiftDeckey(decKey);
+                            pStream->SetDecKey(dk);
+                            pStream->HandleDeckeyChain(dk);
+                            LOG_DEBUGH(_T("{}: add unshifted StrokeStream: decKey={}"), name, dk);
+                        }
+                    } else {
+                        LOG_DEBUGH(_T("{}: IN Combo; deckey={} NOT root key"), name, decKey);
                     }
-                } else {
-                    LOG_DEBUGH(_T("{}: IN Combo; deckey={} NOT root key"), name, decKey);
                 }
             }
             LOG_DEBUGH(_T("LEAVE: {}: decKey={}, strokeStateList.Count={}"), name, decKey, Count());
@@ -600,11 +603,12 @@ namespace {
                         }
                     }
                     // 前処理(ストローク木状態の作成と呼び出し)
+                    bool bMulti = StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
                     LOG_DEBUGH(_T("streamList1.HandleDeckeyProc: CALL: doDeckeyPreProc: _comboStrokeCount={}, _comboDeckey={}"), _comboStrokeCount, _comboDeckey);
-                    _streamList1.HandleDeckeyProc(StrokeTableNode::RootStrokeNode1.get(), deckey, _comboStrokeCount, _comboDeckey);
+                    _streamList1.HandleDeckeyProc(bMulti, StrokeTableNode::RootStrokeNode1.get(), deckey, _comboStrokeCount, _comboDeckey);
                     LOG_DEBUGH(_T("streamList1.HandleDeckeyProc: DONE"));
                     LOG_DEBUGH(_T("streamList2.HandleDeckeyProc: CALL: doDeckeyPreProc: _comboStrokeCount={}, _comboDeckey={}"), _comboStrokeCount, _comboDeckey);
-                    _streamList2.HandleDeckeyProc(StrokeTableNode::RootStrokeNode2.get(), deckey, _comboStrokeCount, _comboDeckey);
+                    _streamList2.HandleDeckeyProc(bMulti, StrokeTableNode::RootStrokeNode2.get(), deckey, _comboStrokeCount, _comboDeckey);
                     LOG_DEBUGH(_T("streamList2.HandleDeckeyProc: DONE"));
                     if (_comboStrokeCount > 0) ++_comboStrokeCount;     // 同時打鍵で始まった時だけ
                     LOG_DEBUGH(_T("_comboStrokeCount={}"), _comboStrokeCount);
@@ -1662,15 +1666,21 @@ void StrokeMergerHistoryNode::createStrokeTrees(bool bForceSecondary) {
 #define STROKE_TREE_CREATOR(F) [](StringRef file, std::vector<String>& lines) {F(file, lines);}
 
     // 主テーブルファイルの構築
-    auto tableFile1 = SETTINGS->tableFile.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile1.tbl"));
-    createStrokeTree(tableFile1, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree));
+    auto tableFile1 = !SETTINGS->tableFile.empty() ? utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile1.tbl")) : L"";
+    if (!tableFile1.empty()) {
+        createStrokeTree(tableFile1, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree));
+    }
 
     // 副テーブルファイルの構築
     auto tableFile2 = !bForceSecondary && SETTINGS->tableFile2.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile2.tbl"));
-    createStrokeTree(tableFile2, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree2));
+    if (!tableFile2.empty()) {
+        createStrokeTree(tableFile2, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree2));
+    }
 
     // 第3テーブルファイルの構築
     auto tableFile3 = SETTINGS->tableFile3.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile3.tbl"));
-    createStrokeTree(tableFile3, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree3));
+    if (!tableFile3.empty()) {
+        createStrokeTree(tableFile3, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree3));
+    }
 }
 

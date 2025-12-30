@@ -1029,6 +1029,7 @@ public:
         buffer[0] = 0;
         if (!ws.empty()) {
             if (BUSHU_ASSOC_DIC) {
+                LOG_INFO(_T("CALL: BUSHU_ASSOC_DIC->GetEntry({})"), ws[0]);
                 BushuAssocEntry* entry = BUSHU_ASSOC_DIC->GetEntry(ws[0]);
                 if (entry) {
                     std::vector<MString> list(11);

@@ -419,7 +419,7 @@ namespace KanchokuWS
 
         }
 
-        // 各種サンプルから本番ファイルをコピー(もし無ければ)
+        // 各種システムデフォルトファイルをユーザーフォルダにコピー(もし無ければ)
         private void copySystemDefaultFilesToUserFolder()
         {
             void copyFile(string filename, bool bSample)

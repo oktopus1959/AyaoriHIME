@@ -134,9 +134,6 @@ struct Settings {
     int loweredContinuousKanjiNum = 0;      // 連続するN文字の漢字列にはコストを与える
     int exclusivePrefixCode = -1;           // 排他的なストローク処理を開始する文字のコード。このコードから始まるストローク列が全て完了するまでは、途中から別のストロークを始めない 
     String mergerCandidateFile;             // 解候補ログファイル
-    int realtimeTrigramBonusFactor = 100;   // Realtime 3gram のカウントからボーナス値を算出する際の係数
-    int realtimeTrigramTier1Num = 5;        // Realtime 3gram の Tier1 の数
-    int realtimeTrigramTier2Num = 10;       // Realtime 3gram の Tier2 の数
     int mergerCandidateMin = 3;             // 解候補ログに出力する最小解数
     int mergerCandidateMax = 10;            // 解候補ログに出力する最大解数
     bool useEditBuffer = false;             // 編集バッファを使用するか

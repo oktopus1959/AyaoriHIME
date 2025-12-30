@@ -154,9 +154,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(remainingStrokeSize);
     SET_INT_VALUE(challengeNumForSameLeader);
     SET_INT_VALUE(kanjiNoKanjiBonus);
-    SET_INT_VALUE(realtimeTrigramBonusFactor);
-    SET_INT_VALUE(realtimeTrigramTier1Num);
-    SET_INT_VALUE(realtimeTrigramTier2Num);
     SET_INT_VALUE(mergerCandidateMin);
     SET_INT_VALUE(mergerCandidateMax);
     SET_BOOL_VALUE(useEditBuffer);

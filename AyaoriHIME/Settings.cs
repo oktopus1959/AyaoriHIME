@@ -226,15 +226,6 @@ namespace KanchokuWS
         /// <summary>「漢字+の+漢字」のような場合に与えるボーナス</summary>
         public static int KanjiNoKanjiBonus { get; set; }
 
-        /// <summary>Realtime 3gram のカウントからボーナス値を算出する際の係数</summary>
-        public static int RealtimeTrigramBonusFactor { get; set; }
-
-        /// <summary>Realtime 3gram の Tier1 の数</summary>
-        public static int RealtimeTrigramTier1Num {  get; set; }
-
-        /// <summary>Realtime 3gram の Tier2 の数</summary>
-        public static int RealtimeTrigramTier2Num {  get; set; }
-
         /// <summary>連続するN文字の漢字列にはコストを与える</summary>
         public static int LoweredContinuousKanjiNum { get; set; } = 0;
 
@@ -308,7 +299,7 @@ namespace KanchokuWS
         //public static string HistoryUsedFile {get; private set; }
         //public static string HistoryExcludeFile {get; private set; }
         //public static string HistoryNgramFile {get; private set; }
-        public static string MazegakiFile { get; private set; }
+        //public static string MazegakiFile { get; private set; }
 
         //-------------------------------------------------------------------------------------
         // 詳細設定
@@ -1767,7 +1758,7 @@ namespace KanchokuWS
             //addDecoderSetting("historyExcludeFile");
             //addDecoderSetting("historyNgramFile");
             //MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "kwmaze.*.dic");
-            MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "");
+            //MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "");
 
             BackFileRotationGeneration = addDecoderSetting("backFileRotationGeneration", 3, 1); // 辞書ファイルの保存世代数
 
@@ -1862,9 +1853,6 @@ namespace KanchokuWS
             RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲
             ChallengeNumForSameLeader = addDecoderSetting("challengeNumForSameLeader", 4);      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
             KanjiNoKanjiBonus = addDecoderSetting("kanjiNoKanjiBonus", 1500);                   // 「漢字+の+漢字」のような場合に与えるボーナス
-            RealtimeTrigramBonusFactor = addDecoderSetting("realtimeTrigramBonusFactor", 10);   // Realtime 3gram のカウントからボーナス値を算出する際の係数
-            RealtimeTrigramTier1Num = addDecoderSetting("realtimeTrigramTier1Num", 50);         // Realtime 3gram の Tier1 の数
-            RealtimeTrigramTier2Num = addDecoderSetting("realtimeTrigramTier2Num", 100);        // Realtime 3gram の Tier2 の数
             MergerCandidateMin = addDecoderSetting("mergerCandidateMin", 3, 0, 10);             // 複数候補表示の最小数
             MergerCandidateMax = addDecoderSetting("mergerCandidateMax", 10, 0, 10);            // 複数候補表示の最大数
             OutputSpaceAndBsAtFirstInChrome = addDecoderSetting("outputSpaceAndBsAtFirstInChrome", false);  // Chrome では、最初に編集バッファを表示する時、カレット位置を調整するために Space+BS を出力してみる
