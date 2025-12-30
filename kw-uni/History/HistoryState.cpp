@@ -9,7 +9,7 @@
 #include "History.h"
 #include "StrokeMerger/Merger.h"
 
-#if 0
+#if 1
 #undef LOG_INFO
 #undef LOG_DEBUG
 #undef _LOG_DEBUGH
@@ -308,6 +308,7 @@ HistoryNode::HistoryNode() {
 
 // デストラクタ
 HistoryNode::~HistoryNode() {
+    LOG_DEBUGH(_T("CALLED: destructor"));
 }
 
 // 当ノードを処理する State インスタンスを作成する
@@ -318,8 +319,8 @@ State* HistoryNode::CreateState() {
 
 HistoryNode* HistoryNode::_singleton;
 
-HistoryNode* HistoryNode::Singleton() {
-    if (!_singleton) {
+HistoryNode* HistoryNode::Singleton(bool bRenew) {
+    if (!_singleton || bRenew) {
         _singleton = new HistoryNode();
     }
     return _singleton;
@@ -340,7 +341,7 @@ Node* HistoryNodeBuilder::CreateNode() {
     //LOG_DEBUGH(_T("CALLED: histFile={}"), histFile);
     //HistoryDic::CreateHistoryDic(histFile);
 
-    return HISTORY_NODE;
+    return HistoryNode::Singleton(true);
 }
 
 // -------------------------------------------------------------------

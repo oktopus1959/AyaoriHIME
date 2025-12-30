@@ -28,7 +28,7 @@ class HistoryNode : public FunctionNode {
     String getNodeName() const { return _T("HistoryNode"); }
 
 public:
-    static HistoryNode* Singleton();
+    static HistoryNode* Singleton(bool bRenew = false);
 private:
     static HistoryNode* _singleton;
 };
