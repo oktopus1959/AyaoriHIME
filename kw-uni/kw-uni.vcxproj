@@ -190,6 +190,7 @@
     <ClInclude Include="BushuComp\BushuAssocDic.h" />
     <ClInclude Include="DeckeyUtil.h" />
     <ClInclude Include="DyMazin\DymazinBridge.h" />
+    <ClInclude Include="DyMazin\MorphBridge.h" />
     <ClInclude Include="E:\Dev\Cpp\llama.cpp\examples\LlamaLoss\LlamaLoss.h" />
     <ClInclude Include="EscapeNode.h" />
     <ClInclude Include="FunctionNode.h" />
@@ -212,7 +213,6 @@
     <ClInclude Include="KeysAndChars\Zenkaku.h" />
     <ClInclude Include="Llama\LlamaBridge.h" />
     <ClInclude Include="ModalStateUtil.h" />
-    <ClInclude Include="MorphBridge.h" />
     <ClInclude Include="MStringResult.h" />
     <ClInclude Include="Ngram\NgramBridge.h" />
     <ClInclude Include="Node.h" />
@@ -269,6 +269,7 @@
     <ClCompile Include="BushuComp\BushuAssoc.cpp" />
     <ClCompile Include="BushuComp\BushuAssocDic.cpp" />
     <ClCompile Include="DyMazin\DymazinBridge.cpp" />
+    <ClCompile Include="DyMazin\MorphBridge.cpp" />
     <ClCompile Include="EscapeState.cpp" />
     <ClCompile Include="FunctionNodeManager.cpp" />
     <ClCompile Include="History\HistCandidates.cpp" />

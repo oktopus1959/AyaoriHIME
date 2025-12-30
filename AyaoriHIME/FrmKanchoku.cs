@@ -337,8 +337,8 @@ namespace KanchokuWS
             // DeterminerのタイマーのSynchronizingObjectを自身に設定しておく
             CombinationKeyStroke.Determiner.Singleton.InitializeTimer(this);
 
-            // 各種サンプルから本番ファイルをコピー(もし無ければ)
-            copySystemFiles();
+            // 各種システムデフォルトファイルをユーザーフォルダにコピー(もし無ければ)
+            copySystemDefaultFilesToUserFolder();
 
             // 仮想鍵盤フォームの作成
             frmVkb = new FrmVirtualKeyboard(this);
@@ -420,7 +420,7 @@ namespace KanchokuWS
         }
 
         // 各種サンプルから本番ファイルをコピー(もし無ければ)
-        private void copySystemFiles()
+        private void copySystemDefaultFilesToUserFolder()
         {
             void copyFile(string filename, bool bSample)
             {
@@ -430,17 +430,19 @@ namespace KanchokuWS
                 var userFilePath = rootDir._joinPath(Settings.UserFilesFolder, filename);
                 logger.InfoH($"systemFile={systemFilePath}, userFile={userFilePath}");
                 if (Helper.FileExists(systemFilePath) && !Helper.FileExists(userFilePath)) {
-                    logger.WriteInfo($"COPY {systemFilename} to {filename}.");
+                    logger.InfoH($"COPY {systemFilename} to {filename}.");
                     Helper.CopyFile(systemFilePath, userFilePath);
                 }
             }
 
+            copyFile("alt-kanji.txt", false);
+            copyFile("kwbushu.rev", false);
+            copyFile("kanji-yomi.txt", false);
+            copyFile("kwhist.roman.txt", false);
+            copyFile("kwroman.def.txt", false);
             copyFile("easy_chars.txt", true);
             copyFile("stroke-help.txt", true);
             copyFile("mod-conversion.txt", true);
-            copyFile("alt-kanji.txt", false);
-            copyFile("kanji-yomi.txt", false);
-            copyFile("kwroman.def.txt", false);
         }
 
         /// <summary> キーボードファイルと文字定義ファイルの読み込み (成功したら true, 失敗したら false を返す) </summary>

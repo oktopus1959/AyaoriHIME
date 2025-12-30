@@ -2,12 +2,20 @@
 
 #include "std_utils.h"
 
+#define SYSTEM_FILES_FOLDER     SETTINGS->systemFilesFolder
+#define USER_FILES_FOLDER       SETTINGS->userFilesFolder
+
+#define JOIN_SYSTEM_FILES_FOLDER(p)     utils::joinPath(SYSTEM_FILES_FOLDER, p)
+#define JOIN_USER_FILES_FOLDER(p)       utils::joinPath(USER_FILES_FOLDER, p)
+
 struct Settings {
     bool firstUse = true;      // 最初の起動か
 
     bool isJPmode = true;      // キーボードがJPモードか
 
     String rootDir;            // ルートフォルダ
+    String systemFilesFolder;  // システムファイルフォルダ
+    String userFilesFolder;    // ユーザーファイルフォルダ
     String tableFile;          // ストロークテーブル
     String tableFile2;         // ストロークテーブル2
     String tableFile3;         // ストロークテーブル3

@@ -1736,6 +1736,8 @@ namespace KanchokuWS
             DecoderSettings.Clear();
             DecoderSettings["logLevel"] = DecoderLogLevel.ToString();
             DecoderSettings["rootDir"] = KanchokuIni.Singleton.KanchokuDir;
+            DecoderSettings["systemFilesFolder"] = Settings.SystemFilesFolder;
+            DecoderSettings["userFilesFolder"] = Settings.UserFilesFolder;
             DecoderSettings["firstUse"] = $"{UserKanchokuIni.Singleton.IsUserIniAbsent}";
             DecoderSettings["isJPmode"] = $"{Domain.DecoderKeyVsVKey.IsJPmode}";
             MultiStreamMode = addDecoderSetting("multiStreamMode", true);

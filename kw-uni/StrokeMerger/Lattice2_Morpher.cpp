@@ -2,7 +2,7 @@
 #include "file_utils.h"
 #include "settings.h"
 
-#include "MorphBridge.h"
+#include "Dymazin/MorphBridge.h"
 #include "Llama/LlamaBridge.h"
 #include "Lattice2_Common.h"
 #include "Lattice2_Morpher.h"
@@ -10,7 +10,7 @@
 namespace lattice2 {
     DECLARE_LOGGER;     // defined in Lattice2.cpp
 
-#define MAZEGAKI_PREFERENCE_FILE    USER_FILES_FOLDER  L"/mazegaki.pref.txt"
+#define MAZEGAKI_PREFERENCE_FILE    JOIN_USER_FILES_FOLDER(L"mazegaki.pref.txt")
 
     // 交ぜ書き優先度辞書
     std::map<MString, int> mazegakiPrefDict;

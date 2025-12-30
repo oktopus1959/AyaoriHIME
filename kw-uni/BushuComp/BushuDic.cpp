@@ -1268,10 +1268,10 @@ int BushuDic::CreateBushuDic() {
     // 部首合成辞書ファイル名
     auto bushuFile = SETTINGS->bushuFile;
     auto autoBushuFile = SETTINGS->autoBushuFile;
-    LOG_DEBUGH(_T("bushuFile={}, autoBushuFile={}"), bushuFile, autoBushuFile);
+    LOG_INFOH(_T("bushuFile={}, autoBushuFile={}"), bushuFile, autoBushuFile);
 
     if (_singleton != 0) {
-        LOG_INFO(_T("already created: bushu file: {}"), bushuFile);
+        LOG_INFOH(_T("already created: bushu file: {}"), bushuFile);
         return 0;
     }
 

@@ -8,20 +8,14 @@
 
 #if 1
 #undef _LOG_DEBUGH
-#if 1
-#define _LOG_INFOH LOG_WARNH
 #define _LOG_DEBUGH LOG_INFOH
-#else
-#define _LOG_INFOH LOG_WARN
-#define _LOG_DEBUGH LOG_INFOH
-#endif
 #endif
 
 namespace DymazinBridge {
     DEFINE_LOCAL_LOGGER(DymazinBridge);
 
     int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty, int mazeConnPenalty, int nonTerminalCost) {
-        _LOG_INFOH(_T("ENTER: rcfile={}, dicdir={}, unkMax={}, mazePenalty={}, mazeConnPenalty={}, nonTerminalCost={}, costWithoutEOS={}, -O{}"),
+        LOG_INFOH(_T("ENTER: rcfile={}, dicdir={}, unkMax={}, mazePenalty={}, mazeConnPenalty={}, nonTerminalCost={}, costWithoutEOS={}, -O{}"),
             rcfile, dicdir, unkMax, mazePenalty, mazeConnPenalty, nonTerminalCost, SETTINGS->morphCostWithoutEOS, SETTINGS->morphMazeFormat);
 
         std::vector<const wchar_t*> av;
@@ -58,45 +52,45 @@ namespace DymazinBridge {
         int result = DymazinInitialize(av.size(), av.data(), L"dymazin.log", errMsgBuf, ARRAY_SIZE);
 
         ERROR_HANDLER->SetErrorInfo(result, errMsgBuf);
-        _LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
+        LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
         return result;
     }
 
     int dymazinReopenUserDics() {
-        _LOG_INFOH(_T("ENTER"));
+        LOG_INFOH(_T("ENTER"));
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
         int result = DymazinReloadUserDics(errMsgBuf, ARRAY_SIZE);
         ERROR_HANDLER->SetErrorInfo(result, errMsgBuf);
-        _LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
+        LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
         return result;
     }
 
     int dymazinCompileAndLoadUserDic(StringRef dicDir, StringRef srcFilePath) {
-        _LOG_INFOH(_T("ENTER"));
+        LOG_INFOH(_T("ENTER"));
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
         String userDic = utils::join_path(dicDir, L"user.dic");
         int result = DymazinCompileAndLoadUserDic(dicDir.c_str(), srcFilePath.c_str(), userDic.c_str(), errMsgBuf, ARRAY_SIZE);
         if (result < 0) ERROR_HANDLER->SetErrorInfo(result, errMsgBuf);
-        _LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
+        LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
         return result;
     }
 
     void dymazinFinalize() {
-        _LOG_INFOH(_T("CALLED"));
+        LOG_INFOH(_T("CALLED"));
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
         DymazinFinalize(errMsgBuf, ARRAY_SIZE);
     }
 
     void dymazinSetLogLevel(int logLevel) {
-        _LOG_INFOH(_T("CALLED: logLevel={}"), logLevel);
+        LOG_INFOH(_T("CALLED: logLevel={}"), logLevel);
         DymazinSetLogLevel(logLevel);
     }
 
     void dymazinSaveLog() {
-        _LOG_INFOH(_T("CALLED"));
+        LOG_INFOH(_T("CALLED"));
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
         DymazinSaveLog(errMsgBuf, ARRAY_SIZE);

@@ -306,9 +306,6 @@
     <ClInclude Include="..\DyMazin\DyMazinLib\src\DyMazinLib.h">
       <Filter>ヘッダー ファイル\DyMazin</Filter>
     </ClInclude>
-    <ClInclude Include="MorphBridge.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Llama\LlamaBridge.h">
       <Filter>ヘッダー ファイル\Llama</Filter>
     </ClInclude>
@@ -341,6 +338,9 @@
     </ClInclude>
     <ClInclude Include="..\NgramAnalyzer\NgramLib\src\NgramLib.h">
       <Filter>ヘッダー ファイル\Ngram</Filter>
+    </ClInclude>
+    <ClInclude Include="DyMazin\MorphBridge.h">
+      <Filter>ヘッダー ファイル\DyMazin</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -502,6 +502,9 @@
     </ClCompile>
     <ClCompile Include="Ngram\NgramBridge.cpp">
       <Filter>ソース ファイル\Ngram</Filter>
+    </ClCompile>
+    <ClCompile Include="DyMazin\MorphBridge.cpp">
+      <Filter>ソース ファイル\DyMazin</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

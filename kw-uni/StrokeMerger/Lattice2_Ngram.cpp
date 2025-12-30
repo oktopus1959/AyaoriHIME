@@ -11,12 +11,12 @@
 namespace lattice2 {
     DECLARE_LOGGER;     // defined in Lattice2.cpp
 
-//#define SYSTEM_NGRAM_FILE           USER_FILES_FOLDER L"/mixed_all.ngram.txt"
-//#define KATAKANA_COST_FILE          USER_FILES_FOLDER L"/katakana.cost.txt"
-#define REALTIME_NGRAM_MAIN_FILE    USER_FILES_FOLDER L"/realtime.ngram.txt"
-#define REALTIME_NGRAM_TEMP_FILE    USER_FILES_FOLDER L"/realtime.ngram.tmp.txt"
-#define USER_NGRAM_FILE             USER_FILES_FOLDER L"/user.ngram.txt"
-//#define USER_COST_FILE              USER_FILES_FOLDER L"/userword.cost.txt"
+//#define SYSTEM_NGRAM_FILE           JOIN_USER_FILES_FOLDER(L"mixed_all.ngram.txt")
+//#define KATAKANA_COST_FILE          JOIN_USER_FILES_FOLDER(L"katakana.cost.txt")
+#define REALTIME_NGRAM_MAIN_FILE    JOIN_USER_FILES_FOLDER(L"realtime.ngram.txt")
+#define REALTIME_NGRAM_TEMP_FILE    JOIN_USER_FILES_FOLDER(L"realtime.ngram.tmp.txt")
+#define USER_NGRAM_FILE             JOIN_USER_FILES_FOLDER(L"user.ngram.txt")
+//#define USER_COST_FILE              JOIN_USER_FILES_FOLDER(L"userword.cost.txt")
 
     // 利用者の選択によって嵩上げされるNgramに課されるボーナスを計算するためのベースとなるカウント
     std::map<MString, int> realtimeNgramBonusCounts;

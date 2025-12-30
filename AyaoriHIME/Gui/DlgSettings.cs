@@ -2236,36 +2236,6 @@ namespace KanchokuWS.Gui
         }
 
         /// <summary> 交ぜ書き辞書登録 </summary>
-        private void button_enterMazegaki_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            var line = textBox_mazegaki.Text.Trim()._reReplace(@" +", " ");
-            if (line._reMatch(@"^[^ ]+ ")) {
-                frmMain?.ExecCmdDecoder("addMazegakiEntry", line);
-                label_saveMaze.Hide();
-                label_mazegaki.Show();
-                dicRegLabelCount = dicRegLabelCountMax;
-            } else {
-                SystemHelper.ShowWarningMessageBox("形式が間違っています。\r\n「読み<空白>単語/...」という形式で入力してください。");
-            }
-        }
-
-        private void button_saveMazegakiFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            frmMain?.ExecCmdDecoder("saveMazegakiDic", null);
-            label_mazegaki.Hide();
-            label_saveMaze.Show();
-            dicRegLabelCount = dicRegLabelCountMax;
-        }
-
-        private void textBox_mazegaki_TextChanged(object sender, EventArgs e)
-        {
-
-            label_saveMaze.Hide();
-            label_mazegaki.Hide();
-        }
-
         /// <summary> 部首連想辞書登録 </summary>
         private void button_enterBushuAssoc_Click(object sender, EventArgs e)
         {
@@ -2543,8 +2513,6 @@ namespace KanchokuWS.Gui
                 if (dicRegLabelCount == 0) {
                     label_saveHist.Hide();
                     label_history.Hide();
-                    label_saveMaze.Hide();
-                    label_mazegaki.Hide();
                     label_saveAssoc.Hide();
                     label_bushuAssoc.Hide();
                     label_saveBushu.Hide();

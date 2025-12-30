@@ -15,7 +15,7 @@
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughHistory)
 
-#if 1
+#if 0
 #undef _DEBUG_SENT
 #undef LOG_DEBUG
 #undef LOG_DEBUGH
@@ -1322,9 +1322,11 @@ int HistoryDic::CreateHistoryDic(StringRef histFile) {
 
 // 辞書ファイルの内容の書き出し
 void HistoryDic::WriteHistoryDic(StringRef histFile) {
-    LOG_SAVE_DICT(_T("ENTER: path={}"), histFile);
+    LOG_SAVE_DICT(_T("ENTER: histFile={}"), histFile);
     if (Singleton) {
-        auto path = utils::joinPath(SETTINGS->rootDir, utils::contains(histFile, _T("*")) ? histFile : _T("kwhist.*.txt"));
+        auto path = utils::joinPath(SETTINGS->rootDir,
+            utils::joinPath(USER_FILES_FOLDER, utils::contains(histFile, _T("*")) ? histFile : _T("kwhist.*.txt")));
+        LOG_SAVE_DICT(_T("path={}"), path);
         size_t pos = path.find(_T("*"));
         if (Singleton->IsHistDicDirty()) {
             auto pathEntry = replaceStar(path, pos, _T("entry"));

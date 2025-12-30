@@ -41,7 +41,7 @@
 #include "StrokeMerger/Merger.h"
 #include "StrokeMerger/StrokeMergerHistoryResidentState.h"
 
-#include "MorphBridge.h"
+#include "Dymazin/MorphBridge.h"
 #include "Ngram/NgramBridge.h"
 #include "Llama/LlamaBridge.h"
 
@@ -357,7 +357,7 @@ public:
 
     // デコーダが扱う辞書を保存する
     void SaveDicts() override {
-        LOG_DEBUGH(_T("CALLED"));
+        LOG_INFOH(_T("ENTER"));
         if (BUSHU_DIC) {
             BUSHU_DIC->WriteBushuDic();
             BUSHU_DIC->WriteAutoBushuDic();
@@ -371,6 +371,7 @@ public:
             //HISTORY_DIC->WriteNgramDic();
         }
         Lattice2::saveLatticeRelatedFiles();
+        LOG_INFOH(_T("LEAVE"));
     }
 
     // コマンド実行

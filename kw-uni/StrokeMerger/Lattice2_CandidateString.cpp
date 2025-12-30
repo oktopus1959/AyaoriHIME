@@ -7,18 +7,18 @@
 #include "BushuComp/BushuDic.h"
 #include "KeysAndChars/EasyChars.h"
 //
+#include "Dymazin/MorphBridge.h"
+
 #include "Lattice.h"
 #include "Lattice2_Common.h"
 #include "Lattice2_CandidateString.h"
 #include "Lattice2_Ngram.h"
 #include "Lattice2_Morpher.h"
 
-#include "MorphBridge.h"
-
 namespace lattice2 {
     DECLARE_LOGGER;     // defined in Lattice2.cpp
 
-#define GLOBAL_POST_REWRITE_FILE    USER_FILES_FOLDER L"/global-post-rewrite-map.txt"
+#define GLOBAL_POST_REWRITE_FILE    JOIN_USER_FILES_FOLDER(L"global-post-rewrite-map.txt")
 
     // グローバルな後置書き換えマップ
     std::map<MString, MString> globalPostRewriteMap;

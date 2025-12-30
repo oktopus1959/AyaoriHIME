@@ -27,8 +27,8 @@ void Settings::SetValues(const std::map<String, String>& dict) {
 
 #define SET_KEY_VALUE(k) k = utils::safe_get(dict, String(_T(#k))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_ROOT_FILE_PATH(k) k = make_path(SETTINGS->rootDir, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_SYSTEM_FILE_PATH(k) k = make_path(SETTINGS->rootDir, SYSTEM_FILES_FOLDER, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_USER_FILE_PATH(k) k = make_path(SETTINGS->rootDir, USER_FILES_FOLDER, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_SYSTEM_FILE_PATH(k) k = make_path(SETTINGS->rootDir, SETTINGS->systemFilesFolder, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_USER_FILE_PATH(k) k = make_path(SETTINGS->rootDir, SETTINGS->userFilesFolder, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_CHAR_VALUE(k) k = safe_get_head_char(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_INT_VALUE(k) k = utils::strToInt(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
 #define SET_INT_VALUE2(k,d) k = utils::strToInt(utils::safe_get(dict, String(_T(#k))), d); LOG_DEBUGH(_T(#k "={}"), k)
@@ -42,6 +42,8 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(isJPmode);
 
     SET_KEY_VALUE(rootDir);
+    SET_KEY_VALUE(systemFilesFolder);
+    SET_KEY_VALUE(userFilesFolder);
     SET_ROOT_FILE_PATH(tableFile);
     SET_ROOT_FILE_PATH(tableFile2);
     SET_ROOT_FILE_PATH(tableFile3);
