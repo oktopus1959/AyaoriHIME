@@ -1272,6 +1272,7 @@ namespace {
     }
 
     void gatherStrokeChars(std::set<mchar_t>& charSet, StrokeTableNode* node) {
+        if (node == nullptr) return;
         for (size_t i = 0; i < PLANE_DECKEY_NUM; ++i) {
             auto blk = node->getNth(i);
             if (blk && blk->isStringLikeNode() && blk->getString().size() == 1) {
@@ -1311,7 +1312,9 @@ void StrokeTableNode::UpdateStrokeNodes(StringRef strokeSource) {
 StrokeTableNode* StrokeTableNode::CreateStrokeTree(StringRef tableFile, std::vector<String>& lines) {
     LOG_INFO(_T("CALLED: tableFile={}, lines={}"), tableFile, lines.size());
     ROOT_STROKE_NODE = 0;
-    ROOT_STROKE_NODE = StrokeTreeBuilder(tableFile, lines, true).CreateStrokeTree();
+    if (!tableFile.empty()) {
+        ROOT_STROKE_NODE = StrokeTreeBuilder(tableFile, lines, true).CreateStrokeTree();
+    }
     RootStrokeNode1.reset(ROOT_STROKE_NODE);
     strokableChars.clear();
     gatherStrokeChars(strokableChars, ROOT_STROKE_NODE);
@@ -1321,14 +1324,23 @@ StrokeTableNode* StrokeTableNode::CreateStrokeTree(StringRef tableFile, std::vec
 // ストローク木2を作成してそのルートを返す
 StrokeTableNode* StrokeTableNode::CreateStrokeTree2(StringRef tableFile, std::vector<String>& lines) {
     LOG_INFO(_T("CALLED: tableFile={}, lines={}"), tableFile, lines.size());
-    RootStrokeNode2.reset(StrokeTreeBuilder(tableFile, lines, false).CreateStrokeTree());
+    if (tableFile.empty()) {
+        LOG_WARN(_T("CreateStrokeTree2: Clear: tableFile is empty"));
+        RootStrokeNode2.reset(nullptr);
+    } else {
+        LOG_INFO(_T("CreateStrokeTree2: Create: tableFile={}"), tableFile);
+        RootStrokeNode2.reset(StrokeTreeBuilder(tableFile, lines, false).CreateStrokeTree());
+    }
     return RootStrokeNode2.get();
 }
 
 // ストローク木3を作成してそのルートを返す
 StrokeTableNode* StrokeTableNode::CreateStrokeTree3(StringRef tableFile, std::vector<String>& lines) {
     LOG_INFO(_T("CALLED: tableFile={}, lines={}"), tableFile, lines.size());
-    RootStrokeNode3.reset(StrokeTreeBuilder(tableFile, lines, false).CreateStrokeTree());
+    RootStrokeNode3.reset(nullptr);
+    if (!tableFile.empty()) {
+        RootStrokeNode3.reset(StrokeTreeBuilder(tableFile, lines, false).CreateStrokeTree());
+    }
     return RootStrokeNode3.get();
 }
 

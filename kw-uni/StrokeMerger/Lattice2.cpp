@@ -162,8 +162,8 @@ namespace lattice2 {
     public:
         // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
         // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
-        LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool strokeBack, bool bKatakanaConversion) override {
-            _LOG_DETAIL(_T("ENTER: pieces: {}"), formatStringOfWordPieces(pieces));
+        LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool useMorphAnalyzerAlways, bool strokeBack, bool bKatakanaConversion) override {
+            _LOG_DETAIL(_T("ENTER: pieces: {}, useMorphAnalyzerAlways={}"), formatStringOfWordPieces(pieces), useMorphAnalyzerAlways);
             int totalStrokeCount = (int)(STATE_COMMON->GetTotalDecKeyCount());
             if (_startStrokeCount == 0) _startStrokeCount = totalStrokeCount;
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
@@ -209,7 +209,7 @@ namespace lattice2 {
             //_LOG_DETAIL(L"_kBestList.size={}", _kBestList->size());
 
             // 候補リストの更新
-            _kBestList->updateKBestList(pieces, currentStrokeCount, strokeBack, bKatakanaConversion);
+            _kBestList->updateKBestList(pieces, useMorphAnalyzerAlways, currentStrokeCount, strokeBack, bKatakanaConversion);
 
             //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             //LOG_DEBUGH(_T(".\nresult kBest:\n{}"), pKBestList->debugString());

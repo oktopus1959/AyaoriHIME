@@ -32,8 +32,6 @@ namespace KanchokuWS.Gui
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DlgSettings));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_basic = new System.Windows.Forms.TabPage();
-            this.groupBox23 = new System.Windows.Forms.GroupBox();
-            this.checkBox_useEditBuffer = new System.Windows.Forms.CheckBox();
             this.label_initialMsg = new System.Windows.Forms.Label();
             this.label_reloadBasic = new System.Windows.Forms.Label();
             this.button_document = new System.Windows.Forms.Button();
@@ -490,8 +488,24 @@ namespace KanchokuWS.Gui
             this.checkBox_convertJaComma = new System.Windows.Forms.CheckBox();
             this.checkBox_convertJaPeriod = new System.Windows.Forms.CheckBox();
             this.tabPage_fusion = new System.Windows.Forms.TabPage();
+            this.groupBox44 = new System.Windows.Forms.GroupBox();
+            this.checkBox_useEditBuffer = new System.Windows.Forms.CheckBox();
+            this.groupBox34 = new System.Windows.Forms.GroupBox();
+            this.label167 = new System.Windows.Forms.Label();
+            this.textBox_multiStreamBeamSize = new System.Windows.Forms.TextBox();
             this.textBox_maxStrokeBackCount = new System.Windows.Forms.TextBox();
             this.label46 = new System.Windows.Forms.Label();
+            this.label168 = new System.Windows.Forms.Label();
+            this.textBox_remainingStrokeSize = new System.Windows.Forms.TextBox();
+            this.textBox_challengeNumForSameLeader = new System.Windows.Forms.TextBox();
+            this.label157 = new System.Windows.Forms.Label();
+            this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.checkBox_collectRealtimeNgram = new System.Windows.Forms.CheckBox();
+            this.checkBox_useMorphAndNgramAnalyzer = new System.Windows.Forms.CheckBox();
+            this.checkBox_strokeBackByBS = new System.Windows.Forms.CheckBox();
+            this.checkBox_outputHeadSymbol = new System.Windows.Forms.CheckBox();
+            this.label158 = new System.Windows.Forms.Label();
+            this.textBox_editBufferFlushChar = new System.Windows.Forms.TextBox();
             this.groupBox52 = new System.Windows.Forms.GroupBox();
             this.button_checkModifiers = new System.Windows.Forms.Button();
             this.checkBox_leftCtrl = new System.Windows.Forms.CheckBox();
@@ -503,12 +517,6 @@ namespace KanchokuWS.Gui
             this.groupBox51 = new System.Windows.Forms.GroupBox();
             this.radioButton_mainRtNgramFile = new System.Windows.Forms.RadioButton();
             this.radioButton_tempRtNgramFile = new System.Windows.Forms.RadioButton();
-            this.checkBox_outputHeadSymbol = new System.Windows.Forms.CheckBox();
-            this.textBox_remainingStrokeSize = new System.Windows.Forms.TextBox();
-            this.label168 = new System.Windows.Forms.Label();
-            this.checkBox_strokeBackByBS = new System.Windows.Forms.CheckBox();
-            this.textBox_multiStreamBeamSize = new System.Windows.Forms.TextBox();
-            this.label167 = new System.Windows.Forms.Label();
             this.groupBox41 = new System.Windows.Forms.GroupBox();
             this.label165 = new System.Windows.Forms.Label();
             this.button_depressRealtimeNgram = new System.Windows.Forms.Button();
@@ -517,20 +525,14 @@ namespace KanchokuWS.Gui
             this.button_raiseRealtimeNgram = new System.Windows.Forms.Button();
             this.comboBox_editBufferCaretChar = new System.Windows.Forms.ComboBox();
             this.label163 = new System.Windows.Forms.Label();
-            this.textBox_editBufferFlushChar = new System.Windows.Forms.TextBox();
-            this.label158 = new System.Windows.Forms.Label();
             this.button_showCandidates = new System.Windows.Forms.Button();
             this.label162 = new System.Windows.Forms.Label();
             this.button_reloadDict = new System.Windows.Forms.Button();
-            this.checkBox_useMorphAnalyzer = new System.Windows.Forms.CheckBox();
-            this.textBox_challengeNumForSameLeader = new System.Windows.Forms.TextBox();
-            this.label157 = new System.Windows.Forms.Label();
             this.label_fusionReload = new System.Windows.Forms.Label();
             this.button_fusionReload = new System.Windows.Forms.Button();
             this.label_okResultFusion = new System.Windows.Forms.Label();
             this.button_fusionEnter = new System.Windows.Forms.Button();
             this.button_fusionClose = new System.Windows.Forms.Button();
-            this.checkBox_collectRealtimeNgram = new System.Windows.Forms.CheckBox();
             this.tabPage_register = new System.Windows.Forms.TabPage();
             this.label_okResultRegister = new System.Windows.Forms.Label();
             this.button_registerClose = new System.Windows.Forms.Button();
@@ -592,12 +594,9 @@ namespace KanchokuWS.Gui
             this.button_developSaveDebugTableFile = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.groupBox34 = new System.Windows.Forms.GroupBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
-            this.groupBox23.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox13.SuspendLayout();
@@ -648,6 +647,9 @@ namespace KanchokuWS.Gui
             this.groupBox37.SuspendLayout();
             this.groupBox27.SuspendLayout();
             this.tabPage_fusion.SuspendLayout();
+            this.groupBox44.SuspendLayout();
+            this.groupBox34.SuspendLayout();
+            this.groupBox8.SuspendLayout();
             this.groupBox52.SuspendLayout();
             this.groupBox51.SuspendLayout();
             this.groupBox41.SuspendLayout();
@@ -659,8 +661,6 @@ namespace KanchokuWS.Gui
             this.tabPage_develop.SuspendLayout();
             this.groupBox15.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAbout)).BeginInit();
-            this.groupBox8.SuspendLayout();
-            this.groupBox34.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -690,7 +690,6 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_basic
             // 
-            this.tabPage_basic.Controls.Add(this.groupBox23);
             this.tabPage_basic.Controls.Add(this.label_initialMsg);
             this.tabPage_basic.Controls.Add(this.label_reloadBasic);
             this.tabPage_basic.Controls.Add(this.button_document);
@@ -711,27 +710,6 @@ namespace KanchokuWS.Gui
             this.tabPage_basic.Text = "基本設定";
             this.tabPage_basic.ToolTipText = "基本的な情報・振る舞いの設定";
             this.tabPage_basic.UseVisualStyleBackColor = true;
-            // 
-            // groupBox23
-            // 
-            this.groupBox23.Controls.Add(this.checkBox_useEditBuffer);
-            this.groupBox23.Location = new System.Drawing.Point(15, 206);
-            this.groupBox23.Name = "groupBox23";
-            this.groupBox23.Size = new System.Drawing.Size(250, 48);
-            this.groupBox23.TabIndex = 2;
-            this.groupBox23.TabStop = false;
-            this.groupBox23.Text = "編集バッファ";
-            // 
-            // checkBox_useEditBuffer
-            // 
-            this.checkBox_useEditBuffer.AutoSize = true;
-            this.checkBox_useEditBuffer.Location = new System.Drawing.Point(21, 21);
-            this.checkBox_useEditBuffer.Name = "checkBox_useEditBuffer";
-            this.checkBox_useEditBuffer.Size = new System.Drawing.Size(144, 19);
-            this.checkBox_useEditBuffer.TabIndex = 2;
-            this.checkBox_useEditBuffer.Text = "編集バッファを有効にする";
-            this.toolTip1.SetToolTip(this.checkBox_useEditBuffer, resources.GetString("checkBox_useEditBuffer.ToolTip"));
-            this.checkBox_useEditBuffer.UseVisualStyleBackColor = true;
             // 
             // label_initialMsg
             // 
@@ -1268,7 +1246,7 @@ namespace KanchokuWS.Gui
             this.groupBox13.Controls.Add(this.textBox_splashWindowShowDuration);
             this.groupBox13.Controls.Add(this.label24);
             this.groupBox13.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox13.Location = new System.Drawing.Point(15, 261);
+            this.groupBox13.Location = new System.Drawing.Point(15, 206);
             this.groupBox13.Name = "groupBox13";
             this.groupBox13.Size = new System.Drawing.Size(250, 79);
             this.groupBox13.TabIndex = 3;
@@ -6131,6 +6109,7 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_fusion
             // 
+            this.tabPage_fusion.Controls.Add(this.groupBox44);
             this.tabPage_fusion.Controls.Add(this.groupBox34);
             this.tabPage_fusion.Controls.Add(this.groupBox8);
             this.tabPage_fusion.Controls.Add(this.groupBox52);
@@ -6153,13 +6132,72 @@ namespace KanchokuWS.Gui
             this.tabPage_fusion.Text = "配列融合";
             this.tabPage_fusion.UseVisualStyleBackColor = true;
             // 
+            // groupBox44
+            // 
+            this.groupBox44.Controls.Add(this.checkBox_useEditBuffer);
+            this.groupBox44.Controls.Add(this.checkBox_outputHeadSymbol);
+            this.groupBox44.Controls.Add(this.textBox_editBufferFlushChar);
+            this.groupBox44.Controls.Add(this.label158);
+            this.groupBox44.Location = new System.Drawing.Point(15, 180);
+            this.groupBox44.Name = "groupBox44";
+            this.groupBox44.Size = new System.Drawing.Size(335, 91);
+            this.groupBox44.TabIndex = 80;
+            this.groupBox44.TabStop = false;
+            this.groupBox44.Text = "編集バッファ";
+            // 
+            // checkBox_useEditBuffer
+            // 
+            this.checkBox_useEditBuffer.AutoSize = true;
+            this.checkBox_useEditBuffer.Location = new System.Drawing.Point(11, 18);
+            this.checkBox_useEditBuffer.Name = "checkBox_useEditBuffer";
+            this.checkBox_useEditBuffer.Size = new System.Drawing.Size(144, 19);
+            this.checkBox_useEditBuffer.TabIndex = 2;
+            this.checkBox_useEditBuffer.Text = "編集バッファを有効にする";
+            this.toolTip1.SetToolTip(this.checkBox_useEditBuffer, resources.GetString("checkBox_useEditBuffer.ToolTip"));
+            this.checkBox_useEditBuffer.UseVisualStyleBackColor = true;
+            // 
+            // groupBox34
+            // 
+            this.groupBox34.Controls.Add(this.label167);
+            this.groupBox34.Controls.Add(this.textBox_multiStreamBeamSize);
+            this.groupBox34.Controls.Add(this.textBox_maxStrokeBackCount);
+            this.groupBox34.Controls.Add(this.label46);
+            this.groupBox34.Controls.Add(this.label168);
+            this.groupBox34.Controls.Add(this.textBox_remainingStrokeSize);
+            this.groupBox34.Controls.Add(this.textBox_challengeNumForSameLeader);
+            this.groupBox34.Controls.Add(this.label157);
+            this.groupBox34.Location = new System.Drawing.Point(376, 12);
+            this.groupBox34.Name = "groupBox34";
+            this.groupBox34.Size = new System.Drawing.Size(316, 119);
+            this.groupBox34.TabIndex = 79;
+            this.groupBox34.TabStop = false;
+            this.groupBox34.Text = "実験的設定";
+            // 
+            // label167
+            // 
+            this.label167.AutoSize = true;
+            this.label167.Location = new System.Drawing.Point(13, 21);
+            this.label167.Name = "label167";
+            this.label167.Size = new System.Drawing.Size(60, 15);
+            this.label167.TabIndex = 60;
+            this.label167.Text = "ビームサイズ";
+            // 
+            // textBox_multiStreamBeamSize
+            // 
+            this.textBox_multiStreamBeamSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_multiStreamBeamSize.Location = new System.Drawing.Point(78, 19);
+            this.textBox_multiStreamBeamSize.Name = "textBox_multiStreamBeamSize";
+            this.textBox_multiStreamBeamSize.Size = new System.Drawing.Size(34, 19);
+            this.textBox_multiStreamBeamSize.TabIndex = 0;
+            this.textBox_multiStreamBeamSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // textBox_maxStrokeBackCount
             // 
             this.textBox_maxStrokeBackCount.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
             this.textBox_maxStrokeBackCount.Location = new System.Drawing.Point(16, 67);
             this.textBox_maxStrokeBackCount.Name = "textBox_maxStrokeBackCount";
             this.textBox_maxStrokeBackCount.Size = new System.Drawing.Size(34, 19);
-            this.textBox_maxStrokeBackCount.TabIndex = 76;
+            this.textBox_maxStrokeBackCount.TabIndex = 2;
             this.textBox_maxStrokeBackCount.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label46
@@ -6170,6 +6208,113 @@ namespace KanchokuWS.Gui
             this.label46.Size = new System.Drawing.Size(201, 15);
             this.label46.TabIndex = 77;
             this.label46.Text = "回の連続BS打鍵で本来のBS動作に戻る";
+            // 
+            // label168
+            // 
+            this.label168.AutoSize = true;
+            this.label168.Location = new System.Drawing.Point(13, 43);
+            this.label168.Name = "label168";
+            this.label168.Size = new System.Drawing.Size(130, 15);
+            this.label168.TabIndex = 70;
+            this.label168.Text = "残しておくストロークの範囲";
+            // 
+            // textBox_remainingStrokeSize
+            // 
+            this.textBox_remainingStrokeSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(145, 41);
+            this.textBox_remainingStrokeSize.Name = "textBox_remainingStrokeSize";
+            this.textBox_remainingStrokeSize.Size = new System.Drawing.Size(34, 19);
+            this.textBox_remainingStrokeSize.TabIndex = 1;
+            this.textBox_remainingStrokeSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // textBox_challengeNumForSameLeader
+            // 
+            this.textBox_challengeNumForSameLeader.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_challengeNumForSameLeader.Location = new System.Drawing.Point(16, 90);
+            this.textBox_challengeNumForSameLeader.Name = "textBox_challengeNumForSameLeader";
+            this.textBox_challengeNumForSameLeader.Size = new System.Drawing.Size(34, 19);
+            this.textBox_challengeNumForSameLeader.TabIndex = 3;
+            this.textBox_challengeNumForSameLeader.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label157
+            // 
+            this.label157.AutoSize = true;
+            this.label157.Location = new System.Drawing.Point(52, 92);
+            this.label157.Name = "label157";
+            this.label157.Size = new System.Drawing.Size(257, 15);
+            this.label157.TabIndex = 41;
+            this.label157.Text = "回の打鍵で先頭部に変化の無かった候補を確定する";
+            // 
+            // groupBox8
+            // 
+            this.groupBox8.Controls.Add(this.checkBox_useMorphAndNgramAnalyzer);
+            this.groupBox8.Controls.Add(this.checkBox_strokeBackByBS);
+            this.groupBox8.Location = new System.Drawing.Point(15, 12);
+            this.groupBox8.Name = "groupBox8";
+            this.groupBox8.Size = new System.Drawing.Size(335, 66);
+            this.groupBox8.TabIndex = 78;
+            this.groupBox8.TabStop = false;
+            this.groupBox8.Text = "基本設定";
+            // 
+            // checkBox_collectRealtimeNgram
+            // 
+            this.checkBox_collectRealtimeNgram.AutoSize = true;
+            this.checkBox_collectRealtimeNgram.Location = new System.Drawing.Point(20, 20);
+            this.checkBox_collectRealtimeNgram.Name = "checkBox_collectRealtimeNgram";
+            this.checkBox_collectRealtimeNgram.Size = new System.Drawing.Size(223, 19);
+            this.checkBox_collectRealtimeNgram.TabIndex = 0;
+            this.checkBox_collectRealtimeNgram.Text = "入力文字列から Ngram 情報を蓄積する";
+            this.toolTip1.SetToolTip(this.checkBox_collectRealtimeNgram, "利用者が入力した文字列から Ngram 情報を抽出して、保存する\r\n\r\nこの情報は、打鍵ストローク列に対してかな配列および漢直配列から、妥当な文字を\r\n選択するた" +
+        "めに使用されます。\r\nタイピングゲームなど、同一の文章を大量に打鍵するような場合は、このオプションを\r\nOFFにしておいたほうがよいでしょう。");
+            this.checkBox_collectRealtimeNgram.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_useMorphAndNgramAnalyzer
+            // 
+            this.checkBox_useMorphAndNgramAnalyzer.AutoSize = true;
+            this.checkBox_useMorphAndNgramAnalyzer.Location = new System.Drawing.Point(12, 20);
+            this.checkBox_useMorphAndNgramAnalyzer.Name = "checkBox_useMorphAndNgramAnalyzer";
+            this.checkBox_useMorphAndNgramAnalyzer.Size = new System.Drawing.Size(252, 19);
+            this.checkBox_useMorphAndNgramAnalyzer.TabIndex = 1;
+            this.checkBox_useMorphAndNgramAnalyzer.Text = "常に形態素解析器とNgram解析器を使用する";
+            this.checkBox_useMorphAndNgramAnalyzer.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_strokeBackByBS
+            // 
+            this.checkBox_strokeBackByBS.AutoSize = true;
+            this.checkBox_strokeBackByBS.Location = new System.Drawing.Point(12, 42);
+            this.checkBox_strokeBackByBS.Name = "checkBox_strokeBackByBS";
+            this.checkBox_strokeBackByBS.Size = new System.Drawing.Size(158, 19);
+            this.checkBox_strokeBackByBS.TabIndex = 2;
+            this.checkBox_strokeBackByBS.Text = "BSで直前の打鍵を取り消す";
+            this.checkBox_strokeBackByBS.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_outputHeadSymbol
+            // 
+            this.checkBox_outputHeadSymbol.AutoSize = true;
+            this.checkBox_outputHeadSymbol.Location = new System.Drawing.Point(29, 43);
+            this.checkBox_outputHeadSymbol.Name = "checkBox_outputHeadSymbol";
+            this.checkBox_outputHeadSymbol.Size = new System.Drawing.Size(252, 19);
+            this.checkBox_outputHeadSymbol.TabIndex = 4;
+            this.checkBox_outputHeadSymbol.Text = "編集バッファの先頭の記号類をそのまま出力する";
+            this.toolTip1.SetToolTip(this.checkBox_outputHeadSymbol, "この設定がOFFであってもスペースはそのまま出力されます。");
+            this.checkBox_outputHeadSymbol.UseVisualStyleBackColor = true;
+            // 
+            // label158
+            // 
+            this.label158.AutoSize = true;
+            this.label158.Location = new System.Drawing.Point(26, 66);
+            this.label158.Name = "label158";
+            this.label158.Size = new System.Drawing.Size(166, 15);
+            this.label158.TabIndex = 53;
+            this.label158.Text = "編集バッファをフラッシュさせる文字";
+            // 
+            // textBox_editBufferFlushChar
+            // 
+            this.textBox_editBufferFlushChar.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_editBufferFlushChar.Location = new System.Drawing.Point(194, 64);
+            this.textBox_editBufferFlushChar.Name = "textBox_editBufferFlushChar";
+            this.textBox_editBufferFlushChar.Size = new System.Drawing.Size(132, 19);
+            this.textBox_editBufferFlushChar.TabIndex = 5;
             // 
             // groupBox52
             // 
@@ -6262,19 +6407,21 @@ namespace KanchokuWS.Gui
             // 
             // groupBox51
             // 
+            this.groupBox51.Controls.Add(this.checkBox_collectRealtimeNgram);
+            this.groupBox51.Controls.Add(this.label6);
             this.groupBox51.Controls.Add(this.radioButton_mainRtNgramFile);
             this.groupBox51.Controls.Add(this.radioButton_tempRtNgramFile);
-            this.groupBox51.Location = new System.Drawing.Point(389, 12);
+            this.groupBox51.Location = new System.Drawing.Point(15, 86);
             this.groupBox51.Name = "groupBox51";
-            this.groupBox51.Size = new System.Drawing.Size(251, 50);
+            this.groupBox51.Size = new System.Drawing.Size(335, 85);
             this.groupBox51.TabIndex = 74;
             this.groupBox51.TabStop = false;
-            this.groupBox51.Text = "使用するリアルタイムNgramファイル";
+            this.groupBox51.Text = "リアルタイムNgramファイル";
             // 
             // radioButton_mainRtNgramFile
             // 
             this.radioButton_mainRtNgramFile.AutoSize = true;
-            this.radioButton_mainRtNgramFile.Location = new System.Drawing.Point(28, 22);
+            this.radioButton_mainRtNgramFile.Location = new System.Drawing.Point(43, 60);
             this.radioButton_mainRtNgramFile.Name = "radioButton_mainRtNgramFile";
             this.radioButton_mainRtNgramFile.Size = new System.Drawing.Size(85, 19);
             this.radioButton_mainRtNgramFile.TabIndex = 72;
@@ -6286,70 +6433,13 @@ namespace KanchokuWS.Gui
             // radioButton_tempRtNgramFile
             // 
             this.radioButton_tempRtNgramFile.AutoSize = true;
-            this.radioButton_tempRtNgramFile.Location = new System.Drawing.Point(134, 22);
+            this.radioButton_tempRtNgramFile.Location = new System.Drawing.Point(149, 60);
             this.radioButton_tempRtNgramFile.Name = "radioButton_tempRtNgramFile";
             this.radioButton_tempRtNgramFile.Size = new System.Drawing.Size(83, 19);
             this.radioButton_tempRtNgramFile.TabIndex = 73;
             this.radioButton_tempRtNgramFile.TabStop = true;
             this.radioButton_tempRtNgramFile.Text = "一時ファイル";
             this.radioButton_tempRtNgramFile.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_outputHeadSymbol
-            // 
-            this.checkBox_outputHeadSymbol.AutoSize = true;
-            this.checkBox_outputHeadSymbol.Location = new System.Drawing.Point(34, 110);
-            this.checkBox_outputHeadSymbol.Name = "checkBox_outputHeadSymbol";
-            this.checkBox_outputHeadSymbol.Size = new System.Drawing.Size(252, 19);
-            this.checkBox_outputHeadSymbol.TabIndex = 71;
-            this.checkBox_outputHeadSymbol.Text = "編集バッファの先頭の記号類をそのまま出力する";
-            this.toolTip1.SetToolTip(this.checkBox_outputHeadSymbol, "この設定がOFFであってもスペースはそのまま出力されます。");
-            this.checkBox_outputHeadSymbol.UseVisualStyleBackColor = true;
-            // 
-            // textBox_remainingStrokeSize
-            // 
-            this.textBox_remainingStrokeSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(145, 41);
-            this.textBox_remainingStrokeSize.Name = "textBox_remainingStrokeSize";
-            this.textBox_remainingStrokeSize.Size = new System.Drawing.Size(34, 19);
-            this.textBox_remainingStrokeSize.TabIndex = 69;
-            this.textBox_remainingStrokeSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label168
-            // 
-            this.label168.AutoSize = true;
-            this.label168.Location = new System.Drawing.Point(13, 43);
-            this.label168.Name = "label168";
-            this.label168.Size = new System.Drawing.Size(130, 15);
-            this.label168.TabIndex = 70;
-            this.label168.Text = "残しておくストロークの範囲";
-            // 
-            // checkBox_strokeBackByBS
-            // 
-            this.checkBox_strokeBackByBS.AutoSize = true;
-            this.checkBox_strokeBackByBS.Location = new System.Drawing.Point(16, 66);
-            this.checkBox_strokeBackByBS.Name = "checkBox_strokeBackByBS";
-            this.checkBox_strokeBackByBS.Size = new System.Drawing.Size(158, 19);
-            this.checkBox_strokeBackByBS.TabIndex = 68;
-            this.checkBox_strokeBackByBS.Text = "BSで直前の打鍵を取り消す";
-            this.checkBox_strokeBackByBS.UseVisualStyleBackColor = true;
-            // 
-            // textBox_multiStreamBeamSize
-            // 
-            this.textBox_multiStreamBeamSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_multiStreamBeamSize.Location = new System.Drawing.Point(78, 19);
-            this.textBox_multiStreamBeamSize.Name = "textBox_multiStreamBeamSize";
-            this.textBox_multiStreamBeamSize.Size = new System.Drawing.Size(34, 19);
-            this.textBox_multiStreamBeamSize.TabIndex = 59;
-            this.textBox_multiStreamBeamSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label167
-            // 
-            this.label167.AutoSize = true;
-            this.label167.Location = new System.Drawing.Point(13, 21);
-            this.label167.Name = "label167";
-            this.label167.Size = new System.Drawing.Size(60, 15);
-            this.label167.TabIndex = 60;
-            this.label167.Text = "ビームサイズ";
             // 
             // groupBox41
             // 
@@ -6448,23 +6538,6 @@ namespace KanchokuWS.Gui
             this.label163.Text = "編集バッファのカレット文字";
             this.label163.Visible = false;
             // 
-            // textBox_editBufferFlushChar
-            // 
-            this.textBox_editBufferFlushChar.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_editBufferFlushChar.Location = new System.Drawing.Point(199, 131);
-            this.textBox_editBufferFlushChar.Name = "textBox_editBufferFlushChar";
-            this.textBox_editBufferFlushChar.Size = new System.Drawing.Size(140, 19);
-            this.textBox_editBufferFlushChar.TabIndex = 54;
-            // 
-            // label158
-            // 
-            this.label158.AutoSize = true;
-            this.label158.Location = new System.Drawing.Point(31, 133);
-            this.label158.Name = "label158";
-            this.label158.Size = new System.Drawing.Size(166, 15);
-            this.label158.TabIndex = 53;
-            this.label158.Text = "編集バッファをフラッシュさせる文字";
-            // 
             // button_showCandidates
             // 
             this.button_showCandidates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -6500,34 +6573,6 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.button_reloadDict, "各種ファイルの内容を再読み込みします。\r\n\r\n辞書を除く各種INIファイル、定義ファイルの内容をリロードして、\r\n内部の設定状態を更新します。\r\n");
             this.button_reloadDict.UseVisualStyleBackColor = true;
             this.button_reloadDict.Click += new System.EventHandler(this.button_reloadDict_Click);
-            // 
-            // checkBox_useMorphAnalyzer
-            // 
-            this.checkBox_useMorphAnalyzer.AutoSize = true;
-            this.checkBox_useMorphAnalyzer.Location = new System.Drawing.Point(16, 44);
-            this.checkBox_useMorphAnalyzer.Name = "checkBox_useMorphAnalyzer";
-            this.checkBox_useMorphAnalyzer.Size = new System.Drawing.Size(150, 19);
-            this.checkBox_useMorphAnalyzer.TabIndex = 43;
-            this.checkBox_useMorphAnalyzer.Text = "形態素解析器を使用する";
-            this.checkBox_useMorphAnalyzer.UseVisualStyleBackColor = true;
-            // 
-            // textBox_challengeNumForSameLeader
-            // 
-            this.textBox_challengeNumForSameLeader.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_challengeNumForSameLeader.Location = new System.Drawing.Point(16, 90);
-            this.textBox_challengeNumForSameLeader.Name = "textBox_challengeNumForSameLeader";
-            this.textBox_challengeNumForSameLeader.Size = new System.Drawing.Size(34, 19);
-            this.textBox_challengeNumForSameLeader.TabIndex = 40;
-            this.textBox_challengeNumForSameLeader.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label157
-            // 
-            this.label157.AutoSize = true;
-            this.label157.Location = new System.Drawing.Point(52, 92);
-            this.label157.Name = "label157";
-            this.label157.Size = new System.Drawing.Size(257, 15);
-            this.label157.TabIndex = 41;
-            this.label157.Text = "回の打鍵で先頭部に変化の無かった候補を確定する";
             // 
             // label_fusionReload
             // 
@@ -6592,18 +6637,6 @@ namespace KanchokuWS.Gui
             this.button_fusionClose.Text = "閉じる(&C)";
             this.button_fusionClose.UseVisualStyleBackColor = true;
             this.button_fusionClose.Click += new System.EventHandler(this.button_fusionClose_Click);
-            // 
-            // checkBox_collectRealtimeNgram
-            // 
-            this.checkBox_collectRealtimeNgram.AutoSize = true;
-            this.checkBox_collectRealtimeNgram.Location = new System.Drawing.Point(16, 22);
-            this.checkBox_collectRealtimeNgram.Name = "checkBox_collectRealtimeNgram";
-            this.checkBox_collectRealtimeNgram.Size = new System.Drawing.Size(223, 19);
-            this.checkBox_collectRealtimeNgram.TabIndex = 14;
-            this.checkBox_collectRealtimeNgram.Text = "入力文字列から Ngram 情報を収集する";
-            this.toolTip1.SetToolTip(this.checkBox_collectRealtimeNgram, "利用者が入力した文字列から Ngram 情報を抽出して、保存する\r\n\r\nこの情報は、ストローク列に対してかな配列および漢直配列から、妥当な文字を\r\n選択するために" +
-        "使用されます。\r\nタイピングゲームなど、同一の文章を大量に打鍵するような場合は、このオプションを\r\nOFFにしておいたほうがよいでしょう。");
-            this.checkBox_collectRealtimeNgram.UseVisualStyleBackColor = true;
             // 
             // tabPage_register
             // 
@@ -7352,49 +7385,14 @@ namespace KanchokuWS.Gui
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // groupBox8
+            // label6
             // 
-            this.groupBox8.Controls.Add(this.checkBox1);
-            this.groupBox8.Controls.Add(this.checkBox_collectRealtimeNgram);
-            this.groupBox8.Controls.Add(this.checkBox_useMorphAnalyzer);
-            this.groupBox8.Controls.Add(this.checkBox_strokeBackByBS);
-            this.groupBox8.Controls.Add(this.checkBox_outputHeadSymbol);
-            this.groupBox8.Controls.Add(this.label158);
-            this.groupBox8.Controls.Add(this.textBox_editBufferFlushChar);
-            this.groupBox8.Location = new System.Drawing.Point(15, 12);
-            this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(358, 159);
-            this.groupBox8.TabIndex = 78;
-            this.groupBox8.TabStop = false;
-            this.groupBox8.Text = "基本設定";
-            // 
-            // groupBox34
-            // 
-            this.groupBox34.Controls.Add(this.label167);
-            this.groupBox34.Controls.Add(this.textBox_multiStreamBeamSize);
-            this.groupBox34.Controls.Add(this.textBox_maxStrokeBackCount);
-            this.groupBox34.Controls.Add(this.label46);
-            this.groupBox34.Controls.Add(this.label168);
-            this.groupBox34.Controls.Add(this.textBox_remainingStrokeSize);
-            this.groupBox34.Controls.Add(this.textBox_challengeNumForSameLeader);
-            this.groupBox34.Controls.Add(this.label157);
-            this.groupBox34.Location = new System.Drawing.Point(15, 177);
-            this.groupBox34.Name = "groupBox34";
-            this.groupBox34.Size = new System.Drawing.Size(358, 119);
-            this.groupBox34.TabIndex = 79;
-            this.groupBox34.TabStop = false;
-            this.groupBox34.Text = "実験的設定";
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(16, 88);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(144, 19);
-            this.checkBox1.TabIndex = 72;
-            this.checkBox1.Text = "編集バッファを有効にする";
-            this.toolTip1.SetToolTip(this.checkBox1, resources.GetString("checkBox1.ToolTip"));
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(17, 42);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(174, 15);
+            this.label6.TabIndex = 74;
+            this.label6.Text = "使用するリアルタイムNgramファイル";
             // 
             // DlgSettings
             // 
@@ -7414,8 +7412,6 @@ namespace KanchokuWS.Gui
             this.tabControl1.ResumeLayout(false);
             this.tabPage_basic.ResumeLayout(false);
             this.tabPage_basic.PerformLayout();
-            this.groupBox23.ResumeLayout(false);
-            this.groupBox23.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -7516,6 +7512,12 @@ namespace KanchokuWS.Gui
             this.groupBox27.PerformLayout();
             this.tabPage_fusion.ResumeLayout(false);
             this.tabPage_fusion.PerformLayout();
+            this.groupBox44.ResumeLayout(false);
+            this.groupBox44.PerformLayout();
+            this.groupBox34.ResumeLayout(false);
+            this.groupBox34.PerformLayout();
+            this.groupBox8.ResumeLayout(false);
+            this.groupBox8.PerformLayout();
             this.groupBox52.ResumeLayout(false);
             this.groupBox52.PerformLayout();
             this.groupBox51.ResumeLayout(false);
@@ -7537,10 +7539,6 @@ namespace KanchokuWS.Gui
             this.groupBox15.ResumeLayout(false);
             this.groupBox15.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAbout)).EndInit();
-            this.groupBox8.ResumeLayout(false);
-            this.groupBox8.PerformLayout();
-            this.groupBox34.ResumeLayout(false);
-            this.groupBox34.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -8060,7 +8058,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Button button_fusionClose;
         private System.Windows.Forms.TextBox textBox_challengeNumForSameLeader;
         private System.Windows.Forms.Label label157;
-        private System.Windows.Forms.CheckBox checkBox_useMorphAnalyzer;
+        private System.Windows.Forms.CheckBox checkBox_useMorphAndNgramAnalyzer;
         private System.Windows.Forms.Button button_reloadDict;
         private System.Windows.Forms.Label label162;
         private System.Windows.Forms.Button button_showCandidates;
@@ -8107,10 +8105,10 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label45;
         private System.Windows.Forms.TextBox textBox_maxStrokeBackCount;
         private System.Windows.Forms.Label label46;
-        private System.Windows.Forms.GroupBox groupBox23;
-        private System.Windows.Forms.CheckBox checkBox_useEditBuffer;
         private System.Windows.Forms.GroupBox groupBox34;
         private System.Windows.Forms.GroupBox groupBox8;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.GroupBox groupBox44;
+        private System.Windows.Forms.CheckBox checkBox_useEditBuffer;
+        private System.Windows.Forms.Label label6;
     }
 }

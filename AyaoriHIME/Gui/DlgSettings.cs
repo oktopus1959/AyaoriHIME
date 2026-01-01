@@ -338,10 +338,6 @@ namespace KanchokuWS.Gui
             checkBox_confirmOnClose.Checked = Settings.ConfirmOnClose;
             checkBox_suspendByPauseKey.Checked = Settings.SuspendByPauseKey;
 
-            //複数配列の融合モードか
-            //checkBox_multiStreamMode.Checked = Settings.MultiStreamMode;
-            checkBox_useEditBuffer.Checked = Settings.UseEditBuffer;
-
             // ファイル
             comboBox_keyboardFile.Text = getKeyboardName(Settings.KeyboardFile);
             comboBox_deckeyCharsFile.Text = getKeyboardName(Settings.GetString("charsDefFile"));
@@ -394,10 +390,6 @@ namespace KanchokuWS.Gui
             checkerBasic.Add(checkBox_confirmOnClose);
             checkerBasic.Add(checkBox_suspendByPauseKey);
 
-            //複数配列の融合モードか
-            //checkerBasic.Add(checkBox_multiStreamMode);
-            checkerBasic.Add(checkBox_useEditBuffer);
-
             // ファイル
             checkerBasic.Add(comboBox_keyboardFile);
             checkerBasic.Add(comboBox_deckeyCharsFile);
@@ -445,10 +437,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("splashWindowShowDuration", textBox_splashWindowShowDuration.Text.Trim());
             Settings.SetUserIni("confirmOnClose", checkBox_confirmOnClose.Checked);
             Settings.SetUserIni("suspendByPauseKey", checkBox_suspendByPauseKey.Checked);
-
-            //複数配列の融合モードか
-            //Settings.SetUserIni("multiStreamMode", checkBox_multiStreamMode.Checked);
-            Settings.SetUserIni("useEditBuffer", checkBox_useEditBuffer.Checked);
 
             // 漢直モードトグルキー
             Settings.SetUserIni("unmodifiedHotKey", comboBox_unmodifiedToggleKey.Text.Trim()._reReplace(" .*", "")._orElse("X"));
@@ -1883,8 +1871,9 @@ namespace KanchokuWS.Gui
         void readSettings_tabFusion()
         {
             checkBox_collectRealtimeNgram.Checked = Settings.CollectRealtimeNgram;
-            checkBox_useMorphAnalyzer.Checked = Settings.UseMorphAnalyzer;
+            checkBox_useMorphAndNgramAnalyzer.Checked = Settings.UseMorphAnalyzerAlways;
             checkBox_strokeBackByBS.Checked = Settings.StrokeBackByBS;
+            checkBox_useEditBuffer.Checked = Settings.UseEditBuffer;
             checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbol;
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
@@ -1919,8 +1908,9 @@ namespace KanchokuWS.Gui
             checkerFusion.ControlEnabler = tabFusionStatusChanged;
 
             checkerFusion.Add(checkBox_collectRealtimeNgram);
-            checkerFusion.Add(checkBox_useMorphAnalyzer);
+            checkerFusion.Add(checkBox_useMorphAndNgramAnalyzer);
             checkerFusion.Add(checkBox_strokeBackByBS);
+            checkerFusion.Add(checkBox_useEditBuffer);
             checkerFusion.Add(checkBox_outputHeadSymbol);
             checkerFusion.Add(textBox_multiStreamBeamSize);
             checkerFusion.Add(textBox_remainingStrokeSize);
@@ -1949,8 +1939,9 @@ namespace KanchokuWS.Gui
             frmMain?.DeactivateDecoderWithModifiersOff();
 
             Settings.SetUserIni("collectRealtimeNgram", checkBox_collectRealtimeNgram.Checked);
-            Settings.SetUserIni("useMorphAnalyzer", checkBox_useMorphAnalyzer.Checked);
+            Settings.SetUserIni("useMorphAnalyzerAlways", checkBox_useMorphAndNgramAnalyzer.Checked);
             Settings.SetUserIni("strokeBackByBS", checkBox_strokeBackByBS.Checked);
+            Settings.SetUserIni("useEditBuffer", checkBox_useEditBuffer.Checked);
             Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);

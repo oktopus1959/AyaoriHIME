@@ -827,9 +827,10 @@ namespace KanchokuWS.TableParser
             var reHiraganaMulti = @"[ぁ-ん]{2,}";
 
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"filename: {filename}, bOnlyYomi={bOnlyYomi}");
-            var lines = Helper.ReadAllLines(KanchokuIni.MakeFullPath(filename), e => {
-                logger.Error($"Can't open: {filename}");
-                FileOpenError(filename);
+            var filePath = KanchokuIni.MakeFullPath(Settings.UserFilesFolder._joinPath(filename));
+            var lines = Helper.ReadAllLines(filePath, e => {
+                logger.Error($"Can't open: {filePath}");
+                FileOpenError(filePath);
             });
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"lines.size(): {lines.Length}");
             if (lines._notEmpty() && kanjiConvMap != null) {

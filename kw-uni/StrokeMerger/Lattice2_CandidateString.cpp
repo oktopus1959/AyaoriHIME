@@ -214,6 +214,7 @@ namespace lattice2 {
         return utils::join(tmp, MAZE_TRANSLATION_FEATURE_DELIM);
     }
 
+    // 累積コスト計算
     int accum_cost(const std::vector<MorphCand>& vectors) {
         int cost = 0;
         for (const auto& cand : vectors) {
@@ -249,29 +250,36 @@ namespace lattice2 {
         return utils::join(tmp, outer_sep);
     }
 
-    void enumerate_contiguous_morphs_combination(
+    // 隣接する形態素候補の組み合わせを全列挙してコスト計算
+    void enumerate_contiguous_morphs_combination_and_calc_cost(
         size_t index,
-        const std::vector<std::vector<MorphCand>>& vectors,
+        const std::vector<std::vector<MorphCand>>& morphCands,
         size_t maxCandidateNum,
         std::vector<MorphCand>& vecWork,
-        std::vector<MorphCand>& out) {
-        if (index == vectors.size()) {
+        std::vector<MorphCand>& results) {
+        if (index == morphCands.size()) {
+            // 終端に到達したので、コスト計算
             MString str = join_words(vecWork);
             MString feat = join_feats(vecWork);
-            int cost = accum_cost(vecWork);
+            int srcAccumCost = accum_cost(vecWork);
             std::vector<MString> morphs;
-            cost += MorphBridge::morphCalcCost(str, morphs, 0, 0, false);
+            // 形態素解析コストの計算
+            int morphCost = MorphBridge::morphCalcCost(str, morphs, 0, 0, false);
             //morphs.clear();
-            cost += getNgramCost(str, false);
-            out.push_back(MorphCand{std::move(str), std::move(feat), cost});
+            // Ngramコストの計算
+            int ngramCost = getNgramCost(str, false);
+            int cost = srcAccumCost + morphCost + ngramCost;
+            LOG_INFO(L"TAIL morph: str={}, feat={}, cost={} (srcAccumCost={}, morph={}, ngram={})",
+                to_wstr(str), to_wstr(feat), cost, srcAccumCost, morphCost, ngramCost);
+            results.push_back(MorphCand{std::move(str), std::move(feat), srcAccumCost + cost});
             return;
         }
 
         size_t count = 0;
-        for (const auto& c : vectors[index]) {
+        for (const auto& c : morphCands[index]) {
             auto old_size = vecWork.size();
             vecWork.push_back(c);
-            enumerate_contiguous_morphs_combination(index + 1, vectors, maxCandidateNum, vecWork, out);
+            enumerate_contiguous_morphs_combination_and_calc_cost(index + 1, morphCands, maxCandidateNum, vecWork, results);
             vecWork.resize(old_size);
             ++count;
             if (count >= maxCandidateNum) break;  // 各ベクトルから指定の最大数まで選択
@@ -393,8 +401,10 @@ namespace lattice2 {
         }
         std::vector<MorphCand> sortedItems;
         sortedItems.reserve(MAX_ITEM_NUM);
-        enumerate_contiguous_morphs_combination(index, vecMorphCands, MAX_MORPH_CAND_NUM, morphs, sortedItems);
+        // 隣接する形態素候補の組み合わせを全列挙してコスト計算
+        enumerate_contiguous_morphs_combination_and_calc_cost(index, vecMorphCands, MAX_MORPH_CAND_NUM, morphs, sortedItems);
         _LOG_DETAIL(L"num of sortedItems={}", sortedItems.size());
+        // コストでソートして候補文字列を取得
         return generate_candidateString_from_items_sorted_by_cost(sortedItems, strokeLen(), MAX_CANDITATE_STR_NUM);
     }
 

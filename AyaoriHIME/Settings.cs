@@ -173,7 +173,7 @@ namespace KanchokuWS
         public static bool UseTmpRealtimeNgramFile { get; set; }
 
         /// <summary>形態素解析器を使用する</summary>
-        public static bool UseMorphAnalyzer { get; set; }
+        public static bool UseMorphAnalyzerAlways { get; set; }
 
         /// <summary>EOSまで含めた形態素解析コストを使用しない</summary>
         public static bool MorphCostWithoutEOS { get; set; }
@@ -1833,7 +1833,7 @@ namespace KanchokuWS
 
             CollectRealtimeNgram = addDecoderSetting("collectRealtimeNgram", true);             // Realtime Ngram 情報を収集する
             UseTmpRealtimeNgramFile = addDecoderSetting("useTmpRealtimeNgramFile", false);      // 一時的な Realtime Ngram ファイルを使用する
-            UseMorphAnalyzer = addDecoderSetting("useMorphAnalyzer", true);                     // 形態素解析器を使用する
+            UseMorphAnalyzerAlways = addDecoderSetting("useMorphAnalyzerAlways", true);         // 常に形態素解析器を使用する
             MorphCostWithoutEOS = addDecoderSetting("morphCostWithoutEOS", false);              // EOSまで含めた形態素解析コストを使用しない
             MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze2");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
             MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000);           // 交ぜ書きエントリに対するペナルティ

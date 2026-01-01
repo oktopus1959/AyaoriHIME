@@ -453,8 +453,8 @@ namespace lattice2 {
 
         // 新しい候補を追加
         // targetStr は日本語としての妥当性をチェックするための文字列 (句読点や記号を除いたもの)
-        bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, const MString& targetStr, bool isStrokeBS) {
-            _LOG_DETAIL(_T("\nENTER: newCandStr={}, isStrokeBS={}"), newCandStr.debugString(), isStrokeBS);
+        bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, const MString& targetStr, bool useMorphAnalyzerAlways, bool isStrokeBS) {
+            _LOG_DETAIL(_T("\nENTER: newCandStr={}, useMorphAnalyzer={}, isStrokeBS={}"), newCandStr.debugString(), useMorphAnalyzerAlways, isStrokeBS);
             bool bAdded = false;
 
             //bool bIgnored = false;
@@ -465,45 +465,48 @@ namespace lattice2 {
 
             std::vector<MString> morphs;
 
-            // 形態素解析コスト
-            // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
-            //int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.size() <= 1 ? 5000 : calcMorphCost(targetStr, morphs);
-            int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.empty() ? 0 : calcMorphCost(targetStr, morphs);
-            if (targetStr.size() == 1) {
-                if (utils::is_katakana(targetStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
-            }
-            if (!morphs.empty() && isNonTerminalMorph(morphs.back())) {
-                _LOG_DETAIL(_T("NON TERMINAL morph={}"), to_wstr(morphs.back()));
-                newCandStr.setNonTerminal();
-            }
+            int totalCost = 0;
 
-            // Ngramコスト
-            int ngramCost = targetStr.empty() ? 0 : getNgramCost(targetStr) * SETTINGS->ngramCostFactor;
-            //int morphCost = 0;
-            //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
-            //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;
+            if (useMorphAnalyzerAlways) {
+                // 形態素解析コスト
+                // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
+                //int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.size() <= 1 ? 5000 : calcMorphCost(targetStr, morphs);
+                int morphCost = !SETTINGS->useMorphAnalyzerAlways || targetStr.empty() ? 0 : calcMorphCost(targetStr, morphs);
+                if (targetStr.size() == 1) {
+                    if (utils::is_katakana(targetStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
+                }
+                if (!morphs.empty() && isNonTerminalMorph(morphs.back())) {
+                    _LOG_DETAIL(_T("NON TERMINAL morph={}"), to_wstr(morphs.back()));
+                    newCandStr.setNonTerminal();
+                }
 
-            // llamaコスト
-            int llamaCost = 0;
+                // Ngramコスト
+                int ngramCost = targetStr.empty() ? 0 : getNgramCost(targetStr) * SETTINGS->ngramCostFactor;
+                //int morphCost = 0;
+                //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
+                //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;
 
-            // 総コスト
-            newCandStr.addCost(morphCost, ngramCost);
+                // llamaコスト
+                int llamaCost = 0;
 
-            //// 「漢字+の+漢字」のような場合はペナルティを解除
-            //size_t len = candStr.size();
-            //if (len >= 3 && candStr[len - 2] == L'の' && !utils::is_hiragana(candStr[len - 3]) && !utils::is_hiragana(candStr[len - 1])) {
-            //    newCandStr.zeroPenalty();
-            //}
+                // 総コスト
+                newCandStr.addCost(morphCost, ngramCost);
 
-            int totalCost = newCandStr.totalCost();
+                //// 「漢字+の+漢字」のような場合はペナルティを解除
+                //size_t len = candStr.size();
+                //if (len >= 3 && candStr[len - 2] == L'の' && !utils::is_hiragana(candStr[len - 3]) && !utils::is_hiragana(candStr[len - 1])) {
+                //    newCandStr.zeroPenalty();
+                //}
 
-            int candCost = morphCost + ngramCost + llamaCost;
-            _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[<{}>], ngram={})"),
-                to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost);
+                totalCost = newCandStr.totalCost();
+                int candCost = morphCost + ngramCost + llamaCost;
+                _LOG_DETAIL(_T("CALC: candStr={}, totalCost={}, candCost={} (morph={}[<{}>], ngram={})"),
+                    to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost);
 
-            if (IS_LOG_DEBUGH_ENABLED) {
-                if (!isStrokeBS) _debugLog.append(std::format(L"candStr={}, totalCost={}, candCost={} (morph={} [<{}>] , ngram = {})\n",
-                    to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost));
+                if (IS_LOG_DEBUGH_ENABLED) {
+                    if (!isStrokeBS) _debugLog.append(std::format(L"candStr={}, totalCost={}, candCost={} (morph={} [<{}>] , ngram = {})\n",
+                        to_wstr(candStr), totalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost));
+                }
             }
 
             if (!newCandidates.empty()) {
@@ -727,8 +730,8 @@ namespace lattice2 {
         }
 
         // 素片のストロークと適合する候補だけを追加
-        void addOnePiece(std::vector<CandidateString>& newCandidates, const WordPiece& piece, int strokeCount, int paddingLen, bool bKatakanaConversion) {
-            _LOG_DETAIL(_T("ENTER: _candidates.size={}, piece={}"), _candidates.size(), piece.debugString());
+        void addOnePiece(std::vector<CandidateString>& newCandidates, const WordPiece& piece, bool useMorphAnalyzerAlways, int strokeCount, int paddingLen, bool bKatakanaConversion) {
+            _LOG_DETAIL(_T("ENTER: _candidates.size={}, piece={}, useMorphAnalyzer={}"), _candidates.size(), piece.debugString(), useMorphAnalyzerAlways);
             bool bAutoBushuFound = false;           // 自動部首合成は一回だけ実行する
             bool isStrokeBS = piece.numBS() > 0;
             const MString& pieceStr = piece.getString();
@@ -774,7 +777,7 @@ namespace lattice2 {
                             CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                             newCandStr.setPenalty(penalty);
                             // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
-                            addCandidate(newCandidates, newCandStr, s, isStrokeBS);
+                            addCandidate(newCandidates, newCandStr, s, useMorphAnalyzerAlways, isStrokeBS);
                             bAutoBushuFound = true;
                         }
                     }
@@ -791,7 +794,7 @@ namespace lattice2 {
                         }
                         // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
                         MString subStr = substringBetweenNonJapaneseChars(s);
-                        addCandidate(newCandidates, newCandStr, subStr, isStrokeBS);
+                        addCandidate(newCandidates, newCandStr, subStr, useMorphAnalyzerAlways, isStrokeBS);
                     }
                     // pieceが確定文字の場合
                     if (pieceStr.size() == 1 && lattice2::isCommitChar(pieceStr[0])) {
@@ -919,8 +922,9 @@ namespace lattice2 {
         }
 
         // return: strokeBack による戻しがあったら、先頭を優先する
-        std::vector<CandidateString> _updateKBestList_sub(const std::vector<WordPiece>& pieces, int strokeCount, int paddingLen, bool strokeBack, bool bKatakanaConversion) {
-            _LOG_DETAIL(_T("ENTER: pieces.size={}, strokeCount={}, strokeBack={}, paddingLen={}"), pieces.size(), strokeCount, strokeBack, paddingLen);
+        std::vector<CandidateString> _updateKBestList_sub(const std::vector<WordPiece>& pieces, bool useMorphAnalyzerAlways, int strokeCount, int paddingLen, bool strokeBack, bool bKatakanaConversion) {
+            _LOG_DETAIL(_T("ENTER: pieces.size={}, strokeCount={}, useMorphAnalyzer={}, strokeBack={}, paddingLen={}"),
+                pieces.size(), useMorphAnalyzerAlways, strokeCount, strokeBack, paddingLen);
             std::vector<CandidateString> newCandidates;
             if (strokeBack) {
                 _LOG_DETAIL(_T("strokeBack"));
@@ -958,7 +962,7 @@ namespace lattice2 {
             // BS でないか、以前の候補が無くなっていた
             for (const auto& piece : pieces) {
                 // 素片のストロークと適合する候補だけを追加
-                addOnePiece(newCandidates, piece, strokeCount, paddingLen, bKatakanaConversion);
+                addOnePiece(newCandidates, piece, useMorphAnalyzerAlways, strokeCount, paddingLen, bKatakanaConversion);
             }
 
             if (!isPaddingPiece) {
@@ -1010,8 +1014,9 @@ namespace lattice2 {
 
     public:
         // strokeCount: lattice に最初に addPieces() した時からの相対的なストローク数
-        void updateKBestList(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack, bool bKatakanaConversion) override {
-            _LOG_DETAIL(_T("ENTER: _candidates.size()={}, pieces.size()={}, strokeCount={}, strokeBack={}"), _candidates.size(), pieces.size(), strokeCount, strokeBack);
+        void updateKBestList(const std::vector<WordPiece>& pieces, bool useMorphAnalyzerAlways, int strokeCount, bool strokeBack, bool bKatakanaConversion) override {
+            _LOG_DETAIL(_T("ENTER: _candidates.size()={}, pieces.size()={}, useMorphAnalyzer={}, strokeCount={}, strokeBack={}"),
+                _candidates.size(), pieces.size(), useMorphAnalyzerAlways, strokeCount, strokeBack);
             _debugLog.clear();
 
             setRollOverStroke(strokeCount - 1, STATE_COMMON->IsRollOverStroke());
@@ -1028,7 +1033,7 @@ namespace lattice2 {
                 // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
                 _candidates = std::move(_updateKBestList_initial(_candidates.front(), pieces.front(), strokeCount, paddingLen, bKatakanaConversion));
             } else {
-                _candidates = std::move(_updateKBestList_sub(pieces, strokeCount, paddingLen, strokeBack, bKatakanaConversion));
+                _candidates = std::move(_updateKBestList_sub(pieces, useMorphAnalyzerAlways, strokeCount, paddingLen, strokeBack, bKatakanaConversion));
             }
 
             //// 漢字またはカタカナが2文字以上連続したら、その候補を優先する
@@ -1146,6 +1151,7 @@ namespace lattice2 {
                 raiseAndLowerByCandSelection();
                 removeOtherThanFirst();
                 const CandidateString& firstCand = _candidates.front();
+                // 交ぜ書き変換の実行
                 auto canditates = firstCand.applyMazegaki();
                 MString firstStr = firstCand.string();
                 for (auto iter = canditates.rbegin(); iter != canditates.rend(); ++iter) {

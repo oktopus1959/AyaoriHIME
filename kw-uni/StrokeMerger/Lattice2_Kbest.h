@@ -64,7 +64,7 @@ namespace lattice2 {
 
     public:
         // strokeCount: lattice に最初に addPieces() した時からの相対的なストローク数
-        virtual void updateKBestList(const std::vector<WordPiece>& pieces, int strokeCount, bool strokeBack, bool bKatakanaConversion) = 0;
+        virtual void updateKBestList(const std::vector<WordPiece>& pieces, bool useMorphAnalyzerAlways, int strokeCount, bool strokeBack, bool bKatakanaConversion) = 0;
 
     public:
         // 先頭を表すダミーを用意しておく

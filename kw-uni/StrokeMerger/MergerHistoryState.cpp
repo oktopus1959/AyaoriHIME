@@ -781,7 +781,8 @@ namespace {
                 }
             }
             //LOG_DEBUGH(L"L:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
-            return WORD_LATTICE->addPieces(pieces, _strokeBack, _isKatakanaConversionMode);
+            bool bUseMorphAnalyzer = SETTINGS->useMorphAnalyzerAlways || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
+            return WORD_LATTICE->addPieces(pieces, bUseMorphAnalyzer, _strokeBack, _isKatakanaConversionMode);
         }
 
         // チェーンをたどって不要とマークされた後続状態を削除する
@@ -1676,20 +1677,20 @@ void StrokeMergerHistoryNode::createStrokeTrees(bool bForceSecondary) {
 
     // 主テーブルファイルの構築
     auto tableFile1 = !SETTINGS->tableFile.empty() ? utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile1.tbl")) : L"";
-    if (!tableFile1.empty()) {
+    //if (!tableFile1.empty()) {
         createStrokeTree(tableFile1, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree));
-    }
+    //}
 
     // 副テーブルファイルの構築
     auto tableFile2 = !bForceSecondary && SETTINGS->tableFile2.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile2.tbl"));
-    if (!tableFile2.empty()) {
+    //if (!tableFile2.empty()) {
         createStrokeTree(tableFile2, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree2));
-    }
+    //}
 
     // 第3テーブルファイルの構築
     auto tableFile3 = SETTINGS->tableFile3.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile3.tbl"));
-    if (!tableFile3.empty()) {
+    //if (!tableFile3.empty()) {
         createStrokeTree(tableFile3, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree3));
-    }
+    //}
 }
 
