@@ -101,7 +101,7 @@ public:
     // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
     // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
     // return: 出力文字列と、修正用のBS数
-    virtual LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool useMorphAnalyzerAlways, bool strokeBack, bool bKatakanaConversion) = 0;
+    virtual LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool useMorphAnalyzer, bool strokeBack, bool bKatakanaConversion) = 0;
 
     virtual void clearAll() = 0;
 
