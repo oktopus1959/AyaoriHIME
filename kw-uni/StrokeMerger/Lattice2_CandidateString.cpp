@@ -175,10 +175,10 @@ namespace lattice2 {
     struct MorphCand {
         MString str;
         MString feat;
-        int cost = 0;
+        int bonusOrPenalty = 0;
 
         String toString() const {
-            return to_wstr(str) + L"@" + to_wstr(feat) + L"(" + std::to_wstring(cost) + L")";
+            return to_wstr(str) + L"@" + to_wstr(feat) + L"(" + std::to_wstring(bonusOrPenalty) + L")";
         }
     };
 
@@ -218,7 +218,7 @@ namespace lattice2 {
     int accum_cost(const std::vector<MorphCand>& vectors) {
         int cost = 0;
         for (const auto& cand : vectors) {
-            cost += cand.cost;
+            cost += cand.bonusOrPenalty;
         }
         return cost;
     }
@@ -289,7 +289,7 @@ namespace lattice2 {
     std::vector<CandidateString> generate_candidateString_from_items_sorted_by_cost(std::vector<MorphCand>& items, int strokeLen, size_t k) {
         std::stable_sort(items.begin(), items.end(),
             [](const MorphCand& a, const MorphCand& b) {
-                return a.cost < b.cost;
+                return a.bonusOrPenalty < b.bonusOrPenalty;
             });
 
         std::vector<CandidateString> results;
@@ -303,54 +303,79 @@ namespace lattice2 {
         return results;
     }
 
-    void add_maze_cand(std::vector<MorphCand>& result, const MString& morph) {
+    // 交ぜ書き候補の追加と優先度コストの取得
+    void add_maze_cand(std::vector<MorphCand>& result, const MString& morph, int bonusOrPenalty) {
         auto items = utils::split(morph, '@');
         if (items.size() > 1) {
-            _LOG_DETAIL(L"cand feat={}", to_wstr(items[1]));
-            result.push_back(MorphCand{ items[0], items[1], getMazegakiPreferenceCost(items[1]) });
+            int mazePreferenceBonus = getMazegakiPreferenceBonus(items[1]);
+            _LOG_DETAIL(L"cand xlat={}, feat={}, mazePref={}, bonusOrPenalty={}", to_wstr(items[0]), to_wstr(items[1]), mazePreferenceBonus, bonusOrPenalty);
+            result.push_back(MorphCand{ items[0], items[1], mazePreferenceBonus + bonusOrPenalty });
         } else {
             result.push_back(MorphCand{ items[0], EMPTY_MSTR, 0 });
         }
     }
 
-    // 難字を含む交ぜ書き候補を優先的に取得する
-    void getDifficultMazeCands(const MString& surf, const MString& mazeCands, std::vector<MorphCand>& result) {
+    struct MazeCandInfo {
+        MString str;
+        int bonusOrPenalty;
+    };
+
+    // 形態素単位で、交ぜ書き候補を取得する
+    void getMazeCands(const MString& surf, const MString& mazeCands, std::vector<MorphCand>& result) {
         _LOG_DETAIL(L"ENTER: surf={}, mazeCands={}, result={}", to_wstr(surf), to_wstr(mazeCands), join_all_cands_for_debug(result));
         auto cands = utils::split(mazeCands, '|');
         if (cands.size() <= 1) {
             _LOG_DETAIL(L"put single mazeCands={}", to_wstr(mazeCands));
-            add_maze_cand(result, mazeCands);
+            add_maze_cand(result, mazeCands, 0);
         } else {
             std::set<mchar_t> surfKanjis;
             for (mchar_t mc : surf) {
                 if (utils::is_kanji(mc)) surfKanjis.insert(mc);
             }
-            std::vector<MString> rests;
+            std::vector<MazeCandInfo> rests;
+            MString firstHinshi;        // 先頭品詞
             for (const auto& cand : cands) {
                 auto items = utils::split(cand, '@');
+                const MString& xlat = items[0];
+                const MString& feat = items.size() > 1 ? items[1] : EMPTY_MSTR;
+                MString hinshi;
+                auto featItems = utils::split(feat, '/');
+                if (featItems.size() > 1) {
+                    hinshi = utils::substr_upto(featItems[1], ':');
+                } else {
+                    hinshi = MSTR_HASH_MARK;    // "#": 品詞不明
+                }
+                if (firstHinshi.empty()) {
+                    firstHinshi = hinshi;
+                }
                 bool found = false;
-                for (mchar_t mc : items[0]) {
-                    if (surfKanjis.find(mc) != surfKanjis.end() && !EASY_CHARS->IsEasyChar(mc)) {
-                        // 難字を含む候補が見つかったので、こちらを優先して出力
-                        _LOG_DETAIL(L"put difficult cand={}", to_wstr(cand));
-                        add_maze_cand(result, cand);
-                        found = true;
-                        break;
+                bool sameHinshi = hinshi == firstHinshi;
+                if (sameHinshi) {
+                    // 同じ品詞なら難字優先
+                    for (mchar_t mc : xlat) {
+                        if (surfKanjis.find(mc) != surfKanjis.end() && !EASY_CHARS->IsEasyChar(mc)) {
+                            // 難字を含む候補が見つかったので、こちらを優先して出力
+                            _LOG_DETAIL(L"put difficult cand={}", to_wstr(cand));
+                            add_maze_cand(result, cand, 0);     // TODO: 難字ボーナスを付与する？
+                            found = true;
+                            break;
+                        }
                     }
                 }
                 if (!found) {
-                    rests.push_back(cand);
+                    int bonusOrPenalty = sameHinshi ? 0 : DIFFERENT_HINSHI_PENALTY ;
+                    rests.push_back(MazeCandInfo{ cand, bonusOrPenalty });
                 }
             }
             // 難字を含まない残りの候補を追加
-            _LOG_DETAIL(L"rests={}", to_wstr(utils::join(rests, to_mstr(L" ||| "))));
-            for (const auto& cand : rests) {
-                add_maze_cand(result, cand);
+            //_LOG_DETAIL(L"rests={}", to_wstr(utils::join(rests, to_mstr(L" ||| "))));
+            for (const auto& info : rests) {
+                add_maze_cand(result, info.str, info.bonusOrPenalty);
             }
 
             // feature部による交ぜ書き優先度でソート
             std::stable_sort(result.begin(), result.end(), [](const MorphCand& a, const MorphCand& b) {
-                return a.cost < b.cost;
+                return a.bonusOrPenalty < b.bonusOrPenalty;
             });
         }
         _LOG_DETAIL(L"LEAVE: result={}", join_all_cands_for_debug(result));
@@ -373,6 +398,7 @@ namespace lattice2 {
         _LOG_DETAIL(L"{}: orig morph cost={}, morph={}", to_wstr(_str), cost, to_wstr(utils::join(words, to_mstr(L" ||| "))));
 
         std::vector<std::vector<MorphCand>> vecMorphCands;
+        // 形態素単位で、交ぜ書き候補を取得する
         for (auto iter = words.begin(); iter != words.end(); ++iter) {
             _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
             auto items = utils::split(*iter, '\t');
@@ -380,7 +406,7 @@ namespace lattice2 {
                 const MString& surf = items[0];
                 vecMorphCands.emplace_back();
                 const MString& mazeCands = items[1];
-                getDifficultMazeCands(surf, mazeCands, vecMorphCands.back());
+                getMazeCands(surf, mazeCands, vecMorphCands.back());
             }
         }
         _LOG_DETAIL(L"vecMorphCands={}", join_all_cands_vector_for_debug(vecMorphCands));

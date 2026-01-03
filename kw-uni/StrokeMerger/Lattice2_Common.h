@@ -37,6 +37,8 @@ namespace lattice2 {
     // cost ファイルに登録がある場合のデフォルトのボーナス
     inline int DEFAULT_WORD_BONUS = 1000;
 
+    inline int DIFFERENT_HINSHI_PENALTY = 10000;
+
     inline bool isDecimalString(StringRef item) {
         return utils::reMatch(item, L"[+\\-]?[0-9]+");
     }

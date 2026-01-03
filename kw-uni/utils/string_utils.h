@@ -633,6 +633,16 @@ namespace utils
         return s.substr(start, len);
     }
 
+    inline String substr_upto(StringRef s, wchar_t ch) {
+        size_t pos = s.find(ch);
+        return (pos == String::npos) ? s : s.substr(0, pos);
+    }
+
+    inline MString substr_upto(const MString& s, mchar_t ch) {
+        size_t pos = s.find(ch);
+        return (pos == MString::npos) ? s : s.substr(0, pos);
+    }
+
     inline bool contains(StringRef s, const wchar_t* t) {
         return s.find(t) != String::npos;
     }

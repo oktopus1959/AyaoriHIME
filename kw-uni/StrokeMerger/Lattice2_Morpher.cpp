@@ -40,7 +40,7 @@ namespace lattice2 {
     }
 
     // 交ぜ書き優先度の取得
-    int getMazegakiPreferenceCost(const MString& mazeFeat) {
+    int getMazegakiPreferenceBonus(const MString& mazeFeat) {
         auto iter = mazegakiPrefDict.find(mazeFeat);
         if (iter == mazegakiPrefDict.end()) {
             return 0;
