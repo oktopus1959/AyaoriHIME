@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{aef1f796-7f90-4d1f-95e4-e9d428b42a9f}</ProjectGuid>
+    <RootNamespace>DyMazinLib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VCInstallDir)Auxiliary\VS\UnitTest\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VCInstallDir)Auxiliary\VS\UnitTest\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>../../bin/$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VCInstallDir)Auxiliary\VS\UnitTest\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VCInstallDir)Auxiliary\VS\UnitTest\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>../../bin/$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>../../bin/$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>../../bin/$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;DLL_EXPORT;_DEBUG;DYMAZINLIB_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectDir)src\pch.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>$(ProjectDir)src\pch.h</ForcedIncludeFiles>
+      <AdditionalOptions>/source-charset:utf-8 /wd5105 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.;src;src\util;src\reporting</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;DLL_EXPORT;NDEBUG;DYMAZINLIB_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectDir)src\pch.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>$(ProjectDir)src\pch.h</ForcedIncludeFiles>
+      <AdditionalOptions>/source-charset:utf-8 /wd5105 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.;src;src\util;src\reporting</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;DLL_EXPORT;DYMAZINLIB_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectDir)src\pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <ForcedIncludeFiles>$(ProjectDir)src\pch.h</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>.;src;src\util;src\reporting</AdditionalIncludeDirectories>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;DLL_EXPORT;DYMAZINLIB_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectDir)src\pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <ForcedIncludeFiles>$(ProjectDir)src\pch.h</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>.;src;src\util;src\reporting</AdditionalIncludeDirectories>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\dict\MazegakiPreprocessor.cpp" />
+    <ClCompile Include="src\dict\MazePrepro_KanjiYomi.cpp" />
+    <ClCompile Include="src\DyMazinLib.cpp" />
+    <ClCompile Include="src\reporting\ErrorHandler.cpp" />
+    <ClCompile Include="src\unitTest\CharPropertyTest.cpp" />
+    <ClCompile Include="src\unitTest\ConnectorCompileTest.cpp" />
+    <ClCompile Include="src\unitTest\CsvTest.cpp" />
+    <ClCompile Include="src\unitTest\DictionaryBuilderTest.cpp" />
+    <ClCompile Include="src\unitTest\DictionaryCompilerTest.cpp" />
+    <ClCompile Include="src\unitTest\DictionaryTest.cpp" />
+    <ClCompile Include="src\unitTest\DoubleArrayTest.cpp" />
+    <ClCompile Include="src\unitTest\FeatureIndexCompileTest.cpp" />
+    <ClCompile Include="src\unitTest\OptHandlerTest.cpp" />
+    <ClCompile Include="src\unitTest\PackedStringTest.cpp" />
+    <ClCompile Include="src\unitTest\TaggerTest.cpp" />
+    <ClCompile Include="src\unitTest\TestLogger.cpp" />
+    <ClCompile Include="src\unitTest\UtilsTest.cpp" />
+    <ClCompile Include="src\analyzer\CharProperty.cpp" />
+    <ClCompile Include="src\analyzer\Connector.cpp" />
+    <ClCompile Include="src\analyzer\ContextIDMapper.cpp" />
+    <ClCompile Include="src\analyzer\DictionaryRewriter.cpp" />
+    <ClCompile Include="src\analyzer\FeatureIndex.cpp" />
+    <ClCompile Include="src\analyzer\Lattice.cpp" />
+    <ClCompile Include="src\analyzer\Model.cpp" />
+    <ClCompile Include="src\analyzer\NBestGenerator.cpp" />
+    <ClCompile Include="src\analyzer\Tagger.cpp" />
+    <ClCompile Include="src\analyzer\TextWriter.cpp" />
+    <ClCompile Include="src\analyzer\Tokenizer.cpp" />
+    <ClCompile Include="src\analyzer\Viterbi.cpp" />
+    <ClCompile Include="src\compiler\DictionaryBuilder.cpp" />
+    <ClCompile Include="src\darts\DoubleArray.cpp" />
+    <ClCompile Include="src\dict\Dictionary.cpp" />
+    <ClCompile Include="src\dict\DictionaryCompiler.cpp" />
+    <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\node\LearnerNode.cpp" />
+    <ClCompile Include="src\node\LearnerPath.cpp" />
+    <ClCompile Include="src\node\Node.cpp" />
+    <ClCompile Include="src\node\Path.cpp" />
+    <ClCompile Include="src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\reporting\Logger.cpp" />
+    <ClCompile Include="src\util\my_utils.cpp" />
+    <ClCompile Include="src\util\OptHandler.cpp" />
+    <ClCompile Include="src\util\PackedString.cpp" />
+    <ClCompile Include="src\util\utf_utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\analyzer\ContextIDMapper.h" />
+    <ClInclude Include="src\analyzer\featureDef.h" />
+    <ClInclude Include="src\analyzer\FeatureIndex.h" />
+    <ClInclude Include="src\analyzer\Model.h" />
+    <ClInclude Include="src\analyzer\NBestGenerator.h" />
+    <ClInclude Include="src\analyzer\Tagger.h" />
+    <ClInclude Include="src\analyzer\TextWriter.h" />
+    <ClInclude Include="src\analyzer\Tokenizer.h" />
+    <ClInclude Include="src\analyzer\Viterbi.h" />
+    <ClInclude Include="src\compiler\DictionaryBuilder.h" />
+    <ClInclude Include="src\dict\MazegakiPreprocessor.h" />
+    <ClInclude Include="src\dict\MazePrepro_Common.h" />
+    <ClInclude Include="src\DyMazinLib.h" />
+    <ClInclude Include="src\node\LearnerNode.h" />
+    <ClInclude Include="src\node\LearnerPath.h" />
+    <ClInclude Include="src\analyzer\DictionaryRewriter.h" />
+    <ClInclude Include="src\analyzer\Lattice.h" />
+    <ClInclude Include="src\node\Path.h" />
+    <ClInclude Include="src\node\PathT.h" />
+    <ClInclude Include="src\analyzer\CharInfo.h" />
+    <ClInclude Include="src\analyzer\CharProperty.h" />
+    <ClInclude Include="src\analyzer\Connector.h" />
+    <ClInclude Include="src\analyzer\RangeString.h" />
+    <ClInclude Include="src\analyzer\Token.h" />
+    <ClInclude Include="src\constants\Constants.h" />
+    <ClInclude Include="src\darts\DoubleArray.h" />
+    <ClInclude Include="src\darts\DoubleArrayTestHelper.h" />
+    <ClInclude Include="src\dict\Dictionary.h" />
+    <ClInclude Include="src\dict\DictionaryInfo.h" />
+    <ClInclude Include="src\dymazin.h" />
+    <ClInclude Include="src\framework.h" />
+    <ClInclude Include="src\node\Node.h" />
+    <ClInclude Include="src\node\NodeT.h" />
+    <ClInclude Include="src\node\NodeType.h" />
+    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\reporting\ErrorHandler.h" />
+    <ClInclude Include="src\reporting\Logger.h" />
+    <ClInclude Include="src\unitTest\unittest_util.h" />
+    <ClInclude Include="src\util\exception.h" />
+    <ClInclude Include="src\util\file_utils.h" />
+    <ClInclude Include="src\util\langedge\ctypeutil.hpp" />
+    <ClInclude Include="src\util\Lazy.h" />
+    <ClInclude Include="src\util\misc_utils.h" />
+    <ClInclude Include="src\util\OptHandler.h" />
+    <ClInclude Include="src\util\PackedString.h" />
+    <ClInclude Include="src\util\path_utils.h" />
+    <ClInclude Include="src\util\ptr_utils.h" />
+    <ClInclude Include="src\util\regex_utils.h" />
+    <ClInclude Include="src\util\std_utils.h" />
+    <ClInclude Include="src\util\string_type.h" />
+    <ClInclude Include="src\util\string_utils.h" />
+    <ClInclude Include="src\util\transform_utils.h" />
+    <ClInclude Include="src\util\xsvparser.hpp" />
+    <ClInclude Include="src\util\xsv_parser.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
