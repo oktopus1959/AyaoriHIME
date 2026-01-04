@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoolObject.cs" />
+    <Compile Include="FontCallback.cs" />
     <Compile Include="GuiHelpers.cs" />
     <Compile Include="GuiStatusChecker.cs" />
     <Compile Include="HRDateTime.cs" />

@@ -32,36 +32,57 @@ namespace KanchokuWS
             // タイトルバーを消す
             FormBorderStyle = FormBorderStyle.None;
 
+            float dpi = this.DeviceDpi;
+            float scale = dpi / 96f;
+
             label_version.Text = $"{KanchokuWS.ProductVersion.ProductSplashName} - {KanchokuWS.ProductVersion.Version}";
             label_version2.Text = KanchokuWS.ProductVersion.Version2;
             label_subName.Text = $"{KanchokuWS.ProductVersion.ProductKanjiName}";
+            label_subName.Font = Utils.FontCallback.CreateFallbackFont(
+                label_subName,
+                label_subName.Font.Size,
+                label_subName.Font.Style,
+                "HG正楷書体-PRO",
+                "HG正楷書体-PRO M",
+                "HG正楷書体",
+                "HGS正楷書体-PRO",
+                "HGS正楷書体",
+                "游明朝",
+                "Yu Mincho",
+                "MS 明朝",
+                "MS Mincho");
             label_explanation.Text = $"{KanchokuWS.ProductVersion.ProductExplanation}";
             label_explanation2.Text = $"{KanchokuWS.ProductVersion.ProductExplanation2}";
 
-            label_version.Left = (this.ClientSize.Width - label_version.Width) / 2;
-            label_explanation.Left = (this.ClientSize.Width - label_explanation.Width) / 2;
-            label_explanation2.Left = (this.ClientSize.Width - label_explanation2.Width) / 2;
-            label_subName.Left = (this.ClientSize.Width - label_subName.Width) / 2;
-            buttonOK.Left = (this.ClientSize.Width / 2) - 10 - buttonOK.Width;
-            buttonSettings.Left = (this.ClientSize.Width / 2) + 10;
+            float clientWidth = this.ClientSize.Width * scale;
+            float clientHeight = this.ClientSize.Height * scale;
+
+            label_version.Left = (int)((clientWidth - label_version.Width) / 2);
+            label_explanation.Left = (int)((clientWidth - label_explanation.Width) / 2);
+            label_explanation2.Left = (int)((clientWidth - label_explanation2.Width) / 2);
+            label_subName.Left = (int)((clientWidth - label_subName.Width) / 2);
+            buttonOK.Left = (int)((clientWidth / 2) - (10 * scale + buttonOK.Width));
+            buttonSettings.Left = (int)((clientWidth / 2) + (10 * scale));
 
             double dpiRate = ScreenInfo.Singleton.GetScreenDpiRate(this.Left, this.Top);
-            this.Width = (int)(this.Width * dpiRate);
-            this.Height = (int)(this.Height * dpiRate);
-            label_version.Top = (int)(label_version.Top * dpiRate);
-            label_version.Left = (int)(label_version.Left * dpiRate);
-            label_subName.Top = (int)(label_subName.Top * dpiRate);
-            label_subName.Left = (int)(label_subName.Left * dpiRate);
-            label_initializing.Top = (int)(label_initializing.Top * dpiRate);
-            label_initializing.Left = (int)(label_initializing.Left * dpiRate);
-            buttonOK.Top = (int)(buttonOK.Top * dpiRate);
-            buttonOK.Left = (int)(buttonOK.Left * dpiRate);
-            buttonOK.Width = (int)(buttonOK.Width * dpiRate);
-            buttonOK.Height = (int)(buttonOK.Height * dpiRate);
-            buttonSettings.Top = (int)(buttonSettings.Top * dpiRate);
-            buttonSettings.Left = (int)(buttonSettings.Left * dpiRate);
-            buttonSettings.Width = (int)(buttonSettings.Width * dpiRate);
-            buttonSettings.Height = (int)(buttonSettings.Height * dpiRate);
+            this.Width = (int)(this.Width * scale);
+            this.Height = (int)(this.Height * scale);
+            label_version.Top = (int)(label_version.Top * scale);
+            ////label_version.Left = (int)(label_version.Left * scale);
+            label_subName.Top = (int)(label_subName.Top * scale);
+            //label_subName.Left = (int)(label_subName.Left * scale);
+            label_explanation.Top = (int)(label_explanation.Top * scale);
+            label_explanation2.Top = (int)(label_explanation2.Top * scale);
+            label_initializing.Top = (int)(label_initializing.Top * scale);
+            //label_initializing.Left = (int)(label_initializing.Left * scale);
+            buttonOK.Top = (int)(buttonOK.Top * scale);
+            //buttonOK.Left = (int)(buttonOK.Left * scale);
+            //buttonOK.Width = (int)(buttonOK.Width * scale);
+            //buttonOK.Height = (int)(buttonOK.Height * scale);
+            buttonSettings.Top = (int)(buttonSettings.Top * scale);
+            //buttonSettings.Left = (int)(buttonSettings.Left * scale);
+            //buttonSettings.Width = (int)(buttonSettings.Width * scale);
+            //buttonSettings.Height = (int)(buttonSettings.Height * scale);
         }
 
         const int CS_DROPSHADOW = 0x00020000;
