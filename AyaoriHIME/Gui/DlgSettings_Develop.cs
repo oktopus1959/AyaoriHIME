@@ -28,6 +28,7 @@ namespace KanchokuWS.Gui
             checkBox_outputDebugTableFiles.Checked = Settings.OutputDebugTableFiles;
             checkBox_showHiddleFolder.Checked = Settings.ShowHiddleFolder;
             checkBox_multiAppEnabled.Checked = Settings.MultiAppEnabled;
+            button_displayKeyInfos.Visible = checkBox_multiAppEnabled.Checked;
             textBox_warnThresholdKeyQueueCount.Text = Settings.WarnThresholdKeyQueueCount.ToString();
         }
 
@@ -79,6 +80,7 @@ namespace KanchokuWS.Gui
             checkerDevelop.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
 
             //frmVkb?.SetNormalCellBackColors();
+            frmMain?.ClearDlgKeyInfoLog();
             frmMode?.ShowImmediately();
 
             // 各種定義ファイルの再読み込み

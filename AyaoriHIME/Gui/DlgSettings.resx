@@ -117,33 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="checkBox_useEditBuffer.ToolTip" xml:space="preserve">
-    <value>文字の出力時に編集バッファを利用する
-
-この設定を有効にすると、対象アプリ画面のテキストカーソル位置に出力
-文字列を編集するためのバッファが表示されます。
-文字を入力していくと、いったんこのバッファに文字列が蓄積され、Enterや
-バッファのフラッシュ文字の入力で、その内容をまとめてアプリに送出します。
-これにより、文字出力のもたつきを軽減することができます。
-編集バッファのその他の設定については「配列融合」タブを参照してください。
-
-編集バッファが無効の場合は、対象アプリに直接文字出力されます。</value>
-  </data>
-  <data name="comboBox_editBufferCaretChar.ToolTip" xml:space="preserve">
-    <value>Ctrlキーの修飾なしで漢直(かな)モードと英字モードを切り替えるためのキーの指定
-
-使用するキーの仮想キーコードを16進数で指定します。
-仮想キーコードについては「windows 仮想キーコード 一覧」でググると見つかります。
-主なキーについては候補を用意してあるので、それを選択してください。
-
-「Ctrlキー修飾なしOFF」が設定された場合は、このキーは「漢直モードON」のための
-キーとなります。
-
-キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
-  </data>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
@@ -982,6 +955,30 @@ OFF の場合は、"/" はたんに無視され、1文字単位であらゆる�
 ・「拡張修飾キーを有効にする」にチェックを入れる
 ・拡張修飾キー定義ファイルに次の設定を記述する：
       space=shiftB | none</value>
+  </data>
+  <data name="checkBox_useEditBuffer.ToolTip" xml:space="preserve">
+    <value>文字の出力時に編集バッファを利用する
+
+この設定を有効にすると、対象アプリ画面のテキストカーソル位置に出力
+文字列を編集するためのバッファが表示されます。
+文字を入力していくと、いったんこのバッファに文字列が蓄積され、Enterや
+バッファのフラッシュ文字の入力で、その内容をまとめてアプリに送出します。
+これにより、文字出力のもたつきを軽減することができます。
+編集バッファのその他の設定については「配列融合」タブを参照してください。
+
+編集バッファが無効の場合は、対象アプリに直接文字出力されます。</value>
+  </data>
+  <data name="comboBox_editBufferCaretChar.ToolTip" xml:space="preserve">
+    <value>Ctrlキーの修飾なしで漢直(かな)モードと英字モードを切り替えるためのキーの指定
+
+使用するキーの仮想キーコードを16進数で指定します。
+仮想キーコードについては「windows 仮想キーコード 一覧」でググると見つかります。
+主なキーについては候補を用意してあるので、それを選択してください。
+
+「Ctrlキー修飾なしOFF」が設定された場合は、このキーは「漢直モードON」のための
+キーとなります。
+
+キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
   </data>
   <data name="textBox_autoBushuComp.ToolTip" xml:space="preserve">
     <value>自動部首合成の登録を行います。

@@ -50,13 +50,20 @@ namespace KanchokuWS.Handler
 
         private void appendKeyInfo(bool bDown, uint vkey, int scanCode, uint flags, int extraInfo)
         {
-            strokeLogQueue.Enqueue(new KeyInfo(bDown, vkey, scanCode, flags, extraInfo));
-            if (strokeLogQueue.Count > 100) strokeLogQueue.Dequeue();
+            if (Settings.MultiAppEnabled) {
+                strokeLogQueue.Enqueue(new KeyInfo(bDown, vkey, scanCode, flags, extraInfo));
+                if (strokeLogQueue.Count > 100) strokeLogQueue.Dequeue();
+            }
         }
 
         public IEnumerable<string> getRecentKeyInfos()
         {
             return strokeLogQueue.Select(x => x.ToString());
+        }
+
+        public void clearRecentKeyInfos()
+        {
+            strokeLogQueue.Clear();
         }
 
         /// <summary>デコーダが ON か</summary>

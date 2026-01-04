@@ -241,9 +241,11 @@ namespace KanchokuWS
 
         private void refreshKeyInfoLog()
         {
-            foreach (var line in keHandler.getRecentKeyInfos()) {
-                dlgKeyInfoLog.WriteLog(line + "\r\n");
-            }
+            dlgKeyInfoLog.WriteLog(keHandler.getRecentKeyInfos()._join("\r\n") + "\r\n");
+        }
+
+        public void ClearDlgKeyInfoLog()         {
+            keHandler.clearRecentKeyInfos();
         }
 
         public void CloseDlgKeyInfoLog()

@@ -35,6 +35,7 @@ namespace KanchokuWS.Gui
         {
             try {
                 richTextBox1.Focus();
+                richTextBox1.Clear();
                 richTextBox1.AppendText(msg);
                 //frmFocus?.Focus();
             } catch (Exception ex) {
