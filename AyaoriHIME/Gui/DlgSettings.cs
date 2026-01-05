@@ -3046,7 +3046,7 @@ namespace KanchokuWS.Gui
         // 拡張修飾キー設定をファイルに書き出す
         private void writeModConversionSettings()
         {
-            var path = KanchokuIni.Singleton.KanchokuDir._joinPath(textBox_modConversionFile.Text);
+            var path = KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.UserFilesFolder, textBox_modConversionFile.Text);
             logger.Info($"ENTER: path={path}");
             try {
                 using (var fs = new System.IO.FileStream(path, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.ReadWrite)) {
