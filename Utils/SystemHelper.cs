@@ -71,7 +71,7 @@ namespace Utils
                 var exeDir = GetExeDirectory()._getFileName().ToUpper();
                 string dataPath = null;
                 Func<string> absPathFinder = FindKanchokuRootDir;
-                if (dataPath._isEmpty()) dataPath = "data";         // kanchoku.ini に設定がなければ data とする
+                if (dataPath._isEmpty()) dataPath = "data";         // ayaorihime.ini に設定がなければ data とする
                 s_KanchokuDataDir = dataPath._isAbsPath()
                     ? dataPath                                      // 絶対パスならそれを採用
                     : absPathFinder()._joinPath(dataPath);          // 相対パスなら KanchokuRoot または AppData/Local 配下に設定

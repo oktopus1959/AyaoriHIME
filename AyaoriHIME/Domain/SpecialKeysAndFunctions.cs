@@ -144,7 +144,7 @@ namespace KanchokuWS
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.EXCHANGE_CODE_TABLE2_DECKEY, 0, "ExchangeCodeTable2", "", "主・副テーブルファイルを入れ替える; テーブル3が選択されていたら2に切り替える"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.SELECT_CODE_TABLE1_DECKEY, 0, "SelectCodeTable1", "", "主テーブルファイルに切り替える"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.SELECT_CODE_TABLE2_DECKEY, 0, "SelectCodeTable2", "", "副テーブルファイルに切り替える"),
-            new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.SELECT_CODE_TABLE3_DECKEY, 0, "SelectCodeTable3", "", "第3テーブルファイルに切り替える; 第3テーブルは kanchoku.user.ini の tableFile3 で設定する"),
+            new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.SELECT_CODE_TABLE3_DECKEY, 0, "SelectCodeTable3", "", "第3テーブルファイルに切り替える; 第3テーブルは ayaorihime.ini の tableFile3 で設定する"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_MODE_TOGGLE_DECKEY, 0, "MultiStreamToggle", "", "漢直・かな融合モードと通常モードを切り替える"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_NEXT_CAND_DECKEY, 0, "MultiStreamNext", "", "漢直・かな融合時の次候補選択"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_PREV_CAND_DECKEY, 0, "MultiStreamPrev", "", "漢直・かな融合時の前候補選択"),

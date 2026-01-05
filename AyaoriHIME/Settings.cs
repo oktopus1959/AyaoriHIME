@@ -1105,41 +1105,36 @@ namespace KanchokuWS
         //------------------------------------------------------------------------------
         public static string GetString(string attr, string defval = "")
         {
-            return GetInternalValue(attr)._orElse(
-                () => UserKanchokuIni.Singleton.GetString(attr)._orElse(
-                    () => KanchokuIni.Singleton.GetString(attr, defval)));
+            return GetInternalValue(attr)._orElse(() => KanchokuIni.Singleton.GetString(attr, defval));
         }
 
-        // kanchoku.user.ini が存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
-        public static string GetStringEx(string attr, string defvalInit, string defval = "")
-        {
-            return GetInternalValue(attr)._orElse(
-                () => UserKanchokuIni.Singleton.GetStringEx(attr, defvalInit)._orElse(
-                    () => KanchokuIni.Singleton.GetString(attr, defval)));
-        }
+        //// ayaorihime.ini が存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
+        //public static string GetStringEx(string attr, string defvalInit, string defval = "")
+        //{
+        //    return GetInternalValue(attr)._orElse(
+        //        () => KanchokuIni.Singleton.GetStringEx(attr, defvalInit)._orElse(
+        //            () => KanchokuIni.Singleton.GetString(attr, defval)));
+        //}
 
         public static string GetString(string attr, string attrOld, string defval)
         {
             return GetInternalValue(attr)._orElse(
-                () => UserKanchokuIni.Singleton.GetString(attr)._orElse(
-                    () => UserKanchokuIni.Singleton.GetString(attrOld))._orElse(
-                        () => KanchokuIni.Singleton.GetString(attrOld, defval)));
+                () => KanchokuIni.Singleton.GetString(attr)._orElse(
+                    () => KanchokuIni.Singleton.GetString(attrOld, defval)));
         }
 
-        // kanchoku.user.ini が存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
-        public static string GetStringEx(string attr, string attrOld, string defvalInit, string defval)
-        {
-            return GetInternalValue(attr)._orElse(
-                () => UserKanchokuIni.Singleton.GetStringEx(attr, defvalInit)._orElse(
-                    () => UserKanchokuIni.Singleton.GetStringEx(attrOld, defvalInit))._orElse(
-                        () => KanchokuIni.Singleton.GetString(attrOld, defval)));
-        }
+        //// ayaorihime.ini が存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
+        //public static string GetStringEx(string attr, string attrOld, string defvalInit, string defval)
+        //{
+        //    return GetInternalValue(attr)._orElse(
+        //        () => KanchokuIni.Singleton.GetStringEx(attr, defvalInit)._orElse(
+        //            () => KanchokuIni.Singleton.GetStringEx(attrOld, defvalInit))._orElse(
+        //                () => KanchokuIni.Singleton.GetString(attrOld, defval)));
+        //}
 
         public static string GetStringFromSection(string section, string attr, string defval = "")
         {
-            return GetInternalValue(attr)._orElse(
-                () => UserKanchokuIni.Singleton.GetStringFromSection(section, attr)._orElse(
-                    () => KanchokuIni.Singleton.GetStringFromSection(section, attr, defval)));
+            return GetInternalValue(attr)._orElse(() => KanchokuIni.Singleton.GetStringFromSection(section, attr, defval));
         }
 
         public static int GetLogLevel()
@@ -1160,7 +1155,7 @@ namespace KanchokuWS
 
         private static string[] GetSectionNames()
         {
-            var set = UserKanchokuIni.Singleton.GetSectionNames().ToHashSet();
+            var set = KanchokuIni.Singleton.GetSectionNames().ToHashSet();
             set.UnionWith(KanchokuIni.Singleton.GetSectionNames().ToHashSet());
             return set.ToArray();
         }
@@ -1199,22 +1194,22 @@ namespace KanchokuWS
             return origKeySeq;
         }
 
-        // kanchoku.user.ini が存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
-        private static string addDecoderSettingEx(string attr, string defvalInit, string defval = "")
-        {
-            return DecoderSettings[attr] = GetStringEx(attr, defvalInit, defval);
-        }
+        //// ayaorihime.ini が存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
+        //private static string addDecoderSettingEx(string attr, string defvalInit, string defval = "")
+        //{
+        //    return DecoderSettings[attr] = GetStringEx(attr, defvalInit, defval);
+        //}
 
         private static string addDecoderSetting(string attr, string attrOld, string defval)
         {
             return DecoderSettings[attr] = GetString(attr, attrOld, defval);
         }
 
-        // kanchoku.user.ini が存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
-        private static string addDecoderSettingEx(string attr, string attrOld, string defvalInit, string defval)
-        {
-            return DecoderSettings[attr] = GetStringEx(attr, attrOld, defvalInit, defval);
-        }
+        //// ayaorihime.ini が存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
+        //private static string addDecoderSettingEx(string attr, string attrOld, string defvalInit, string defval)
+        //{
+        //    return DecoderSettings[attr] = GetStringEx(attr, attrOld, defvalInit, defval);
+        //}
 
         private static int addDecoderSetting(string attr, int defval, int lowLimit = 0)
         {
@@ -1259,7 +1254,7 @@ namespace KanchokuWS
             return result;
         }
 
-        // kanchoku.use.ini が存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
+        // ayaorihime.iniが存在しない時のデフォルト値を設定できる(デフォルトの辞書ファイルなどを設定して、それが存在しなくてもエラーにしない処理をするため)
         private static string addDecoderSettingByGettingFiles(string attr, string defval)
         {
             //string filePattern = GetStringEx(attr, defval);
@@ -1281,7 +1276,7 @@ namespace KanchokuWS
 
         //------------------------------------------------------------------------------
         /// <summary>
-        /// kanchoku.ini からデバッグ用設定を読み込む
+        /// ayaorihime.ini からデバッグ用設定を読み込む
         /// </summary>
         /// <returns></returns>
         public static void ReadIniFileForDebug()
@@ -1301,7 +1296,7 @@ namespace KanchokuWS
 
         //------------------------------------------------------------------------------
         /// <summary>
-        /// kanchoku.ini からキーボードと英字配列の設定を読み込む
+        /// ayaorihime.ini からキーボードと英字配列の設定を読み込む
         /// </summary>
         /// <returns></returns>
         public static void ReadIniFileForKeyboardAndCharLayout()
@@ -1322,7 +1317,7 @@ namespace KanchokuWS
 
         //------------------------------------------------------------------------------
         /// <summary>
-        /// kanchoku.ini から各種設定を読み込む
+        /// ayaorihime.ini から各種設定を読み込む
         /// </summary>
         /// <param name="bFirst">true: 一回目、 false: 二回目</param>
         /// <returns></returns>
@@ -1729,7 +1724,7 @@ namespace KanchokuWS
             DecoderSettings["rootDir"] = KanchokuIni.Singleton.KanchokuDir;
             DecoderSettings["systemFilesFolder"] = Settings.SystemFilesFolder;
             DecoderSettings["userFilesFolder"] = Settings.UserFilesFolder;
-            DecoderSettings["firstUse"] = $"{UserKanchokuIni.Singleton.IsUserIniAbsent}";
+            DecoderSettings["firstUse"] = $"{KanchokuIni.Singleton.IsUserIniAbsent}";
             DecoderSettings["isJPmode"] = $"{Domain.DecoderKeyVsVKey.IsJPmode}";
             MultiStreamMode = addDecoderSetting("multiStreamMode", true);
             BushuAssocFile = addDecoderSetting("bushuAssocFile", "kwassoc.txt");
@@ -1933,7 +1928,7 @@ namespace KanchokuWS
 
         public static void SetUserIni(string key, string value)
         {
-            if (!IsInternalValueSet(key)) UserKanchokuIni.Singleton.SetString(key, value);
+            if (!IsInternalValueSet(key)) KanchokuIni.Singleton.SetString(key, value);
         }
 
         public static int GetUserIniInt(string key)
@@ -1943,12 +1938,12 @@ namespace KanchokuWS
 
         public static void SetUserIni(string key, int value)
         {
-            if (!IsInternalValueSet(key)) UserKanchokuIni.Singleton.SetInt(key, value);
+            if (!IsInternalValueSet(key)) KanchokuIni.Singleton.SetInt(key, value);
         }
 
         public static void SetUserIni(string key, bool value)
         {
-            if (!IsInternalValueSet(key)) UserKanchokuIni.Singleton.SetBool(key, value);
+            if (!IsInternalValueSet(key)) KanchokuIni.Singleton.SetBool(key, value);
         }
     }
 }

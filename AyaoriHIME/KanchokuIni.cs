@@ -88,33 +88,13 @@ namespace KanchokuWS
         }
 
         private KanchokuIni()
-            : base("kanchoku.ini")
+            : base("ayaorihime.ini")
         {
         }
 
         public static string MakeFullPath(string filename)
         {
             return Singleton.KanchokuDir._joinAbsPath(filename);
-        }
-
-    }
-
-    public class UserKanchokuIni : KanchokuIniBase
-    {
-        private static UserKanchokuIni s_kanchokuIni = null;
-
-        public static UserKanchokuIni Singleton {
-            get {
-                if (s_kanchokuIni == null) {
-                    s_kanchokuIni = new UserKanchokuIni();
-                }
-                return s_kanchokuIni;
-            }
-        }
-
-        private UserKanchokuIni()
-            : base("kanchoku.user.ini")
-        {
         }
 
     }

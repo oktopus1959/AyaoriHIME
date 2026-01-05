@@ -326,11 +326,11 @@ namespace KanchokuWS
 
             this.notifyIcon1.Text = KanchokuWS.ProductVersion.ProductKanjiName + " " + KanchokuWS.ProductVersion.Version;
 
-            // kanchoku.user.ini が存在しなければ、初期状態で作成しておく
-            if (!UserKanchokuIni.Singleton.IsIniFileExist) {
-                logger.WriteInfo("kanchoku.user.ini not found. Create.");
-                UserKanchokuIni.Singleton.IsUserIniAbsent = true;
-                UserKanchokuIni.Singleton.SetInt("logLevel", Logger.LogLevelWarnH);
+            // ayaorihime.ini が存在しなければ、初期状態で作成しておく
+            if (!KanchokuIni.Singleton.IsIniFileExist) {
+                logger.WriteInfo("ayaorihime.ini not found. Create.");
+                KanchokuIni.Singleton.IsUserIniAbsent = true;
+                KanchokuIni.Singleton.SetInt("logLevel", Logger.LogLevelWarnH);
                 Settings.SetUserIni("tableFile", "tables\\漢直系\\tutr.tbl");
             }
             // デバッグ用設定の読み込み
@@ -450,7 +450,7 @@ namespace KanchokuWS
         /// <summary> キーボードファイルと文字定義ファイルの読み込み (成功したら true, 失敗したら false を返す) </summary>
         private bool readKeyboardFileAndCharsDefFile()
         {
-            // kanchoku.ini からキーボードと英字配列の設定を読み込む
+            // ayaorihime.ini からキーボードと英字配列の設定を読み込む
             Settings.ReadIniFileForKeyboardAndCharLayout();
 
             if (!DecoderKeyVsVKey.ReadKeyboardFile()) {
@@ -683,7 +683,7 @@ namespace KanchokuWS
         /// </summary>
         private void showSplash()
         {
-            // ここではまだ Settings の初期化を行っていないので、自分で kanchoku.ini の読み込みをやる必要がある
+            // ここではまだ Settings の初期化を行っていないので、自分で ayaorihime.ini の読み込みをやる必要がある
             int sec = Settings.GetString("splashWindowShowDuration")._parseInt(60)._lowLimit(0);
             if (sec > 0) {
                 var frm = new FrmSplash(sec);
@@ -2615,7 +2615,7 @@ namespace KanchokuWS
             logger.Info("ENTER");
 
             // 初期化
-            //UserKanchokuIni.Singleton.IsUserIniAbsent = false;
+            //KanchokuIni.Singleton.IsUserIniAbsent = false;
             KeyComboRepository.Initialize();
             ExtraModifiers.Initialize();
             DlgModConversion.Initialize();
