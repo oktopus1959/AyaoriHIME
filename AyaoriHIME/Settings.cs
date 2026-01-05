@@ -158,7 +158,7 @@ namespace KanchokuWS
         public static bool MultiStreamMode { get; set; } = true;
 
         /// <summary> 編集バッファを使用するか </summary>
-        public static bool UseEditBuffer { get; set; } = true;
+        public static bool UseEditBuffer { get; set; } = false;
 
         /// <summary>複数配列の融合モード時の従配列番号(1始まり; 通常は漢直側)</summary>
         public static int SecondaryTableWhenMultiStream { get; set; } = 2;
@@ -1690,7 +1690,6 @@ namespace KanchokuWS
             //------------------------------------------------------------------------------
             // 配列融合・編集バッファ
             CommitMultiStreamElapsedTime = GetString("commitMultiStreamElapsedTime")._parseInt(0);              // 前回のデコーダ呼び出しから一定時間が経過したら、MultiStreamCommit を発行
-            UseEditBuffer = GetString("useEditBuffer")._parseBool(false);                                       // 編集バッファを使用するか
             EditBufferCaretChar = "▴"; // GetString("editBufferCaretChar", "▴");                                // 編集バッファのカレット文字
             EditBufferFlushChar = GetString("editBufferFlushChar", "");                                         // 編集バッファをフラッシュさせる文字
             KanjiTableThresholdForDualTable = GetString("kanjiTableThresholdForDualTable")._parseInt(300);      // デュアルテーブルの時に、漢直用のテーブルと見なす漢字数
@@ -1727,6 +1726,7 @@ namespace KanchokuWS
             DecoderSettings["firstUse"] = $"{KanchokuIni.Singleton.IsUserIniAbsent}";
             DecoderSettings["isJPmode"] = $"{Domain.DecoderKeyVsVKey.IsJPmode}";
             MultiStreamMode = addDecoderSetting("multiStreamMode", true);
+            UseEditBuffer = addDecoderSetting("useEditBuffer", false);                  // 編集バッファを使用するか
             BushuAssocFile = addDecoderSetting("bushuAssocFile", "kwassoc.txt");
             BushuFile = addDecoderSetting("bushuFile", "bushu", "kwbushu.rev");
             AutoBushuFile = addDecoderSetting("autoBushuFile", "bushuAuto", "kwbushu.aut");

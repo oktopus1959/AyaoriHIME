@@ -411,7 +411,7 @@ namespace {
                 _streamList2.DebugPrintStatesChain(_T("HandleDeckeyChain::BEGIN: streamList2"));
 
                 bool bHasAnyStroke = !_streamList1.Empty() || !_streamList2.Empty();
-                LOG_DEBUGH(_T("bDual={}, bHasAnyStroke={}"), bDualTableMode, bHasAnyStroke);
+                LOG_DEBUGH(_T("\nuseEditBuffer={}, bDual={}, bHasAnyStroke={}"), SETTINGS->useEditBuffer, bDualTableMode, bHasAnyStroke);
 
                 if (/*deckey != CLEAR_STROKE_DECKEY && */ ((deckey >= FUNC_DECKEY_START && deckey < FUNC_DECKEY_END) || deckey >= CTRL_DECKEY_START)) {
                     _LOG_DETAIL(L"Clear streamLists");
@@ -422,11 +422,12 @@ namespace {
                     switch (deckey) {
                     case ENTER_DECKEY:
                         multiCands = WORD_LATTICE->hasMultiCandidates();
-                        LOG_DEBUGH(_T("EnterKey: clear streamList: hasMultiCandidates={}"), multiCands);
+                        LOG_DEBUGH(_T("EnterKey: clear streamList: useEditBuffer={}, hasMultiCandidates={}"), SETTINGS->useEditBuffer, multiCands);
                         WORD_LATTICE->raiseAndLowerByCandSelection();
                         _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
                         if (SETTINGS->useEditBuffer || !multiCands) {
+                            LOG_DEBUGH(_T("CALL dispatchDeckey"));
                             State::dispatchDeckey(deckey);
                         }
                         break;
