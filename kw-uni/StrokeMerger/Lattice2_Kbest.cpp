@@ -1168,6 +1168,7 @@ namespace lattice2 {
                 // 交ぜ書き変換の実行
                 _LOG_DETAIL(L"src: {}", to_wstr(srcCand.string()));
                 auto canditates = srcCand.applyMazegaki();
+                _LOG_DETAIL(L"applyMazegaki RESULT candidates num={}", canditates.size());
                 MString srcStr = srcCand.string();
                 for (auto iter = canditates.rbegin(); iter != canditates.rend(); ++iter) {
                     _LOG_DETAIL(L"xlat: {}", to_wstr(iter->string()));

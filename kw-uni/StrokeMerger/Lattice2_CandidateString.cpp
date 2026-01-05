@@ -381,6 +381,31 @@ namespace lattice2 {
         _LOG_DETAIL(L"LEAVE: result={}", join_all_cands_for_debug(result));
     }
 
+    size_t calcMazeMorphsUpperLimit(size_t maxMazeVariations, size_t index, const std::vector<std::vector<MorphCand>>& morphCands) {
+        size_t upperLimit = maxMazeVariations;
+        while (upperLimit > 1) {
+            size_t nVariations = 1;
+            size_t maxMorphs = 1;
+            for (size_t i = index; i < morphCands.size(); ++i) {
+                size_t nMorphs = morphCands[i].size();
+                if (nMorphs > upperLimit) nMorphs = upperLimit;
+                if (nMorphs > maxMorphs) maxMorphs = nMorphs;
+                nVariations *= nMorphs;
+            }
+            if (nVariations <= maxMazeVariations) break;
+            if (maxMorphs > 10) {
+                upperLimit = 10;
+            } else if (maxMorphs > 7) {
+                upperLimit = 7;
+            } else if (maxMorphs > 5) {
+                upperLimit = 5;
+            } else if (maxMorphs > 2) {
+                --upperLimit;
+            }
+        }
+        return upperLimit;
+    }
+
     // 交ぜ書き変換の実行
     std::vector<CandidateString> CandidateString::applyMazegaki() const {
         _LOG_DETAIL(L"ENTER: {}", to_wstr(_str));
@@ -412,24 +437,26 @@ namespace lattice2 {
         _LOG_DETAIL(L"vecMorphCands={}", join_all_cands_vector_for_debug(vecMorphCands));
 
         // 交せ書き候補によるバリエーション
+#define MAX_MAZEGAKI_VARIATIONS 300
 #define MAX_MAZEGAKI_MORPHS 5
-#define MAX_MORPH_CAND_NUM 3
-#define MAX_ITEM_NUM 300    /* >= pow(MAX_MORPH_CAND_NUM, MAX_MAZEGAKI_MORPHS) */
+//#define MAX_MORPH_CAND_NUM 3
+//#define MAX_ITEM_NUM 300    /* >= pow(MAX_MORPH_CAND_NUM, MAX_MAZEGAKI_MORPHS) */
 #define MAX_CANDITATE_STR_NUM 20
         std::vector<MorphCand> morphs;
         size_t index = 0;
         size_t numMorph = vecMorphCands.size();
-        // 文節数が多すぎる場合は、前のほうをまとめる
+        // 形態素数が多すぎる場合は、前のほうをまとめる
         while (numMorph > MAX_MAZEGAKI_MORPHS) {
             morphs.push_back(vecMorphCands[index][0]);
             ++index;
             --numMorph;
         }
         std::vector<MorphCand> sortedItems;
-        sortedItems.reserve(MAX_ITEM_NUM);
+        sortedItems.reserve(MAX_MAZEGAKI_VARIATIONS);
         // 隣接する形態素候補の組み合わせを全列挙してコスト計算
-        enumerate_contiguous_morphs_combination_and_calc_cost(index, vecMorphCands, MAX_MORPH_CAND_NUM, morphs, sortedItems);
-        _LOG_DETAIL(L"num of sortedItems={}", sortedItems.size());
+        size_t maxCandidateNum = calcMazeMorphsUpperLimit(MAX_MAZEGAKI_VARIATIONS, index, vecMorphCands);
+        enumerate_contiguous_morphs_combination_and_calc_cost(index, vecMorphCands, maxCandidateNum, morphs, sortedItems);
+        _LOG_DETAIL(L"LEAVE: num of sortedItems={}", sortedItems.size());
         // コストでソートして候補文字列を取得
         return generate_candidateString_from_items_sorted_by_cost(sortedItems, strokeLen(), MAX_CANDITATE_STR_NUM);
     }
