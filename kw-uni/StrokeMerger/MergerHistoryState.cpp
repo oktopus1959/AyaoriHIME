@@ -1652,10 +1652,11 @@ void StrokeMergerHistoryNode::Initialize() {
     LOG_INFOH(L"ENTER");
     // 履歴入力辞書ファイル名
     auto histFile = SETTINGS->historyFile;
+    auto sysRomanFile = SETTINGS->historySystemRomanFile;
     LOG_DEBUGH(_T("histFile={}"), histFile);
     // 履歴入力辞書の読み込み(ファイル名の指定がなくても辞書自体は構築する)
-    LOG_DEBUGH(_T("CALLED: histFile={}"), histFile);
-    HistoryDic::CreateHistoryDic(histFile);
+    LOG_DEBUGH(_T("CALLED: histFile={}, sysRomanFile={}"), histFile, sysRomanFile);
+    HistoryDic::CreateHistoryDic(histFile, sysRomanFile);
 
     HistCandidates::CreateSingleton();
 

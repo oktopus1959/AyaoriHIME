@@ -440,8 +440,8 @@ namespace KanchokuWS
             copyFile("alt-kanji.txt", false);
             copyFile("kwbushu.rev", false);
             //copyFile("kanji-yomi.txt", false);        // kanji-yomi.txt は、userFile フォルダ→ systemFiles フォルダの順で読む
-            copyFile("kwhist.roman.txt", false);
             //copyFile("kwroman.def.txt", false);       // kwroman.def.txt は、userFile フォルダ→ systemFiles フォルダの順で読む
+            copyFile("kwhist.roman.txt", true);
             copyFile("easy_chars.txt", true);
             copyFile("stroke-help.txt", true);
             copyFile("mod-conversion.txt", true);

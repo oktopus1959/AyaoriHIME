@@ -119,7 +119,7 @@ public:
     static std::unique_ptr<HistoryDic> Singleton;
 
     // 履歴入力辞書インスタンスを生成する
-    static int CreateHistoryDic(const String&);
+    static int CreateHistoryDic(const String&, const String& sysRomanFile);
 
     // 辞書ファイルへの内容の書き出し
     static void WriteHistoryDic();

@@ -30,6 +30,7 @@ struct Settings {
     String historyUsedFile;    // 使用順
     String historyExcludeFile; // 履歴排除
     String historyNgramFile;   // Nグラム履歴
+    String historySystemRomanFile;          // システムローマ字辞書ファイル
 
     int backFileRotationGeneration = 3;     // 辞書ファイル保存世代数
 

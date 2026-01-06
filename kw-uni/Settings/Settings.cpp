@@ -59,6 +59,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_USER_FILE_PATH(historyUsedFile);
     SET_USER_FILE_PATH(historyExcludeFile);
     SET_USER_FILE_PATH(historyNgramFile);
+    SET_SYSTEM_FILE_PATH(historySystemRomanFile);
 
     SET_INT_VALUE(backFileRotationGeneration);
 

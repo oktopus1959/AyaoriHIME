@@ -304,7 +304,7 @@ namespace {
     public:
         // UTF8で書かれた辞書ソースを読み込む
         void ReadFile(const std::vector<String>& lines) {
-            LOG_DEBUGH(_T("ENTER: {} lines"), lines.size());
+            LOG_INFOH(_T("ENTER: {} lines"), lines.size());
             std::set<String> used;
             for (const auto& w : lines) {
                 if (!utils::contains(used, w)) {
@@ -314,7 +314,7 @@ namespace {
                 }
             }
             bDirty = false;
-            LOG_DEBUGH(_T("LEAVE"));
+            LOG_INFOH(_T("LEAVE"));
         }
 
         void PushEntry(const MString& word, size_t minlen = 2) {
@@ -505,12 +505,12 @@ namespace {
     public:
         // UTF8で書かれた辞書ソースを読み込む
         void ReadFile(const std::vector<String>& lines) {
-            LOG_DEBUGH(_T("ENTER: {} lines"), lines.size());
+            LOG_INFOH(_T("ENTER: {} lines"), lines.size());
             for (const auto& w : lines) {
                 AddEntry(to_mstr(w));
             }
             bDirty = false;
-            LOG_DEBUGH(_T("LEAVE"));
+            LOG_INFOH(_T("LEAVE"));
         }
 
         void AddEntry(const MString& word) {
@@ -532,7 +532,7 @@ namespace {
 
         // 辞書内容の書き込み
         void WriteFile(utils::OfstreamWriter& writer) {
-            LOG_DEBUGH(_T("CALLED"));
+            LOG_INFOH(_T("CALLED"));
             for (const auto& word : exclSet) {
                 writer.writeLine(utils::utf8_encode(to_wstr(word)));
             }
@@ -564,7 +564,7 @@ namespace {
     public:
         // UTF8で書かれた辞書ソースを読み込む
         void ReadFile(const std::vector<String>& lines) {
-            LOG_DEBUGH(_T("ENTER: {} lines"), lines.size());
+            LOG_INFOH(_T("ENTER: {} lines"), lines.size());
             for (const auto& line : lines) {
                 auto items = utils::split(to_mstr(line), ',');
                 if (items.size() >= 2) {
@@ -576,7 +576,7 @@ namespace {
                 }
             }
             bDirty = false;
-            LOG_DEBUGH(_T("LEAVE"));
+            LOG_INFOH(_T("LEAVE"));
         }
 
 
@@ -701,19 +701,21 @@ namespace {
 
         // UTF8で書かれた辞書ソースを読み込む
         void readFile(const std::vector<String>& lines, bool bReadOnly) {
-            LOG_DEBUGH(_T("ENTER: {} lines, bReadOnly={}"), lines.size(), bReadOnly);
+            LOG_INFOH(_T("ENTER: {} lines, bReadOnly={}"), lines.size(), bReadOnly);
             int logLevel = Reporting::Logger::LogLevel();
             if (lines.size() > 10) Reporting::Logger::SetLogLevel(0);
             for (const auto& line : lines) {
-                if (bReadOnly && line.find(_T("||")) == String::npos) {
-                    addHistDicEntry(to_mstr(utils::replace(line, _T("|"), _T("||"))), 1);
-                } else {
-                    addHistDicEntry(to_mstr(line), 1);
+                if (!line.empty() && line[0] != '#') {
+                    if (bReadOnly && line.find(_T("||")) == String::npos) {
+                        addHistDicEntry(to_mstr(utils::replace(line, _T("|"), _T("||"))), 1);
+                    } else {
+                        addHistDicEntry(to_mstr(line), 1);
+                    }
                 }
             }
             bDirty = false;
             Reporting::Logger::SetLogLevel(logLevel);
-            LOG_DEBUGH(_T("LEAVE"));
+            LOG_INFOH(_T("LEAVE"));
         }
 
     public:
@@ -727,7 +729,7 @@ namespace {
 
         // roman辞書ソースを読み込む
         void ReadRomanFileAsReadOnly(const std::vector<String>& lines) override {
-            LOG_DEBUGH(_T("ENTER: {} lines"), lines.size());
+            LOG_INFOH(_T("ENTER: {} lines"), lines.size());
             readFile(lines, true);
 
             // 重複しているエントリを romanPriorityList に追加
@@ -752,7 +754,7 @@ namespace {
                     }
                 }
             }
-            LOG_DEBUGH(_T("LEAVE: dup count={}"), count);
+            LOG_INFOH(_T("LEAVE: dup count={}"), count);
         }
 
     private:
@@ -1186,7 +1188,7 @@ namespace {
 
         // 使用辞書の読み込み
         void ReadUsedFile(const std::vector<String>& lines) override {
-            LOG_DEBUGH(_T("CALLED"));
+            LOG_INFOH(_T("CALLED"));
             usedList.ReadFile(lines);
         }
 
@@ -1202,7 +1204,7 @@ namespace {
 
         // 除外辞書の読み込み
         void ReadExcludeFile(const std::vector<String>& lines) override {
-            LOG_DEBUGH(_T("CALLED"));
+            LOG_INFOH(_T("CALLED"));
             exclList.ReadFile(lines);
         }
 
@@ -1218,7 +1220,7 @@ namespace {
 
         // Nグラム辞書の読み込み
         void ReadNgramFile(const std::vector<String>& lines) override {
-            LOG_DEBUGH(_T("CALLED"));
+            LOG_INFOH(_T("CALLED"));
             ngramDic.ReadFile(lines);
         }
 
@@ -1254,12 +1256,12 @@ namespace {
 
     // 履歴ファイルの読み込み
     void readFile(StringRef path, READ_FUNC func, bool bWarn = true) {
-        LOG_DEBUGH(_T("open hist file: {}"), path);
+        LOG_INFOH(_T("open hist file: {}"), path);
         utils::IfstreamReader reader(path);
         if (reader.success()) {
             // ファイル読み込み
             (HISTORY_DIC.get()->*func)(reader.getAllLines());
-            LOG_DEBUGH(_T("close hist file: {}"), path);
+            LOG_INFOH(_T("close hist file: {}"), path);
         } else {
             if (bWarn) LOG_WARN(_T("Can't read hist file: {}"), path);
         }
@@ -1285,7 +1287,7 @@ namespace {
 // ファイルに名は * を含むこと(例: xxxx.*.yyy)。
 // * の部分を {entry,recent,exclude,ngram} に置換したファイルが読み込まれる
 // エラーがあったら例外を投げる
-int HistoryDic::CreateHistoryDic(StringRef histFile) {
+int HistoryDic::CreateHistoryDic(StringRef histFile, StringRef sysRomanFile) {
     LOG_INFOH(_T("ENTER: histFile={}"), histFile);
 
     if (Singleton != 0) {
@@ -1315,6 +1317,11 @@ int HistoryDic::CreateHistoryDic(StringRef histFile) {
         readFile(replaceStar(path, pos, _T("recent")), &HistoryDic::ReadUsedFile);
         readFile(replaceStar(path, pos, _T("exclude")), &HistoryDic::ReadExcludeFile);
         //readFile(replaceStar(path, pos, _T("ngram")), &HistoryDic::ReadNgramFile);
+    }
+    if (!sysRomanFile.empty()) {
+        // システムローマ字辞書ファイルの読み込み
+        LOG_DEBUGH(_T("open system roman file: {}"), sysRomanFile);
+        readFile(sysRomanFile, &HistoryDic::ReadRomanFileAsReadOnly);
     }
     LOG_INFOH(_T("LEAVE"));
     return 0;

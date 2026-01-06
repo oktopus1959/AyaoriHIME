@@ -296,6 +296,7 @@ namespace KanchokuWS
         public static string TableFile2 { get; private set; }
         public static string TableFile3 { get; private set; }
         public static string HistoryFile { get; private set; }
+        public static string HistorySystemRomanFile { get; private set; }
         //public static string HistoryUsedFile {get; private set; }
         //public static string HistoryExcludeFile {get; private set; }
         //public static string HistoryNgramFile {get; private set; }
@@ -1749,6 +1750,7 @@ namespace KanchokuWS
             AltKanjiFile = addDecoderSetting("altKanjiFile", "alt-kanji.txt");
             //addDecoderSetting("strokeHelpFile");
             HistoryFile = addDecoderSetting("historyFile", "kwhist.*.txt");
+            HistorySystemRomanFile = addDecoderSetting("historySystemRomanFile", "kwhist.system.roman.txt");
             //addDecoderSetting("historyUsedFile");
             //addDecoderSetting("historyExcludeFile");
             //addDecoderSetting("historyNgramFile");
