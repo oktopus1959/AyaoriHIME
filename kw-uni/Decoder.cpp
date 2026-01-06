@@ -620,6 +620,9 @@ public:
             } else if (cmd == _T("commitHistory")) {
                 // 履歴のコミットと初期化
                 commitHistory();
+            } else if (cmd == _T("readUserRomanFile")) {
+                // ユーザー定義ローマ字辞書ファイルの読み込み
+                HISTORY_DIC->ReadUserRomanFile();
             } else if (cmd == _T("saveTraceLog")) {
                 Reporting::Logger::SaveLog();
                 //MorphBridge::morphSaveLog();

@@ -2057,6 +2057,7 @@ namespace KanchokuWS.Gui
             textBox_eisuHistSearchChar.Text = Settings.EisuHistSearchChar;
             textBox_eisuExitCapitalCharNum.Text = $"{Settings.EisuExitCapitalCharNum}";
             textBox_eisuExitSpaceNum.Text = $"{Settings.EisuExitSpaceNum}";
+            textBox_userRomanFile.Text = $"{Settings.HistoryFile._safeReplace("*", "roman")}";
             textBox_romanBushuCompPrefix.Text = Settings.RomanBushuCompPrefix;
             textBox_romanSecPlanePrefix.Text = Settings.RomanSecPlanePrefix;
             textBox_preRewriteTargetChars.Text = $"{Settings.PreRewriteTargetChars}";
@@ -2180,6 +2181,17 @@ namespace KanchokuWS.Gui
             logger.Info("CALLED");
             frmMain?.ExecCmdDecoder("SaveEelllJsTable", null);
             label_miscEelllJsOut.Show();
+        }
+
+        private void button_openUserRomanFile_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openFileInUserFolder(textBox_userRomanFile.Text);
+        }
+
+        private void button_loadUserRomanFile_Click(object sender, EventArgs e)
+        {
+            frmMain?.ExecCmdDecoder("readUserRomanFile", null);
         }
 
         /// <summary> 閉じる </summary>

@@ -121,6 +121,9 @@ public:
     // 履歴入力辞書インスタンスを生成する
     static int CreateHistoryDic(const String&, const String& sysRomanFile);
 
+    // ユーザー定義のローマ字辞書を読み込む
+    static int ReadUserRomanFile();
+
     // 辞書ファイルへの内容の書き出し
     static void WriteHistoryDic();
 

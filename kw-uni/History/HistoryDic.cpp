@@ -1306,24 +1306,43 @@ int HistoryDic::CreateHistoryDic(StringRef histFile, StringRef sysRomanFile) {
             ERROR_HANDLER->Warn(std::format(_T("入力履歴ファイル({})はワイルドード文字(*)を含む形式である必要があります。\r\nデフォルトのファイル名パターン 'kwhist.*.txt' を使用します。"), filename));
             filename = _T("kwhist.*.txt");
         }
-        auto path = utils::joinPath(SETTINGS->rootDir, filename);
+        auto path = utils::joinPath(SETTINGS->userFilesFolder, filename);
         LOG_DEBUGH(_T("open history file: {}"), path);
 
         size_t pos = path.find(_T("*"));
 #ifndef _DEBUG
         readFile(replaceStar(path, pos, _T("entry")), &HistoryDic::ReadFile);
-        readFile(replaceStar(path, pos, _T("roman")), &HistoryDic::ReadRomanFileAsReadOnly, false);
 #endif
+        readFile(replaceStar(path, pos, _T("roman")), &HistoryDic::ReadRomanFileAsReadOnly, false);
         readFile(replaceStar(path, pos, _T("recent")), &HistoryDic::ReadUsedFile);
         readFile(replaceStar(path, pos, _T("exclude")), &HistoryDic::ReadExcludeFile);
         //readFile(replaceStar(path, pos, _T("ngram")), &HistoryDic::ReadNgramFile);
     }
+#ifndef _DEBUG
     if (!sysRomanFile.empty()) {
         // システムローマ字辞書ファイルの読み込み
         LOG_DEBUGH(_T("open system roman file: {}"), sysRomanFile);
         readFile(sysRomanFile, &HistoryDic::ReadRomanFileAsReadOnly);
     }
+#endif
     LOG_INFOH(_T("LEAVE"));
+    return 0;
+}
+
+// ユーザー定義のローマ字辞書を読み込む
+int HistoryDic::ReadUserRomanFile() {
+    String filename = SETTINGS->historyFile;
+    if (!filename.empty()) {
+        if (!utils::contains(filename, _T("*"))) {
+            // エラーメッセージを表示
+            LOG_WARN(_T("hist file should be a wildcard form such as 'xxxx.*.yyy': {}"), filename);
+            ERROR_HANDLER->Warn(std::format(_T("入力履歴ファイル({})はワイルドード文字(*)を含む形式である必要があります。\r\nデフォルトのファイル名パターン 'kwhist.*.txt' を使用します。"), filename));
+            filename = _T("kwhist.*.txt");
+        }
+        auto path = utils::joinPath(SETTINGS->userFilesFolder, filename);
+        size_t pos = path.find(_T("*"));
+        readFile(replaceStar(path, pos, _T("roman")), &HistoryDic::ReadRomanFileAsReadOnly, false);
+    }
     return 0;
 }
 
