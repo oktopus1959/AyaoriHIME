@@ -427,7 +427,7 @@ namespace KanchokuWS
             void copyFile(string filename, bool bSample)
             {
                 var rootDir = KanchokuIni.Singleton.KanchokuDir;
-                var systemFilename = bSample ? filename._safeReplace(".txt", ".sample.txt") : filename;
+                var systemFilename = bSample ? filename._safeReplace(".txt", ".sample.txt")._safeReplace(".csv", ".sample.csv") : filename;
                 var systemFilePath = rootDir._joinPath(Settings.SystemFilesFolder, systemFilename);
                 var userFilePath = rootDir._joinPath(Settings.UserFilesFolder, filename);
                 logger.InfoH($"systemFile={systemFilePath}, userFile={userFilePath}");
@@ -445,6 +445,7 @@ namespace KanchokuWS
             copyFile("easy_chars.txt", true);
             copyFile("stroke-help.txt", true);
             copyFile("mod-conversion.txt", true);
+            copyFile("userDic.csv", true);
         }
 
         /// <summary> キーボードファイルと文字定義ファイルの読み込み (成功したら true, 失敗したら false を返す) </summary>

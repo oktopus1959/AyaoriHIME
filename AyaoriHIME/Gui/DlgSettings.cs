@@ -288,7 +288,7 @@ namespace KanchokuWS.Gui
 
         private void openFileInUserFolder(string filename)
         {
-            openFileByTxtAssociatedProgram(Settings.UserFilesFolder._joinPath(filename));
+            openFileByTxtAssociatedProgram(Settings.UserFilesFolder._joinAbsPath(filename));
         }
 
         //----------------------------------------------------------------------------------------
@@ -1682,7 +1682,7 @@ namespace KanchokuWS.Gui
             //textBox_histMapGobiMaxLength.Text = $"{Settings.HistMapGobiMaxLength}";
             //textBox_mazeHistRegisterMinLen.Text = $"{Settings.MazeHistRegisterMinLen}";
 
-            textBox_mazeUserDicSourceFile.Text = $"{Settings.GetUserIni("mazeUserDicSourceFile")}";
+            textBox_mazeUserDicSourceFile.Text = $"{Settings.GetUserIni("mazeUserDicSourceFile")._orElse("userDic.csv")}";
             button_ImportUserDIc.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
             button_openUserDicFile.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
         }
@@ -1833,7 +1833,7 @@ namespace KanchokuWS.Gui
         {
             var dicDir = SystemHelper.MakeAbsPathUnderKanchokuRootDir(Settings.SystemFilesFolder._joinPath("dymazin/dic/mazedic"));
             if (textBox_mazeUserDicSourceFile.Text._notEmpty()) {
-                var userDicPath = SystemHelper.MakeAbsPathUnderKanchokuRootDir(textBox_mazeUserDicSourceFile.Text);
+                var userDicPath = SystemHelper.MakeAbsPathUnderKanchokuRootDir(Settings.UserFilesFolder._joinAbsPath(textBox_mazeUserDicSourceFile.Text));
                 frmMain?.ExecCmdDecoder("compileAndLoadUserDic", $"{dicDir}\t{userDicPath}");
                 Settings.SetUserIni("mazeUserDicSourceFile", textBox_mazeUserDicSourceFile.Text.Trim());
             }
@@ -1853,9 +1853,10 @@ namespace KanchokuWS.Gui
         private void button_openUserDicFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            var filename = textBox_mazeUserDicSourceFile.Text;
+            var filename = textBox_mazeUserDicSourceFile.Text.Trim();
             if (filename._notEmpty()) {
                 openFileInUserFolder(filename);
+                Settings.SetUserIni("mazeUserDicSourceFile", filename);
             }
         }
 

@@ -760,7 +760,7 @@ namespace KanchokuWS
         /// <summary>交ぜ書き変換を履歴登録する際の最小長</summary>
         public static int MazeHistRegisterMinLen { get; set; }
 
-        ///// <summary>交ぜ書きユーザー辞書のソースファイル</summary>
+        /// <summary>交ぜ書きユーザー辞書のソースファイル</summary>
         //public static string MazeUserDicSourceFile { get; set; }
 
         //------------------------------------------------------------------------------
@@ -1604,7 +1604,7 @@ namespace KanchokuWS
             UpperRomanStrokeGuide = GetString("upperRomanStrokeGuide")._parseBool(false);       // ローマ字読みによるストロークガイドを有効にするか
             ShowLastStrokeByDiffBackColor = GetString("showLastStrokeByDiffBackColor")._parseBool(false); // 前打鍵位置の背景色を変えて表示するか
 
-            //MazeUserDicSourceFile = GetString("mazeUserDicSourceFile");                     // 交ぜ書きユーザー辞書ソースファイル
+            //MazeUserDicSourceFile = GetString("mazeUserDicSourceFile", "userDic.csv");          // 交ぜ書きユーザー辞書ソースファイル
 
             //-------------------------------------------------------------------------------------
             // 辞書保存時間
