@@ -625,7 +625,7 @@ public:
                 HISTORY_DIC->ReadUserRomanFile();
             } else if (cmd == _T("saveTraceLog")) {
                 Reporting::Logger::SaveLog();
-                //MorphBridge::morphSaveLog();
+                MorphBridge::morphSaveLog();
                 //NgramBridge::ngramSaveLog();
             } else if (cmd == _T("closeLogger")) {
                 Reporting::Logger::Close();

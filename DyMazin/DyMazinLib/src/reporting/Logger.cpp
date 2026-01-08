@@ -129,8 +129,8 @@ namespace Reporting {
 		fw.WriteLog(formatMessage(level, className, method, line, msg));
 	}
 
-	static const int QUEUE_SIZE = 50000;
-	static const int QUEUE_EXTRA_SIZE = 5000;
+	static const int QUEUE_SIZE = 10000;
+	static const int QUEUE_EXTRA_SIZE = 1000;
 
 	void appendLog(Deque<std::string>& queue, const std::string& msg) {
 		if (queue.size() > QUEUE_SIZE + QUEUE_EXTRA_SIZE) queue.erase(queue.begin(), queue.begin() + QUEUE_EXTRA_SIZE);

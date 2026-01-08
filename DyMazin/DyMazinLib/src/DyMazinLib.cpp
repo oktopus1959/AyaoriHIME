@@ -15,7 +15,7 @@ using namespace analyzer;
 using namespace compiler;
 using Logger = Reporting::Logger;
 
-#if 0 || defined(_DEBUG)
+#if 1 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
 #undef _LOG_DEBUGH
 #define _LOG_DEBUGH LOG_INFOH
@@ -125,10 +125,21 @@ int DymazinReloadUserDics(wchar_t* errMsgBuf, size_t bufsiz) {
 int DymazinCompileAndLoadUserDic(const wchar_t* dicDir, const wchar_t* srcFilePath, const wchar_t* outputFilePath, wchar_t* errMsgBuf, size_t bufsiz) {
     ERROR_HANDLER->Clear();
 
-    Vector<String> dic_lines = MazegakiPreprocessor::preprocessMazegakiDic(dicDir, srcFilePath);
+    Vector<String> dic_lines = MazegakiPreprocessor::preprocessMazegakiDic(dicDir, srcFilePath, true);
     if (dic_lines.empty() || ERROR_HANDLER->HasError()) {
         return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
     }
+#if _LOG_DEBUGH_FLAG
+    if (Reporting::Logger::LOG_LEVEL_ENABLED(InfoH)) {
+        if (dic_lines.size() > 0) {
+            String lines = dic_lines[0];
+            for (size_t i = 1; i < dic_lines.size() && i < 1000; ++i) {
+                lines += L"\n" + dic_lines[i];
+            }
+            LOG_INFOH(L"dic_line:\n{}", lines);
+        }
+    }
+#endif
 
     opts = util::OptHandler::CreateDefaultHandler(L"make_user_dict");
     opts->set(L"dicdir", dicDir);
@@ -151,7 +162,7 @@ int DymazinExpandDictLine(size_t argc, const wchar_t** argv, const wchar_t* logF
     String mazeResrcDir = L"/Dev/Text/kanji-table";
     String filePath = (opts && !opts->restArgs().empty()) ? opts->restArgs().front() : L"-";
 
-    Vector<String> results = MazegakiPreprocessor::preprocessMazegakiDic(mazeResrcDir, filePath);
+    Vector<String> results = MazegakiPreprocessor::preprocessMazegakiDic(mazeResrcDir, filePath, false);
     if (ERROR_HANDLER->HasError()) {
         if (showError) std::wcerr << ERROR_HANDLER->GetErrorMsg() << std::endl;
         return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);

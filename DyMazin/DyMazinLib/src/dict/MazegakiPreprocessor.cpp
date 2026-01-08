@@ -121,48 +121,159 @@ namespace MazegakiPreprocessor {
         return result;
     }
 
+    std::map<String, String> ktypeDefs = {
+        { L"形容詞",    L"43,43,5000,形容詞,自立,*,*,形容詞・イ段,基本形" },
+        { L"五段く",   L"679,679,5000,動詞,自立,*,*,五段・カ行イ音便,基本形" },
+        { L"五段ぐ",   L"723,723,5000,動詞,自立,*,*,五段・ガ行,基本形" },
+        { L"五段す",   L"731,731,5000,動詞,自立,*,*,五段・サ行,基本形" },
+        { L"五段つ",   L"738,738,5000,動詞,自立,*,*,五段・タ行,基本形" },
+        { L"五段ぬ",   L"746,746,5000,動詞,自立,*,*,五段・ナ行,基本形" },
+        { L"五段ぶ",   L"754,754,5000,動詞,自立,*,*,五段・バ行,基本形" },
+        { L"五段む",   L"762,762,5000,動詞,自立,*,*,五段・マ行,基本形" },
+        { L"五段る",   L"772,772,5000,動詞,自立,*,*,五段・ラ行,基本形" },
+        { L"五段う",   L"817,817,5000,動詞,自立,*,*,五段・ワ行促音便,基本形" },
+        { L"一段",      L"619,619,5000,動詞,自立,*,*,一段,基本形" },
+        { L"クル",      L"563,563,5000,動詞,自立,*,*,カ変・クル,基本形" },
+        { L"来ル",      L"573,573,5000,動詞,自立,*,*,カ変・来ル,基本形" },
+        { L"スル",      L"583,583,5000,動詞,自立,*,*,サ変・−スル,基本形" },
+        { L"ズル",      L"592,592,5000,動詞,自立,*,*,サ変・−ズル,基本形" },
+        { L"副詞",      L"1281,1281,5000,副詞,一般,*,*,*,*" },
+        { L"サ変",      L"1283,1283,5000,名詞,サ変接続,*,*,*,*" },
+        { L"名詞",      L"1285,1285,5000,名詞,一般,*,*,*,*" },
+        { L"形容動詞",  L"1287,1287,5000,名詞,形容動詞語幹,*,*,*,*" },
+        { L"固有名詞",  L"1288,1288,5000,名詞,固有名詞,一般,*,*,*" },
+        { L"人名",      L"1289,1289,5000,名詞,固有名詞,人名,一般,*,*" },
+        { L"姓名",      L"1289,1289,5000,名詞,固有名詞,人名,一般,*,*" },
+        { L"姓",        L"1290,1290,5000,名詞,固有名詞,人名,姓,*,*" },
+        { L"名",        L"1291,1291,5000,名詞,固有名詞,人名,名,*,*" },
+        { L"組織",      L"1292,1292,5000,名詞,固有名詞,組織,*,*,*" },
+        { L"地域",      L"1293,1293,5000,名詞,固有名詞,地域,一般,*,*" },
+        { L"地名",      L"1293,1293,5000,名詞,固有名詞,地域,一般,*,*" },
+        { L"国",        L"1294,1294,5000,名詞,固有名詞,地域,国,*,*" },
+        { L"数",        L"1295,1295,5000,名詞,数,*,*,*,*" },
+    };
+
+    // ユーザー辞書のエントリを品詞によって標準形に変換
+    String convertToNormalForm(StringRef line) {
+        const auto items = utils::split(line, L",");
+        if (items.size() < 2 || items.size() > 4) {
+            return line;
+        }
+        auto yomi = items[0];
+        auto base = items[1];
+        if (yomi.empty() || base.empty()) {
+            return line;
+        }
+        std::vector<String> items2 = utils::split(items.size() == 2 ? L"名詞" : items[2], L"/");
+        auto hinshi = items2.size() < 2 || items2[1].empty() ? items2[0] : items2[1];
+        if (hinshi == L"地名") {
+            hinshi = L"地域";
+        } else if (hinshi == L"五段") {
+            hinshi += base.back();
+        }
+        auto iter = ktypeDefs.find(hinshi);
+        if (iter == ktypeDefs.end()) {
+            return line;
+        }
+        return base + L"," + iter->second + L"," + base + L"," + yomi;
+    }
+
     std::map<String, VectorString> kformDefs = {
         // 五段・カ行イ音便
         { L"五段・カ行イ音便",
-            { L"未然形,か,683", L"未然ウ接続,こ,681", L"連用形,き,689", L"連用タ接続,い,687", L"仮定形,け,675", L"命令ｅ,せ,685", L"仮定縮約１,きゃ,677" }},
+            { L"基本形,く,679", L"未然形,か,683", L"未然ウ接続,こ,681", L"連用形,き,689", L"連用タ接続,い,687", L"仮定形,け,675", L"命令ｅ,せ,685", L"仮定縮約１,きゃ,677"}
+        },
+
+        // 五段・ガ行
+        { L"五段・ガ行",
+            { L"基本形,ぐ,723", L"未然形,が,725", L"未然ウ接続,ご,724", L"連用形,ぎ,728", L"連用タ接続,い,727", L"仮定形,げ,721", L"命令ｅ,げ,726", L"仮定縮約１,ぎゃ,722"}
+        },
 
         // 五段・サ行
         { L"五段・サ行",
-            { L"未然形,さ,733", L"未然ウ接続,そ,732", L"連用形,し,735", L"仮定形,せ,729", L"命令ｅ,せ,734", L"仮定縮約１,しゃ,730" }},
+            { L"基本形,す,731", L"未然形,さ,733", L"未然ウ接続,そ,732", L"連用形,し,735", L"仮定形,せ,729", L"命令ｅ,せ,734", L"仮定縮約１,しゃ,730" }
+        },
+
+        // 五段・タ行
+        { L"五段・タ行",
+            { L"基本形,つ,738", L"未然形,た,740", L"未然ウ接続,と,739", L"連用形,ち,743", L"連用タ接続,っ,742", L"仮定形,て,736", L"命令ｅ,て,741", L"仮定縮約１,ちゃ,737",}
+        },
+
+        // 五段・ナ行
+        { L"五段・ナ行",
+            { L"基本形,ぬ,746", L"未然形,な,748", L"未然ウ接続,の,747", L"連用形,に,751", L"連用タ接続,ん,750", L"仮定形,ね,744", L"命令ｅ,ね,749", L"仮定縮約１,にゃ,745"}
+        },
+
+        // 五段・バ行
+        { L"五段・バ行",
+            { L"基本形,ぶ,754", L"未然形,ば,756", L"未然ウ接続,ぼ,755", L"連用形,び,759", L"連用タ接続,ん,758", L"仮定形,べ,752", L"命令ｅ,べ,757", L"仮定縮約１,喚びゃ,753"}
+        },
 
         // 五段・マ行
         { L"五段・マ行",
-            { L"未然形,ま,764", L"未然ウ接続,も,763", L"連用形,み,767", L"連用タ接続,ん,766", L"仮定形,め,760", L"命令ｅ,め,765", L"仮定縮約１,みゃ,761" }},
+            { L"基本形,む,762", L"未然形,ま,764", L"未然ウ接続,も,763", L"連用形,み,767", L"連用タ接続,ん,766", L"仮定形,め,760", L"命令ｅ,め,765", L"仮定縮約１,みゃ,761" }
+        },
 
         // 五段・ラ行
         { L"五段・ラ行",
-            { L"未然形,ら,780", L"未然形,ん,782", L"未然ウ接続,ろ,778", L"連用形,り,788", L"連用タ接続,っ,786", L"仮定形,れ,768",
-              L"命令ｅ,れ,784", L"仮定縮約１,りゃ,770", L"体言接続特殊,ん,774" }},
+            { L"基本形,る,772", L"未然形,ら,780", L"未然形,ん,782", L"未然ウ接続,ろ,778", L"連用形,り,788", L"連用タ接続,っ,786", L"仮定形,れ,768",
+              L"命令ｅ,れ,784", L"仮定縮約１,りゃ,770", L"体言接続特殊,ん,774" }
+        },
 
         // 五段・ワ行促音便
         { L"五段・ワ行促音便",
-            { L"未然形,わ,823", L"未然ウ接続,お,820", L"連用形,い,832", L"連用タ接続,っ,829", L"仮定形,え,814", L"命令ｅ,え,826" }},
+            { L"基本形,う,817", L"未然形,わ,823", L"未然ウ接続,お,820", L"連用形,い,832", L"連用タ接続,っ,829", L"仮定形,え,814", L"命令ｅ,え,826" }
+        },
 
         // 一段
         { L"一段",
-            { L"未然形,,622", L"未然ウ接続,よ,621", L"連用形,,625", L"仮定形,れ,617", L"命令ｙｏ,よ,624", L"命令ｒｏ,ろ,623", L"仮定縮約１,りゃ,618", L"体言接続特殊,ん,620" }},
+            { L"基本形,る,619", L"未然形,,622", L"未然ウ接続,よ,621", L"連用形,,625", L"仮定形,れ,617", L"命令ｙｏ,よ,624", L"命令ｒｏ,ろ,623", L"仮定縮約１,りゃ,618", L"体言接続特殊,ん,620" }
+        },
+
+        // カ変・来ル
+        { L"カ変・来ル",
+            { L"基本形,る,573", L"未然形,,577", L"未然ウ接続,よ,576", L"連用形,,580", L"仮定形,れ,571", L"命令ｙｏ,よ,579", L"命令ｉ,い,578",
+              L"仮定縮約１,りゃ,572", L"体言接続特殊,ん,574", L"体言接続特殊２,,575" }
+        },
+
+        // カ変・クル
+        { L"カ変・クル",
+            { L"基本形,くる,563", L"未然形,こ,567", L"未然ウ接続,こよ,566", L"連用形,き,570", L"仮定形,くれ,561", L"命令ｙｏ,こよ,569", L"命令ｉ,こい,568",
+              L"仮定縮約１,くりゃ,562", L"体言接続特殊,くん,564", L"体言接続特殊２,く,565" }
+        },
 
         // サ変・−スル
         { L"サ変・−スル",
-            { L"基本形,する,583", L"未然形,し,587", L"未然ウ接続,しよ,585", L"未然ウ接続,しょ,585", L"未然レル接続,せ,586", L"仮定形,すれ,581",
-              L"命令ｙｏ,せよ,589", L"命令ｒｏ,しろ,588", L"仮定縮約１,すりゃ,582" }},
+            { L"基本形,する,583", L"文語基本形,す,584", L"未然形,し,587", L"未然ウ接続,しよ,585", L"未然ウ接続,しょ,585", L"未然レル接続,せ,586", L"仮定形,すれ,581",
+              L"命令ｙｏ,せよ,589", L"命令ｒｏ,しろ,588", L"仮定縮約１,すりゃ,582" }
+        },
+
+        // サ変・−ズル
+        { L"サ変・−ズル",
+            { L"基本形,ずる,592", L"文語基本形,ず,593", L"未然形,ぜ,595", L"未然ウ接続,ぜよ,594", L"仮定形,ずれ,590", L"命令ｙｏ,ぜよ,596", L"仮定縮約１,ずりゃ,591"}
+        },
 
         // 形容詞・イ段
         { L"形容詞・イ段",
-            { L"文語基本形,,45", L"未然ヌ接,から,47", L"未然ウ接続,かろ,46", L"連用タ接続,かっ,50", L"連用テ接続,く,51", L"連用テ接続,くっ,51", L"連用ゴザイ接続,ゅう,49",
-              L"体言接続,き,44", L"仮定形,けれ,40", L"命令ｅ,かれ,48", L"仮定縮約１,けりゃ,41", L"仮定縮約２,きゃ,42", L"ガル接続,,39" }},
+            { L"基本形,い,43", L"文語基本形,,45", L"未然ヌ接,から,47", L"未然ウ接続,かろ,46", L"連用タ接続,かっ,50", L"連用テ接続,く,51", L"連用テ接続,くっ,51", L"連用ゴザイ接続,ゅう,49",
+              L"体言接続,き,44", L"仮定形,けれ,40", L"命令ｅ,かれ,48", L"仮定縮約１,けりゃ,41", L"仮定縮約２,きゃ,42", L"ガル接続,,39" }
+        },
 
         // 形容詞・アウオ段
         { L"形容詞・アウオ段",
-            { L"文語基本形,し,23", L"未然ヌ接,から,27", L"未然ウ接続,かろ,25", L"連用タ接続,かっ,33", L"連用テ接続,く,35", L"連用テ接続,くっ,35", L"連用ゴザイ接続,う,31",
-              L"体言接続,き,21", L"仮定形,けれ,13", L"命令ｅ,かれ,29", L"仮定縮約１,けりゃ,15", L"仮定縮約２,きゃ,17", L"ガル接続,,11" }},
+            { L"基本形,い,19", L"文語基本形,し,23", L"未然ヌ接,から,27", L"未然ウ接続,かろ,25", L"連用タ接続,かっ,33", L"連用テ接続,く,35", L"連用テ接続,くっ,35", L"連用ゴザイ接続,う,31",
+              L"体言接続,き,21", L"仮定形,けれ,13", L"命令ｅ,かれ,29", L"仮定縮約１,けりゃ,15", L"仮定縮約２,きゃ,17", L"ガル接続,,11" }
+        },
 
     };
+
+    int getGobiLength(StringRef ktype) {
+        if (ktype.starts_with(L"サ変") || ktype.starts_with(L"カ変・クル")) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
 
     // 活用形の展開
     // line は余分な空白や先頭の * が削除されている
@@ -174,29 +285,32 @@ namespace MazegakiPreprocessor {
         VectorString items = utils::split(line, L",");
         LOG_DEBUGH(L"items={}", utils::join(items, L", "));
         if (items.size() > 11) {
-            String surf = items[0];
-            LOG_DEBUGH(L"push_back({})", utils::join(items, L", "));
-            expandedList.push_back(utils::join(items, ','));
+            StringRef surf = items[0];
+            //LOG_DEBUGH(L"push_back({})", utils::join(items, L", "));
+            //expandedList.push_back(utils::join(items, ','));
 
-            String yomi = items[11];
+            StringRef ktype = items[8];
+            StringRef yomi = items[11];
             if (surf.size() > 1 && yomi.size() > 1) {
-                String stem = utils::safe_substr(surf, 0, -1);
-                String yomiStem = utils::safe_substr(yomi, 0, -1);
-                LOG_DEBUGH(L"stem={}, yomiStem={}", stem, yomiStem);
+                int gobiLen = getGobiLength(ktype);
+                String stem = utils::safe_substr(surf, 0, -gobiLen);
+                String yomiStem = utils::safe_substr(yomi, 0, -gobiLen);
+                LOG_DEBUGH(L"gobiLen={}, stem={}, yomiStem={}", gobiLen, stem, yomiStem);
 
                 String ktype = items[8];
                 auto defs = kformDefs.find(ktype);
                 if (defs != kformDefs.end()) {
                     for (const auto& val : defs->second) {
                         auto kfs = utils::split(val, ',');
+                        StringRef kform = kfs[0];
                         //LOG_DEBUGH(L"kfs={}", utils::join(kfs, L", "));
-                        String tail = kfs.size() > 1 ? kfs[1] : L"";
+                        String gobi = kfs.size() > 1 ? kfs[1] : L"";
                         String conn = kfs.size() > 2 ? kfs[2] : items[1];
-                        items[0] = stem + tail;     // 表層形
+                        items[0] = stem + gobi;     // 表層形
                         items[1] = conn;            // 左接続
                         items[2] = conn;            // 右接続
-                        items[9] = kfs[0];          // 活用形
-                        items[11] = yomiStem + tail;  // 読み
+                        items[9] = kform;           // 活用形
+                        items[11] = yomiStem + gobi;  // 読み
                         LOG_DEBUGH(L"push_back({})", utils::join(items, L", "));
                         expandedList.push_back(utils::join(items, ','));
                     }
@@ -233,12 +347,7 @@ namespace MazegakiPreprocessor {
     void checkMazeBase(StringRef mazeYomi, StringRef ktype, StringRef kform) {
         LOG_DEBUGH(L"ENTER: mazeYomi={}, ktype={}, kform={}", mazeYomi, ktype, kform);
         if (kform == L"基本形") {
-            String mazeStem;
-            if (ktype.starts_with(L"サ変")) {
-                mazeStem = utils::safe_substr(mazeYomi, 0, -2);
-            } else {
-                mazeStem = utils::safe_substr(mazeYomi, 0, -1);
-            }
+            String mazeStem = utils::safe_substr(mazeYomi, 0, -getGobiLength(ktype));
             LOG_DEBUGH(L"_mazeBaseMap[{}] = {}", mazeStem, mazeYomi);
             _mazeBaseMap[mazeStem] = mazeYomi;
         }
@@ -352,8 +461,9 @@ namespace MazegakiPreprocessor {
         }
 
         //const auto surfParts = _reMatchScan(surf, L"^([^一-龠々]*)([一-龠々])([^一-龠々]*)([一-龠々])(?:([^一-龠々]*)([一-龠々])(?:([^一-龠々]*)([一-龠々]))?)?([ぁ-ゖ]*)$");
-        const auto surfParts = _reMatchScan(surf, L"^([ぁ-ゖ]*)([一-龠々])([ぁ-ゖ]*)([一-龠々])(?:([ぁ-ゖ]*)([一-龠々])(?:([ぁ-ゖ]*)([一-龠々]))?)?([ぁ-ゖ]*)$");
-        if (surfParts.size() == 9) {
+        const auto surfParts = _reMatchScan(surf, L"^([ぁ-ゖ]*)([一-龠々])([ぁ-ゖ]*)([一-龠々ァ-ヶ])(?:([ぁ-ゖ]*)([一-龠々ァ-ヶ])(?:([ぁ-ゖ]*)([一-龠々]))?)?([ぁ-ゖ]*)$");
+        if (surfParts.size() == 9 &&
+            (surfParts[3].empty() || !utils::is_katakana(surfParts[3][0]) || (!surfParts[5].empty() && !utils::is_katakana(surfParts[5][0])))) {
             // 2つ以上の漢字を含む (カタカナは含まない)
             auto variations = makeVariation(hiraYomi,
                 _safeGet(surfParts, 0), _safeGet(surfParts, 1), _safeGet(surfParts, 2),
@@ -391,6 +501,7 @@ namespace MazegakiPreprocessor {
             }
         }
 
+        LOG_DEBUGH(L"LEAVE");
         return true;
     }
 
@@ -399,8 +510,8 @@ namespace MazegakiPreprocessor {
 
     // 活用型と交ぜ書きの前処理を行う
     // 辞書として有効な行の場合は true を返す。
-    // (ユーザー辞書の形式に従っていないものはそのまま出力)
-    bool expandMazegaki(StringRef origLine, Vector<String>& errorLines) {
+    // (標準辞書の形式に従っていないものはそのまま出力)
+    bool expandMazegaki(StringRef origLine, Vector<String>& errorLines, bool bUserDic) {
         LOG_DEBUGH(L"ENTER: origLine={}", origLine);
 
         //items = origLine.strip.split(',')
@@ -410,7 +521,7 @@ namespace MazegakiPreprocessor {
             return false;
         }
 
-        bool expandKFormFlag = false;
+        bool expandKFormFlag = bUserDic;
         if (line[0] == '*') {
             expandKFormFlag = true; // 活用形の展開フラグ
             line = line.substr(1);
@@ -419,6 +530,11 @@ namespace MazegakiPreprocessor {
             errorLines.push_back(origLine);
             LOG_DEBUGH(L"LEAVE: false: empty");
             return false;
+        }
+
+        if (expandKFormFlag) {
+            // 活用形の展開(or ユーザー辞書形式)の場合、標準形に変換
+            line = convertToNormalForm(line);
         }
 
         const auto items = utils::split(line, L",");
@@ -443,7 +559,7 @@ namespace MazegakiPreprocessor {
 
         if (items.size() < 11) {
             LOG_DEBUGH(L"LEAVE: true: less than normal format");
-            // ユーザー辞書の形式に従っていないものはそのまま出力
+            // 標準辞書の形式に従っていないものはそのまま出力
             linesMap[origLine] = origLine;
             return true;
         }
@@ -456,6 +572,7 @@ namespace MazegakiPreprocessor {
 
         bool mainResult = false;
         if (expandKFormFlag) {
+            // 活用形の展開
             for (const auto& expLine : expandKForm(line)) {
                 mainResult = main(linesMap, costsMap, expLine);
             }
@@ -500,7 +617,7 @@ namespace MazegakiPreprocessor {
     }
 
     // 交ぜ書き辞書の準備と展開
-    Vector<String> preprocessMazegakiDic(StringRef mazeResrcDir, StringRef dicSrcPath) {
+    Vector<String> preprocessMazegakiDic(StringRef mazeResrcDir, StringRef dicSrcPath, bool bUserDic) {
         LOG_INFOH(L"ENTER: mazeResrcDir={}, dicSrcPath={}", mazeResrcDir, dicSrcPath);
 
         Vector<String> resultLines;
@@ -524,7 +641,7 @@ namespace MazegakiPreprocessor {
             _LOG_DEBUGH(L"line={}, eof={}", line, eof);
             if (eof || (line == L"." && dicSrcPath == L"-")) break;
             // 展開処理
-            if (MazegakiPreprocessor::expandMazegaki(line, errorLines)) {
+            if (MazegakiPreprocessor::expandMazegaki(line, errorLines, bUserDic)) {
                 ++srcLineNum;
             }
         }

@@ -23,6 +23,14 @@ namespace MazegakiPreprocessor {
         return _safeGet(_kanjiYomi, kanji);
     }
 
+    inline String _findKatakanaYomi(wchar_t kch) {
+        String yomi(utils::katakana_to_hiragana(kch), 1);
+        if (kch == L'カ' || kch == L'ケ' || kch == L'ヵ' || kch == L'ヶ') {
+            yomi += L"|が";
+        }
+        return yomi;
+    }
+
     inline String _findKanjiBigram(StringRef kanji) {
         //auto it = _kanjiBigram.find(kanji);
         //if (it != _kanjiBigram.end()) {
@@ -449,8 +457,8 @@ namespace MazegakiPreprocessor {
         }
 
         const auto ky1 = _findKanjiYomi(k1);
-        const auto ky2 = _findKanjiYomi(k2);
-        const auto ky3 = _findKanjiYomi(k3);
+        const auto ky2 = !k2.empty() && utils::is_katakana(k2.front()) ? _findKatakanaYomi(k2.front()) : _findKanjiYomi(k2);
+        const auto ky3 = !k3.empty() && utils::is_katakana(k3.front()) ? _findKatakanaYomi(k3.front()) : _findKanjiYomi(k3);
         const auto ky4 = _findKanjiYomi(k4);
         LOG_DEBUGH(L"kanji1={}, ky1={}", k1, ky1);
         LOG_DEBUGH(L"kanji2={}, ky2={}", k2, ky2);

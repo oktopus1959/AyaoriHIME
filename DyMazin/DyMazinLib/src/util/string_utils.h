@@ -728,6 +728,10 @@ namespace utils
         return ch + 0x0060;
     }
 
+    inline wchar_t katakana_to_hiragana(wchar_t ch) {
+        return ch - 0x0060;
+    }
+
     inline mchar_t katakana_to_hiragana(mchar_t ch) {
         return ch - 0x0060;
     }
