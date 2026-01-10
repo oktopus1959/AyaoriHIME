@@ -1878,6 +1878,8 @@ namespace KanchokuWS.Gui
             checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbol;
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
+            textBox_ngramManualSelectDelta.Text = $"{Settings.NgramManualSelectDelta}";
+            textBox_ngramBonusPointFactor.Text = $"{Settings.NgramBonusPointFactor}";
             textBox_maxStrokeBackCount.Text = $"{Settings.MaxStrokeBackCount}";
             textBox_challengeNumForSameLeader.Text = $"{Settings.ChallengeNumForSameLeader}";
             comboBox_editBufferCaretChar.Text = $"{Settings.EditBufferCaretChar}";
@@ -1915,6 +1917,8 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(checkBox_outputHeadSymbol);
             checkerFusion.Add(textBox_multiStreamBeamSize);
             checkerFusion.Add(textBox_remainingStrokeSize);
+            checkerFusion.Add(textBox_ngramManualSelectDelta);
+            checkerFusion.Add(textBox_ngramBonusPointFactor);
             checkerFusion.Add(textBox_maxStrokeBackCount);
             checkerFusion.Add(textBox_challengeNumForSameLeader);
             checkerFusion.Add(comboBox_editBufferCaretChar);
@@ -1946,6 +1950,8 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
+            Settings.SetUserIni("ngramManualSelectDelta", textBox_ngramManualSelectDelta.Text);
+            Settings.SetUserIni("ngramBonusPointFactor", textBox_ngramBonusPointFactor.Text);
             Settings.SetUserIni("maxStrokeBackCount", textBox_maxStrokeBackCount.Text);
             Settings.SetUserIni("challengeNumForSameLeader", textBox_challengeNumForSameLeader.Text);
             Settings.SetUserIni("editBufferCaretChar", comboBox_editBufferCaretChar.Text.Trim());

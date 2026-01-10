@@ -194,7 +194,7 @@ namespace KanchokuWS
         public static int NgramCostFactor { get; set; } = 5;
 
         /// <summary>嵩上げされたNgramに与えるボーナスの係数</summary>
-        public static int NngramBonusPointFactor { get; set; } = 100;
+        public static int NgramBonusPointFactor { get; set; } = 100;
 
         /// <summary>候補選択によるNgramカウントの変動幅</summary>
         public static int NgramManualSelectDelta { get; set; } = 10;
@@ -1837,8 +1837,8 @@ namespace KanchokuWS
             MorphMazeConnectionPenalty = addDecoderSetting("morphMazeConnectionPenalty", 1000); // 交ぜ書きエントリの接続に対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
-            NngramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 100);           // 嵩上げされたNgramに与えるボーナスの係数
-            NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 10);           // 候補選択によるNgramカウントの変動幅
+            NgramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 250);            // 嵩上げされたNgramに与えるボーナスの係数
+            NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 5);            // 候補選択によるNgramカウントの変動幅
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             LoweredContinuousKanjiNum = addDecoderSetting("loweredContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード
