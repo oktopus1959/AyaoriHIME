@@ -738,7 +738,7 @@ namespace KanchokuWS
 
         public void MakeStrokeTables(string defFile)
         {
-            var filePath = KanchokuIni.Singleton.KanchokuDir._joinPath(defFile);
+            var filePath = KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.UserFilesFolder, defFile);
             logger.Info(() => $"ENTER: filePath={filePath}");
 
             shiftPlaneStrokeTables1 = Helper.MakeRange(ShiftPlane.ShiftPlane_NUM).Select(x => makeCharOrKeys($"makeShiftPlaneStrokePosition1", x.ToString())).ToList();
