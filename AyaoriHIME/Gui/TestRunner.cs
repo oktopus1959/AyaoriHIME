@@ -27,6 +27,8 @@ namespace KanchokuWS.Gui
 
             var testFilename = $@"test_script{(bAll ? "_all" : "")}.txt";
             var testFilePath = Helper.JoinPath("src", testFilename);
+            logger.WriteLog("INFO", $"\n\n======== TEST START: testFilePath={testFilePath} ========");
+
             var lines = readAllLines(testFilePath);
             if (lines._isEmpty()) {
                 testFilePath = Helper.JoinPath("bin", testFilename);
@@ -74,7 +76,7 @@ namespace KanchokuWS.Gui
                 ++lineNum;
                 void appendError(string msg)
                 {
-                    logger.WarnH(msg);
+                    logger.WriteLog("WARNH", msg);
                     sb.Append(msg).Append($":\n>> ").Append(lineNum).Append(": ").Append(line).Append("\n\n");
                 }
 
@@ -91,7 +93,7 @@ namespace KanchokuWS.Gui
                 var command = items[1];
                 var arg = items._getNth(2);
                 var expected = items._getNth(3);
-                logger.WriteInfo($"\n==== TEST({lineNum}): command={command}, arg={arg}, expected={(expected._notEmpty() ? expected : "null")} ====");
+                logger.WriteLog("INFO", $"\n==== TEST({lineNum}): command={command}, arg={arg}, expected={(expected._notEmpty() ? expected : "null")} ====");
                 switch (command) {
                     case "logLevel":
                         Logger.LogLevel = arg._parseInt(Logger.LogLevelWarn);
@@ -229,7 +231,7 @@ namespace KanchokuWS.Gui
                     case "exit":
                     case "quit":
                         bBreak = true;
-                        logger.WriteInfo("\nBREAK");
+                        logger.WriteLog("INFO", "\nBREAK");
                         break;
 
                     default:
@@ -242,7 +244,7 @@ namespace KanchokuWS.Gui
 
             dispTestCount();
 
-            logger.WriteInfo("DONE");
+            logger.WriteLog("INFO", "======== TEST DONE ========\n");
 
             frmMain.ReloadSettingsAndDefFiles();
 
@@ -283,6 +285,8 @@ namespace KanchokuWS.Gui
             } else if (prevLogLevel < Logger.LogLevelDebugH) {
                 Logger.LogLevel = Logger.LogLevelDebugH;
             }
+
+            logger.Info($"ENTER: keys={keys}, bAll={bAll}");
 
             var sb = new StringBuilder();
             void callDecoder(List<ResultKeyStroke> list, bool bUnconditional)
@@ -368,13 +372,13 @@ namespace KanchokuWS.Gui
                     }
                 }
             } catch (Exception ex) {
-                logger.Error(ex._getErrorMsg());
+                logger.WriteLog("ERROR", ex._getErrorMsg());
             } finally {
                 CombinationKeyStroke.Determiner.Singleton.KeyProcHandler = oldFunc;
             }
 
             var result = sb.ToString();
-            logger.Info($"result={result}");
+            logger.Info($"LEAVE: result={result}");
 
             Logger.LogLevel = prevLogLevel;
             return result;
@@ -385,13 +389,13 @@ namespace KanchokuWS.Gui
             var lines = new List<string>();
             if (filepath._notEmpty()) {
                 var absPath = KanchokuIni.Singleton.KanchokuDir._joinPath(filepath);
-                logger.WriteInfo($"ENTER: absFilePath={absPath}");
-                var contents = Helper.GetFileContent(absPath, (e) => logger.Error(e._getErrorMsgShort()));
+                logger.WriteLog("INFO", $"ENTER: absFilePath={absPath}");
+                var contents = Helper.GetFileContent(absPath, (e) => logger.WriteLog("ERROR", e._getErrorMsgShort()));
                 if (contents._notEmpty()) {
                     lines.AddRange(contents._safeReplace("\r", "")._split('\n'));
                 }
             }
-            logger.WriteInfo($"LEAVE: num of lines={lines.Count}");
+            logger.WriteLog("INFO", $"LEAVE: num of lines={lines.Count}");
             return lines;
         }
 

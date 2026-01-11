@@ -320,7 +320,7 @@ namespace KanchokuWS
         {
             HRDateTime.AdjustHiResNow();
 
-            logger.WriteInfo($"\n\n==== KANCHOKU WS ({IntPtr.Size * 8}bit) START (LogLevel={Logger.LogLevel}) ====");
+            logger.WriteInfo($"\n\n==== AyaoriHIME ({IntPtr.Size * 8}bit) START (LogLevel={Logger.LogLevel}) ====");
 
             IMEHandler.MainWnd = this.Handle;
 
@@ -626,7 +626,7 @@ namespace KanchokuWS
 
             // 各種Timer処理が終了するのを待つ
             Helper.WaitMilliSeconds(200);
-            logger.WriteInfo("==== KANCHOKU WS TERMINATED ====\n");
+            logger.WriteInfo("==== AyaoriHIME TERMINATED ====\n");
             Logger.Close();
         }
 
@@ -902,6 +902,11 @@ namespace KanchokuWS
         {
             logger.SaveLog();
             ExecCmdDecoder("saveTraceLog", null);
+        }
+
+        public void SaveMorphLog()
+        {
+            ExecCmdDecoder("saveMorphLog", null);
         }
 
         //------------------------------------------------------------------

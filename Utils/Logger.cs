@@ -279,6 +279,7 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if (LogLevel > 0) {
+                writeLog(Level, $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
                 writeLog(Level, $"{ClassName}.{method}", lineNumber, msg, appendLogToFile);
             }
         }

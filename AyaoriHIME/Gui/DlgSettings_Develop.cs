@@ -180,7 +180,7 @@ namespace KanchokuWS.Gui
             int descWidth = (int)(DGV_COL2_WIDTH * dpiRate);
             dgvAbout.Columns.Add(dgvAbout._makeTextBoxColumn_ReadOnly("description", "", descWidth)._setUnresizable()._setWrapMode());
 
-            int nRow = 10;
+            int nRow = 9;
             dgvAbout.Height = nRow * rowHeight + (int)(10 * dpiRate) + 19;        // 末尾行が複数行になっていることを考慮
             dgvAbout.Width = itemWidth + descWidth + 1;
             dgvAbout.Rows.Add(nRow);
@@ -200,8 +200,8 @@ namespace KanchokuWS.Gui
             dgvAbout.Rows[iRow++].Cells[1] = new DataGridViewLinkCell() { Value = Settings.ManualUrl };
             dgvAbout.Rows[iRow].Cells[0].Value = "ビルド日時";
             dgvAbout.Rows[iRow++].Cells[1].Value = Assembly.GetExecutingAssembly()._getLinkerTime().ToString("yyyy/M/d HH:mm:ss");
-            dgvAbout.Rows[iRow].Cells[0].Value = "初版公開日";
-            dgvAbout.Rows[iRow++].Cells[1].Value = "2021年7月10日";
+            //dgvAbout.Rows[iRow].Cells[0].Value = "初版公開日";
+            //dgvAbout.Rows[iRow++].Cells[1].Value = "2021年7月10日";
             dgvAbout.Rows[iRow].Cells[0].Value = "作者";
             dgvAbout.Rows[iRow++].Cells[1].Value = "OKA Toshiyuki (岡 俊行) / @kanchokker(twitter) / @oktopus1959(github)";
             dgvAbout.Rows[iRow].Cells[0].Value = "利用条件と免責";
@@ -231,6 +231,11 @@ namespace KanchokuWS.Gui
         private void button_developSaveLog_Click(object sender, EventArgs e)
         {
             frmMain?.SaveTraceLog();
+        }
+
+        private void button_saveMorphLog_Click(object sender, EventArgs e)
+        {
+            frmMain?.SaveMorphLog();
         }
     }
 }
