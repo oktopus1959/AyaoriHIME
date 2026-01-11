@@ -514,7 +514,7 @@ namespace KanchokuWS.TableParser
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"ENTER: depth={Depth}, bBare={bBare}, str={CurrentStr}");
             // 終端ノードの追加と同時打鍵列の組合せの登録
             string str = ConvertKanji(CurrentStr);
-            if (str._isEmpty()) {
+            if (str._isEmpty() && bBare) {
                 if (Settings.LoggingTableFileInfo) logger.Info(() => $"LEAVE: IGNORE empty string");
                 return;
             }
