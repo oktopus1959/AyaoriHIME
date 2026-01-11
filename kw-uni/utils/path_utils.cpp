@@ -2,7 +2,7 @@
 
 #include "Reporting/Logger.h"
 
-#if 1
+#if 0
 #undef LOG_WARN
 #undef LOG_INFOH
 #undef LOG_INFO

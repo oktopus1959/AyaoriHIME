@@ -19,7 +19,7 @@
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughStrokeTable)
 #define _LOG_DETAIL LOG_DEBUGH
 
-#if 1 || defined(_DEBUG)
+#if 0 || defined(_DEBUG)
 #undef _LOG_DETAIL
 #undef LOG_INFO
 #undef LOG_DEBUGH

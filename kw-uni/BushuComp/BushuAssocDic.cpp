@@ -11,7 +11,7 @@
 //#include "BushuAssoc.h"
 #include "BushuAssocDic.h"
 
-#if 1
+#if 0
 #undef LOG_DEBUGH
 #define LOG_DEBUGH LOG_INFOH
 #endif

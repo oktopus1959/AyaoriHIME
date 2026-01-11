@@ -3,7 +3,7 @@
 
 DEFINE_CLASS_LOGGER(StateCommonInfo);
 
-#if 1
+#if 0
 #undef IS_LOG_DEBUGH_ENABLED
 #undef _DEBUG_SENT
 #undef _DEBUG_FLAG

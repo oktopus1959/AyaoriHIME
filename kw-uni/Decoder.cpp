@@ -45,7 +45,7 @@
 #include "Ngram/NgramBridge.h"
 #include "Llama/LlamaBridge.h"
 
-#if 1 || defined(_DEBUG)
+#if 0 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
 #undef LOG_INFO
 #undef LOG_DEBUGH
@@ -625,8 +625,9 @@ public:
                 HISTORY_DIC->ReadUserRomanFile();
             } else if (cmd == _T("saveTraceLog")) {
                 Reporting::Logger::SaveLog();
+            } else if (cmd == _T("saveMorphLog")) {
                 MorphBridge::morphSaveLog();
-                //NgramBridge::ngramSaveLog();
+                NgramBridge::ngramSaveLog();
             } else if (cmd == _T("closeLogger")) {
                 Reporting::Logger::Close();
             }

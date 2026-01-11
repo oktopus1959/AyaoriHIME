@@ -17,7 +17,7 @@
 
 #define _LOG_INFOH LOG_INFO
 #define _LOG_DETAIL LOG_DEBUGH
-#if 1
+#if 0
 #undef _LOG_INFOH
 #undef _LOG_DETAIL
 #undef LOG_INFO

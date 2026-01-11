@@ -9,7 +9,7 @@
 #include "History.h"
 #include "StrokeMerger/Merger.h"
 
-#if 1
+#if 0
 #undef LOG_INFO
 #undef LOG_DEBUG
 #undef _LOG_DEBUGH
