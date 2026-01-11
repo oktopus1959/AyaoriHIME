@@ -12,7 +12,7 @@
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
 #define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFOH
+#define LOG_DEBUG LOG_INFO
 #endif
 
 namespace analyzer {

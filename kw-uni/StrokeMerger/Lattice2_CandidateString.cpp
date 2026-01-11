@@ -451,6 +451,23 @@ namespace lattice2 {
             ++index;
             --numMorph;
         }
+        // 先頭に空白を含む形態素があれば、その前までもまとめる
+        size_t endIndex = index + numMorph;
+        for (size_t i = index; i < endIndex; ++i) {
+            for (const auto& cand : vecMorphCands[i]) {
+                if (!cand.str.empty() && cand.str.front() == ' ') {
+                    // 先頭に空白を含む形態素が見つかった
+                    _LOG_DETAIL(L"found space in morph cand: {}", to_wstr(cand.str));
+                    // ここまでをまとめる
+                    while (index < i) {
+                        morphs.push_back(vecMorphCands[index][0]);
+                        ++index;
+                        --numMorph;
+                    }
+                    break;
+                }
+            }
+        }
         std::vector<MorphCand> sortedItems;
         sortedItems.reserve(MAX_MAZEGAKI_VARIATIONS);
         // 隣接する形態素候補の組み合わせを全列挙してコスト計算

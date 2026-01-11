@@ -36,7 +36,7 @@ namespace analyzer {
             msg<< L"\n";
         };
         msg<< L"--------------------------------------------------\n";
-        LOG_INFO(msg.str());
+        LOG_DEBUGH(msg.str());
     }
 #endif
 
@@ -93,7 +93,7 @@ namespace analyzer {
          * 単語の辞書引きと先行ノードとの接続処理を行って、ラティス構造を構築する。
          */
         void viterbi(LatticePtr lattice, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
-            LOG_INFO(L"ENTER");
+            LOG_INFOH(L"ENTER");
             auto sentence = lattice->sentence;
             auto len = sentence->length();
             auto begin = sentence->begin();
@@ -131,7 +131,7 @@ namespace analyzer {
             // 両番兵に変化がないか確認 (TODO: 後で削除する)
             //assert(lattice->getEndNodes(0).size() == 1 && lattice->bosNode() == bos_node);
             assert(lattice->getLastBeginNodes().size() == 1 && lattice->eosNode() == eos_node);
-            LOG_INFO(L"LEAVE");
+            LOG_INFOH(L"LEAVE");
         }
 
         // 末尾Nodeからたどって、最良コストのPathを next で連結する
@@ -266,7 +266,7 @@ namespace analyzer {
      * 形態素解析処理
      */
     void Viterbi::analyze(LatticePtr lattice, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
-        LOG_INFO(L"ENTER");
+        LOG_INFOH(L"ENTER");
         CHECK_OR_THROW(lattice && lattice->sentence,
             L"Viterbi.analyze: lattice must not be null and have non-null sentence");
 
@@ -274,7 +274,7 @@ namespace analyzer {
         pImpl->viterbi(lattice, mazePenalty, mazeConnPenalty, allowNonTerminal);
         // 最良コストのPathを next で連結する
         pImpl->linkBestPath(lattice);
-        LOG_INFO(L"LEAVE");
+        LOG_INFOH(L"LEAVE");
     }
 
     /** ユーザー辞書の再ロード */

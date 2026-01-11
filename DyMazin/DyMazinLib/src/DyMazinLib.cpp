@@ -207,13 +207,15 @@ int DymazinMakeDictIndex(size_t argc, const wchar_t** argv, const wchar_t* logFi
     return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
 }
 
+#define ERROR_COST 10000000
+
 /**
  * 形態素解析の実行(コストを返す)
  * @param mazePenalty 交ぜ書きエントリに対するペナルティ(0 ならデフォルト値を使う)
  * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
  */
 int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz) {
-    LOG_INFO(L"ENTER: sentence={}, mazePenalty={}, mazeConnPenalty={}, allowNonTerminal={}", sentence ? sentence : L"null", mazePenalty, mazeConnPenalty, allowNonTerminal);
+    LOG_INFOH(L"ENTER: sentence={}, mazePenalty={}, mazeConnPenalty={}, allowNonTerminal={}", sentence ? sentence : L"null", mazePenalty, mazeConnPenalty, allowNonTerminal);
     ERROR_HANDLER->Clear();
 
     try {
@@ -221,11 +223,11 @@ int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize,
         int nBest = opts->getInt(L"nbest", 1);
         if (mazePenalty == 0) {
             mazePenalty = opts->getInt(L"maze-penalty");
-            LOG_INFO(L"mazePenalty={}", mazePenalty);
+            LOG_INFOH(L"mazePenalty={}", mazePenalty);
         }
         if (mazeConnPenalty == 0) {
             mazeConnPenalty = opts->getInt(L"maze-conn-penalty");
-            LOG_INFO(L"mazeConnPenalty={}", mazeConnPenalty);
+            LOG_INFOH(L"mazeConnPenalty={}", mazeConnPenalty);
         }
         if (sentence) {
             if (wakati_buf) wakati_buf[0] = L'\0';
@@ -264,10 +266,11 @@ int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize,
         }
         if (ERROR_HANDLER->HasError()) {
             if (bShowError) std::wcerr << ERROR_HANDLER->GetErrorMsg() << std::endl;
-            LOG_INFO(L"LEAVE: ERROR");
-            return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
+            LOG_INFOH(L"LEAVE: ERROR");
+            ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
+            return ERROR_COST;
         }
-        LOG_INFO(L"LEAVE: cost={}", cost);
+        LOG_INFOH(L"LEAVE: cost={}", cost);
         return cost;
     } catch (RuntimeException ex) {
         ERROR_HANDLER->Error(ex.getMessage());
@@ -278,7 +281,8 @@ int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize,
         ERROR_HANDLER->Error(msg);
         if (bShowError) std::wcerr << msg << std::endl;
     }
-    return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
+    ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
+    return ERROR_COST;
 }
 
 void DymazinSetLogLevel(int logLevel) {

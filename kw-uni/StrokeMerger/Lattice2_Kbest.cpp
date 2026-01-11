@@ -130,6 +130,15 @@ namespace lattice2 {
         }
     }
 
+    inline MString removeLastSpace(const MString& str) {
+        MString result = str;
+        auto pos = result.find_last_of(' ');
+        if (pos != std::string::npos) {
+            result.erase(pos, 1);
+        }
+        return result;
+    }
+
     //--------------------------------------------------------------------------------------
     // K-best な文字列を格納する
     class KBestListImpl : public KBestList {
@@ -1169,13 +1178,15 @@ namespace lattice2 {
                 _LOG_DETAIL(L"src: {}", to_wstr(srcCand.string()));
                 auto canditates = srcCand.applyMazegaki();
                 _LOG_DETAIL(L"applyMazegaki RESULT candidates num={}", canditates.size());
-                MString srcStr = srcCand.string();
+                const MString& srcStr = srcCand.string();
+                MString srcStr2 = removeLastSpace(srcStr);  // 先頭が空白の形態素を変換すると空白が除去されるので、それも除外する
+                _LOG_DETAIL(L"src: {}, src2={}", to_wstr(srcStr), to_wstr(srcStr2));
                 for (auto iter = canditates.rbegin(); iter != canditates.rend(); ++iter) {
                     _LOG_DETAIL(L"xlat: {}", to_wstr(iter->string()));
-                    if (iter->string() != srcStr) {
-                        // 変換元と同一のものは除く
+                    if (iter->string() != srcStr && iter->string() != srcStr2) {
                         insertCandidate(*iter);
                     } else {
+                        // 変換元と同一のものは除く
                         _LOG_DETAIL(L"SKIP same as source");
                     }
                 }

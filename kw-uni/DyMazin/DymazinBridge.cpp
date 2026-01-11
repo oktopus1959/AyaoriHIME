@@ -104,10 +104,11 @@ namespace DymazinBridge {
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
         int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, mazePenalty, mazeConnPenalty, allowNonTerminal, false, errMsgBuf, ARRAY_SIZE);
-        if (cost < 0) {
-            LOG_WARN(_T("DymazinAnalyze FAILED: result={}, errMsg={}"), cost, errMsgBuf);
-            return cost;
-        }
+        // エラー時は大きなコストが返る (10000000以上)
+        //if (cost < 0) {
+        //    LOG_WARN(_T("DymazinAnalyze FAILED: result={}, errMsg={}"), cost, errMsgBuf);
+        //    return cost;
+        //}
         //int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, mazePenalty, allowNonTerminal, false);
         for (const auto& s : utils::split(wchbuf, L'\n')) {
             morphs.push_back(to_mstr(s));
