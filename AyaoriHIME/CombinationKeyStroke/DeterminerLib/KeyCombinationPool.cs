@@ -13,22 +13,22 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         private static Logger logger = Logger.GetLogger();
 
         /// <summary>主テーブル用のCombinaitonPool</summary>        
-        public static KeyCombinationPool SingletonK1 = new KeyCombinationPool() { bEisuMode = false };
+        public static KeyCombinationPool SingletonK1 = new KeyCombinationPool() { bEisuMode = false, serialNumber = 1 };
 
         /// <summary>主テーブル・英数用のCombinaitonPool</summary>        
-        public static KeyCombinationPool SingletonA1 = new KeyCombinationPool() { bEisuMode = true };
+        public static KeyCombinationPool SingletonA1 = new KeyCombinationPool() { bEisuMode = true, serialNumber = 1 };
 
         /// <summary>副テーブル用のCombinaitonPool</summary>        
-        public static KeyCombinationPool SingletonK2 = new KeyCombinationPool() { bEisuMode = false };
+        public static KeyCombinationPool SingletonK2 = new KeyCombinationPool() { bEisuMode = false, serialNumber = 2 };
 
         /// <summary>副テーブル・英数用のCombinaitonPool</summary>        
-        public static KeyCombinationPool SingletonA2 = new KeyCombinationPool() { bEisuMode = true };
+        public static KeyCombinationPool SingletonA2 = new KeyCombinationPool() { bEisuMode = true, serialNumber = 2 };
 
         /// <summary>第3テーブル用のCombinaitonPool</summary>        
-        public static KeyCombinationPool SingletonK3 = new KeyCombinationPool() { bEisuMode = false };
+        public static KeyCombinationPool SingletonK3 = new KeyCombinationPool() { bEisuMode = false, serialNumber = 3 };
 
         /// <summary>第3テーブル・英数用のCombinaitonPool</summary>        
-        public static KeyCombinationPool SingletonA3 = new KeyCombinationPool() { bEisuMode = true };
+        public static KeyCombinationPool SingletonA3 = new KeyCombinationPool() { bEisuMode = true, serialNumber = 3 };
 
         private static KeyCombinationPool currentPoolK = SingletonK1;
 
@@ -45,11 +45,13 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             get {  return CurrentPool1 != null || CurrentPool2 != null; }
         }
 
-        public static bool _Enabled => (CurrentPool1?.Enabled ?? CurrentPool2?.Enabled) ?? false;
+        public static bool _Enabled => (CurrentPool1?.Enabled ?? false) || (CurrentPool2?.Enabled ?? false);
 
-        public static bool _ContainsSuccessiveShiftKey => (CurrentPool1?.ContainsSuccessiveShiftKey ?? CurrentPool2?.ContainsSuccessiveShiftKey) ?? false;
+        public static bool _ContainsSuccessiveShiftKey => (CurrentPool1?.ContainsSuccessiveShiftKey ?? false) || (CurrentPool2?.ContainsSuccessiveShiftKey ?? false);
 
-        public static bool _ContainsComboShiftKey => (CurrentPool1?.ContainsComboShiftKey ?? CurrentPool2?.ContainsComboShiftKey) ?? false;
+        public static bool _ContainsComboShiftKey => (CurrentPool1?.ContainsComboShiftKey ?? false) || (CurrentPool2?.ContainsComboShiftKey ?? false);
+
+        public static bool _KContainsComboShiftKey => (SingletonK1?.ContainsComboShiftKey ?? false) || (SingletonK2?.ContainsComboShiftKey ?? false);
 
         public static KeyCombination _GetEntry(IEnumerable<Stroke> strokeList, bool bStackLikePreffered = true)
         {
@@ -73,12 +75,12 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
 
         public static bool _IsRepeatableKey(int keyCode)
         {
-            return (CurrentPool1?.IsRepeatableKey(keyCode) ?? CurrentPool2?.IsRepeatableKey(keyCode)) ?? false;
+            return (CurrentPool1?.IsRepeatableKey(keyCode) ?? false) || (CurrentPool2?.IsRepeatableKey(keyCode) ?? false);
         }
 
         public static bool _IsMajorComboShift(int keyCode)
         {
-            return (CurrentPool1?.IsMajorComboShift(keyCode) ?? CurrentPool2?.IsMajorComboShift(keyCode)) ?? false;
+            return (CurrentPool1?.IsMajorComboShift(keyCode) ?? false) || (CurrentPool2?.IsMajorComboShift(keyCode) ?? false);
         }
 
         private static string detectCurrentPool()
@@ -125,6 +127,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
 
         public static void ChangeCurrentPoolByDecoderMode(bool bDecoderOn)
         {
+            logger.InfoH($"CALLED: bDecoderOn={bDecoderOn}");
             if (bDecoderOn) {
                 CurrentPool = currentPoolK;
                 CurrentPool1 = SingletonK1;
@@ -272,6 +275,8 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         private KeyComboDictionary orderedComboDict = new KeyComboDictionary();
 
         private bool bEisuMode = false;
+
+        private int serialNumber = 0;
 
         // 英数用か
         public bool ForEisu => bEisuMode;
@@ -493,7 +498,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         /// <param name="kind"></param>
         public void AddComboShiftKeys(List<int> keyCodes, ComboKind kind)
         {
-            if (Settings.LoggingTableFileInfo) logger.DebugH(() => $"CALLED: keyCode={keyCodes._keyString()}, shiftKey={kind}");
+            if (Settings.LoggingTableFileInfo) logger.Info(() => $"CALLED: bEisu={bEisuMode}, num={serialNumber}, keyCode={keyCodes._keyString()}, shiftKey={kind}");
             if (keyCodes._notEmpty()) {
                 if (keyCodes[0] >= 0) ComboShiftKeys.AddShiftKey(keyCodes[0], kind);
                 if (keyCodes.Count > 1 && !DecoderKeys.IsSpaceOrFuncKey(keyCodes[0]) && DeterminerLib.ComboShiftKeyPool.IsUnorderedSuccessiveShift(kind)) {
@@ -513,7 +518,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         /// <param name="kind"></param>
         public void AddComboShiftKey(int keyCode, ComboKind kind)
         {
-            if (Settings.LoggingTableFileInfo) logger.DebugH(() => $"CALLED: keyCode={keyCode}, shiftKey={kind}");
+            if (Settings.LoggingTableFileInfo) logger.Info(() => $"CALLED: keyCode={keyCode}, shiftKey={kind}");
             if (keyCode >= 0) ComboShiftKeys.AddShiftKey(keyCode, kind);
         }
 

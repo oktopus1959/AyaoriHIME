@@ -56,7 +56,8 @@ namespace lattice2 {
         _LOG_DETAIL(_T("bRollOverStroke={}"), bRollOverStroke);
         while (maxlen > 0) {
             LOG_DEBUGH(_T("maxlen={}"), maxlen);
-            const MString targetStr = utils::safe_tailstr(_str, maxlen);
+            //const MString targetStr = utils::safe_tailstr(_str, maxlen);
+            const MString targetStr = SETTINGS->googleCompatible ? OUTPUT_STACK->backStringWhileOnlyRewritable(maxlen) : OUTPUT_STACK->backStringUptoRewritableBlock(maxlen);
             LOG_DEBUGH(_T("targetStr={}"), to_wstr(targetStr));
             if (targetStr.empty()) break;
 
@@ -500,17 +501,25 @@ namespace lattice2 {
                 int numBS = 0;
                 std::tie(rewInfo, numBS) = matchWithTailString(piece.rewriteNode());
 
+                bool bRewriteFound = false;
                 if (rewInfo) {
                     // 末尾にマッチする書き換え情報があった
                     for (MString s : split_piece_str(rewInfo->rewriteStr)) {
                         ss.push_back(utils::safe_substr(_str, 0, -numBS) + s);
+                        if (!SETTINGS->multiCandidateMode) {
+                            // 単一候補モードの場合は最初の候補だけを追加
+                            bRewriteFound = true;
+                            break;
+                        }
                     }
                 }
-                // 書き換えない候補も追加
-                // 複数文字が設定されたストロークの扱い
-                LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
-                for (MString s : split_piece_str(piece.rewriteNode()->getString())) {
-                    ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
+                if (!bRewriteFound) {
+                    // 書き換えない候補も追加
+                    // 複数文字が設定されたストロークの扱い
+                    LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
+                    for (MString s : split_piece_str(piece.rewriteNode()->getString())) {
+                        ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
+                    }
                 }
             } else {
                 int numBS = piece.numBS();
@@ -528,6 +537,10 @@ namespace lattice2 {
                             ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
                         } else {
                             ss.push_back(applyGlobalPostRewrite(s));
+                        }
+                        if (!SETTINGS->multiCandidateMode) {
+                            // 単一候補モードの場合は最初の候補だけを追加
+                            break;
                         }
                     }
                 }

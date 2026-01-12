@@ -401,7 +401,7 @@ namespace KanchokuWS.Domain
 
                                 if (modifieeDeckey >= 0 && targetDeckey > 0) {
                                     if (modKey == 0) {
-                                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Single Hit");
+                                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Single Hit: modDeckey={modDeckey}, target={target}, targetDeckey={targetDeckey}, modifieeDeckey={modifieeDeckey}");
                                         // キー単打の場合は、キーの登録だけで、拡張シフトB面の割り当てはやらない
                                         KeyComboRepository.AddDecKeyAndCombo(targetDeckey, 0, modifieeDeckey, true);  // targetDeckey から modifieeDeckey(拡張修飾キー)への逆マップは不要
                                         AddExModVkeyAssignedForDecoderFuncByVkey(modifieeDeckey);
@@ -430,6 +430,30 @@ namespace KanchokuWS.Domain
             }
             logger.Info("LEAVE");
             return sbCompCmds.ToString();
+        }
+
+        /// <summary>拡張修飾キーが同時打鍵キーとして使われた場合は、そのキーの単打設定として本来のキー出力を追加する</summary>
+        public static void AddExtModfierAsSingleHitKey()
+        {
+            logger.InfoH("ENTER");
+            void addExtModAsSingleKey(string keyName)
+            {
+                int dk = DecoderKeyVsVKey.GetFuncDecKeyByName(keyName);
+                if (dk >= 0) {
+                    logger.Info(() => $"Single Hit: modDeckey={dk}, target={keyName}, targetDeckey={dk}, modifieeDeckey={dk}");
+                    KeyComboRepository.AddDecKeyAndCombo(dk, 0, dk, true);  // targetDeckey から modifieeDeckey(拡張修飾キー)への逆マップは不要
+                    AddExModVkeyAssignedForDecoderFuncByVkey(dk);
+                }
+            }
+
+            if (Settings.UseComboExtModKeyAsSingleHit) {
+                // とりあえず nfer/xfer/imeon/imeoff だけ対応
+                addExtModAsSingleKey("nfer");
+                addExtModAsSingleKey("xfer");
+                addExtModAsSingleKey("imeon");
+                addExtModAsSingleKey("imeoff");
+            }
+            logger.InfoH("LEAVE");
         }
 
         //public static void UpdateModConversion(IEnumerable<string> lines)

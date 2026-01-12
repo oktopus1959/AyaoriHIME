@@ -110,6 +110,7 @@ struct Settings {
     bool kanaTrainingMode = false;          // かな入力練習モードか
     bool googleCompatible = false;          // Google日本語入力と互換な後置書き換えか(falseなら書き換えられた文字列も1文字ずつが対象になる)
     bool multiStreamMode = false;           // 漢直・かな融合モードか
+    bool multiCandidateMode = false;        // 複数候補モードか
 
     bool collectRealtimeNgram = true;         // Realtime Ngram 情報を収集する
     bool useTmpRealtimeNgramFile = false;   // 一時的なRealtime Ngram ファイルを使用する

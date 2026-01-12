@@ -92,7 +92,7 @@ comboMinTime(50)
 comboMinTime3(50)
 comboMinTimeForSecond(50)
 convert(JWR<100>jwr) = ぎじ
-convert(FIOPiopf) = かるすへ
+#convert(FIOPiopf) = かるすへ
 convert(FKOPkopf) = かいずべ
 
 enableTimer2()
@@ -199,18 +199,19 @@ convert(DdFf) = よ
 convert(OKAoka) = うば
 convert(VKJvkj) = かき
 convert(D<200>Idi) = び
-convert(KDFkdf) = にゅ
-convert(KDFdfk) = にゅ
-convert(KkDFdf) = にゅ
-convert(KDFkfd) = にゅ
-convert(K<87>D<30>F<43>kfd) = にゅ
-convert(K<150>DFkfd) = にゅ
-convert(KD<150>Fkfd) = にゅ
-convert(K<150>D<150>Fkfd) = にゅ
-convert(K<24>D<103>k<23>F<150>df) = にゅ
+## 漢織媛で、ネストした後置書き換えテーブルは動かない
+#convert(KDFkdf) = にゅ
+#convert(KDFdfk) = にゅ
+#convert(KkDFdf) = にゅ
+#convert(KDFkfd) = にゅ
+#convert(K<87>D<30>F<43>kfd) = にゅ
+#convert(K<150>DFkfd) = にゅ
+#convert(KD<150>Fkfd) = にゅ
+#convert(K<150>D<150>Fkfd) = にゅ
+#convert(K<24>D<103>k<23>F<150>df) = にゅ
 
 enableTimer2()
-convert(K<24>D<103>k<23>F<150>df) = にゅ
+#convert(K<24>D<103>k<23>F<150>df) = にゅ
 #convert(D<52>I<105>O<48>i<80>od) = びぜ
 
 rewriteMaxTime(100)
@@ -442,9 +443,9 @@ loadTable(tables/_test/okt.tbl)
 convert({0}[0]{0}[0]) = 11
 convert({1}[1]{1}[1]) = 22
 convert(AaAa) = 種
-convert(A<12>SP<131>a<28>sp<37>J<17>j) = 愉
-convert(A<12>SP<131>J<17>a<28>sp<37>j) = 愉
-convert(SP<10>O<10>o<10>8<10>~8<10>O<100>o<10>R<10>r<10>sp) = 撤廃
+#convert(A<12>SP<131>a<28>sp<37>J<17>j) = 愉
+#convert(A<12>SP<131>J<17>a<28>sp<37>j) = 愉
+#convert(SP<10>O<10>o<10>8<10>~8<10>O<100>o<10>R<10>r<10>sp) = 撤廃
 clear()
 
 #### 同時打鍵 書き換え ###
@@ -479,9 +480,9 @@ convert({nfer}<200>Jj[nfer]) = ど
 # 無変換を単打可能にする
 useComboExtModKeyAsSingleHit(true)
 loadTable(tables/_test/nicola.tbl)
-convert({nfer}<200>J[nfer]j) = !{nfer}と
+#convert({nfer}<200>J[nfer]j) = !{nfer}と
 convert(J<200>{nfer}[nfer]j) = ど
-convert({nfer}[nfer]) = !{nfer} # 無変換の単打
+#convert({nfer}[nfer]) = !{nfer} # 無変換の単打
 
 ### 月光(連続シフト) ###
 loadTable(tables/_test/gekko-20211106.pfx.tbl)

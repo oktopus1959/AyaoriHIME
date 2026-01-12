@@ -17,7 +17,7 @@
 
 #define _LOG_INFOH LOG_INFO
 #define _LOG_DETAIL LOG_DEBUGH
-#if 0
+#if 1
 #undef _LOG_INFOH
 #undef _LOG_DETAIL
 #undef LOG_INFO
@@ -215,7 +215,7 @@ namespace {
         }
 
         // DECKEY 処理の前半部
-        void HandleDeckeyProc(bool bDual, StrokeTableNode* pRootNode, int decKey, int comboStrokeCnt, int comboDeckey) {
+        void HandleDeckeyProc(StrokeTableNode* pRootNode, int decKey, int comboStrokeCnt, int comboDeckey) {
             LOG_DEBUGH(_T("ENTER: {}: pRootNode={:p}, decKey={}, comboStrokeCnt={}, strokeStateList.Count={}"), name, (void*)pRootNode, decKey, comboStrokeCnt, Count());
             if (pRootNode != nullptr) {
                 // 各ストリーム(StrokeTable)に対してDECKEY処理を行う
@@ -235,7 +235,7 @@ namespace {
                     }
                     });
                 // 複数配列の場合は新しいストリームを追加できる
-                if (Empty() || (bDual && !bRollOverFound)) {
+                if (Empty() || (SETTINGS->multiStreamMode && !bRollOverFound)) {
                     // 同時打鍵列に入ったら、同時打鍵の開始か、先頭がロールオーバーの場合だけ、stream を追加できる
                     if (comboStrokeCnt < 1 || (comboStrokeCnt == 1 && DeckeyUtil::is_combo_deckey(decKey)) ||
                         (comboStrokeCnt > 1 && DeckeyUtil::is_ordered_combo(comboDeckey))) {
@@ -245,7 +245,7 @@ namespace {
                             pStream->SetDecKey(decKey);
                             pStream->HandleDeckeyChain(decKey);
                         }
-                        if (comboStrokeCnt == 1 && DeckeyUtil::is_ordered_combo(decKey)) {
+                        if (SETTINGS->multiStreamMode && comboStrokeCnt == 1 && DeckeyUtil::is_ordered_combo(decKey)) {
                             // ロールオーバー打鍵なら、通常キーのストリームも追加する
                             // (かなテーブルではロールオーバーとして定義されているが、漢字配列ではロールオーバーになっていない可能性を考慮)
                             auto& pStream = addStrokeStream(pRootNode);
@@ -325,6 +325,8 @@ namespace {
 
         std::unique_ptr<HistoryStateBase> histBase;
 
+        bool bDualTableMode = false;
+
         // 同時打鍵中なら1以上で、同時打鍵列の位置を示す
         int _comboStrokeCount = 0;
 
@@ -394,7 +396,7 @@ namespace {
             resultStr.clear();
             myChar = '\0';
 
-            bool bDualTableMode = StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
+            bDualTableMode = StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
 
             LOG_DEBUGH(_T("NextState={}"), STATE_NAME(NextState()));
             if (DeckeyUtil::is_combo_deckey(deckey) && !DeckeyUtil::is_ordered_combo(deckey) && NextState() && NextState()->GetName() == L"EisuState") {
@@ -411,7 +413,7 @@ namespace {
                 _streamList2.DebugPrintStatesChain(_T("HandleDeckeyChain::BEGIN: streamList2"));
 
                 bool bHasAnyStroke = !_streamList1.Empty() || !_streamList2.Empty();
-                LOG_DEBUGH(_T("\nuseEditBuffer={}, bDual={}, bHasAnyStroke={}"), SETTINGS->useEditBuffer, bDualTableMode, bHasAnyStroke);
+                LOG_DEBUGH(_T("\nuseEditBuffer={}, bDualTableMode={}, bHasAnyStroke={}"), SETTINGS->useEditBuffer, bDualTableMode, bHasAnyStroke);
 
                 if (/*deckey != CLEAR_STROKE_DECKEY && */ ((deckey >= FUNC_DECKEY_START && deckey < FUNC_DECKEY_END) || deckey >= CTRL_DECKEY_START)) {
                     _LOG_DETAIL(L"Clear streamLists");
@@ -460,7 +462,7 @@ namespace {
                             WORD_LATTICE->removeOtherThanFirst();
                         }
                         _prevStrokeCountBS = _strokeCountBS;
-                        if (!bDualTableMode && bHasAnyStroke) {
+                        if (!SETTINGS->multiStreamMode && bHasAnyStroke) {
                             LOG_DEBUGH(_T("Single Table Mode and HasAnyKey: Clear streamLists by BS"));
                             _strokeCountBS = -1;   // あとでGetTotalDecKeyCount()と比較して同じだったら、LatticeのBSが呼ばれてしまうので、ここで初期化しておく
                             break;
@@ -615,10 +617,10 @@ namespace {
                     }
                     // 前処理(ストローク木状態の作成と呼び出し)
                     LOG_DEBUGH(_T("streamList1.HandleDeckeyProc: CALL: doDeckeyPreProc: _comboStrokeCount={}, _comboDeckey={}"), _comboStrokeCount, _comboDeckey);
-                    _streamList1.HandleDeckeyProc(bDualTableMode, StrokeTableNode::RootStrokeNode1.get(), deckey, _comboStrokeCount, _comboDeckey);
+                    _streamList1.HandleDeckeyProc(StrokeTableNode::RootStrokeNode1.get(), deckey, _comboStrokeCount, _comboDeckey);
                     LOG_DEBUGH(_T("streamList1.HandleDeckeyProc: DONE"));
                     LOG_DEBUGH(_T("streamList2.HandleDeckeyProc: CALL: doDeckeyPreProc: _comboStrokeCount={}, _comboDeckey={}"), _comboStrokeCount, _comboDeckey);
-                    _streamList2.HandleDeckeyProc(bDualTableMode, StrokeTableNode::RootStrokeNode2.get(), deckey, _comboStrokeCount, _comboDeckey);
+                    _streamList2.HandleDeckeyProc(StrokeTableNode::RootStrokeNode2.get(), deckey, _comboStrokeCount, _comboDeckey);
                     LOG_DEBUGH(_T("streamList2.HandleDeckeyProc: DONE"));
                     if (_comboStrokeCount > 0) ++_comboStrokeCount;     // 同時打鍵で始まった時だけ
                     LOG_DEBUGH(_T("_comboStrokeCount={}"), _comboStrokeCount);

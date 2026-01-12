@@ -163,7 +163,7 @@ namespace lattice2 {
         // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
         // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
         LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool useMorphAnalyzer, bool strokeBack, bool bKatakanaConversion) override {
-            _LOG_DETAIL(_T("ENTER: pieces: {}, useMorphAnalyzer={}"), formatStringOfWordPieces(pieces), useMorphAnalyzer);
+            _LOG_DETAIL(_T("ENTER: pieces: {}, bMulti={}, useMorphAnalyzer={}"), formatStringOfWordPieces(pieces), SETTINGS->multiCandidateMode, useMorphAnalyzer);
             int totalStrokeCount = (int)(STATE_COMMON->GetTotalDecKeyCount());
             if (_startStrokeCount == 0) _startStrokeCount = totalStrokeCount;
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;

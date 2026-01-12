@@ -75,7 +75,7 @@ int ModalStateUtil::ModalStatePreProc(State* pState, int deckey, bool isStrokabl
                 deckey = -1;    // この後は deckey の処理をやらない
             }
             else if ((!pNode || !pNode->isStrokeTableNode()) && isStrokable) {
-                if (SETTINGS->multiStreamMode && STROKE_MERGER_NODE) {
+                if (/*SETTINGS->multiStreamMode &&*/ STROKE_MERGER_NODE) {
                     // 配列融合状態の生成
                     LOG_INFO(_T("CREATE: StrokeMergerState"));
                     //SetNextState(STROKE_MERGER_NODE->CreateState());

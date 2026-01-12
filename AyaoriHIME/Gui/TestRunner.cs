@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using KanchokuWS.CombinationKeyStroke.DeterminerLib;
 using Utils;
 
 namespace KanchokuWS.Gui
@@ -107,6 +108,7 @@ namespace KanchokuWS.Gui
                         frmMain.ExecCmdDecoder("useCodeTable2", null);
                         callDecoderWithKey(DecoderKeys.FULL_ESCAPE_DECKEY);
                         CombinationKeyStroke.DeterminerLib.KeyCombinationPool.UseSecondaryPool(true);
+                        logger.WriteLog("INFO", $"KeyCombinationPool._KContainsComboShiftKey={KeyCombinationPool._KContainsComboShiftKey}");
                         Settings.CombinationKeyMinTimeOnlyAfterSecond = false;
                         Settings.UseCombinationKeyTimer1 = false;
                         Settings.UseCombinationKeyTimer2 = false;

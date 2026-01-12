@@ -145,7 +145,7 @@ namespace KanchokuWS
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.SELECT_CODE_TABLE1_DECKEY, 0, "SelectCodeTable1", "", "主テーブルファイルに切り替える"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.SELECT_CODE_TABLE2_DECKEY, 0, "SelectCodeTable2", "", "副テーブルファイルに切り替える"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.SELECT_CODE_TABLE3_DECKEY, 0, "SelectCodeTable3", "", "第3テーブルファイルに切り替える; 第3テーブルは ayaorihime.ini の tableFile3 で設定する"),
-            new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_MODE_TOGGLE_DECKEY, 0, "MultiStreamToggle", "", "漢直・かな融合モードと通常モードを切り替える"),
+            //new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_MODE_TOGGLE_DECKEY, 0, "MultiStreamToggle", "", "漢直・かな融合モードと通常モードを切り替える"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_NEXT_CAND_DECKEY, 0, "MultiStreamNext", "", "漢直・かな融合時の次候補選択"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_PREV_CAND_DECKEY, 0, "MultiStreamPrev", "", "漢直・かな融合時の前候補選択"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_SELECT_FIRST_DECKEY, 0, "MultiStreamSelectFirst", "", "漢直・かな配列の融合時に、候補リストに先頭候補だけを残す"),

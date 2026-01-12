@@ -801,6 +801,7 @@ namespace lattice2 {
                         useMorphAnalyzer = true;
                         addCandidate(newCandidates, newCandStr, s, useMorphAnalyzer, isStrokeBS);
                         bAutoBushuFound = true;
+                        if (!SETTINGS->multiCandidateMode) break;  // 複数候補モードでなければ、自動部首合成を見つけたら終了
                     }
                 }
                 // 複数文字指定などの解析も行う

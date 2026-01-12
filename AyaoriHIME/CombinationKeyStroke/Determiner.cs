@@ -247,7 +247,7 @@ namespace KanchokuWS.CombinationKeyStroke
         /// <param name="tableFile3">第3テーブルファイル名</param>
         public void Initialize(string tableFile, string tableFile2, string tableFile3, bool bTest = false)
         {
-            logger.Info("ENTER");
+            logger.InfoH("ENTER");
             Settings.ClearSpecificDecoderSettings();
             KeyCombinationPool.Initialize();
             Clear();
@@ -265,7 +265,8 @@ namespace KanchokuWS.CombinationKeyStroke
             if (tableFile3._notEmpty()) {
                 new TableFileParser().ParseTableFile(tableFile3, "tmp/tableFile3.tbl", KeyCombinationPool.SingletonK3, KeyCombinationPool.SingletonA3, 3, bDualTable, bTest);
             }
-            logger.Info("LEAVE");
+            logger.InfoH($"KeyCombinationPool._KContainsComboShiftKey={KeyCombinationPool._KContainsComboShiftKey}");
+            logger.InfoH("LEAVE");
         }
 
         ///// <summary>

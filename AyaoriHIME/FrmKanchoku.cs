@@ -494,6 +494,8 @@ namespace KanchokuWS
             if (Settings.ExtraModifiersEnabled && Settings.ModConversionFile._notEmpty()) {
                 complexCommandStr = ExtraModifiers.ReadExtraModConversionFile(Settings.ModConversionFile);
             }
+            // 追加の修飾キーの単打鍵定義を登録
+            ExtraModifiers.AddExtModfierAsSingleHitKey();
 
             // 漢字読みファイルの読み込み
             if (Settings.KanjiYomiFile._notEmpty()) {
@@ -1182,10 +1184,10 @@ namespace KanchokuWS
                             sendDeckeyToDecoder(deckey);
                             return true;
 
-                        case DecoderKeys.MULTI_STREAM_MODE_TOGGLE_DECKEY:
-                            logger.Info(() => $"MULTI_STREAM_MODE_TOGGLE_DECKEY:{deckey}");
-                            MultiStreamModeToggle();
-                            return true;
+                        //case DecoderKeys.MULTI_STREAM_MODE_TOGGLE_DECKEY:
+                        //    logger.Info(() => $"MULTI_STREAM_MODE_TOGGLE_DECKEY:{deckey}");
+                        //    MultiStreamModeToggle();
+                        //    return true;
 
                         case DecoderKeys.MULTI_STREAM_NEXT_CAND_DECKEY:
                         case DecoderKeys.MULTI_STREAM_PREV_CAND_DECKEY:
@@ -2690,14 +2692,14 @@ namespace KanchokuWS
             }
         }
 
-        public void MultiStreamModeToggle()
-        {
-            Settings.MultiStreamMode = !Settings.MultiStreamMode;
-            Settings.SetUserIni("multiStreamMode", Settings.MultiStreamMode);
-            DeactivateDecoderWithModifiersOff();
-            ReloadSettingsAndDefFiles();
-            ActivateDecoder();
-        }
+        //public void MultiStreamModeToggle()
+        //{
+        //    Settings.MultiStreamMode = !Settings.MultiStreamMode;
+        //    Settings.SetUserIni("multiStreamMode", Settings.MultiStreamMode);
+        //    DeactivateDecoderWithModifiersOff();
+        //    ReloadSettingsAndDefFiles();
+        //    ActivateDecoder();
+        //}
 
         private void ReadBushuDic_ToolStripMenuItem_Click(object sender, EventArgs e)
         {

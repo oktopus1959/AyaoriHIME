@@ -1871,11 +1871,14 @@ namespace KanchokuWS.Gui
         //-----------------------------------------------------------------------------------
         void readSettings_tabFusion()
         {
+            checkBox_multiCandidateMode.Checked = Settings.MultiCandidateMode;
+            checkBox_multiCandidateMode.Enabled = !Settings.MultiStreamMode;
             checkBox_collectRealtimeNgram.Checked = Settings.CollectRealtimeNgram;
             checkBox_useMorphAndNgramAnalyzer.Checked = Settings.UseMorphAnalyzerAlways;
             checkBox_strokeBackByBS.Checked = Settings.StrokeBackByBS;
             checkBox_useEditBuffer.Checked = Settings.UseEditBuffer;
-            checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbol;
+            checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbolSub;
+            checkBox_outputHeadSymbol.Enabled = Settings.UseEditBuffer;
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
             textBox_ngramManualSelectDelta.Text = $"{Settings.NgramManualSelectDelta}";
@@ -1910,6 +1913,7 @@ namespace KanchokuWS.Gui
             checkerFusion.CtlToBeEnabled = button_fusionEnter;
             checkerFusion.ControlEnabler = tabFusionStatusChanged;
 
+            checkerFusion.Add(checkBox_multiCandidateMode);
             checkerFusion.Add(checkBox_collectRealtimeNgram);
             checkerFusion.Add(checkBox_useMorphAndNgramAnalyzer);
             checkerFusion.Add(checkBox_strokeBackByBS);
@@ -1943,11 +1947,16 @@ namespace KanchokuWS.Gui
             frmMain?.ExecCmdDecoder("saveRealtimeNgramFile", "");
             frmMain?.DeactivateDecoderWithModifiersOff();
 
+            if (!Settings.MultiStreamMode) {
+                Settings.SetUserIni("multiCandidateMode", checkBox_multiCandidateMode.Checked);
+            }
             Settings.SetUserIni("collectRealtimeNgram", checkBox_collectRealtimeNgram.Checked);
             Settings.SetUserIni("useMorphAnalyzerAlways", checkBox_useMorphAndNgramAnalyzer.Checked);
             Settings.SetUserIni("strokeBackByBS", checkBox_strokeBackByBS.Checked);
             Settings.SetUserIni("useEditBuffer", checkBox_useEditBuffer.Checked);
-            Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);
+            if (checkBox_useEditBuffer.Checked) {
+                Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);
+            }
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
             Settings.SetUserIni("ngramManualSelectDelta", textBox_ngramManualSelectDelta.Text);
