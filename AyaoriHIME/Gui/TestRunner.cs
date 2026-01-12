@@ -103,8 +103,12 @@ namespace KanchokuWS.Gui
                     case "loadTable":
                         //Settings.TableFile2 = arg;
                         // SecondaryTableを使う
-                        CombinationKeyStroke.Determiner.Singleton.Initialize(Settings.TableFile, arg, null, true);
-                        frmMain.ExecCmdDecoder("createStrokeTrees", "both"); // ストローク木の再構築
+                        KanchokuWS.Domain.KeyComboRepository.Initialize();
+                        KanchokuWS.Domain.ExtraModifiers.Initialize();
+                        DlgModConversion.Initialize();
+                        KanchokuWS.Domain.ShiftPlane.InitializeShiftPlane();
+                        CombinationKeyStroke.Determiner.Singleton.Initialize(null, arg, null, true);
+                        frmMain.ExecCmdDecoder("createStrokeTrees", "2"); // ストローク木の再構築(table2 だけを使う)
                         frmMain.ExecCmdDecoder("useCodeTable2", null);
                         callDecoderWithKey(DecoderKeys.FULL_ESCAPE_DECKEY);
                         CombinationKeyStroke.DeterminerLib.KeyCombinationPool.UseSecondaryPool(true);
@@ -114,6 +118,7 @@ namespace KanchokuWS.Gui
                         Settings.UseCombinationKeyTimer2 = false;
                         Settings.ThreeKeysComboUnconditional = false;
                         Settings.UseComboExtModKeyAsSingleHit = false;
+                        Settings.ExtraModifiersEnabled = false;
                         Settings.OnlyCharKeysComboShouldBeCoveringCombo = false;
                         Settings.CombinationKeyMaxAllowedLeadTimeMs = 100;
                         Settings.ComboKeyMaxAllowedPostfixTimeMs = 100;

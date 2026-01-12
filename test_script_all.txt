@@ -480,9 +480,9 @@ convert({nfer}<200>Jj[nfer]) = ど
 # 無変換を単打可能にする
 useComboExtModKeyAsSingleHit(true)
 loadTable(tables/_test/nicola.tbl)
-#convert({nfer}<200>J[nfer]j) = !{nfer}と
+convert({nfer}<200>J[nfer]j) = !{nfer}と
 convert(J<200>{nfer}[nfer]j) = ど
-#convert({nfer}[nfer]) = !{nfer} # 無変換の単打
+convert({nfer}[nfer]) = !{nfer} # 無変換の単打
 
 ### 月光(連続シフト) ###
 loadTable(tables/_test/gekko-20211106.pfx.tbl)

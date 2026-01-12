@@ -63,7 +63,7 @@ public:
     }
 
 public:
-    void createStrokeTrees(bool bForceSecondary = false);
+    void createStrokeTrees(int targetTable = 0);
 
 public:
     // マージ履歴機能ノードのSingleton

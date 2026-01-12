@@ -258,7 +258,7 @@ public:
         RomanToKatakana::ReadRomanDefFile(_T("kwroman.def.txt"));
 
         // ストローク木の構築
-        createStrokeTrees();
+        createStrokeTrees(L"");
 
         // settings の再ロード
         loadSettings(decoderSettings);
@@ -314,8 +314,11 @@ public:
     }
 
     // テーブルファイルを読み込んでストローク木を作成する
-    void createStrokeTrees(bool bForceSecondary = false) {
-        STROKE_MERGER_NODE->createStrokeTrees(bForceSecondary);
+    void createStrokeTrees(StringRef targetTable) {
+        int tgtTbl = targetTable.empty() ? 0 : targetTable[0] - L'0';
+        LOG_INFO(_T("tgtTbl={}"), std::to_wstring(tgtTbl));
+        //if (filePath.empty()) {
+        STROKE_MERGER_NODE->createStrokeTrees(tgtTbl);
     }
 
     // 初期打鍵表(下端機能キー以外は空白)の作成
@@ -555,7 +558,7 @@ public:
                 getCharsOrderedByDeckey(outParams);
             } else if (cmd == _T("createStrokeTrees")) {
                 // ストローク木の再構築
-                createStrokeTrees(items.size() >= 2 && !items[1].empty());
+                createStrokeTrees(items.size() >= 2 ? items[1] : L"");
             } else if (cmd == _T("saveDictFiles")) {
                 // ファイル保存
                 SaveDicts();

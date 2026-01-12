@@ -1684,25 +1684,28 @@ State* StrokeMergerHistoryNode::CreateState() {
 }
 
 // テーブルファイルを読み込んでストローク木を作成する
-void StrokeMergerHistoryNode::createStrokeTrees(bool bForceSecondary) {
+// targetTable: 0=全テーブル, 1=主テーブルのみ, 2=副テーブルのみ (0以外の場合は multiStreamMode/multiCandidateMode を無効にして単一テーブルモードにする; テスト用)
+void StrokeMergerHistoryNode::createStrokeTrees(int targetTable) {
 #define STROKE_TREE_CREATOR(F) [](StringRef file, std::vector<String>& lines) {F(file, lines);}
+
+    if (targetTable != 0) {
+        SETTINGS->multiStreamMode = false;
+        SETTINGS->multiCandidateMode = false;
+        SETTINGS->tableFile = targetTable == 1 ? L"dummy1" : L"";
+        SETTINGS->tableFile2 = targetTable == 2 ? L"dummy2" : L"";
+        SETTINGS->tableFile3 = L"";
+    }
 
     // 主テーブルファイルの構築
     auto tableFile1 = !SETTINGS->tableFile.empty() ? utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile1.tbl")) : L"";
-    //if (!tableFile1.empty()) {
-        createStrokeTree(tableFile1, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree));
-    //}
+    createStrokeTree(tableFile1, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree));
 
     // 副テーブルファイルの構築
-    auto tableFile2 = !bForceSecondary && SETTINGS->tableFile2.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile2.tbl"));
-    //if (!tableFile2.empty()) {
-        createStrokeTree(tableFile2, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree2));
-    //}
+    auto tableFile2 = !SETTINGS->tableFile2.empty() ? utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile2.tbl")) : L"";
+    createStrokeTree(tableFile2, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree2));
 
     // 第3テーブルファイルの構築
-    auto tableFile3 = SETTINGS->tableFile3.empty() ? L"" : utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile3.tbl"));
-    //if (!tableFile3.empty()) {
-        createStrokeTree(tableFile3, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree3));
-    //}
+    auto tableFile3 = !SETTINGS->tableFile3.empty() ? utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile3.tbl")) : L"";
+    createStrokeTree(tableFile3, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree3));
 }
 
