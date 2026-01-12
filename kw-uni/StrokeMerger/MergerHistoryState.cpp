@@ -360,6 +360,11 @@ namespace {
             STATE_COMMON->ClearVkbLayout();
         }
 
+        // とりあえず、無変換、変換、IME ON/OFFキーは単独打鍵扱いにする
+        inline static bool isSingleHitKey(int deckey) {
+            return deckey == NFER_DECKEY || deckey == XFER_DECKEY || deckey == IME_OFF_DECKEY || deckey == IME_ON_DECKEY;
+        }
+
     public:
         // コンストラクタ
         StrokeMergerHistoryResidentStateImpl(StrokeMergerHistoryNode* pN)
@@ -415,7 +420,8 @@ namespace {
                 bool bHasAnyStroke = !_streamList1.Empty() || !_streamList2.Empty();
                 LOG_DEBUGH(_T("\nuseEditBuffer={}, bDualTableMode={}, bHasAnyStroke={}"), SETTINGS->useEditBuffer, bDualTableMode, bHasAnyStroke);
 
-                if (/*deckey != CLEAR_STROKE_DECKEY && */ ((deckey >= FUNC_DECKEY_START && deckey < FUNC_DECKEY_END) || deckey >= CTRL_DECKEY_START)) {
+                if (/*deckey != CLEAR_STROKE_DECKEY && */
+                    ((deckey >= FUNC_DECKEY_START && deckey < FUNC_DECKEY_END && !isSingleHitKey(deckey)) || deckey >= CTRL_DECKEY_START)) {
                     _LOG_DETAIL(L"Clear streamLists");
                     clearStreamLists();
                     _strokeBack = false;
@@ -600,6 +606,8 @@ namespace {
                         clearStreamLists();
                         _comboStrokeCount = 1;
                         _comboDeckey = deckey;
+                    } else if (isSingleHitKey(deckey)) {
+                        clearStreamLists();
                     }
                     if (SETTINGS->eisuModeEnabled && _comboStrokeCount == 0
                         && deckey >= SHIFT_DECKEY_START && deckey < SHIFT_DECKEY_END && !STATE_COMMON->IsUpperRomanGuideMode()) {
