@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\CharVsVKey.cs" />
+    <Compile Include="Domain\DecoderKeysMap.cs" />
     <Compile Include="Domain\ExtraModifiers.cs" />
     <Compile Include="Domain\ShiftPlane.cs" />
     <Compile Include="Domain\KeyComboRepository.cs" />

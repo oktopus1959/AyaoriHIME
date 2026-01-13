@@ -1027,7 +1027,7 @@ namespace KanchokuWS
         /// <returns>OSに処理を渡さない場合は true を返す</returns>
         public bool FuncDispatcher(int deckey, int origDeckey, uint mod, bool rollOverStroke)
         {
-            if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: deckey={deckey:x}H({deckey}), origDeckey={origDeckey:x}H({origDeckey}), mod={mod:x}({mod})");
+            if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: deckey={deckey:x}H({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)}), origDeckey={origDeckey:x}H({origDeckey}), mod={mod:x}({mod})");
             bool bPrevDtUpdate = false;
             //prevDeckey = prevFuncDeckey;
             //prevFuncDeckey = deckey;
@@ -1207,6 +1207,7 @@ namespace KanchokuWS
                             if (origDeckey >= 0 && origDeckey < DecoderKeys.NORMAL_DECKEY_NUM) {
                                 return sendVkeyFromDeckey(origDeckey, -1, mod);
                             } else {
+                                logger.Info("LEAVE: result=False");
                                 return false;
                             }
 
@@ -1860,7 +1861,8 @@ namespace KanchokuWS
         {
             if (IsDecoderActive) {
                 ++DeckeyTotalCount;
-                logger.InfoH(() => $"\nRECEIVED deckey={(deckey < DecoderKeys.SPECIAL_DECKEY_ID_BASE ? $"{deckey}" : $"{deckey:x}H")}, mod={mod:x}, roolOver={rollOverStroke}, totalCount={DeckeyTotalCount}");
+                logger.InfoH(() => $"\nRECEIVED deckey={(deckey < DecoderKeys.SPECIAL_DECKEY_ID_BASE ? $"{deckey}" : $"{deckey:x}H")}({DecoderKeys.GetDeckeyNameFromId(deckey)}), " +
+                                   $"mod={mod:x}, roolOver={rollOverStroke}, totalCount={DeckeyTotalCount}");
 
                 // DecKey 無限ループの検出
                 if (Settings.DeckeyInfiniteLoopDetectCount > 0) {
@@ -1881,7 +1883,7 @@ namespace KanchokuWS
                 // 前回がCtrlキー修飾されたDecKeyで、その処理終了時刻の5ミリ秒以内に次のキーがきたら、それを無視する。
                 // そうしないと、キー入力が滞留して、CtrlキーのプログラムによるUP/DOWN処理とユーザー操作によるそれとがコンフリクトする可能性が高まる
                 if (prevDeckey >= DecoderKeys.CTRL_DECKEY_START && prevDecDt.AddMilliseconds(5) >= HRDateTime.Now) {
-                    logger.InfoH("SKIP");
+                    logger.InfoH("SKIP (result=False)");
                     return false;
                 }
 
@@ -1895,7 +1897,7 @@ namespace KanchokuWS
                 frmMode.Vanish();
                 // 通常のストロークキーまたは機能キー(BSとか矢印キーとかCttrl-Hとか)
                 bool flag = handleKeyDecoder(deckey, origDeckey, mod, rollOverStroke);
-                logger.InfoH(() => $"LEAVE: {flag}");
+                logger.InfoH(() => $"LEAVE: result={flag}");
                 return flag;
             }
             return false;
@@ -1980,7 +1982,7 @@ namespace KanchokuWS
         /// </summary>
         private bool handleKeyDecoder(int deckey, int origDeckey, uint mod, bool rollOverStroke)
         {
-            logger.InfoH(() => $"ENTER: deckey={deckey:x}H({deckey}), mod={mod:x}, rollOver={rollOverStroke}");
+            logger.InfoH(() => $"ENTER: deckey={deckey:x}H({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)}), mod={mod:x}, rollOver={rollOverStroke}");
 
             getTargetChar(deckey);
             logger.InfoH(() => $"targetChar={targetChar}, bRomanStrokeGuideMode={bRomanStrokeGuideMode}, bUpperRomanStrokeGuideMode={bUpperRomanStrokeGuideMode}");
@@ -2246,7 +2248,7 @@ namespace KanchokuWS
         /// </summary>
         private void sendDeckeyToDecoder(int deckey)
         {
-            logger.Info(() => $"CLLED: deckey={deckey:x}H({deckey})");
+            logger.Info(() => $"CLLED: deckey={deckey:x}H({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)})");
             CallHandleDeckeyDecoder(cmdParamsPtr => {
                 HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, 0, 0, ref decoderOutput);
             });
@@ -2300,7 +2302,7 @@ namespace KanchokuWS
                  (mod & (KeyModifiers.MOD_CONTROL | KeyModifiers.MOD_LCTRL | KeyModifiers.MOD_RCTRL | KeyModifiers.MOD_ALT)) == 0);
 
             if (Settings.LoggingDecKeyInfo) {
-                logger.Info($"ENTER: deckey={deckey:x}H({deckey}), origDeckey={origDeckey:x}H({origDeckey}), mod={mod:x}({mod}), anyCtrl={ctrlKeyState.AnyKeyDown}, shortcutConv={bShortcutConversion}");
+                logger.Info($"ENTER: deckey={deckey:x}H({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)}), origDeckey={origDeckey:x}H({origDeckey}={DecoderKeys.GetDeckeyNameFromId(origDeckey)}), mod={mod:x}({mod}), anyCtrl={ctrlKeyState.AnyKeyDown}, shortcutConv={bShortcutConversion}");
             }
 
             if (deckey == DecoderKeys.STROKE_BACK_DECKEY) {

@@ -12,7 +12,7 @@ namespace KanchokuWS
     /// <summary>
     /// デコーダキー定義<br/>
     /// </summary>
-    public static class DecoderKeys
+    public static partial class DecoderKeys
     {
         // 通常文字ストロークに使われるDECKEYの数
         public const int NORMAL_DECKEY_NUM = 50;

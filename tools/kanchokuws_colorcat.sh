@@ -8,10 +8,12 @@ $BINDIR/colorcat.sh 'Determiner.*(ENTER|LEAVE)|COMBO.*(PASSED|FOUND|NOT|FAILED)|
 |ChangeCurrentPoolByDecoderMode.*|Imediate.*check|KeyboardHook.HookProcedure.*Key(Up|Down)|Handle as SingleHit: .*ms|TIMER-A (STARTED|ELAPSED)\
 |left=0, top=0, width=0, height=0|MOVE: X=0, Y=0, W=0, H=0|VirtualKeys.ReadExtra.* line\([0-9]+\):|COMBO SEARCH: searchKey=.*|IsTemporaryComboDisabled=\w*\
 | CurrentLine:[0-9]+:.*|Analyze for .* mode|extraInfo=1959|isCombinationTiming(.* RESULT.=\w+)?|TIMER-. (ELAPSED|STARTED)|SendInputHandler.\w+\
+|FrmKanchoku.FuncDispatcher.*CALLED: .*,|FrmKanchoku.InvokeDecoder.*RECEIVED.*,|FrmKanchoku.handleKeyDecoder.*(ENTER|LEAVE)\
 |TableFileParser.(ReadDirectives|ParseTableFile)\b' | \
+$BINDIR/colorcat.sh -y '(deckey|kanchokuCode)=[^,]*,' | \
 $BINDIR/colorcat.sh -r 'WARN.*' | \
 $BINDIR/colorcat.sh -y ' WARN ' | \
 $BINDIR/colorcat.sh -r ' ERROR ' | \
-$BINDIR/colorcat.sh -c ' INFOH? |ENTER(: deckey=[^,]*, mod)|ENTER|LEAVE|CALLED|==== TEST\([0-9]+\):.* ====' | \
+$BINDIR/colorcat.sh -c ' INFOH? |ENTER(:|$)|LEAVE|CALLED|==== TEST\([0-9]+\):.* ====' | \
 $BINDIR/colorcat.sh -b 'GetKeyCombinationWhenKeyUp|_findCombo|_isCombinationTiming' | \
 $BINDIR/colorcat.sh -g '[、。ぁ-龠]+'

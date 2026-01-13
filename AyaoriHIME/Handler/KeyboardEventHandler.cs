@@ -1229,7 +1229,7 @@ namespace KanchokuWS.Handler
         private bool invokeHandler(int kanchokuCode, int origDecKey, uint mod, bool rollOverStroke, bool bUnconditional = false)
         {
             if (Settings.LoggingDecKeyInfo) logger.Info(() =>
-                $"ENTER: kanchokuCode={kanchokuCode:x}H({kanchokuCode}), mod={mod:x}H({mod}), bUnconditional={bUnconditional}, " +
+                $"ENTER: kanchokuCode={kanchokuCode:x}H({kanchokuCode}={DecoderKeys.GetDeckeyNameFromId(kanchokuCode)}), mod={mod:x}H({mod}), bUnconditional={bUnconditional}, " +
                 $"UNCONDITIONAL_DECKEY_OFFSET={DecoderKeys.UNCONDITIONAL_DECKEY_OFFSET}, UNCONDITIONAL_DECKEY_END={DecoderKeys.UNCONDITIONAL_DECKEY_END}");
 
             bool result = false;
