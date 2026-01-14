@@ -56,8 +56,12 @@ namespace lattice2 {
         _LOG_DETAIL(_T("bRollOverStroke={}"), bRollOverStroke);
         while (maxlen > 0) {
             LOG_DEBUGH(_T("maxlen={}"), maxlen);
-            //const MString targetStr = utils::safe_tailstr(_str, maxlen);
+// TODO: OUTPUT_STACK への出力が正しくなるように修正する
+#if true
+            const MString targetStr = utils::safe_tailstr(_str, maxlen);
+#else
             const MString targetStr = SETTINGS->googleCompatible ? OUTPUT_STACK->backStringWhileOnlyRewritable(maxlen) : OUTPUT_STACK->backStringUptoRewritableBlock(maxlen);
+#endif
             LOG_DEBUGH(_T("targetStr={}"), to_wstr(targetStr));
             if (targetStr.empty()) break;
 
