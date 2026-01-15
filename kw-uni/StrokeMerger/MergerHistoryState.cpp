@@ -444,7 +444,7 @@ namespace {
                         WORD_LATTICE->raiseAndLowerByCandSelection();
                         _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
-                        OUTPUT_STACK->setMazeBlocker();
+                        //OUTPUT_STACK->setMazeBlocker();
                         //MarkUnnecessary();
                         break;
                     case STROKE_BACK_DECKEY:

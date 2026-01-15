@@ -20,7 +20,7 @@ class OutputStack {
 public:
     static const unsigned short FLAG_NEW_LINE = 1;
     static const unsigned short FLAG_BLOCK_HIST = 2;
-    static const unsigned short FLAG_BLOCK_MAZE = 4;
+    //static const unsigned short FLAG_BLOCK_MAZE = 4;
     static const unsigned short FLAG_BLOCK_KATA = 8;
     static const unsigned short FLAG_REWRITABLE = 16;
     static const unsigned short FLAG_REWRITABLE_BEGIN = 32;     // Rewritable な文字列ブロックの先頭を表す
@@ -127,17 +127,17 @@ public:
                 stack.back().flag &= ~FLAG_BLOCK_HIST;
             else
                 stack.back().flag |= FLAG_BLOCK_HIST;
-            if (isLastMazeBlocker())
-                stack.back().flag &= ~FLAG_BLOCK_MAZE;
-            else
-                stack.back().flag |= FLAG_BLOCK_MAZE;
+            //if (isLastMazeBlocker())
+            //    stack.back().flag &= ~FLAG_BLOCK_MAZE;
+            //else
+            //    stack.back().flag |= FLAG_BLOCK_MAZE;
         }
     }
 
     inline void setLastBlocker() {
         if (!stack.empty()) {
             stack.back().flag |= FLAG_BLOCK_HIST;
-            stack.back().flag |= FLAG_BLOCK_MAZE;
+            //stack.back().flag |= FLAG_BLOCK_MAZE;
         }
     }
 
@@ -164,12 +164,12 @@ public:
         return (getFlag() & FLAG_BLOCK_KATA) != 0;
     }
 
-    inline void setMazeBlocker(size_t lastNth) {
-        if (stack.size() > lastNth) {
-            stack[stack.size() - lastNth - 1].flag |= FLAG_BLOCK_MAZE;
-        }
-        setKataBlocker();
-    }
+    //inline void setMazeBlocker(size_t lastNth) {
+    //    if (stack.size() > lastNth) {
+    //        stack[stack.size() - lastNth - 1].flag |= FLAG_BLOCK_MAZE;
+    //    }
+    //    setKataBlocker();
+    //}
 
     // 書き換え可能フラグ(末尾 lastNum 文字にセット)
     inline void setRewritable(size_t lastNum) {
@@ -191,60 +191,60 @@ public:
         }
     }
 
-    // 末尾に交ぜ書きブロッカーをセットする
-    inline void setMazeBlocker() {
-        setFlag(FLAG_BLOCK_MAZE);
-        setKataBlocker();
-    }
+    //// 末尾に交ぜ書きブロッカーをセットする
+    //inline void setMazeBlocker() {
+    //    setFlag(FLAG_BLOCK_MAZE);
+    //    setKataBlocker();
+    //}
 
-    // 末尾の交ぜ書きブロッカーをリセットする
-    inline void unsetMazeBlocker() {
-        unsetFlag(FLAG_BLOCK_MAZE);
-    }
+    //// 末尾の交ぜ書きブロッカーをリセットする
+    //inline void unsetMazeBlocker() {
+    //    unsetFlag(FLAG_BLOCK_MAZE);
+    //}
 
-    inline bool isLastMazeBlocker() const {
-        return (getFlag() & FLAG_BLOCK_MAZE) != 0;
-    }
+    //inline bool isLastMazeBlocker() const {
+    //    return (getFlag() & FLAG_BLOCK_MAZE) != 0;
+    //}
 
-    inline void leftShiftMazeBlocker() {
-        if (!stack.empty()) {
-            size_t pos = 1;
-            for (; pos < stack.size(); ++pos) {
-                Moji& elem = stack[stack.size() - pos];
-                auto flag = elem.flag & (FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
-                //if (!utils::is_hiragana(elem.chr)) {
-                //    // 交ぜ書きブロッカーが見つからなかった場合は、末尾にブロッカーをセット
-                //    if (pos > 1 && flag == 0) setMazeBlocker();
-                //    return;
-                //}
-                if (flag != 0) {
-                    Moji& elem1 = stack[stack.size() - (pos + 1)];
-                    elem.flag &= ~(FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
-                    elem1.flag |= (flag | FLAG_BLOCK_MAZE);
-                    return;
-                }
-            }
-            // 交ぜ書きブロッカーが見つからなかった場合は、末尾にブロッカーをセット
-            setMazeBlocker();
-        }
-    }
+    //inline void leftShiftMazeBlocker() {
+    //    if (!stack.empty()) {
+    //        size_t pos = 1;
+    //        for (; pos < stack.size(); ++pos) {
+    //            Moji& elem = stack[stack.size() - pos];
+    //            auto flag = elem.flag & (FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
+    //            //if (!utils::is_hiragana(elem.chr)) {
+    //            //    // 交ぜ書きブロッカーが見つからなかった場合は、末尾にブロッカーをセット
+    //            //    if (pos > 1 && flag == 0) setMazeBlocker();
+    //            //    return;
+    //            //}
+    //            if (flag != 0) {
+    //                Moji& elem1 = stack[stack.size() - (pos + 1)];
+    //                elem.flag &= ~(FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
+    //                elem1.flag |= (flag | FLAG_BLOCK_MAZE);
+    //                return;
+    //            }
+    //        }
+    //        // 交ぜ書きブロッカーが見つからなかった場合は、末尾にブロッカーをセット
+    //        setMazeBlocker();
+    //    }
+    //}
 
-    inline void rightShiftMazeBlocker() {
-        if (!stack.empty()) {
-            for (size_t pos = 1; pos < stack.size(); ++pos) {
-                Moji& elem = stack[stack.size() - pos];
-                auto flag = elem.flag & (FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
-                if (elem.chr < 0x20 || flag != 0) {
-                    if (pos > 1) {
-                        Moji& elem1 = stack[stack.size() - (pos - 1)];
-                        elem.flag &= ~(FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
-                        elem1.flag |= (flag | FLAG_BLOCK_MAZE);
-                    }
-                    return;
-                }
-            }
-        }
-    }
+    //inline void rightShiftMazeBlocker() {
+    //    if (!stack.empty()) {
+    //        for (size_t pos = 1; pos < stack.size(); ++pos) {
+    //            Moji& elem = stack[stack.size() - pos];
+    //            auto flag = elem.flag & (FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
+    //            if (elem.chr < 0x20 || flag != 0) {
+    //                if (pos > 1) {
+    //                    Moji& elem1 = stack[stack.size() - (pos - 1)];
+    //                    elem.flag &= ~(FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
+    //                    elem1.flag |= (flag | FLAG_BLOCK_MAZE);
+    //                }
+    //                return;
+    //            }
+    //        }
+    //    }
+    //}
 
     inline void setFlag(unsigned short flag) {
         if (!stack.empty()) {
@@ -379,7 +379,7 @@ public:
 
     // 改行を含まない末尾部分の長さ(最大長maxlen)で、交ぜ書きor履歴ブロッカーまたは句読点までの部分文字列を返す(先頭の空白と末尾の句読点は含める)
     inline size_t TailSizeUptoMazeOrHistBlockerOrPunct() const {
-        return tail_size_upto_flag_or_punct(OutputStack::FLAG_BLOCK_HIST | OutputStack::FLAG_BLOCK_MAZE);
+        return tail_size_upto_flag_or_punct(OutputStack::FLAG_BLOCK_HIST /* | OutputStack::FLAG_BLOCK_MAZE*/);
     }
 
     // 改行を含まない末尾部分(最大長maxlen)で、交ぜ書きor履歴ブロッカーまたは句読点までの部分文字列を返す(先頭の空白と末尾の句読点は含める)

@@ -22,9 +22,6 @@
     <Filter Include="ソース ファイル\KeysAndChars">
       <UniqueIdentifier>{4e942085-1a22-4a5f-ac63-f461ece57fa1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Mazegaki">
-      <UniqueIdentifier>{78ad2cda-0463-42f2-a282-4928a941d3f9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\OneShot">
       <UniqueIdentifier>{580e9f49-7d55-45a4-aed8-fe5772ae2fc0}</UniqueIdentifier>
     </Filter>
@@ -45,9 +42,6 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\KeysAndChars">
       <UniqueIdentifier>{325b33a9-c7d2-4233-a174-927ad318e967}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Mazegaki">
-      <UniqueIdentifier>{6714d6b1-c147-4c78-880c-32ea970586c9}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\OneShot">
       <UniqueIdentifier>{cc3daef6-bd0b-41de-a81c-ea47b1a66947}</UniqueIdentifier>
