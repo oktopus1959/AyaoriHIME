@@ -174,7 +174,7 @@ namespace {
                 _LOG_DEBUGH(_T("capitalCharCnt={}"), capitalCharCnt);
             } else {
                 // 通常キーでもシフトキーでもなかった
-                LOG_INFO(_T("setThroughDeckeyFlag"));
+                LOG_INFOH(_T("setThroughDeckeyFlag"));
                 setThroughDeckeyFlag();
                 cancelMe();
             }

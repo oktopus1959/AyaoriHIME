@@ -229,7 +229,7 @@ namespace lattice2 {
         }
 
         void clearKbests(bool clearAll) override {
-            _LOG_DETAIL(L"CALLED: clearAll={}", clearAll);
+            _LOG_DETAIL(L"ENTER: clearAll={}", clearAll);
             _candidates.clear();
             _bestStack.clear();
             _highFreqJoshiStroke.clear();
@@ -237,25 +237,28 @@ namespace lattice2 {
             _origFirstCand = -1;
             //_extendedCandNum = 0;
             if (clearAll) clearKanjiXorHiraganaPreferredNextCands();
+            _LOG_DETAIL(L"LEAVE");
         }
 
         void removeOtherThanKBest() override {
-            _LOG_DETAIL(L"CALLED");
+            _LOG_DETAIL(L"ENTER");
             if ((int)_candidates.size() > SETTINGS->multiStreamBeamSize) {
                 _candidates.erase(_candidates.begin() + SETTINGS->multiStreamBeamSize, _candidates.end());
             }
+            _LOG_DETAIL(L"LEAVE");
         }
 
         void removeOtherThanFirst() override {
-            _LOG_DETAIL(L"CALLED");
+            _LOG_DETAIL(L"ENTER");
             if (_candidates.size() > 0) {
                 _candidates.erase(_candidates.begin() + 1, _candidates.end());
                 _candidates.front().zeroPenalty();
             }
+            _LOG_DETAIL(L"LEAVE");
         }
 
         void removeOtherThanFirstForEachStroke() override {
-            _LOG_DETAIL(L"CALLED");
+            _LOG_DETAIL(L"ENTER");
             if (_candidates.size() > 0) {
                 const MString& first = _candidates[0].string();
                 size_t n = 1;
@@ -268,6 +271,7 @@ namespace lattice2 {
                     }
                 }
             }
+            _LOG_DETAIL(L"LEAVE");
         }
 
         bool isEmpty() const override {

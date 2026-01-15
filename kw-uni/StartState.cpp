@@ -5,7 +5,7 @@
 //#include "ResidentState.h"
 //#include "History/HistoryResidentState.h"
 
-#if 0
+#if 1
 #undef LOG_INFO
 #undef LOG_DEBUGH
 #undef LOG_DEBUG

@@ -159,26 +159,26 @@ namespace KanchokuWS.Domain
         public static KeyCombo? GetKeyComboFromDecKey(int deckey)
         {
             var combo = KeyComboFromDecKey._getNth(deckey);
-            if (Settings.LoggingDecKeyInfo) logger.DebugH(() => $"deckey={deckey:x}H({deckey}), combo.mod={(combo.HasValue ? combo.Value.modifier : 0):x}, combo.normalDecKey={(combo.HasValue ? combo.Value.normalDecKey : 0)}");
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"deckey={deckey:x}H({deckey}), combo.mod={(combo.HasValue ? combo.Value.modifier : 0):x}, combo.normalDecKey={(combo.HasValue ? combo.Value.normalDecKey : 0)}");
             return combo;
         }
 
         /// <summary>修飾子と仮想キーコードの組みから、DecKey を得る</summary>
         public static int GetDecKeyFromCombo(uint mod, int noramlDeckey)
         {
-            if (Settings.LoggingDecKeyInfo) logger.DebugH(() => $"ENTER: mod={mod:x}H({mod}), noramlDeckey={noramlDeckey:x}H({noramlDeckey})");
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"ENTER: mod={mod:x}H({mod}), noramlDeckey={noramlDeckey:x}H({noramlDeckey})");
             int deckey = DecKeyFromKeyCombo._safeGet(KeyCombo.CalcSerialValue(mod, noramlDeckey), -1);
-            if (Settings.LoggingDecKeyInfo) logger.DebugH(() => $"LEAVE: deckey={deckey:x}H({deckey})");
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: deckey={deckey:x}H({deckey})");
             return deckey;
         }
 
         /// <summary>修飾子と仮想キーコードの組みから、Modキーによるシフト変換されたDECKEY を得る</summary>
         public static int GetModConvertedDecKeyFromCombo(uint mod, int noramlDeckey)
         {
-            if (Settings.LoggingDecKeyInfo) logger.DebugH(() => $"ENTER: mod={mod:x}H({mod}), noramlDeckey={noramlDeckey:x}H({noramlDeckey})");
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"ENTER: mod={mod:x}H({mod}), noramlDeckey={noramlDeckey:x}H({noramlDeckey})");
             int deckey = ModConvertedDecKeyFromKeyCombo._safeGet(KeyCombo.CalcSerialValue(mod, noramlDeckey), -1);
             if (deckey <= 0) { deckey = GetDecKeyFromCombo(mod, noramlDeckey); }
-            if (Settings.LoggingDecKeyInfo) logger.DebugH(() => $"LEAVE: deckey={deckey:x}H({deckey})");
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: deckey={deckey:x}H({deckey})");
             return deckey;
         }
 

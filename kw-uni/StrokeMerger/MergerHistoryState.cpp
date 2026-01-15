@@ -580,6 +580,7 @@ namespace {
                         _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
                         //MarkUnnecessary();
+                        LOG_DEBUGH(_T("CALL State::dispatchDeckey({}={})"), deckey, DECKEY_TO_CHARS->GetDeckeyNameFromId(deckey));
                         State::dispatchDeckey(deckey);
                     }
                 } else {

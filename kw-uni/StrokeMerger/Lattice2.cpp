@@ -72,17 +72,19 @@ namespace lattice2 {
         }
 
         void clearAll() override {
-            _LOG_DETAIL(_T("CALLED"));
+            _LOG_DETAIL(_T("ENTER"));
             _startStrokeCount = 0;
             _prevOutputStr.clear();
             _kBestList->clearKbests(true);
+            _LOG_DETAIL(_T("LEAVE"));
         }
 
         void clear() override {
-            _LOG_DETAIL(_T("CALLED"));
+            _LOG_DETAIL(_T("ENTER"));
             _startStrokeCount = 0;
             _prevOutputStr.clear();
             _kBestList->clearKbests(false);
+            _LOG_DETAIL(_T("LEAVE"));
         }
 
         void removeOtherThanKBest() override {
@@ -96,9 +98,10 @@ namespace lattice2 {
         }
 
         void setKanjiXorHiraganaPreferredNextCands(bool bKanji) override {
-            _LOG_DETAIL(_T("CALLED"));
+            _LOG_DETAIL(_T("ENTER"));
             _kBestList->setKanjiXorHiraganaPreferredNextCands(bKanji);
             if (_startStrokeCount == 1) _startStrokeCount = 0;  // 先頭での漢字優先なら、0 クリアしておく(この後、clear()が呼ばれるので、それと状態を合わせるため)
+            _LOG_DETAIL(_T("LEAVE"));
         }
 
         void clearKanjiXorHiraganaPreferredNextCands() override {

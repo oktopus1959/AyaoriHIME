@@ -3,7 +3,9 @@
 BINDIR=$(dirname $0)
 
 cat $* | \
-    $BINDIR/colorcat.sh 'DecoderImpl.HandleDeckey.*(ENTER.*,|LEAVE.*,)|\w+::(BEGIN|END|DONE).*|LatticeImpl.addPieces.* (ENTER|LEAVE):.*' | \
+    $BINDIR/colorcat.sh '(DecoderImpl|StrokeMerger\w*).(HandleDeckey|GetResultStringChain).*(ENTER|LEAVE)[^,]*|\w+::(BEGIN|END|DONE).*|LatticeImpl.addPieces.* (ENTER|LEAVE):.*\
+|State.dispatchDeckey.*(ENTER|LEAVE).*' | \
+    $BINDIR/colorcat.sh -c '\w+: setThroughDeckeyFlag:.*' | \
     $BINDIR/colorcat.sh -r 'WARN[H:].*' | \
     $BINDIR/colorcat.sh -y ' WARN ' | \
     $BINDIR/colorcat.sh -r ' ERROR ' | \

@@ -19,7 +19,7 @@
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughState)
 
-#if 0 || defined(_DEBUG)
+#if 1 || defined(_DEBUG)
 #undef _DEBUG_SENT
 //#undef LOG_INFO
 #undef LOG_DEBUGH
@@ -484,7 +484,7 @@ void State::copyStrokeHelpToVkbFaces() {
 
 // 入力された DECKEY をディスパッチする
 void State::dispatchDeckey(int deckey) {
-    _LOG_DEBUGH(_T("ENTER: {}: deckey={:x}H({})"), Name, deckey, deckey);
+    _LOG_DEBUGH(_T("ENTER: {}: deckey={:x}H({}={})"), Name, deckey, deckey, DECKEY_TO_CHARS->GetDeckeyNameFromId(deckey));
     if (deckey < 0) {
         _LOG_DEBUGH(_T("LEAVE: DO NOTHING: {}: deckey={:x}H({}), outStr={}"), Name, deckey, deckey, to_wstr(resultStr.resultStr()));
         return;
@@ -650,8 +650,8 @@ void State::dispatchDeckey(int deckey) {
 
 //-----------------------------------------------------------------------
 // ストロークキーデフォルトハンドラ
-void State::handleStrokeKeys(int _DEBUG_SENT(hk)) {
-    _LOG_DEBUGH(_T("DO NOTHING: setThroughDeckeyFlag: deckey={:x}H({})"), hk, hk);
+void State::handleStrokeKeys(int hk) {
+    LOG_INFOH(_T("DO NOTHING: setThroughDeckeyFlag: deckey={:x}H({}={})"), hk, hk, DECKEY_TO_CHARS->GetDeckeyNameFromId(hk));
     setThroughDeckeyFlag();
 }
 
@@ -660,8 +660,8 @@ void State::handleSpaceKey() { _LOG_DEBUGH(_T("CALLED")); handleStrokeKeys(STROK
 
 //-----------------------------------------------------------------------
 // 特殊キーデフォルトハンドラ
-void State::handleSpecialKeys(int /*deckey*/) {
-    LOG_INFO(_T("THROUGH"));
+void State::handleSpecialKeys(int deckey) {
+    LOG_INFOH(_T("THROUGH: setThroughDeckeyFlag: deckey={:x}H({}={})"), deckey, deckey, DECKEY_TO_CHARS->GetDeckeyNameFromId(deckey));
     setThroughDeckeyFlag();
 }
 
