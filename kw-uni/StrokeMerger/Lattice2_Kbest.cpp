@@ -220,7 +220,7 @@ namespace lattice2 {
             if (_origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
                 _LOG_DETAIL(L"ENTER");
                 // 候補選択がなされていて、元の先頭候補以外が選択された
-                updateRealtimeNgramForDiffPart(_candidates[_origFirstCand].string(), _candidates[0].string());
+                updateRealtimeNgramByUserSelect(_candidates[_origFirstCand].string(), _candidates[0].string());
                 updateMazegakiPreference(_candidates[0], _candidates[_origFirstCand]);
                 removeOtherThanFirstForEachStroke();
                 _origFirstCand = -1;
