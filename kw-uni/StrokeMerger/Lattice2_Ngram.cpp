@@ -202,6 +202,10 @@ namespace lattice2 {
                 }
             }
             if (currentDiff || prevDiffPos + 1 == pos) {
+                if (pos == 1) {
+                    // 〓を含めて更新する
+                    _updateRealtimeNgramCountByWord(bIncrease, MSTR_GETA + diffCand.substr(pos - 1, 2), true);
+                }
                 if (pos >= 1) {
                     if (utils::is_kanji(diffCand[pos - 1]) || pos + 1 == diffSize) {
                         // 1文字前が漢字あるいは当位置で文字列が終了の場合は、2gramも更新する
@@ -217,7 +221,7 @@ namespace lattice2 {
     }
 
     // 候補選択による、リアルタイムNgramの蒿上げと抑制
-    void updateRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand) {
+    void updateRealtimeNgramByUserSelect(const MString& oldCand, const MString& newCand) {
         LOG_WARNH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
         _updateRealtimeNgramForDiffPart(true, oldCand, newCand);
         _updateRealtimeNgramForDiffPart(false, newCand, oldCand);
@@ -257,12 +261,12 @@ namespace lattice2 {
         if (IS_LOG_INFOH_ENABLED) {
             LOG_INFOH(L"ngrams:\n--------\n{}\n--------", to_wstr(utils::join(ngrams, '\n')));
         }
-        if (str.size() >= 2) {
-            for (size_t pos = 0 ; pos < str.size() - 1; ++pos) {
+        if (targetStr.size() >= 2) {
+            for (size_t pos = 0 ; pos < targetStr.size() - 1; ++pos) {
                 // realtimeおよびユーザー定義による2gramと3gramのボーナスを差し引く
-                cost -= getNgramBonus(utils::safe_substr(str, pos, 2));
-                if (pos + 2 < str.size()) {
-                    cost -= getNgramBonus(utils::safe_substr(str, pos, 3));
+                cost -= getNgramBonus(utils::safe_substr(targetStr, pos, 2));
+                if (pos + 2 < targetStr.size()) {
+                    cost -= getNgramBonus(utils::safe_substr(targetStr, pos, 3));
                 }
             }
         }

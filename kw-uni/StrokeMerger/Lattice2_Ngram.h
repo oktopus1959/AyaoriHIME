@@ -21,7 +21,7 @@ namespace lattice2 {
     void decreaseRealtimeNgram(const MString& str, bool bByGUI = false);
 
     // 候補選択による、リアルタイムNgramの蒿上げと抑制
-    void updateRealtimeNgramForDiffPart(const MString& oldCand, const MString& newCand);
+    void updateRealtimeNgramByUserSelect(const MString& oldCand, const MString& newCand);
 
     // Ngramコストの取得
     //int getNgramCost(const MString& str, const std::vector<MString>& morphs);
