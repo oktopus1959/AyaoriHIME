@@ -11,7 +11,7 @@
 - [複合機能キーの記述](#複合機能キーの記述)
     - [機能キー記述](#機能キー記述)
     - [キー名のエイリアス設定](#キー名のエイリアス設定)
-    - [Ctrl修飾とShift修飾](#Ctrl修飾とShift修飾)
+    - [Ctrl修飾、Shift修飾、Alt修飾](#Ctrl修飾Shift修飾Alt修飾)
     - [3項演算記述](#3項演算記述)
     - [使用できる機能キーの名前](#使用できる機能キーの名前)
     - [任意の仮想キーコードの使用](#任意の仮想キーコードの使用)
@@ -102,44 +102,51 @@ SandS, CapsLock, 英数, 無変換, 変換, 右シフト, 左右コントロー�
 
 ## 機能名一覧
 
-|コマンド名|機能|
-|-|-|
-|ModeToggle|漢直モードのトグル|
-|ModeToggleFollowCaret|漢直モードのトグル（カレットへの再追従）|
-|Activate|漢直モードに入る|
-|Deactivate|漢直モードから出る|
-|ExchangeCodeTable|主・副テーブルファイルを切り替える|
-|SelectCodeTable1|主テーブルファイルに切り替える|
-|SelectCodeTable2|副テーブルファイルに切り替える|
-|KanaTrainingToggle|かな入力練習モードと通常モードを切り替える|
-|ClearStroke|打鍵中のストロークを取り消して、第1打鍵待ちに戻る|
-|FullEscape|入力途中状態をクリアし、ミニバッファ末尾にブロッカーを置く|
-|Unblock|ミニバッファ末尾のブロッカーを解除する|
-|BlockerToggle|ミニバッファ末尾のブロッカーを設定・解除する|
-|HistNext|履歴を先頭から選択|
-|HistPrev|履歴を末尾から選択|
-|VkbShowHide|仮想鍵盤の表示/非表示の切り替え|
-|HelpRotate|ストロークヘルプの正順回転|
-|HelpUnRotate|ストロークヘルプの逆順回転|
-|DateRotate|日時変換の入力(フォーマットの正順切替)|
-|DateUnrotate|日時変換の入力(フォーマットの逆順切替)|
-|StrokeHelp|最後に入力した文字のストロークヘルプ (ストローク表に定義がないか、2回続けて呼び出すと部首合成ヘルプになる)|
-|BushuCompHelp|部首合成ヘルプ表示|
-|RomanStrokeGuide|打鍵ガイドへのローマ字による読み入力のON/OFF(読み入力OFF後にガイド開始)|
-|UpperRomanStrokeGuide|英大文字ローマ字による読み打鍵ガイドモード|
-|HiraganaStrokeGuide|打鍵ガイドへのひらがなによる読み入力のON/OFF(読み入力OFF後にガイド開始)|
-|ZenkakuConversion|全角変換入力モードのON/OFF|
-|KatakanaConversion|カタカナ入力モードのON/OFF|
-|EisuModeToggle|英数モードと通常モードのトグル|
-|EisuDecapitalize|英数モードで先頭文字を小文字化する|
-|Space|Space に変換|
-|DirectSpace|デコーダを通さずに直接Spaceをアプリに送る|
-|ShiftSpace|Shift+Space に変換|
-|LeftShiftBlocker|交ぜ書きブロッカーの左移動|
-|RightShiftBlocker|交ぜ書きブロッカーの右移動|
-|LeftShiftMazeStartPos|交ぜ書き開始位置の左移動 （ただし直前の右移動の実行前の状態にのみ戻る）|
-|RightShiftMazeStartPos|交ぜ書き開始位置の右移動|
-|CopyAndRegisterSelection|アクティブウィンドウに Ctrl-C を送りつけて、選択されている部分をクリップボードにコピーし、それをデコーダの辞書に送って登録する。<br/>形式はミニバッファへのコピペによる辞書登録と同じで、履歴、交ぜ書き、連想の3通りの登録が可能|
+|No.|コマンド名|機能|
+|-|-|-|
+|0|ModeToggle|漢直モードのトグル|
+|1|ModeToggleFollowCaret|漢直モードのトグル（カレットへの再追従）|
+|2|Activate|漢直モードに入る|
+|3|Deactivate|漢直モードから出る|
+|4|VkbShowHide|仮想鍵盤の表示/非表示の切り替え|
+|5|MultiStreamNext|配列融合時の次候補選択|
+|6|MultiStreamPrev|配列融合時の前候補選択|
+|7|MultiStreamSelectFirst|配列融合時に、候補リストに先頭候補だけを残す|
+|8|MultiStreamCommit|配列融合時に、先頭候補を選択した後、候補リストを空にする|
+|9|MultiStreamHiraganaPreferredNext|配列融合時に、次の打鍵ではひらがなのみを通す|
+|10|MultiStreamKanjiPreferredNext|配列融合時に、次の打鍵では漢字のみを通す|
+|11|StrokeBack|配列融合時に、ストロークを1つ前の状態に戻す|
+|12|ClearStroke|打鍵中のストロークを取り消して、第1打鍵待ちに戻る|
+|13|FlushOutputString|出力バッファに溜まっている文字列をフラッシュする|
+|14|MazeConversion|交ぜ書き変換の実行|
+|15|BushuComp|部首合成を実行する|
+|16|BushuCompHelp|部首合成ヘルプ表示|
+|17|HistFullCand|全履歴候補の表示|
+|18|HistFewCharsCand|2～3文字履歴候補の表示|
+|19|HistOneCharCand|1文字履歴候補の表示|
+|20|HistNext|履歴を先頭から選択|
+|21|HistPrev|履歴を末尾から選択|
+|22|FullEscape|入力途中状態をクリアし、入力文字列の末尾にブロッカーを置く。履歴候補もクリアされる|
+|23|Unblock|入力文字列の末尾のブロッカーを解除する|
+|24|BlockerToggle|入力文字列の末尾のブロッカーを設定・解除する", "toggleblocker|
+|25|EisuModeToggle|英数モードと通常モードのトグル|
+|26|EisuModeCancel|英数モードをキャンセルする|
+|27|EisuConversion|英数モードで英字列をカタカナに変換する|
+|28|EisuDecapitalize|英数モードで先頭文字を小文字化する|
+|29|ZenkakuConversion|全角変換入力モードのON/OFF|
+|30|KatakanaConversion|カタカナ入力モードのON/OFF|
+|31|KanaTrainingToggle|かな入力練習モードと通常モードを切り替える|
+|32|DateRotate|日時変換の入力(フォーマットの正順切替)|
+|33|DateUnrotate|日時変換の入力(フォーマットの逆順切替)|
+|34|HelpRotate|ストロークヘルプの正順回転|
+|35|HelpUnrotate|ストロークヘルプの逆順回転|
+|36|StrokeHelp|最後に入力した文字のストロークヘルプ|
+|37|RomanStrokeGuide|打鍵ガイドへのローマ字による読み入力モードのON/OFF(読み入力OFF後にガイド開始)|
+|38|UpperRomanStrokeGuide|英大文字ローマ字による読み打鍵ガイドモード|
+|39|HiraganaStrokeGuide|ひらがな入力による読み打鍵ガイドモード|
+|40|CopyAndRegisterSelection|アクティブウィンドウに Ctrl-C を送りつけて、選択されている部分をクリップボードにコピーし、それをデコーダの辞書に送って登録する。形式はミニバッファへのコピペによる辞書登録と同じで、履歴、交ぜ書き、連想の3通りの登録が可能",
+|41|ShiftSpace|Shift+Space に変換|
+|42|DirectSpace|デコーダを通さずに直接Spaceをアプリに送る|
 
 ※ コマンド名は大文字・小文字を区別しません。
 
