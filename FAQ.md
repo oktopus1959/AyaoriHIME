@@ -1,11 +1,13 @@
 ###### [FAQ HOME](FAQ.md#FAQ-HOME)
 
-# KanchokuWS -- 漢直Win Spoiler -- FAQ
-KanchokuWS は Windows 用の漢字直接入力ツールです。
+# AyaoriHIME -- 漢織媛 -- FAQ
+AyaoriHIME は Windows 用の漢字直接入力ツールです。
 また同時打鍵や後置シフトをサポートした、
 かな配列実装プラットフォーム（かな配列エミュレータ）としても利用できます。
 
-本書は KanchokuWS に関する FAQ(よくある質問と回答)をまとめたものです。
+前身である「漢直WS」を発展させ、かな配列と漢直配列を融合させて使用することが可能となっています。
+
+本書は AyaoriHIME に関する FAQ(よくある質問と回答)をまとめたものです。
 より詳細な利用方法については、[利用者ガイド](MANUAL.md#top)を参照ください。
 
 ## 目次
