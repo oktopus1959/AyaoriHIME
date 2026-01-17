@@ -404,9 +404,10 @@ namespace {
     }
 } // namespace
 
-namespace utils
-{
-#define UTILS_BUFSIZ 2048
+namespace utils {
+    const int SAFE_SUBSTR_DEFAULT_LEN = 99999999;
+
+    const int UTILS_BUFSIZ = 2048;
 
 #ifdef _WINDOWS_
     // hWnd で指定されたウインドウのクラス名を取得する
@@ -432,8 +433,7 @@ namespace utils
     /**
     * Convert a wide Unicode string to an UTF8 string
     */
-    inline std::string utf8_encode(StringRef wstr)
-    {
+    inline std::string utf8_encode(StringRef wstr) {
         std::string utf8str;
         if (!wstr.empty()) ConvWstrToU8str(wstr, utf8str);
         return utf8str;
@@ -442,8 +442,7 @@ namespace utils
     /**
     * Convert a wide Unicode string to an UTF8 string
     */
-    inline std::vector<uchar_t> utf8_byte_encode(StringRef wstr)
-    {
+    inline std::vector<uchar_t> utf8_byte_encode(StringRef wstr) {
         Vector<uchar_t> result;
         for (auto ch : utf8_encode(wstr)) {
             result.push_back((uchar_t)ch);
@@ -456,8 +455,7 @@ namespace utils
     /**
     * Convert an UTF8 string to a wide Unicode String
     */
-    inline String utf8_decode(const std::string& str)
-    {
+    inline String utf8_decode(const std::string& str) {
         String wstr;
         if (!str.empty()) ConvU8strToWstr(str, wstr);
         return wstr;
@@ -465,8 +463,7 @@ namespace utils
     }
 
     // wchar_t to mbs (_buffer は最低4バイト分確保しておくこと)
-    inline int wc_to_mbs(wchar_t wc, unsigned char* buffer)
-    {
+    inline int wc_to_mbs(wchar_t wc, unsigned char* buffer) {
         size_t size;
         wchar_t ws[2]{ wc, 0 };
         setlocale(LC_CTYPE, "ja-JP");
@@ -485,8 +482,7 @@ namespace utils
         }
     }
 
-    inline std::string ws_to_mbs(StringRef ws)
-    {
+    inline std::string ws_to_mbs(StringRef ws) {
         size_t size;
         char buffer[UTILS_BUFSIZ];
         setlocale(LC_CTYPE, "ja-JP");
@@ -495,8 +491,7 @@ namespace utils
         return (error == 0 && size > 0) ? buffer : "";
     }
 
-    inline std::string wc_to_mbs(wchar_t wc)
-    {
+    inline std::string wc_to_mbs(wchar_t wc) {
         size_t size;
         wchar_t ws[2]{ wc,0 };
         char buffer[8];
@@ -511,8 +506,7 @@ namespace utils
     inline int strToInt(StringRef s, int defval = 0) {
         try {
             return std::stoi(s);
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -520,8 +514,7 @@ namespace utils
     inline int strToInt(const MString& s, int defval = 0) {
         try {
             return std::stoi(to_wstr(s));
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -530,8 +523,7 @@ namespace utils
     inline int strToHex(StringRef s, int defval = 0) {
         try {
             return std::stoi(s, nullptr, 16);
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -539,8 +531,7 @@ namespace utils
     inline float strToFloat(StringRef s, float defval = 0.0) {
         try {
             return std::stof(s, nullptr);
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -548,8 +539,7 @@ namespace utils
     inline double strToDouble(StringRef s, double defval = 0.0) {
         try {
             return std::stod(s, nullptr);
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -609,15 +599,23 @@ namespace utils
         return std::hash<MString>()(s);
     }
 
-    inline String safe_substr(StringRef s, size_t start, int len = 0) {
-        if (start >= s.size()) start = s.size();
-        if (len <= 0) len = (int)(s.size() - start + len);
-        return s.substr(start, len);
-    }
+    //inline String safe_substr(StringRef s, size_t start, int len = 0) {
+    //    if (start >= s.size()) start = s.size();
+    //    if (len <= 0) len = (int)(s.size() - start + len);
+    //    return s.substr(start, len);
+    //}
 
-    inline MString safe_substr(const MString& s, size_t start, int len = 0) {
-        if (start >= s.size()) start = s.size();
-        if (len <= 0) len = (int)(s.size() - start + len);
+    //inline MString safe_substr(const MString& s, size_t start, int len = 0) {
+    //    if (start >= s.size()) start = s.size();
+    //    if (len <= 0) len = (int)(s.size() - start + len);
+    //    return s.substr(start, len);
+    //}
+
+    template<typename T>
+    inline std::basic_string<T> safe_substr(const std::basic_string<T>& s, size_t start, int len = SAFE_SUBSTR_DEFAULT_LEN) {
+        if (start > s.size()) start = s.size();
+        if (len < 0) len = (int)(s.size() - start) + len;
+        if (len < 0) len = 0;
         return s.substr(start, len);
     }
 
@@ -641,6 +639,16 @@ namespace utils
     inline MString substr_upto(const MString& s, mchar_t ch) {
         size_t pos = s.find(ch);
         return (pos == MString::npos) ? s : s.substr(0, pos);
+    }
+
+    inline String substr_tail_upto(StringRef s, wchar_t ch) {
+        size_t pos = s.find_last_of(ch);
+        return (pos == String::npos) ? s : s.substr(pos + 1);
+    }
+
+    inline MString substr_tail_upto(const MString& s, mchar_t ch) {
+        size_t pos = s.find_last_of(ch);
+        return (pos == MString::npos) ? s : s.substr(pos + 1);
     }
 
     inline bool contains(StringRef s, const wchar_t* t) {
@@ -1384,6 +1392,18 @@ namespace utils
             // 左側にデリミタ以外の文字が見つかった
             auto right = s.find_last_not_of(strip_delims);
             result = s.substr(left, right - left + 1);
+        }
+        return result;
+    }
+
+    template<typename T>
+    inline std::basic_string<T> strip_tail(const std::basic_string<T>& s)
+    {
+        std::basic_string<T> result;
+
+        auto lastPos = s.find_last_not_of(strip_delims);
+        if (lastPos != std::basic_string<T>::npos) {
+            result = s.substr(0, lastPos + 1);
         }
         return result;
     }

@@ -182,6 +182,10 @@ namespace lattice2 {
         MString feat;
         int bonusOrPenalty = 0;
 
+        MString yomi() const {
+            return utils::substr_upto(feat, MAZE_MORPH_FEAT_DELIM);
+        }
+
         String toString() const {
             return to_wstr(str) + L"@" + to_wstr(feat) + L"(" + std::to_wstring(bonusOrPenalty) + L")";
         }
@@ -257,14 +261,16 @@ namespace lattice2 {
 
     // 隣接する形態素候補の組み合わせを全列挙してコスト計算
     void enumerate_contiguous_morphs_combination_and_calc_cost(
+        const MString& leaderStr,
         size_t index,
         const std::vector<std::vector<MorphCand>>& morphCands,
         size_t maxCandidateNum,
         std::vector<MorphCand>& vecWork,
         std::vector<MorphCand>& results) {
+
         if (index == morphCands.size()) {
             // 終端に到達したので、コスト計算
-            MString str = join_words(vecWork);
+            MString str = leaderStr + join_words(vecWork);
             MString feat = join_feats(vecWork);
             int srcAccumCost = accum_cost(vecWork);
             std::vector<MString> morphs;
@@ -284,7 +290,7 @@ namespace lattice2 {
         for (const auto& c : morphCands[index]) {
             auto old_size = vecWork.size();
             vecWork.push_back(c);
-            enumerate_contiguous_morphs_combination_and_calc_cost(index + 1, morphCands, maxCandidateNum, vecWork, results);
+            enumerate_contiguous_morphs_combination_and_calc_cost(leaderStr, index + 1, morphCands, maxCandidateNum, vecWork, results);
             vecWork.resize(old_size);
             ++count;
             if (count >= maxCandidateNum) break;  // 各ベクトルから指定の最大数まで選択
@@ -411,9 +417,13 @@ namespace lattice2 {
         return upperLimit;
     }
 
-    // 交ぜ書き変換の実行
-    std::vector<CandidateString> CandidateString::applyMazegaki() const {
-        _LOG_DETAIL(L"ENTER: {}", to_wstr(_str));
+    // 交ぜ書き変換の実行 (末尾の空白が削除される)
+    std::vector<CandidateString> CandidateString::applyMazegaki() {
+        _LOG_DETAIL(L"ENTER: _str=<{}>", to_wstr(_str));
+        // 末尾の空白を削除
+        _str = utils::strip_tail(_str);
+        _LOG_DETAIL(L"tail stripped: _str=<{}>", to_wstr(_str));
+
         EASY_CHARS->DumpEasyCharsMemory();
 
         // リアルタイムNgramの更新
@@ -427,8 +437,8 @@ namespace lattice2 {
         int cost = MorphBridge::morphCalcCost(_str, words, mazePenalty, mazeConnPenalty, false);
         _LOG_DETAIL(L"{}: orig morph cost={}, morph={}", to_wstr(_str), cost, to_wstr(utils::join(words, to_mstr(L" ||| "))));
 
-        std::vector<std::vector<MorphCand>> vecMorphCands;
         // 形態素単位で、交ぜ書き候補を取得する
+        std::vector<std::vector<MorphCand>> vecMorphCands;
         for (auto iter = words.begin(); iter != words.end(); ++iter) {
             _LOG_DETAIL(L"morph: {}", to_wstr(*iter));
             auto items = utils::split(*iter, '\t');
@@ -447,37 +457,44 @@ namespace lattice2 {
 //#define MAX_MORPH_CAND_NUM 3
 //#define MAX_ITEM_NUM 300    /* >= pow(MAX_MORPH_CAND_NUM, MAX_MAZEGAKI_MORPHS) */
 #define MAX_CANDITATE_STR_NUM 20
-        std::vector<MorphCand> morphs;
+        MString leaderStr;
         size_t index = 0;
         size_t numMorph = vecMorphCands.size();
-        // 形態素数が多すぎる場合は、前のほうをまとめる
-        while (numMorph > MAX_MAZEGAKI_MORPHS) {
-            morphs.push_back(vecMorphCands[index][0]);
-            ++index;
-            --numMorph;
-        }
-        // 先頭に空白を含む形態素があれば、その前までもまとめる
-        size_t endIndex = index + numMorph;
-        for (size_t i = index; i < endIndex; ++i) {
-            for (const auto& cand : vecMorphCands[i]) {
-                if (!cand.str.empty() && cand.str.front() == ' ') {
-                    // 先頭に空白を含む形態素が見つかった
-                    _LOG_DETAIL(L"found space in morph cand: {}", to_wstr(cand.str));
-                    // ここまでをまとめる
-                    while (index < i) {
-                        morphs.push_back(vecMorphCands[index][0]);
-                        ++index;
-                        --numMorph;
-                    }
+        // 末尾からみていって空白があるか、形態素数がMAX_MAZEGAKI_MORPHSを超えたらそこで変換をストップする
+        {
+            size_t spacePos = _str.find_last_of(L' ');
+            _LOG_DETAIL(L"spacePos={}", spacePos);
+            // tailStr は空白を含んでいない末尾文字列
+            MString tailStr = spacePos != MString::npos ? utils::safe_substr(_str, spacePos + 1) : _str;
+            _LOG_DETAIL(L"tailStr=<{}>", to_wstr(tailStr));
+            MString cumYomi;
+            for (size_t i = 0; i < numMorph && i < MAX_MAZEGAKI_MORPHS; ++i) {
+                index = numMorph - i - 1;
+                cumYomi = vecMorphCands[index][0].yomi() + cumYomi;
+                _LOG_DETAIL(L"cumYomi=<{}>", to_wstr(cumYomi));
+                if (cumYomi == tailStr || cumYomi.size() >= _str.size()) {
+                    _LOG_DETAIL(L"cumYomi MATCH: index={}", index);
                     break;
                 }
             }
+            if (cumYomi.size() < _str.size()) {
+                size_t splitPos = _str.size() - cumYomi.size();
+                while (splitPos > 0 && _str[splitPos - 1] == ' ') {
+                    --splitPos;
+                }
+                if (splitPos > 0) {
+                    leaderStr = _str.substr(0, splitPos);
+                }
+            }
         }
+        numMorph -= index;
+        _LOG_DETAIL(L"leaderStr={}, index={}, numMorph={}", to_wstr(leaderStr), index, numMorph);
+        std::vector<MorphCand> workMorphs;
         std::vector<MorphCand> sortedItems;
         sortedItems.reserve(MAX_MAZEGAKI_VARIATIONS);
-        // 隣接する形態素候補の組み合わせを全列挙してコスト計算
         size_t maxCandidateNum = calcMazeMorphsUpperLimit(MAX_MAZEGAKI_VARIATIONS, index, vecMorphCands);
-        enumerate_contiguous_morphs_combination_and_calc_cost(index, vecMorphCands, maxCandidateNum, morphs, sortedItems);
+        // 隣接する形態素候補の組み合わせを全列挙してコスト計算
+        enumerate_contiguous_morphs_combination_and_calc_cost(leaderStr, index, vecMorphCands, maxCandidateNum, workMorphs, sortedItems);
         _LOG_DETAIL(L"LEAVE: num of sortedItems={}", sortedItems.size());
         // コストでソートして候補文字列を取得
         return generate_candidateString_from_items_sorted_by_cost(sortedItems, strokeLen(), MAX_CANDITATE_STR_NUM);

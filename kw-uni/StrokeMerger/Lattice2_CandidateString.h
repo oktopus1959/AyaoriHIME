@@ -64,7 +64,7 @@ namespace lattice2 {
         MString applyBushuComp() const;
 
         // 交ぜ書き変換の実行
-        std::vector<CandidateString> applyMazegaki() const;
+        std::vector<CandidateString> applyMazegaki();
 
         //void getDifficultMazeCands(const MString& surf, const MString& mazeCands, std::vector<MorphCand>& result) const;
 

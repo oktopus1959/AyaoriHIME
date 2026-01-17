@@ -1178,21 +1178,22 @@ namespace lattice2 {
             if (!_candidates.empty()) {
                 raiseAndLowerByCandSelection();
                 removeOtherThanFirst();
-                const CandidateString& srcCand = _candidates.front();
+                CandidateString& srcCand = _candidates.front();
                 // 交ぜ書き変換の実行
                 _LOG_DETAIL(L"src: {}", to_wstr(srcCand.string()));
+                // 交ぜ書き変換の実行 (ここで文字列の末尾が空白の場合、除去されてしまうので注意)
                 auto canditates = srcCand.applyMazegaki();
-                _LOG_DETAIL(L"applyMazegaki RESULT candidates num={}", canditates.size());
-                const MString& srcStr = srcCand.string();
+                _LOG_DETAIL(L"applyMazegaki: RESULT candidates num={}", canditates.size());
+                const MString& srcStr = utils::strip_tail(srcCand.string());
                 MString srcStr2 = removeLastSpace(srcStr);  // 先頭が空白の形態素を変換すると空白が除去されるので、それも除外する
-                _LOG_DETAIL(L"src: {}, src2={}", to_wstr(srcStr), to_wstr(srcStr2));
+                _LOG_DETAIL(L"src: <{}>, src2=<{}>", to_wstr(srcStr), to_wstr(srcStr2));
                 for (auto iter = canditates.rbegin(); iter != canditates.rend(); ++iter) {
-                    _LOG_DETAIL(L"xlat: {}", to_wstr(iter->string()));
+                    _LOG_DETAIL(L"applyMazegaki: RESULT: {}", to_wstr(iter->string()));
                     if (iter->string() != srcStr && iter->string() != srcStr2) {
                         insertCandidate(*iter);
                     } else {
                         // 変換元と同一のものは除く
-                        _LOG_DETAIL(L"SKIP same as source");
+                        _LOG_DETAIL(L"applyMazegaki: SKIP same as source");
                     }
                 }
                 _LOG_DETAIL(L"LEAVE\nkBest:\n{}", debugCandidates(SETTINGS->multiStreamBeamSize));

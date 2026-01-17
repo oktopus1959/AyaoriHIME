@@ -646,6 +646,7 @@ public:
         LOG_INFO(_T("\nENTER: keyId={:x}H({}={}), targetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}, editBuffer={}"),
             keyId, keyId, DECKEY_TO_CHARS->GetDeckeyNameFromId(keyId), to_wstr(targetChar), decodeKeyboardChar, upperRomanGuideMode, deckeyParams->editBufferData);
 
+        // 編集バッファの内容を取得しておく
         STATE_COMMON->SetEditBufferString(deckeyParams->editBufferData);
 
         OutParams = outParams;

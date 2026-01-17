@@ -5,6 +5,7 @@
 //#include "Lattice.h"
 
 #define MAZE_TRANSLATION_FEATURE_DELIM   '|'
+#define MAZE_MORPH_FEAT_DELIM   '/'
 
 namespace lattice2 {
 
