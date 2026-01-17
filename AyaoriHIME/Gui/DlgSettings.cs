@@ -1829,6 +1829,12 @@ namespace KanchokuWS.Gui
             button_openUserDicFile.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
         }
 
+        private void button_mazeFAQ_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openDocumentUrl(Settings.FaqMazegakiUrl);
+        }
+
         private void button_ImportUserDic_Click(object sender, EventArgs e)
         {
             var dicDir = SystemHelper.MakeAbsPathUnderKanchokuRootDir(Settings.SystemFilesFolder._joinPath("dymazin/dic/mazedic"));
@@ -2019,6 +2025,12 @@ namespace KanchokuWS.Gui
                 checkerFusion.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
                 logger.Info("LEAVE");
             }
+        }
+
+        private void button_multiStreamFAQ_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openDocumentUrl(Settings.FaqMultiStreamUrl);
         }
 
         /// <summary> リアルタイムNgramとユーザー定義Ngramファイルの再読み込み</summary>

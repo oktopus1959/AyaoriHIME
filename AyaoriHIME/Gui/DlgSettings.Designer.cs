@@ -388,6 +388,7 @@ namespace KanchokuWS.Gui
             this.label_histReload = new System.Windows.Forms.Label();
             this.button_histReload = new System.Windows.Forms.Button();
             this.groupBox53 = new System.Windows.Forms.GroupBox();
+            this.button_mazeFAQ = new System.Windows.Forms.Button();
             this.button_openUserDicFile = new System.Windows.Forms.Button();
             this.button_selecUserDicFile = new System.Windows.Forms.Button();
             this.button_ImportUserDIc = new System.Windows.Forms.Button();
@@ -492,6 +493,7 @@ namespace KanchokuWS.Gui
             this.checkBox_convertJaComma = new System.Windows.Forms.CheckBox();
             this.checkBox_convertJaPeriod = new System.Windows.Forms.CheckBox();
             this.tabPage_fusion = new System.Windows.Forms.TabPage();
+            this.button_multiStreamFAQ = new System.Windows.Forms.Button();
             this.groupBox44 = new System.Windows.Forms.GroupBox();
             this.checkBox_useEditBuffer = new System.Windows.Forms.CheckBox();
             this.checkBox_outputHeadSymbol = new System.Windows.Forms.CheckBox();
@@ -514,14 +516,6 @@ namespace KanchokuWS.Gui
             this.checkBox_multiCandidateMode = new System.Windows.Forms.CheckBox();
             this.checkBox_useMorphAndNgramAnalyzer = new System.Windows.Forms.CheckBox();
             this.checkBox_strokeBackByBS = new System.Windows.Forms.CheckBox();
-            this.groupBox52 = new System.Windows.Forms.GroupBox();
-            this.button_checkModifiers = new System.Windows.Forms.Button();
-            this.checkBox_leftCtrl = new System.Windows.Forms.CheckBox();
-            this.checkBox_rightCtrl = new System.Windows.Forms.CheckBox();
-            this.checkBox_leftShift = new System.Windows.Forms.CheckBox();
-            this.checkBox_rightShift = new System.Windows.Forms.CheckBox();
-            this.checkBox_leftAlt = new System.Windows.Forms.CheckBox();
-            this.checkBox_rightAlt = new System.Windows.Forms.CheckBox();
             this.groupBox51 = new System.Windows.Forms.GroupBox();
             this.checkBox_collectRealtimeNgram = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -543,6 +537,14 @@ namespace KanchokuWS.Gui
             this.label_okResultFusion = new System.Windows.Forms.Label();
             this.button_fusionEnter = new System.Windows.Forms.Button();
             this.button_fusionClose = new System.Windows.Forms.Button();
+            this.groupBox52 = new System.Windows.Forms.GroupBox();
+            this.button_checkModifiers = new System.Windows.Forms.Button();
+            this.checkBox_leftCtrl = new System.Windows.Forms.CheckBox();
+            this.checkBox_rightCtrl = new System.Windows.Forms.CheckBox();
+            this.checkBox_leftShift = new System.Windows.Forms.CheckBox();
+            this.checkBox_rightShift = new System.Windows.Forms.CheckBox();
+            this.checkBox_leftAlt = new System.Windows.Forms.CheckBox();
+            this.checkBox_rightAlt = new System.Windows.Forms.CheckBox();
             this.tabPage_register = new System.Windows.Forms.TabPage();
             this.label_okResultRegister = new System.Windows.Forms.Label();
             this.button_registerClose = new System.Windows.Forms.Button();
@@ -660,9 +662,9 @@ namespace KanchokuWS.Gui
             this.groupBox44.SuspendLayout();
             this.groupBox34.SuspendLayout();
             this.groupBox8.SuspendLayout();
-            this.groupBox52.SuspendLayout();
             this.groupBox51.SuspendLayout();
             this.groupBox41.SuspendLayout();
+            this.groupBox52.SuspendLayout();
             this.tabPage_register.SuspendLayout();
             this.groupBox19.SuspendLayout();
             this.groupBox10.SuspendLayout();
@@ -4931,6 +4933,7 @@ namespace KanchokuWS.Gui
             // 
             // groupBox53
             // 
+            this.groupBox53.Controls.Add(this.button_mazeFAQ);
             this.groupBox53.Controls.Add(this.button_openUserDicFile);
             this.groupBox53.Controls.Add(this.button_selecUserDicFile);
             this.groupBox53.Controls.Add(this.button_ImportUserDIc);
@@ -4943,10 +4946,22 @@ namespace KanchokuWS.Gui
             this.groupBox53.TabStop = false;
             this.groupBox53.Text = "交ぜ書きユーザー辞書";
             // 
+            // button_mazeFAQ
+            // 
+            this.button_mazeFAQ.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_mazeFAQ.Location = new System.Drawing.Point(14, 69);
+            this.button_mazeFAQ.Name = "button_mazeFAQ";
+            this.button_mazeFAQ.Size = new System.Drawing.Size(58, 23);
+            this.button_mazeFAQ.TabIndex = 1;
+            this.button_mazeFAQ.Text = "FAQ(&F)";
+            this.toolTip1.SetToolTip(this.button_mazeFAQ, "「よくある質問と回答」ページのURLをブラウザで開きます");
+            this.button_mazeFAQ.UseVisualStyleBackColor = true;
+            this.button_mazeFAQ.Click += new System.EventHandler(this.button_mazeFAQ_Click);
+            // 
             // button_openUserDicFile
             // 
             this.button_openUserDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openUserDicFile.Location = new System.Drawing.Point(211, 67);
+            this.button_openUserDicFile.Location = new System.Drawing.Point(211, 69);
             this.button_openUserDicFile.Name = "button_openUserDicFile";
             this.button_openUserDicFile.Size = new System.Drawing.Size(58, 23);
             this.button_openUserDicFile.TabIndex = 2;
@@ -4960,7 +4975,7 @@ namespace KanchokuWS.Gui
             // 
             this.button_selecUserDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_selecUserDicFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_selecUserDicFile.Location = new System.Drawing.Point(13, 67);
+            this.button_selecUserDicFile.Location = new System.Drawing.Point(109, 71);
             this.button_selecUserDicFile.Name = "button_selecUserDicFile";
             this.button_selecUserDicFile.Size = new System.Drawing.Size(90, 23);
             this.button_selecUserDicFile.TabIndex = 1;
@@ -4974,7 +4989,7 @@ namespace KanchokuWS.Gui
             // 
             this.button_ImportUserDIc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_ImportUserDIc.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_ImportUserDIc.Location = new System.Drawing.Point(275, 67);
+            this.button_ImportUserDIc.Location = new System.Drawing.Point(275, 69);
             this.button_ImportUserDIc.Name = "button_ImportUserDIc";
             this.button_ImportUserDIc.Size = new System.Drawing.Size(80, 23);
             this.button_ImportUserDIc.TabIndex = 3;
@@ -6166,10 +6181,10 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_fusion
             // 
+            this.tabPage_fusion.Controls.Add(this.button_multiStreamFAQ);
             this.tabPage_fusion.Controls.Add(this.groupBox44);
             this.tabPage_fusion.Controls.Add(this.groupBox34);
             this.tabPage_fusion.Controls.Add(this.groupBox8);
-            this.tabPage_fusion.Controls.Add(this.groupBox52);
             this.tabPage_fusion.Controls.Add(this.groupBox51);
             this.tabPage_fusion.Controls.Add(this.groupBox41);
             this.tabPage_fusion.Controls.Add(this.comboBox_editBufferCaretChar);
@@ -6182,12 +6197,26 @@ namespace KanchokuWS.Gui
             this.tabPage_fusion.Controls.Add(this.label_okResultFusion);
             this.tabPage_fusion.Controls.Add(this.button_fusionEnter);
             this.tabPage_fusion.Controls.Add(this.button_fusionClose);
+            this.tabPage_fusion.Controls.Add(this.groupBox52);
             this.tabPage_fusion.Location = new System.Drawing.Point(4, 24);
             this.tabPage_fusion.Name = "tabPage_fusion";
             this.tabPage_fusion.Size = new System.Drawing.Size(711, 393);
             this.tabPage_fusion.TabIndex = 11;
             this.tabPage_fusion.Text = "配列融合";
             this.tabPage_fusion.UseVisualStyleBackColor = true;
+            // 
+            // button_multiStreamFAQ
+            // 
+            this.button_multiStreamFAQ.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_multiStreamFAQ.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_multiStreamFAQ.Location = new System.Drawing.Point(15, 363);
+            this.button_multiStreamFAQ.Name = "button_multiStreamFAQ";
+            this.button_multiStreamFAQ.Size = new System.Drawing.Size(59, 23);
+            this.button_multiStreamFAQ.TabIndex = 4;
+            this.button_multiStreamFAQ.Text = "FAQ(&F)";
+            this.toolTip1.SetToolTip(this.button_multiStreamFAQ, "「よくある質問と回答」ページのURLをブラウザで開きます");
+            this.button_multiStreamFAQ.UseVisualStyleBackColor = true;
+            this.button_multiStreamFAQ.Click += new System.EventHandler(this.button_multiStreamFAQ_Click);
             // 
             // groupBox44
             // 
@@ -6198,7 +6227,7 @@ namespace KanchokuWS.Gui
             this.groupBox44.Location = new System.Drawing.Point(15, 201);
             this.groupBox44.Name = "groupBox44";
             this.groupBox44.Size = new System.Drawing.Size(335, 91);
-            this.groupBox44.TabIndex = 80;
+            this.groupBox44.TabIndex = 2;
             this.groupBox44.TabStop = false;
             this.groupBox44.Text = "編集バッファ";
             // 
@@ -6258,7 +6287,7 @@ namespace KanchokuWS.Gui
             this.groupBox34.Location = new System.Drawing.Point(376, 12);
             this.groupBox34.Name = "groupBox34";
             this.groupBox34.Size = new System.Drawing.Size(316, 159);
-            this.groupBox34.TabIndex = 79;
+            this.groupBox34.TabIndex = 3;
             this.groupBox34.TabStop = false;
             this.groupBox34.Text = "実験的設定";
             // 
@@ -6382,7 +6411,7 @@ namespace KanchokuWS.Gui
             this.groupBox8.Location = new System.Drawing.Point(15, 12);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(335, 85);
-            this.groupBox8.TabIndex = 78;
+            this.groupBox8.TabIndex = 0;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "基本設定";
             // 
@@ -6418,95 +6447,6 @@ namespace KanchokuWS.Gui
             this.checkBox_strokeBackByBS.Text = "BSで直前の打鍵を取り消す";
             this.checkBox_strokeBackByBS.UseVisualStyleBackColor = true;
             // 
-            // groupBox52
-            // 
-            this.groupBox52.Controls.Add(this.button_checkModifiers);
-            this.groupBox52.Controls.Add(this.checkBox_leftCtrl);
-            this.groupBox52.Controls.Add(this.checkBox_rightCtrl);
-            this.groupBox52.Controls.Add(this.checkBox_leftShift);
-            this.groupBox52.Controls.Add(this.checkBox_rightShift);
-            this.groupBox52.Controls.Add(this.checkBox_leftAlt);
-            this.groupBox52.Controls.Add(this.checkBox_rightAlt);
-            this.groupBox52.Location = new System.Drawing.Point(477, 289);
-            this.groupBox52.Name = "groupBox52";
-            this.groupBox52.Size = new System.Drawing.Size(217, 53);
-            this.groupBox52.TabIndex = 75;
-            this.groupBox52.TabStop = false;
-            this.groupBox52.Text = "修飾キー状態";
-            this.groupBox52.Visible = false;
-            // 
-            // button_checkModifiers
-            // 
-            this.button_checkModifiers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_checkModifiers.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_checkModifiers.Location = new System.Drawing.Point(107, 97);
-            this.button_checkModifiers.Name = "button_checkModifiers";
-            this.button_checkModifiers.Size = new System.Drawing.Size(94, 23);
-            this.button_checkModifiers.TabIndex = 67;
-            this.button_checkModifiers.Text = "状態表示(&M)";
-            this.button_checkModifiers.UseVisualStyleBackColor = true;
-            this.button_checkModifiers.Click += new System.EventHandler(this.button_checkModifiers_Click);
-            // 
-            // checkBox_leftCtrl
-            // 
-            this.checkBox_leftCtrl.AutoSize = true;
-            this.checkBox_leftCtrl.Location = new System.Drawing.Point(29, 22);
-            this.checkBox_leftCtrl.Name = "checkBox_leftCtrl";
-            this.checkBox_leftCtrl.Size = new System.Drawing.Size(88, 19);
-            this.checkBox_leftCtrl.TabIndex = 61;
-            this.checkBox_leftCtrl.Text = "Left Control";
-            this.checkBox_leftCtrl.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_rightCtrl
-            // 
-            this.checkBox_rightCtrl.AutoSize = true;
-            this.checkBox_rightCtrl.Location = new System.Drawing.Point(134, 22);
-            this.checkBox_rightCtrl.Name = "checkBox_rightCtrl";
-            this.checkBox_rightCtrl.Size = new System.Drawing.Size(96, 19);
-            this.checkBox_rightCtrl.TabIndex = 62;
-            this.checkBox_rightCtrl.Text = "Right Control";
-            this.checkBox_rightCtrl.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_leftShift
-            // 
-            this.checkBox_leftShift.AutoSize = true;
-            this.checkBox_leftShift.Location = new System.Drawing.Point(29, 47);
-            this.checkBox_leftShift.Name = "checkBox_leftShift";
-            this.checkBox_leftShift.Size = new System.Drawing.Size(73, 19);
-            this.checkBox_leftShift.TabIndex = 63;
-            this.checkBox_leftShift.Text = "Left Shift";
-            this.checkBox_leftShift.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_rightShift
-            // 
-            this.checkBox_rightShift.AutoSize = true;
-            this.checkBox_rightShift.Location = new System.Drawing.Point(134, 47);
-            this.checkBox_rightShift.Name = "checkBox_rightShift";
-            this.checkBox_rightShift.Size = new System.Drawing.Size(81, 19);
-            this.checkBox_rightShift.TabIndex = 64;
-            this.checkBox_rightShift.Text = "Right Shift";
-            this.checkBox_rightShift.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_leftAlt
-            // 
-            this.checkBox_leftAlt.AutoSize = true;
-            this.checkBox_leftAlt.Location = new System.Drawing.Point(29, 72);
-            this.checkBox_leftAlt.Name = "checkBox_leftAlt";
-            this.checkBox_leftAlt.Size = new System.Drawing.Size(64, 19);
-            this.checkBox_leftAlt.TabIndex = 65;
-            this.checkBox_leftAlt.Text = "Left Alt";
-            this.checkBox_leftAlt.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_rightAlt
-            // 
-            this.checkBox_rightAlt.AutoSize = true;
-            this.checkBox_rightAlt.Location = new System.Drawing.Point(134, 72);
-            this.checkBox_rightAlt.Name = "checkBox_rightAlt";
-            this.checkBox_rightAlt.Size = new System.Drawing.Size(72, 19);
-            this.checkBox_rightAlt.TabIndex = 66;
-            this.checkBox_rightAlt.Text = "Right Alt";
-            this.checkBox_rightAlt.UseVisualStyleBackColor = true;
-            // 
             // groupBox51
             // 
             this.groupBox51.Controls.Add(this.checkBox_collectRealtimeNgram);
@@ -6516,7 +6456,7 @@ namespace KanchokuWS.Gui
             this.groupBox51.Location = new System.Drawing.Point(15, 107);
             this.groupBox51.Name = "groupBox51";
             this.groupBox51.Size = new System.Drawing.Size(335, 85);
-            this.groupBox51.TabIndex = 74;
+            this.groupBox51.TabIndex = 1;
             this.groupBox51.TabStop = false;
             this.groupBox51.Text = "リアルタイムNgramファイル";
             // 
@@ -6665,10 +6605,10 @@ namespace KanchokuWS.Gui
             // 
             this.button_showCandidates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_showCandidates.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_showCandidates.Location = new System.Drawing.Point(161, 363);
+            this.button_showCandidates.Location = new System.Drawing.Point(207, 363);
             this.button_showCandidates.Name = "button_showCandidates";
-            this.button_showCandidates.Size = new System.Drawing.Size(104, 23);
-            this.button_showCandidates.TabIndex = 52;
+            this.button_showCandidates.Size = new System.Drawing.Size(93, 23);
+            this.button_showCandidates.TabIndex = 6;
             this.button_showCandidates.Text = "解候補出力(&D)";
             this.button_showCandidates.UseVisualStyleBackColor = true;
             this.button_showCandidates.Click += new System.EventHandler(this.button_showCandidates_Click);
@@ -6678,7 +6618,7 @@ namespace KanchokuWS.Gui
             this.label162.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label162.AutoSize = true;
             this.label162.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label162.Location = new System.Drawing.Point(12, 345);
+            this.label162.Location = new System.Drawing.Point(96, 345);
             this.label162.Name = "label162";
             this.label162.Size = new System.Drawing.Size(112, 15);
             this.label162.TabIndex = 51;
@@ -6688,10 +6628,10 @@ namespace KanchokuWS.Gui
             // 
             this.button_reloadDict.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_reloadDict.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_reloadDict.Location = new System.Drawing.Point(27, 363);
+            this.button_reloadDict.Location = new System.Drawing.Point(113, 363);
             this.button_reloadDict.Name = "button_reloadDict";
-            this.button_reloadDict.Size = new System.Drawing.Size(80, 23);
-            this.button_reloadDict.TabIndex = 50;
+            this.button_reloadDict.Size = new System.Drawing.Size(72, 23);
+            this.button_reloadDict.TabIndex = 5;
             this.button_reloadDict.Text = "再ロード(&L)";
             this.toolTip1.SetToolTip(this.button_reloadDict, "各種ファイルの内容を再読み込みします。\r\n\r\n辞書を除く各種INIファイル、定義ファイルの内容をリロードして、\r\n内部の設定状態を更新します。\r\n");
             this.button_reloadDict.UseVisualStyleBackColor = true;
@@ -6717,7 +6657,7 @@ namespace KanchokuWS.Gui
             this.button_fusionReload.Location = new System.Drawing.Point(320, 363);
             this.button_fusionReload.Name = "button_fusionReload";
             this.button_fusionReload.Size = new System.Drawing.Size(80, 23);
-            this.button_fusionReload.TabIndex = 35;
+            this.button_fusionReload.TabIndex = 7;
             this.button_fusionReload.Text = "再読込(&R)";
             this.toolTip1.SetToolTip(this.button_fusionReload, "各種ファイルの内容を再読み込みします。\r\n\r\n辞書を除く各種INIファイル、定義ファイルの内容をリロードして、\r\n内部の設定状態を更新します。\r\n");
             this.button_fusionReload.UseVisualStyleBackColor = true;
@@ -6743,7 +6683,7 @@ namespace KanchokuWS.Gui
             this.button_fusionEnter.Location = new System.Drawing.Point(623, 363);
             this.button_fusionEnter.Name = "button_fusionEnter";
             this.button_fusionEnter.Size = new System.Drawing.Size(75, 23);
-            this.button_fusionEnter.TabIndex = 37;
+            this.button_fusionEnter.TabIndex = 9;
             this.button_fusionEnter.Text = "適用(&E)";
             this.toolTip1.SetToolTip(this.button_fusionEnter, "設定内容を適用して kanchoku.user.ini に書き込みます");
             this.button_fusionEnter.UseVisualStyleBackColor = true;
@@ -6756,10 +6696,99 @@ namespace KanchokuWS.Gui
             this.button_fusionClose.Location = new System.Drawing.Point(515, 363);
             this.button_fusionClose.Name = "button_fusionClose";
             this.button_fusionClose.Size = new System.Drawing.Size(80, 23);
-            this.button_fusionClose.TabIndex = 36;
+            this.button_fusionClose.TabIndex = 8;
             this.button_fusionClose.Text = "閉じる(&C)";
             this.button_fusionClose.UseVisualStyleBackColor = true;
             this.button_fusionClose.Click += new System.EventHandler(this.button_fusionClose_Click);
+            // 
+            // groupBox52
+            // 
+            this.groupBox52.Controls.Add(this.button_checkModifiers);
+            this.groupBox52.Controls.Add(this.checkBox_leftCtrl);
+            this.groupBox52.Controls.Add(this.checkBox_rightCtrl);
+            this.groupBox52.Controls.Add(this.checkBox_leftShift);
+            this.groupBox52.Controls.Add(this.checkBox_rightShift);
+            this.groupBox52.Controls.Add(this.checkBox_leftAlt);
+            this.groupBox52.Controls.Add(this.checkBox_rightAlt);
+            this.groupBox52.Location = new System.Drawing.Point(394, 192);
+            this.groupBox52.Name = "groupBox52";
+            this.groupBox52.Size = new System.Drawing.Size(217, 53);
+            this.groupBox52.TabIndex = 75;
+            this.groupBox52.TabStop = false;
+            this.groupBox52.Text = "修飾キー状態";
+            this.groupBox52.Visible = false;
+            // 
+            // button_checkModifiers
+            // 
+            this.button_checkModifiers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_checkModifiers.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_checkModifiers.Location = new System.Drawing.Point(107, 97);
+            this.button_checkModifiers.Name = "button_checkModifiers";
+            this.button_checkModifiers.Size = new System.Drawing.Size(94, 23);
+            this.button_checkModifiers.TabIndex = 67;
+            this.button_checkModifiers.Text = "状態表示(&M)";
+            this.button_checkModifiers.UseVisualStyleBackColor = true;
+            this.button_checkModifiers.Click += new System.EventHandler(this.button_checkModifiers_Click);
+            // 
+            // checkBox_leftCtrl
+            // 
+            this.checkBox_leftCtrl.AutoSize = true;
+            this.checkBox_leftCtrl.Location = new System.Drawing.Point(29, 22);
+            this.checkBox_leftCtrl.Name = "checkBox_leftCtrl";
+            this.checkBox_leftCtrl.Size = new System.Drawing.Size(88, 19);
+            this.checkBox_leftCtrl.TabIndex = 61;
+            this.checkBox_leftCtrl.Text = "Left Control";
+            this.checkBox_leftCtrl.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_rightCtrl
+            // 
+            this.checkBox_rightCtrl.AutoSize = true;
+            this.checkBox_rightCtrl.Location = new System.Drawing.Point(134, 22);
+            this.checkBox_rightCtrl.Name = "checkBox_rightCtrl";
+            this.checkBox_rightCtrl.Size = new System.Drawing.Size(96, 19);
+            this.checkBox_rightCtrl.TabIndex = 62;
+            this.checkBox_rightCtrl.Text = "Right Control";
+            this.checkBox_rightCtrl.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_leftShift
+            // 
+            this.checkBox_leftShift.AutoSize = true;
+            this.checkBox_leftShift.Location = new System.Drawing.Point(29, 47);
+            this.checkBox_leftShift.Name = "checkBox_leftShift";
+            this.checkBox_leftShift.Size = new System.Drawing.Size(73, 19);
+            this.checkBox_leftShift.TabIndex = 63;
+            this.checkBox_leftShift.Text = "Left Shift";
+            this.checkBox_leftShift.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_rightShift
+            // 
+            this.checkBox_rightShift.AutoSize = true;
+            this.checkBox_rightShift.Location = new System.Drawing.Point(134, 47);
+            this.checkBox_rightShift.Name = "checkBox_rightShift";
+            this.checkBox_rightShift.Size = new System.Drawing.Size(81, 19);
+            this.checkBox_rightShift.TabIndex = 64;
+            this.checkBox_rightShift.Text = "Right Shift";
+            this.checkBox_rightShift.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_leftAlt
+            // 
+            this.checkBox_leftAlt.AutoSize = true;
+            this.checkBox_leftAlt.Location = new System.Drawing.Point(29, 72);
+            this.checkBox_leftAlt.Name = "checkBox_leftAlt";
+            this.checkBox_leftAlt.Size = new System.Drawing.Size(64, 19);
+            this.checkBox_leftAlt.TabIndex = 0;
+            this.checkBox_leftAlt.Text = "Left Alt";
+            this.checkBox_leftAlt.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_rightAlt
+            // 
+            this.checkBox_rightAlt.AutoSize = true;
+            this.checkBox_rightAlt.Location = new System.Drawing.Point(134, 72);
+            this.checkBox_rightAlt.Name = "checkBox_rightAlt";
+            this.checkBox_rightAlt.Size = new System.Drawing.Size(72, 19);
+            this.checkBox_rightAlt.TabIndex = 1;
+            this.checkBox_rightAlt.Text = "Right Alt";
+            this.checkBox_rightAlt.UseVisualStyleBackColor = true;
             // 
             // tabPage_register
             // 
@@ -7655,12 +7684,12 @@ namespace KanchokuWS.Gui
             this.groupBox34.PerformLayout();
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
-            this.groupBox52.ResumeLayout(false);
-            this.groupBox52.PerformLayout();
             this.groupBox51.ResumeLayout(false);
             this.groupBox51.PerformLayout();
             this.groupBox41.ResumeLayout(false);
             this.groupBox41.PerformLayout();
+            this.groupBox52.ResumeLayout(false);
+            this.groupBox52.PerformLayout();
             this.tabPage_register.ResumeLayout(false);
             this.tabPage_register.PerformLayout();
             this.groupBox19.ResumeLayout(false);
@@ -8257,5 +8286,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label91;
         private System.Windows.Forms.Button button_saveMorphLog;
         private System.Windows.Forms.CheckBox checkBox_multiCandidateMode;
+        private System.Windows.Forms.Button button_mazeFAQ;
+        private System.Windows.Forms.Button button_multiStreamFAQ;
     }
 }
