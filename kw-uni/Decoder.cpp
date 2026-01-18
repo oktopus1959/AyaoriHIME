@@ -92,6 +92,20 @@ private:
         }
     }
 
+    bool needSyncEditBuffer(const MString& editBuf) const {
+        if (!OUTPUT_STACK) return !editBuf.empty();
+
+        size_t outLen = OUTPUT_STACK->size();
+        if (outLen == 0) return !editBuf.empty();
+
+        auto outTail = OUTPUT_STACK->OutputStackBackStr(outLen);
+        LOG_INFO(_T("needSyncEditBuffer: editBuf='{}', outTail='{}'"), to_wstr(editBuf), to_wstr(outTail));
+        if (editBuf.size() < outTail.size()) return true;
+
+        auto editTail = editBuf.substr(editBuf.size() - outTail.size());
+        return editTail != outTail;
+    }
+
 
     void copy_facestr(const mchar_t* faces, size_t numFaces) {
         LOG_DEBUG(_T("Copy faces({}): {}"), numFaces, to_debug_wstr(faces, numFaces));
@@ -648,6 +662,19 @@ public:
 
         // 編集バッファの内容を取得しておく
         STATE_COMMON->SetEditBufferString(deckeyParams->editBufferData);
+        const auto& editBuf = STATE_COMMON->GetEditBufferString();
+        bool needsSync = needSyncEditBuffer(editBuf);
+        LOG_INFO(_T("EditBuffer sync check: needsSync={}, editLen={}, outLen={}"),
+            needsSync, editBuf.size(), OUTPUT_STACK ? OUTPUT_STACK->size() : 0);
+        if (needsSync) {
+            if (WORD_LATTICE) {
+                WORD_LATTICE->syncBaseString(editBuf);
+            }
+            if (OUTPUT_STACK) {
+                OUTPUT_STACK->clear();
+                OUTPUT_STACK->push(editBuf);
+            }
+        }
 
         OutParams = outParams;
         initializeOutParams();
@@ -690,14 +717,7 @@ public:
         OutParams->numBackSpaces = resultStr.numBS();
         OutParams->strokeTableNum = StrokeTableNode::GetCurrentStrokeTableNum();
 
-        // 出力履歴に BackSpaces を反映
-        LOG_INFO(_T("pop numBS={}, numBSofOutputStack={}, outStack={}"), OutParams->numBackSpaces, resultStr.numBSofOutputStack(), OUTPUT_STACK->OutputStackBackStrForDebug(10));
-        if (resultStr.numBSofOutputStack() > 0) OUTPUT_STACK->pop((size_t)resultStr.numBSofOutputStack()); // これはやめて、MergerHistoryResidentState の中でやることにする
-        // 出力文字列を履歴に反映 (全角の＊と？は半角に変換しておく⇒ワイルドカードを含む交ぜ書き変換で使う)
-        LOG_INFO(_T("outStr={}, outStack={}"), OutParams->outString, OUTPUT_STACK->OutputStackBackStrForDebug(10));
-        OUTPUT_STACK->push(utils::convert_star_and_question_to_hankaku(OutParams->outString));
-        //String stack = std::regex_replace(to_wstr(OUTPUT_STACK->backStringFull(10)), std::wregex(_T("\n")), _T("|"));
-        LOG_INFO(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(10));
+        // 出力履歴の反映は MergerHistoryResidentState で行う
         // 出力履歴に BackSpaceStopper を反映
         if (STATE_COMMON->IsAppendBackspaceStopper()) { OUTPUT_STACK->pushNewLine(); }
         // 出力履歴に HistoryBlock を反映
@@ -1181,4 +1201,3 @@ int ExecCmdDecoder(void* pDecoder, DecoderCommandParams* cmdParams, DecoderOutPa
     auto method_call = [pDecoder, cmdParams, outParams]() { ((Decoder*)pDecoder)->ExecCmd(cmdParams, outParams); };
     return invokeDecoderMethod(method_call, cmdParams);
 }
-

@@ -1091,6 +1091,15 @@ namespace lattice2 {
             }
         }
 
+        void setBaseString(const MString& base) override {
+            _LOG_DETAIL(_T("ENTER: base={}"), to_wstr(base));
+            clearKbests(true);
+            if (!base.empty()) {
+                _candidates.push_back(CandidateString(base, 0));
+            }
+            _LOG_DETAIL(_T("LEAVE: _candidates.size()={}"), _candidates.size());
+        }
+
         // 先頭候補を取得する
         MString getFirst() const override {
             _LOG_DETAIL(_T("CALLED"));

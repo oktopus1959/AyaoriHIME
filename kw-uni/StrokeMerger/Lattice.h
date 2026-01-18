@@ -103,6 +103,8 @@ public:
     // return: 出力文字列と、修正用のBS数
     virtual LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool useMorphAnalyzer, bool strokeBack, bool bKatakanaConversion) = 0;
 
+    virtual void syncBaseString(const MString& base) = 0;
+
     virtual void clearAll() = 0;
 
     virtual void clear() = 0;
@@ -161,4 +163,3 @@ public:
 };
 
 #define WORD_LATTICE Lattice2::Singleton
-

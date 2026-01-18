@@ -150,6 +150,7 @@ class StateCommonInfo {
 
     // フロント側の編集バッファに格納されていた文字列
     MString editBufferString;
+    bool editBufferChanged = false;
 
     // DECKEYを発行した元の文字キーの列 (打鍵途中でスペースが打たれた時に送られる)
     MString origString;
@@ -340,9 +341,15 @@ public:
 //    inline void OutputOrigChar(int numBS = -1) { SetOutString(origString, numBS); }
 //    inline void OutputOrigString(int numBS = -1) { SetOutString(origString, numBS); }
 
-    inline void ClearEditBufferString() { editBufferString.clear(); }
-    inline void SetEditBufferString(const wchar_t* buf) { editBufferString = to_mstr(buf); }
+    inline void ClearEditBufferString() { editBufferString.clear(); editBufferChanged = false; }
+    inline void SetEditBufferString(const wchar_t* buf) {
+        MString next = to_mstr(buf);
+        editBufferChanged = (editBufferString != next);
+        editBufferString = std::move(next);
+    }
     inline const MString& GetEditBufferString() { return editBufferString; }
+    inline bool IsEditBufferChanged() const { return editBufferChanged; }
+    inline void ClearEditBufferChanged() { editBufferChanged = false; }
 
     inline void ClearOrigString() { origString.clear(); }
     inline void SetOrigString(mchar_t ch) { origString = ch; }

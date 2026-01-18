@@ -79,6 +79,14 @@ namespace lattice2 {
             _LOG_DETAIL(_T("LEAVE"));
         }
 
+        void syncBaseString(const MString& base) override {
+            _LOG_DETAIL(_T("ENTER: base={}"), to_wstr(base));
+            _startStrokeCount = 0;
+            _prevOutputStr = base;
+            _kBestList->setBaseString(base);
+            _LOG_DETAIL(_T("LEAVE"));
+        }
+
         void clear() override {
             _LOG_DETAIL(_T("ENTER"));
             _startStrokeCount = 0;
@@ -314,4 +322,3 @@ void Lattice2::saveLatticeRelatedFiles() {
 void Lattice2::reloadGlobalPostRewriteMapFile() {
     lattice2::readGlobalPostRewriteMapFile();
 }
-

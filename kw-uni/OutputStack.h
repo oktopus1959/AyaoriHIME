@@ -103,6 +103,10 @@ public:
         pop(1);
     }
 
+    inline void clear() {
+        stack.clear();
+    }
+
     inline mchar_t back() const {
         return stack.empty() ? 0 : stack.back().chr;
     }

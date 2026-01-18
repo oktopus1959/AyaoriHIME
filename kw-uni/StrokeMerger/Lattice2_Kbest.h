@@ -70,6 +70,8 @@ namespace lattice2 {
         // 先頭を表すダミーを用意しておく
         virtual void addDummyCandidate() = 0;
 
+        virtual void setBaseString(const MString& base) = 0;
+
         // 先頭候補を取得する
         virtual MString getFirst() const = 0;
 

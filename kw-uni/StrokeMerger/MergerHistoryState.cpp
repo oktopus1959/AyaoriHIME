@@ -753,10 +753,8 @@ namespace {
                 if (!result.outStr.empty() || result.numBS > 0 || pieceNumBS > 0) {
                     LOG_DEBUGH(_T("CHECKPOINT-7-A: setResult: outStr={}, numBS={}, pieceNumBS={}"), to_wstr(result.outStr), result.numBS, pieceNumBS);
                     resultOut.setResult(result.outStr, (int)(result.numBS));
-                    if (pieceNumBS >= 0) {
-                        resultOut.setNumBSofOutputStack(pieceNumBS);
-                    }
                     SetTranslatedOutString(resultOut);
+                    syncOutputStackTail(resultStr.resultStr(), resultStr.numBS());
                     //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
                 } else {
                     LOG_DEBUGH(_T("CHECKPOINT-7-B: NO resultOut"));
@@ -856,6 +854,18 @@ namespace {
         bool bCandSelectable = false;
 
     public:
+        void syncOutputStackTail(const MString& outStr, int numBS) {
+            if (!OUTPUT_STACK) return;
+
+            if (numBS > 0) {
+                OUTPUT_STACK->pop((size_t)numBS);
+            }
+            if (!outStr.empty()) {
+                auto outW = to_wstr(outStr);
+                OUTPUT_STACK->push(utils::convert_star_and_question_to_hankaku(outW.c_str()));
+            }
+        }
+
         // 状態の再アクティブ化
         void Reactivate() override {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
@@ -1709,4 +1719,3 @@ void StrokeMergerHistoryNode::createStrokeTrees(int targetTable) {
     auto tableFile3 = !SETTINGS->tableFile3.empty() ? utils::joinPath(SETTINGS->rootDir, _T("tmp\\tableFile3.tbl")) : L"";
     createStrokeTree(tableFile3, STROKE_TREE_CREATOR(StrokeTableNode::CreateStrokeTree3));
 }
-
