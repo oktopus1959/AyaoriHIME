@@ -217,6 +217,7 @@ namespace lattice2 {
 
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
         void raiseAndLowerByCandSelection() override {
+            _LOG_DETAIL(L"CALLED: _origFirstCand={}, _candidates.size={}", _origFirstCand, _candidates.size());
             if (_origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
                 _LOG_DETAIL(L"ENTER");
                 // 候補選択がなされていて、元の先頭候補以外が選択された

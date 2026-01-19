@@ -148,6 +148,7 @@ namespace lattice2 {
 
         // 候補選択による、リアルタイムNgramの蒿上げと抑制
         void raiseAndLowerByCandSelection() override {
+            _LOG_DETAIL(_T("CALLED"));
             _kBestList->raiseAndLowerByCandSelection();
         }
 

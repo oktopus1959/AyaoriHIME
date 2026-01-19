@@ -193,8 +193,10 @@ namespace lattice2 {
         int prevDiffPos = -10;
         int baseSize = (int)baseCand.size();
         int diffSize = (int)diffCand.size();
+        LOG_DEBUGH(L"baseSize={}, diffSize={}", baseSize, diffSize);
         for (int pos = 0; pos < diffSize; ++pos) {
-            bool currentDiff = pos < baseSize || baseCand[pos] != diffCand[pos];
+            bool currentDiff = pos >= baseSize || baseCand[pos] != diffCand[pos];
+            LOG_DEBUGH(L"pos={}, prevDiffPos={}, currentDiff={}", pos, prevDiffPos, currentDiff);
             if (currentDiff || prevDiffPos + 2 == pos) {
                 if (pos >= 2) {
                     // 2文字前から3gramについて更新する
@@ -203,7 +205,7 @@ namespace lattice2 {
             }
             if (currentDiff || prevDiffPos + 1 == pos) {
                 if (pos == 1) {
-                    // 〓を含めて更新する
+                    // 〓を含めて更新する (例: の門:-, 側で:+)
                     _updateRealtimeNgramCountByWord(bIncrease, MSTR_GETA + diffCand.substr(pos - 1, 2), true);
                 }
                 if (pos >= 1) {
