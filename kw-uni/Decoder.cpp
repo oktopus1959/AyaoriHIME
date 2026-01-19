@@ -98,10 +98,7 @@ private:
         size_t outLen = OUTPUT_STACK->size();
         if (outLen == 0) return !editBuf.empty();
 
-        auto outTail = OUTPUT_STACK->OutputStackBackStr(outLen);
-        while (!outTail.empty() && outTail.back() == '\n') {
-            outTail.pop_back();
-        }
+        auto outTail = OUTPUT_STACK->BackStringUptoNewLine(outLen);
         LOG_INFO(_T("needSyncEditBuffer: editBuf='{}', outTail='{}'"), to_wstr(editBuf), to_wstr(outTail));
         if (editBuf.size() < outTail.size()) return true;
 
