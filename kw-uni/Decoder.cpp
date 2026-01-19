@@ -99,6 +99,9 @@ private:
         if (outLen == 0) return !editBuf.empty();
 
         auto outTail = OUTPUT_STACK->OutputStackBackStr(outLen);
+        while (!outTail.empty() && outTail.back() == '\n') {
+            outTail.pop_back();
+        }
         LOG_INFO(_T("needSyncEditBuffer: editBuf='{}', outTail='{}'"), to_wstr(editBuf), to_wstr(outTail));
         if (editBuf.size() < outTail.size()) return true;
 
@@ -343,8 +346,10 @@ public:
 
     // デコーダ状態のリセット (Decoder が ON になったときに呼ばれる)
     void Reset() override {
+        LOG_INFOH(_T("ENTER"));
         deleteRemainingState();
         STATE_COMMON->ClearAllStateInfo();
+        LOG_INFOH(_T("pushNewLine"));
         OUTPUT_STACK->pushNewLine();    // 履歴ブロッカーとして改行を追加
         if (startState) startState->Reactivate();
         //if (MAZEGAKI_INFO) MAZEGAKI_INFO->Initialize(false);
@@ -354,6 +359,7 @@ public:
                 startState->JoinedName(), startState->ChainLength(), STATE_COMMON->GetResultFlags(),
                 OUTPUT_STACK->OutputStackBackStrForDebug(5));
         }
+        LOG_INFOH(_T("LEAVE"));
     }
 
     // 居残っている一時状態の削除
@@ -719,7 +725,10 @@ public:
 
         // 出力履歴の反映は MergerHistoryResidentState で行う
         // 出力履歴に BackSpaceStopper を反映
-        if (STATE_COMMON->IsAppendBackspaceStopper()) { OUTPUT_STACK->pushNewLine(); }
+        if (STATE_COMMON->IsAppendBackspaceStopper()) {
+            LOG_DEBUGH(_T("AppendBackspaceStopper: OUTPUT_STACK->pushNewLine()"));
+            OUTPUT_STACK->pushNewLine();
+        }
         // 出力履歴に HistoryBlock を反映
         if (STATE_COMMON->IsSetHistoryBlockFlag()) {
             OUTPUT_STACK->setHistBlocker();
@@ -762,9 +771,12 @@ public:
 
     // BackspaceStopper や HistoryBlock をセット
     void setBackspaceBlocker() {
+        LOG_INFOH(_T("ENTER"));
         STATE_COMMON->SetBothHistoryBlockFlag();
+        LOG_INFOH(_T("pushNewLine"));
         OUTPUT_STACK->pushNewLine();
         OUTPUT_STACK->setHistBlocker();
+        LOG_INFOH(_T("LEAVE"));
     }
 
     // 末尾のローマ字列を削除

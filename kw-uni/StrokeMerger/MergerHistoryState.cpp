@@ -1192,9 +1192,11 @@ namespace {
                 LOG_DEBUGH(_T("PATH 3: by SelectionKey"));
                 // 履歴選択キーによる処理だった場合
                 if (isEnterDecKey()) {
-                    LOG_DEBUGH(_T("PATH 4-A: handleEnter"));
+                    LOG_DEBUGH(_T("PATH 4-A: handleEnter: setHistBlocker()"));
                     bCandSelectable = false;
-                    OUTPUT_STACK->pushNewLine();
+                    OUTPUT_STACK->setHistBlocker();
+                    //LOG_DEBUGH(_T("PATH 4-A: handleEnter: pushNewLine()"));
+                    //OUTPUT_STACK->pushNewLine();setHistBlocker
                 } else {
                     LOG_DEBUGH(_T("PATH 4-B: handleArrow"));
                     // この処理は、GUI側で候補の背景色を変更するのと矢印キーをホットキーにするために必要
@@ -1225,8 +1227,12 @@ namespace {
                 LOG_DEBUGH(_T("PATH 9: bNoHistTemporary={}"), bNoHistTemporary);
                 if (!bNoHistTemporary) {
                     if (isEditingFuncDecKey()) {
-                        // 編集用キーが呼び出されたので、全ブロッカーを置く
-                        OUTPUT_STACK->pushNewLine();
+                        //// 編集用キーが呼び出されたので、全ブロッカーを置く
+                        //LOG_DEBUGH(_T("PATH 9: EditingFuncDecKey: pushNewLine()"));
+                        //OUTPUT_STACK->pushNewLine();
+                        // 編集用キーが呼び出されたので、ブロッカーを置く
+                        LOG_DEBUGH(_T("PATH 9: EditingFuncDecKey: setHistBlocker()"));
+                        OUTPUT_STACK->setHistBlocker();
                     } else {
                         historySearch(bManualTemporary);
                     }
