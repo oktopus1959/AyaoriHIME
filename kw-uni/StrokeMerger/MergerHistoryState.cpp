@@ -754,22 +754,24 @@ namespace {
                     LOG_DEBUGH(_T("CHECKPOINT-7-A: setResult: outStr={}, numBS={}, pieceNumBS={}"), to_wstr(result.outStr), result.numBS, pieceNumBS);
                     resultOut.setResult(result.outStr, (int)(result.numBS));
                     SetTranslatedOutString(resultOut);
-                    syncOutputStackTail(resultStr.resultStr(), resultStr.numBS());
                     //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
                 } else {
                     LOG_DEBUGH(_T("CHECKPOINT-7-B: NO resultOut"));
                 }
             }
 
-            LOG_DEBUGH(_T("CHECKPOINT-8: Check StreamList and WORD_LATTICE"));
+            LOG_DEBUGH(_T("CHECKPOINT-8: syncOutputStackTail: resultStr=<{}>, numBS={}"), to_wstr(resultOut.resultStr()), resultOut.numBS());
+            syncOutputStackTail(resultOut.resultStr(), resultOut.numBS());
+
+            LOG_DEBUGH(_T("CHECKPOINT-9: Check StreamList and WORD_LATTICE"));
             if (_streamList1.Empty() && _streamList2.Empty() && WORD_LATTICE->isEmpty()) {
-                LOG_DEBUGH(L"CHECKPOINT-8-A: StreamList and WORD_LATTICE are both EMPTY. CALL WORD_LATTICE->clear()");
+                LOG_DEBUGH(L"CHECKPOINT-9-A: StreamList and WORD_LATTICE are both EMPTY. CALL WORD_LATTICE->clear()");
                 WORD_LATTICE->clear();
                 //MarkUnnecessary();
                 LOG_DEBUGH(_T("ClearCurrentModeIsMultiStreamInput"));
                 STATE_COMMON->ClearCurrentModeIsMultiStreamInput();
             }
-            LOG_DEBUGH(_T("CHECKPOINT-9"));
+            LOG_DEBUGH(_T("CHECKPOINT-10"));
 
             _streamList1.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList1"));
             _streamList2.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList2"));

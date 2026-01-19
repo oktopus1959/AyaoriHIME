@@ -3,7 +3,7 @@
 
 #include "Eisu.h"
 
-#if 0 || defined(_DEBUG)
+#if 1 || defined(_DEBUG)
 #undef LOG_INFO
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
@@ -132,21 +132,21 @@ namespace {
 
             //size_t totalCnt = STATE_COMMON->GetTotalDecKeyCount();
             myChar = DECKEY_TO_CHARS->GetCharFromDeckey(deckey);
-            _LOG_DEBUGH(_T("ENTER: {}: deckey={:x}H({}), face={}, eisuHistSearchChar={}"), Name, deckey, deckey, myChar, SETTINGS->eisuHistSearchChar);
+            _LOG_DEBUGH(_T("ENTER: {}: deckey={:x}H({}), face='{}', eisuHistSearchChar={}"), Name, deckey, deckey, myChar, SETTINGS->eisuHistSearchChar);
             if (myChar == SETTINGS->eisuHistSearchChar) {
-                LOG_INFO(_T("eisuHistSearchChar"));
+                LOG_INFO(_T("eisuHistSearchChar='{}'"), SETTINGS->eisuHistSearchChar);
                 if (!_handleEisuConversion()) {
                     // 変換できなければ、英数モードを終了
                     _LOG_DEBUGH(_T("Failed to convert"));
                     cancelMe();
                 }
             } else if (myChar == SETTINGS->eisuExitDecapitalChar) {
-                LOG_INFO(_T("eisuExitDecapitalChar"));
+                LOG_INFO(_T("eisuExitDecapitalChar='{}'"), SETTINGS->eisuExitDecapitalChar);
                 MERGER_HISTORY_RESIDENT_STATE->handleEisuDecapitalize();
                 // 即時キャンセルする
                 cancelMe();
             } else if (myChar == SETTINGS->eisuExitAsIsChar) {
-                LOG_INFO(_T("eisuExitAsIsChar"));
+                LOG_INFO(_T("eisuExitAsIsChar='{}'"), SETTINGS->eisuExitAsIsChar);
                 // 即時キャンセルする
                 cancelMe();
             } else if (deckey < NORMAL_DECKEY_NUM || (deckey >= SHIFT_DECKEY_START && deckey < (SHIFT_DECKEY_START + NORMAL_DECKEY_NUM))) {
