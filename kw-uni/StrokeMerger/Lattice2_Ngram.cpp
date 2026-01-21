@@ -110,13 +110,13 @@ namespace lattice2 {
                     for (const auto& pair : realtimeNgramBonusCounts) {
                         String line;
                         int count = pair.second;
-                        if (count < 0 || count > 1 || (count == 1 && Reporting::Logger::IsWarnEnabled())) {
+                        //if (count < 0 || count > 1 || (count == 1 && Reporting::Logger::IsWarnEnabled())) {
                             // count が 0 または 1 の N-gramは無視する
                             line.append(to_wstr(pair.first));           // 単語
                             line.append(_T("\t"));
                             line.append(std::to_wstring(pair.second));  // カウント
                             writer.writeLine(utils::utf8_encode(line));
-                        }
+                        //}
                     }
                     realtimeNgram_updated = false;
                 }
@@ -138,9 +138,13 @@ namespace lattice2 {
         if (!bIncrease) {
             delta = -delta;
         }
-        realtimeNgramBonusCounts[word] += delta;
+        int count = realtimeNgramBonusCounts[word] += delta;
         realtimeNgram_updated = true;
-        LOG_DEBUGH(L"realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), realtimeNgramBonusCounts[word], delta);
+        if (manualSelect) {
+            LOG_WARNH(L"Manual select: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
+        } else {
+            LOG_DEBUGH(L"Auto update: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
+        }
     }
 
     // リアルタイムNgramの更新

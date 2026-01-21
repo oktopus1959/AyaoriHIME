@@ -99,11 +99,14 @@ private:
         if (outLen == 0) return !editBuf.empty();
 
         auto outTail = OUTPUT_STACK->BackStringUptoNewLine(outLen);
-        LOG_INFO(_T("needSyncEditBuffer: editBuf='{}', outTail='{}'"), to_wstr(editBuf), to_wstr(outTail));
-        if (editBuf.size() < outTail.size()) return true;
 
-        auto editTail = editBuf.substr(editBuf.size() - outTail.size());
-        return editTail != outTail;
+        auto editTail = editBuf.substr(editBuf.size() > outTail.size() ? editBuf.size() - outTail.size() : 0);
+        bool needSync = editTail != outTail;
+        if (needSync) {
+            LOG_WARNH(_T("needSync=TRUE: editTail='{}', outTail='{}'"), to_wstr(editTail), to_wstr(outTail));
+        }
+        LOG_INFO(_T("LEAVE: needSync={}: editBuf='{}', outTail='{}'"), needSync, to_wstr(editBuf), to_wstr(outTail));
+        return needSync;
     }
 
 
