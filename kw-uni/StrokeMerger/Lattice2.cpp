@@ -73,25 +73,25 @@ namespace lattice2 {
 
         void clearAll() override {
             _LOG_DETAIL(_T("ENTER"));
-            _startStrokeCount = 0;
             _prevOutputStr.clear();
             _kBestList->clearKbests(true);
+            _startStrokeCount = 0;
             _LOG_DETAIL(_T("LEAVE"));
         }
 
         void syncBaseString(const MString& base) override {
             _LOG_DETAIL(_T("ENTER: base={}"), to_wstr(base));
-            _startStrokeCount = 0;
             _prevOutputStr = base;
             _kBestList->setBaseString(base);
+            _startStrokeCount = 0;
             _LOG_DETAIL(_T("LEAVE"));
         }
 
         void clear() override {
             _LOG_DETAIL(_T("ENTER"));
-            _startStrokeCount = 0;
             _prevOutputStr.clear();
             _kBestList->clearKbests(false);
+            _startStrokeCount = 0;
             _LOG_DETAIL(_T("LEAVE"));
         }
 
@@ -105,16 +105,31 @@ namespace lattice2 {
             _kBestList->removeOtherThanFirst();
         }
 
-        void setKanjiXorHiraganaPreferredNextCands(bool bKanji) override {
+        void setKanjiPreferredNext() override {
             _LOG_DETAIL(_T("ENTER"));
-            _kBestList->setKanjiXorHiraganaPreferredNextCands(bKanji);
-            if (_startStrokeCount == 1) _startStrokeCount = 0;  // 先頭での漢字優先なら、0 クリアしておく(この後、clear()が呼ばれるので、それと状態を合わせるため)
+            _kBestList->setKanjiPreferredNext();
             _LOG_DETAIL(_T("LEAVE"));
         }
 
-        void clearKanjiXorHiraganaPreferredNextCands() override {
+        bool isKanjiPreferredNext() const override {
             _LOG_DETAIL(_T("CALLED"));
-            _kBestList->clearKanjiXorHiraganaPreferredNextCands();
+            return _kBestList->isKanjiPreferredNext();
+        }
+
+        void setHiraganaPreferredNext() override {
+            _LOG_DETAIL(_T("ENTER"));
+            _kBestList->setHiraganaPreferredNext();
+            _LOG_DETAIL(_T("LEAVE"));
+        }
+
+        bool isHiraganaPreferredNext() const override {
+            _LOG_DETAIL(_T("CALLED"));
+            return _kBestList->isHiraganaPreferredNext();
+        }
+
+        void clearKanjiXorHiraganaPreferredNext() override {
+            _LOG_DETAIL(_T("CALLED"));
+            _kBestList->clearKanjiXorHiraganaPreferredNext();
         }
 
         bool isEmpty() override {
@@ -181,7 +196,7 @@ namespace lattice2 {
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
 
             //LOG_DEBUGH(_T("ENTER: currentStrokeCount={}, pieces: {}\nkBest:\n{}"), currentStrokeCount, formatStringOfWordPieces(pieces), _kBestList->debugString());
-            _LOG_DETAIL(_T("INPUT: _kBestList.size={}, _origFirstCand={}, totalStroke={}, currentStroke={}, strokeBack={}, rollOver={}, pieces: {}"),
+            _LOG_DETAIL(_T("INPUT: _kBestList.size={}, _origFirstCand={}, totalStrokeCount={}, currentStrokeCount={}, strokeBack={}, rollOver={}, pieces: {}"),
                 _kBestList->size(), _kBestList->origFirstCand(), totalStrokeCount, currentStrokeCount, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
 
             _LOG_DETAIL(L"CURRENT:\nkBest:\n{}", _kBestList->debugCandidates(10));
@@ -201,15 +216,6 @@ namespace lattice2 {
             //    }
             //}
             // フロントエンドから updateRealtimeNgram() を呼び出すので、ここではやる必要がない
-
-            //if (kanjiPreferredNext) {
-            //    _LOG_DETAIL(L"KANJI PREFERRED NEXT");
-            //    // 先頭候補だけを残す
-            //    _kBestList->removeOtherThanFirst();
-            //    // 次のストロークを漢字優先とする
-            //    _kBestList->setKanjiPreferredNextCands();
-            //    if (_startStrokeCount == 1) _startStrokeCount = 0;  // 先頭での漢字優先なら、0 クリアしておく(この後、clear()が呼ばれるので、それと状態を合わせるため)
-            //}
 
             _LOG_DETAIL(L"_kBestList.size={}", _kBestList->size());
 
@@ -252,7 +258,7 @@ namespace lattice2 {
             }
             //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
-            _LOG_DETAIL(_T("LEAVE:\nkanjiPreferredNextCands={}\nkBest:\n{}"), _kBestList->kanjiXorHiraganaPreferredNextCandsDebug(),  _kBestList->debugCandidates(10));
+            _LOG_DETAIL(_T("LEAVE:\nkBest:\n{}"), _kBestList->debugCandidates(10));
             return LatticeResult(outStr, numBS);
         }
 

@@ -159,8 +159,8 @@ namespace lattice2 {
         // 末尾漢字などの追加で一時的に拡大された候補数
         //int _extendedCandNum = 0;
 
-        // 次のストロークをスキップする候補文字列
-        std::set<MString> _kanjiXorHiraganaPreferredNextCands;
+        // ストローク戻りによって戻ったと想定されるストローク長(漢字 xor ひらがな優先候補選択時に使用)
+        int _kanjiXorHiraganaPreferredNextStrokeLen = -1;
 
         bool _isKanjiPreferredNext = false;
         bool _isHiraganaPreferredNext = false;
@@ -237,7 +237,9 @@ namespace lattice2 {
             _rollOverStroke.clear();
             _origFirstCand = -1;
             //_extendedCandNum = 0;
-            if (clearAll) clearKanjiXorHiraganaPreferredNextCands();
+            if (clearAll) {
+                clearKanjiXorHiraganaPreferredNext();
+            }
             _LOG_DETAIL(L"LEAVE");
         }
 
@@ -420,7 +422,7 @@ namespace lattice2 {
         }
 
         String debugKBestString(size_t maxLn = 100000) const override {
-            String result = L"kanjiPreferredNextCands=" + kanjiXorHiraganaPreferredNextCandsDebug() + L"\n\n";
+            String result;
             result.append(_debugLog);
             result.append(std::format(L"\nTotal candidates={}\n", _candidates.size()));
             result.append(L"\nKBest:\n");
@@ -701,49 +703,80 @@ namespace lattice2 {
             }
         }
 
-    public:
-        void setKanjiXorHiraganaPreferredNextCands(bool bKanji) override {
-            //LOG_INFO(L"ENTER");
-            _isKanjiPreferredNext = bKanji;
-            _isHiraganaPreferredNext = !bKanji;
-            _kanjiXorHiraganaPreferredNextCands.clear();
-            if (!_candidates.empty()) {
-                int topStrokeCnt = _candidates.front().strokeLen();
-                for (const auto& c : _candidates) {
-                    if (c.strokeLen() != topStrokeCnt) break;
-                    _kanjiXorHiraganaPreferredNextCands.insert(c.string());
-                }
+    private:
+        void setKanjiXorHiraganaPreferredNextStrokeLen() {
+            if (_candidates.empty()) {
+                _kanjiXorHiraganaPreferredNextStrokeLen = 0;
+            } else {
+                _kanjiXorHiraganaPreferredNextStrokeLen = _candidates.front().strokeLen();
             }
-            if (_kanjiXorHiraganaPreferredNextCands.empty()) _kanjiXorHiraganaPreferredNextCands.insert(EMPTY_MSTR);
-            //LOG_INFO(L"LEAVE: kanjiPreferredNextCands={}", kanjiPreferredNextCandsDebug());
+            _LOG_DETAIL(L"SET: preferredNextStrokeLen={}, kanjiPreferred={}, hiraganaPreferred={}", _kanjiXorHiraganaPreferredNextStrokeLen, _isKanjiPreferredNext, _isHiraganaPreferredNext);
         }
 
-        void clearKanjiXorHiraganaPreferredNextCands() override {
-            _LOG_DETAIL(_T("CALLED: _kanjiPreferredNextCands={}"), kanjiXorHiraganaPreferredNextCandsDebug());
-            _kanjiXorHiraganaPreferredNextCands.clear();
+        bool isKanjiXorHiraganaPreferredNextStrokeLenMatched(const CandidateString& cand) const {
+            bool result = _kanjiXorHiraganaPreferredNextStrokeLen == cand.strokeLen();
+            _LOG_DETAIL(L"RESULT={}: _kanjiXorHiraganaPreferredNextStrokeLen={}, cand.strokeLen={}", result, _kanjiXorHiraganaPreferredNextStrokeLen, cand.strokeLen());
+            return result;
         }
 
-        String kanjiXorHiraganaPreferredNextCandsDebug() const override {
-            return std::to_wstring(_kanjiXorHiraganaPreferredNextCands.size()) + L":['" + to_wstr(utils::join(_kanjiXorHiraganaPreferredNextCands, L"', '")) + L"']";
+        bool isKanjiXorHiraganaPreferredNextStrokeLenMatched() const {
+            if (_candidates.empty()) {
+                _LOG_DETAIL(L"RESULT={}: _candidates.empty", _kanjiXorHiraganaPreferredNextStrokeLen == 0);
+                return _kanjiXorHiraganaPreferredNextStrokeLen == 0;
+            }
+            return isKanjiXorHiraganaPreferredNextStrokeLenMatched(_candidates.front());
+        }
+
+        // 漢字xorひらがなを優先すべき状況で、条件を満たしていないか
+        bool notKanjiXorHiraganaPreferenceSatisfied(const CandidateString& cand, const WordPiece& piece) {
+            _LOG_DETAIL(L"cand.string()=\"{}\", piece={}", to_wstr(cand.string()), piece.debugString());
+            bool matched = isKanjiXorHiraganaPreferredNextStrokeLenMatched(cand);
+            bool result = false;
+            const MString& pieceStr = piece.getString();
+            if (matched
+                && piece.numBS() <= 0 && !pieceStr.empty()
+                && ((_isKanjiPreferredNext && utils::is_hiragana(pieceStr[0])) || (_isHiraganaPreferredNext && utils::is_kanji(pieceStr[0])))) {
+                // 漢字xorひらがな優先条件を満たさなかった
+                _LOG_DETAIL(_T("{} preference not satisfied"), _isKanjiPreferredNext ? L"Kanji" : L"Hiragana");
+                result = true;
+            }
+            _LOG_DETAIL(_T("LEAVE: result={}"), result);
+            return result;
+        }
+
+    public:
+        void setKanjiPreferredNext() override {
+            _isKanjiPreferredNext = true;
+            _isHiraganaPreferredNext = false;
+            setKanjiXorHiraganaPreferredNextStrokeLen();
+        }
+
+        bool isKanjiPreferredNext() const override {
+            bool result = _isKanjiPreferredNext && isKanjiXorHiraganaPreferredNextStrokeLenMatched();
+            _LOG_DETAIL(L"CALLED: RESULT={}: KanjiPreferred={}, strokeLenMatched={}", result, _isKanjiPreferredNext, isKanjiXorHiraganaPreferredNextStrokeLenMatched());
+            return result;
+        }
+
+        void setHiraganaPreferredNext() override {
+            _isKanjiPreferredNext = false;
+            _isHiraganaPreferredNext = true;
+            setKanjiXorHiraganaPreferredNextStrokeLen();
+        }
+
+        bool isHiraganaPreferredNext() const override {
+            bool result = _isHiraganaPreferredNext && isKanjiXorHiraganaPreferredNextStrokeLenMatched();
+            _LOG_DETAIL(L"CALLED: RESULT={}: HiraganaPreferred={}, strokeLenMatched={}", result, _isHiraganaPreferredNext, isKanjiXorHiraganaPreferredNextStrokeLenMatched());
+            return result;
+        }
+
+        void clearKanjiXorHiraganaPreferredNext() override {
+            _LOG_DETAIL(L"CALLED");
+            _isKanjiPreferredNext = false;
+            _isHiraganaPreferredNext = false;
+            _kanjiXorHiraganaPreferredNextStrokeLen = -1;
         }
 
     private:
-        int getKanjiXorHiraganaPrefferredPenalty(const CandidateString& cand, const WordPiece& piece) {
-            bool contained = _kanjiXorHiraganaPreferredNextCands.contains(cand.string());
-            _LOG_DETAIL(L"cand.string()=\"{}\", {} in kanjiPreferred={}", to_wstr(cand.string()), contained ? L"CONTAINED" : L"NOT", kanjiXorHiraganaPreferredNextCandsDebug());
-            int penalty = 0;
-            const MString& pieceStr = piece.getString();
-            if (contained
-                && piece.numBS() <= 0 && !pieceStr.empty()
-                && ((_isKanjiPreferredNext && utils::is_hiragana(pieceStr[0])) || (_isHiraganaPreferredNext && utils::is_kanji(pieceStr[0])))) {
-                // 漢字xorひらがな優先
-                _LOG_DETAIL(_T("add NON_PREFERRED_PENALTY"));
-                penalty += NON_PREFERRED_PENALTY;
-            }
-            _LOG_DETAIL(_T("LEAVE: penalty={}"), penalty);
-            return penalty;
-        }
-
         // 素片のストロークと適合する候補だけを追加
         void addOnePiece(std::vector<CandidateString>& newCandidates, const WordPiece& piece, bool useMorphAnalyzer, int strokeCount, int paddingLen, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("ENTER: _candidates.size={}, piece={}, useMorphAnalyzer={}"), _candidates.size(), piece.debugString(), useMorphAnalyzer);
@@ -751,8 +784,6 @@ namespace lattice2 {
             bool isStrokeBS = piece.numBS() > 0;
             const MString& pieceStr = piece.getString();
             //int topStrokeLen = -1;
-
-            LOG_DEBUGH(L"kanjiPreferredNextCands={}", kanjiXorHiraganaPreferredNextCandsDebug());
 
             if (pieceStr.size() == 1) setHighFreqJoshiStroke(strokeCount, pieceStr[0]);
 
@@ -787,11 +818,8 @@ namespace lattice2 {
                     _LOG_DETAIL(L"Non rollover multi stroke penalty, total penalty={}", penalty);
                 }
 
-                // 漢字優先か
-                int kanjiPrefPenalty = getKanjiXorHiraganaPrefferredPenalty(cand, piece);
-                if (kanjiPrefPenalty > 0) continue;
-
-                penalty += kanjiPrefPenalty;
+                // 漢字 xor ひらがな優先条件を満たしていなければスキップ
+                if (notKanjiXorHiraganaPreferenceSatisfied(cand, piece)) continue;
 
                 if (!bAutoBushuFound) {
                     MString s;
@@ -1017,13 +1045,14 @@ namespace lattice2 {
             return newCandidates;
         }
 
-        // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
+        // 先頭の1ピースだけの挿入(1ピースが複数文字集合の場合、順序を変更しない)
         std::vector<CandidateString> _updateKBestList_initial(const CandidateString& dummyCand, const WordPiece& piece, int strokeCount, int paddingLen, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("ENTER: dummyCand.string()=\"{}\", piece.string()={}, strokeCount={}, paddingLen={}"),
                 to_wstr(dummyCand.string()), to_wstr(piece.getString()), strokeCount, paddingLen);
             std::vector<CandidateString> newCandidates;
-            int penalty = getKanjiXorHiraganaPrefferredPenalty(dummyCand, piece);
-            if (penalty == 0) {
+            if (!notKanjiXorHiraganaPreferenceSatisfied(dummyCand, piece)) {
+                // 漢字 xor ひらがな優先条件を満たしている
+                int penalty = 0;
                 if (piece.isPadding()) {
                     // パディング素片の場合はペナルティを加算
                     penalty += PADDING_PENALTY;
@@ -1042,27 +1071,27 @@ namespace lattice2 {
         }
 
     public:
-        // strokeCount: lattice に最初に addPieces() した時からの相対的なストローク数
-        void updateKBestList(const std::vector<WordPiece>& pieces, bool useMorphAnalyzer, int strokeCount, bool strokeBack, bool bKatakanaConversion) override {
-            _LOG_DETAIL(_T("ENTER: _candidates.size()={}, pieces.size()={}, useMorphAnalyzer={}, strokeCount={}, strokeBack={}"),
-                _candidates.size(), pieces.size(), useMorphAnalyzer, strokeCount, strokeBack);
+        // currentStrokeCount: lattice に最初に addPieces() した時からの相対的なストローク数
+        void updateKBestList(const std::vector<WordPiece>& pieces, bool useMorphAnalyzer, int currentStrokeCount, bool strokeBack, bool bKatakanaConversion) override {
+            _LOG_DETAIL(_T("ENTER: _candidates.size()={}, pieces.size()={}, useMorphAnalyzer={}, currentStrokeCount={}, strokeBack={}"),
+                _candidates.size(), pieces.size(), useMorphAnalyzer, currentStrokeCount, strokeBack);
             _debugLog.clear();
 
-            setRollOverStroke(strokeCount - 1, STATE_COMMON->IsRollOverStroke());
+            setRollOverStroke(currentStrokeCount - 1, STATE_COMMON->IsRollOverStroke());
 
             // 候補リストが空の場合は、追加される piece と組み合わせるための、先頭を表すダミーを用意しておく
             addDummyCandidate();
 
             int paddingLen = 0;
             if (pieces.front().isPadding()) {
-                paddingLen = strokeCount - _candidates.front().strokeLen();
+                paddingLen = currentStrokeCount - _candidates.front().strokeLen();
                 _LOG_DETAIL(_T("paddingLen={}"), paddingLen);
             }
             if (!strokeBack && _candidates.size() == 1 && _candidates.front().string().empty() && pieces.size() == 1) {
                 // 先頭の1ピースだけの挿入(複数文字の場合、順序を変更しない)
-                _candidates = std::move(_updateKBestList_initial(_candidates.front(), pieces.front(), strokeCount, paddingLen, bKatakanaConversion));
+                _candidates = std::move(_updateKBestList_initial(_candidates.front(), pieces.front(), currentStrokeCount, paddingLen, bKatakanaConversion));
             } else {
-                _candidates = std::move(_updateKBestList_sub(pieces, useMorphAnalyzer, strokeCount, paddingLen, strokeBack, bKatakanaConversion));
+                _candidates = std::move(_updateKBestList_sub(pieces, useMorphAnalyzer, currentStrokeCount, paddingLen, strokeBack, bKatakanaConversion));
             }
 
             //// 漢字またはカタカナが2文字以上連続したら、その候補を優先する

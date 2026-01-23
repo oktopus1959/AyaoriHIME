@@ -56,11 +56,15 @@ namespace lattice2 {
         virtual String debugKBestString(size_t maxLn = 100000) const = 0;
 
     public:
-        virtual void setKanjiXorHiraganaPreferredNextCands(bool) = 0;
+        virtual void setKanjiPreferredNext() = 0;
 
-        virtual void clearKanjiXorHiraganaPreferredNextCands() = 0;
+        virtual bool isKanjiPreferredNext() const = 0;
 
-        virtual String kanjiXorHiraganaPreferredNextCandsDebug() const = 0;
+        virtual void setHiraganaPreferredNext() = 0;
+
+        virtual bool isHiraganaPreferredNext() const = 0;
+
+        virtual void clearKanjiXorHiraganaPreferredNext() = 0;
 
     public:
         // strokeCount: lattice に最初に addPieces() した時からの相対的なストローク数

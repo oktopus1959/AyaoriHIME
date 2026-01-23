@@ -85,6 +85,7 @@ namespace lattice2 {
             return utils::is_kanji(tailChar());
         }
 
+        // 当候補のストローク長を返す
         inline const int strokeLen() const {
             return _strokeLen;
         }

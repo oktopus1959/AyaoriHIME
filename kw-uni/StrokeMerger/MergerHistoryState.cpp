@@ -343,6 +343,9 @@ namespace {
         // ストロークを1つ前に戻す
         bool _strokeBack = false;
 
+        bool _kanjiPreferredNext = false;
+        bool _hiraganaPreferredNext = false;
+
         // RootStrokeState1用の状態集合
         StrokeStreamList _streamList1;
 
@@ -425,6 +428,8 @@ namespace {
                     _LOG_DETAIL(L"Clear streamLists");
                     clearStreamLists();
                     _strokeBack = false;
+                    _kanjiPreferredNext = false;
+                    _hiraganaPreferredNext = false;
                     bool doDefault = false;
                     bool multiCands = false;
                     switch (deckey) {
@@ -506,7 +511,6 @@ namespace {
                         // 現在の先頭候補以外を削除する
                         LOG_DEBUGH(_T("MULTI_STREAM_SELECT_FIRST: commit first candidate"));
                         //WORD_LATTICE->selectFirst();
-                        WORD_LATTICE->clearKanjiXorHiraganaPreferredNextCands();
                         WORD_LATTICE->removeOtherThanFirst();
                         break;
                     case HISTORY_FULL_CAND_DECKEY:
@@ -557,14 +561,12 @@ namespace {
                     case MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY:
                         // 次の打鍵を漢字のみ通す
                         LOG_DEBUGH(_T("MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY"));
-                        //WORD_LATTICE->removeOtherThanFirst();
-                        WORD_LATTICE->setKanjiXorHiraganaPreferredNextCands(true);
+                        _kanjiPreferredNext = true;
                         break;
                     case MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY:
                         // 次の打鍵をひらがなのみ通す
                         LOG_DEBUGH(_T("MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY"));
-                        //WORD_LATTICE->removeOtherThanFirst();
-                        WORD_LATTICE->setKanjiXorHiraganaPreferredNextCands(false);
+                        _hiraganaPreferredNext = true;
                         break;
                     case CLEAR_STROKE_DECKEY:
                         _LOG_DETAIL(_T("CLEAR_STROKE_DECKEY: DO NOTHING"));
@@ -575,6 +577,9 @@ namespace {
                         LOG_DEBUGH(_T("OTHER"));
                         doDefault = true;
                         break;
+                    }
+                    if (!_kanjiPreferredNext && !_hiraganaPreferredNext) {
+                        WORD_LATTICE->clearKanjiXorHiraganaPreferredNext();
                     }
                     if (doDefault) {
                         _isKatakanaConversionMode = false;
@@ -677,7 +682,7 @@ namespace {
             _streamList1.DebugPrintStatesChain(_T("GetResultStringChain::BEGIN: streamList1"));
             _streamList2.DebugPrintStatesChain(_T("GetResultStringChain::BEGIN: streamList2"));
 
-            STATE_COMMON->SetCurrentModeIsMultiStreamInput();
+            //STATE_COMMON->SetCurrentModeIsMultiStreamInput();
 
             LOG_DEBUGH(_T("CHECKPOINT-1"));
             if (!resultStr.isModified() && NextState()) {
@@ -768,10 +773,23 @@ namespace {
                 LOG_DEBUGH(L"CHECKPOINT-9-A: StreamList and WORD_LATTICE are both EMPTY. CALL WORD_LATTICE->clear()");
                 WORD_LATTICE->clear();
                 //MarkUnnecessary();
-                LOG_DEBUGH(_T("ClearCurrentModeIsMultiStreamInput"));
-                STATE_COMMON->ClearCurrentModeIsMultiStreamInput();
+                //LOG_DEBUGH(_T("ClearCurrentModeIsMultiStreamInput"));
+                //STATE_COMMON->ClearCurrentModeIsMultiStreamInput();
             }
             LOG_DEBUGH(_T("CHECKPOINT-10"));
+
+            // 次の打鍵で漢字優先またはかな優先モードにする
+            if (_kanjiPreferredNext) {
+                WORD_LATTICE->removeOtherThanFirst();
+                WORD_LATTICE->setKanjiPreferredNext();
+                STATE_COMMON->SetCenterString(L"漢字");
+                _kanjiPreferredNext = false;
+            } else if (_hiraganaPreferredNext) {
+                WORD_LATTICE->removeOtherThanFirst();
+                WORD_LATTICE->setHiraganaPreferredNext();
+                STATE_COMMON->SetCenterString(L"かな");
+                _hiraganaPreferredNext = false;
+            }
 
             _streamList1.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList1"));
             _streamList2.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList2"));

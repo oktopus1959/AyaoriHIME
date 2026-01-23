@@ -113,9 +113,15 @@ public:
 
     virtual void removeOtherThanFirst() = 0;
 
-    virtual void setKanjiXorHiraganaPreferredNextCands(bool) = 0;
+    virtual void setKanjiPreferredNext() = 0;
 
-    virtual void clearKanjiXorHiraganaPreferredNextCands() = 0;
+    virtual bool isKanjiPreferredNext() const = 0;
+
+    virtual void setHiraganaPreferredNext() = 0;
+
+    virtual bool isHiraganaPreferredNext() const = 0;
+
+    virtual void clearKanjiXorHiraganaPreferredNext() = 0;
 
     virtual bool isEmpty() = 0;
 
