@@ -103,7 +103,7 @@ namespace KanchokuWS
         public const int SecondStroke = 1;
 
         /// <summary> 交ぜ書き変換候補選択中</summary>
-        public const int MazeCandSelecting = 2;
+        //public const int MazeCandSelecting = 2;
 
         /// <summary> 履歴候補選択中</summary>
         public const int HistCandSelecting = 3;
@@ -140,7 +140,7 @@ namespace KanchokuWS
         /// <summary> 現在英数モード</summary>
         public const uint CurrentModeIsEisu = 0x1000;
         /// <summary>現在配列融合モードの入力中</summary>
-        public const uint CurrentModeIsMultiStreamInput = 0x2000;
+        //public const uint CurrentModeIsMultiStreamInput = 0x2000;
         /// <summary>溜っている出力文字列をフラッシュする</summary>
         public const uint FlushOutputString = 0x40000;
     }
@@ -155,7 +155,7 @@ namespace KanchokuWS
         public static bool IsWaiting2ndStroke(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.SecondStroke; }
 
         /// <summary>交ぜ書き変換候補選択中か</summary>
-        public static bool IsMazeCandSelecting(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.MazeCandSelecting; }
+        //public static bool IsMazeCandSelecting(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.MazeCandSelecting; }
 
         /// <summary>履歴候補選択中か</summary>
         public static bool IsHistCandSelecting(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.HistCandSelecting; }
@@ -192,7 +192,7 @@ namespace KanchokuWS
         public static bool IsDecoderEisuMode(this DecoderOutParams output) { return (output.resultFlags & ResultFlags.CurrentModeIsEisu) != 0; }
 
         /// <summary>デコーダが配列融合モードの入力中になっているか</summary>
-        public static bool IsDecoderMultiStreamInput(this DecoderOutParams output) { return (output.resultFlags & ResultFlags.CurrentModeIsMultiStreamInput) != 0; }
+        //public static bool IsDecoderMultiStreamInput(this DecoderOutParams output) { return (output.resultFlags & ResultFlags.CurrentModeIsMultiStreamInput) != 0; }
 
         /// <summary>溜っている出力文字列をフラッシュするか</summary>
         public static bool IsFlushOutputString(this DecoderOutParams output) { return (output.resultFlags & ResultFlags.FlushOutputString) != 0; }

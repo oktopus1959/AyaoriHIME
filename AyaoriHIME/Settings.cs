@@ -448,7 +448,7 @@ namespace KanchokuWS
         public static string BgColorOnWaiting2ndStroke { get; private set; }
 
         /// <summary>交ぜ書き変換時の中央鍵盤背景色 </summary>
-        public static string BgColorForMazegaki { get; private set; }
+        //public static string BgColorForMazegaki { get; private set; }
 
         /// <summary>履歴・連想選択時の中央鍵盤背景色 </summary>
         public static string BgColorForHistOrAssoc { get; private set; }
@@ -472,7 +472,10 @@ namespace KanchokuWS
         public static string BgColorForMultiStreamMode { get; private set; }
 
         /// <summary>漢直・かな融合モードの入力中の中央鍵盤背景色 </summary>
-        public static string BgColorForMultiStreamInput { get; private set; }
+        //public static string BgColorForMultiStreamInput { get; private set; }
+
+        /// <summary>漢直・かな融合モードの入力中の中央鍵盤背景色 </summary>
+        public static string BgColorForUnusualMode { get; private set; }
 
         //-------------------------------------------------------------------------------------
         /// <summary>漢直モード標識の文字色</summary>
@@ -1522,7 +1525,7 @@ namespace KanchokuWS
             BgColorNextStrokeCell = GetString("bgColorNextStrokeCell", "LightPink");
 
             BgColorOnWaiting2ndStroke = GetString("bgColorOnWaiting2ndStroke", "Yellow");
-            BgColorForMazegaki = GetString("bgColorForMazegaki", "Plum");
+            //BgColorForMazegaki = GetString("bgColorForMazegaki", "Plum");
             BgColorForHistOrAssoc = GetString("bgColorForHistOrAssoc", "PaleTurquoise");
             BgColorForFirstCandidate = GetString("bgColorForFirstCandidate", "PaleGreen");
             BgColorOnSelected = GetString("bgColorOnSelected", "LightPink");
@@ -1530,7 +1533,8 @@ namespace KanchokuWS
             BgColorForSecondaryTable = GetString("bgColorForSecondaryTable", "LightGreen");
             BgColorForKanaTrainingMode = GetString("bgColorForKanaTrainingMode", "LightPink");
             BgColorForMultiStreamMode = GetString("bgColorForMultiStreamMode", "LightGreen");
-            BgColorForMultiStreamInput = GetString("bgColorForMultiStreamMInput", "Plum");
+            //BgColorForMultiStreamInput = GetString("bgColorForMultiStreamMInput", "Plum");
+            BgColorForUnusualMode = GetString("bgColorForUnusualMode", "DeepPink");
 
             //-------------------------------------------------------------------------------------
             KanjiModeMarkerForeColor = GetString("kanjiModeMarkerForeColor", "Blue");

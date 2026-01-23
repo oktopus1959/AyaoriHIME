@@ -1655,8 +1655,8 @@ namespace KanchokuWS
                 string name = null;
                 if (decoderOutput.IsWaiting2ndStroke()) {
                     name = Settings.BgColorOnWaiting2ndStroke;
-                } else if (decoderOutput.IsMazeCandSelecting()) {
-                    name = Settings.BgColorForMazegaki;
+                //} else if (decoderOutput.IsMazeCandSelecting()) {
+                //    name = Settings.BgColorForMazegaki;
                 } else if (decoderOutput.IsHistCandSelecting()) {
                     name = Settings.BgColorForHistOrAssoc;
                 } else if (decoderOutput.IsAssocCandSelecting()) {
@@ -1670,12 +1670,13 @@ namespace KanchokuWS
                     name = Settings.BgColorForKanaTrainingMode;     // かな入力練習モードのとき
                 }
                 if (name._isEmpty() && Settings.MultiStreamMode) {
-                    if (decoderOutput.IsDecoderMultiStreamInput())
-                        name = Settings.BgColorForMultiStreamInput;    // 配列融合モードの入力中のとき
-                    else if (Settings.UseTmpRealtimeNgramFile || Logger.IsWarnEnabled)
-                        name = Settings.BgColorForKanaTrainingMode;    // 一時的なリアルタイムNgramファイルを使っているとき、または、LogLevelがWARN以上のとき
+                    //if (decoderOutput.IsDecoderMultiStreamInput())
+                    //    name = Settings.BgColorForMultiStreamInput;     // 配列融合モードの入力中のとき
+                    //else
+                    if (Settings.UseTmpRealtimeNgramFile || Logger.IsWarnEnabled)
+                        name = Settings.BgColorForUnusualMode;          // 一時的なリアルタイムNgramファイルを使っているとき、または、LogLevelがWARN以上のとき
                     else
-                        name = Settings.BgColorForMultiStreamMode;     // 配列融合モードの入力待ちとき
+                        name = Settings.BgColorForMultiStreamMode;      // 配列融合モードの入力待ちとき
                 }
                 if (name._notEmpty()) {
                     var color = Color.FromName(name);

@@ -77,7 +77,7 @@ enum class ResultFlags
     CurrentModeIsEisu = 0x1000,
 
     // 現在配列融合モードの入力中
-    CurrentModeIsMultiStreamInput = 0x2000,
+    //CurrentModeIsMultiStreamInput = 0x2000,
 
     // 溜っている出力文字列をフラッシュする
     FlushOutputString = 0x40000,
@@ -96,7 +96,7 @@ enum class ExpectedKeyType
     SecondStroke = 1,
 
     // 交ぜ書き変換候補選択中
-    MazeCandSelecting = 2,
+    //MazeCandSelecting = 2,
 
     // 履歴候補選択中
     HistCandSelecting = 3,
@@ -283,12 +283,12 @@ public:
     inline void SetCurrentModeIsKatakana() { SetResultFlag(ResultFlags::CurrentModeIsKatakana); }
     inline void SetCurrentModeIsEisu() { SetResultFlag(ResultFlags::CurrentModeIsEisu); }
     inline void ClearCurrentModeIsEisu() { ResetResultFlag(ResultFlags::CurrentModeIsEisu); }
-    inline void SetCurrentModeIsMultiStreamInput() { SetResultFlag(ResultFlags::CurrentModeIsMultiStreamInput); }
-    inline void ClearCurrentModeIsMultiStreamInput() { ResetResultFlag(ResultFlags::CurrentModeIsMultiStreamInput); }
+    //inline void SetCurrentModeIsMultiStreamInput() { SetResultFlag(ResultFlags::CurrentModeIsMultiStreamInput); }
+    //inline void ClearCurrentModeIsMultiStreamInput() { ResetResultFlag(ResultFlags::CurrentModeIsMultiStreamInput); }
     inline void SetFlushOutputString() { SetResultFlag(ResultFlags::FlushOutputString); }
 
     inline void SetWaiting2ndStroke() { nextExpectedKeyType = ExpectedKeyType::SecondStroke; }
-    inline void SetMazeCandSelecting() { nextExpectedKeyType = ExpectedKeyType::MazeCandSelecting; }
+    //inline void SetMazeCandSelecting() { nextExpectedKeyType = ExpectedKeyType::MazeCandSelecting; }
     inline void SetHistCandSelecting() { nextExpectedKeyType = ExpectedKeyType::HistCandSelecting; }
     inline void SetAssocCandSelecting() { nextExpectedKeyType = ExpectedKeyType::AssocCandSelecting; }
     inline void SetOtherStatus() { nextExpectedKeyType = ExpectedKeyType::OtherStatus; }
@@ -332,7 +332,7 @@ public:
     //inline bool IsSetToggleInitialStrokeHelp() const { return IsResultFlagOn(ResultFlags::ToggleInitialStrokeHelp); }
 
     inline bool IsWaiting2ndStroke() const { return nextExpectedKeyType == ExpectedKeyType::SecondStroke; }
-    inline bool IsMazeCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::MazeCandSelecting; }
+    //inline bool IsMazeCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::MazeCandSelecting; }
     inline bool IsHistCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::HistCandSelecting; }
     inline bool IsAssocCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::AssocCandSelecting; }
     inline bool IsOtherStatus() const { return nextExpectedKeyType == ExpectedKeyType::OtherStatus; }

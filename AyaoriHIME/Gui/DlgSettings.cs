@@ -1160,7 +1160,7 @@ namespace KanchokuWS.Gui
 
             // 中央鍵盤背景色
             textBox_on2ndStrokeBackColor.Text= Settings.BgColorOnWaiting2ndStroke;
-            textBox_onMazegaki.Text= Settings.BgColorForMazegaki;
+            //textBox_onMazegaki.Text= Settings.BgColorForMazegaki;
             textBox_onHistAssoc.Text= Settings.BgColorForHistOrAssoc;
             textBox_onBushuCompHelp.Text= Settings.BgColorForBushuCompHelp;
             textBox_onSecondaryTable.Text= Settings.BgColorForSecondaryTable;

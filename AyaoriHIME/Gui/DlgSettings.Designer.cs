@@ -2794,8 +2794,10 @@ namespace KanchokuWS.Gui
             this.tabPage_fontColor.Controls.Add(this.groupBox5);
             this.tabPage_fontColor.Controls.Add(this.label_okResultFontColor);
             this.tabPage_fontColor.Controls.Add(this.button_fontColorClose);
+            this.tabPage_fontColor.Controls.Add(this.textBox_onMazegaki);
             this.tabPage_fontColor.Controls.Add(this.button_fontColorEnter);
             this.tabPage_fontColor.Controls.Add(this.textBox_onSecondaryTable);
+            this.tabPage_fontColor.Controls.Add(this.label51);
             this.tabPage_fontColor.Location = new System.Drawing.Point(4, 24);
             this.tabPage_fontColor.Name = "tabPage_fontColor";
             this.tabPage_fontColor.Size = new System.Drawing.Size(711, 393);
@@ -2869,14 +2871,12 @@ namespace KanchokuWS.Gui
             this.groupBox24.Controls.Add(this.textBox_onBushuCompHelp);
             this.groupBox24.Controls.Add(this.label38);
             this.groupBox24.Controls.Add(this.textBox_onHistAssoc);
-            this.groupBox24.Controls.Add(this.textBox_onMazegaki);
             this.groupBox24.Controls.Add(this.textBox_on2ndStrokeBackColor);
             this.groupBox24.Controls.Add(this.label52);
-            this.groupBox24.Controls.Add(this.label51);
             this.groupBox24.Controls.Add(this.label11);
             this.groupBox24.Location = new System.Drawing.Point(302, 107);
             this.groupBox24.Name = "groupBox24";
-            this.groupBox24.Size = new System.Drawing.Size(243, 173);
+            this.groupBox24.Size = new System.Drawing.Size(243, 150);
             this.groupBox24.TabIndex = 3;
             this.groupBox24.TabStop = false;
             this.groupBox24.Text = "中央鍵盤背景色";
@@ -2885,11 +2885,11 @@ namespace KanchokuWS.Gui
             // 
             this.textBox_onMultiStreamMode.BackColor = System.Drawing.Color.White;
             this.textBox_onMultiStreamMode.ForBackColor = true;
-            this.textBox_onMultiStreamMode.Location = new System.Drawing.Point(103, 119);
+            this.textBox_onMultiStreamMode.Location = new System.Drawing.Point(103, 18);
             this.textBox_onMultiStreamMode.Name = "textBox_onMultiStreamMode";
             this.textBox_onMultiStreamMode.ReadOnly = true;
             this.textBox_onMultiStreamMode.Size = new System.Drawing.Size(132, 23);
-            this.textBox_onMultiStreamMode.TabIndex = 4;
+            this.textBox_onMultiStreamMode.TabIndex = 0;
             this.toolTip1.SetToolTip(this.textBox_onMultiStreamMode, "漢直・かな融合モード時の中央鍵盤背景色\r\n\r\n漢直・かな融合モードの場合の中央鍵盤の\r\n背景色を設定します。\r\n（ここをクリックすると設定ダイアログが開きます。）" +
         "");
             // 
@@ -2897,18 +2897,18 @@ namespace KanchokuWS.Gui
             // 
             this.textBox_onKanaTrainingMode.BackColor = System.Drawing.Color.White;
             this.textBox_onKanaTrainingMode.ForBackColor = true;
-            this.textBox_onKanaTrainingMode.Location = new System.Drawing.Point(103, 144);
+            this.textBox_onKanaTrainingMode.Location = new System.Drawing.Point(103, 119);
             this.textBox_onKanaTrainingMode.Name = "textBox_onKanaTrainingMode";
             this.textBox_onKanaTrainingMode.ReadOnly = true;
             this.textBox_onKanaTrainingMode.Size = new System.Drawing.Size(132, 23);
-            this.textBox_onKanaTrainingMode.TabIndex = 5;
+            this.textBox_onKanaTrainingMode.TabIndex = 4;
             this.toolTip1.SetToolTip(this.textBox_onKanaTrainingMode, "かな入力練習モード時の中央鍵盤背景色\r\n\r\nかな入力練習モードに切り替えた場合の中央鍵盤の\r\n背景色を設定します。\r\n（ここをクリックすると設定ダイアログが開きま" +
         "す。）");
             // 
             // label100
             // 
             this.label100.AutoSize = true;
-            this.label100.Location = new System.Drawing.Point(20, 148);
+            this.label100.Location = new System.Drawing.Point(20, 123);
             this.label100.Name = "label100";
             this.label100.Size = new System.Drawing.Size(76, 15);
             this.label100.TabIndex = 15;
@@ -2917,7 +2917,7 @@ namespace KanchokuWS.Gui
             // label105
             // 
             this.label105.AutoSize = true;
-            this.label105.Location = new System.Drawing.Point(20, 123);
+            this.label105.Location = new System.Drawing.Point(20, 22);
             this.label105.Name = "label105";
             this.label105.Size = new System.Drawing.Size(81, 15);
             this.label105.TabIndex = 13;
@@ -2959,22 +2959,23 @@ namespace KanchokuWS.Gui
             // 
             this.textBox_onMazegaki.BackColor = System.Drawing.Color.White;
             this.textBox_onMazegaki.ForBackColor = true;
-            this.textBox_onMazegaki.Location = new System.Drawing.Point(103, 44);
+            this.textBox_onMazegaki.Location = new System.Drawing.Point(570, 138);
             this.textBox_onMazegaki.Name = "textBox_onMazegaki";
             this.textBox_onMazegaki.ReadOnly = true;
             this.textBox_onMazegaki.Size = new System.Drawing.Size(132, 23);
             this.textBox_onMazegaki.TabIndex = 1;
             this.toolTip1.SetToolTip(this.textBox_onMazegaki, "交ぜ書き変換時の中央鍵盤背景色\r\n\r\n交ぜ書き変換時の中央鍵盤の背景色を設定します。\r\n（ここをクリックすると設定ダイアログが開きます。）");
+            this.textBox_onMazegaki.Visible = false;
             // 
             // textBox_on2ndStrokeBackColor
             // 
             this.textBox_on2ndStrokeBackColor.BackColor = System.Drawing.Color.White;
             this.textBox_on2ndStrokeBackColor.ForBackColor = true;
-            this.textBox_on2ndStrokeBackColor.Location = new System.Drawing.Point(103, 19);
+            this.textBox_on2ndStrokeBackColor.Location = new System.Drawing.Point(103, 43);
             this.textBox_on2ndStrokeBackColor.Name = "textBox_on2ndStrokeBackColor";
             this.textBox_on2ndStrokeBackColor.ReadOnly = true;
             this.textBox_on2ndStrokeBackColor.Size = new System.Drawing.Size(132, 23);
-            this.textBox_on2ndStrokeBackColor.TabIndex = 0;
+            this.textBox_on2ndStrokeBackColor.TabIndex = 1;
             this.toolTip1.SetToolTip(this.textBox_on2ndStrokeBackColor, "第2打鍵待ちの時の中央鍵盤背景色\r\n\r\n第2打鍵の入力を待っている時の中央鍵盤の\r\n背景色を設定します。\r\n（ここをクリックすると設定ダイアログが開きます。）");
             // 
             // label52
@@ -2989,16 +2990,17 @@ namespace KanchokuWS.Gui
             // label51
             // 
             this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(20, 48);
+            this.label51.Location = new System.Drawing.Point(559, 120);
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(74, 15);
             this.label51.TabIndex = 7;
             this.label51.Text = "交ぜ書き変換";
+            this.label51.Visible = false;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(20, 23);
+            this.label11.Location = new System.Drawing.Point(20, 47);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(70, 15);
             this.label11.TabIndex = 5;
