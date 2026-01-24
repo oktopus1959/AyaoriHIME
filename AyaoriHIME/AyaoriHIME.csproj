@@ -217,6 +217,7 @@
     <Compile Include="Forms\FrmModeMarker.Designer.cs">
       <DependentUpon>FrmModeMarker.cs</DependentUpon>
     </Compile>
+    <Compile Include="Handler\FunctionalDescParser.cs" />
     <Compile Include="Handler\GUIThreadInfo.cs" />
     <Compile Include="Handler\IMEHandler.cs" />
     <Compile Include="Handler\ModifierKeyState.cs" />

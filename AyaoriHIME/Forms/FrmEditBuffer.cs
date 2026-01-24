@@ -117,12 +117,13 @@ namespace KanchokuWS.Forms
                 (str._isEmpty() ||
                 (str._safeCount() == 1 && isSpace(chars[0])) ||
                 (Settings.OutputHeadSymbol && str._safeCount() == 1 && isNonAlaphaNumericZenkakuJapanese(chars[0])) ||
-                HandlerUtils.IsFKeySpec(str) || HandlerUtils.IsTernaryOperator(str))) {
+                FunctionalDescParser.IsFunctionalDescStart(str, 0) || TernaryOperatorParser.IsTernaryOperator(str))) {
                 logger.InfoH($"REDIRECT");
-                var kf = HandlerUtils.GetFKeySpec(str);
-                if (kf != null && kf.IsFunction) {
-                    logger.InfoH($"CALL: FuncDispatcher({kf.DecKey})");
-                    frmMain.FuncDispatcher(kf.DecKey, -1, 0, false);
+                var funcInfo = FunctionalDescParser.Parse(str, 0);
+                if (funcInfo != null && funcInfo.KeyOrFunc != null && funcInfo.KeyOrFunc.IsFunction) {
+                    // "!{DECKEY_NAME}" の形式で、特殊機能キー(TOGGLE_DECKEYなど)の場合
+                    logger.InfoH($"CALL: FuncDispatcher({funcInfo.KeyOrFunc})");
+                    frmMain.FuncDispatcher(funcInfo.KeyOrFunc.DecKey, -1, 0, false);
                 } else {
                     // 何もせずに、呼び出し元に任せる
                     logger.InfoH(() => $"CALL: SendStringViaClipboardIfNeeded({str}, {numBS}, true)");
@@ -257,7 +258,7 @@ namespace KanchokuWS.Forms
                                 handleFunctionalKey(sb.ToString());
                             } else {
                                 if (str[pos] == '(' && str[str.Length - 1] == ')') {
-                                    var value = Handler.HandlerUtils.ParseTernaryOperator(str._safeSubstring(pos), "@");
+                                    var value = Handler.TernaryOperatorParser.Parse(str._safeSubstring(pos), "@");
                                     logger.InfoH($"value={value}");
                                     if (value._notEmpty()) {
                                         str = value;
