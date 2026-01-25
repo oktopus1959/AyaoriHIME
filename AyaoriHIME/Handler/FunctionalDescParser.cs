@@ -76,7 +76,7 @@ namespace KanchokuWS.Handler
         /// <returns></returns>
         public static bool IsFunctionalDescStart(string str, int pos)
         {
-            return (str[pos] == '!' && (pos + 1) < str.Length && str[pos + 1] == '{');    // "!{"
+            return (str != null && (pos + 1) < str.Length && str[pos] == '!' && str[pos + 1] == '{');    // "!{"
         }
 
         /// <summary>
@@ -167,20 +167,6 @@ namespace KanchokuWS.Handler
             var keyOrFunc = SpecialKeysAndFunctions.GetKeyOrFuncByName(name);
 
             return new FunctionalKeyInfo(right, mod, name, alias, vkey, keyOrFunc, repeatCount, startPos, pos);
-        }
-    }
-
-    public class TernaryOperatorInfo
-    {
-        public string Condition;    // 3項演算子の条件式
-        public FunctionalKeyInfo First;
-        public FunctionalKeyInfo Second;
-
-        public TernaryOperatorInfo(string cond, FunctionalKeyInfo f, FunctionalKeyInfo s)
-        {
-            Condition = cond;
-            First = f;
-            Second = s;
         }
     }
 
