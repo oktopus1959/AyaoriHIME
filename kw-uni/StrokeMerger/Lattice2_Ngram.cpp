@@ -143,7 +143,7 @@ namespace lattice2 {
         int count = realtimeNgramBonusCounts[word] += delta;
         realtimeNgram_updated = true;
         if (manualSelect) {
-            LOG_WARNH(L"Manual select: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
+            LOG_INFOH(L"Manual select: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
         } else {
             LOG_DEBUGH(L"Auto update: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
         }
@@ -195,7 +195,7 @@ namespace lattice2 {
 
     // 候補選択による、リアルタイムNgramの増加・減少
     void _updateRealtimeNgramForDiffPart(bool bIncrease, const MString& baseCand, const MString& diffCand) {
-        LOG_WARNH(L"ENTER: bIncrease={}, baseCand={}, diffCand={}", bIncrease, to_wstr(baseCand), to_wstr(diffCand));
+        LOG_INFOH(L"ENTER: bIncrease={}, baseCand={}, diffCand={}", bIncrease, to_wstr(baseCand), to_wstr(diffCand));
         int prevDiffPos = -10;
         int baseSize = (int)baseCand.size();
         int diffSize = (int)diffCand.size();
@@ -225,15 +225,15 @@ namespace lattice2 {
                 prevDiffPos = pos;
             }
         }
-        LOG_WARNH(L"LEAVE");
+        LOG_INFOH(L"LEAVE");
     }
 
     // 候補選択による、リアルタイムNgramの蒿上げと抑制
     void updateRealtimeNgramByUserSelect(const MString& oldCand, const MString& newCand) {
-        LOG_WARNH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
+        LOG_INFOH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
         _updateRealtimeNgramForDiffPart(true, oldCand, newCand);
         _updateRealtimeNgramForDiffPart(false, newCand, oldCand);
-        LOG_WARNH(L"LEAVE");
+        LOG_INFOH(L"LEAVE");
     }
 
     int _getNgramBonus(const MString& word, std::map<MString, int>& ngramMap) {

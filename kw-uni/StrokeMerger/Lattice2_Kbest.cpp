@@ -699,7 +699,7 @@ namespace lattice2 {
             }
             if (newCandidates.size() > maxCandidatesSize) {
                 maxCandidatesSize = newCandidates.size();
-                LOG_WARNH(_T("max newCandidates.size updated: {}"), maxCandidatesSize);
+                _LOG_DETAIL(_T("max newCandidates.size updated: {}"), maxCandidatesSize);
             }
         }
 
@@ -790,6 +790,7 @@ namespace lattice2 {
             int singleHitHighFreqJoshiCost = piece.strokeLen() > 1 && isSingleHitHighFreqJoshi(strokeCount - (piece.strokeLen() - 1)) ? SINGLE_HIT_HIGH_FREQ_JOSHI_KANJI_COST : 0;
 
             std::vector<CandidateString> targetCandidates;
+            // 素片のストロークと適合する候補を抽出
             for (const auto& cand : _candidates) {
                 //if (topStrokeLen < 0) topStrokeLen = cand.strokeLen();
                 bool bStrokeCountMatched = (piece.isPadding() && cand.strokeLen() + paddingLen == strokeCount) || (cand.strokeLen() + piece.strokeLen() == strokeCount);
@@ -797,6 +798,12 @@ namespace lattice2 {
                     cand.strokeLen(), piece.strokeLen(), strokeCount, paddingLen, (bStrokeCountMatched ? L"MATCH" : L"UNMATCH"));
                 if (isStrokeBS || bStrokeCountMatched) {
                     targetCandidates.push_back(cand);
+                }
+            }
+            if (targetCandidates.empty()) {
+                LOG_WARNH(_T("No target candidates matched.: piece.strokeLen()={}, strokeCount={}, paddingLen={}"), piece.strokeLen(), strokeCount, paddingLen);
+                for (int i = 0; i < (int)_candidates.size() && i < SETTINGS->multiStreamBeamSize * 2; ++i) {
+                    LOG_WARNH(_T("cand={}"), _candidates[i].debugString());
                 }
             }
             if (targetCandidates.size() > 1) {
