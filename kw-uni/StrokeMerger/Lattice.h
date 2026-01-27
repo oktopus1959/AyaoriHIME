@@ -141,6 +141,10 @@ public:
 
     virtual bool hasMultiCandidates() const = 0;
 
+    virtual void enableCandidateLog(bool enabled) = 0;
+
+    virtual bool isCandidateLogEnabled() = 0;
+
     virtual void saveCandidateLog() = 0;
 
     static void createLattice();

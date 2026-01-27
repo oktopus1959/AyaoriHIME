@@ -594,6 +594,12 @@ public:
             } else if (cmd == _T("SaveDumpTable")) {
                 // デバッグ用テーブルを作成してファイルに書き出す
                 VkbTableMaker::SaveDumpTable();
+            } else if (cmd == _T("enableCandidateLog")) {
+                // 融合候補の表示を有効化する
+                WORD_LATTICE->enableCandidateLog(true);
+            } else if (cmd == _T("disableCandidateLog")) {
+                // 融合候補の表示を無効化する
+                WORD_LATTICE->enableCandidateLog(false);
             } else if (cmd == _T("saveCandidateLog")) {
                 // 解候補ログをファイルに書き出す
                 WORD_LATTICE->saveCandidateLog();

@@ -183,6 +183,7 @@ namespace KanchokuWS
             //dlg._showTopMost();
             //dlgCandidateLog.MoveCaretToTail();
             dlgCandidateLog = dlg;
+            ExecCmdDecoder("enableCandidateLog", null);
             logger.DebugH("LEAVE");
         }
 
@@ -211,6 +212,7 @@ namespace KanchokuWS
             logger.DebugH("CALLED");
             dlgCandidateLog?.Close();
             dlgCandidateLog = null;
+            ExecCmdDecoder("disableCandidateLog", null);
         }
 
         public void NotifyToCloseDlgCandidateLog()

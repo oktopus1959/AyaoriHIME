@@ -519,7 +519,7 @@ namespace lattice2 {
                 _LOG_DETAIL(_T("CALC: candStr={}, myTotalCost={}, candCost={} (morph={}[<{}>], ngram={})"),
                     to_wstr(candStr), myTotalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost);
 
-                if (IS_LOG_DEBUGH_ENABLED) {
+                if (WORD_LATTICE->isCandidateLogEnabled()) {
                     if (!isStrokeBS) _debugLog.append(std::format(L"candStr={}, myTotalCost={}, candCost={} (morph={} [<{}>] , ngram = {})\n",
                         to_wstr(candStr), myTotalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost));
                 }

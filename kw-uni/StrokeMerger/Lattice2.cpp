@@ -40,7 +40,9 @@ namespace lattice2 {
             return n;
         }
 
-        Deque<String> _debugLogQueue;
+        bool _candidateLogEnabled = false;
+
+        Deque<String> _candidateLogQueue;
 
         String formatStringOfWordPieces(const std::vector<WordPiece>& pieces) {
             return utils::join(utils::select<String>(pieces, [](WordPiece p){return p.debugString();}), _T("|"));
@@ -239,12 +241,12 @@ namespace lattice2 {
             outStr = utils::safe_substr(outStr, commonLen);
 
             _LOG_DETAIL(_T("OUTPUT: {}, numBS={}\n\n{}"), to_wstr(outStr), numBS, _kBestList->debugKBestString());
-            if (IS_LOG_DEBUGH_ENABLED) {
-                while (_debugLogQueue.size() >= 10) _debugLogQueue.pop_front();
-                _debugLogQueue.push_back(std::format(L"========================================\nENTER: currentStrokeCount={}, pieces: {}\n",
+            if (_candidateLogEnabled) {
+                while (_candidateLogQueue.size() >= 10) _candidateLogQueue.pop_front();
+                _candidateLogQueue.push_back(std::format(L"========================================\nENTER: currentStrokeCount={}, pieces: {}\n",
                     currentStrokeCount, formatStringOfWordPieces(pieces)));
                 if (pieces.back().numBS() <= 0) {
-                    _debugLogQueue.push_back(std::format(L"\n{}\nOUTPUT: {}, numBS={}\n\n", _kBestList->debugKBestString(SETTINGS->multiStreamBeamSize), to_wstr(outStr), numBS));
+                    _candidateLogQueue.push_back(std::format(L"\n{}\nOUTPUT: {}, numBS={}\n\n", _kBestList->debugKBestString(SETTINGS->multiStreamBeamSize), to_wstr(outStr), numBS));
                 }
             }
 
@@ -262,13 +264,24 @@ namespace lattice2 {
             return LatticeResult(outStr, numBS);
         }
 
+        // 融合候補の表示を有効化・無効化する
+        void enableCandidateLog(bool enabled) override {
+            LOG_INFO(_T("CALLED: enabled={}"), enabled);
+            _candidateLogEnabled = enabled;
+        }
+
+        bool isCandidateLogEnabled() override {
+            LOG_INFO(_T("CALLED: enabled={}"), _candidateLogEnabled);
+            return _candidateLogEnabled;
+        }
+
         // 融合候補の表示
         void saveCandidateLog() override {
             LOG_INFO(_T("ENTER"));
             String result;
-            while (!_debugLogQueue.empty()) {
-                result.append(_debugLogQueue.front());
-                _debugLogQueue.pop_front();
+            while (!_candidateLogQueue.empty()) {
+                result.append(_candidateLogQueue.front());
+                _candidateLogQueue.pop_front();
             }
             LOG_INFO(L"result: {}", result);
             utils::OfstreamWriter writer(utils::joinPath(SETTINGS->rootDir, SETTINGS->mergerCandidateFile));
