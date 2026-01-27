@@ -28,7 +28,8 @@ namespace KanchokuWS.Gui
             checkBox_outputDebugTableFiles.Checked = Settings.OutputDebugTableFiles;
             checkBox_showHiddleFolder.Checked = Settings.ShowHiddleFolder;
             checkBox_multiAppEnabled.Checked = Settings.MultiAppEnabled;
-            button_displayKeyInfos.Visible = checkBox_multiAppEnabled.Checked;
+            checkBox_keyLoggingEnabled.Checked = Settings.KeyLoggingEnabled;
+            button_displayKeyInfos.Visible = checkBox_keyLoggingEnabled.Checked;
             textBox_warnThresholdKeyQueueCount.Text = Settings.WarnThresholdKeyQueueCount.ToString();
         }
 
@@ -48,6 +49,7 @@ namespace KanchokuWS.Gui
             checkerDevelop.Add(checkBox_outputDebugTableFiles);
             checkerDevelop.Add(checkBox_showHiddleFolder);
             checkerDevelop.Add(checkBox_multiAppEnabled);
+            checkerDevelop.Add(checkBox_keyLoggingEnabled);
             checkerDevelop.Add(textBox_warnThresholdKeyQueueCount);
 
             checkerAll.Add(checkerDevelop);
@@ -70,6 +72,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("outputDebugTableFiles", checkBox_outputDebugTableFiles.Checked);
             Settings.SetUserIni("showHiddleFolder", checkBox_showHiddleFolder.Checked);
             Settings.SetUserIni("multiAppEnabled", checkBox_multiAppEnabled.Checked);
+            Settings.SetUserIni("keyLoggingEnabled", checkBox_keyLoggingEnabled.Checked);
             Settings.SetUserIni("warnThresholdKeyQueueCount", textBox_warnThresholdKeyQueueCount.Text);
 
             //Settings.ReadIniFile();

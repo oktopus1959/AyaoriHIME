@@ -101,6 +101,9 @@ namespace KanchokuWS
         /// <summary>二重起動を許可する</summary>
         public static bool MultiAppEnabled { get; private set; }
 
+        /// <summary>キー入力履歴を許可する</summary>
+        public static bool KeyLoggingEnabled { get; private set; }
+
         /// <summary>部首合成ログを有効にする</summary>
         public static bool BushuDicLogEnabled { get; private set; }
 
@@ -1306,6 +1309,7 @@ namespace KanchokuWS
             LoggingVirtualKeyboardInfo = GetString("loggingVirtualKeyboardInfo")._parseBool();
             LoggingTableFileInfo = GetString("loggingTableFileInfo")._parseBool();
             MultiAppEnabled = IsMultiAppEnabled();
+            KeyLoggingEnabled = GetString("keyLoggingEnabled")._parseBool();
             WarnThresholdKeyQueueCount = GetString("warnThresholdKeyQueueCount")._parseInt(6);
             OutputDebugTableFiles = GetString("outputDebugTableFiles")._parseBool();
             ShowHiddleFolder = GetString("showHiddleFolder")._parseBool();

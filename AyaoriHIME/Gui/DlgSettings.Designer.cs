@@ -607,6 +607,7 @@ namespace KanchokuWS.Gui
             this.button_developSaveDebugTableFile = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.checkBox_keyLoggingEnabled = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -7216,6 +7217,7 @@ namespace KanchokuWS.Gui
             this.tabPage_develop.Controls.Add(this.dgvAbout);
             this.tabPage_develop.Controls.Add(this.button_developClose);
             this.tabPage_develop.Controls.Add(this.button_developSaveDebugTableFile);
+            this.tabPage_develop.Controls.Add(this.checkBox_bushuDicLogEnabled);
             this.tabPage_develop.Location = new System.Drawing.Point(4, 24);
             this.tabPage_develop.Name = "tabPage_develop";
             this.tabPage_develop.Size = new System.Drawing.Size(711, 393);
@@ -7266,6 +7268,8 @@ namespace KanchokuWS.Gui
             // groupBox15
             // 
             this.groupBox15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox15.Controls.Add(this.label_testCount);
+            this.groupBox15.Controls.Add(this.checkBox_keyLoggingEnabled);
             this.groupBox15.Controls.Add(this.button_saveMorphLog);
             this.groupBox15.Controls.Add(this.button_developSaveLog);
             this.groupBox15.Controls.Add(this.button_displayKeyInfos);
@@ -7273,12 +7277,10 @@ namespace KanchokuWS.Gui
             this.groupBox15.Controls.Add(this.checkBox_loggingTableFileInfo);
             this.groupBox15.Controls.Add(this.checkBox_showHiddleFolder);
             this.groupBox15.Controls.Add(this.checkBox_outputDebugTableFiles);
-            this.groupBox15.Controls.Add(this.label_testCount);
             this.groupBox15.Controls.Add(this.textBox_warnThresholdKeyQueueCount);
             this.groupBox15.Controls.Add(this.label119);
             this.groupBox15.Controls.Add(this.button_developTest);
             this.groupBox15.Controls.Add(this.checkBox_testAll);
-            this.groupBox15.Controls.Add(this.checkBox_bushuDicLogEnabled);
             this.groupBox15.Controls.Add(this.checkBox_multiAppEnabled);
             this.groupBox15.Controls.Add(this.checkBox_loggingVirtualKeyboardInfo);
             this.groupBox15.Controls.Add(this.checkBox_loggingDecKeyInfo);
@@ -7288,14 +7290,14 @@ namespace KanchokuWS.Gui
             this.groupBox15.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.groupBox15.Location = new System.Drawing.Point(12, 241);
             this.groupBox15.Name = "groupBox15";
-            this.groupBox15.Size = new System.Drawing.Size(558, 146);
+            this.groupBox15.Size = new System.Drawing.Size(558, 145);
             this.groupBox15.TabIndex = 1;
             this.groupBox15.TabStop = false;
             this.groupBox15.Text = "開発者用設定";
             // 
             // button_saveMorphLog
             // 
-            this.button_saveMorphLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_saveMorphLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_saveMorphLog.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.button_saveMorphLog.Location = new System.Drawing.Point(416, 14);
             this.button_saveMorphLog.Name = "button_saveMorphLog";
@@ -7308,7 +7310,7 @@ namespace KanchokuWS.Gui
             // 
             // button_developSaveLog
             // 
-            this.button_developSaveLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_developSaveLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_developSaveLog.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.button_developSaveLog.Location = new System.Drawing.Point(313, 14);
             this.button_developSaveLog.Name = "button_developSaveLog";
@@ -7323,7 +7325,7 @@ namespace KanchokuWS.Gui
             // 
             this.button_displayKeyInfos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_displayKeyInfos.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_displayKeyInfos.Location = new System.Drawing.Point(448, 89);
+            this.button_displayKeyInfos.Location = new System.Drawing.Point(448, 88);
             this.button_displayKeyInfos.Name = "button_displayKeyInfos";
             this.button_displayKeyInfos.Size = new System.Drawing.Size(104, 23);
             this.button_displayKeyInfos.TabIndex = 14;
@@ -7345,7 +7347,6 @@ namespace KanchokuWS.Gui
             // 
             // checkBox_loggingTableFileInfo
             // 
-            this.checkBox_loggingTableFileInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_loggingTableFileInfo.AutoSize = true;
             this.checkBox_loggingTableFileInfo.Location = new System.Drawing.Point(220, 83);
             this.checkBox_loggingTableFileInfo.Name = "checkBox_loggingTableFileInfo";
@@ -7356,9 +7357,8 @@ namespace KanchokuWS.Gui
             // 
             // checkBox_showHiddleFolder
             // 
-            this.checkBox_showHiddleFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_showHiddleFolder.AutoSize = true;
-            this.checkBox_showHiddleFolder.Location = new System.Drawing.Point(21, 122);
+            this.checkBox_showHiddleFolder.Location = new System.Drawing.Point(220, 102);
             this.checkBox_showHiddleFolder.Name = "checkBox_showHiddleFolder";
             this.checkBox_showHiddleFolder.Size = new System.Drawing.Size(115, 19);
             this.checkBox_showHiddleFolder.TabIndex = 9;
@@ -7367,7 +7367,6 @@ namespace KanchokuWS.Gui
             // 
             // checkBox_outputDebugTableFiles
             // 
-            this.checkBox_outputDebugTableFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_outputDebugTableFiles.AutoSize = true;
             this.checkBox_outputDebugTableFiles.Location = new System.Drawing.Point(21, 102);
             this.checkBox_outputDebugTableFiles.Name = "checkBox_outputDebugTableFiles";
@@ -7380,7 +7379,7 @@ namespace KanchokuWS.Gui
             // 
             this.label_testCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label_testCount.AutoSize = true;
-            this.label_testCount.Location = new System.Drawing.Point(250, 124);
+            this.label_testCount.Location = new System.Drawing.Point(250, 123);
             this.label_testCount.MinimumSize = new System.Drawing.Size(174, 15);
             this.label_testCount.Name = "label_testCount";
             this.label_testCount.Size = new System.Drawing.Size(174, 15);
@@ -7410,7 +7409,7 @@ namespace KanchokuWS.Gui
             // 
             this.button_developTest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_developTest.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_developTest.Location = new System.Drawing.Point(477, 118);
+            this.button_developTest.Location = new System.Drawing.Point(477, 117);
             this.button_developTest.Name = "button_developTest";
             this.button_developTest.Size = new System.Drawing.Size(75, 23);
             this.button_developTest.TabIndex = 13;
@@ -7422,7 +7421,7 @@ namespace KanchokuWS.Gui
             // 
             this.checkBox_testAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.checkBox_testAll.AutoSize = true;
-            this.checkBox_testAll.Location = new System.Drawing.Point(430, 122);
+            this.checkBox_testAll.Location = new System.Drawing.Point(430, 121);
             this.checkBox_testAll.Name = "checkBox_testAll";
             this.checkBox_testAll.Size = new System.Drawing.Size(50, 19);
             this.checkBox_testAll.TabIndex = 12;
@@ -7431,29 +7430,27 @@ namespace KanchokuWS.Gui
             // 
             // checkBox_bushuDicLogEnabled
             // 
-            this.checkBox_bushuDicLogEnabled.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_bushuDicLogEnabled.AutoSize = true;
-            this.checkBox_bushuDicLogEnabled.Location = new System.Drawing.Point(220, 102);
+            this.checkBox_bushuDicLogEnabled.Location = new System.Drawing.Point(530, 195);
             this.checkBox_bushuDicLogEnabled.Name = "checkBox_bushuDicLogEnabled";
             this.checkBox_bushuDicLogEnabled.Size = new System.Drawing.Size(168, 19);
             this.checkBox_bushuDicLogEnabled.TabIndex = 8;
             this.checkBox_bushuDicLogEnabled.Text = "部首合成結果をログ出力する";
             this.checkBox_bushuDicLogEnabled.UseVisualStyleBackColor = true;
+            this.checkBox_bushuDicLogEnabled.Visible = false;
             // 
             // checkBox_multiAppEnabled
             // 
-            this.checkBox_multiAppEnabled.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_multiAppEnabled.AutoSize = true;
-            this.checkBox_multiAppEnabled.Location = new System.Drawing.Point(142, 122);
+            this.checkBox_multiAppEnabled.Location = new System.Drawing.Point(20, 121);
             this.checkBox_multiAppEnabled.Name = "checkBox_multiAppEnabled";
-            this.checkBox_multiAppEnabled.Size = new System.Drawing.Size(200, 19);
+            this.checkBox_multiAppEnabled.Size = new System.Drawing.Size(126, 19);
             this.checkBox_multiAppEnabled.TabIndex = 10;
-            this.checkBox_multiAppEnabled.Text = "二重起動とキー入力履歴を許可する";
+            this.checkBox_multiAppEnabled.Text = "二重起動を許可する";
             this.checkBox_multiAppEnabled.UseVisualStyleBackColor = true;
             // 
             // checkBox_loggingVirtualKeyboardInfo
             // 
-            this.checkBox_loggingVirtualKeyboardInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_loggingVirtualKeyboardInfo.AutoSize = true;
             this.checkBox_loggingVirtualKeyboardInfo.Location = new System.Drawing.Point(21, 83);
             this.checkBox_loggingVirtualKeyboardInfo.Name = "checkBox_loggingVirtualKeyboardInfo";
@@ -7464,7 +7461,6 @@ namespace KanchokuWS.Gui
             // 
             // checkBox_loggingDecKeyInfo
             // 
-            this.checkBox_loggingDecKeyInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_loggingDecKeyInfo.AutoSize = true;
             this.checkBox_loggingDecKeyInfo.Location = new System.Drawing.Point(21, 64);
             this.checkBox_loggingDecKeyInfo.Name = "checkBox_loggingDecKeyInfo";
@@ -7475,7 +7471,6 @@ namespace KanchokuWS.Gui
             // 
             // checkBox_loggingActiveWindowInfo
             // 
-            this.checkBox_loggingActiveWindowInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_loggingActiveWindowInfo.AutoSize = true;
             this.checkBox_loggingActiveWindowInfo.Location = new System.Drawing.Point(220, 64);
             this.checkBox_loggingActiveWindowInfo.Name = "checkBox_loggingActiveWindowInfo";
@@ -7561,6 +7556,16 @@ namespace KanchokuWS.Gui
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // checkBox_keyLoggingEnabled
+            // 
+            this.checkBox_keyLoggingEnabled.AutoSize = true;
+            this.checkBox_keyLoggingEnabled.Location = new System.Drawing.Point(220, 121);
+            this.checkBox_keyLoggingEnabled.Name = "checkBox_keyLoggingEnabled";
+            this.checkBox_keyLoggingEnabled.Size = new System.Drawing.Size(143, 19);
+            this.checkBox_keyLoggingEnabled.TabIndex = 16;
+            this.checkBox_keyLoggingEnabled.Text = "キー入力履歴を許可する";
+            this.checkBox_keyLoggingEnabled.UseVisualStyleBackColor = true;
             // 
             // DlgSettings
             // 
@@ -8290,5 +8295,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.CheckBox checkBox_multiCandidateMode;
         private System.Windows.Forms.Button button_mazeFAQ;
         private System.Windows.Forms.Button button_multiStreamFAQ;
+        private System.Windows.Forms.CheckBox checkBox_keyLoggingEnabled;
     }
 }
