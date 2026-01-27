@@ -18,6 +18,8 @@ namespace lattice2 {
 #define USER_NGRAM_FILE             JOIN_USER_FILES_FOLDER(L"user.ngram.txt")
 //#define USER_COST_FILE              JOIN_USER_FILES_FOLDER(L"userword.cost.txt")
 
+    const static int DATE_PATTERN_BONUMS_POINT = 100;
+
     // 利用者の選択によって嵩上げされるNgramに課されるボーナスを計算するためのベースとなるカウント
     std::map<MString, int> realtimeNgramBonusCounts;
 
@@ -109,7 +111,7 @@ namespace lattice2 {
                 if (writer.success()) {
                     for (const auto& pair : realtimeNgramBonusCounts) {
                         String line;
-                        int count = pair.second;
+                        //int count = pair.second;
                         //if (count < 0 || count > 1 || (count == 1 && Reporting::Logger::IsWarnEnabled())) {
                             // count が 0 または 1 の N-gramは無視する
                             line.append(to_wstr(pair.first));           // 単語
@@ -256,7 +258,7 @@ namespace lattice2 {
     //    return get_base_ngram_cost(utils::last_substr(s1, 1) + utils::safe_substr(s2, 0, 1)) / 2;
     //}
 
-    std::wregex kanjiDateTime(L"年[一二三四五六七八九十]+月?|[一二三四五六七八九十]+月[一二三四五六七八九十]?|月[一二三四五六七八九十]+日?|[一二三四五六七八九十]+日");
+    std::wregex kanjiDateTime(L"[一二三四五六七八九十〇](年[一二三四五六七八九十〇]+月|月[一二三四五六七八九十〇]+日|[一二三四五六七八九十〇]日)");
 
     // Ngramコストの取得
     int getNgramCost(const MString& str, bool bUseGeta) {
@@ -270,10 +272,18 @@ namespace lattice2 {
         if (targetStr.size() >= 2) {
             for (size_t pos = 0 ; pos < targetStr.size() - 1; ++pos) {
                 // realtimeおよびユーザー定義による2gramと3gramのボーナスを差し引く
-                cost -= getNgramBonus(utils::safe_substr(targetStr, pos, 2));
+                int bonus = getNgramBonus(utils::safe_substr(targetStr, pos, 2));
                 if (pos + 2 < targetStr.size()) {
-                    cost -= getNgramBonus(utils::safe_substr(targetStr, pos, 3));
+                    int bonus2 = getNgramBonus(utils::safe_substr(targetStr, pos, 3));
+                    if (bonus2 == 0) {
+                        // 3gramボーナスがなければ、「M月N日」パターンに該当するか確認
+                        if (utils::reMatch(to_wstr(targetStr), kanjiDateTime)) {
+                            bonus2 = SETTINGS->ngramBonusPointFactor * DATE_PATTERN_BONUMS_POINT;
+                        }
+                    }
+                    bonus += bonus2;
                 }
+                cost -= bonus;
             }
         }
         _LOG_DETAIL(L"LEAVE: cost={}, adjusted cost={} (* NGRAM_COST_FACTOR({}))", cost, cost* SETTINGS->ngramCostFactor, SETTINGS->ngramCostFactor);
