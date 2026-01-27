@@ -1885,6 +1885,8 @@ namespace KanchokuWS.Gui
             checkBox_useEditBuffer.Checked = Settings.UseEditBuffer;
             checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbolSub;
             checkBox_outputHeadSymbol.Enabled = Settings.UseEditBuffer;
+            textBox_mergerCandidateMin.Text = $"{Settings.MergerCandidateMin}";
+            textBox_mergerCandidateMax.Text = $"{Settings.MergerCandidateMax}";
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
             textBox_ngramManualSelectDelta.Text = $"{Settings.NgramManualSelectDelta}";
@@ -1925,6 +1927,8 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(checkBox_strokeBackByBS);
             checkerFusion.Add(checkBox_useEditBuffer);
             checkerFusion.Add(checkBox_outputHeadSymbol);
+            checkerFusion.Add(textBox_mergerCandidateMin);
+            checkerFusion.Add(textBox_mergerCandidateMax);
             checkerFusion.Add(textBox_multiStreamBeamSize);
             checkerFusion.Add(textBox_remainingStrokeSize);
             checkerFusion.Add(textBox_ngramManualSelectDelta);
@@ -1963,6 +1967,8 @@ namespace KanchokuWS.Gui
             if (checkBox_useEditBuffer.Checked) {
                 Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);
             }
+            Settings.SetUserIni("mergerCandidateMin", textBox_mergerCandidateMin.Text);
+            Settings.SetUserIni("mergerCandidateMax", textBox_mergerCandidateMax.Text);
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
             Settings.SetUserIni("ngramManualSelectDelta", textBox_ngramManualSelectDelta.Text);
