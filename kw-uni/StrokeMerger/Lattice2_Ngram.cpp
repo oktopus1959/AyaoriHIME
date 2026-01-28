@@ -29,10 +29,10 @@ namespace lattice2 {
     // 利用者定義のボーナスを計算するためのカウント
     std::map<MString, int> userNgramBonusCounts;
 
-    // ボーナスの加減算の対象にならない固定Ngramリスト
-    std::set<MString> fixedNgrams;
+    // ボーナスの加減算の対象にならない固定Ngramリスト (user.ngram.txt で、カウントの先頭が FIXED_NGRAM_MARKER のもの)
+    std::map<MString, int> fixedNgramBonusCounts;
 
-    const static int FIXED_NGRAM_ID = -9999;
+    const static wchar_t FIXED_NGRAM_MARKER = L'$';
 
     //--------------------------------------------------------------------------------------
 #if 0
@@ -76,14 +76,19 @@ namespace lattice2 {
             for (const auto& line : reader.getAllLines()) {
                 auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
                 if (items.size() == 2 &&
-                    items[0].size() >= 2 && items[0].size() <= 3 &&         // 2-3gramに限定
-                    items[0][0] != L'#' && isDecimalString(items[1])) {
+                    items[0].size() >= 2 && items[0].size() <= 3 && items[0][0] != L'#' &&         // 2-3gramに限定
+                    !items[1].empty()) {
 
-                    int count = std::stoi(items[1]);
                     MString word = to_mstr(items[0]);
-                    if (count == FIXED_NGRAM_ID) {
-                        fixedNgrams.insert(word);
-                    } else {
+                    String sCount = items[1];
+                    if (sCount.size() >= 2 && sCount[0] == FIXED_NGRAM_MARKER && isDecimalString(sCount.substr(1))) {
+                        // 固定Ngram
+                        int count = std::stoi(sCount.substr(1));
+                        if (count == 0) count = 1;   // 0 は 1 に補正
+                        _LOG_DETAIL(L"Fixed Ngram: word={}, count={}", to_wstr(word), count);
+                        fixedNgramBonusCounts[word] = count;
+                    } else if (isDecimalString(sCount)) {
+                        int count = std::stoi(sCount);
                         ngramMap[word] = count;
                         if (maxFreq < count) maxFreq = count;
                     }
@@ -100,7 +105,7 @@ namespace lattice2 {
         LOG_INFO(L"ENTER");
         realtimeNgramBonusCounts.clear();
         _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgramBonusCounts);
-        fixedNgrams.clear();
+        fixedNgramBonusCounts.clear();
         userNgramBonusCounts.clear();
         _loadNgramFile(USER_NGRAM_FILE, userNgramBonusCounts);
         maxCandidatesSize = 0;
@@ -145,7 +150,36 @@ namespace lattice2 {
     //    return ch == ' ' || ch == '|';
     //}
 
+    int _getFixedNgramBonusPoint(const MString& word) {
+        int bonusPoint = 0;
+        auto iter = fixedNgramBonusCounts.find(word);
+        if (iter != fixedNgramBonusCounts.end()) {
+            bonusPoint = iter->second;
+        } else if (word.size() > 2) {
+            // 3文字以上のNgramについて、先頭または末尾2文字が固定Ngramである場合、そのボーナスを適用する
+            MString head2 = word.substr(0, 2);
+            iter = fixedNgramBonusCounts.find(head2);
+            if (iter != fixedNgramBonusCounts.end()) {
+                bonusPoint = iter->second;
+            } else {
+                MString tail2 = word.substr(word.size() - 2, 2);
+                iter = fixedNgramBonusCounts.find(tail2);
+                if (iter != fixedNgramBonusCounts.end()) {
+                    bonusPoint = iter->second;
+                }
+            }
+        }
+        _LOG_DETAIL(L"{}: bonusPoint={}", to_wstr(word), bonusPoint);
+        return bonusPoint;
+    }
+
     void _updateRealtimeNgramCountByWord(bool bIncrease, const MString& word, bool manualSelect) {
+        if (manualSelect) {
+            if (_getFixedNgramBonusPoint(word) != 0) {
+                _LOG_DETAIL(L"Manual select: {} is FIXED ngram, ignored.", to_wstr(word));
+                return;
+            }
+        }
         int delta = manualSelect ? SETTINGS->ngramManualSelectDelta : 1;
         if (!bIncrease) {
             delta = -delta;
@@ -153,7 +187,7 @@ namespace lattice2 {
         int count = realtimeNgramBonusCounts[word] += delta;
         realtimeNgram_updated = true;
         if (manualSelect) {
-            LOG_INFOH(L"Manual select: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
+            _LOG_DETAIL(L"Manual select: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
         } else {
             LOG_DEBUGH(L"Auto update: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
         }
@@ -260,7 +294,10 @@ namespace lattice2 {
 
     // realtimeおよびユーザー定義による2gramと3gramのボーナスを取得
     int getNgramBonus(const MString& word) {
-        int bonusPoint0 = _getNgramBonusPoint(word, realtimeNgramBonusCounts) + _getNgramBonusPoint(word, userNgramBonusCounts);
+        int bonusPoint0 = _getFixedNgramBonusPoint(word);
+        if (bonusPoint0 == 0) {
+            bonusPoint0 = _getNgramBonusPoint(word, realtimeNgramBonusCounts) + _getNgramBonusPoint(word, userNgramBonusCounts);
+        }
         int bonusPoint = bonusPoint0;
         if (bonusPoint > SETTINGS->ngramMaxBonusPoint) {
             bonusPoint = SETTINGS->ngramMaxBonusPoint;
