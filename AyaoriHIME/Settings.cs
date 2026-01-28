@@ -207,6 +207,9 @@ namespace KanchokuWS
         /// <summary>形態素コストに対するNgramコストの係数</summary>
         public static int NgramCostFactor { get; set; } = 5;
 
+        /// <summary>Ngramに与えるボーナスポイントの最大値</summary>
+        public static int NgramMaxBonusPoint{ get; set; } = 100;
+
         /// <summary>嵩上げされたNgramに与えるボーナスの係数</summary>
         public static int NgramBonusPointFactor { get; set; } = 100;
 
@@ -1868,6 +1871,7 @@ namespace KanchokuWS
             MorphMazeConnectionPenalty = addDecoderSetting("morphMazeConnectionPenalty", 1000); // 交ぜ書きエントリの接続に対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
+            NgramMaxBonusPoint = addDecoderSetting("ngramMaxBonusPoint", 25);                   // Ngramに与えるボーナスポイントの最大値
             NgramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 250);            // 嵩上げされたNgramに与えるボーナスの係数
             NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 5);            // 候補選択によるNgramカウントの変動幅
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする

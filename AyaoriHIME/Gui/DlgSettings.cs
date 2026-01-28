@@ -1890,6 +1890,7 @@ namespace KanchokuWS.Gui
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
             textBox_ngramManualSelectDelta.Text = $"{Settings.NgramManualSelectDelta}";
+            textBox_ngramMaxBonusPoint.Text = $"{Settings.NgramMaxBonusPoint}";
             textBox_ngramBonusPointFactor.Text = $"{Settings.NgramBonusPointFactor}";
             textBox_maxStrokeBackCount.Text = $"{Settings.MaxStrokeBackCount}";
             textBox_challengeNumForSameLeader.Text = $"{Settings.ChallengeNumForSameLeader}";
@@ -1932,6 +1933,7 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(textBox_multiStreamBeamSize);
             checkerFusion.Add(textBox_remainingStrokeSize);
             checkerFusion.Add(textBox_ngramManualSelectDelta);
+            checkerFusion.Add(textBox_ngramMaxBonusPoint);
             checkerFusion.Add(textBox_ngramBonusPointFactor);
             checkerFusion.Add(textBox_maxStrokeBackCount);
             checkerFusion.Add(textBox_challengeNumForSameLeader);
@@ -1972,6 +1974,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
             Settings.SetUserIni("ngramManualSelectDelta", textBox_ngramManualSelectDelta.Text);
+            Settings.SetUserIni("ngramMaxBonusPoint", textBox_ngramMaxBonusPoint.Text);
             Settings.SetUserIni("ngramBonusPointFactor", textBox_ngramBonusPointFactor.Text);
             Settings.SetUserIni("maxStrokeBackCount", textBox_maxStrokeBackCount.Text);
             Settings.SetUserIni("challengeNumForSameLeader", textBox_challengeNumForSameLeader.Text);

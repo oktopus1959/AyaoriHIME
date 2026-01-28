@@ -121,7 +121,8 @@ struct Settings {
     int morphMazeConnectionPenalty = 1000;  // 交ぜ書きエントリの接続に対するペナルティ
     int morphNonTerminalCost = 5000;        // 非終端形態素の単語コスト
     int ngramCostFactor = 5;                // 形態素コストに対するNgramコストの係数
-    int ngramBonusPointFactor = 100;        // 嵩上げされたNgramに与えるボーナスの係数;
+    int ngramMaxBonusPoint = 25;            // Ngramに与えるボーナスポイントの最大値
+    int ngramBonusPointFactor = 100;        // 嵩上げされたNgramに与えるボーナスの係数
     int ngramManualSelectDelta = 10;        // 候補選択によるNgramカウントの変動幅
     int mazegakiBonusPointFactor = 1000;    // 交ぜ書きで選択された候補に対するボーナス
     //bool commitByPunctuation = true;        // 句読点でコミットする

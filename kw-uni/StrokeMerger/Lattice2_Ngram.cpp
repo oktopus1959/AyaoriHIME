@@ -246,13 +246,12 @@ namespace lattice2 {
         LOG_INFOH(L"LEAVE");
     }
 
-    int _getNgramBonus(const MString& word, std::map<MString, int>& ngramMap) {
+    int _getNgramBonusPoint(const MString& word, std::map<MString, int>& ngramMap) {
         auto iter = ngramMap.find(word);
         if (iter != ngramMap.end()) {
-            int bonusCount = iter->second;
-            if (bonusCount > 0) {
-                int bonusPoint = bonusCount * SETTINGS->ngramBonusPointFactor;
-                _LOG_DETAIL(L"{}: bonusCount={}, bonusPoint={}", to_wstr(word), bonusCount, bonusPoint);
+            int bonusPoint = iter->second;
+            if (bonusPoint > 0) {
+                _LOG_DETAIL(L"{}: bonusPoint={}", to_wstr(word), bonusPoint);
                 return bonusPoint;
             }
         }
@@ -261,7 +260,19 @@ namespace lattice2 {
 
     // realtimeおよびユーザー定義による2gramと3gramのボーナスを取得
     int getNgramBonus(const MString& word) {
-        return _getNgramBonus(word, realtimeNgramBonusCounts) + _getNgramBonus(word, userNgramBonusCounts);
+        int bonusPoint0 = _getNgramBonusPoint(word, realtimeNgramBonusCounts) + _getNgramBonusPoint(word, userNgramBonusCounts);
+        int bonusPoint = bonusPoint0;
+        if (bonusPoint > SETTINGS->ngramMaxBonusPoint) {
+            bonusPoint = SETTINGS->ngramMaxBonusPoint;
+        } else if (bonusPoint < -SETTINGS->ngramMaxBonusPoint) {
+            bonusPoint = -SETTINGS->ngramMaxBonusPoint;
+        }
+        if (bonusPoint != bonusPoint0) {
+            _LOG_DETAIL(L"bonusPoint CLIPPED from {} to {}", bonusPoint0, bonusPoint);
+        }
+        int bonus = bonusPoint * SETTINGS->ngramBonusPointFactor;
+        _LOG_DETAIL(L"BONUS={}: bonusPoint={} (orig={})", bonus, bonusPoint, bonusPoint0);
+        return bonus;
     }
 
     //int getWordConnCost(const MString& s1, const MString& s2) {
@@ -272,7 +283,7 @@ namespace lattice2 {
 
     // Ngramコストの取得
     int getNgramCost(const MString& str, bool bUseGeta) {
-        _LOG_DETAIL(L"ENTER: str={}: geta={}", to_wstr(str), bUseGeta);
+        _LOG_DETAIL(L"\nENTER: str={}: geta={}", to_wstr(str), bUseGeta);
         std::vector<MString> ngrams;
         MString targetStr = bUseGeta ? MSTR_GETA + str : str;
         int cost0 = NgramBridge::ngramCalcCost(targetStr, ngrams, SETTINGS->multiStreamDetailLog);

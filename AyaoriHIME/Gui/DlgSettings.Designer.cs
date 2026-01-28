@@ -612,6 +612,8 @@ namespace KanchokuWS.Gui
             this.textBox_onMazegaki = new KanchokuWS.Gui.ColorTextBox();
             this.textBox_onSecondaryTable = new KanchokuWS.Gui.ColorTextBox();
             this.checkBox_multiStreamDetailLog = new System.Windows.Forms.CheckBox();
+            this.textBox_ngramMaxBonusPoint = new System.Windows.Forms.TextBox();
+            this.label128 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -6074,6 +6076,8 @@ namespace KanchokuWS.Gui
             // 
             // groupBox34
             // 
+            this.groupBox34.Controls.Add(this.textBox_ngramMaxBonusPoint);
+            this.groupBox34.Controls.Add(this.label128);
             this.groupBox34.Controls.Add(this.textBox_ngramBonusPointFactor);
             this.groupBox34.Controls.Add(this.label89);
             this.groupBox34.Controls.Add(this.textBox_ngramManualSelectDelta);
@@ -6088,7 +6092,7 @@ namespace KanchokuWS.Gui
             this.groupBox34.Controls.Add(this.label91);
             this.groupBox34.Location = new System.Drawing.Point(376, 12);
             this.groupBox34.Name = "groupBox34";
-            this.groupBox34.Size = new System.Drawing.Size(316, 159);
+            this.groupBox34.Size = new System.Drawing.Size(316, 180);
             this.groupBox34.TabIndex = 3;
             this.groupBox34.TabStop = false;
             this.groupBox34.Text = "実験的設定";
@@ -6096,7 +6100,7 @@ namespace KanchokuWS.Gui
             // textBox_ngramBonusPointFactor
             // 
             this.textBox_ngramBonusPointFactor.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramBonusPointFactor.Location = new System.Drawing.Point(157, 85);
+            this.textBox_ngramBonusPointFactor.Location = new System.Drawing.Point(157, 107);
             this.textBox_ngramBonusPointFactor.Name = "textBox_ngramBonusPointFactor";
             this.textBox_ngramBonusPointFactor.Size = new System.Drawing.Size(34, 19);
             this.textBox_ngramBonusPointFactor.TabIndex = 3;
@@ -6145,7 +6149,7 @@ namespace KanchokuWS.Gui
             // textBox_maxStrokeBackCount
             // 
             this.textBox_maxStrokeBackCount.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_maxStrokeBackCount.Location = new System.Drawing.Point(16, 112);
+            this.textBox_maxStrokeBackCount.Location = new System.Drawing.Point(16, 131);
             this.textBox_maxStrokeBackCount.Name = "textBox_maxStrokeBackCount";
             this.textBox_maxStrokeBackCount.Size = new System.Drawing.Size(34, 19);
             this.textBox_maxStrokeBackCount.TabIndex = 4;
@@ -6154,7 +6158,7 @@ namespace KanchokuWS.Gui
             // label46
             // 
             this.label46.AutoSize = true;
-            this.label46.Location = new System.Drawing.Point(52, 114);
+            this.label46.Location = new System.Drawing.Point(52, 133);
             this.label46.Name = "label46";
             this.label46.Size = new System.Drawing.Size(201, 15);
             this.label46.TabIndex = 77;
@@ -6181,7 +6185,7 @@ namespace KanchokuWS.Gui
             // textBox_challengeNumForSameLeader
             // 
             this.textBox_challengeNumForSameLeader.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_challengeNumForSameLeader.Location = new System.Drawing.Point(16, 135);
+            this.textBox_challengeNumForSameLeader.Location = new System.Drawing.Point(16, 154);
             this.textBox_challengeNumForSameLeader.Name = "textBox_challengeNumForSameLeader";
             this.textBox_challengeNumForSameLeader.Size = new System.Drawing.Size(34, 19);
             this.textBox_challengeNumForSameLeader.TabIndex = 5;
@@ -6190,7 +6194,7 @@ namespace KanchokuWS.Gui
             // label157
             // 
             this.label157.AutoSize = true;
-            this.label157.Location = new System.Drawing.Point(52, 137);
+            this.label157.Location = new System.Drawing.Point(52, 156);
             this.label157.Name = "label157";
             this.label157.Size = new System.Drawing.Size(257, 15);
             this.label157.TabIndex = 41;
@@ -6199,7 +6203,7 @@ namespace KanchokuWS.Gui
             // label91
             // 
             this.label91.AutoSize = true;
-            this.label91.Location = new System.Drawing.Point(13, 87);
+            this.label91.Location = new System.Drawing.Point(13, 109);
             this.label91.Name = "label91";
             this.label91.Size = new System.Drawing.Size(113, 15);
             this.label91.TabIndex = 81;
@@ -6358,7 +6362,7 @@ namespace KanchokuWS.Gui
             this.groupBox41.Controls.Add(this.textBox_realtimeNgram);
             this.groupBox41.Controls.Add(this.button_raiseRealtimeNgram);
             this.groupBox41.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox41.Location = new System.Drawing.Point(506, 245);
+            this.groupBox41.Location = new System.Drawing.Point(504, 280);
             this.groupBox41.Name = "groupBox41";
             this.groupBox41.Size = new System.Drawing.Size(196, 44);
             this.groupBox41.TabIndex = 58;
@@ -6430,7 +6434,7 @@ namespace KanchokuWS.Gui
             "▴",
             "⏐",
             "‸"});
-            this.comboBox_editBufferCaretChar.Location = new System.Drawing.Point(646, 225);
+            this.comboBox_editBufferCaretChar.Location = new System.Drawing.Point(644, 260);
             this.comboBox_editBufferCaretChar.Name = "comboBox_editBufferCaretChar";
             this.comboBox_editBufferCaretChar.Size = new System.Drawing.Size(55, 20);
             this.comboBox_editBufferCaretChar.TabIndex = 57;
@@ -6440,7 +6444,7 @@ namespace KanchokuWS.Gui
             // label163
             // 
             this.label163.AutoSize = true;
-            this.label163.Location = new System.Drawing.Point(474, 227);
+            this.label163.Location = new System.Drawing.Point(472, 262);
             this.label163.Name = "label163";
             this.label163.Size = new System.Drawing.Size(132, 15);
             this.label163.TabIndex = 55;
@@ -6549,7 +6553,7 @@ namespace KanchokuWS.Gui
             this.groupBox52.Controls.Add(this.checkBox_rightShift);
             this.groupBox52.Controls.Add(this.checkBox_leftAlt);
             this.groupBox52.Controls.Add(this.checkBox_rightAlt);
-            this.groupBox52.Location = new System.Drawing.Point(394, 192);
+            this.groupBox52.Location = new System.Drawing.Point(392, 227);
             this.groupBox52.Name = "groupBox52";
             this.groupBox52.Size = new System.Drawing.Size(217, 53);
             this.groupBox52.TabIndex = 75;
@@ -7617,6 +7621,26 @@ namespace KanchokuWS.Gui
             this.checkBox_multiStreamDetailLog.Text = "配列融合の詳細ログを出力する";
             this.checkBox_multiStreamDetailLog.UseVisualStyleBackColor = true;
             // 
+            // textBox_ngramMaxBonusPoint
+            // 
+            this.textBox_ngramMaxBonusPoint.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_ngramMaxBonusPoint.Location = new System.Drawing.Point(157, 85);
+            this.textBox_ngramMaxBonusPoint.Name = "textBox_ngramMaxBonusPoint";
+            this.textBox_ngramMaxBonusPoint.Size = new System.Drawing.Size(34, 19);
+            this.textBox_ngramMaxBonusPoint.TabIndex = 82;
+            this.textBox_ngramMaxBonusPoint.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_ngramMaxBonusPoint, "コスト計算においてボーナスポイントに乗ずる係数\r\n\r\n通常入力や候補選択で蓄積されたボーナスポイントに対して、ここで設定する\r\n係数を乗じたボーナス値を、Ngra" +
+        "m計算によるコストから減じます。");
+            // 
+            // label128
+            // 
+            this.label128.AutoSize = true;
+            this.label128.Location = new System.Drawing.Point(13, 87);
+            this.label128.Name = "label128";
+            this.label128.Size = new System.Drawing.Size(125, 15);
+            this.label128.TabIndex = 83;
+            this.label128.Text = "ボーナスポイントの最大値";
+            // 
             // DlgSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -8350,5 +8374,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label113;
         private System.Windows.Forms.TextBox textBox_mergerCandidateMin;
         private System.Windows.Forms.CheckBox checkBox_multiStreamDetailLog;
+        private System.Windows.Forms.TextBox textBox_ngramMaxBonusPoint;
+        private System.Windows.Forms.Label label128;
     }
 }
