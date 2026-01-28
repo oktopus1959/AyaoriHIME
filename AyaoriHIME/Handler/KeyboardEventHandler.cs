@@ -50,9 +50,9 @@ namespace KanchokuWS.Handler
 
         private void appendKeyInfo(bool bDown, uint vkey, int scanCode, uint flags, int extraInfo)
         {
-            if (Settings.MultiAppEnabled) {
+            if (Settings.KeyLoggingEnabled) {
                 strokeLogQueue.Enqueue(new KeyInfo(bDown, vkey, scanCode, flags, extraInfo));
-                if (strokeLogQueue.Count > 100) strokeLogQueue.Dequeue();
+                if (strokeLogQueue.Count > 200) strokeLogQueue.Dequeue();
             }
         }
 
