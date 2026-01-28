@@ -294,6 +294,10 @@ namespace lattice2 {
                     }
                 }
                 bonus = bonus2 + bonus3;
+                if (bonus2 != 0 && bonus3 != 0) {
+                    // 2gramと3gramの両方にボーナスがある場合は平均を取る
+                    bonus /= 2;
+                }
                 cost -= bonus;
                 _LOG_DETAIL(L"pos={}, word={}, cost={}, bonus={} (2gram={}, 3gram={})", pos, to_wstr(utils::safe_substr(targetStr, pos, 3)), cost, bonus, bonus2, bonus3);
             }
