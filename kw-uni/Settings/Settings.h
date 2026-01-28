@@ -140,6 +140,7 @@ struct Settings {
     int mergerCandidateMax = 10;            // 解候補ログに出力する最大解数
     bool useEditBuffer = false;             // 編集バッファを使用するか
     String editBufferCaretChar = L"▴";      // 編集バッファのカレット文字
+    bool multiStreamDetailLog = false;      // multi-stream モードでの詳細ログを有効にする
 
     // for Debug
     bool debughState = false;               // State モジュールで DebugH を有効にする

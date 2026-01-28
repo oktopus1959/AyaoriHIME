@@ -163,6 +163,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(loweredContinuousKanjiNum);
     SET_INT_VALUE2(exclusivePrefixCode, -1);
     SET_KEY_VALUE(mergerCandidateFile);
+    SET_BOOL_VALUE(multiStreamDetailLog);
 
     // 機能へのキー割り当ての変更
     RESET_STROKE_FUNC("zenkakuMode");

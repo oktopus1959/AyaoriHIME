@@ -611,6 +611,7 @@ namespace KanchokuWS.Gui
             this.textBox_modeForeColor = new KanchokuWS.Gui.ColorTextBox();
             this.textBox_onMazegaki = new KanchokuWS.Gui.ColorTextBox();
             this.textBox_onSecondaryTable = new KanchokuWS.Gui.ColorTextBox();
+            this.checkBox_multiStreamDetailLog = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -7103,6 +7104,7 @@ namespace KanchokuWS.Gui
             // groupBox15
             // 
             this.groupBox15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox15.Controls.Add(this.checkBox_multiStreamDetailLog);
             this.groupBox15.Controls.Add(this.label_testCount);
             this.groupBox15.Controls.Add(this.checkBox_keyLoggingEnabled);
             this.groupBox15.Controls.Add(this.button_saveMorphLog);
@@ -7146,11 +7148,11 @@ namespace KanchokuWS.Gui
             // checkBox_keyLoggingEnabled
             // 
             this.checkBox_keyLoggingEnabled.AutoSize = true;
-            this.checkBox_keyLoggingEnabled.Location = new System.Drawing.Point(220, 121);
+            this.checkBox_keyLoggingEnabled.Location = new System.Drawing.Point(253, 121);
             this.checkBox_keyLoggingEnabled.Name = "checkBox_keyLoggingEnabled";
-            this.checkBox_keyLoggingEnabled.Size = new System.Drawing.Size(143, 19);
-            this.checkBox_keyLoggingEnabled.TabIndex = 16;
-            this.checkBox_keyLoggingEnabled.Text = "キー入力履歴を許可する";
+            this.checkBox_keyLoggingEnabled.Size = new System.Drawing.Size(124, 19);
+            this.checkBox_keyLoggingEnabled.TabIndex = 11;
+            this.checkBox_keyLoggingEnabled.Text = "キー入力履歴を許可";
             this.checkBox_keyLoggingEnabled.UseVisualStyleBackColor = true;
             // 
             // button_saveMorphLog
@@ -7186,7 +7188,7 @@ namespace KanchokuWS.Gui
             this.button_displayKeyInfos.Location = new System.Drawing.Point(448, 88);
             this.button_displayKeyInfos.Name = "button_displayKeyInfos";
             this.button_displayKeyInfos.Size = new System.Drawing.Size(104, 23);
-            this.button_displayKeyInfos.TabIndex = 14;
+            this.button_displayKeyInfos.TabIndex = 16;
             this.button_displayKeyInfos.Text = "キー入力履歴(&K)";
             this.button_displayKeyInfos.UseVisualStyleBackColor = true;
             this.button_displayKeyInfos.Visible = false;
@@ -7216,7 +7218,7 @@ namespace KanchokuWS.Gui
             // checkBox_showHiddleFolder
             // 
             this.checkBox_showHiddleFolder.AutoSize = true;
-            this.checkBox_showHiddleFolder.Location = new System.Drawing.Point(220, 102);
+            this.checkBox_showHiddleFolder.Location = new System.Drawing.Point(21, 121);
             this.checkBox_showHiddleFolder.Name = "checkBox_showHiddleFolder";
             this.checkBox_showHiddleFolder.Size = new System.Drawing.Size(115, 19);
             this.checkBox_showHiddleFolder.TabIndex = 9;
@@ -7276,11 +7278,11 @@ namespace KanchokuWS.Gui
             // checkBox_multiAppEnabled
             // 
             this.checkBox_multiAppEnabled.AutoSize = true;
-            this.checkBox_multiAppEnabled.Location = new System.Drawing.Point(20, 121);
+            this.checkBox_multiAppEnabled.Location = new System.Drawing.Point(142, 121);
             this.checkBox_multiAppEnabled.Name = "checkBox_multiAppEnabled";
-            this.checkBox_multiAppEnabled.Size = new System.Drawing.Size(126, 19);
+            this.checkBox_multiAppEnabled.Size = new System.Drawing.Size(107, 19);
             this.checkBox_multiAppEnabled.TabIndex = 10;
-            this.checkBox_multiAppEnabled.Text = "二重起動を許可する";
+            this.checkBox_multiAppEnabled.Text = "二重起動を許可";
             this.checkBox_multiAppEnabled.UseVisualStyleBackColor = true;
             // 
             // checkBox_loggingVirtualKeyboardInfo
@@ -7604,6 +7606,16 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.textBox_onSecondaryTable, "副変換テーブル使用時の中央鍵盤背景色\r\n\r\n副変換テーブルに切り替えた場合の中央鍵盤の\r\n背景色を設定します。\r\n（ここをクリックすると設定ダイアログが開きます。" +
         "）");
             this.textBox_onSecondaryTable.Visible = false;
+            // 
+            // checkBox_multiStreamDetailLog
+            // 
+            this.checkBox_multiStreamDetailLog.AutoSize = true;
+            this.checkBox_multiStreamDetailLog.Location = new System.Drawing.Point(220, 102);
+            this.checkBox_multiStreamDetailLog.Name = "checkBox_multiStreamDetailLog";
+            this.checkBox_multiStreamDetailLog.Size = new System.Drawing.Size(178, 19);
+            this.checkBox_multiStreamDetailLog.TabIndex = 8;
+            this.checkBox_multiStreamDetailLog.Text = "配列融合の詳細ログを出力する";
+            this.checkBox_multiStreamDetailLog.UseVisualStyleBackColor = true;
             // 
             // DlgSettings
             // 
@@ -8337,5 +8349,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.TextBox textBox_mergerCandidateMax;
         private System.Windows.Forms.Label label113;
         private System.Windows.Forms.TextBox textBox_mergerCandidateMin;
+        private System.Windows.Forms.CheckBox checkBox_multiStreamDetailLog;
     }
 }

@@ -29,6 +29,11 @@ namespace lattice2 {
     // 利用者定義のボーナスを計算するためのカウント
     std::map<MString, int> userNgramBonusCounts;
 
+    // ボーナスの加減算の対象にならない固定Ngramリスト
+    std::set<MString> fixedNgrams;
+
+    const static int FIXED_NGRAM_ID = -9999;
+
     //--------------------------------------------------------------------------------------
 #if 0
     inline bool all_hiragana(const MString& word) {
@@ -76,8 +81,12 @@ namespace lattice2 {
 
                     int count = std::stoi(items[1]);
                     MString word = to_mstr(items[0]);
-                    ngramMap[word] = count;
-                    if (maxFreq < count) maxFreq = count;
+                    if (count == FIXED_NGRAM_ID) {
+                        fixedNgrams.insert(word);
+                    } else {
+                        ngramMap[word] = count;
+                        if (maxFreq < count) maxFreq = count;
+                    }
                 }
             }
         }
@@ -91,6 +100,7 @@ namespace lattice2 {
         LOG_INFO(L"ENTER");
         realtimeNgramBonusCounts.clear();
         _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgramBonusCounts);
+        fixedNgrams.clear();
         userNgramBonusCounts.clear();
         _loadNgramFile(USER_NGRAM_FILE, userNgramBonusCounts);
         maxCandidatesSize = 0;
@@ -262,31 +272,34 @@ namespace lattice2 {
 
     // Ngramコストの取得
     int getNgramCost(const MString& str, bool bUseGeta) {
-        _LOG_DETAIL(L"ENTER: str={}", to_wstr(str));
+        _LOG_DETAIL(L"ENTER: str={}: geta={}", to_wstr(str), bUseGeta);
         std::vector<MString> ngrams;
         MString targetStr = bUseGeta ? MSTR_GETA + str : str;
-        int cost = NgramBridge::ngramCalcCost(targetStr, ngrams, IS_LOG_INFOH_ENABLED);
-        if (IS_LOG_INFOH_ENABLED) {
-            LOG_INFOH(L"ngrams:\n--------\n{}\n--------", to_wstr(utils::join(ngrams, '\n')));
-        }
+        int cost0 = NgramBridge::ngramCalcCost(targetStr, ngrams, SETTINGS->multiStreamDetailLog);
+        int cost = cost0;
+        _LOG_DETAIL(L"ngrams: initial cost={}\n--------\n{}\n--------", cost, to_wstr(utils::join(ngrams, '\n')));
         if (targetStr.size() >= 2) {
-            for (size_t pos = 0 ; pos < targetStr.size() - 1; ++pos) {
+            for (size_t pos = 0; pos < targetStr.size() - 1; ++pos) {
                 // realtimeおよびユーザー定義による2gramと3gramのボーナスを差し引く
-                int bonus = getNgramBonus(utils::safe_substr(targetStr, pos, 2));
+                int bonus = 0;
+                int bonus2 = getNgramBonus(utils::safe_substr(targetStr, pos, 2));
+                int bonus3 = 0;
                 if (pos + 2 < targetStr.size()) {
-                    int bonus2 = getNgramBonus(utils::safe_substr(targetStr, pos, 3));
-                    if (bonus2 == 0) {
+                    bonus3 = getNgramBonus(utils::safe_substr(targetStr, pos, 3));
+                    if (bonus3 == 0) {
                         // 3gramボーナスがなければ、「M月N日」パターンに該当するか確認
                         if (utils::reMatch(to_wstr(targetStr), kanjiDateTime)) {
-                            bonus2 = SETTINGS->ngramBonusPointFactor * DATE_PATTERN_BONUMS_POINT;
+                            bonus3 = SETTINGS->ngramBonusPointFactor * DATE_PATTERN_BONUMS_POINT;
                         }
                     }
-                    bonus += bonus2;
                 }
+                bonus = bonus2 + bonus3;
                 cost -= bonus;
+                _LOG_DETAIL(L"pos={}, word={}, cost={}, bonus={} (2gram={}, 3gram={})", pos, to_wstr(utils::safe_substr(targetStr, pos, 3)), cost, bonus, bonus2, bonus3);
             }
         }
-        _LOG_DETAIL(L"LEAVE: cost={}, adjusted cost={} (* NGRAM_COST_FACTOR({}))", cost, cost* SETTINGS->ngramCostFactor, SETTINGS->ngramCostFactor);
+        _LOG_DETAIL(L"LEAVE: str={}: initialCost={}, resultCost={}, adjustedCost={} (* NGRAM_COST_FACTOR({}))\n",
+            to_wstr(str), cost0, cost, cost * SETTINGS->ngramCostFactor, SETTINGS->ngramCostFactor);
         return cost;
     }
 

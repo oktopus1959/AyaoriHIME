@@ -116,7 +116,13 @@ namespace KanchokuWS
         /// <summary>隠しテーブルファイルフォルダを表示する</summary>        
         public static bool ShowHiddleFolder { get; private set; }
 
-        public static bool IsAnyDevFlagEnabled => KanchokuLogLevel > Logger.LogLevelWarn || LoggingDecKeyInfo || LoggingActiveWindowInfo || LoggingVirtualKeyboardInfo || LoggingTableFileInfo || BushuDicLogEnabled;
+        /// <summary>配列融合の詳細ログを有効にする</summary>
+        public static bool MultiStreamDetailLog { get; private set; }
+
+        public static bool IsAnyDevFlagEnabled =>
+            KanchokuLogLevel > Logger.LogLevelWarn ||
+            LoggingDecKeyInfo || LoggingActiveWindowInfo || LoggingVirtualKeyboardInfo || LoggingTableFileInfo ||
+            BushuDicLogEnabled || MultiStreamDetailLog;
 
         //-------------------------------------------------------------------------------------
         // 基本設定
@@ -1313,6 +1319,7 @@ namespace KanchokuWS
             WarnThresholdKeyQueueCount = GetString("warnThresholdKeyQueueCount")._parseInt(6);
             OutputDebugTableFiles = GetString("outputDebugTableFiles")._parseBool();
             ShowHiddleFolder = GetString("showHiddleFolder")._parseBool();
+            MultiStreamDetailLog = GetString("multiStreamDetailLog")._parseBool();
         }
 
         //------------------------------------------------------------------------------
@@ -1756,6 +1763,7 @@ namespace KanchokuWS
             //MultiStreamMode = addDecoderSetting("multiStreamMode", true);
             MultiStreamMode = setDecoderSetting("multiStreamMode", TableFile._notEmpty() && TableFile._notEmpty());
             MultiCandidateMode = MultiStreamMode ? addDecoderSetting("multiCandidateMode", true) : setDecoderSetting("multiCandidateMode", false);
+            MultiStreamDetailLog = addDecoderSetting("multiStreamDetailLog", false);
             UseEditBuffer = addDecoderSetting("useEditBuffer", false);                  // 編集バッファを使用するか
             BushuAssocFile = addDecoderSetting("bushuAssocFile", "kwassoc.txt");
             BushuFile = addDecoderSetting("bushuFile", "bushu", "kwbushu.rev");
