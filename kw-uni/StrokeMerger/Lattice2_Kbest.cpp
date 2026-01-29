@@ -146,7 +146,7 @@ namespace lattice2 {
 
         std::vector<CandidateString> _candidates;
 
-        std::vector<MString> _bestStack;
+        //std::vector<MString> _bestStack;
 
         //bool _prevBS = false;
 
@@ -232,7 +232,7 @@ namespace lattice2 {
         void clearKbests(bool clearAll) override {
             _LOG_DETAIL(L"ENTER: clearAll={}", clearAll);
             _candidates.clear();
-            _bestStack.clear();
+            //_bestStack.clear();
             _highFreqJoshiStroke.clear();
             _rollOverStroke.clear();
             _origFirstCand = -1;
@@ -870,41 +870,41 @@ namespace lattice2 {
             _LOG_DETAIL(_T("LEAVE"));
         }
 
-        // 指定の打鍵回数分、解の先頭部分が同じなら、それらだけを残す
-        void commitOnlyWithSameLeaderString() {
-            int challengeNum = SETTINGS->challengeNumForSameLeader;
-            if (challengeNum > 0 && !_candidates.empty()) {
-                MString firstStr = _candidates.front().string();
-                if (_bestStack.empty()) {
-                    _bestStack.push_back(firstStr);
-                } else if (_bestStack.back() != firstStr) {
-                    _bestStack.push_back(firstStr);
-                    if ((int)_bestStack.size() > challengeNum) {
-                        int basePos = (int)_bestStack.size() - challengeNum - 1;
-                        auto baseStr = _bestStack[basePos];
-                        //if ((int)baseStr.size() >= SAME_LEADER_LEN) {
-                        //    bool sameFlag = true;
-                        //    for (int i = basePos + 1; sameFlag && i < (int)_bestStack.size(); ++i) {
-                        //        sameFlag = utils::startsWith(_bestStack[i], baseStr);
-                        //    }
-                        //    if (sameFlag) {
-                        //        _LOG_DETAIL(L"_bestStack.size={}, challengeNum={}, baseStr={}", _bestStack.size(), challengeNum, to_wstr(baseStr));
-                        //        std::vector<CandidateString> tempCands;
-                        //        auto iter = _candidates.begin();
-                        //        tempCands.push_back(*iter++);
-                        //        for (; iter != _candidates.end(); ++iter) {
-                        //            if (utils::startsWith(iter->string(), baseStr)) {
-                        //                // 先頭部分が一致する候補だけを残す
-                        //                tempCands.push_back(*iter);
-                        //            }
-                        //        }
-                        //        _candidates = std::move(tempCands);
-                        //    }
-                        //}
-                    }
-                }
-            }
-        }
+        //// 指定の打鍵回数分、解の先頭部分が同じなら、それらだけを残す
+        //void commitOnlyWithSameLeaderString() {
+        //    int challengeNum = SETTINGS->challengeNumForSameLeader;
+        //    if (challengeNum > 0 && !_candidates.empty()) {
+        //        MString firstStr = _candidates.front().string();
+        //        if (_bestStack.empty()) {
+        //            _bestStack.push_back(firstStr);
+        //        } else if (_bestStack.back() != firstStr) {
+        //            _bestStack.push_back(firstStr);
+        //            if ((int)_bestStack.size() > challengeNum) {
+        //                int basePos = (int)_bestStack.size() - challengeNum - 1;
+        //                auto baseStr = _bestStack[basePos];
+        //                //if ((int)baseStr.size() >= SAME_LEADER_LEN) {
+        //                //    bool sameFlag = true;
+        //                //    for (int i = basePos + 1; sameFlag && i < (int)_bestStack.size(); ++i) {
+        //                //        sameFlag = utils::startsWith(_bestStack[i], baseStr);
+        //                //    }
+        //                //    if (sameFlag) {
+        //                //        _LOG_DETAIL(L"_bestStack.size={}, challengeNum={}, baseStr={}", _bestStack.size(), challengeNum, to_wstr(baseStr));
+        //                //        std::vector<CandidateString> tempCands;
+        //                //        auto iter = _candidates.begin();
+        //                //        tempCands.push_back(*iter++);
+        //                //        for (; iter != _candidates.end(); ++iter) {
+        //                //            if (utils::startsWith(iter->string(), baseStr)) {
+        //                //                // 先頭部分が一致する候補だけを残す
+        //                //                tempCands.push_back(*iter);
+        //                //            }
+        //                //        }
+        //                //        _candidates = std::move(tempCands);
+        //                //    }
+        //                //}
+        //            }
+        //        }
+        //    }
+        //}
 
         // CurrentStroke の候補を削除する
         void removeCurrentStrokeCandidates(std::vector<CandidateString>& newCandidates, int strokeCount, int removeLen) {
@@ -1106,7 +1106,7 @@ namespace lattice2 {
             //    if (isKanjiKatakanaConsecutive(_candidates.front())) selectFirst();
             //}
             // 指定の打鍵回数分、解の先頭部分が同じなら、それらだけを残す (ただし、候補の選択状態でない場合)
-            if (_origFirstCand < 0) commitOnlyWithSameLeaderString();
+            //if (_origFirstCand < 0) commitOnlyWithSameLeaderString();
             _LOG_DETAIL(_T("LEAVE: _candidates.size()={}"), _candidates.size());
         }
 
