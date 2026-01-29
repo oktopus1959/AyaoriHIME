@@ -1764,7 +1764,7 @@ namespace KanchokuWS
             TableFile3 = addDecoderSetting("tableFile3", "");
 #endif
             //MultiStreamMode = addDecoderSetting("multiStreamMode", true);
-            MultiStreamMode = setDecoderSetting("multiStreamMode", TableFile._notEmpty() && TableFile._notEmpty());
+            MultiStreamMode = setDecoderSetting("multiStreamMode", TableFile._notEmpty() && TableFile2._notEmpty());
             MultiCandidateMode = MultiStreamMode ? addDecoderSetting("multiCandidateMode", true) : setDecoderSetting("multiCandidateMode", false);
             MultiStreamDetailLog = addDecoderSetting("multiStreamDetailLog", false);
             UseEditBuffer = addDecoderSetting("useEditBuffer", false);                  // 編集バッファを使用するか
@@ -1880,7 +1880,7 @@ namespace KanchokuWS
             OutputHeadSymbolSub = GetString("outputHeadSymbol")._parseBool(true);               // 先頭の記号類をそのまま出力するか
             OutputHeadSymbol = setDecoderSetting("outputHeadSymbol", UseEditBuffer && OutputHeadSymbolSub);    // 先頭の記号類をそのまま出力する
             StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う
-            MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 4);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
+            MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 2);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
             MultiStreamBeamSize = addDecoderSetting("multiStreamBeamSize", 10);                 // 融合モードにおける解探索のビームサイズ
             ExtraBeamSizeRate = addDecoderSetting("extraBeamSizeRate", 0.5);                    // 余分に残しておく候補の割合
             RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲

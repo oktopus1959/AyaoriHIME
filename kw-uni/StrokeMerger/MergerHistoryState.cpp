@@ -811,7 +811,8 @@ namespace {
                 }
             }
             //LOG_DEBUGH(L"L:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
-            bool bUseMorphAnalyzer = SETTINGS->useMorphAnalyzerAlways || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
+            //bool bUseMorphAnalyzer = SETTINGS->useMorphAnalyzerAlways || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
+            bool bUseMorphAnalyzer = SETTINGS->multiCandidateMode || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
             return WORD_LATTICE->addPieces(pieces, bUseMorphAnalyzer, _strokeBack, _isKatakanaConversionMode);
         }
 

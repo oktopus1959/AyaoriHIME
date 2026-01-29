@@ -1667,14 +1667,14 @@ namespace KanchokuWS
                     name = "Yellow";    // とりあえず Yellow 固定
                 }
                 if (name._isEmpty() && Settings.KanaTrainingMode) {
-                    name = Settings.BgColorForKanaTrainingMode;     // かな入力練習モードのとき
+                    name = Settings.BgColorForKanaTrainingMode;         // かな入力練習モードのとき
+                }
+                if (name._isEmpty() && Settings.IsAnyDevFlagEnabled) {
+                    name = Settings.BgColorForUnusualMode;              // LogLevelがWARN以上のとき、または、開発者向けフラグが有効なとき
                 }
                 if (name._isEmpty() && Settings.MultiStreamMode) {
-                    //if (decoderOutput.IsDecoderMultiStreamInput())
-                    //    name = Settings.BgColorForMultiStreamInput;     // 配列融合モードの入力中のとき
-                    //else
-                    if (Settings.UseTmpRealtimeNgramFile || Logger.IsWarnEnabled)
-                        name = Settings.BgColorForUnusualMode;          // 一時的なリアルタイムNgramファイルを使っているとき、または、LogLevelがWARN以上のとき
+                    if (Settings.UseTmpRealtimeNgramFile)
+                        name = Settings.BgColorForUnusualMode;          // 一時的なリアルタイムNgramファイルを使っているとき
                     else
                         name = Settings.BgColorForMultiStreamMode;      // 配列融合モードの入力待ちとき
                 }
