@@ -164,7 +164,7 @@ namespace MazegakiPreprocessor {
     // ユーザー辞書のエントリを品詞によって標準形に変換
     String convertToNormalForm(StringRef line) {
         const auto items = utils::split(line, L",");
-        LOG_DEBUGH(L"convert_to_normal_form: line={}, items={}", line, utils::join(items, L":"));
+        LOG_DEBUGH(L"ENTER: line={}, items={}", line, utils::join(items, L":"));
         if (items.size() < 2 || items.size() > 4) {
             return line;
         }
@@ -184,7 +184,7 @@ namespace MazegakiPreprocessor {
             return line;
         }
         auto cost = items.size() >= 4 ? items[3] : L"5000";
-        LOG_DEBUGH(L"convert_to_normal_form: RESULT: {}", base + L"," + replaceCost(iter->second, cost) + L"," + base + L"," + yomi);
+        LOG_DEBUGH(L"RESULT: line={}", base + L"," + replaceCost(iter->second, cost) + L"," + base + L"," + yomi);
         return base + L"," + replaceCost(iter->second, cost) + L"," + base + L"," + yomi;
     }
 
@@ -386,8 +386,8 @@ namespace MazegakiPreprocessor {
 
     //# main loop
     //def main(results, costs, items)
-    bool main(MapString& results, MapInt& costs, StringRef line) {
-        LOG_DEBUGH(L"\nENTER: line={}", line);
+    bool main(MapString& results, MapInt& costs, StringRef line, bool doMaze) {
+        LOG_DEBUGH(L"\nENTER: doMaze={}, line={}", doMaze, line);
 
         const auto items = utils::split(line, L",");
         LOG_DEBUGH(L"join={}", utils::join(items, L" | "));
@@ -470,28 +470,30 @@ namespace MazegakiPreprocessor {
             _mazeBaseMap.clear();
         }
 
-        //const auto surfParts = _reMatchScan(surf, L"^([^一-龠々]*)([一-龠々])([^一-龠々]*)([一-龠々])(?:([^一-龠々]*)([一-龠々])(?:([^一-龠々]*)([一-龠々]))?)?([ぁ-ゖ]*)$");
-        const auto surfParts = _reMatchScan(surf, L"^([ぁ-ゖ]*)([一-龠々])([ぁ-ゖ]*)([一-龠々ァ-ヶ])(?:([ぁ-ゖ]*)([一-龠々ァ-ヶ])(?:([ぁ-ゖ]*)([一-龠々]))?)?([ぁ-ゖ]*)$");
-        if (surfParts.size() == 9 &&
-            (surfParts[3].empty() || !utils::is_katakana(surfParts[3][0]) || (!surfParts[5].empty() && !utils::is_katakana(surfParts[5][0])))) {
-            // 2つ以上の漢字を含む (カタカナは含まない)
-            auto variations = makeVariation(hiraYomi,
-                _safeGet(surfParts, 0), _safeGet(surfParts, 1), _safeGet(surfParts, 2),
-                _safeGet(surfParts, 3), _safeGet(surfParts, 4), _safeGet(surfParts, 5),
-                _safeGet(surfParts, 6), _safeGet(surfParts, 7), _safeGet(surfParts, 8));
-            for (const auto& mazeYomi : variations) {
-                //outputEntry("#{mazeYomi}\t#{surf}\t#{pos}", "#{hiraYomi}") if (_reSearch(mazeYomi, L"[一-龠々]"))
-                //outputEntry(mazeYomi, surf, lcost, rcost, wcost, surfParts)
-                // 交ぜ書きの定義を追加(元の定義を上書きする可能性あり)
-                LOG_DEBUGH(L"mazeYomi={}", mazeYomi);
-                checkMazeBase(mazeYomi, ktype, kform);
-                String mazeKey = std::format(L"{},{},{}", mazeYomi, keyRest, surf);
-                LOG_DEBUGH(L"main::check results[mazeKey={}]=\"{}\", cost={}, costs[mazeKey]={}", mazeKey, _safeGet(results, mazeKey), cost, _safeGet(costs, mazeKey));
-                if (!results.contains(mazeKey) || cost < _safeGet(costs, mazeKey)) {
-                    String mazeLine = std::format(L"{},{},{},{},{}", mazeYomi, mazeRestHead, hinshi, getMazeBase(mazeYomi), mazeRestTail);
-                    LOG_DEBUGH(L"main::put results[mazeKey={}]=\"{}\"", mazeKey, mazeLine);
-                    results[mazeKey] = mazeLine;
-                    costs[mazeKey] = cost;
+        if (doMaze) {
+            //const auto surfParts = _reMatchScan(surf, L"^([^一-龠々]*)([一-龠々])([^一-龠々]*)([一-龠々])(?:([^一-龠々]*)([一-龠々])(?:([^一-龠々]*)([一-龠々]))?)?([ぁ-ゖ]*)$");
+            const auto surfParts = _reMatchScan(surf, L"^([ぁ-ゖ]*)([一-龠々])([ぁ-ゖ]*)([一-龠々ァ-ヶ])(?:([ぁ-ゖ]*)([一-龠々ァ-ヶ])(?:([ぁ-ゖ]*)([一-龠々]))?)?([ぁ-ゖ]*)$");
+            if (surfParts.size() == 9 &&
+                (surfParts[3].empty() || !utils::is_katakana(surfParts[3][0]) || (!surfParts[5].empty() && !utils::is_katakana(surfParts[5][0])))) {
+                // 2つ以上の漢字を含む (カタカナは含まない)
+                auto variations = makeVariation(hiraYomi,
+                    _safeGet(surfParts, 0), _safeGet(surfParts, 1), _safeGet(surfParts, 2),
+                    _safeGet(surfParts, 3), _safeGet(surfParts, 4), _safeGet(surfParts, 5),
+                    _safeGet(surfParts, 6), _safeGet(surfParts, 7), _safeGet(surfParts, 8));
+                for (const auto& mazeYomi : variations) {
+                    //outputEntry("#{mazeYomi}\t#{surf}\t#{pos}", "#{hiraYomi}") if (_reSearch(mazeYomi, L"[一-龠々]"))
+                    //outputEntry(mazeYomi, surf, lcost, rcost, wcost, surfParts)
+                    // 交ぜ書きの定義を追加(元の定義を上書きする可能性あり)
+                    LOG_DEBUGH(L"mazeYomi={}", mazeYomi);
+                    checkMazeBase(mazeYomi, ktype, kform);
+                    String mazeKey = std::format(L"{},{},{}", mazeYomi, keyRest, surf);
+                    LOG_DEBUGH(L"main::check results[mazeKey={}]=\"{}\", cost={}, costs[mazeKey]={}", mazeKey, _safeGet(results, mazeKey), cost, _safeGet(costs, mazeKey));
+                    if (!results.contains(mazeKey) || cost < _safeGet(costs, mazeKey)) {
+                        String mazeLine = std::format(L"{},{},{},{},{}", mazeYomi, mazeRestHead, hinshi, getMazeBase(mazeYomi), mazeRestTail);
+                        LOG_DEBUGH(L"main::put results[mazeKey={}]=\"{}\"", mazeKey, mazeLine);
+                        results[mazeKey] = mazeLine;
+                        costs[mazeKey] = cost;
+                    }
                 }
             }
         }
@@ -531,9 +533,12 @@ namespace MazegakiPreprocessor {
             return false;
         }
 
+        bool doMaze = true;
         bool expandKFormFlag = bUserDic;
-        if (line[0] == '*') {
-            expandKFormFlag = true; // 活用形の展開フラグ
+        wchar_t firstChar = line[0];
+        if (firstChar == '*' || firstChar == '+' || firstChar == '-') {
+            doMaze = firstChar == '*';          // 交ぜ書き処理フラグ ('+' か '-' なら交ぜ書き処理を行わない)
+            expandKFormFlag = firstChar != '-'; // 活用形の展開フラグ ('*' か '+' なら展開、'-' なら展開しない)
             line = line.substr(1);
         }
         if (line.empty()) {
@@ -542,7 +547,7 @@ namespace MazegakiPreprocessor {
             return false;
         }
 
-        if (expandKFormFlag) {
+        if (expandKFormFlag || bUserDic) {
             // 活用形の展開(or ユーザー辞書形式)の場合、標準形に変換
             line = convertToNormalForm(line);
         }
@@ -584,10 +589,10 @@ namespace MazegakiPreprocessor {
         if (expandKFormFlag) {
             // 活用形の展開
             for (const auto& expLine : expandKForm(line)) {
-                mainResult = main(linesMap, costsMap, expLine);
+                mainResult = main(linesMap, costsMap, expLine, doMaze);
             }
         } else {
-            mainResult = main(linesMap, costsMap, line);
+            mainResult = main(linesMap, costsMap, line, doMaze);
         }
 
         LOG_DEBUGH(L"LEAVE: mainResult={}", mainResult);
