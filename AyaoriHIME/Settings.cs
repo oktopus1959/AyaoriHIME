@@ -204,6 +204,9 @@ namespace KanchokuWS
         /// <summary>非終端形態素の単語コスト</summary>
         public static int MorphNonTerminalCost { get; set; } = 5000;
 
+        /// <summary>形態素解析を行う際の最大形態素長</summary>
+        public static int AnalyzeMorphLen { get; set; } = 10;
+
         /// <summary>形態素コストに対するNgramコストの係数</summary>
         public static int NgramCostFactor { get; set; } = 5;
 
@@ -1870,6 +1873,7 @@ namespace KanchokuWS
             MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000);           // 交ぜ書きエントリに対するペナルティ
             MorphMazeConnectionPenalty = addDecoderSetting("morphMazeConnectionPenalty", 1000); // 交ぜ書きエントリの接続に対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
+            AnalyzeMorphLen = addDecoderSetting("analyzeMorphLen", 10);                         // 形態素解析を行う際の最大形態素長
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
             NgramMaxBonusPoint = addDecoderSetting("ngramMaxBonusPoint", 25);                   // Ngramに与えるボーナスポイントの最大値
             NgramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 250);            // 嵩上げされたNgramに与えるボーナスの係数

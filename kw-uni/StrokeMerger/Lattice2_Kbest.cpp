@@ -84,6 +84,14 @@ namespace lattice2 {
         return utils::safe_substr(str, startPos, endPos - startPos);
     }
 
+    MString removeHeadSubstring(const MString& str, size_t headLen) {
+        if (str.size() <= headLen) {
+            return MString();
+        } else {
+            return utils::safe_substr(str, headLen);
+        }
+    }
+
     // 末尾が漢字1文字で、その前が漢字でない場合に true を返す
     bool isTailIsolatedKanji(const MString& str) {
         if (str.size() >= 1) {
@@ -204,6 +212,16 @@ namespace lattice2 {
 
         bool isSingleHitHighFreqJoshi(int count) const {
             return (size_t)count < _highFreqJoshiStroke.size() && (size_t)count < _rollOverStroke.size() ? _highFreqJoshiStroke[count] &&  !_rollOverStroke[count] : false;
+        }
+
+        static size_t getMinimumCandidateLength(const std::vector<CandidateString>& candidates) {
+            size_t minLen = SIZE_MAX;
+            for (const auto& cand : candidates) {
+                if (cand.string().size() < minLen) {
+                    minLen = cand.string().size();
+                }
+            }
+            return minLen == SIZE_MAX ? 0 : minLen;
         }
 
     public:
@@ -468,8 +486,8 @@ namespace lattice2 {
         }
 
         // 新しい候補を追加
-        // targetStr は日本語としての妥当性をチェックするための文字列 (句読点や記号を除いたもの)
-        bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, const MString& targetStr, bool useMorphAnalyzer, bool isStrokeBS) {
+        // minLenは、形態素解析やNgram解析の際に、長い候補文字列に対して共通の先頭部分を避けるために使用する
+        bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, size_t minLen, bool useMorphAnalyzer, bool isStrokeBS) {
             _LOG_DETAIL(_T("\nENTER: newCandStr={}, useMorphAnalyzer={}, isStrokeBS={}"), newCandStr.debugString(), useMorphAnalyzer, isStrokeBS);
             bool bAdded = false;
 
@@ -477,7 +495,9 @@ namespace lattice2 {
             const MString& candStr = newCandStr.string();
             //MString targetStr = substringBetweenPunctuations(candStr);
             //MString targetStr = substringBetweenNonJapaneseChars(candStr);
-            _LOG_DETAIL(_T("targetStr={}"), to_wstr(targetStr));
+            int headLen = minLen > (size_t)SETTINGS->analyzeMorphLen + 1 ? (int)minLen - SETTINGS->analyzeMorphLen : 0;
+            MString subStr = removeHeadSubstring(candStr, headLen);
+            _LOG_DETAIL(_T("candStr={}, minLen={}, headLen={}, subStr={}"), to_wstr(candStr), minLen, headLen, to_wstr(subStr));
 
             std::vector<MString> morphs;
 
@@ -486,10 +506,10 @@ namespace lattice2 {
             if (useMorphAnalyzer) {
                 // 形態素解析コスト
                 // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
-                //int morphCost = !SETTINGS->useMorphAnalyzer || targetStr.size() <= 1 ? 5000 : calcMorphCost(targetStr, morphs);
-                int morphCost = targetStr.empty() ? 0 : calcMorphCost(targetStr, morphs);
-                if (targetStr.size() == 1) {
-                    if (utils::is_katakana(targetStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
+                //int morphCost = !SETTINGS->useMorphAnalyzer || subStr.size() <= 1 ? 5000 : calcMorphCost(subStr, morphs);
+                int morphCost = subStr.empty() ? 0 : calcMorphCost(subStr, morphs);
+                if (subStr.size() == 1) {
+                    if (utils::is_katakana(subStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
                 }
                 if (!morphs.empty() && isNonTerminalMorph(morphs.back())) {
                     _LOG_DETAIL(_T("NON TERMINAL morph={}"), to_wstr(morphs.back()));
@@ -497,7 +517,7 @@ namespace lattice2 {
                 }
 
                 // Ngramコスト
-                int ngramCost = targetStr.empty() ? 0 : getNgramCost(targetStr) * SETTINGS->ngramCostFactor;
+                int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr) * SETTINGS->ngramCostFactor;
                 //int morphCost = 0;
                 //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
                 //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;
@@ -811,6 +831,11 @@ namespace lattice2 {
                 _LOG_DETAIL(_T("targetCandidates more thran 1. use Morph and Ngram Analyzer."));
                 useMorphAnalyzer = true;
             }
+
+            // 素片のストロークと適合する候補の最小ストローク長を取得
+            // minLenは、形態素解析やNgram解析の際に、長い候補文字列に対して共通の先頭部分を避けるために使用する
+            size_t minLen = getMinimumCandidateLength(targetCandidates);
+
             for (const auto& cand : targetCandidates) {
                 // 素片のストロークと適合する候補
                 int penalty = cand.penalty();
@@ -839,7 +864,7 @@ namespace lattice2 {
                         // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
                         // 素片が追加されたことになるので、強制的に形態素解析を行う
                         useMorphAnalyzer = true;
-                        addCandidate(newCandidates, newCandStr, s, useMorphAnalyzer, isStrokeBS);
+                        addCandidate(newCandidates, newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
                         bAutoBushuFound = true;
                         if (!SETTINGS->multiCandidateMode) break;  // 複数候補モードでなければ、自動部首合成を見つけたら終了
                     }
@@ -857,7 +882,7 @@ namespace lattice2 {
                     }
                     // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
                     MString subStr = substringBetweenNonJapaneseChars(s);
-                    addCandidate(newCandidates, newCandStr, subStr, useMorphAnalyzer, isStrokeBS);
+                    addCandidate(newCandidates, newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
                 }
                 // pieceが確定文字の場合
                 if (pieceStr.size() == 1 && lattice2::isCommitChar(pieceStr[0])) {

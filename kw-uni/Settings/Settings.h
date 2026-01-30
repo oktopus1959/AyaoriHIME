@@ -120,6 +120,7 @@ struct Settings {
     int morphMazeEntryPenalty = 1000;       // 交ぜ書きエントリに対するペナルティ
     int morphMazeConnectionPenalty = 1000;  // 交ぜ書きエントリの接続に対するペナルティ
     int morphNonTerminalCost = 5000;        // 非終端形態素の単語コスト
+    int analyzeMorphLen = 10;               // 形態素解析を行う際の最大形態素長
     int ngramCostFactor = 5;                // 形態素コストに対するNgramコストの係数
     int ngramMaxBonusPoint = 25;            // Ngramに与えるボーナスポイントの最大値
     int ngramBonusPointFactor = 100;        // 嵩上げされたNgramに与えるボーナスの係数

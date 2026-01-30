@@ -1893,6 +1893,7 @@ namespace KanchokuWS.Gui
             textBox_ngramMaxBonusPoint.Text = $"{Settings.NgramMaxBonusPoint}";
             textBox_ngramBonusPointFactor.Text = $"{Settings.NgramBonusPointFactor}";
             textBox_maxStrokeBackCount.Text = $"{Settings.MaxStrokeBackCount}";
+            textBox_analyzeMorphLen.Text = $"{Settings.AnalyzeMorphLen}";
             textBox_challengeNumForSameLeader.Text = $"{Settings.ChallengeNumForSameLeader}";
             comboBox_editBufferCaretChar.Text = $"{Settings.EditBufferCaretChar}";
             if (comboBox_editBufferCaretChar.Text._isEmpty() && comboBox_editBufferCaretChar.Text._isEmpty()) {
@@ -1936,6 +1937,7 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(textBox_ngramMaxBonusPoint);
             checkerFusion.Add(textBox_ngramBonusPointFactor);
             checkerFusion.Add(textBox_maxStrokeBackCount);
+            checkerFusion.Add(textBox_analyzeMorphLen);
             checkerFusion.Add(textBox_challengeNumForSameLeader);
             checkerFusion.Add(comboBox_editBufferCaretChar);
             checkerFusion.Add(textBox_editBufferFlushChar);
@@ -1977,6 +1979,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("ngramMaxBonusPoint", textBox_ngramMaxBonusPoint.Text);
             Settings.SetUserIni("ngramBonusPointFactor", textBox_ngramBonusPointFactor.Text);
             Settings.SetUserIni("maxStrokeBackCount", textBox_maxStrokeBackCount.Text);
+            Settings.SetUserIni("analyzeMorphLen", textBox_analyzeMorphLen.Text);
             Settings.SetUserIni("challengeNumForSameLeader", textBox_challengeNumForSameLeader.Text);
             Settings.SetUserIni("editBufferCaretChar", comboBox_editBufferCaretChar.Text.Trim());
             Settings.SetUserIni("editBufferFlushChar", textBox_editBufferFlushChar.Text.Trim());
