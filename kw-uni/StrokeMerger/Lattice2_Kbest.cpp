@@ -814,8 +814,8 @@ namespace lattice2 {
             for (const auto& cand : _candidates) {
                 //if (topStrokeLen < 0) topStrokeLen = cand.strokeLen();
                 bool bStrokeCountMatched = (piece.isPadding() && cand.strokeLen() + paddingLen == strokeCount) || (cand.strokeLen() + piece.strokeLen() == strokeCount);
-                _LOG_DETAIL(_T("cand.strokeLen={}, piece.strokeLen()={}, strokeCount={}, paddingLen={}: {}"),
-                    cand.strokeLen(), piece.strokeLen(), strokeCount, paddingLen, (bStrokeCountMatched ? L"MATCH" : L"UNMATCH"));
+                _LOG_DETAIL(_T("cand.string={}, cand.strokeLen={}, piece.strokeLen()={}, strokeCount={}, paddingLen={}: {}"),
+                    to_wstr(cand.string()), cand.strokeLen(), piece.strokeLen(), strokeCount, paddingLen, (bStrokeCountMatched ? L"MATCH" : L"UNMATCH"));
                 if (isStrokeBS || bStrokeCountMatched) {
                     targetCandidates.push_back(cand);
                 }
@@ -837,6 +837,7 @@ namespace lattice2 {
             size_t minLen = getMinimumCandidateLength(targetCandidates);
 
             for (const auto& cand : targetCandidates) {
+                _LOG_DETAIL(L"targetCand={}", cand.infoString());
                 // 素片のストロークと適合する候補
                 int penalty = cand.penalty();
                 if (piece.isPadding()) {
@@ -967,9 +968,10 @@ namespace lattice2 {
             if (!_candidates.empty()) {
                 int removeLen = 0;
                 const auto& firstCand = _candidates.front();
-                _LOG_DETAIL(L"remove last char candidate: {}", to_wstr(_candidates.front().string()));
-                const MString str = utils::safe_substr(_candidates.front().string(), 0, -1);
+                const MString str = utils::safe_substr(firstCand.string(), 0, -1);
+                _LOG_DETAIL(L"_candidates.size={}, targetStr={}, origCand: {}", _candidates.size(), to_wstr(str), firstCand.infoString());
                 for (const auto& cand : _candidates) {
+                    _LOG_DETAIL(L"cand: {}", cand.infoString());
                     if (str == cand.string()) {
                         _LOG_DETAIL(L"FOUND same candidate: {}", cand.debugString());
                         removeLen = firstCand.strokeLen() - cand.strokeLen();
@@ -1017,7 +1019,8 @@ namespace lattice2 {
                 _LOG_DETAIL(_T("strokeBack"));
                 // strokeBackの場合
                 //_LOG_DETAIL(L"strokeBack");
-                removeCurrentStrokeCandidates(newCandidates, strokeCount, 1);
+                //removeCurrentStrokeCandidates(newCandidates, strokeCount, 1);
+                removeLastCharCandidate(newCandidates, strokeCount);
                 if (!newCandidates.empty()) {
                     _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
                     return newCandidates;
@@ -1031,14 +1034,14 @@ namespace lattice2 {
 
             //if (isBSpiece) {
             //    // 末尾文字を削除して残った文字列と同じ候補があれば、そのストローク長まで候補を削除する
-            //    //removeLastCharCandidate(newCandidates, strokeCount);
-            //    removeCurrentStrokeCandidates(newCandidates, strokeCount, 1);
+            //    removeLastCharCandidate(newCandidates, strokeCount);
+            //    //removeCurrentStrokeCandidates(newCandidates, strokeCount, 1);
             //    if (!newCandidates.empty()) {
             //        _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
             //        return newCandidates;
             //    }
-            //    // 以前のストロークの候補が無ければ、通常のBSの動作とする
-            //    removeOtherThanFirst();
+            //    //// 以前のストロークの候補が無ければ、通常のBSの動作とする
+            //    //removeOtherThanFirst();
             //}
             //_prevBS = isBSpiece;
 

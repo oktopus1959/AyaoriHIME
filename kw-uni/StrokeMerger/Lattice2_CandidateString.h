@@ -139,6 +139,8 @@ namespace lattice2 {
         //    _llama_loss = loss;
         //}
 
+        String infoString() const;
+
         String debugString() const;
     };
 

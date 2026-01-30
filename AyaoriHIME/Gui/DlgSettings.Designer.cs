@@ -501,6 +501,8 @@ namespace KanchokuWS.Gui
             this.textBox_editBufferFlushChar = new System.Windows.Forms.TextBox();
             this.label158 = new System.Windows.Forms.Label();
             this.groupBox34 = new System.Windows.Forms.GroupBox();
+            this.textBox_analyzeMorphLen = new System.Windows.Forms.TextBox();
+            this.label159 = new System.Windows.Forms.Label();
             this.textBox_ngramMaxBonusPoint = new System.Windows.Forms.TextBox();
             this.label128 = new System.Windows.Forms.Label();
             this.textBox_ngramBonusPointFactor = new System.Windows.Forms.TextBox();
@@ -614,8 +616,6 @@ namespace KanchokuWS.Gui
             this.checkBox_bushuDicLogEnabled = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.textBox_analyzeMorphLen = new System.Windows.Forms.TextBox();
-            this.label159 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -6319,6 +6319,26 @@ namespace KanchokuWS.Gui
             this.groupBox34.TabStop = false;
             this.groupBox34.Text = "実験的設定";
             // 
+            // textBox_analyzeMorphLen
+            // 
+            this.textBox_analyzeMorphLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_analyzeMorphLen.Location = new System.Drawing.Point(157, 41);
+            this.textBox_analyzeMorphLen.Name = "textBox_analyzeMorphLen";
+            this.textBox_analyzeMorphLen.Size = new System.Drawing.Size(34, 19);
+            this.textBox_analyzeMorphLen.TabIndex = 1;
+            this.textBox_analyzeMorphLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_analyzeMorphLen, "形態素解析実行時の最大文字列長\r\n\r\n入力文字列に対してその妥当性を計るために形態素解析を実行しています。\r\nその際に、実行時間の短縮のため入力文字列全体ではなく" +
+        "、ここで設定された\r\n長さの末尾部分文字列を対象とします。\r\n");
+            // 
+            // label159
+            // 
+            this.label159.AutoSize = true;
+            this.label159.Location = new System.Drawing.Point(13, 43);
+            this.label159.Name = "label159";
+            this.label159.Size = new System.Drawing.Size(125, 15);
+            this.label159.TabIndex = 85;
+            this.label159.Text = "形態素解析の文字列長";
+            // 
             // textBox_ngramMaxBonusPoint
             // 
             this.textBox_ngramMaxBonusPoint.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
@@ -6491,11 +6511,11 @@ namespace KanchokuWS.Gui
             this.checkBox_strokeBackByBS.AutoSize = true;
             this.checkBox_strokeBackByBS.Location = new System.Drawing.Point(12, 38);
             this.checkBox_strokeBackByBS.Name = "checkBox_strokeBackByBS";
-            this.checkBox_strokeBackByBS.Size = new System.Drawing.Size(158, 19);
+            this.checkBox_strokeBackByBS.Size = new System.Drawing.Size(182, 19);
             this.checkBox_strokeBackByBS.TabIndex = 1;
-            this.checkBox_strokeBackByBS.Text = "BSで直前の打鍵を取り消す";
-            this.toolTip1.SetToolTip(this.checkBox_strokeBackByBS, "文字消去ではなくストロークを取り消す\r\n\r\nBSを打鍵した時に、表示されている文字列の末尾文字を\r\n削除するのではなく、直前のストロークを取り消して、短く\r\nなっ" +
-        "たストローク列を再評価します。");
+            this.checkBox_strokeBackByBS.Text = "BSで末尾文字の打鍵を取り消す";
+            this.toolTip1.SetToolTip(this.checkBox_strokeBackByBS, "BSで末尾文字のストローク列を取り消す\r\n\r\nBSを打鍵した時に、表示されている文字列の末尾文字を\r\n直接に削除するのではなく、その文字を出力するための\r\nストロ" +
+        "ーク列を取り消すことによって、結果的に末尾文字を\r\n削除します。\r\n入力候補列も、末尾文字が削除された時点の状態に\r\n戻ります。");
             this.checkBox_strokeBackByBS.UseVisualStyleBackColor = true;
             // 
             // textBox_maxStrokeBackCount
@@ -7661,26 +7681,6 @@ namespace KanchokuWS.Gui
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // textBox_analyzeMorphLen
-            // 
-            this.textBox_analyzeMorphLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_analyzeMorphLen.Location = new System.Drawing.Point(157, 41);
-            this.textBox_analyzeMorphLen.Name = "textBox_analyzeMorphLen";
-            this.textBox_analyzeMorphLen.Size = new System.Drawing.Size(34, 19);
-            this.textBox_analyzeMorphLen.TabIndex = 1;
-            this.textBox_analyzeMorphLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_analyzeMorphLen, "形態素解析実行時の最大文字列長\r\n\r\n入力文字列に対してその妥当性を計るために形態素解析を実行しています。\r\nその際に、実行時間の短縮のため入力文字列全体ではなく" +
-        "、ここで設定された\r\n長さの末尾部分文字列を対象とします。\r\n");
-            // 
-            // label159
-            // 
-            this.label159.AutoSize = true;
-            this.label159.Location = new System.Drawing.Point(13, 43);
-            this.label159.Name = "label159";
-            this.label159.Size = new System.Drawing.Size(125, 15);
-            this.label159.TabIndex = 85;
-            this.label159.Text = "形態素解析の文字列長";
             // 
             // DlgSettings
             // 

@@ -510,7 +510,8 @@ namespace lattice2 {
 
     // 単語素片を末尾に適用してみる
     std::vector<MString> CandidateString::applyPiece(const WordPiece& piece, int strokeCount, int paddingLen, bool isStrokeBS, bool bKatakanaConversion) const {
-        LOG_DEBUGH(_T("ENTER: pieces={}, strokeCount={}, paddingLen={}, isStrokeBS={}, _strokeLen={}"), piece.debugString(), strokeCount, paddingLen, isStrokeBS, _strokeLen);
+        _LOG_DETAIL(_T("ENTER: this={}, pieces={}, strokeCount={}, paddingLen={}, isStrokeBS={}, _strokeLen={}"),
+            infoString(), piece.debugString(), strokeCount, paddingLen, isStrokeBS, _strokeLen);
         std::vector<MString> ss;
         if (isStrokeBS || (piece.isPadding() && _strokeLen + paddingLen == strokeCount) || (_strokeLen + piece.strokeLen() == strokeCount)) {
             LOG_DEBUGH(_T("isStrokeBS({}) || _strokeLen({}) + piece.strokeLen({})|paddingLen({}) == strokeCount({})"),
@@ -571,8 +572,12 @@ namespace lattice2 {
             LOG_DEBUGH(_T("return NO result: _strokeLen({}) + piece.strokeLen({}) != strokeCount({})"), _strokeLen, piece.strokeLen(), strokeCount);
         }
 
-        LOG_DEBUG(L"LEAVE: ss=\"{}\"", to_wstr(utils::join(ss, '|')));
+        _LOG_DETAIL(L"LEAVE: ss=\"{}\"", to_wstr(utils::join(ss, '|')));
         return ss;
+    }
+
+    String CandidateString::infoString() const {
+        return to_wstr(_str) + _T(" (strokeLen=") + std::to_wstring(_strokeLen) + _T(")");
     }
 
     String CandidateString::debugString() const {
