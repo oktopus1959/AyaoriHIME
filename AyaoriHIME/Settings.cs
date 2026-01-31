@@ -1246,35 +1246,35 @@ namespace KanchokuWS
         private static int addDecoderSetting(string attr, int defval, int lowLimit = 0)
         {
             int result = GetString(attr)._parseInt(defval)._lowLimit(lowLimit);
-            DecoderSettings[attr] = GetString(attr, $"{result}");
+            DecoderSettings[attr] = $"{result}";
             return result;
         }
 
         private static double addDecoderSetting(string attr, double defval, double lowLimit = 0.0)
         {
             double result = GetString(attr)._parseDouble(defval)._lowLimit(lowLimit);
-            DecoderSettings[attr] = GetString(attr, $"{result}");
+            DecoderSettings[attr] = $"{result}";
             return result;
         }
 
         private static int addDecoderSetting(string attr, int defval, int lowLimit, int highLimit)
         {
             int result = GetString(attr)._parseInt(defval)._lowLimit(lowLimit)._highLimit(highLimit);
-            DecoderSettings[attr] = GetString(attr, $"{result}");
+            DecoderSettings[attr] = $"{result}";
             return result;
         }
 
         private static int addDecoderSetting(string attr, string attrOld, int defval, int lowLimit = 0)
         {
             int result = GetString(attr, attrOld, "")._parseInt(defval)._lowLimit(lowLimit);
-            DecoderSettings[attr] = GetString(attr, $"{result}");
+            DecoderSettings[attr] = $"{result}";
             return result;
         }
 
         private static bool addDecoderSetting(string attr, bool defval)
         {
             bool result = GetString(attr)._parseBool(defval);
-            DecoderSettings[attr] = GetString(attr, $"{result}"._toLower());
+            DecoderSettings[attr] = $"{result}"._toLower();
             return result;
         }
 
@@ -1282,7 +1282,7 @@ namespace KanchokuWS
         {
             var resultStr = GetString(attr, attrOld, "");
             bool result = resultStr._equalsTo("1") || resultStr._parseBool(defval);
-            DecoderSettings[attr] = GetString(attr, $"{result}"._toLower());
+            DecoderSettings[attr] = $"{result}"._toLower();
             return result;
         }
 
@@ -1884,7 +1884,7 @@ namespace KanchokuWS
             OutputHeadSymbolSub = GetString("outputHeadSymbol")._parseBool(true);               // 先頭の記号類をそのまま出力するか
             OutputHeadSymbol = setDecoderSetting("outputHeadSymbol", UseEditBuffer && OutputHeadSymbolSub);    // 先頭の記号類をそのまま出力する
             StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う
-            MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 2);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
+            MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 0);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
             MultiStreamBeamSize = addDecoderSetting("multiStreamBeamSize", 10);                 // 融合モードにおける解探索のビームサイズ
             ExtraBeamSizeRate = addDecoderSetting("extraBeamSizeRate", 0.5);                    // 余分に残しておく候補の割合
             RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲
