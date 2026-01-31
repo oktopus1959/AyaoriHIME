@@ -520,6 +520,8 @@ namespace MazegakiPreprocessor {
     MapString linesMap;
     MapInt costsMap;
 
+    bool mazeExpandFlag = true;
+
     // 活用型と交ぜ書きの前処理を行う
     // 辞書として有効な行の場合は true を返す。
     // (標準辞書の形式に従っていないものはそのまま出力)
@@ -528,17 +530,33 @@ namespace MazegakiPreprocessor {
 
         //items = origLine.strip.split(',')
         String line = utils::reReplace(utils::strip(origLine), L"\\s*,\\s*", L",");
-        if (line.empty() || line[0] == '#') {
-            LOG_DEBUGH(L"LEAVE: false: null or ignored");
+        if (line.empty()) {
+            LOG_DEBUGH(L"LEAVE: false: empty");
             return false;
         }
 
-        bool doMaze = true;
-        bool expandKFormFlag = bUserDic;
+        if (line[0] == '#') {
+            String lowerLine = utils::toLower(line);
+            if (lowerLine.starts_with(L"#unexpand")) {
+                mazeExpandFlag = false;
+                LOG_DEBUGH(L"LEAVE: false: unexpand mazegaki");
+                return false;
+            }
+            if (lowerLine.starts_with(L"#expand")) {
+                mazeExpandFlag = true;
+                LOG_DEBUGH(L"LEAVE: false: expand mazegaki");
+                return false;
+            }
+            LOG_DEBUGH(L"LEAVE: false: comment or ");
+            return false;
+        }
+
+        bool doMaze = mazeExpandFlag;
+        bool kFormExpandFlag = bUserDic;
         wchar_t firstChar = line[0];
         if (firstChar == '*' || firstChar == '+' || firstChar == '-') {
             doMaze = firstChar == '*';          // 交ぜ書き処理フラグ ('+' か '-' なら交ぜ書き処理を行わない)
-            expandKFormFlag = firstChar != '-'; // 活用形の展開フラグ ('*' か '+' なら展開、'-' なら展開しない)
+            kFormExpandFlag = firstChar != '-'; // 活用形の展開フラグ ('*' か '+' なら展開、'-' なら展開しない)
             line = line.substr(1);
         }
         if (line.empty()) {
@@ -547,7 +565,7 @@ namespace MazegakiPreprocessor {
             return false;
         }
 
-        if (expandKFormFlag || bUserDic) {
+        if (kFormExpandFlag || bUserDic) {
             // 活用形の展開(or ユーザー辞書形式)の場合、標準形に変換
             line = convertToNormalForm(line);
         }
@@ -586,7 +604,7 @@ namespace MazegakiPreprocessor {
         }
 
         bool mainResult = false;
-        if (expandKFormFlag) {
+        if (kFormExpandFlag) {
             // 活用形の展開
             for (const auto& expLine : expandKForm(line)) {
                 mainResult = main(linesMap, costsMap, expLine, doMaze);
