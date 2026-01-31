@@ -1013,7 +1013,7 @@ namespace lattice2 {
         // return: strokeBack による戻しがあったら、先頭を優先する
         std::vector<CandidateString> _updateKBestList_sub(const std::vector<WordPiece>& pieces, bool useMorphAnalyzer, int strokeCount, int paddingLen, bool strokeBack, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("ENTER: pieces.size={}, strokeCount={}, useMorphAnalyzer={}, strokeBack={}, paddingLen={}"),
-                pieces.size(), useMorphAnalyzer, strokeCount, strokeBack, paddingLen);
+                pieces.size(), strokeCount, useMorphAnalyzer, strokeBack, paddingLen);
             std::vector<CandidateString> newCandidates;
             if (strokeBack) {
                 _LOG_DETAIL(_T("strokeBack"));
@@ -1030,7 +1030,7 @@ namespace lattice2 {
             }
             bool isPaddingPiece = pieces.size() == 1 && pieces.front().isPadding();
             bool isBSpiece = pieces.size() == 1 && pieces.front().isBS();
-            _LOG_DETAIL(_T("isPaddingPiece={}, isBSpiece={}"), isPaddingPiece, isBSpiece);
+            _LOG_DETAIL(_T("newCandidates.size={}, isPaddingPiece={}, isBSpiece={}"), newCandidates.size(), isPaddingPiece, isBSpiece);
 
             //if (isBSpiece) {
             //    // 末尾文字を削除して残った文字列と同じ候補があれば、そのストローク長まで候補を削除する
@@ -1049,6 +1049,7 @@ namespace lattice2 {
                 raiseAndLowerByCandSelection();
             }
 
+            _LOG_DETAIL(_T("A: newCandidates.size={}"), newCandidates.size());
             // 適用する素片が複数ある場合、形態素解析を行う
             useMorphAnalyzer = useMorphAnalyzer || pieces.size() > 1;
             // BS でないか、以前の候補が無くなっていた
@@ -1056,22 +1057,28 @@ namespace lattice2 {
                 // 素片のストロークと適合する候補だけを追加
                 addOnePiece(newCandidates, piece, useMorphAnalyzer, strokeCount, paddingLen, bKatakanaConversion);
             }
+            _LOG_DETAIL(_T("B: newCandidates.size={}"), newCandidates.size());
 
             if (!isPaddingPiece) {
                 //rotateSameTailCandidates(newCandidates);
                 truncateTailCandidates(newCandidates);
             }
+            _LOG_DETAIL(_T("C: newCandidates.size={}"), newCandidates.size());
 
             //sortByLlamaLoss(newCandidates);
 
             // 残りの _candidates のうち、stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく
             if (!isBSpiece /* && !_isPadding(newCandidates)*/) {     // isPadding()だったら、BSなどで先頭のものだけが残されたということ
+                _LOG_DETAIL(_T("D: newCandidates.size={}, _candidates.size={}, remainingStrokeSize={}, strokeCount={}"),
+                    newCandidates.size(), _candidates.size(), SETTINGS->remainingStrokeSize, strokeCount);
                 for (const auto& cand : _candidates) {
+                    _LOG_DETAIL(_T("cand.str={}, cand.strokeLen={}"), to_wstr(cand.string()), cand.strokeLen());
                     if (cand.strokeLen() + SETTINGS->remainingStrokeSize > strokeCount) {
                         newCandidates.push_back(cand);
                     }
                 }
             }
+            _LOG_DETAIL(_T("E: newCandidates.size={}"), newCandidates.size());
             if (!isPaddingPiece || isBSpiece) {
                 // 新しく候補が作成された
                 resetOrigFirstCand();

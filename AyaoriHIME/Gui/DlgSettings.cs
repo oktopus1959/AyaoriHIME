@@ -1881,7 +1881,7 @@ namespace KanchokuWS.Gui
             checkBox_multiCandidateMode.Enabled = !Settings.MultiStreamMode;
             checkBox_collectRealtimeNgram.Checked = Settings.CollectRealtimeNgram;
             checkBox_useMorphAndNgramAnalyzer.Checked = Settings.UseMorphAnalyzerAlways;
-            checkBox_strokeBackByBS.Checked = Settings.StrokeBackByBS;
+            checkBox_strokeBackByBS.Checked = !Settings.StrokeBackByBS;
             checkBox_useEditBuffer.Checked = Settings.UseEditBuffer;
             checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbolSub;
             checkBox_outputHeadSymbol.Enabled = Settings.UseEditBuffer;
@@ -1966,7 +1966,7 @@ namespace KanchokuWS.Gui
             }
             Settings.SetUserIni("collectRealtimeNgram", checkBox_collectRealtimeNgram.Checked);
             Settings.SetUserIni("useMorphAnalyzerAlways", checkBox_useMorphAndNgramAnalyzer.Checked);
-            Settings.SetUserIni("strokeBackByBS", checkBox_strokeBackByBS.Checked);
+            Settings.SetUserIni("strokeBackByBS", !checkBox_strokeBackByBS.Checked);
             Settings.SetUserIni("useEditBuffer", checkBox_useEditBuffer.Checked);
             if (checkBox_useEditBuffer.Checked) {
                 Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);

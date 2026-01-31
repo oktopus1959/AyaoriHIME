@@ -260,7 +260,7 @@ namespace lattice2 {
             }
             //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
-            _LOG_DETAIL(_T("LEAVE:\nkBest:\n{}"), _kBestList->debugCandidates(10));
+            _LOG_DETAIL(_T("LEAVE"));
             return LatticeResult(outStr, numBS);
         }
 

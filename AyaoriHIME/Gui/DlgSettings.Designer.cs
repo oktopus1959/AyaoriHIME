@@ -6249,9 +6249,9 @@ namespace KanchokuWS.Gui
             this.groupBox44.Controls.Add(this.checkBox_outputHeadSymbol);
             this.groupBox44.Controls.Add(this.textBox_editBufferFlushChar);
             this.groupBox44.Controls.Add(this.label158);
-            this.groupBox44.Location = new System.Drawing.Point(15, 246);
+            this.groupBox44.Location = new System.Drawing.Point(364, 12);
             this.groupBox44.Name = "groupBox44";
-            this.groupBox44.Size = new System.Drawing.Size(335, 91);
+            this.groupBox44.Size = new System.Drawing.Size(334, 91);
             this.groupBox44.TabIndex = 2;
             this.groupBox44.TabStop = false;
             this.groupBox44.Text = "編集バッファ";
@@ -6285,7 +6285,7 @@ namespace KanchokuWS.Gui
             this.textBox_editBufferFlushChar.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
             this.textBox_editBufferFlushChar.Location = new System.Drawing.Point(194, 64);
             this.textBox_editBufferFlushChar.Name = "textBox_editBufferFlushChar";
-            this.textBox_editBufferFlushChar.Size = new System.Drawing.Size(135, 19);
+            this.textBox_editBufferFlushChar.Size = new System.Drawing.Size(134, 19);
             this.textBox_editBufferFlushChar.TabIndex = 5;
             this.toolTip1.SetToolTip(this.textBox_editBufferFlushChar, "ここで指定した文字を入力すると、編集バッファの\r\n内容がフラッシュされてアプリに送出されます。");
             // 
@@ -6309,12 +6309,10 @@ namespace KanchokuWS.Gui
             this.groupBox34.Controls.Add(this.textBox_ngramManualSelectDelta);
             this.groupBox34.Controls.Add(this.label167);
             this.groupBox34.Controls.Add(this.textBox_multiStreamBeamSize);
-            this.groupBox34.Controls.Add(this.label168);
-            this.groupBox34.Controls.Add(this.textBox_remainingStrokeSize);
             this.groupBox34.Controls.Add(this.label91);
-            this.groupBox34.Location = new System.Drawing.Point(364, 12);
+            this.groupBox34.Location = new System.Drawing.Point(364, 114);
             this.groupBox34.Name = "groupBox34";
-            this.groupBox34.Size = new System.Drawing.Size(334, 157);
+            this.groupBox34.Size = new System.Drawing.Size(334, 143);
             this.groupBox34.TabIndex = 3;
             this.groupBox34.TabStop = false;
             this.groupBox34.Text = "実験的設定";
@@ -6342,7 +6340,7 @@ namespace KanchokuWS.Gui
             // textBox_ngramMaxBonusPoint
             // 
             this.textBox_ngramMaxBonusPoint.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramMaxBonusPoint.Location = new System.Drawing.Point(157, 107);
+            this.textBox_ngramMaxBonusPoint.Location = new System.Drawing.Point(157, 85);
             this.textBox_ngramMaxBonusPoint.Name = "textBox_ngramMaxBonusPoint";
             this.textBox_ngramMaxBonusPoint.Size = new System.Drawing.Size(34, 19);
             this.textBox_ngramMaxBonusPoint.TabIndex = 4;
@@ -6353,7 +6351,7 @@ namespace KanchokuWS.Gui
             // label128
             // 
             this.label128.AutoSize = true;
-            this.label128.Location = new System.Drawing.Point(13, 109);
+            this.label128.Location = new System.Drawing.Point(13, 87);
             this.label128.Name = "label128";
             this.label128.Size = new System.Drawing.Size(125, 15);
             this.label128.TabIndex = 83;
@@ -6362,7 +6360,7 @@ namespace KanchokuWS.Gui
             // textBox_ngramBonusPointFactor
             // 
             this.textBox_ngramBonusPointFactor.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramBonusPointFactor.Location = new System.Drawing.Point(157, 129);
+            this.textBox_ngramBonusPointFactor.Location = new System.Drawing.Point(157, 107);
             this.textBox_ngramBonusPointFactor.Name = "textBox_ngramBonusPointFactor";
             this.textBox_ngramBonusPointFactor.Size = new System.Drawing.Size(34, 19);
             this.textBox_ngramBonusPointFactor.TabIndex = 5;
@@ -6373,7 +6371,7 @@ namespace KanchokuWS.Gui
             // label89
             // 
             this.label89.AutoSize = true;
-            this.label89.Location = new System.Drawing.Point(13, 87);
+            this.label89.Location = new System.Drawing.Point(13, 65);
             this.label89.Name = "label89";
             this.label89.Size = new System.Drawing.Size(142, 15);
             this.label89.TabIndex = 79;
@@ -6382,7 +6380,7 @@ namespace KanchokuWS.Gui
             // textBox_ngramManualSelectDelta
             // 
             this.textBox_ngramManualSelectDelta.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramManualSelectDelta.Location = new System.Drawing.Point(157, 85);
+            this.textBox_ngramManualSelectDelta.Location = new System.Drawing.Point(157, 63);
             this.textBox_ngramManualSelectDelta.Name = "textBox_ngramManualSelectDelta";
             this.textBox_ngramManualSelectDelta.Size = new System.Drawing.Size(34, 19);
             this.textBox_ngramManualSelectDelta.TabIndex = 3;
@@ -6413,26 +6411,28 @@ namespace KanchokuWS.Gui
             // label168
             // 
             this.label168.AutoSize = true;
-            this.label168.Location = new System.Drawing.Point(13, 65);
+            this.label168.Location = new System.Drawing.Point(9, 39);
             this.label168.Name = "label168";
-            this.label168.Size = new System.Drawing.Size(130, 15);
+            this.label168.Size = new System.Drawing.Size(154, 15);
             this.label168.TabIndex = 70;
-            this.label168.Text = "残しておくストロークの範囲";
+            this.label168.Text = "保存しておく直近のストローク数";
             // 
             // textBox_remainingStrokeSize
             // 
             this.textBox_remainingStrokeSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(157, 63);
+            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(165, 37);
             this.textBox_remainingStrokeSize.Name = "textBox_remainingStrokeSize";
             this.textBox_remainingStrokeSize.Size = new System.Drawing.Size(34, 19);
-            this.textBox_remainingStrokeSize.TabIndex = 2;
+            this.textBox_remainingStrokeSize.TabIndex = 1;
             this.textBox_remainingStrokeSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_remainingStrokeSize, "直近の何ストローク分を記憶しておくかを指定\r\n\r\n使用している配列で、一文字を入力するのにかかる\r\n最大ストローク数以上に設定してください。");
+            this.toolTip1.SetToolTip(this.textBox_remainingStrokeSize, "直近の何ストローク分を保存しておくかを指定\r\n\r\n少なくとも、使用している配列で、一文字を入力するのにかかる\r\n最大ストローク数(あるいは同時打鍵のキー数)以上に" +
+        "設定してください。\r\n\r\nまた、BSでストロークを戻す設定になっている場合も、保存してある\r\nストローク数までしか戻せないので、そのあたりも考慮して設定してくだ" +
+        "さい。");
             // 
             // label91
             // 
             this.label91.AutoSize = true;
-            this.label91.Location = new System.Drawing.Point(13, 131);
+            this.label91.Location = new System.Drawing.Point(13, 109);
             this.label91.Name = "label91";
             this.label91.Size = new System.Drawing.Size(113, 15);
             this.label91.TabIndex = 81;
@@ -6448,9 +6448,11 @@ namespace KanchokuWS.Gui
             this.groupBox8.Controls.Add(this.checkBox_strokeBackByBS);
             this.groupBox8.Controls.Add(this.textBox_maxStrokeBackCount);
             this.groupBox8.Controls.Add(this.label46);
+            this.groupBox8.Controls.Add(this.label168);
+            this.groupBox8.Controls.Add(this.textBox_remainingStrokeSize);
             this.groupBox8.Location = new System.Drawing.Point(15, 12);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(335, 129);
+            this.groupBox8.Size = new System.Drawing.Size(335, 152);
             this.groupBox8.TabIndex = 0;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "基本設定";
@@ -6458,7 +6460,7 @@ namespace KanchokuWS.Gui
             // label112
             // 
             this.label112.AutoSize = true;
-            this.label112.Location = new System.Drawing.Point(9, 106);
+            this.label112.Location = new System.Drawing.Point(9, 128);
             this.label112.Name = "label112";
             this.label112.Size = new System.Drawing.Size(141, 15);
             this.label112.TabIndex = 83;
@@ -6467,10 +6469,10 @@ namespace KanchokuWS.Gui
             // textBox_mergerCandidateMax
             // 
             this.textBox_mergerCandidateMax.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_mergerCandidateMax.Location = new System.Drawing.Point(164, 104);
+            this.textBox_mergerCandidateMax.Location = new System.Drawing.Point(164, 126);
             this.textBox_mergerCandidateMax.Name = "textBox_mergerCandidateMax";
             this.textBox_mergerCandidateMax.Size = new System.Drawing.Size(34, 19);
-            this.textBox_mergerCandidateMax.TabIndex = 4;
+            this.textBox_mergerCandidateMax.TabIndex = 5;
             this.textBox_mergerCandidateMax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_mergerCandidateMax, "入力候補の選択時の表示数\r\n\r\n最小は 0、最大は 10 です。\r\n↑↓キーで入力候補を選択した時に表示する候補数となります。\r\n0 を設定すると、候補表示を行い" +
         "ません。");
@@ -6478,7 +6480,7 @@ namespace KanchokuWS.Gui
             // label113
             // 
             this.label113.AutoSize = true;
-            this.label113.Location = new System.Drawing.Point(9, 84);
+            this.label113.Location = new System.Drawing.Point(9, 106);
             this.label113.Name = "label113";
             this.label113.Size = new System.Drawing.Size(153, 15);
             this.label113.TabIndex = 82;
@@ -6487,10 +6489,10 @@ namespace KanchokuWS.Gui
             // textBox_mergerCandidateMin
             // 
             this.textBox_mergerCandidateMin.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_mergerCandidateMin.Location = new System.Drawing.Point(164, 82);
+            this.textBox_mergerCandidateMin.Location = new System.Drawing.Point(164, 104);
             this.textBox_mergerCandidateMin.Name = "textBox_mergerCandidateMin";
             this.textBox_mergerCandidateMin.Size = new System.Drawing.Size(34, 19);
-            this.textBox_mergerCandidateMin.TabIndex = 3;
+            this.textBox_mergerCandidateMin.TabIndex = 4;
             this.textBox_mergerCandidateMin.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_mergerCandidateMin, "入力候補の未選択時の表示数\r\n\r\n最小は 0、最大は 10 です。\r\n0 を設定すると、候補表示を行いません。");
             // 
@@ -6509,30 +6511,30 @@ namespace KanchokuWS.Gui
             // checkBox_strokeBackByBS
             // 
             this.checkBox_strokeBackByBS.AutoSize = true;
-            this.checkBox_strokeBackByBS.Location = new System.Drawing.Point(12, 38);
+            this.checkBox_strokeBackByBS.Location = new System.Drawing.Point(12, 60);
             this.checkBox_strokeBackByBS.Name = "checkBox_strokeBackByBS";
-            this.checkBox_strokeBackByBS.Size = new System.Drawing.Size(182, 19);
-            this.checkBox_strokeBackByBS.TabIndex = 1;
-            this.checkBox_strokeBackByBS.Text = "BSで末尾文字の打鍵を取り消す";
-            this.toolTip1.SetToolTip(this.checkBox_strokeBackByBS, "BSで末尾文字のストローク列を取り消す\r\n\r\nBSを打鍵した時に、表示されている文字列の末尾文字を\r\n直接に削除するのではなく、その文字を出力するための\r\nストロ" +
-        "ーク列を取り消すことによって、結果的に末尾文字を\r\n削除します。\r\n入力候補列も、末尾文字が削除された時点の状態に\r\n戻ります。");
+            this.checkBox_strokeBackByBS.Size = new System.Drawing.Size(137, 19);
+            this.checkBox_strokeBackByBS.TabIndex = 2;
+            this.checkBox_strokeBackByBS.Text = "BSを本来の動作に戻す";
+            this.toolTip1.SetToolTip(this.checkBox_strokeBackByBS, resources.GetString("checkBox_strokeBackByBS.ToolTip"));
             this.checkBox_strokeBackByBS.UseVisualStyleBackColor = true;
             // 
             // textBox_maxStrokeBackCount
             // 
             this.textBox_maxStrokeBackCount.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_maxStrokeBackCount.Location = new System.Drawing.Point(30, 59);
+            this.textBox_maxStrokeBackCount.Location = new System.Drawing.Point(30, 81);
             this.textBox_maxStrokeBackCount.Name = "textBox_maxStrokeBackCount";
             this.textBox_maxStrokeBackCount.Size = new System.Drawing.Size(34, 19);
-            this.textBox_maxStrokeBackCount.TabIndex = 2;
+            this.textBox_maxStrokeBackCount.TabIndex = 3;
             this.textBox_maxStrokeBackCount.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_maxStrokeBackCount, "指定回数BSを打鍵すると本来のBS動作に戻る\r\n\r\n「BSで直前の打鍵を取り消す」設定になっている場合に\r\nここで指定した回数だけBSを連続打鍵したら、本来の\r\n" +
-        "BSの動作、すなわち、表示されている文字列の末尾の\r\n文字の削除を行うようになります。");
+            this.toolTip1.SetToolTip(this.textBox_maxStrokeBackCount, "指定回数BSを打鍵すると本来のBS動作に戻る\r\n\r\nデフォルトのBS動作設定になっている場合に、ここで指定した\r\n回数だけBSを連続打鍵したら、本来のBSの動作、" +
+        "すなわち、\r\n表示されている文字列の末尾の文字を直接削除するように\r\nなります。\r\n\r\n0 に設定すると、「BSを本来の動作に戻す」をONにしない限り、\r\n本来" +
+        "のBS動作には戻りません。");
             // 
             // label46
             // 
             this.label46.AutoSize = true;
-            this.label46.Location = new System.Drawing.Point(66, 61);
+            this.label46.Location = new System.Drawing.Point(66, 83);
             this.label46.Name = "label46";
             this.label46.Size = new System.Drawing.Size(201, 15);
             this.label46.TabIndex = 77;
@@ -6557,7 +6559,7 @@ namespace KanchokuWS.Gui
             this.groupBox51.Controls.Add(this.radioButton_mainRtNgramFile);
             this.groupBox51.Controls.Add(this.radioButton_tempRtNgramFile);
             this.groupBox51.Controls.Add(this.button_reloadDict);
-            this.groupBox51.Location = new System.Drawing.Point(15, 150);
+            this.groupBox51.Location = new System.Drawing.Point(15, 170);
             this.groupBox51.Name = "groupBox51";
             this.groupBox51.Size = new System.Drawing.Size(335, 87);
             this.groupBox51.TabIndex = 1;

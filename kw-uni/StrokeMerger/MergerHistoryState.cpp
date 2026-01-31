@@ -468,6 +468,7 @@ namespace {
                             LOG_DEBUGH(_T("stroke back by BS"));
                             _strokeBack = true;
                         } else {
+                            // 本来のBS処理
                             // 現在の先頭候補を優先する
                             //WORD_LATTICE->selectFirst();
                             WORD_LATTICE->removeOtherThanFirst();

@@ -986,6 +986,21 @@ OFF の場合は、"/" はたんに無視され、1文字単位であらゆる�
 
 編集バッファが無効の場合は、対象アプリに直接文字出力されます。</value>
   </data>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="checkBox_strokeBackByBS.ToolTip" xml:space="preserve">
+    <value>BSで末尾文字を直接削除するという本来の動作に戻す
+
+デフォルトでは、BSを打鍵した時に、表示されている文字列の
+末尾文字を直接に削除するのではなく、その文字を出力する
+ためのストローク列を取り消すことによって、結果的に末尾文字を
+削除しています。これにより、入力候補列も、末尾文字が未入力
+だった時点の状態に戻ります。
+
+この設定をONにすると、入力候補列の先頭のものだけを残して、
+その末尾文字を削除するとという、本来のBSの動作に戻ります。</value>
+  </data>
   <data name="textBox_autoBushuComp.ToolTip" xml:space="preserve">
     <value>自動部首合成の登録を行います。
 
