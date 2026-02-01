@@ -1524,8 +1524,8 @@ namespace KanchokuWS
             ShowVkbOrMaker = GetString("showVkbOrMaker")._parseBool(true);
 
             //-------------------------------------------------------------------------------------
-            VirtualKeyboardOffsetX = GetString("vkbOffsetX")._parseInt(2);
-            VirtualKeyboardOffsetY = GetString("vkbOffsetY")._parseInt(2);
+            VirtualKeyboardOffsetX = GetString("vkbOffsetX")._parseInt(200);
+            VirtualKeyboardOffsetY = GetString("vkbOffsetY")._parseInt(-150);
 
             var fixedPos = GetString("vkbFixedPos").Trim()._split(',').Select(x => x._parseInt(-1)).ToArray();
             VirtualKeyboardFixedPosX = fixedPos._getNth(0, -1);
