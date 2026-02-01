@@ -16,15 +16,13 @@
 #include "Lattice.h"
 
 #define _LOG_INFOH LOG_INFO
-#define _LOG_DETAIL LOG_DEBUGH
+#define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
 #if 1
 #undef _LOG_INFOH
-#undef _LOG_DETAIL
 #undef LOG_INFO
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
 #define _LOG_INFOH LOG_INFOH
-#define _LOG_DETAIL LOG_INFOH
 #define LOG_INFO LOG_INFOH
 #define LOG_DEBUGH LOG_INFOH
 #define LOG_DEBUG LOG_INFOH
@@ -398,7 +396,7 @@ namespace {
 
         // DECKEY 処理の流れ
         void HandleDeckeyChain(int deckey) override {
-            _LOG_INFOH(_T("\nENTER: deckey={:x}H({}={}), totalCount={}, statesNum=({},{})"),
+            _LOG_DETAIL(_T("\nENTER: deckey={:x}H({}={}), totalCount={}, statesNum=({},{})"),
                 deckey, deckey, DECKEY_TO_CHARS->GetDeckeyNameFromId(deckey), STATE_COMMON->GetTotalDecKeyCount(), _streamList1.Count(), _streamList2.Count());
 
             resultStr.clear();
@@ -421,7 +419,7 @@ namespace {
                 _streamList2.DebugPrintStatesChain(_T("HandleDeckeyChain::BEGIN: streamList2"));
 
                 bool bHasAnyStroke = !_streamList1.Empty() || !_streamList2.Empty();
-                LOG_DEBUGH(_T("\nuseEditBuffer={}, bDualTableMode={}, bHasAnyStroke={}"), SETTINGS->useEditBuffer, bDualTableMode, bHasAnyStroke);
+                _LOG_DETAIL(_T("\nuseEditBuffer={}, bDualTableMode={}, bHasAnyStroke={}"), SETTINGS->useEditBuffer, bDualTableMode, bHasAnyStroke);
 
                 if (/*deckey != CLEAR_STROKE_DECKEY && */
                     ((deckey >= FUNC_DECKEY_START && deckey < FUNC_DECKEY_END && !isSingleHitKey(deckey)) || deckey >= CTRL_DECKEY_START)) {
@@ -661,7 +659,7 @@ namespace {
             if (_isKatakanaConversionMode) {
                 STATE_COMMON->SetCenterString(L'カ');
             }
-            _LOG_INFOH(_T("LEAVE: _comboStrokeCount={}\n"), _comboStrokeCount);
+            _LOG_DETAIL(_T("LEAVE: _comboStrokeCount={}\n"), _comboStrokeCount);
         }
 
         // 新しい状態作成のチェイン

@@ -150,73 +150,66 @@ namespace KanchokuWS.Forms
             bool toFlush = false;
             bool toAbort = false;
 
-            void handleFunctionalKey(string fkey)
+            void handleFunctionalKey(FunctionalKeyInfo fkey)
             {
                 logger.InfoH($"handleFunctionalKey: fkey={fkey}");
-                switch (fkey) {
-                    case "Left":
+                switch (fkey.KeyOrFunc?.DecKey ?? -1) {
+                    case DecoderKeys.LEFT_ARROW_DECKEY:
                         logger.InfoH($"Left");
                         if (preText._notEmpty()) {
                             postText = preText._safeSubstring(-1) + postText;
                             preText = preText._safeSubstring(0, -1);
                         }
                         break;
-                    case "Right":
+                    case DecoderKeys.RIGHT_ARROW_DECKEY:
                         logger.InfoH($"Right");
                         if (postText._notEmpty()) {
                             preText = preText + postText._safeSubstring(0, 1);
                             postText = postText._safeSubstring(1);
                         }
                         break;
-                    case "Home":
+                    case DecoderKeys.HOME_DECKEY:
                         logger.InfoH($"Home");
                         postText = preText + postText;
                         preText = "";
                         break;
-                    case "End":
+                    case DecoderKeys.END_DECKEY:
                         logger.InfoH($"End");
                         preText = preText + postText;
                         postText = "";
                         break;
-                    case "BS":
-                    case "BackSpace":
+                    case DecoderKeys.BS_DECKEY:
                         logger.InfoH($"BS");
                         if (preText._notEmpty()) {
                             preText = preText._safeSubstring(0, -1);
                         }
                         break;
-                    case "DEL":
-                    case "Delete":
+                    case DecoderKeys.DEL_DECKEY:
                         logger.InfoH($"Delete");
                         if (postText._notEmpty()) {
                             postText = postText._safeSubstring(1);
                         }
                         break;
-                    case "Enter":
+                    case DecoderKeys.ENTER_DECKEY:
                         logger.InfoH($"Enter");
                         bFlushAll = true;
                         break;
-                    case "Flush":
-                        logger.InfoH($"Flush");
-                        toFlush = true;
-                        break;
-                    case "^U":
-                        logger.InfoH($"^U");
-                        preText = "";
-                        postText = "";
-                        break;
-                    case "Abort":
-                        logger.InfoH($"Abort");
-                        preText = "";
-                        postText = "";
-                        toAbort = true;
-                        break;
                     default:
-                        logger.InfoH($"Check FkeySpec");
-                        var kf = SpecialKeysAndFunctions.GetKeyOrFuncByName(fkey);
-                        if (kf != null && kf.IsFunction) {
-                            logger.InfoH($"CALL: FuncDispatcher({kf.DecKey})");
-                            frmMain.FuncDispatcher(kf.DecKey, -1, 0, false);
+                        if (fkey.Alias == "Flush") {
+                            logger.InfoH($"Flush");
+                            toFlush = true;
+                        } else if (fkey.Alias == "Abort") {
+                            logger.InfoH($"Abort");
+                            preText = "";
+                            postText = "";
+                            toAbort = true;
+                        } else if (fkey.Alias == "U" && fkey.IsCtrl()) {
+                            logger.InfoH($"^U");
+                            preText = "";
+                            postText = "";
+                        } else if (fkey.KeyOrFunc != null && fkey.KeyOrFunc.IsFunction) {
+                            logger.InfoH($"CALL: FuncDispatcher({fkey.KeyOrFunc.DecKey}:{fkey.Alias})");
+                            frmMain.FuncDispatcher(fkey.KeyOrFunc.DecKey, -1, 0, false);
                         }
                         break;
                 }
@@ -248,17 +241,16 @@ namespace KanchokuWS.Forms
                         postText = "";
                     } else {
                         while (pos < str.Length && !toFlush) {
-                            if (str[pos] == '!' && pos + 1 < str.Length && str[pos + 1] == '{') {
+                            if (FunctionalDescParser.IsFunctionalDescStart(str, pos)) {
                                 // "!{...}"
-                                pos += 2;
-                                var sb = new StringBuilder();
-                                while (pos < str.Length && str[pos] != '}') {
-                                    sb.Append(str[pos++]);
+                                var funcInfo = FunctionalDescParser.Parse(str, pos);
+                                if (funcInfo != null) {
+                                    handleFunctionalKey(funcInfo);
+                                    pos = funcInfo.NextPos;
                                 }
-                                handleFunctionalKey(sb.ToString());
                             } else {
                                 if (str[pos] == '(' && str[str.Length - 1] == ')') {
-                                    var value = Handler.TernaryOperatorParser.Parse(str._safeSubstring(pos), "@");
+                                    var value = TernaryOperatorParser.Parse(str._safeSubstring(pos), "@");
                                     logger.InfoH($"value={value}");
                                     if (value._notEmpty()) {
                                         str = value;

@@ -12,9 +12,9 @@ namespace KanchokuWS.Handler
 
     public class FunctionalKeyInfo
     {
-        public static int Ctrl = 1;
-        public static int Shift = 2;
-        public static int Alt = 3;
+        private static int Ctrl = 1;
+        private static int Shift = 2;
+        private static int Alt = 4;
 
         public bool IsRight { get; }
         public int Modifier { get; }
@@ -37,6 +37,51 @@ namespace KanchokuWS.Handler
             RepeatCount = count;
             StartPos = start;
             NextPos = next;
+        }
+
+        public static bool IsCtrl(int mod)
+        {
+            return (mod & Ctrl) != 0;
+        }
+
+        public static int SetCtrl(int mod)
+        {
+            return mod | Ctrl;
+        }
+
+        public bool IsCtrl()
+        {
+            return IsCtrl(Modifier);
+        }
+
+        public static bool IsShift(int mod)
+        {
+            return (mod & Shift) != 0;
+        }
+
+        public static int SetShift(int mod)
+        {
+            return mod | Shift;
+        }
+
+        public bool IsShift()
+        {
+            return IsShift(Modifier);
+        }
+
+        public static bool IsAlt(int mod)
+        {
+            return (mod & Alt) != 0;
+        }
+
+        public static int SetAlt(int mod)
+        {
+            return mod | Alt;
+        }
+
+        public bool IsAlt()
+        {
+            return IsAlt(Modifier);
         }
 
         public override string ToString()
@@ -92,9 +137,9 @@ namespace KanchokuWS.Handler
             var sb = new StringBuilder();
             sb.Append("!{");
             if (right) sb.Append('>');
-            if (mod == FunctionalKeyInfo.Ctrl) sb.Append('^');
-            if (mod == FunctionalKeyInfo.Shift) sb.Append('+');
-            if (mod == FunctionalKeyInfo.Alt) sb.Append('!');
+            if (FunctionalKeyInfo.IsCtrl(mod)) sb.Append('^');
+            if (FunctionalKeyInfo.IsShift(mod)) sb.Append('+');
+            if (FunctionalKeyInfo.IsAlt(mod)) sb.Append('!');
             sb.Append(name);
             if (repeatCount > 1) {
                 sb.Append(' ');
@@ -139,11 +184,11 @@ namespace KanchokuWS.Handler
                     } else if (ch == '>') {
                         right = true;
                     } else if (ch == '^') {
-                        mod = FunctionalKeyInfo.Ctrl;
+                        mod = FunctionalKeyInfo.SetCtrl(mod);
                     } else if (ch == '+') {
-                        mod = FunctionalKeyInfo.Shift;
+                        mod = FunctionalKeyInfo.SetShift(mod);
                     } else if (ch == '!') {
-                        mod = FunctionalKeyInfo.Alt;
+                        mod = FunctionalKeyInfo.SetAlt(mod);
                     } else if (ch == ' ' || ch == ',' || ch == ':' || ch == '/') {
                         bRepeatCnt = true;
                     } else {
@@ -160,11 +205,12 @@ namespace KanchokuWS.Handler
 
             string alias = sb.ToString();
             string name = functionalKeyAliases._safeGet(alias, alias);
-            logger.Info(() => $"alias={alias}, key={name}");
             uint vkey = DecoderKeyVsVKey.GetFuncVkeyByName(name);
             //logger.DebugH(() => $"vkey={vkey:x} by FuncKey");
             if (vkey == 0) vkey = AlphabetVKeys.GetAlphabetVkeyByName(name);
             var keyOrFunc = SpecialKeysAndFunctions.GetKeyOrFuncByName(name);
+
+            logger.Info(() => $"alias={alias}, key={name}, mod={mod}, right={right}, vkey={vkey:x}, keyOrFunc={(keyOrFunc == null ? "null" : keyOrFunc.ToString())}");
 
             return new FunctionalKeyInfo(right, mod, name, alias, vkey, keyOrFunc, repeatCount, startPos, pos);
         }

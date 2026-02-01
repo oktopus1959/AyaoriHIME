@@ -580,9 +580,9 @@ namespace KanchokuWS.Handler
             int repeatCount = funcInfo.RepeatCount;
             if (repeatCount == 0) repeatCount = 1;
             bool bRight = funcInfo.IsRight;
-            bool bCtrl = funcInfo.Modifier == FunctionalKeyInfo.Ctrl;
-            bool bShift = funcInfo.Modifier == FunctionalKeyInfo.Shift;
-            bool bAlt = funcInfo.Modifier == FunctionalKeyInfo.Alt;
+            bool bCtrl = funcInfo.IsCtrl();
+            bool bShift = funcInfo.IsShift();
+            bool bAlt = funcInfo.IsAlt();
 
             var info = new InputInfo(repeatCount + 5);
             INPUT[] inputs = info.Inputs;
