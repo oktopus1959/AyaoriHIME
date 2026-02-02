@@ -17,15 +17,13 @@
 //#include "History/HistoryResidentState.h"
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughStrokeTable)
-#define _LOG_DETAIL LOG_DEBUGH
+#define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
 
 #if 0 || defined(_DEBUG)
-#undef _LOG_DETAIL
 #undef LOG_INFO
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
 #undef _LOG_DEBUGH
-#define _LOG_DETAIL LOG_INFOH
 #define LOG_INFO LOG_INFOH
 #define LOG_DEBUGH LOG_INFOH
 #define LOG_DEBUG LOG_INFOH

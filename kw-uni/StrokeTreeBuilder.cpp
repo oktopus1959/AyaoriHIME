@@ -94,7 +94,7 @@ namespace {
 
     // 機能ノードの生成
     Node* createFunctionNode(String marker, int prevNum, int ) {
-        LOG_DEBUG(_T("marker={}, prevNum={}, myNum={}"), marker, prevNum, 0);
+        LOG_INFOH(_T("marker={}, prevNum={}, myNum={}"), marker, prevNum, 0);
         if (prevNum < 0) prevNum = 0;
         switch (utils::safe_front(marker)) {
         //case BuiltInMarker::MyChar:
@@ -109,6 +109,20 @@ namespace {
         case BuiltInMarker::WideShiftPrevChar:
             // シフト全角文字に変換
             return new StringNode(makeFullWideChar(DECKEY_TO_CHARS->GetCharFromDeckey(prevNum + SHIFT_DECKEY_START)));
+        case 'B':
+        case 'b':
+            // 部首合成
+            return new StringNode(L"!{BushuComp}", false);
+        case 'K':
+            // KatakanaConverion
+            return new StringNode(L"!{KatakanaConversion}", false);
+        case 'M':
+        case 'm':
+            // 交ぜ書き実行
+            return new StringNode(L"!{MazeConversion}", false);
+        case 'Z':
+            // 全角変換
+            return new StringNode(L"!{ZenkakuConversion}", false);
         default:
             return FunctionNodeManager::CreateFunctionNode(marker);
         }
