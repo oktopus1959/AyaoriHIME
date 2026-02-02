@@ -1135,6 +1135,16 @@ namespace lattice2 {
             } else {
                 _candidates = std::move(_updateKBestList_sub(pieces, useMorphAnalyzer, currentStrokeCount, paddingLen, strokeBack, bKatakanaConversion));
             }
+            if (_candidates.empty()) {
+                LOG_WARNH(_T("KBestList is empty after update."));
+                // 何らかの理由で候補が空になった場合は、先頭を表すダミーを用意しておく
+                _candidates.push_back(CandidateString(EMPTY_MSTR, currentStrokeCount));
+                _LOG_DETAIL(_T("padding empty cand={}"), _candidates.front().debugString());
+            } else if (_candidates.front().strokeLen() < currentStrokeCount) {
+                // 先頭候補のストローク長が currentStrokeCount 未満なら padding する
+                _candidates.push_back(CandidateString(_candidates.front(), currentStrokeCount - _candidates.front().strokeLen()));
+                _LOG_DETAIL(_T("padding cand={}"), _candidates.front().debugString());
+            }
 
             //// 漢字またはカタカナが2文字以上連続したら、その候補を優先する
             //if (!_candidates.empty()) {

@@ -241,7 +241,7 @@ namespace lattice2 {
             outStr = utils::safe_substr(outStr, commonLen);
 
             _LOG_DETAIL(_T("OUTPUT: {}, numBS={}\n\n{}"), to_wstr(outStr), numBS, _kBestList->debugKBestString());
-            if (_candidateLogEnabled) {
+            if (_candidateLogEnabled || SETTINGS->multiStreamDetailLog) {
                 while (_candidateLogQueue.size() >= 10) _candidateLogQueue.pop_front();
                 _candidateLogQueue.push_back(std::format(L"========================================\nENTER: currentStrokeCount={}, pieces: {}\n",
                     currentStrokeCount, formatStringOfWordPieces(pieces)));
