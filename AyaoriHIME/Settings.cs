@@ -1768,7 +1768,9 @@ namespace KanchokuWS
 #endif
             //MultiStreamMode = addDecoderSetting("multiStreamMode", true);
             MultiStreamMode = setDecoderSetting("multiStreamMode", TableFile._notEmpty() && TableFile2._notEmpty());
-            MultiCandidateMode = MultiStreamMode ? addDecoderSetting("multiCandidateMode", true) : setDecoderSetting("multiCandidateMode", false);
+            //MultiCandidateMode = MultiStreamMode ? addDecoderSetting("multiCandidateMode", true) : setDecoderSetting("multiCandidateMode", false);
+            MultiCandidateMode = MultiStreamMode || GetString("multiCandidateMode")._parseBool();
+            setDecoderSetting("multiCandidateMode", MultiCandidateMode);
             MultiStreamDetailLog = addDecoderSetting("multiStreamDetailLog", false);
             UseEditBuffer = addDecoderSetting("useEditBuffer", false);                  // 編集バッファを使用するか
             BushuAssocFile = addDecoderSetting("bushuAssocFile", "kwassoc.txt");
