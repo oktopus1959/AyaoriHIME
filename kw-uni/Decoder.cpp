@@ -45,6 +45,7 @@
 #include "Ngram/NgramBridge.h"
 #include "Llama/LlamaBridge.h"
 
+#define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
 #if 0 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
 #undef LOG_INFO
@@ -669,7 +670,7 @@ public:
         bool upperRomanGuideMode = (intputFlags & (int)InputFlags::UpperRomanGuideMode) != 0;
         bool rollOverStroke = (intputFlags & (int)InputFlags::RollOverStroke) != 0;
 
-        LOG_INFO(_T("\nENTER: keyId={:x}H({}={}), targetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}, editBuffer={}"),
+        _LOG_DETAIL(_T("\nENTER: keyId={:x}H({}={}), targetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}, editBuffer={}"),
             keyId, keyId, DECKEY_TO_CHARS->GetDeckeyNameFromId(keyId), to_wstr(targetChar), decodeKeyboardChar, upperRomanGuideMode, deckeyParams->editBufferData);
 
         // 編集バッファの内容を取得しておく
@@ -701,7 +702,7 @@ public:
         if (decodeKeyboardChar) STATE_COMMON->SetDecodeKeyboardCharMode();  // キーボードフェイス文字を返すモード
         if (upperRomanGuideMode) STATE_COMMON->SetUpperRomanGuideMode();    // 英大文字による入力ガイドモード
         if (rollOverStroke) STATE_COMMON->SetRollOverStroke();              // ロールオーバーされている打鍵
-        LOG_INFO(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(10));
+        _LOG_DETAIL(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(20));
 
         // 同時打鍵コードなら、RootStrokeStateを削除しておく⇒と思ったが、実際にはそのようなケースがあったのでコメントアウト(「のにいると」で  KkDF のケース)
         //if (keyId >= COMBO_DECKEY_START && keyId < EISU_COMBO_DECKEY_END) {
@@ -767,12 +768,10 @@ public:
         // ヘルプや候補文字列
         setHelpOrCandidates(targetChar, resultStr);
 
-        if (Reporting::Logger::IsInfoHEnabled()) {
-            //String stack = std::regex_replace(to_wstr(OUTPUT_STACK->OutputStackBackStr(10)), std::wregex(_T("\n")), _T("|"));
-            LOG_DEBUGH(_T("LEAVE: states={} (len={}), flags={:x}, expKey={}, layout={}, centerStr={}, numBS={}, outLength={}, stack={}\n\n================================================\n"),
-                startState->JoinedName(), startState->ChainLength(), OutParams->resultFlags, STATE_COMMON->GetNextExpectedKeyType(),
-                STATE_COMMON->GetLayoutInt(), outParams->centerString, resultStr.numBS(), cpyLen, OUTPUT_STACK->OutputStackBackStrForDebug(10));
-        }
+        //String stack = std::regex_replace(to_wstr(OUTPUT_STACK->OutputStackBackStr(10)), std::wregex(_T("\n")), _T("|"));
+        _LOG_DETAIL(_T("LEAVE: states={} (len={}), flags={:x}, expKey={}, layout={}, centerStr={}, numBS={}, outLength={}, stack={}\n\n================================================\n"),
+            startState->JoinedName(), startState->ChainLength(), OutParams->resultFlags, STATE_COMMON->GetNextExpectedKeyType(),
+            STATE_COMMON->GetLayoutInt(), outParams->centerString, resultStr.numBS(), cpyLen, OUTPUT_STACK->OutputStackBackStrForDebug(10));
     }
 
     // BackspaceStopper や HistoryBlock をセット

@@ -535,7 +535,8 @@ namespace {
                         LOG_DEBUGH(_T("EISU_MODE_TOGGLE"));
                         _isKatakanaConversionMode = false;
                         if (!NextNodeMaybe()) {
-                            WORD_LATTICE->clearAll();
+                            // WORD_LATTICE->clearAll();
+                            WORD_LATTICE->removeOtherThanFirst();
                             EISU_NODE->blockerNeeded = true; // 入力済み末尾にブロッカーを設定する
                             EISU_NODE->eisuExitCapitalCharNum = 0;
                             SetNextNodeMaybe(EISU_NODE);
@@ -696,8 +697,9 @@ namespace {
                 if (resultStr.isModified()) {
                     // EISUなど、何か他の処理で文字列が得られた場合
                     LOG_DEBUGH(_T("resultStr={}"), resultStr.debugString());
-                    WORD_LATTICE->clear();
-                    pieces.push_back(WordPiece(resultStr.resultStr(), 1, 0));
+                    //WORD_LATTICE->clear();
+                    WORD_LATTICE->syncBaseString(STATE_COMMON->GetEditBufferString());
+                    pieces.push_back(WordPiece(resultStr.resultStr(), 1, 0, resultStr.numBS()));
                 }
                 else if ((int)STATE_COMMON->GetTotalDecKeyCount() == _strokeCountBS) {
                     LOG_DEBUGH(_T("add WordPiece for BS."));
@@ -742,20 +744,21 @@ namespace {
 #endif
                 }
 
-                LOG_DEBUGH(_T("CHECKPOINT-6: getLatticeResult"));
-                int pieceNumBS = pieces.empty() ? 0 : pieces.back().numBS();
+                //int pieceNumBS = pieces.empty() ? 0 : pieces.back().numBS();
                 // Lattice処理
                 auto result = getLatticeResult(pieces);
+                LOG_DEBUGH(_T("CHECKPOINT-6: getLatticeResult={}, resultStr={}"), result.debugString(), resultStr.debugString());
                 _strokeBack = false;
 
-                if (resultStr.numBS() > 0) result.numBS = resultStr.numBS();
+                //if (resultStr.numBS() > 0) result.numBS = resultStr.numBS();
 
                 //LOG_DEBUGH(L"F:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
                 LOG_DEBUGH(_T("CHECKPOINT-7: check result"));
                 // 新しい文字列が得られたらそれを返す
-                if (!result.outStr.empty() || result.numBS > 0 || pieceNumBS > 0) {
-                    LOG_DEBUGH(_T("CHECKPOINT-7-A: setResult: outStr={}, numBS={}, pieceNumBS={}"), to_wstr(result.outStr), result.numBS, pieceNumBS);
+                if (!result.outStr.empty() || result.numBS > 0 /* || pieceNumBS > 0*/) {
+                    //LOG_DEBUGH(_T("CHECKPOINT-7-A: setResult: outStr={}, numBS={}, pieceNumBS={}"), to_wstr(result.outStr), result.numBS, pieceNumBS);
+                    LOG_DEBUGH(_T("CHECKPOINT-7-A: setResult: {}"), result.debugString());
                     resultOut.setResult(result.outStr, (int)(result.numBS));
                     SetTranslatedOutString(resultOut);
                     //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));

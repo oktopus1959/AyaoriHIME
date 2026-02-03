@@ -430,7 +430,7 @@ public:
 
     inline size_t size() const { return stack.size(); }
 
-    inline size_t isEmpty() const { return stack.empty(); }
+    inline bool isEmpty() const { return stack.empty(); }
 
     //inline const OutputStack& OutStack() { return outputStack; }
 

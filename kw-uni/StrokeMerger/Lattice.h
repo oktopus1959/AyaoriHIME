@@ -86,6 +86,16 @@ struct LatticeResult {
     static LatticeResult emptyResult() {
         return LatticeResult(EMPTY_MSTR, 0);
     }
+
+    String debugString() const {
+        String result(1, L'<');
+        result.append(_T("outStr="));
+        result.append(to_wstr(outStr));
+        result.append(_T(", numBS="));
+        result.append(std::to_wstring(numBS));
+        result.append(1, L'>');
+        return result;
+    }
 };
 
 //#define WORD_LATTICE Lattice::Singleton

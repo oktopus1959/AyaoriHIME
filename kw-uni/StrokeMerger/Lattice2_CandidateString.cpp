@@ -154,7 +154,7 @@ namespace lattice2 {
             if (_str.size() >= 2) {
                 // 部首合成の実行
                 MString ms = BUSHU_COMP_NODE->ReduceByBushu(_str[_str.size() - 2], _str[_str.size() - 1]);
-                LOG_DEBUGH(_T("BUSHU_COMP_NODE->ReduceByBushu({}, {}) -> {}"),
+                _LOG_DETAIL(_T("BUSHU_COMP_NODE->ReduceByBushu({}, {}) -> {}"),
                     to_wstr(_str[_str.size() - 2]), to_wstr(_str[_str.size() - 1]), to_wstr(ms));
                 if (!ms.empty()) {
                     MString s(_str.substr(0, _str.size() - 2));
@@ -514,7 +514,7 @@ namespace lattice2 {
             infoString(), piece.debugString(), strokeCount, paddingLen, isStrokeBS, _strokeLen);
         std::vector<MString> ss;
         if (isStrokeBS || (piece.isPadding() && _strokeLen + paddingLen == strokeCount) || (_strokeLen + piece.strokeLen() == strokeCount)) {
-            LOG_DEBUGH(_T("isStrokeBS({}) || _strokeLen({}) + piece.strokeLen({})|paddingLen({}) == strokeCount({})"),
+            LOG_DEBUGH(_T("isStrokeBS({}) || _strokeLen({}) + (piece.strokeLen({})|paddingLen({})) == strokeCount({})"),
                 isStrokeBS, _strokeLen, piece.strokeLen(), paddingLen, strokeCount);
             // 素片のストローク数が適合した
             if (piece.rewriteNode()) {
@@ -546,11 +546,14 @@ namespace lattice2 {
             } else {
                 int numBS = piece.numBS();
                 if (numBS > 0) {
+                    LOG_DEBUGH(_T("cand.str={}, numBS={}, piece.str={}"), to_wstr(_str), numBS, to_wstr(piece.getString()));
+                    MString s;
                     if ((size_t)numBS < _str.size()) {
-                        ss.push_back(utils::safe_substr(_str, 0, (int)(_str.size() - numBS)));
-                    } else {
-                        ss.push_back(EMPTY_MSTR);
+                        s.append(utils::safe_substr(_str, 0, (int)(_str.size() - numBS)));
                     }
+                    s.append(piece.getString());
+                    LOG_DEBUGH(_T("new.str={}"), to_wstr(s));
+                    ss.push_back(s);
                 } else {
                     // 複数文字が設定されたストロークの扱い
                     LOG_DEBUGH(_T("normalNode: {}"), to_wstr(piece.getString()));
