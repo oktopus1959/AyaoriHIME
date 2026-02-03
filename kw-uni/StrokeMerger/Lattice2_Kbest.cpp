@@ -968,6 +968,7 @@ namespace lattice2 {
             if (!_candidates.empty()) {
                 int removeLen = 0;
                 const auto& firstCand = _candidates.front();
+                // str: 末尾文字を削除した文字列
                 const MString str = utils::safe_substr(firstCand.string(), 0, -1);
                 _LOG_DETAIL(L"_candidates.size={}, targetStr={}, origCand: {}", _candidates.size(), to_wstr(str), firstCand.infoString());
                 for (const auto& cand : _candidates) {
@@ -978,8 +979,11 @@ namespace lattice2 {
                         break;
                     }
                 }
-                if (removeLen <= 0) removeLen = 1;
-                removeCurrentStrokeCandidates(newCandidates, strokeCount, removeLen);
+                if (removeLen > 0) {
+                    // 末尾文字を削除したものと同じ候補が見つかったら、そのストローク長まで候補を削除する
+                    // (英字⇒カタカナ変換などで、末尾文字を削除したものと同じ候補が見つからない場合は、何もしない→通常のBS動作となる)
+                    removeCurrentStrokeCandidates(newCandidates, strokeCount, removeLen);
+                }
             }
         }
 
@@ -1016,9 +1020,8 @@ namespace lattice2 {
                 pieces.size(), strokeCount, useMorphAnalyzer, strokeBack, paddingLen);
             std::vector<CandidateString> newCandidates;
             if (strokeBack) {
-                _LOG_DETAIL(_T("strokeBack"));
                 // strokeBackの場合
-                //_LOG_DETAIL(L"strokeBack");
+                _LOG_DETAIL(L"strokeBack");
                 //removeCurrentStrokeCandidates(newCandidates, strokeCount, 1);
                 removeLastCharCandidate(newCandidates, strokeCount);
                 if (!newCandidates.empty()) {
