@@ -120,17 +120,22 @@
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="comboBox_editBufferCaretChar.ToolTip" xml:space="preserve">
-    <value>Ctrlキーの修飾なしで漢直(かな)モードと英字モードを切り替えるためのキーの指定
+  <data name="checkBox_extraModifiersEnabled.ToolTip" xml:space="preserve">
+    <value>拡張修飾キーを有効にします。
 
-使用するキーの仮想キーコードを16進数で指定します。
-仮想キーコードについては「windows 仮想キーコード 一覧」でググると見つかります。
-主なキーについては候補を用意してあるので、それを選択してください。
+拡張修飾キーには以下のものがあります。
+  - Space (SandS有効時)
+  - CapsLock
+  - 英数
+  - 無変換
+  - 変換
+  - 右シフト
 
-「Ctrlキー修飾なしOFF」が設定された場合は、このキーは「漢直モードON」のための
-キーとなります。
+当機能をONにすると、拡張修飾キーに対してシフト面を割り当てたり、
+拡張修飾キーを押しながら何かキーを押したときのキー割り当てや
+機能割り当てが有効になります。
 
-キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
+詳細については mod-conversion.sample.txt ファイルを参照してください。</value>
   </data>
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
@@ -173,8 +178,8 @@ exclude ファイルは、履歴検索および履歴登録の対象外となる
 
 各ファイルとも1行に1定義の形で記述します。
 
-各ファイルは、漢直窓Sの終了時に内容が上書きされるので、ファイルの内容を
-エディタ等で編集する場合は、漢直窓Sを終了させてから行ってください。
+各ファイルは、漢織媛の終了時に内容が上書きされるので、ファイルの内容を
+エディタ等で編集する場合は、漢織媛を終了させてから行ってください。
 </value>
   </data>
   <data name="textBox_bushuCompFile.ToolTip" xml:space="preserve">
@@ -185,8 +190,8 @@ exclude ファイルは、履歴検索および履歴登録の対象外となる
 記述フォーマットについては、「ドキュメント」または「辞書登録」タブの
 「部首合成」テキストボックスのツールチップを参照してください。
 
-「辞書登録」タブで部首合成定義を登録した場合、漢直窓Sの終了時にファイル内容が
-上書きされるので、ファイルをエディタ等で編集する場合は、漢直窓Sを終了させてから
+「辞書登録」タブで部首合成定義を登録した場合、漢織媛の終了時にファイル内容が
+上書きされるので、ファイルをエディタ等で編集する場合は、漢織媛を終了させてから
 行ってください。</value>
   </data>
   <data name="comboBox_modifiedToggleKey.ToolTip" xml:space="preserve">
@@ -596,35 +601,6 @@ Shift+Space=S40
 無変換=nfer(muhenkan), 変換=xfer(henkan), ひらがな=kana,
 右シフト=rshift, Insert=ins</value>
   </data>
-  <data name="textBox_modConversionFile.ToolTip" xml:space="preserve">
-    <value>修飾キー変換定義ファイルの設定
-
-SandS、CapsLock、英数、無変換、変換、および右シフトキーを
-修飾キーとして使用する際のキー変換定義ファイルを指定します。
-
-定義ファイルの例として、 mod-conversion.txt というファイルを
-用意してあります。記述方法は同ファイルを参照してください。
-
-定義ファイルを修正した場合は、漢直窓Sを再起動するか、または
-「基本設定」タブの「再読込」をクリックしてください。</value>
-  </data>
-  <data name="checkBox_extraModifiersEnabled.ToolTip" xml:space="preserve">
-    <value>拡張修飾キーを有効にします。
-
-拡張修飾キーには以下のものがあります。
-  - Space (SandS有効時)
-  - CapsLock
-  - 英数
-  - 無変換
-  - 変換
-  - 右シフト
-
-当機能をONにすると、拡張修飾キーに対してシフト面を割り当てたり、
-拡張修飾キーを押しながら何かキーを押したときのキー割り当てや
-機能割り当てが有効になります。
-
-詳細については mod-conversion.sample.txt ファイルを参照してください。</value>
-  </data>
   <data name="comboBox_dateStringKey.ToolTip" xml:space="preserve">
     <value>現在の日時を出力する Ctrlキーの設定
 
@@ -792,16 +768,12 @@ IMEなどと併用しているような場合には 0 か 1 を設定すると�
 なお、空白文字(Space)を設定したい場合は、かわりに「_」(アンダースコア)を
 入力してください。
 
-変換には、下記の「英字列変換定義ファイル」の内容が使用されます。
-この定義ファイルの内容に合致しない英字列は、ローマ字として解釈されて
-カタカナに変換されます。
-
-ローマ字変換が実行される場合、英字以外の記号などはヌル文字に変換
-されます。これにより、たとえば "Anan" は「アナン」に変換されますが、
-"An,an" は「アンアン」に変換されることになります。
+変換には、システムで用意した英字列変換定義ファイルと下記のユーザー定義
+ファイルの内容が使用されます。この定義ファイルの内容に合致しない英字列は、
+ローマ字として解釈されてカタカナに変換されます。
 
 カタカナ変換直後に ESC を打鍵すると、カタカナ変換をキャンセルして、再度
-英数モードに入ります。</value>
+英数モードに戻ります。</value>
   </data>
   <data name="checkBox_postRewriteCompatibleWithGoogle.ToolTip" xml:space="preserve">
     <value>置換後文字列の "/" の扱いについて Google 日本語入力の「次の入力」と
@@ -986,9 +958,6 @@ OFF の場合は、"/" はたんに無視され、1文字単位であらゆる�
 
 編集バッファが無効の場合は、対象アプリに直接文字出力されます。</value>
   </data>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
   <data name="checkBox_strokeBackByBS.ToolTip" xml:space="preserve">
     <value>BSで末尾文字を直接削除するという本来の動作に戻す
 
@@ -1000,6 +969,18 @@ OFF の場合は、"/" はたんに無視され、1文字単位であらゆる�
 
 この設定をONにすると、入力候補列の先頭のものだけを残して、
 その末尾文字を削除するとという、本来のBSの動作に戻ります。</value>
+  </data>
+  <data name="comboBox_editBufferCaretChar.ToolTip" xml:space="preserve">
+    <value>Ctrlキーの修飾なしで漢直(かな)モードと英字モードを切り替えるためのキーの指定
+
+使用するキーの仮想キーコードを16進数で指定します。
+仮想キーコードについては「windows 仮想キーコード 一覧」でググると見つかります。
+主なキーについては候補を用意してあるので、それを選択してください。
+
+「Ctrlキー修飾なしOFF」が設定された場合は、このキーは「漢直モードON」のための
+キーとなります。
+
+キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
   </data>
   <data name="textBox_autoBushuComp.ToolTip" xml:space="preserve">
     <value>自動部首合成の登録を行います。
@@ -1043,10 +1024,10 @@ OFF の場合は、"/" はたんに無視され、1文字単位であらゆる�
 
 その後、辞書ファイルを編集し、当ボタンをクリックしてください。
 
-漢直窓Sは終了時に辞書内容を自動的にファイルに新規保存します。
+漢織媛は終了時に辞書内容を自動的にファイルに新規保存します。
 (既存ファイルは *.back に名前が変更されます)
 辞書ファイルを編集したい場合は、ここに記述した手順に従うか、
-または漢直窓Sを終了させてから行ってください。
+または漢織媛を終了させてから行ってください。
 </value>
   </data>
   <data name="textBox_bushuComp.ToolTip" xml:space="preserve">
