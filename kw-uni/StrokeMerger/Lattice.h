@@ -65,13 +65,7 @@ public:
         return getString().empty() && strokeLen() == 1 && numBS() == 1;
     }
 
-    String debugString() const {
-        return _T("('")
-            + to_wstr(_rewriteNode ? _rewriteNode->getString() : _pieceStr)
-            + _T("', _strokeLen=") + std::to_wstring(_strokeLen)
-            + _T(", rewLen=") + std::to_wstring(_rewriteNode ? _rewriteNode->getRewritableLen() : _rewritableLen)
-            + _T(", numBS=") + std::to_wstring(_rewriteNode ? 0 : _numBS) + _T(")");
-    }
+    String debugString() const;
 };
 
 // ラティスから取得した文字列と、修正用のBS数
@@ -87,15 +81,7 @@ struct LatticeResult {
         return LatticeResult(EMPTY_MSTR, 0);
     }
 
-    String debugString() const {
-        String result(1, L'<');
-        result.append(_T("outStr="));
-        result.append(to_wstr(outStr));
-        result.append(_T(", numBS="));
-        result.append(std::to_wstring(numBS));
-        result.append(1, L'>');
-        return result;
-    }
+    String debugString() const;
 };
 
 //#define WORD_LATTICE Lattice::Singleton

@@ -58,7 +58,7 @@ namespace node
         case WordType::EOS: return L"EOS";
         case WordType::HIRAGANA: return L"HIRAGANA";
         case WordType::KANJI: return L"KANJI";
-        case WordType::MIXED: return L"MIXEDD";
+        case WordType::MIXED: return L"MIXED";
         case WordType::GETA: return L"GETA";
         case WordType::UNKNOWN: return L"UNKNOWN";
         default: return L"UNDEFINED";

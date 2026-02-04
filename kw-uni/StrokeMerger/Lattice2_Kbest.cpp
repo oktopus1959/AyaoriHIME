@@ -813,8 +813,8 @@ namespace lattice2 {
             // 素片のストロークと適合する候補を抽出
             for (const auto& cand : _candidates) {
                 //if (topStrokeLen < 0) topStrokeLen = cand.strokeLen();
-                bool bStrokeCountMatched = (piece.isPadding() && cand.strokeLen() + paddingLen == strokeCount) || (cand.strokeLen() + piece.strokeLen() == strokeCount);
-                _LOG_DETAIL(_T("cand.string={}, cand.strokeLen={}, piece.strokeLen()={}, strokeCount={}, paddingLen={}: {}"),
+                bool bStrokeCountMatched = (piece.isPadding() && cand.strokeLen() + paddingLen == strokeCount) || (!piece.isPadding() && cand.strokeLen() + piece.strokeLen() == strokeCount);
+                _LOG_DETAIL(_T("cand.string={}, cand.strokeLen={}, piece.strokeLen={}, strokeCount={}, paddingLen={}: {}"),
                     to_wstr(cand.string()), cand.strokeLen(), piece.strokeLen(), strokeCount, paddingLen, (bStrokeCountMatched ? L"MATCH" : L"UNMATCH"));
                 if (isStrokeBS || bStrokeCountMatched) {
                     targetCandidates.push_back(cand);

@@ -412,6 +412,8 @@ namespace {
             }
             if (NextState()) {
                 LOG_DEBUGH(_T("NextState: FOUND"));
+                // kBest があると、BSなどの場合にそちらを優先してしまうので、ここでクリアしておく
+                WORD_LATTICE->clearAll();
                 // 後続状態があれば、そちらを呼び出す
                 NextState()->HandleDeckeyChain(deckey);
             } else {

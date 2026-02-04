@@ -12,6 +12,7 @@
 #include "State.h"
 #include "OutputStack.h"
 #include "StrokeMerger/StrokeMergerHistoryResidentState.h"
+#include "StrokeMerger/Lattice.h"
 
 #include "Zenkaku.h"
 
@@ -165,6 +166,9 @@ namespace {
 
         void cancelMe() {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
+            // HandleDeckeyChain() で ZenkakuState のような NextState があれば WORD_LATTICE->clearAll()しているので、
+            // ここで、あらためて sync する
+            WORD_LATTICE->syncBaseString(STATE_COMMON->GetEditBufferString());
             MarkUnnecessary();
             STATE_COMMON->SetZenkakuModeMarkerClearFlag();
         }
