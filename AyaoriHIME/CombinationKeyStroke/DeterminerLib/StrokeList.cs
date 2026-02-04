@@ -196,6 +196,8 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
 
         public bool IsDownKeyListEmpty => downKeyList.Count == 0;
 
+        public bool IsRollOver => !IsDownKeyListEmpty;
+
         public Stroke FirstDownKey => downKeyList._getFirst();
 
         public KeyCombination GetKeyCombo()
@@ -289,7 +291,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         public void Add(Stroke s)
         {
             //if (!IsComboListEmpty || !IsDownKeyListEmpty) s.SetRollOver(); // いずれ削除
-            if (!IsDownKeyListEmpty) s.SetRollOver();
+            if (IsRollOver) s.SetRollOver();
             downKeyList.Add(s);
             unprocList.Add(s);
         }

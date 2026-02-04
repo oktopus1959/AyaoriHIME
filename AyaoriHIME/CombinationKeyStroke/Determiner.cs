@@ -443,16 +443,16 @@ namespace KanchokuWS.CombinationKeyStroke
                             logger.InfoH("Abandon Used Keys When Special Combo Shift Down");
                             strokeList.ClearComboList();
                         }
-                        logger.InfoH(() => $"combo: {(combo == null ? "null" : "FOUND")}, IsTerminal={combo?.IsTerminal ?? true}, " +
+                        bool bRollOverStroke = bDecoderOn && strokeList.IsRollOver;
+                        logger.InfoH(() => $"combo: {(combo == null ? "null" : "FOUND")}, IsRollOver={bRollOverStroke}, IsTerminal={combo?.IsTerminal ?? true}, " +
                             $"StrokeList.Count={strokeList.Count}, bWaitSecondStroke={bWaitSecondStroke}, IsTemporaryComboDisabled={strokeList.IsTemporaryComboDisabled}, ");
 
-                        strokeList.Add(stroke);
-                        bool bRollOverStroke = strokeList.FirstDownKey?.IsRollOver ?? false;
-
-                        if ((!bWaitSecondStroke || !strokeList.IsTemporaryComboDisabled) && ((combo != null && !combo.IsTerminal) || !strokeList.IsEmpty())) {
-                            // 第1打鍵待ちか、同時打鍵が有効であって、
+                        if ((!bWaitSecondStroke || bRollOverStroke || !strokeList.IsTemporaryComboDisabled) && ((combo != null && !combo.IsTerminal) || !strokeList.IsEmpty())) {
+                            // 第1打鍵待ちか、ロールオーバーか 
+                            // 同時打鍵が有効であって、
                             // 押下されたのは同時打鍵に使われる可能性のあるキーだった、あるいは同時打鍵シフト後の第2打鍵だった
                             // 打鍵リストに追加して同時打鍵判定を行う
+                            strokeList.Add(stroke);
                             if (strokeList.Count == 1) {
                                 logger.InfoH("COMBO: Count=1");
                                 // 第1打鍵の場合
