@@ -45,7 +45,7 @@ namespace lattice2 {
         Deque<String> _candidateLogQueue;
 
         String formatStringOfWordPieces(const std::vector<WordPiece>& pieces) {
-            return utils::join(utils::select<String>(pieces, [](WordPiece p){return p.debugString();}), _T("|"));
+            return utils::join(utils::select<String>(pieces, [](WordPiece p){return p.debugString();}), _T(" | "));
         }
 
         // すべての単語素片が1文字で、それが漢字・ひらがな・カタカナ以外か
@@ -344,22 +344,22 @@ void Lattice2::reloadGlobalPostRewriteMapFile() {
 }
 
 String WordPiece::debugString() const {
-    String result(1, L'<');
+    String result(L"<'");
     result.append(to_wstr(_rewriteNode ? _rewriteNode->getString() : _pieceStr));
-    result.append(_T(", _strokeLen=")).append(std::to_wstring(_strokeLen));
+    result.append(_T("', _strokeLen=")).append(std::to_wstring(_strokeLen));
     if (_strokeLen < 0) {
         result.append(_T(" (PADDING)"));
     }
-    result.append(_T(", rewLen=")).append(std::to_wstring(_rewriteNode ? _rewriteNode->getRewritableLen() : _rewritableLen));
+    result.append(_T(", rewLen=")).append(std::to_wstring(_rewriteNode ? _rewriteNode->getRewritableLen() : 0));
     result.append(_T(", numBS=")).append(std::to_wstring(_rewriteNode ? 0 : _numBS));
     result.append(1, L'>');
     return result;
 }
 
 String LatticeResult::debugString() const {
-    String result(1, L'<');
+    String result(L"<'");
     result.append(_T("outStr=")).append(to_wstr(outStr));
-    result.append(_T(", numBS=")).append(std::to_wstring(numBS));
+    result.append(_T("', numBS=")).append(std::to_wstring(numBS));
     result.append(1, L'>');
     return result;
 }

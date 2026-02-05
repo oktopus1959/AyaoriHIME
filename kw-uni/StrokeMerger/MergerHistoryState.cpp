@@ -53,6 +53,22 @@ namespace {
             return result;
         }
 
+        String formatStringOfWordPieces(const std::vector<WordPiece>& pieces) {
+            return utils::join(utils::select<String>(pieces, [](WordPiece p){return p.debugString();}), _T(" | "));
+        }
+
+        // 重複しないように単語素片を追加する
+        template <typename... Args>
+        void appendUniquePiece(std::vector<WordPiece>& pieces, Args&&... args) {
+            if (std::any_of(pieces.begin(), pieces.end(),
+                [&](const WordPiece& p) {
+                    return p.equals(std::forward<Args>(args)...);
+                })) {
+                return; // 既に存在
+            }
+            pieces.emplace_back(std::forward<Args>(args)...);
+        }
+
     public:
         // コンストラクタ
         StrokeStream() : cntStroke(STATE_COMMON->GetTotalDecKeyCount()-1) {
@@ -97,7 +113,7 @@ namespace {
 
         void AppendWordPiece(std::vector<WordPiece>& pieces, bool /*bExcludeHiragana*/) {
             if (NextState()) {
-                LOG_DEBUGH(_T("ENTER"));
+                LOG_DEBUGH(_T("ENTER: pieces={}"), formatStringOfWordPieces(pieces));
                 MStringResult result;
                 State::GetResultStringChain(result);
                 if (!result.isDefault()) {
@@ -109,19 +125,19 @@ namespace {
                     //    MString hs = result.resultStr();
                     //    if (std::all_of(hs.begin(), hs.end(), [](auto ch) {return utils::is_hiragana(ch) || utils::is_katakana(ch);})) {
                     //        MString ks = convertHiraganaToKatakana(hs);
-                    //        pieces.push_back(WordPiece(ks, strokeLen, result.rewritableLen(), result.numBS()));
+                    //        pieces.push_back(WordPiece(ks, strokeLen, result.numBS()));
                     //    }
                     //} else {
                         if (result.getRewriteNode()) {
-                            pieces.push_back(WordPiece(result.getRewriteNode(), strokeLen));
+                            appendUniquePiece(pieces, result.getRewriteNode(), strokeLen);
                         } else {
-                            pieces.push_back(WordPiece(result.resultStr(), strokeLen, result.rewritableLen(), result.numBS()));
+                            appendUniquePiece(pieces, result.resultStr(), strokeLen, result.numBS());
                         }
                     //}
                 } else {
                     LOG_DEBUGH(_T("NOT TERMINAL"));
                 }
-                LOG_DEBUGH(_T("LEAVE"));
+                LOG_DEBUGH(_T("LEAVE: pieces={}"), formatStringOfWordPieces(pieces));
             }
         }
 
@@ -701,7 +717,7 @@ namespace {
                     LOG_DEBUGH(_T("resultStr={}"), resultStr.debugString());
                     //WORD_LATTICE->clear();
                     WORD_LATTICE->syncBaseString(STATE_COMMON->GetEditBufferString());
-                    pieces.push_back(WordPiece(resultStr.resultStr(), 1, 0, resultStr.numBS()));
+                    pieces.push_back(WordPiece(resultStr.resultStr(), 1, resultStr.numBS()));
                 }
                 else if ((int)STATE_COMMON->GetTotalDecKeyCount() == _strokeCountBS) {
                     LOG_DEBUGH(_T("add WordPiece for BS."));

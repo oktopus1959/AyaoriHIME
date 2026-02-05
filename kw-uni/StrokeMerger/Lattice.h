@@ -17,24 +17,36 @@ class WordPiece {
     // 単語素片
     MString _pieceStr;
     // 書き換え対象文字数
-    size_t _rewritableLen;
+    //size_t _rewritableLen;
     // 削除文字数
     int _numBS;
 
 public:
-    WordPiece(const MString& ms, int len, size_t rewLen, int nBS = -1)
-        : _rewriteNode(0), _pieceStr(ms), _strokeLen(len), _rewritableLen(rewLen), _numBS(nBS) {
+    WordPiece(const MString& ms, int len)
+        : WordPiece(ms, len, -1) {
     }
 
-    WordPiece(const PostRewriteOneShotNode* rewriteNode, int len) : _rewriteNode(rewriteNode), _strokeLen(len), _rewritableLen(0), _numBS(0) {
+    WordPiece(const MString& ms, int len, int nBS)
+        : _rewriteNode(0), _pieceStr(ms), _strokeLen(len), _numBS(nBS) {
+    }
+
+    WordPiece(const PostRewriteOneShotNode* rewriteNode, int len)
+        : _rewriteNode(rewriteNode), _strokeLen(len), _numBS(0) {
+    }
+
+    bool equals(const MString& ms, int len, int nBS) const {
+        return _pieceStr == ms && _strokeLen == len && _numBS == nBS;
+    }
+    bool equals(const PostRewriteOneShotNode* rewriteNode, int len) const {
+        return _rewriteNode == rewriteNode && _strokeLen == len;
     }
 
     static WordPiece paddingPiece() {
-        return WordPiece(EMPTY_MSTR, -1, 0);
+        return WordPiece(EMPTY_MSTR, -1);
     }
 
     static WordPiece BSPiece() {
-        return WordPiece(EMPTY_MSTR, 1, 0, 1);
+        return WordPiece(EMPTY_MSTR, 1, 1);
     }
 
     const PostRewriteOneShotNode* rewriteNode() const {
