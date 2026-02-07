@@ -611,8 +611,8 @@ nfer=eb
 |タブ|Tab|
 |CapsLock|Caps, CapsLock|
 |英数|Alnum, AlphaNum, Eisu|
-|無変換|Nfer|
-|変換|Xfer|
+|無変換|Muhenkan, Nfer|
+|変換|Henkan, Xfer|
 |ひらがな|Kana, Hiragana|
 |BackSpace| BS, Back, BackSpace|
 |Enter|Enter|

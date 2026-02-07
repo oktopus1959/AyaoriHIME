@@ -16,6 +16,9 @@ AyaoriHIME は Windows 用の漢字直接入力ツールです。
 - [配列作成編](FAQ/FAQ-配列作成.md#faq-home)
 - [書き換えシステム編](FAQ/FAQ-書き換え.md#faq-home)
 - [キーアサイン編](FAQ/FAQ-キーアサイン.md#faq-home)
+- [配列融合編](FAQ/FAQ-配列融合.md#faq-home)
+- [交ぜ書き変換編](FAQ/FAQ-交ぜ書き変換.md#faq-home)
+- [英語キーボードの選択手順](FAQ/FAQ-SelectKeyboard.md#faq-home)
 - [利用条件と免責](#利用条件と免責)
 
 ## 利用条件と免責
