@@ -46,7 +46,7 @@
 #include "Llama/LlamaBridge.h"
 
 #define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
-#if 0 || defined(_DEBUG)
+#if 1 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
 #undef LOG_INFO
 #undef LOG_DEBUGH
@@ -665,27 +665,29 @@ public:
     }
 
     // DECKEY処理
-    void HandleDeckey(int keyId, mchar_t targetChar, int intputFlags, DecoderHandleDeckeyParams* deckeyParams, DecoderOutParams* outParams) override {
-        bool decodeKeyboardChar = (intputFlags & (int)InputFlags::DecodeKeyboardChar) != 0;
-        bool upperRomanGuideMode = (intputFlags & (int)InputFlags::UpperRomanGuideMode) != 0;
+    void HandleDeckey(int keyId, mchar_t guideTargetChar, int intputFlags, DecoderHandleDeckeyParams* deckeyParams, DecoderOutParams* outParams) override {
+        bool keyFaceDirectMode = (intputFlags & (int)InputFlags::KeyFaceDirectMode) != 0;
+        bool upperRomanDirectMode = (intputFlags & (int)InputFlags::UpperRomanDirectMode) != 0;
         bool rollOverStroke = (intputFlags & (int)InputFlags::RollOverStroke) != 0;
 
-        _LOG_DETAIL(_T("\nENTER: keyId={:x}H({}={}), targetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}, editBuffer={}"),
-            keyId, keyId, DECKEY_TO_CHARS->GetDeckeyNameFromId(keyId), to_wstr(targetChar), decodeKeyboardChar, upperRomanGuideMode, deckeyParams->editBufferData);
+        _LOG_DETAIL(_T("\nENTER: keyId={:x}H({}={}), guideTargetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}, editBuffer={}"),
+            keyId, keyId, DECKEY_TO_CHARS->GetDeckeyNameFromId(keyId), to_wstr(guideTargetChar), keyFaceDirectMode, upperRomanDirectMode, deckeyParams->editBufferData);
 
         // 編集バッファの内容を取得しておく
         STATE_COMMON->SetEditBufferString(deckeyParams->editBufferData);
-        const auto& editBuf = STATE_COMMON->GetEditBufferString();
-        bool needsSync = needSyncEditBuffer(editBuf);
-        LOG_INFO(_T("EditBuffer sync check: needsSync={}, editLen={}, outLen={}"),
-            needsSync, editBuf.size(), OUTPUT_STACK ? OUTPUT_STACK->size() : 0);
-        if (needsSync) {
-            if (WORD_LATTICE) {
-                WORD_LATTICE->syncBaseString(editBuf);
-            }
-            if (OUTPUT_STACK) {
-                OUTPUT_STACK->clear();
-                OUTPUT_STACK->push(editBuf);
+        if (!keyFaceDirectMode && !upperRomanDirectMode) {
+            const auto& editBuf = STATE_COMMON->GetEditBufferString();
+            bool needsSync = needSyncEditBuffer(editBuf);
+            LOG_INFO(_T("EditBuffer sync check: needsSync={}, editLen={}, outLen={}"),
+                needsSync, editBuf.size(), OUTPUT_STACK ? OUTPUT_STACK->size() : 0);
+            if (needsSync) {
+                if (WORD_LATTICE) {
+                    WORD_LATTICE->syncBaseString(editBuf);
+                }
+                if (OUTPUT_STACK) {
+                    OUTPUT_STACK->clear();
+                    OUTPUT_STACK->push(editBuf);
+                }
             }
         }
 
@@ -699,8 +701,8 @@ public:
         STATE_COMMON->SetCurrentDecKey(keyId);
         STATE_COMMON->IncrementTotalDecKeyCount();
         STATE_COMMON->CountSameDecKey(keyId);
-        if (decodeKeyboardChar) STATE_COMMON->SetDecodeKeyboardCharMode();  // キーボードフェイス文字を返すモード
-        if (upperRomanGuideMode) STATE_COMMON->SetUpperRomanGuideMode();    // 英大文字による入力ガイドモード
+        if (keyFaceDirectMode) STATE_COMMON->SetKeyFaceDirectMode();  // キーボードフェイス文字を返すモード
+        if (upperRomanDirectMode) STATE_COMMON->SetUpperRomanDirectMode();    // 英大文字による入力ガイドモード
         if (rollOverStroke) STATE_COMMON->SetRollOverStroke();              // ロールオーバーされている打鍵
         _LOG_DETAIL(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(20));
 
@@ -766,7 +768,7 @@ public:
         if (!STATE_COMMON->IsOutStringProcDone() && !STATE_COMMON->IsWaiting2ndStroke()) startState->DoLastHistoryProcChain();
 
         // ヘルプや候補文字列
-        setHelpOrCandidates(targetChar, resultStr);
+        setHelpOrCandidates(guideTargetChar, resultStr);
 
         //String stack = std::regex_replace(to_wstr(OUTPUT_STACK->OutputStackBackStr(10)), std::wregex(_T("\n")), _T("|"));
         _LOG_DETAIL(_T("LEAVE: states={} (len={}), flags={:x}, expKey={}, layout={}, centerStr={}, numBS={}, outLength={}, stack={}\n\n================================================\n"),
@@ -802,7 +804,7 @@ public:
     }
 
     // ヘルプや候補文字列
-    void setHelpOrCandidates(mchar_t targetChar, const MStringResult& resultStr) {
+    void setHelpOrCandidates(mchar_t guideTargetChar, const MStringResult& resultStr) {
         //if (startState->StrokeTableChainLength() >= 2) STATE_COMMON->SetWaiting2ndStroke();
         LOG_DEBUG(_T("ENTER: layout={}, faces={}, nextExp={}"), STATE_COMMON->GetLayoutInt(), to_wstr(STATE_COMMON->GetFaces(), 20), (int)STATE_COMMON->GetNextExpectedKeyType());
         OutParams->nextExpectedKeyType = (int)STATE_COMMON->GetNextExpectedKeyType();
@@ -812,11 +814,11 @@ public:
         copyToCenterString();
         mchar_t lastChar = copyToTopString();
 
-        LOG_DEBUG(_T("ROOT_STROKE_NODE_2={:p}, targetChar={:c}, strokeCnt={}"), (void*)ROOT_STROKE_NODE_2.get(), (wchar_t)targetChar, OutParams->strokeCount);
+        LOG_DEBUG(_T("ROOT_STROKE_NODE_2={:p}, guideTargetChar={:c}, strokeCnt={}"), (void*)ROOT_STROKE_NODE_2.get(), (wchar_t)guideTargetChar, OutParams->strokeCount);
 
-        if (ROOT_STROKE_NODE_2 && targetChar != 0 && OutParams->strokeCount > 0) {
-            auto list = ROOT_STROKE_NODE_2->getStrokeList(to_mstr(targetChar), true);
-            LOG_DEBUG(_T("strokeList={}, targetChar={:c}"), utils::join(list, _T(":")), (wchar_t)targetChar);
+        if (ROOT_STROKE_NODE_2 && guideTargetChar != 0 && OutParams->strokeCount > 0) {
+            auto list = ROOT_STROKE_NODE_2->getStrokeList(to_mstr(guideTargetChar), true);
+            LOG_DEBUG(_T("strokeList={}, guideTargetChar={:c}"), utils::join(list, _T(":")), (wchar_t)guideTargetChar);
             if (!list.empty()) {
                 if (list.size() > (size_t)OutParams->strokeCount) {
                     OutParams->nextStrokeDeckey = list[OutParams->strokeCount];
@@ -1206,9 +1208,9 @@ int MakeInitialVkbTableDecoder(void* pDecoder, DecoderOutParams* table) {
 }
 
 // DECKEYハンドラ
-// 引数: keyId = DECKEY ID, targetChar = 入力しようとしている文字
-int HandleDeckeyDecoder(void* pDecoder, DecoderHandleDeckeyParams* deckeyParams, int keyId, mchar_t targetChar, int inputFlags, DecoderOutParams* params) {
-    auto method_call = [pDecoder, keyId, targetChar, inputFlags, deckeyParams, params]() { ((Decoder*)pDecoder)->HandleDeckey(keyId, targetChar, inputFlags, deckeyParams, params); };
+// 引数: keyId = DECKEY ID, guideTargetChar = 入力しようとしている文字
+int HandleDeckeyDecoder(void* pDecoder, DecoderHandleDeckeyParams* deckeyParams, int keyId, mchar_t guideTargetChar, int inputFlags, DecoderOutParams* params) {
+    auto method_call = [pDecoder, keyId, guideTargetChar, inputFlags, deckeyParams, params]() { ((Decoder*)pDecoder)->HandleDeckey(keyId, guideTargetChar, inputFlags, deckeyParams, params); };
     return invokeDecoderMethod(method_call, nullptr);
 }
 

@@ -1911,6 +1911,7 @@ namespace KanchokuWS
         private bool bUpperRomanStrokeGuideMode = false;
         private bool bRomanMode = false;
 
+        // 仮想鍵盤に表示する候補文字列の配列(表示文字が存在しない場所は "\0"になる)
         private string[] candidateCharStrs = null;
 
         //private static char[] emptyCharArray = new char[0];
@@ -1925,9 +1926,10 @@ namespace KanchokuWS
         private void getTargetChar(int deckey)
         {
             if (targetChar == 0 && candidateCharStrs != null) {
+                logger.DebugH(() => $"deckey={deckey}, candidateCharStrs={candidateCharStrs._join("|")} (size={candidateCharStrs.Length})");
                 var s = candidateCharStrs._getNth(deckey);
                 logger.DebugH(() => $"targetChar={s}");
-                if (s._notEmpty()) {
+                if (s._notEmpty() && s[0] != '\0') {
                     targetChar = s[0];
                     if (s.Length > 1) targetChar = targetChar << 16 + s[1];
                     // 第2打鍵待ちでロックする(勝手に第2打鍵待ちをキャンセルしない)
@@ -1938,11 +1940,11 @@ namespace KanchokuWS
             }
         }
 
-        private int makeInputFlags(bool romanStrokeGuideMode, bool upperRomanStrokeGuideMode, bool rollOverStroke = false)
+        private int makeInputFlags(bool keyFaceDirectMode, bool upperRomanStrokeDirectMode, bool rollOverStroke = false)
         {
             int result = 0;
-            if (romanStrokeGuideMode) result |= DecoderInputFlags.DecodeKeyboardChar;
-            if (upperRomanStrokeGuideMode) result |= DecoderInputFlags.UpperRomanGuideMode;
+            if (keyFaceDirectMode) result |= DecoderInputFlags.KeyFaceDirectMode;
+            if (upperRomanStrokeDirectMode) result |= DecoderInputFlags.UpperRomanDirectMode;
             if (rollOverStroke) result |= DecoderInputFlags.RollOverStroke;
             return result;
         }
@@ -1986,8 +1988,11 @@ namespace KanchokuWS
         {
             logger.InfoH(() => $"ENTER: deckey={deckey:x}H({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)}), mod={mod:x}, rollOver={rollOverStroke}");
 
-            getTargetChar(deckey);
-            logger.InfoH(() => $"targetChar={targetChar}, bRomanStrokeGuideMode={bRomanStrokeGuideMode}, bUpperRomanStrokeGuideMode={bUpperRomanStrokeGuideMode}");
+            if (!bRomanStrokeGuideMode && !bHiraganaStrokeGuideMode && (!bUpperRomanStrokeGuideMode || deckey < DecoderKeys.NORMAL_DECKEY_NUM)) {
+                // ローマ字ストロークガイドモードでないときは、ガイド文字の取得を行う
+                getTargetChar(deckey);
+            }
+            logger.InfoH(() => $"editBuf={frmEditBuf.GetPreText()}, targetChar={targetChar}, bRomanStrokeGuideMode={bRomanStrokeGuideMode}, bUpperRomanStrokeGuideMode={bUpperRomanStrokeGuideMode}");
 
             // デコーダの呼び出し
             CallHandleDeckeyDecoder(cmdParamsPtr => {
@@ -2075,6 +2080,7 @@ namespace KanchokuWS
                 CommonState.CenterString = "ローマ字";
                 candidateChars = KanjiYomiTable.GetCandidatesFromRoman(romanStr);
                 candidateCharStrs = frmVkb.DrawStrokeHelp(candidateChars);
+                //logger.DebugH(() => $"candidateChars={candidateChars._toString()}, candidateCharStrs={candidateCharStrs._join("|")}");
                 frmVkb.SetTopText(decoderOutput.topString);
                 targetChar = 0;
                 bRomanMode = true;

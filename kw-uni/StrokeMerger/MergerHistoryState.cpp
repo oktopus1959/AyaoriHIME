@@ -30,6 +30,10 @@
 
 namespace {
 
+    String formatStringOfWordPieces(const std::vector<WordPiece>& pieces) {
+        return utils::join(utils::select<String>(pieces, [](WordPiece p){return p.debugString();}), _T(" | "));
+    }
+
     // -------------------------------------------------------------------
     // 
     class StrokeStream : public State {
@@ -51,10 +55,6 @@ namespace {
                 if (utils::is_hiragana(ch)) { result[i] = utils::hiragana_to_katakana(ch); }
             }
             return result;
-        }
-
-        String formatStringOfWordPieces(const std::vector<WordPiece>& pieces) {
-            return utils::join(utils::select<String>(pieces, [](WordPiece p){return p.debugString();}), _T(" | "));
         }
 
         // 重複しないように単語素片を追加する
@@ -634,7 +634,7 @@ namespace {
                         clearStreamLists();
                     }
                     if (SETTINGS->eisuModeEnabled && _comboStrokeCount == 0
-                        && deckey >= SHIFT_DECKEY_START && deckey < SHIFT_DECKEY_END && !STATE_COMMON->IsUpperRomanGuideMode()) {
+                        && deckey >= SHIFT_DECKEY_START && deckey < SHIFT_DECKEY_END && !STATE_COMMON->IsUpperRomanDirectMode()) {
                         myChar = DECKEY_TO_CHARS->GetCharFromDeckey(deckey);
                         if (myChar >= 'A' && myChar <= 'Z') {
                             // 英数モード
@@ -819,8 +819,18 @@ namespace {
 
         // Latticeに WordPiece群を追加して処理する
         LatticeResult getLatticeResult(const std::vector<WordPiece>& pieces) {
+            LOG_DEBUGH(_T("CALLED: pieces={}"), formatStringOfWordPieces(pieces));
             if (!pieces.empty()) {
                 MString s = pieces.front().getString();
+                int numBS = pieces.front().numBS();
+                if (STATE_COMMON->IsKeyFaceDirectMode()) {
+                    // 打鍵されたキーの文字をそのまま返すモードなら、kBestに送らず、直接出力する
+                    return LatticeResult(s, numBS);
+                }
+                if (STATE_COMMON->IsUpperRomanDirectMode() && (s.size() == 1 && is_upper_alphabet(s.front()) || s.empty() && numBS > 0)) {
+                    // 英大文字をそのまま返すモードなら、kBestに送らず、直接出力する
+                    return LatticeResult(s, numBS);
+                }
                 if (s.size() >= 4) {
                     size_t pos = s.find(L'!');
                     if (pos <= s.size() - 3 && s[pos + 1] == L'{' && s.find(L'}', pos + 2) < s.size()) {
@@ -894,7 +904,7 @@ namespace {
         // Shift+Space等による候補選択が可能か
         bool bCandSelectable = false;
 
-    public:
+    private:
         void syncOutputStackTail(const MString& outStr, int numBS) {
             if (!OUTPUT_STACK) return;
 
@@ -907,6 +917,7 @@ namespace {
             }
         }
 
+    public:
         // 状態の再アクティブ化
         void Reactivate() override {
             LOG_DEBUGH(_T("CALLED: {}"), Name);

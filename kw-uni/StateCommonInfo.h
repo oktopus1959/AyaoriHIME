@@ -25,10 +25,10 @@ enum class VkbLayout {
 enum class InputFlags
 {
     // 打鍵されたキーの文字をそのまま返す
-    DecodeKeyboardChar = 1,
+    KeyFaceDirectMode = 1,
 
-    // 英大文字ロ－マ字による打鍵ガイドモード
-    UpperRomanGuideMode = 2,
+    // 英大文字をそのまま返す(英大文字ロ－マ字による打鍵ガイドモードなど)
+    UpperRomanDirectMode = 2,
 
     // ロールオーバーされている打鍵
     RollOverStroke = 4,
@@ -169,11 +169,11 @@ class StateCommonInfo {
     // 交ぜ書きブロッカーの設定位置(末尾からのオフセット; SetMazegakiBlockFlag とともに用いられる)
     size_t mazeBlockerPos = 0;
 
-    // キーボード文字へのデコードを行う
-    bool decodeKeyboardChar = false;
+    // 打鍵されたキーの文字をそのまま返す
+    bool keyFaceDirectMode = false;
 
-    // 英大文字による入力ガイドモードか
-    bool upperRomanGuideMode = false;
+    // 英大文字をそのまま返す(英大文字ロ－マ字による打鍵ガイドモードなど)
+    bool upperRomanDirectMode = false;
 
     // ロールオーバーされている打鍵か
     bool rollOverStroke = false;
@@ -247,8 +247,8 @@ public:
         centerString.clear();
         outStringProcDone = false;
         convertHiraganaToKatakana = false;
-        decodeKeyboardChar = false;
-        upperRomanGuideMode = false;
+        keyFaceDirectMode = false;
+        upperRomanDirectMode = false;
         rollOverStroke = false;
     }
 
@@ -304,11 +304,13 @@ public:
         return mazeBlockerPos;
     }
 
-    inline void SetDecodeKeyboardCharMode() { decodeKeyboardChar = true; }
-    inline bool IsDecodeKeyboardCharMode() { return decodeKeyboardChar; }
+    inline void SetKeyFaceDirectMode() { keyFaceDirectMode = true; }
+    // 打鍵されたキーの文字をそのまま返すモードか
+    inline bool IsKeyFaceDirectMode() { return keyFaceDirectMode; }
 
-    inline void SetUpperRomanGuideMode() { upperRomanGuideMode = true; }
-    inline bool IsUpperRomanGuideMode() { return upperRomanGuideMode; }
+    inline void SetUpperRomanDirectMode() { upperRomanDirectMode = true; }
+    // 英大文字をそのまま返すモードか(英大文字ロ－マ字による打鍵ガイドモードなど)
+    inline bool IsUpperRomanDirectMode() { return upperRomanDirectMode; }
 
     inline void SetRollOverStroke() { rollOverStroke = true; }
     inline bool IsRollOverStroke() { return rollOverStroke; }

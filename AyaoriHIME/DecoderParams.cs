@@ -82,10 +82,10 @@ namespace KanchokuWS
     public static class DecoderInputFlags
     {
         /// <summary>打鍵されたキーの文字をそのまま返す</summary>
-        public const int DecodeKeyboardChar = 1;
+        public const int KeyFaceDirectMode = 1;
 
-        /// <summary>英大文字ロ－マ字による打鍵ガイドモード</summary>
-        public const int UpperRomanGuideMode = 2;
+        /// <summary>英大文字をそのまま返す(英大文字ロ－マ字による打鍵ガイドモードなど)</summary>
+        public const int UpperRomanDirectMode = 2;
 
         /// <summary>ロールオーバーされている打鍵</summary>
         public const int RollOverStroke = 4;

@@ -112,11 +112,11 @@ namespace {
                 STATE_COMMON->AppendOrigString(myChar);
             }
 
-            if (STATE_COMMON->IsDecodeKeyboardCharMode()) {
-                // キーボードフェイス文字を返すモード
+            if (STATE_COMMON->IsKeyFaceDirectMode()) {
+                // キーボードフェイス文字を返すモード (ローマ字ガイドモードなど)
                 _LOG_DETAIL(_T("SetNextNodeMaybe: MY_CHAR_NODE"));
                 SetNextNodeMaybe(MY_CHAR_NODE);
-            } else if (SETTINGS->eisuModeEnabled && !STATE_COMMON->IsUpperRomanGuideMode() && myNode()->isRootStrokeTableNode() && myChar >= 'A' && myChar <= 'Z') {
+            } else if (SETTINGS->eisuModeEnabled && !STATE_COMMON->IsUpperRomanDirectMode() && myNode()->isRootStrokeTableNode() && myChar >= 'A' && myChar <= 'Z') {
                 // 英数モード
                 _LOG_DETAIL(_T("SetNextNodeMaybe: Eisu"));
                 EISU_NODE->blockerNeeded = true; // 入力済み末尾にブロッカーを設定する
@@ -139,7 +139,7 @@ namespace {
             }
             if (!NextNodeMaybe() || !NextNodeMaybe()->isStrokeTableNode()) {
                 // 次ノードがストロークノードでないか、ストロークテーブルノード以外(文字ノードや機能ノードなど)ならば、全ストロークを削除対象とする
-                _LOG_DETAIL(_T("{}: RemoveAllStroke: NEXT_NODE={}, DecodeKeyboardCharMode={}"), Name, NODE_NAME(NextNodeMaybe()), STATE_COMMON->IsDecodeKeyboardCharMode());
+                _LOG_DETAIL(_T("{}: RemoveAllStroke: NEXT_NODE={}, DecodeKeyboardCharMode={}"), Name, NODE_NAME(NextNodeMaybe()), STATE_COMMON->IsKeyFaceDirectMode());
                 setToRemoveAllStroke();
             }
             if (deckey < NORMAL_DECKEY_NUM && IsRootKeyHiraganaized()) {
