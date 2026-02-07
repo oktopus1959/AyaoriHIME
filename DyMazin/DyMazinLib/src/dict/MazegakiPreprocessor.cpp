@@ -575,6 +575,7 @@ namespace MazegakiPreprocessor {
     MapInt costsMap;
 
     bool mazeExpandFlag = true;
+    bool userDicModeFlag = false;
 
     // 活用型と交ぜ書きの前処理を行う
     // 辞書として有効な行の場合は true を返す。
@@ -601,10 +602,16 @@ namespace MazegakiPreprocessor {
                 LOG_DEBUGH(L"LEAVE: false: expand mazegaki");
                 return false;
             }
+            if (lowerLine.starts_with(L"#userdic")) {
+                userDicModeFlag = true;
+                LOG_DEBUGH(L"LEAVE: false: user Dic mode");
+                return false;
+            }
             LOG_DEBUGH(L"LEAVE: false: comment or ");
             return false;
         }
 
+        bUserDic = bUserDic || userDicModeFlag;
         bool doMaze = mazeExpandFlag;
         bool kFormExpandFlag = bUserDic;
         wchar_t firstChar = line[0];
