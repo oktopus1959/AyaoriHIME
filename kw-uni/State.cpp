@@ -19,7 +19,7 @@
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughState)
 
-#if 1 || defined(_DEBUG)
+#if 0 || defined(_DEBUG)
 #undef _DEBUG_SENT
 //#undef LOG_INFO
 #undef LOG_DEBUGH

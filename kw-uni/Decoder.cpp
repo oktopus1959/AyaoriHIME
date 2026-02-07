@@ -46,7 +46,7 @@
 #include "Llama/LlamaBridge.h"
 
 #define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
-#if 1 || defined(_DEBUG)
+#if 0 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
 #undef LOG_INFO
 #undef LOG_DEBUGH
