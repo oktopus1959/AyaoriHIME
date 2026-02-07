@@ -1,4 +1,4 @@
-###### [FAQ HOME](FAQ.md#../FAQ-HOME)
+###### [FAQ HOME](../FAQ.md#FAQ-HOME)
 
 # FAQ キーアサイン編
 
@@ -25,8 +25,8 @@ Space(SandS有効時)、CapsLock, 英数, 無変換, 変換, 右シフト, 左�
 
 ![Mod Conv](image/mod-conv.png)
 
-初期状態では、あらかじめ用意してある `mod-conversion-sample.txt`
-というファイルが `mod-conversion.txt` という名前のファイルにコピーされて、
+初期状態では、あらかじめ用意してある `systemFiles/mod-conversion-sample.txt`
+というファイルが `userFiles/mod-conversion.txt` という名前のファイルにコピーされて、
 そのファイル名が設定されています。
 「開く」ボタンをクリックすると、テキストエディタでそのファイルを開いて内容を確認することができます。
 
@@ -45,7 +45,7 @@ Space(SandS有効時)、CapsLock, 英数, 無変換, 変換, 右シフト, 左�
 もし、複数のキー割り当てを一括で変更したいのであれば、定義ファイルをエディタなどで直接修正したほうが簡単かもしれません。
 修正内容をファイルに保存した後「再読込」をクリックすると、その内容が拡張修飾キー設定ダイアログにも反映されます。
 
-なお、定義ファイルに直接記述する場合の書式などについては `mod-conversion.sample.txt` 
+なお、定義ファイルに直接記述する場合の書式などについては `systemFiles/mod-conversion.sample.txt` 
 に詳細を記述してあるので、こちらを参照してください。
 
 ## 拡張シフト面の割り当て

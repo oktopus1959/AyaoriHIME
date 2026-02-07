@@ -440,7 +440,7 @@ namespace {
                 _LOG_DETAIL(_T("\nuseEditBuffer={}, bDualTableMode={}, bHasAnyStroke={}"), SETTINGS->useEditBuffer, bDualTableMode, bHasAnyStroke);
 
                 if (/*deckey != CLEAR_STROKE_DECKEY && */
-                    ((deckey >= FUNC_DECKEY_START && deckey < FUNC_DECKEY_END && !isSingleHitKey(deckey)) || deckey >= CTRL_DECKEY_START)) {
+                    ((deckey >= FUNC_DECKEY_START && deckey < F1_DECKEY && !isSingleHitKey(deckey)) || deckey >= CTRL_DECKEY_START)) {
                     _LOG_DETAIL(L"Clear streamLists");
                     clearStreamLists();
                     _strokeBack = false;
