@@ -97,6 +97,10 @@ namespace DymazinBridge {
     }
 
 #if true
+    // 文字列の形態素解析を行い、コストと形態素列を返す 
+    // str: 入力文字列、morphs: 形態素列の出力先(改行区切り)、
+    // mazePenalty: 交ぜ書きペナルティ、mazeConnPenalty: 交ぜ書き接続ペナルティ(mazePenalty < 0 の場合のみ有効)
+    // allowNonTerminal: 非終端形態素を許可するか
     int dymazinCalcCost(const MString& str, std::vector<MString>& morphs, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
         _LOG_DEBUGH(_T("ENTER: str={}"), to_wstr(str));
         const size_t BUFSIZE = 1000;

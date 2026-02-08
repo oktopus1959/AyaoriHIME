@@ -120,26 +120,6 @@
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="checkBox_extraModifiersEnabled.ToolTip" xml:space="preserve">
-    <value>拡張修飾キーを有効にします。
-
-拡張修飾キーには以下のものがあります。
-  - Space (SandS有効時)
-  - CapsLock
-  - 英数
-  - 無変換
-  - 変換
-  - 右シフト
-
-当機能をONにすると、拡張修飾キーに対してシフト面を割り当てたり、
-拡張修飾キーを押しながら何かキーを押したときのキー割り当てや
-機能割り当てが有効になります。
-
-詳細については mod-conversion.sample.txt ファイルを参照してください。</value>
-  </data>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
   <data name="comboBox_deckeyCharsFile.ToolTip" xml:space="preserve">
     <value>漢直キーコードから英数字・記号への変換を定義するファイルを選択します。
 
@@ -600,6 +580,23 @@ Shift+Space=S40
 半/全=zenkaku, CapsLock=caps, 英数=alnum(eisu),
 無変換=nfer(muhenkan), 変換=xfer(henkan), ひらがな=kana,
 右シフト=rshift, Insert=ins</value>
+  </data>
+  <data name="checkBox_extraModifiersEnabled.ToolTip" xml:space="preserve">
+    <value>拡張修飾キーを有効にします。
+
+拡張修飾キーには以下のものがあります。
+  - Space (SandS有効時)
+  - CapsLock
+  - 英数
+  - 無変換
+  - 変換
+  - 右シフト
+
+当機能をONにすると、拡張修飾キーに対してシフト面を割り当てたり、
+拡張修飾キーを押しながら何かキーを押したときのキー割り当てや
+機能割り当てが有効になります。
+
+詳細については mod-conversion.sample.txt ファイルを参照してください。</value>
   </data>
   <data name="comboBox_dateStringKey.ToolTip" xml:space="preserve">
     <value>現在の日時を出力する Ctrlキーの設定

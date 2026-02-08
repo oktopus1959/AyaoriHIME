@@ -242,11 +242,16 @@ namespace lattice2 {
 
             _LOG_DETAIL(_T("OUTPUT: {}, numBS={}\n\n{}"), to_wstr(outStr), numBS, _kBestList->debugKBestString());
             if (_candidateLogEnabled || SETTINGS->multiStreamDetailLog) {
-                while (_candidateLogQueue.size() >= 10) _candidateLogQueue.pop_front();
-                _candidateLogQueue.push_back(std::format(L"========================================\nENTER: currentStrokeCount={}, pieces: {}\n",
-                    currentStrokeCount, formatStringOfWordPieces(pieces)));
+                const int DEBUG_LOG_SIZE = SETTINGS->multiStreamBeamSize * 2;
+                //while (_candidateLogQueue.size() >= DEBUG_LOG_SIZE) _candidateLogQueue.pop_front();
+                _candidateLogQueue.clear();
+                _candidateLogQueue.push_back(
+                    std::format(L"========================================\nENTER: currentStrokeCount={}, pieces: {}\n",
+                        currentStrokeCount, formatStringOfWordPieces(pieces)));
                 if (pieces.back().numBS() <= 0) {
-                    _candidateLogQueue.push_back(std::format(L"\n{}\nOUTPUT: {}, numBS={}\n\n", _kBestList->debugKBestString(SETTINGS->multiStreamBeamSize), to_wstr(outStr), numBS));
+                    _candidateLogQueue.push_back(
+                        std::format(L"\n{}\nOUTPUT: {}, numBS={}\n\n",
+                            _kBestList->debugKBestString(DEBUG_LOG_SIZE), to_wstr(outStr), numBS));
                 }
             }
 

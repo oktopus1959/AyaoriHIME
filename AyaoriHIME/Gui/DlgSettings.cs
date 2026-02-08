@@ -1892,6 +1892,7 @@ namespace KanchokuWS.Gui
             textBox_ngramManualSelectDelta.Text = $"{Settings.NgramManualSelectDelta}";
             textBox_ngramMaxBonusPoint.Text = $"{Settings.NgramMaxBonusPoint}";
             textBox_ngramBonusPointFactor.Text = $"{Settings.NgramBonusPointFactor}";
+            textBox_morphMazeEntryPenalty.Text = $"{Settings.MorphMazeEntryPenalty}";
             textBox_maxStrokeBackCount.Text = $"{Settings.MaxStrokeBackCount}";
             textBox_analyzeMorphLen.Text = $"{Settings.AnalyzeMorphLen}";
             textBox_challengeNumForSameLeader.Text = $"{Settings.ChallengeNumForSameLeader}";
@@ -1936,6 +1937,7 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(textBox_ngramManualSelectDelta);
             checkerFusion.Add(textBox_ngramMaxBonusPoint);
             checkerFusion.Add(textBox_ngramBonusPointFactor);
+            checkerFusion.Add(textBox_morphMazeEntryPenalty);
             checkerFusion.Add(textBox_maxStrokeBackCount);
             checkerFusion.Add(textBox_analyzeMorphLen);
             checkerFusion.Add(textBox_challengeNumForSameLeader);
@@ -1978,6 +1980,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("ngramManualSelectDelta", textBox_ngramManualSelectDelta.Text);
             Settings.SetUserIni("ngramMaxBonusPoint", textBox_ngramMaxBonusPoint.Text);
             Settings.SetUserIni("ngramBonusPointFactor", textBox_ngramBonusPointFactor.Text);
+            Settings.SetUserIni("morphMazeEntryPenalty", textBox_morphMazeEntryPenalty.Text);
             Settings.SetUserIni("maxStrokeBackCount", textBox_maxStrokeBackCount.Text);
             Settings.SetUserIni("analyzeMorphLen", textBox_analyzeMorphLen.Text);
             Settings.SetUserIni("challengeNumForSameLeader", textBox_challengeNumForSameLeader.Text);

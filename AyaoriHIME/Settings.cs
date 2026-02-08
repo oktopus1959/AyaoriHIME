@@ -1872,7 +1872,7 @@ namespace KanchokuWS
             UseMorphAnalyzerAlways = addDecoderSetting("useMorphAnalyzerAlways", true);         // 常に形態素解析器を使用する
             MorphCostWithoutEOS = addDecoderSetting("morphCostWithoutEOS", false);              // EOSまで含めた形態素解析コストを使用しない
             MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze2");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
-            MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000);           // 交ぜ書きエントリに対するペナルティ
+            MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000, 1, 10000); // 交ぜ書きエントリに対するペナルティ
             MorphMazeConnectionPenalty = addDecoderSetting("morphMazeConnectionPenalty", 1000); // 交ぜ書きエントリの接続に対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 5000);             // 非終端形態素の単語コスト
             AnalyzeMorphLen = addDecoderSetting("analyzeMorphLen", 10);                         // 形態素解析を行う際の最大形態素長

@@ -484,6 +484,8 @@ namespace KanchokuWS.Gui
             this.textBox_editBufferFlushChar = new System.Windows.Forms.TextBox();
             this.label158 = new System.Windows.Forms.Label();
             this.groupBox34 = new System.Windows.Forms.GroupBox();
+            this.textBox_morphMazeEntryPenalty = new System.Windows.Forms.TextBox();
+            this.label160 = new System.Windows.Forms.Label();
             this.textBox_analyzeMorphLen = new System.Windows.Forms.TextBox();
             this.label159 = new System.Windows.Forms.Label();
             this.textBox_ngramMaxBonusPoint = new System.Windows.Forms.TextBox();
@@ -6101,6 +6103,8 @@ namespace KanchokuWS.Gui
             // 
             // groupBox34
             // 
+            this.groupBox34.Controls.Add(this.textBox_morphMazeEntryPenalty);
+            this.groupBox34.Controls.Add(this.label160);
             this.groupBox34.Controls.Add(this.textBox_analyzeMorphLen);
             this.groupBox34.Controls.Add(this.label159);
             this.groupBox34.Controls.Add(this.textBox_ngramMaxBonusPoint);
@@ -6113,15 +6117,35 @@ namespace KanchokuWS.Gui
             this.groupBox34.Controls.Add(this.label91);
             this.groupBox34.Location = new System.Drawing.Point(364, 114);
             this.groupBox34.Name = "groupBox34";
-            this.groupBox34.Size = new System.Drawing.Size(334, 143);
+            this.groupBox34.Size = new System.Drawing.Size(334, 159);
             this.groupBox34.TabIndex = 3;
             this.groupBox34.TabStop = false;
             this.groupBox34.Text = "実験的設定";
             // 
+            // textBox_morphMazeEntryPenalty
+            // 
+            this.textBox_morphMazeEntryPenalty.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_morphMazeEntryPenalty.Location = new System.Drawing.Point(165, 129);
+            this.textBox_morphMazeEntryPenalty.Name = "textBox_morphMazeEntryPenalty";
+            this.textBox_morphMazeEntryPenalty.Size = new System.Drawing.Size(34, 19);
+            this.textBox_morphMazeEntryPenalty.TabIndex = 5;
+            this.textBox_morphMazeEntryPenalty.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_morphMazeEntryPenalty, "交ぜ書きエントリに対するペナルティ\r\n\r\n辞書引きした見出し語が交ぜ書きだった場合に与えるペナルティ。\r\n漢直に自信がなかったり、ひらがなのみで入力する場合は、\r" +
+        "\n低めの値にしておくとよいでしょう。");
+            // 
+            // label160
+            // 
+            this.label160.AutoSize = true;
+            this.label160.Location = new System.Drawing.Point(13, 131);
+            this.label160.Name = "label160";
+            this.label160.Size = new System.Drawing.Size(139, 15);
+            this.label160.TabIndex = 87;
+            this.label160.Text = "交ぜ書きエントリのペナルティ";
+            // 
             // textBox_analyzeMorphLen
             // 
             this.textBox_analyzeMorphLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_analyzeMorphLen.Location = new System.Drawing.Point(157, 41);
+            this.textBox_analyzeMorphLen.Location = new System.Drawing.Point(165, 41);
             this.textBox_analyzeMorphLen.Name = "textBox_analyzeMorphLen";
             this.textBox_analyzeMorphLen.Size = new System.Drawing.Size(34, 19);
             this.textBox_analyzeMorphLen.TabIndex = 1;
@@ -6141,10 +6165,10 @@ namespace KanchokuWS.Gui
             // textBox_ngramMaxBonusPoint
             // 
             this.textBox_ngramMaxBonusPoint.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramMaxBonusPoint.Location = new System.Drawing.Point(157, 85);
+            this.textBox_ngramMaxBonusPoint.Location = new System.Drawing.Point(165, 85);
             this.textBox_ngramMaxBonusPoint.Name = "textBox_ngramMaxBonusPoint";
             this.textBox_ngramMaxBonusPoint.Size = new System.Drawing.Size(34, 19);
-            this.textBox_ngramMaxBonusPoint.TabIndex = 4;
+            this.textBox_ngramMaxBonusPoint.TabIndex = 3;
             this.textBox_ngramMaxBonusPoint.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_ngramMaxBonusPoint, "コスト計算において使用するボーナスポイントの上限値\r\n\r\n通常入力や候補選択で蓄積されたボーナスポイントに対して、\r\n実際にボーナス値を計算する際の上限値を設定し" +
         "ます。\r\nボーナスポイントがこの値を超えた場合は、上限値に抑えられます。");
@@ -6161,10 +6185,10 @@ namespace KanchokuWS.Gui
             // textBox_ngramBonusPointFactor
             // 
             this.textBox_ngramBonusPointFactor.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramBonusPointFactor.Location = new System.Drawing.Point(157, 107);
+            this.textBox_ngramBonusPointFactor.Location = new System.Drawing.Point(165, 107);
             this.textBox_ngramBonusPointFactor.Name = "textBox_ngramBonusPointFactor";
             this.textBox_ngramBonusPointFactor.Size = new System.Drawing.Size(34, 19);
-            this.textBox_ngramBonusPointFactor.TabIndex = 5;
+            this.textBox_ngramBonusPointFactor.TabIndex = 4;
             this.textBox_ngramBonusPointFactor.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_ngramBonusPointFactor, "コスト計算においてボーナスポイントに乗ずる係数\r\n\r\n通常入力や候補選択で蓄積されたボーナスポイントに対して、ここで設定する\r\n係数を乗じたボーナス値を、Ngra" +
         "m計算によるコストから減じます。");
@@ -6181,10 +6205,10 @@ namespace KanchokuWS.Gui
             // textBox_ngramManualSelectDelta
             // 
             this.textBox_ngramManualSelectDelta.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramManualSelectDelta.Location = new System.Drawing.Point(157, 63);
+            this.textBox_ngramManualSelectDelta.Location = new System.Drawing.Point(165, 63);
             this.textBox_ngramManualSelectDelta.Name = "textBox_ngramManualSelectDelta";
             this.textBox_ngramManualSelectDelta.Size = new System.Drawing.Size(34, 19);
-            this.textBox_ngramManualSelectDelta.TabIndex = 3;
+            this.textBox_ngramManualSelectDelta.TabIndex = 2;
             this.textBox_ngramManualSelectDelta.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_ngramManualSelectDelta, "入力候補を選択した時に加算するボーナスポイント\r\n\r\n通常は入力された文字列に対して 1 ポイントずつボーナスが加算されますが、\r\n複数の入力候補がある場合に手動" +
         "で候補選択をした時、特別に加算する\r\nボーナスポイントを設定します。");
@@ -8425,5 +8449,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label128;
         private System.Windows.Forms.TextBox textBox_analyzeMorphLen;
         private System.Windows.Forms.Label label159;
+        private System.Windows.Forms.TextBox textBox_morphMazeEntryPenalty;
+        private System.Windows.Forms.Label label160;
     }
 }
