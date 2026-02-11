@@ -174,9 +174,6 @@ namespace lattice2 {
         return EMPTY_MSTR;
     }
 
-    // リアルタイムNgramの更新
-    void updateRealtimeNgram(const MString& str);
-
     struct MorphCand {
         MString str;
         MString feat;

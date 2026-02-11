@@ -239,7 +239,7 @@ namespace lattice2 {
             if (_origFirstCand > 0 && (size_t)_origFirstCand < _candidates.size()) {
                 _LOG_DETAIL(L"ENTER");
                 // 候補選択がなされていて、元の先頭候補以外が選択された
-                updateRealtimeNgramByUserSelect(_candidates[_origFirstCand].string(), _candidates[0].string());
+                updateSelectedNgramByUserSelect(_candidates[_origFirstCand].string(), _candidates[0].string());
                 updateMazegakiPreference(_candidates[0], _candidates[_origFirstCand]);
                 removeOtherThanFirstForEachStroke();
                 _origFirstCand = -1;
@@ -545,69 +545,12 @@ namespace lattice2 {
                 }
             }
 
-            if (!newCandidates.empty()) {
-                for (auto iter = newCandidates.begin(); iter != newCandidates.end(); ++iter) {
-                    int otherCost = iter->totalCost();
-                    if (myTotalCost < otherCost) {
-                        iter = newCandidates.insert(iter, newCandStr);    // iter は挿入したノードを指す
-                        bAdded = true;
-                        LOG_DEBUGH(_T("ADDED: myTotalCost={}, otherStr={}, otherCost={}"), myTotalCost, to_wstr(iter->string()), otherCost);
-                        // TODO LastSameLen は使わない
-                        //// 下位のノードで末尾文字列の共通部分が指定の長さより長いものを探し、あればそれを削除
-                        //for (++iter; iter != newCandidates.end(); ++iter) {
-                        //    if (hasLongerCommonSuffixThanOrSameStr(candStr, iter->string(), LastSameLen)) {
-                        //        // 末尾文字列の共通部分が指定の長さより長いか、同じ文字列
-                        //        newCandidates.erase(iter);
-                        //        LOG_DEBUGH(_T("    REMOVE second best or lesser candidate"));
-                        //        break;
-                        //    }
-                        //}
-                        break;
-                        //} else if (hasLongerCommonSuffixThanOrSameStr(candStr, iter->string(), LastSameLen)) {
-                        //    // 末尾文字列の共通部分が指定の長さより長いか、同じ文字列
-                        //    bIgnored = true;
-                        //    break;
-                    }
-                }
-            }
-#if 0
-            int beamSize = SETTINGS->multiStreamBeamSize + (newCandStr.isKanjiTailChar() ? EXTRA_KANJI_BEAM_SIZE : 0);
-            if (beamSize < _extendedCandNum) beamSize = _extendedCandNum;
-            if (!bAdded && /*!bIgnored &&*/ (int)newCandidates.size() < beamSize) {
-                // 余裕があれば末尾に追加(複数漢字候補の場合はkBestを超えても追加)
-                newCandidates.push_back(newCandStr);
-                bAdded = true;
-            }
-            if ((int)newCandidates.size() > SETTINGS->multiStreamBeamSize) {
-                // kBestサイズを超えたら末尾を削除
-#if 0
-                newCandidates.resize(SETTINGS->multiStreamBeamSize);
-                _LOG_DETAIL(_T("    REMOVE OVERFLOW ENTRY"));
-#else
-                size_t pos = SETTINGS->multiStreamBeamSize;
-                while (pos < newCandidates.size() && pos < (size_t)(SETTINGS->multiStreamBeamSize + EXTRA_KANJI_BEAM_SIZE)) {
-                    auto iter = newCandidates.begin() + pos;
-                    if (pos >= (size_t)_extendedCandNum && !iter->isKanjiTailChar()) {
-                        // 末尾が漢字以外のものだけを削除対象とする
-                        newCandidates.erase(iter);
-                        _LOG_DETAIL(_T("    REMOVE OVERFLOW ENTRY"));
-                    } else {
-                        ++pos;
-                    }
-                }
-                if (pos < newCandidates.size()) {
-                    newCandidates.resize(pos);
-                }
-#endif
-            }
-#else
             if (!bAdded) {
                 // 末尾に追加
                 newCandidates.push_back(newCandStr);
                 bAdded = true;
                 LOG_DEBUGH(_T("ADDED at TAIL"));
             }
-#endif
             if (bAdded) {
                 _LOG_DETAIL(_T("    ADD candidate: {}, myTotalCost={}"), to_wstr(candStr), myTotalCost);
             } else {
@@ -615,6 +558,67 @@ namespace lattice2 {
             }
             _LOG_DETAIL(_T("LEAVE: {}, newCandidates.size={}"), bAdded ? L"ADD" : L"ABANDON", newCandidates.size());
             return bAdded;
+        }
+
+        // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
+        void reorderCandidates(std::vector<CandidateString>& newCandidates) {
+            // CandidateString::totalCost() の昇順にソート
+            _LOG_DETAIL(_T("ENTER"));
+            // ユーザー選択Ngramペアを探して、totalCostを調整
+            std::map<MString, std::tuple<int, std::set<size_t>, std::set<size_t>>> foundNgram;   // <Ngram, <bonusPoint, positiveCandidateIndexes, negativeCandidateIndexes>>
+            for (size_t i = 0; i < newCandidates.size(); ++i) {
+                const MString& candStr = newCandidates[i].string();
+                //const std::set<SelectedNgramPairBonus> currentSet = findNgramPairBonus(candStr);
+                // TODO: 「あい|阿井」「あいう|阿井宇」のようなSelectedNgram対がある場合は、両者ともマッチしてしまうケースもある(現在は両方とも計算に入ってしまう)
+                for (const auto& current : findNgramPairBonus(candStr)) {
+                    if (current.isValid()) {
+                        auto iter = foundNgram.find(current.ngramPair);
+                        if (iter != foundNgram.end()) {
+                            // 既に見つかっている場合
+                            if (current.bonusPoint > 0) {
+                                // 今回の候補は正のボーナスポイント
+                                _LOG_DETAIL(_T("positive bonus info: [{}] {}"), i, current.debugString());
+                                std::get<1>(iter->second).insert(i);   // positiveCandidateIndexes に今回の候補位置を追加
+                            } else if (current.bonusPoint < 0) {
+                                // 今回の候補は負のボーナスポイント
+                                _LOG_DETAIL(_T("negative bonus info: [{}] {}"), i, current.debugString());
+                                std::get<2>(iter->second).insert(i);   // negativeCandidateIndexes に今回の候補位置を追加
+                            }
+                        } else {
+                            if (current.bonusPoint > 0) {
+                                foundNgram[current.ngramPair] = { current.bonusPoint, {i}, {} };
+                            } else if (current.bonusPoint < 0) {
+                                foundNgram[current.ngramPair] = { -current.bonusPoint, {}, {i} };
+                            }
+                        }
+                    }
+                }
+            }
+
+            // totalCost を再計算
+            for (const auto& entry : foundNgram) {
+                const auto& bonusInfo = entry.second;
+                int bonus = calcNgramBonus(std::get<0>(bonusInfo));
+                const auto& posiCandIndex = std::get<1>(bonusInfo);
+                const auto& negaCandIndex = std::get<2>(bonusInfo);
+                if (bonus > 0 && !posiCandIndex.empty() && !negaCandIndex.empty()) {
+                    for (const auto& ci : posiCandIndex) {
+                        newCandidates[ci].addNgramCost(-bonus);
+                        _LOG_DETAIL(_T("positive selected Ngram: {}, bonus={}, cand=[{}] {}"), to_wstr(entry.first), bonus, ci, newCandidates[ci].debugString());
+                    }
+                    for (const auto& ci : negaCandIndex) {
+                        newCandidates[ci].addNgramCost(bonus);
+                        _LOG_DETAIL(_T("negative selected Ngram: {}, bonus={}, cand=[{}] {}"), to_wstr(entry.first), bonus, ci, newCandidates[ci].debugString());
+                    }
+                }
+            }
+
+            // 調整された totalCost に基づいてソート
+            std::sort(newCandidates.begin(), newCandidates.end(),
+                [](const CandidateString& a, const CandidateString& b) {
+                    return a.totalCost() < b.totalCost();
+                });
+            _LOG_DETAIL(_T("LEAVE"));
         }
 
         // 同じ末尾部分を持つ候補が連続しないように移動する
@@ -663,7 +667,7 @@ namespace lattice2 {
                         if (!uni.empty()) uniGrams.insert(uni);
                         if (!bi.empty()) biGrams.insert(bi);
                         if (!tri.empty()) triGrams.insert(tri);
-                        _LOG_DETAIL(_T("[{}] string={}: OK"), pos, to_wstr(str));
+                        _LOG_DETAIL(_T("[{}] {}: OK"), pos, iter->debugString());
                         ++pos;
                         continue;
                     } else {
@@ -674,7 +678,7 @@ namespace lattice2 {
                         }
                         if (iter->isNonTerminal()) {
                             // 非終端は残す
-                            _LOG_DETAIL(_T("REMAIN: non terminal: {}"), to_wstr(str));
+                            _LOG_DETAIL(_T("[{}]: REMAIN: non terminal: {}"), pos, iter->debugString());
                             ++pos;
                             continue;
                         }
@@ -682,7 +686,7 @@ namespace lattice2 {
                             if (triGrams.size() < beamSize2 && triGrams.find(tri) == triGrams.end()) {
                                 // 未見のtrigramであり、まだ余裕がある
                                 triGrams.insert(tri);
-                                _LOG_DETAIL(_T("[{}] string={}: triGram OK, triGrams.size={}"), pos, to_wstr(str), triGrams.size());
+                                _LOG_DETAIL(_T("[{}] {}: triGram OK, triGrams.size={}"), pos, iter->debugString(), triGrams.size());
                                 ++pos;
                                 continue;
                             }
@@ -691,7 +695,7 @@ namespace lattice2 {
                             if (biGrams.size() < beamSize2 && biGrams.find(bi) == biGrams.end()) {
                                 // 未見のbigramであり、まだ余裕がある
                                 biGrams.insert(bi);
-                                _LOG_DETAIL(_T("[{}] string={}: biGram OK, biGrams.size={}"), pos, to_wstr(str), biGrams.size());
+                                _LOG_DETAIL(_T("[{}] {}: biGram OK, biGrams.size={}"), pos, iter->debugString(), biGrams.size());
                                 ++pos;
                                 continue;
                             }
@@ -700,14 +704,14 @@ namespace lattice2 {
                             if (uniGrams.size() < beamSize2 && uniGrams.find(uni) == uniGrams.end()) {
                                 // 未見のunigramであり、まだ余裕がある
                                 uniGrams.insert(uni);
-                                _LOG_DETAIL(_T("[{}] string={}: uniGram OK, uniGrams.size={}"), pos, to_wstr(str), uniGrams.size());
+                                _LOG_DETAIL(_T("[{}] {}: uniGram OK, uniGrams.size={}"), pos, iter->debugString(), uniGrams.size());
                                 ++pos;
                                 continue;
                             }
                         }
                     }
                 }
-                _LOG_DETAIL(_T("[{}] string={}: erased"), pos, to_wstr(str));
+                _LOG_DETAIL(_T("[{}] {}: erased"), pos, iter->debugString());
                 newCandidates.erase(iter);
             }
             if (pos < newCandidates.size()) {
@@ -1060,6 +1064,8 @@ namespace lattice2 {
                 // 素片のストロークと適合する候補だけを追加
                 addOnePiece(newCandidates, piece, useMorphAnalyzer, strokeCount, paddingLen, bKatakanaConversion);
             }
+            // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
+            reorderCandidates(newCandidates);
             _LOG_DETAIL(_T("B: newCandidates.size={}"), newCandidates.size());
 
             if (!isPaddingPiece) {
@@ -1075,8 +1081,8 @@ namespace lattice2 {
                 _LOG_DETAIL(_T("D: newCandidates.size={}, _candidates.size={}, remainingStrokeSize={}, strokeCount={}"),
                     newCandidates.size(), _candidates.size(), SETTINGS->remainingStrokeSize, strokeCount);
                 for (const auto& cand : _candidates) {
-                    _LOG_DETAIL(_T("cand.str={}, cand.strokeLen={}"), to_wstr(cand.string()), cand.strokeLen());
                     if (cand.strokeLen() + SETTINGS->remainingStrokeSize > strokeCount) {
+                        _LOG_DETAIL(_T("cand.str={}, cand.strokeLen={}"), to_wstr(cand.string()), cand.strokeLen());
                         newCandidates.push_back(cand);
                     }
                 }

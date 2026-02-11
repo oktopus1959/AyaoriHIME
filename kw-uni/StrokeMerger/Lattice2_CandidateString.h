@@ -103,6 +103,10 @@ namespace lattice2 {
             _ngramCost += ngramCost;
         }
 
+        inline void addNgramCost(int ngramCost) {
+            _ngramCost += ngramCost;
+        }
+
         //inline void zeroCost() {
         //    _penalty = -_cost;
         //}

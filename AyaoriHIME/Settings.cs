@@ -1879,7 +1879,7 @@ namespace KanchokuWS
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
             NgramMaxBonusPoint = addDecoderSetting("ngramMaxBonusPoint", 25);                   // Ngramに与えるボーナスポイントの最大値
             NgramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 250);            // 嵩上げされたNgramに与えるボーナスの係数
-            NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 5);            // 候補選択によるNgramカウントの変動幅
+            NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 10);           // 候補選択によるNgramカウントの変動幅
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             LoweredContinuousKanjiNum = addDecoderSetting("loweredContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード
