@@ -320,5 +320,8 @@
     <ClInclude Include="src\reporting\ErrorHandler.h">
       <Filter>ヘッダー ファイル\reporting</Filter>
     </ClInclude>
+    <ClInclude Include="src\analyzer\TemporaryDict.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

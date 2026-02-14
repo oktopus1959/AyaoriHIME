@@ -517,7 +517,7 @@ namespace lattice2 {
                 }
 
                 // Ngramコスト
-                int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr) * SETTINGS->ngramCostFactor;
+                int ngramCost = subStr.empty() ? 0 : getNgramCost(subStr, morphs) * SETTINGS->ngramCostFactor;
                 //int morphCost = 0;
                 //int ngramCost = candStr.empty() ? 0 : getNgramCost(candStr);
                 //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;
@@ -570,6 +570,7 @@ namespace lattice2 {
                 const MString& candStr = newCandidates[i].string();
                 //const std::set<SelectedNgramPairBonus> currentSet = findNgramPairBonus(candStr);
                 // TODO: 「あい|阿井」「あいう|阿井宇」のようなSelectedNgram対がある場合は、両者ともマッチしてしまうケースもある(現在は両方とも計算に入ってしまう)
+                _LOG_DETAIL(_T("candStr={}"), to_wstr(candStr));
                 for (const auto& current : findNgramPairBonus(candStr)) {
                     if (current.isValid()) {
                         auto iter = foundNgram.find(current.ngramPair);
@@ -876,15 +877,17 @@ namespace lattice2 {
                 }
                 // 複数文字指定などの解析も行う
                 std::vector<MString> ss = cand.applyPiece(piece, strokeCount, paddingLen, isStrokeBS, bKatakanaConversion);
-                int idx = 0;
+                //int idx = 0;
                 for (MString s : ss) {
                     CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                     newCandStr.setPenalty(penalty);
-                    if (isTailIsolatedKanji(s)) {
-                        // 末尾が孤立した漢字なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
-                        newCandStr.addCost(0, HEAD_SINGLE_CHAR_ORDER_COST * idx);
-                        ++idx;
-                    }
+                    // TODO: ここは別の仕組みする (「話が闊」がビーム幅の外に出てしまうような場合に対応するため)
+                    // ここでは、順位だけを記録しておき、reorderCandidates() の中で反映させるようにする
+                    //if (isTailIsolatedKanji(s)) {
+                    //    // 末尾が孤立した漢字なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
+                    //    newCandStr.addCost(0, HEAD_SINGLE_CHAR_ORDER_COST * idx);
+                    //    ++idx;
+                    //}
                     // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
                     MString subStr = substringBetweenNonJapaneseChars(s);
                     addCandidate(newCandidates, newCandStr, minLen, useMorphAnalyzer, isStrokeBS);

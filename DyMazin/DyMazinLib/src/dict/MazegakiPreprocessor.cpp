@@ -440,6 +440,7 @@ namespace MazegakiPreprocessor {
 
     //# main loop
     //def main(results, costs, items)
+    // result: 交ぜ表層形,左文脈ID,右文脈ID,コスト,品詞:細品詞,交ぜ基本形,変換基本形,変換表層形[,MAZE]
     bool main(MapString& results, MapInt& costs, StringRef line, bool doMaze) {
         LOG_DEBUGH(L"\nENTER: doMaze={}, line={}", doMaze, line);
 

@@ -33,10 +33,11 @@ namespace analyzer {
         /**
          * 形態素解析の実行
          * @param sentence 解析対象文
+         * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
          * @param nBest N-Best解の個数 (省略可; デフォルト=1)
          * @return 解析結果を格納したラティスオブジェクト
          */
-        LatticePtr analyze(StringRef sentence, size_t nBest);
+        LatticePtr analyze(StringRef sentence, StringRef tempEntries, size_t nBest);
 
         //static String getBosFeature(OptHandlerPtr opts, StringRef defval = L"");
 

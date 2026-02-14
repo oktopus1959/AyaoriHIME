@@ -275,7 +275,7 @@ namespace lattice2 {
             int morphCost = MorphBridge::morphCalcCost(str, morphs, 0, 0, false);
             //morphs.clear();
             // Ngramコストの計算
-            int ngramCost = getNgramCost(str, false);
+            int ngramCost = getNgramCost(str, morphs, false);
             int cost = srcAccumCost + morphCost + ngramCost;
             LOG_INFO(L"TAIL morph: str={}, feat={}, cost={} (srcAccumCost={}, morph={}, ngram={})",
                 to_wstr(str), to_wstr(feat), cost, srcAccumCost, morphCost, ngramCost);

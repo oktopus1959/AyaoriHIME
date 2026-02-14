@@ -284,9 +284,18 @@ namespace lattice2 {
                 // 1文字差分の場合は、前後の1文字を含めて更新する
                 if (startPos == 0) {
                     // 先頭だったら、〓を前に追加して処理する
-                    selectedNgramInstance.updateSelectedNgram(
-                        MSTR_GETA + newCand.substr(startPos, len2),
-                        MSTR_GETA + oldCand.substr(startPos, len1));
+                    if (len1 == 1 && len2 == 1) {
+                        if (len1 + 1 <= baseSize && len2 + 1 <= diffSize) {
+                            // 両者ともに1文字差分の場合は、後ろ1文字も含めて処理する
+                            selectedNgramInstance.updateSelectedNgram(
+                                MSTR_GETA + newCand.substr(startPos, len2 + 1),
+                                MSTR_GETA + oldCand.substr(startPos, len1 + 1));
+                        }
+                    } else {
+                        selectedNgramInstance.updateSelectedNgram(
+                            MSTR_GETA + newCand.substr(startPos, len2),
+                            MSTR_GETA + oldCand.substr(startPos, len1));
+                    }
                 }
                 ++len1;
                 ++len2;
@@ -519,11 +528,12 @@ namespace lattice2 {
     }
 
     // Ngramコストの取得
-    int getNgramCost(const MString& str, bool bUseGeta) {
+    int getNgramCost(const MString& str, const std::vector<MString>& morphs, bool bUseGeta) {
         _LOG_DETAIL(L"\nENTER: str={}: geta={}", to_wstr(str), bUseGeta);
         std::vector<MString> ngrams;
         MString targetStr = bUseGeta ? MSTR_GETA + str : str;
-        int cost0 = NgramBridge::ngramCalcCost(targetStr, ngrams, SETTINGS->multiStreamDetailLog);
+        // Ngram 解析
+        int cost0 = NgramBridge::ngramCalcCost(targetStr, morphs, ngrams, SETTINGS->multiStreamDetailLog);
         int cost = cost0;
         _LOG_DETAIL(L"ngrams: initial cost={}\n--------\n{}\n--------", cost, to_wstr(utils::join(ngrams, '\n')));
         if (targetStr.size() >= 2) {

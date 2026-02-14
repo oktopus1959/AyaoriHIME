@@ -51,7 +51,7 @@ namespace lattice2 {
 
     // Ngramコストの取得
     //int getNgramCost(const MString& str, const std::vector<MString>& morphs);
-    int getNgramCost(const MString& str, bool bUseGeta = true);
+    int getNgramCost(const MString& str, const std::vector<MString>& morphs, bool bUseGeta = true);
 
 } // namespace lattice2
 

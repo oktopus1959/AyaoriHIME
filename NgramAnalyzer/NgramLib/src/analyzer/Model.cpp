@@ -27,13 +27,14 @@ namespace analyzer {
     /**
      * 形態素解析の実行
      * @param sentence 解析対象文
+     * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
      * @param nBest N-Best解の個数 (省略可; デフォルト=1)
      * @return 解析結果を格納したラティスオブジェクト
      */
-    LatticePtr Model::analyze(StringRef sentence, size_t nBest) {
+    LatticePtr Model::analyze(StringRef sentence, StringRef tempEntries, size_t nBest) {
         LOG_INFO(L"ENTER: sentence={}, nBest={}", sentence, nBest);
         auto lattice = Lattice::CreateLattice(sentence, bos_feature, nBest);
-        viterbi.analyze(lattice);
+        viterbi.analyze(lattice, tempEntries);
         LOG_INFO(L"LEAVE");
         return lattice;
     }

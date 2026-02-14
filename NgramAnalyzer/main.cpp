@@ -51,7 +51,7 @@ int main(int argc, const char** argv) {
     } else if (args.size() > 1 && RegexUtil(L"^test").search(args[1])) {
         result = NgramInitialize(ac - 1, av.data() + 1, logFile.c_str(), errMsgBuf, ARRAY_SIZE, true);
         if (result != ErrorHandler::LEVEL_ERROR) {
-            NgramAnalyze(L"私は学生です。", nullptr, 0, true, errMsgBuf, ARRAY_SIZE);
+            NgramAnalyze(L"私は学生です。", nullptr, nullptr, 0, true, errMsgBuf, ARRAY_SIZE);
         } else {
             std::cerr << "initialize: result=" << result << std::endl;
         }
@@ -62,7 +62,7 @@ int main(int argc, const char** argv) {
         if (result != ErrorHandler::LEVEL_ERROR) {
             //std::cout << "CALL NgramAnalyze" << std::endl;
             //NgramAnalyze(L"私は学生です。", nullptr, 0, 0, true);
-            NgramAnalyze(nullptr, nullptr, 0, true, errMsgBuf, ARRAY_SIZE);
+            NgramAnalyze(nullptr, nullptr, nullptr, 0, true, errMsgBuf, ARRAY_SIZE);
         } else {
             std::cerr << "initialize: result=" << result << std::endl;
         }

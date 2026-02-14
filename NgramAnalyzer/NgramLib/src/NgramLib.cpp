@@ -177,20 +177,22 @@ int NgramMakeDictIndex(size_t argc, const wchar_t** argv, const wchar_t* logFile
 
 /**
  * Ngram解析の実行(コストを返す)
+ * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
  * @param mazePenalty 交ぜ書きエントリに対するペナルティ(0 ならデフォルト値を使う)
  * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
  */
-int NgramAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz) {
+int NgramAnalyze(const wchar_t* sentence, const wchar_t* tempEntries, wchar_t* wakati_buf, size_t bufsize, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz) {
     LOG_INFO(L"ENTER: sentence={}", sentence ? sentence : L"null");
     ERROR_HANDLER->Clear();
 
     try {
         int cost = 0;
         int nBest = opts->getInt(L"nbest", 1);
+        String tempEntriesStr = tempEntries ? tempEntries : L"";
         if (sentence) {
             if (wakati_buf) wakati_buf[0] = L'\0';
             Vector<String> results;
-            cost = tagger->parseNBest(sentence, results, nBest, wakati_buf != nullptr);
+            cost = tagger->parseNBest(sentence, tempEntriesStr, results, nBest, wakati_buf != nullptr);
             bool bFirst = true;
             for (const auto& result : results) {
                 if (wakati_buf) {
@@ -213,7 +215,7 @@ int NgramAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize, b
                 //if (line.empty()) continue;
                 //String result = tagger->parse(line, nBest, mazePenalty);
                 Vector<String> results;
-                tagger->parseNBest(line, results, nBest, true);
+                tagger->parseNBest(line, tempEntriesStr, results, nBest, true);
                 for (const auto& result : results) {
                     std::cout << "----------------" << std::endl;
                     std::cout << utils::utf8_encode(result) << std::endl;

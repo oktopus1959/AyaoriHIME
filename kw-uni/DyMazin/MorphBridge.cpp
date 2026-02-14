@@ -79,6 +79,8 @@ namespace MorphBridge {
     }
 
     // 形態素解析と交ぜ書き候補の取得 (変換形@表層形/品詞/基本形; DyMazinLib.TextWriter.writeMaze_ で出力)
+    // mazePenalty: 交ぜ書きペナルティ、mazeConnPenalty: 交ぜ書き接続ペナルティ(mazePenalty < 0 の場合はボーナスとなり、他の交ぜ書き候補を含めた解を返す)
+    // morph: 表層形 <TAB> 変換形[| 別候補]...(or -) <TAB> 品詞:細品詞,交ぜ基本形,変換基本形,変換表層形[,MAZE]
     int morphCalcCost(const MString& str, std::vector<MString>& morphs, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
         if (!initializeSucceeded) return 0;
 
@@ -88,4 +90,5 @@ namespace MorphBridge {
         return 0;
 #endif //USE_MORPHER
     }
+
 }

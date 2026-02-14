@@ -117,8 +117,10 @@ namespace analyzer {
         //warnings.clear();
         if (nBest == 1) {
             if (otherMazeCand && writer) {
+                // 解析結果を交ぜ書き情報も含めて文字列で返す
                 results.push_back(toMazeString());
             } else {
+                // 解析結果を文字列で返す
                 results.push_back(toString());
             }
         } else {
@@ -239,6 +241,9 @@ namespace analyzer {
         }
     }
 
+    /**
+    * 解析結果を交ぜ書き情報も含めて文字列で返す
+    */
     String Lattice::toMazeString() const {
         LOG_INFO(L"CALLED");
         if (writer) {

@@ -162,6 +162,7 @@ namespace analyzer {
 #define MAZE_FEAT_FORMAT L"@{}/{}/{}"
 
         // 交ぜ書き原形も含む出力 (表層形 TAB 変換形[|別候補]...(or -) TAB 交ぜ書き原形,主要品詞:細品詞[,変換形,MAZE]
+        // includeOtherCandidates=true の場合、同じ位置で同じ長さの候補も追加 (|候補1|候補2...)
         String writeMaze_(const Lattice& lattice, bool includeFeature, bool includeOtherCandidates = false) {
             LOG_INFO(L"ENTER: includeFeature={}, includeOtherCandidates={}", utils::boolToString(includeFeature), utils::boolToString(includeOtherCandidates));
             StringStream ss;
@@ -173,7 +174,7 @@ namespace analyzer {
                 bFirst = false;
                 LOG_INFO(L"node: {}", node->toVerbose());      // 主要品詞:細品詞,表層形,交ぜ書き原形[,変換形,MAZE]
                 auto surface = node->surface()->toString();
-                ss << surface;
+                ss << surface;  // 表層形
                 bool secondItem = false;
                 auto features = utils::split(node->feature(), TAB);
                 if (features.size() > FEATURE_OFF) {
@@ -186,9 +187,9 @@ namespace analyzer {
                         } else if (feats.size() > XLAT_BASE_OFF) {
                             kanjiForm = feats[XLAT_BASE_OFF];            // 原形
                         } else {
-                            kanjiForm = surface;
+                            kanjiForm = surface;                        // 表層形
                         }
-                        ss << L"\t" << kanjiForm;
+                        ss << L"\t" << kanjiForm;       // 変換形 or 原形 or 表層形
                         secondItem = true;
                         if (includeOtherCandidates) {
                             //ss << std::format(L"@{}:{}:{}", feats[BASE_OFF], myHinshi, feats[XLAT_BASE_OFF]);

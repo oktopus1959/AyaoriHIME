@@ -95,7 +95,7 @@ namespace analyzer {
          * viterbi 処理 --
          * 単語の辞書引きと先行ノードとの接続処理を行って、ラティス構造を構築する。
          */
-        void viterbi(LatticePtr lattice) {
+        void viterbi(LatticePtr lattice, StringRef tempDictEntries) {
             LOG_INFO(L"ENTER");
             auto sentence = lattice->sentence;
             auto len = sentence->length();
@@ -107,6 +107,9 @@ namespace analyzer {
             auto eos_node = lattice->eosNode();
 
             Vector<int>  glueNgramMaxLens(len + 1, 0); // 各位置におけるグルーピングNgramの最大長
+
+            // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
+            tokenizer->resetTempDict(tempDictEntries);
 
             // 文の先頭から末尾に向かって、形態素ノードを作成し、先行ノードと接続させてラティスを作っていく
             for (size_t pos = 0; pos < len; ++pos) {
@@ -289,14 +292,15 @@ namespace analyzer {
 
     /**
      * 形態素解析処理
+     * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
      */
-    void Viterbi::analyze(LatticePtr lattice) {
+    void Viterbi::analyze(LatticePtr lattice, StringRef tempDictEntries) {
         LOG_INFO(L"ENTER");
         CHECK_OR_THROW(lattice && lattice->sentence,
             L"Viterbi.analyze: lattice must not be null and have non-null sentence");
 
         // viterbi 処理 (解析部本体)
-        pImpl->viterbi(lattice);
+        pImpl->viterbi(lattice, tempDictEntries);
         // 最良コストのPathを next で連結する
         pImpl->linkBestPath(lattice);
         LOG_INFO(L"LEAVE");

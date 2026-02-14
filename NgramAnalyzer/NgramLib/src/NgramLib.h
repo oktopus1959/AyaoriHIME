@@ -21,7 +21,7 @@ NGRAM_DLL_EXTERN int NgramCompileAndLoadUserDic(const wchar_t* dicDir, const wch
 NGRAM_DLL_EXTERN int NgramMakeDictIndex(size_t argc, const wchar_t** argv, const wchar_t* logFile, wchar_t* errMsgBuf, size_t bufsiz, bool showError = false);
 
 // 形態素解析の実行(コストを返す)
-NGRAM_DLL_EXTERN int NgramAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz);
+NGRAM_DLL_EXTERN int NgramAnalyze(const wchar_t* sentence, const wchar_t* tempEntries, wchar_t* wakati_buf, size_t bufsize, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz);
 
 // ログレベルの設定
 NGRAM_DLL_EXTERN void NgramSetLogLevel(int logLevel);

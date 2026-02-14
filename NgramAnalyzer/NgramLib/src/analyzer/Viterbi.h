@@ -18,8 +18,9 @@ namespace analyzer {
 
         /**
          * 形態素解析処理
+         * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
          */
-        void analyze(LatticePtr lattice);
+        void analyze(LatticePtr lattice, StringRef tempDictEntries);
 
         /** ユーザー辞書の再オープン */
         void reload_userdics();

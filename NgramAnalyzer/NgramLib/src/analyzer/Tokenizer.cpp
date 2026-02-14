@@ -7,6 +7,7 @@
 #include "dict/Dictionary.h"
 #include "Tokenizer.h"
 #include "Lattice.h"
+#include "TemporaryDict.h"
 
 #if 0
 #undef LOG_DEBUGH
@@ -20,6 +21,8 @@ namespace analyzer {
     int UNKNOWN_OTHER_COST = 10000;
     int UNKNOWN_KANJI_COST = 5000;
     int UNKNOWN_KANJI_MAX_LEN = 4;
+
+    int MORPH_ENTRY_COST = 5000;
 
     //-----------------------------------------------------------------------------
     /**
@@ -42,6 +45,8 @@ namespace analyzer {
         DictionaryPtr sysdic;               // system dictionary
         Vector<DictionaryPtr> userdics;     // user dictionaries
         DictionaryPtr unkdic;               // unknown words dictionary
+
+        TemporaryDict tempDict;             // 一時的な辞書 (ユーザー辞書のエントリを一時的に追加するためなどに使用)
 
     public:
         // Constructor
@@ -77,6 +82,9 @@ namespace analyzer {
             // 戻値となるノードリスト (空白文字しかなくて有効なNgramノードが作成できない場合は、空リストのまま返す)
             Vector<NodePtr> result_nodes;
 
+            // 辞書引きして得られたNgramの最大長 (未知語の切り出しの際に、これより短い未知語は切り出さないようにするため)
+            size_t maxLen = 0;
+
             // 非空白文字の開始位置
             auto begin2 = rngStrPtr->skipSpace(pos);
 
@@ -87,6 +95,7 @@ namespace analyzer {
                 auto nt = node::NodeType::NORMAL_NODE;
                 auto node = lattice.newNode(begin2, end2, nt);
                 //    node->posid   = token.posId;
+                if (maxLen < end2 - begin2) maxLen = end2 - begin2;
                 node->setWcost(wcost + addCost);
                 node->setRlength((int)(end2 - rngStrPtr->begin()));
                 //node->setStat(node::NodeType::NORMAL_NODE);
@@ -94,13 +103,6 @@ namespace analyzer {
                 result_nodes.push_back(node);
             };
 
-            // 先頭が 〓
-            if (rngStrPtr->charAt(begin2) == GETA_CHAR) {
-                LOG_DEBUG(L"BEGIN: geta");
-                // 〓を1文字の未知語として切り出す
-                __addNewNode(UNKNOWN_OTHER_COST, begin2 + 1);
-                LOG_DEBUG(L"END: geta");
-            }
             // 辞書引きしてノード作成する
             for (const auto& dic : dics) {
                 // 各辞書ごとに辞書引きをして
@@ -112,7 +114,23 @@ namespace analyzer {
                     }
                 }
             }
+            if (maxLen < 2) {
+                // 辞書引きしても2gram以上が得られなかったら、TemporaryDictを検索してみる(5文字まで)
+                for (size_t len = 2; begin2 + len <= end && len <= 5; ++len) {
+                    auto substr = rngStrPtr->toString(begin2, begin2 + len);
+                    if (tempDict.hasEntry(substr)) {
+                        __addNewNode(MORPH_ENTRY_COST, begin2 + len);
+                    }
+                }
+            }
 
+            // 先頭が 〓
+            if (rngStrPtr->charAt(begin2) == GETA_CHAR) {
+                LOG_DEBUG(L"BEGIN: geta");
+                // 〓を1文字の未知語として切り出す
+                __addNewNode(UNKNOWN_OTHER_COST, begin2 + 1);
+                LOG_DEBUG(L"END: geta");
+            }
             // -- ここまでは辞書にある単語、以下は解の候補として未知語も考慮に入れる --
 
             if (result_nodes.empty()) {
@@ -213,6 +231,11 @@ namespace analyzer {
             LOG_INFOH(L"LEAVE: userdics.size={}", userdics.size());
         }
 
+        // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
+        void resetTempDict(StringRef entries) {
+            tempDict.resetEntries(entries);
+        }
+
         //size_t get_max_grouping_size() {
         //    auto size = opts->getInt(L"max-grouping-size", 0);
         //    return size <= 0 ? DEFAULT_MAX_GROUPING_SIZE : (size_t)size;
@@ -255,4 +278,8 @@ namespace analyzer {
         pImpl->reload_userdics();
     }
 
+    // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
+    void Tokenizer::resetTempDict(StringRef entries) {
+        pImpl->resetTempDict(entries);
+    }
 } // namespace analyzer

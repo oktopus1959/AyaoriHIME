@@ -229,6 +229,7 @@
     <ClInclude Include="src\analyzer\Model.h" />
     <ClInclude Include="src\analyzer\NBestGenerator.h" />
     <ClInclude Include="src\analyzer\Tagger.h" />
+    <ClInclude Include="src\analyzer\TemporaryDict.h" />
     <ClInclude Include="src\analyzer\Tokenizer.h" />
     <ClInclude Include="src\analyzer\Viterbi.h" />
     <ClInclude Include="src\compiler\DictionaryBuilder.h" />
