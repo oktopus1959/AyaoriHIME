@@ -24,6 +24,8 @@ namespace lattice2 {
 
         virtual void removeOtherThanFirstForEachStroke() = 0;
 
+        virtual void removeOtherThanLongestStrokeCandidate() = 0;
+
         virtual bool isEmpty() const = 0;
 
         virtual int size() const = 0;
@@ -56,19 +58,20 @@ namespace lattice2 {
         virtual String debugKBestString(size_t maxLn = 100000) const = 0;
 
     public:
-        virtual void setKanjiPreferredNext() = 0;
+        virtual FollowingPreferenceType getFollowingPreferenceType() const = 0;
+        //virtual void setKanjiPreferredNext() = 0;
 
-        virtual bool isKanjiPreferredNext() const = 0;
+        //virtual bool isKanjiPreferredNext() const = 0;
 
-        virtual void setHiraganaPreferredNext() = 0;
+        //virtual void setHiraganaPreferredNext() = 0;
 
-        virtual bool isHiraganaPreferredNext() const = 0;
+        //virtual bool isHiraganaPreferredNext() const = 0;
 
-        virtual void clearKanjiXorHiraganaPreferredNext() = 0;
+        //virtual void clearKanjiXorHiraganaPreferredNext() = 0;
 
     public:
         // strokeCount: lattice に最初に addPieces() した時からの相対的なストローク数
-        virtual void updateKBestList(const std::vector<WordPiece>& pieces, bool useMorphAnalyzer, int strokeCount, bool strokeBack, bool bKatakanaConversion) = 0;
+        virtual void updateKBestList(const std::vector<WordPiece>& pieces, FollowingPreferenceType prefType, bool useMorphAnalyzer, int strokeCount, bool strokeBack, bool bKatakanaConversion) = 0;
 
     public:
         // 先頭を表すダミーを用意しておく

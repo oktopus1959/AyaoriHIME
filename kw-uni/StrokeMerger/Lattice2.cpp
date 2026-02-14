@@ -107,32 +107,37 @@ namespace lattice2 {
             _kBestList->removeOtherThanFirst();
         }
 
-        void setKanjiPreferredNext() override {
-            _LOG_DETAIL(_T("ENTER"));
-            _kBestList->setKanjiPreferredNext();
-            _LOG_DETAIL(_T("LEAVE"));
-        }
-
-        bool isKanjiPreferredNext() const override {
+        void removeOtherThanLongestStrokeCandidate() override {
             _LOG_DETAIL(_T("CALLED"));
-            return _kBestList->isKanjiPreferredNext();
+            _kBestList->removeOtherThanLongestStrokeCandidate();
         }
 
-        void setHiraganaPreferredNext() override {
-            _LOG_DETAIL(_T("ENTER"));
-            _kBestList->setHiraganaPreferredNext();
-            _LOG_DETAIL(_T("LEAVE"));
+        FollowingPreferenceType getFollowingPreferenceType() const override {
+            _LOG_DETAIL(_T("RETURN: {}"), to_string(_kBestList->getFollowingPreferenceType()));
+            return _kBestList->getFollowingPreferenceType();
         }
 
-        bool isHiraganaPreferredNext() const override {
-            _LOG_DETAIL(_T("CALLED"));
-            return _kBestList->isHiraganaPreferredNext();
-        }
+        //void setKanjiPreferredNext() override {
+        //    _LOG_DETAIL(_T("ENTER"));
+        //    _kBestList->setKanjiPreferredNext();
+        //    _LOG_DETAIL(_T("LEAVE"));
+        //}
 
-        void clearKanjiXorHiraganaPreferredNext() override {
-            _LOG_DETAIL(_T("CALLED"));
-            _kBestList->clearKanjiXorHiraganaPreferredNext();
-        }
+        //void setHiraganaPreferredNext() override {
+        //    _LOG_DETAIL(_T("ENTER"));
+        //    _kBestList->setHiraganaPreferredNext();
+        //    _LOG_DETAIL(_T("LEAVE"));
+        //}
+
+        //bool isHiraganaPreferredNext() const override {
+        //    _LOG_DETAIL(_T("CALLED"));
+        //    return _kBestList->isHiraganaPreferredNext();
+        //}
+
+        //void clearKanjiXorHiraganaPreferredNext() override {
+        //    _LOG_DETAIL(_T("CALLED"));
+        //    _kBestList->clearKanjiXorHiraganaPreferredNext();
+        //}
 
         bool isEmpty() override {
             //_LOG_DETAIL(_T("CALLED: isEmpty={}"), _kBestList->isEmpty());
@@ -191,8 +196,8 @@ namespace lattice2 {
     public:
         // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
         // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
-        LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool useMorphAnalyzer, bool strokeBack, bool bKatakanaConversion) override {
-            _LOG_DETAIL(_T("\nENTER: pieces: {}, bMulti={}, useMorphAnalyzer={}"), formatStringOfWordPieces(pieces), SETTINGS->multiCandidateMode, useMorphAnalyzer);
+        LatticeResult addPieces(const std::vector<WordPiece>& pieces, FollowingPreferenceType prefType, bool useMorphAnalyzer, bool strokeBack, bool bKatakanaConversion) override {
+            _LOG_DETAIL(_T("\nENTER: pieces: {}, bMulti={}, prefType={}, useMorphAnalyzer={}"), formatStringOfWordPieces(pieces), SETTINGS->multiCandidateMode, to_string(prefType), useMorphAnalyzer);
             int totalStrokeCount = (int)(STATE_COMMON->GetTotalDecKeyCount());
             if (_startStrokeCount == 0) _startStrokeCount = totalStrokeCount;
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
@@ -229,7 +234,7 @@ namespace lattice2 {
             //_LOG_DETAIL(L"_kBestList.size={}", _kBestList->size());
 
             // 候補リストの更新
-            _kBestList->updateKBestList(pieces, useMorphAnalyzer, currentStrokeCount, strokeBack, bKatakanaConversion);
+            _kBestList->updateKBestList(pieces, prefType, useMorphAnalyzer, currentStrokeCount, strokeBack, bKatakanaConversion);
 
             //LOG_DEBUGH(L"G:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             //LOG_DEBUGH(_T(".\nresult kBest:\n{}"), pKBestList->debugString());

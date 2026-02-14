@@ -17,11 +17,12 @@ namespace lattice2 {
         DECLARE_CLASS_LOGGER;
 
         MString _str;
-        int _strokeLen;
-        int _morphCost;
-        int _ngramCost;
-        int _penalty;
-        bool _isNonTerminal;
+        int _strokeLen = 0;
+        int _morphCost = 0;
+        int _ngramCost = 0;
+        int _penalty = 0;
+        bool _isNonTerminal = false;
+        FollowingPreferenceType _prefType = FollowingPreferenceType::Any;
         MString _mazeFeat;
         //float _llama_loss = 0.0f;
 
@@ -37,24 +38,25 @@ namespace lattice2 {
         MString applyGlobalPostRewrite(const MString& adder) const;
 
     public:
-        CandidateString()
-            : _strokeLen(0), _morphCost(0), _ngramCost(0), _penalty(0), _isNonTerminal(false) {
+        CandidateString() {
         }
 
         CandidateString(const MString& s, int len)
-            : _str(s), _strokeLen(len), _morphCost(0), _ngramCost(0), _penalty(0), _isNonTerminal(false) {
+            : _str(s), _strokeLen(len) {
         }
 
         CandidateString(const MString& s, int len, const MString& mazeFeat)
-            : _str(s), _strokeLen(len), _morphCost(0), _ngramCost(0), _penalty(0), _isNonTerminal(false), _mazeFeat(mazeFeat) {
+            : _str(s), _strokeLen(len), _mazeFeat(mazeFeat) {
         }
 
         CandidateString(const CandidateString& cand)
-            : _str(cand._str), _strokeLen(cand._strokeLen), _morphCost(cand._morphCost), _ngramCost(cand._ngramCost), _penalty(cand._penalty), _isNonTerminal(cand._isNonTerminal), _mazeFeat(cand._mazeFeat) {
+            : _str(cand._str), _strokeLen(cand._strokeLen), _morphCost(cand._morphCost), _ngramCost(cand._ngramCost),
+              _penalty(cand._penalty), _isNonTerminal(cand._isNonTerminal), _prefType(cand._prefType), _mazeFeat(cand._mazeFeat) {
         }
 
         CandidateString(const CandidateString& cand, int strokeDelta)
-            : _str(cand._str), _strokeLen(cand._strokeLen + strokeDelta), _morphCost(cand._morphCost), _ngramCost(cand._ngramCost), _penalty(cand._penalty), _isNonTerminal(false), _mazeFeat(cand._mazeFeat) {
+            : _str(cand._str), _strokeLen(cand._strokeLen + strokeDelta), _morphCost(cand._morphCost), _ngramCost(cand._ngramCost),
+              _penalty(cand._penalty), _prefType(cand._prefType), _mazeFeat(cand._mazeFeat) {
         }
 
         // 自動部首合成の実行
@@ -129,6 +131,26 @@ namespace lattice2 {
 
         inline void setNonTerminal(bool flag = true) {
             _isNonTerminal = flag;
+        }
+
+        inline bool isAnyFollowed() const {
+            return _prefType == FollowingPreferenceType::Any;
+        }
+
+        inline bool isKanjiFollowed() const {
+            return _prefType == FollowingPreferenceType::Kanji;
+        }
+
+        inline bool isHiraganaFollowed() const {
+            return _prefType == FollowingPreferenceType::Hiragana;
+        }
+
+        inline FollowingPreferenceType followingPreferenceType() const {
+            return _prefType;
+        }
+
+        inline void setFollowingPreferenceType(FollowingPreferenceType prefType) {
+            _prefType = prefType;
         }
 
         inline const MString& mazeFeat() const {

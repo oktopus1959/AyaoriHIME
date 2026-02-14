@@ -7,7 +7,7 @@
 
 #define LOG_SAVE_DICT LOG_INFOH
 #define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
-#if 0
+#if 1
 #undef IS_LOG_DEBUGH_ENABLED
 #define IS_LOG_DEBUGH_ENABLED true
 #undef LOG_SAVE_DICT

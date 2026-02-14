@@ -80,6 +80,22 @@ public:
     String debugString() const;
 };
 
+// 後続する候補の優先条件の種類 
+enum class FollowingPreferenceType {
+    Any,
+    Kanji,
+    Hiragana,
+};
+
+inline String to_string(FollowingPreferenceType prefType) {
+    switch (prefType) {
+    case FollowingPreferenceType::Any: return L"Any";
+    case FollowingPreferenceType::Kanji: return L"Kanji";
+    case FollowingPreferenceType::Hiragana: return L"Hiragana";
+    default: return L"Unknown";
+    }
+}
+
 // ラティスから取得した文字列と、修正用のBS数
 struct LatticeResult {
     MString outStr;
@@ -109,7 +125,7 @@ public:
     // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
     // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
     // return: 出力文字列と、修正用のBS数
-    virtual LatticeResult addPieces(const std::vector<WordPiece>& pieces, bool useMorphAnalyzer, bool strokeBack, bool bKatakanaConversion) = 0;
+    virtual LatticeResult addPieces(const std::vector<WordPiece>& pieces, FollowingPreferenceType prefType, bool useMorphAnalyzer, bool strokeBack, bool bKatakanaConversion) = 0;
 
     virtual void syncBaseString(const MString& base) = 0;
 
@@ -121,15 +137,19 @@ public:
 
     virtual void removeOtherThanFirst() = 0;
 
-    virtual void setKanjiPreferredNext() = 0;
+    virtual void removeOtherThanLongestStrokeCandidate() = 0;
 
-    virtual bool isKanjiPreferredNext() const = 0;
+    virtual FollowingPreferenceType getFollowingPreferenceType() const = 0;
 
-    virtual void setHiraganaPreferredNext() = 0;
+    //virtual void setKanjiPreferredNext() = 0;
 
-    virtual bool isHiraganaPreferredNext() const = 0;
+    //virtual bool isKanjiPreferredNext() const = 0;
 
-    virtual void clearKanjiXorHiraganaPreferredNext() = 0;
+    //virtual void setHiraganaPreferredNext() = 0;
+
+    //virtual bool isHiraganaPreferredNext() const = 0;
+
+    //virtual void clearKanjiXorHiraganaPreferredNext() = 0;
 
     virtual bool isEmpty() = 0;
 

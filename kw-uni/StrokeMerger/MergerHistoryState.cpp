@@ -17,7 +17,7 @@
 
 #define _LOG_INFOH LOG_INFO
 #define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
-#if 0
+#if 1
 #undef _LOG_INFOH
 #undef LOG_INFO
 #undef LOG_DEBUGH
@@ -357,8 +357,7 @@ namespace {
         // ストロークを1つ前に戻す
         bool _strokeBack = false;
 
-        bool _kanjiPreferredNext = false;
-        bool _hiraganaPreferredNext = false;
+        FollowingPreferenceType _followingPrefType = FollowingPreferenceType::Any;
 
         // RootStrokeState1用の状態集合
         StrokeStreamList _streamList1;
@@ -420,6 +419,8 @@ namespace {
 
             bDualTableMode = StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
 
+            _followingPrefType = FollowingPreferenceType::Any;
+
             LOG_DEBUGH(_T("NextState={}"), STATE_NAME(NextState()));
             if (DeckeyUtil::is_combo_deckey(deckey) && !DeckeyUtil::is_ordered_combo(deckey) && NextState() && NextState()->GetName() == L"EisuState") {
                 // 英数モード中の同時打鍵なら、EisuStateを終了する
@@ -444,8 +445,6 @@ namespace {
                     _LOG_DETAIL(L"Clear streamLists");
                     clearStreamLists();
                     _strokeBack = false;
-                    _kanjiPreferredNext = false;
-                    _hiraganaPreferredNext = false;
                     bool doDefault = false;
                     bool multiCands = false;
                     switch (deckey) {
@@ -579,12 +578,16 @@ namespace {
                     case MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY:
                         // 次の打鍵を漢字のみ通す
                         LOG_DEBUGH(_T("MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY"));
-                        _kanjiPreferredNext = true;
+                        _followingPrefType = FollowingPreferenceType::Kanji;
+                        WORD_LATTICE->removeOtherThanFirst();
+                        //WORD_LATTICE->removeOtherThanLongestStrokeCandidate();
                         break;
                     case MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY:
                         // 次の打鍵をひらがなのみ通す
                         LOG_DEBUGH(_T("MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY"));
-                        _hiraganaPreferredNext = true;
+                        _followingPrefType = FollowingPreferenceType::Hiragana;
+                        WORD_LATTICE->removeOtherThanFirst();
+                        //WORD_LATTICE->removeOtherThanLongestStrokeCandidate();
                         break;
                     case CLEAR_STROKE_DECKEY:
                         _LOG_DETAIL(_T("CLEAR_STROKE_DECKEY: DO NOTHING"));
@@ -596,9 +599,9 @@ namespace {
                         doDefault = true;
                         break;
                     }
-                    if (!_kanjiPreferredNext && !_hiraganaPreferredNext) {
-                        WORD_LATTICE->clearKanjiXorHiraganaPreferredNext();
-                    }
+                    //if (_followingPrefType == FollowingPreferenceType::Any) {
+                    //    WORD_LATTICE->clearKanjiXorHiraganaPreferredNext();
+                    //}
                     if (doDefault) {
                         _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
@@ -788,28 +791,24 @@ namespace {
             LOG_DEBUGH(_T("CHECKPOINT-8: syncOutputStackTail: resultStr=<{}>, numBS={}"), to_wstr(resultOut.resultStr()), resultOut.numBS());
             syncOutputStackTail(resultOut.resultStr(), resultOut.numBS());
 
-            LOG_DEBUGH(_T("CHECKPOINT-9: Check StreamList and WORD_LATTICE"));
-            if (_streamList1.Empty() && _streamList2.Empty() && WORD_LATTICE->isEmpty()) {
-                LOG_DEBUGH(L"CHECKPOINT-9-A: StreamList and WORD_LATTICE are both EMPTY. CALL WORD_LATTICE->clear()");
-                WORD_LATTICE->clear();
-                //MarkUnnecessary();
-                //LOG_DEBUGH(_T("ClearCurrentModeIsMultiStreamInput"));
-                //STATE_COMMON->ClearCurrentModeIsMultiStreamInput();
-            }
+            //LOG_DEBUGH(_T("CHECKPOINT-9: Check StreamList and WORD_LATTICE"));
+            //if (_streamList1.Empty() && _streamList2.Empty() && WORD_LATTICE->isEmpty()) {
+            //    LOG_DEBUGH(L"CHECKPOINT-9-A: StreamList and WORD_LATTICE are both EMPTY. CALL WORD_LATTICE->clear()");
+            //    WORD_LATTICE->clear();
+            //    //MarkUnnecessary();
+            //    //LOG_DEBUGH(_T("ClearCurrentModeIsMultiStreamInput"));
+            //    //STATE_COMMON->ClearCurrentModeIsMultiStreamInput();
+            //}
             LOG_DEBUGH(_T("CHECKPOINT-10"));
 
             // 次の打鍵で漢字優先またはかな優先モードにする
-            if (_kanjiPreferredNext) {
-                WORD_LATTICE->removeOtherThanFirst();
-                WORD_LATTICE->setKanjiPreferredNext();
+            FollowingPreferenceType prefType = WORD_LATTICE->getFollowingPreferenceType();
+            if (prefType == FollowingPreferenceType::Kanji) {
                 STATE_COMMON->SetCenterString(L"漢字");
-                _kanjiPreferredNext = false;
-            } else if (_hiraganaPreferredNext) {
-                WORD_LATTICE->removeOtherThanFirst();
-                WORD_LATTICE->setHiraganaPreferredNext();
+            } else if (prefType == FollowingPreferenceType::Hiragana) {
                 STATE_COMMON->SetCenterString(L"かな");
-                _hiraganaPreferredNext = false;
             }
+            _followingPrefType = FollowingPreferenceType::Any;
 
             _streamList1.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList1"));
             _streamList2.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList2"));
@@ -843,7 +842,7 @@ namespace {
             //LOG_DEBUGH(L"L:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             //bool bUseMorphAnalyzer = SETTINGS->useMorphAnalyzerAlways || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
             bool bUseMorphAnalyzer = SETTINGS->multiCandidateMode || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
-            return WORD_LATTICE->addPieces(pieces, bUseMorphAnalyzer, _strokeBack, _isKatakanaConversionMode);
+            return WORD_LATTICE->addPieces(pieces, _followingPrefType, bUseMorphAnalyzer, _strokeBack, _isKatakanaConversionMode);
         }
 
         // チェーンをたどって不要とマークされた後続状態を削除する

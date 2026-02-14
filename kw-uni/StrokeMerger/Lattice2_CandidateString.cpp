@@ -588,6 +588,7 @@ namespace lattice2 {
             + _T(",_penalty=") + std::to_wstring(_penalty)
             //+ _T(",_llama_loss=") + std::to_wstring(_llama_loss)
             + _T("), strokeLen=") + std::to_wstring(_strokeLen)
+            + _T(", prefType=") + to_string(_prefType)
             + _T(", mazeFeat='") + to_wstr(_mazeFeat)
             + _T("')");
     }
