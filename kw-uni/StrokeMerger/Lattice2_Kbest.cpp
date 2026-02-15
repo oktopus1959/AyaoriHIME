@@ -167,12 +167,6 @@ namespace lattice2 {
         // 末尾漢字などの追加で一時的に拡大された候補数
         //int _extendedCandNum = 0;
 
-        // ストローク戻りによって戻ったと想定されるストローク長(漢字 xor ひらがな優先候補選択時に使用)
-        int _kanjiXorHiraganaPreferredNextStrokeLen = -1;
-
-        //bool _isKanjiPreferredNext = false;
-        //bool _isHiraganaPreferredNext = false;
-
         static bool _isEmpty(const std::vector<CandidateString> cands) {
             //return cands.empty() || (cands.size() == 1 && cands.front().string().empty());
             return cands.empty() || (cands.front().string().empty());
@@ -499,13 +493,11 @@ namespace lattice2 {
             return result;
         }
 
-        // 新しい候補を追加
+        // 候補のコストを計算
         // minLenは、形態素解析やNgram解析の際に、長い候補文字列に対して共通の先頭部分を避けるために使用する
-        bool addCandidate(std::vector<CandidateString>& newCandidates, CandidateString& newCandStr, size_t minLen, bool useMorphAnalyzer, bool isStrokeBS) {
+        void calcCandidateCost(CandidateString& newCandStr, size_t minLen, bool useMorphAnalyzer, bool isStrokeBS) {
             _LOG_DETAIL(_T("\nENTER: newCandStr={}, useMorphAnalyzer={}, isStrokeBS={}"), newCandStr.debugString(), useMorphAnalyzer, isStrokeBS);
-            bool bAdded = false;
 
-            //bool bIgnored = false;
             const MString& candStr = newCandStr.string();
             //MString targetStr = substringBetweenPunctuations(candStr);
             //MString targetStr = substringBetweenNonJapaneseChars(candStr);
@@ -537,7 +529,7 @@ namespace lattice2 {
                 //int llamaCost = candStr.empty() ? 0 : calcLlamaCost(candStr) * SETTINGS->ngramCostFactor;
 
                 // llamaコスト
-                int llamaCost = 0;
+                //int llamaCost = 0;
 
                 // 総コスト
                 newCandStr.addCost(morphCost, ngramCost);
@@ -548,7 +540,7 @@ namespace lattice2 {
                 //    newCandStr.zeroPenalty();
                 //}
 
-                int candCost = morphCost + ngramCost + llamaCost;
+                int candCost = morphCost + ngramCost;   // +llamaCost;
                 myTotalCost = newCandStr.totalCost();
                 _LOG_DETAIL(_T("CALC: candStr={}, myTotalCost={}, candCost={} (morph={}[<{}>], ngram={})"),
                     to_wstr(candStr), myTotalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost);
@@ -559,19 +551,19 @@ namespace lattice2 {
                 }
             }
 
-            if (!bAdded) {
-                // 末尾に追加
-                newCandidates.push_back(newCandStr);
-                bAdded = true;
-                LOG_DEBUGH(_T("ADDED at TAIL"));
-            }
-            if (bAdded) {
-                _LOG_DETAIL(_T("    ADD candidate: {}, myTotalCost={}"), to_wstr(candStr), myTotalCost);
-            } else {
-                _LOG_DETAIL(_T("    ABANDON candidate: {}, myTotalCost={}"), to_wstr(candStr), myTotalCost);
-            }
-            _LOG_DETAIL(_T("LEAVE: {}, newCandidates.size={}"), bAdded ? L"ADD" : L"ABANDON", newCandidates.size());
-            return bAdded;
+            //if (!bAdded) {
+            //    // 末尾に追加
+            //    newCandidates.push_back(newCandStr);
+            //    bAdded = true;
+            //    LOG_DEBUGH(_T("ADDED at TAIL"));
+            //}
+            //if (bAdded) {
+            //    _LOG_DETAIL(_T("    ADD candidate: {}, myTotalCost={}"), to_wstr(candStr), myTotalCost);
+            //} else {
+            //    _LOG_DETAIL(_T("    ABANDON candidate: {}, myTotalCost={}"), to_wstr(candStr), myTotalCost);
+            //}
+            //_LOG_DETAIL(_T("LEAVE: {}, newCandidates.size={}"), bAdded ? L"ADD" : L"ABANDON", newCandidates.size());
+            //return bAdded;
         }
 
         // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
@@ -659,10 +651,7 @@ namespace lattice2 {
         // beamSize を超えた部分を削除する
         // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
         void truncateTailCandidates(std::vector<CandidateString>& newCandidates) {
-            _LOG_DETAIL(_T("ENTER: newCandidates.size={}"), newCandidates.size());
-            if (IS_LOG_DEBUGH_ENABLED) {
-                _debugLog.append(std::format(L"\ntruncateTailCandidates: ENTER: newCandidates.size={}\n", newCandidates.size()));
-            }
+            _LOG_DETAIL(_T("ENTER: newCandidates.size={}, beamSieze={}, extraBeamSizeRate={}"), newCandidates.size(), SETTINGS->multiStreamBeamSize, SETTINGS->extraBeamSizeRate);
             std::set<MString> triGrams;
             std::set<MString> biGrams;
             std::set<MString> uniGrams;
@@ -670,6 +659,7 @@ namespace lattice2 {
             const size_t beamSize2 = beamSize + (int)(beamSize * SETTINGS->extraBeamSizeRate);
             bool bNonPaddingFound = false;  // Padding piece を含まない候補が見つかったか
             size_t pos = 0;
+            size_t pickCount = 0;
             while (pos < newCandidates.size()) {
                 auto iter = newCandidates.begin() + pos;
                 const MString& str = iter->string();
@@ -677,65 +667,64 @@ namespace lattice2 {
                 const MString bi = str.size() >= 2 ? utils::safe_tailstr(str, 2) : EMPTY_MSTR;
                 const MString tri = str.size() >= 3 ? utils::safe_tailstr(str, 3) : EMPTY_MSTR;
                 if (iter->penalty() < PADDING_PENALTY) bNonPaddingFound = true;
+                // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
                 if (!bNonPaddingFound || iter->penalty() < PADDING_PENALTY) {
                     if (pos < beamSize) {
                         if (!uni.empty()) uniGrams.insert(uni);
                         if (!bi.empty()) biGrams.insert(bi);
                         if (!tri.empty()) triGrams.insert(tri);
-                        _LOG_DETAIL(_T("[{}] {}: OK"), pos, iter->debugString());
+                        _LOG_DETAIL(_T("[{}] PICK: {}: OK"), pos, iter->debugString());
                         ++pos;
+                        ++pickCount;
                         continue;
                     } else {
                         if (IS_LOG_DEBUGH_ENABLED && pos == beamSize) {
-                            _LOG_DETAIL(_T("uniGrams={}"), to_wstr(utils::join(uniGrams, ',')));
-                            _LOG_DETAIL(_T("biGrams={}"), to_wstr(utils::join(biGrams, ',')));
-                            _LOG_DETAIL(_T("triGrams={}"), to_wstr(utils::join(triGrams, ',')));
+                            _LOG_DETAIL(_T("pos reached at beamSize={}, beamSize2={}"), beamSize, beamSize2);
+                            _LOG_DETAIL(_T("tail 1grams={}"), to_wstr(utils::join(uniGrams, ',')));
+                            _LOG_DETAIL(_T("tail 2gams={}"), to_wstr(utils::join(biGrams, ',')));
+                            _LOG_DETAIL(_T("tail 3grams={}"), to_wstr(utils::join(triGrams, ',')));
                         }
                         if (iter->isNonTerminal()) {
-                            // 非終端は残す
-                            _LOG_DETAIL(_T("[{}]: REMAIN: non terminal: {}"), pos, iter->debugString());
+                            // 非終端は残す(pickCountしない)
+                            _LOG_DETAIL(_T("[{}]: PICK: {}: non terminal"), pos, iter->debugString());
                             ++pos;
                             continue;
                         }
-                        if (!tri.empty()) {
-                            if (triGrams.size() < beamSize2 && triGrams.find(tri) == triGrams.end()) {
+                        if (!uni.empty() && uniGrams.find(uni) == uniGrams.end()) {
+                            // 未見のunigramは残す(pickCountしない)
+                            uniGrams.insert(uni);
+                            _LOG_DETAIL(_T("[{}] PICK: {}: uniGram({}) OK, uniGrams.size={}"), pos, iter->debugString(), to_wstr(uni), uniGrams.size());
+                            ++pos;
+                            continue;
+                        }
+                        if (pickCount < beamSize2) {
+                            // まだ余裕がある
+                            if (!tri.empty() && triGrams.find(tri) == triGrams.end()) {
                                 // 未見のtrigramであり、まだ余裕がある
                                 triGrams.insert(tri);
-                                _LOG_DETAIL(_T("[{}] {}: triGram OK, triGrams.size={}"), pos, iter->debugString(), triGrams.size());
+                                _LOG_DETAIL(_T("[{}] PICK: {}: triGram({}) OK, triGrams.size={}"), pos, iter->debugString(), to_wstr(tri), triGrams.size());
                                 ++pos;
+                                ++pickCount;
                                 continue;
                             }
-                        }
-                        if (!bi.empty()) {
-                            if (biGrams.size() < beamSize2 && biGrams.find(bi) == biGrams.end()) {
+                            if (!bi.empty() && biGrams.find(bi) == biGrams.end()) {
                                 // 未見のbigramであり、まだ余裕がある
                                 biGrams.insert(bi);
-                                _LOG_DETAIL(_T("[{}] {}: biGram OK, biGrams.size={}"), pos, iter->debugString(), biGrams.size());
+                                _LOG_DETAIL(_T("[{}] PICK: {}: biGram({}) OK, biGrams.size={}"), pos, iter->debugString(), to_wstr(bi), biGrams.size());
                                 ++pos;
-                                continue;
-                            }
-                        }
-                        if (!uni.empty()) {
-                            if (uniGrams.size() < beamSize2 && uniGrams.find(uni) == uniGrams.end()) {
-                                // 未見のunigramであり、まだ余裕がある
-                                uniGrams.insert(uni);
-                                _LOG_DETAIL(_T("[{}] {}: uniGram OK, uniGrams.size={}"), pos, iter->debugString(), uniGrams.size());
-                                ++pos;
+                                ++pickCount;
                                 continue;
                             }
                         }
                     }
                 }
-                _LOG_DETAIL(_T("[{}] {}: erased"), pos, iter->debugString());
+                _LOG_DETAIL(_T("[{}] ERASE: {}"), pos, iter->debugString());
                 newCandidates.erase(iter);
             }
             if (pos < newCandidates.size()) {
                 newCandidates.resize(pos);
             }
             _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
-            if (IS_LOG_DEBUGH_ENABLED) {
-                _debugLog.append(std::format(L"truncateTailCandidates: LEAVE: newCandidates.size={}\n\n", newCandidates.size()));
-            }
             if (newCandidates.size() > maxCandidatesSize) {
                 maxCandidatesSize = newCandidates.size();
                 _LOG_DETAIL(_T("max newCandidates.size updated: {}"), maxCandidatesSize);
@@ -743,46 +732,6 @@ namespace lattice2 {
         }
 
     private:
-        //void setKanjiXorHiraganaPreferredNextStrokeLen() {
-        //    if (_candidates.empty()) {
-        //        _kanjiXorHiraganaPreferredNextStrokeLen = 0;
-        //    } else {
-        //        _kanjiXorHiraganaPreferredNextStrokeLen = _candidates.front().strokeLen();
-        //    }
-        //    _LOG_DETAIL(L"SET: preferredNextStrokeLen={}, kanjiPreferred={}, hiraganaPreferred={}", _kanjiXorHiraganaPreferredNextStrokeLen, _isKanjiPreferredNext, _isHiraganaPreferredNext);
-        //}
-
-        //bool isKanjiXorHiraganaPreferredNextStrokeLenMatched(const CandidateString& cand) const {
-        //    bool result = _kanjiXorHiraganaPreferredNextStrokeLen == cand.strokeLen();
-        //    _LOG_DETAIL(L"RESULT={}: _kanjiXorHiraganaPreferredNextStrokeLen={}, cand.strokeLen={}", result, _kanjiXorHiraganaPreferredNextStrokeLen, cand.strokeLen());
-        //    return result;
-        //}
-
-        //bool isKanjiXorHiraganaPreferredNextStrokeLenMatched() const {
-        //    if (_candidates.empty()) {
-        //        _LOG_DETAIL(L"RESULT={}: _candidates.empty", _kanjiXorHiraganaPreferredNextStrokeLen == 0);
-        //        return _kanjiXorHiraganaPreferredNextStrokeLen == 0;
-        //    }
-        //    return isKanjiXorHiraganaPreferredNextStrokeLenMatched(_candidates.front());
-        //}
-
-        //// 漢字xorひらがなを優先すべき状況で、条件を満たしていないか
-        //bool notKanjiXorHiraganaPreferenceSatisfied(const CandidateString& cand, const WordPiece& piece) {
-        //    _LOG_DETAIL(L"cand.string()=\"{}\", piece={}", to_wstr(cand.string()), piece.debugString());
-        //    bool matched = isKanjiXorHiraganaPreferredNextStrokeLenMatched(cand);
-        //    bool result = false;
-        //    const MString& pieceStr = piece.getString();
-        //    if (matched
-        //        && piece.numBS() <= 0 && !pieceStr.empty()
-        //        && ((_isKanjiPreferredNext && utils::is_hiragana(pieceStr[0])) || (_isHiraganaPreferredNext && utils::is_kanji(pieceStr[0])))) {
-        //        // 漢字xorひらがな優先条件を満たさなかった
-        //        _LOG_DETAIL(_T("{} preference not satisfied"), _isKanjiPreferredNext ? L"Kanji" : L"Hiragana");
-        //        result = true;
-        //    }
-        //    _LOG_DETAIL(_T("LEAVE: result={}"), result);
-        //    return result;
-        //}
-
         // 漢字xorひらがなを優先すべき状況で、条件を満たしているか
         bool isKanjiOrHiraganaPreferenceSatisfied(const CandidateString& cand, const WordPiece& piece) {
             _LOG_DETAIL(L"cand.string()=\"{}\", piece={}", to_wstr(cand.string()), piece.debugString());
@@ -807,37 +756,6 @@ namespace lattice2 {
             }
             return _candidates.front().followingPreferenceType();
         }
-
-        //void setKanjiPreferredNext() override {
-        //    _isKanjiPreferredNext = true;
-        //    _isHiraganaPreferredNext = false;
-        //    setKanjiXorHiraganaPreferredNextStrokeLen();
-        //}
-
-        //bool isKanjiPreferredNext() const override {
-        //    bool result = _isKanjiPreferredNext && isKanjiXorHiraganaPreferredNextStrokeLenMatched();
-        //    _LOG_DETAIL(L"CALLED: RESULT={}: KanjiPreferred={}, strokeLenMatched={}", result, _isKanjiPreferredNext, isKanjiXorHiraganaPreferredNextStrokeLenMatched());
-        //    return result;
-        //}
-
-        //void setHiraganaPreferredNext() override {
-        //    _isKanjiPreferredNext = false;
-        //    _isHiraganaPreferredNext = true;
-        //    setKanjiXorHiraganaPreferredNextStrokeLen();
-        //}
-
-        //bool isHiraganaPreferredNext() const override {
-        //    bool result = _isHiraganaPreferredNext && isKanjiXorHiraganaPreferredNextStrokeLenMatched();
-        //    _LOG_DETAIL(L"CALLED: RESULT={}: HiraganaPreferred={}, strokeLenMatched={}", result, _isHiraganaPreferredNext, isKanjiXorHiraganaPreferredNextStrokeLenMatched());
-        //    return result;
-        //}
-
-        //void clearKanjiXorHiraganaPreferredNext() override {
-        //    _LOG_DETAIL(L"CALLED");
-        //    _isKanjiPreferredNext = false;
-        //    _isHiraganaPreferredNext = false;
-        //    _kanjiXorHiraganaPreferredNextStrokeLen = -1;
-        //}
 
     private:
         // 素片のストロークと適合する候補だけを追加
@@ -905,31 +823,39 @@ namespace lattice2 {
                         _LOG_DETAIL(_T("AutoBush FOUND"));
                         CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                         newCandStr.setPenalty(penalty);
-                        // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
+                        // ここで形態素解析やNgram解析をしてコストを計算し、末尾に追加する
                         // 素片が追加されたことになるので、強制的に形態素解析を行う
                         useMorphAnalyzer = true;
-                        addCandidate(newCandidates, newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
+                        calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
+                        newCandidates.push_back(newCandStr);
                         bAutoBushuFound = true;
                         if (!SETTINGS->multiCandidateMode) break;  // 複数候補モードでなければ、自動部首合成を見つけたら終了
                     }
                 }
                 // 複数文字指定などの解析も行う
                 std::vector<MString> ss = cand.applyPiece(piece, strokeCount, paddingLen, isStrokeBS, bKatakanaConversion);
-                //int idx = 0;
+                int prevKanjiCandCost = INT_MIN;
                 for (MString s : ss) {
                     CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                     newCandStr.setPenalty(penalty);
                     newCandStr.setFollowingPreferenceType(prefType);
-                    // TODO: ここは別の仕組みする (「話が闊」がビーム幅の外に出てしまうような場合に対応するため)
-                    // ここでは、順位だけを記録しておき、reorderCandidates() の中で反映させるようにする
-                    //if (isTailIsolatedKanji(s)) {
-                    //    // 末尾が孤立した漢字なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
-                    //    newCandStr.addCost(0, HEAD_SINGLE_CHAR_ORDER_COST * idx);
-                    //    ++idx;
-                    //}
-                    // ここで形態素解析やNgram解析をしてコストを計算し、適切な位置に挿入する
-                    MString subStr = substringBetweenNonJapaneseChars(s);
-                    addCandidate(newCandidates, newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
+                    // ここで形態素解析やNgram解析をしてコストを計算し、末尾に追加する
+                    //MString subStr = substringBetweenNonJapaneseChars(s);
+                    calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
+                    if (isTailIsolatedKanji(s)) {
+                        // 末尾が孤立した漢字なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
+                        int cost = newCandStr.totalCost();
+                        _LOG_DETAIL(_T("IsolatedKanji={}, cost={}, prevCost={}"), to_wstr(s), cost, prevKanjiCandCost);
+                        if (prevKanjiCandCost == INT_MIN) {
+                            prevKanjiCandCost = cost;
+                        } else if (cost > prevKanjiCandCost) {
+                            prevKanjiCandCost = cost;
+                        } else {
+                            newCandStr.addNgramCost(prevKanjiCandCost - cost + 1);
+                            _LOG_DETAIL(_T("newCnadStr.totalCost={}"), newCandStr.totalCost());
+                        }
+                    }
+                    newCandidates.push_back(newCandStr);
                 }
                 // pieceが確定文字の場合
                 if (pieceStr.size() == 1 && lattice2::isCommitChar(pieceStr[0])) {
@@ -1146,11 +1072,11 @@ namespace lattice2 {
             if (isKanjiOrHiraganaPreferenceSatisfied(dummyCand, piece)) {
                 // 漢字 xor ひらがな優先条件を満たしている
                 int penalty = 0;
-                if (piece.isPadding()) {
-                    // パディング素片の場合はペナルティを加算
-                    penalty += PADDING_PENALTY;
-                    _LOG_DETAIL(L"Padding piece penalty, total penalty={}", penalty);
-                }
+                //if (piece.isPadding()) {
+                //    // パディング素片の場合はペナルティを加算
+                //    penalty += PADDING_PENALTY;
+                //    _LOG_DETAIL(L"Padding piece penalty, total penalty={}", penalty);
+                //}
                 std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
                 for (MString s : ss) {
                     CandidateString newCandStr(s, strokeCount);
