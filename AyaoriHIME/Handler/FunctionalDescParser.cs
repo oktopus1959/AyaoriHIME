@@ -86,7 +86,18 @@ namespace KanchokuWS.Handler
 
         public override string ToString()
         {
-            return $"FunctionalKeyInfo(Right={IsRight}, Modifier={Modifier}, Name={Name}, Alias={Alias}, VKey={VKey:x}, KeyOfFunc={KeyOrFunc}, RepeatCount={RepeatCount}, StartPos={StartPos}, NextPos={NextPos})";
+            string modifierStr = "";
+            if (IsCtrl()) modifierStr += "Ctrl";
+            if (IsShift()) {
+                if (modifierStr.Length > 0) modifierStr += "|";
+                modifierStr += "Shift";
+            }
+            if (IsAlt()) {
+                if (modifierStr.Length > 0) modifierStr += "|";
+                modifierStr += "Alt";
+            }
+            if (modifierStr.Length == 0) modifierStr = "None";
+            return $"FunctionalKeyInfo(Right={IsRight}, Modifier={modifierStr}, Name={Name}, Alias={Alias}, VKey={VKey:x}, KeyOfFunc={(KeyOrFunc != null ? KeyOrFunc.ToString() : "null")}, RepeatCount={RepeatCount}, StartPos={StartPos}, NextPos={NextPos})";
         }
     }
 
@@ -157,17 +168,37 @@ namespace KanchokuWS.Handler
         /// <returns></returns>
         public static FunctionalKeyInfo Parse(string str, int pos)
         {
-            logger.DebugH(() => $"CALLED: str={str}, pos={pos}");
-
             if (!IsFunctionalDescStart(str, pos)) {
                 return null;
             }
+
+            logger.Info(() => $"ENTER: str={str}, pos={pos}");
 
             int startPos = pos;
             pos += 2;   // skip "!{"
 
             bool right = false;
             int mod = 0;
+
+            bool checkModifier(char ch)
+            {
+                bool isModifier = true;
+                if (ch == '<') {
+                    right = false;
+                } else if (ch == '>') {
+                    right = true;
+                } else if (ch == '^') {
+                    mod = FunctionalKeyInfo.SetCtrl(mod);
+                } else if (ch == '+') {
+                    mod = FunctionalKeyInfo.SetShift(mod);
+                } else if (ch == '!') {
+                    mod = FunctionalKeyInfo.SetAlt(mod);
+                } else {
+                    isModifier = false;
+                }
+                return isModifier;
+            }
+
             bool bRepeatCnt = false;
             int repeatCount = 0;
             var sb = new StringBuilder();
@@ -179,16 +210,8 @@ namespace KanchokuWS.Handler
                         repeatCount = repeatCount * 10 + (ch - '0');
                     }
                 } else {
-                    if (ch == '<') {
-                        right = false;
-                    } else if (ch == '>') {
-                        right = true;
-                    } else if (ch == '^') {
-                        mod = FunctionalKeyInfo.SetCtrl(mod);
-                    } else if (ch == '+') {
-                        mod = FunctionalKeyInfo.SetShift(mod);
-                    } else if (ch == '!') {
-                        mod = FunctionalKeyInfo.SetAlt(mod);
+                    if (checkModifier(ch)) {
+                        // modifier だったら何もしない
                     } else if (ch == ' ' || ch == ',' || ch == ':' || ch == '/') {
                         bRepeatCnt = true;
                     } else {
@@ -205,14 +228,21 @@ namespace KanchokuWS.Handler
 
             string alias = sb.ToString();
             string name = functionalKeyAliases._safeGet(alias, alias);
+            logger.Info(() => $"PROGRESS: alias={alias}, name={name}");
+            while (name._notEmpty() && checkModifier(name[0])) {
+                // 正式名の先頭がモディファイア指定だったら、再度モディファイア指定をチェックする (ex: name="^M" → mod=Ctrl, name="M")
+                name = name.Substring(1);
+            }
             uint vkey = DecoderKeyVsVKey.GetFuncVkeyByName(name);
             //logger.DebugH(() => $"vkey={vkey:x} by FuncKey");
             if (vkey == 0) vkey = AlphabetVKeys.GetAlphabetVkeyByName(name);
             var keyOrFunc = SpecialKeysAndFunctions.GetKeyOrFuncByName(name);
 
-            logger.Info(() => $"alias={alias}, key={name}, mod={mod}, right={right}, vkey={vkey:x}, keyOrFunc={(keyOrFunc == null ? "null" : keyOrFunc.ToString())}");
+            var resultInfo = new FunctionalKeyInfo(right, mod, name, alias, vkey, keyOrFunc, repeatCount, startPos, pos);
 
-            return new FunctionalKeyInfo(right, mod, name, alias, vkey, keyOrFunc, repeatCount, startPos, pos);
+            logger.Info(() => $"LEAVE: {resultInfo}");
+
+            return resultInfo;
         }
     }
 
