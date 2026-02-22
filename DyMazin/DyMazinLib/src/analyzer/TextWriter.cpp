@@ -161,7 +161,7 @@ namespace analyzer {
 
 #define MAZE_FEAT_FORMAT L"@{}/{}/{}"
 
-        // 交ぜ書き原形も含む出力 (表層形 TAB 変換形[|別候補]...(or -) TAB 交ぜ書き原形,主要品詞:細品詞[,変換形,MAZE]
+        // 交ぜ書き原形も含む出力 (表層形 <TAB> 変換形[|別候補]...(or -) <TAB> 品詞:細品詞,交ぜ基本形,変換基本形,変換表層形[,MAZE] 
         // includeOtherCandidates=true の場合、同じ位置で同じ長さの候補も追加 (|候補1|候補2...)
         String writeMaze_(const Lattice& lattice, bool includeFeature, bool includeOtherCandidates = false) {
             LOG_INFO(L"ENTER: includeFeature={}, includeOtherCandidates={}", utils::boolToString(includeFeature), utils::boolToString(includeOtherCandidates));
