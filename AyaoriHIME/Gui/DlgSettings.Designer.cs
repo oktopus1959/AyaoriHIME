@@ -479,6 +479,8 @@ namespace KanchokuWS.Gui
             this.label_fusionReload = new System.Windows.Forms.Label();
             this.button_multiStreamFAQ = new System.Windows.Forms.Button();
             this.groupBox44 = new System.Windows.Forms.GroupBox();
+            this.checkBox_isSpaceFlushAndDirectInput = new System.Windows.Forms.CheckBox();
+            this.checkBox_isEnterFlushAndDirectInput = new System.Windows.Forms.CheckBox();
             this.checkBox_useEditBuffer = new System.Windows.Forms.CheckBox();
             this.checkBox_outputHeadSymbol = new System.Windows.Forms.CheckBox();
             this.textBox_editBufferFlushChar = new System.Windows.Forms.TextBox();
@@ -6048,36 +6050,62 @@ namespace KanchokuWS.Gui
             // 
             // groupBox44
             // 
+            this.groupBox44.Controls.Add(this.checkBox_isSpaceFlushAndDirectInput);
+            this.groupBox44.Controls.Add(this.checkBox_isEnterFlushAndDirectInput);
             this.groupBox44.Controls.Add(this.checkBox_useEditBuffer);
             this.groupBox44.Controls.Add(this.checkBox_outputHeadSymbol);
             this.groupBox44.Controls.Add(this.textBox_editBufferFlushChar);
             this.groupBox44.Controls.Add(this.label158);
-            this.groupBox44.Location = new System.Drawing.Point(364, 12);
+            this.groupBox44.Location = new System.Drawing.Point(15, 175);
             this.groupBox44.Name = "groupBox44";
-            this.groupBox44.Size = new System.Drawing.Size(334, 91);
-            this.groupBox44.TabIndex = 2;
+            this.groupBox44.Size = new System.Drawing.Size(335, 133);
+            this.groupBox44.TabIndex = 1;
             this.groupBox44.TabStop = false;
-            this.groupBox44.Text = "編集バッファ";
+            this.groupBox44.Text = "編集バッファと編集ウィンドウ";
+            // 
+            // checkBox_isSpaceFlushAndDirectInput
+            // 
+            this.checkBox_isSpaceFlushAndDirectInput.AutoSize = true;
+            this.checkBox_isSpaceFlushAndDirectInput.Location = new System.Drawing.Point(12, 85);
+            this.checkBox_isSpaceFlushAndDirectInput.Name = "checkBox_isSpaceFlushAndDirectInput";
+            this.checkBox_isSpaceFlushAndDirectInput.Size = new System.Drawing.Size(302, 19);
+            this.checkBox_isSpaceFlushAndDirectInput.TabIndex = 3;
+            this.checkBox_isSpaceFlushAndDirectInput.Text = "Spaceで編集バッファをフラッシュし、対象アプリにも送出する";
+            this.toolTip1.SetToolTip(this.checkBox_isSpaceFlushAndDirectInput, "編集バッファをフラッシュした後、Space自身も対象アプリに送出します。\r\n\r\nIMEを利用していて、Spaceでフラッシュと同時にかな漢字変換を\r\n実行したいよ" +
+        "うな場合に設定してください。\r\n\r\nこの設定がOFFの場合、編集バッファのフラッシュも対象アプリへの\r\nSpaceの送出も行いません。\r\n\r\nなお、編集バッファ" +
+        "が空の場合は、常に対象アプリに対してSpaceを\r\n送出します。\r\n");
+            this.checkBox_isSpaceFlushAndDirectInput.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_isEnterFlushAndDirectInput
+            // 
+            this.checkBox_isEnterFlushAndDirectInput.AutoSize = true;
+            this.checkBox_isEnterFlushAndDirectInput.Location = new System.Drawing.Point(12, 64);
+            this.checkBox_isEnterFlushAndDirectInput.Name = "checkBox_isEnterFlushAndDirectInput";
+            this.checkBox_isEnterFlushAndDirectInput.Size = new System.Drawing.Size(298, 19);
+            this.checkBox_isEnterFlushAndDirectInput.TabIndex = 2;
+            this.checkBox_isEnterFlushAndDirectInput.Text = "Enterで編集バッファをフラッシュし、対象アプリにも送出する";
+            this.toolTip1.SetToolTip(this.checkBox_isEnterFlushAndDirectInput, resources.GetString("checkBox_isEnterFlushAndDirectInput.ToolTip"));
+            this.checkBox_isEnterFlushAndDirectInput.UseVisualStyleBackColor = true;
             // 
             // checkBox_useEditBuffer
             // 
             this.checkBox_useEditBuffer.AutoSize = true;
-            this.checkBox_useEditBuffer.Location = new System.Drawing.Point(11, 18);
+            this.checkBox_useEditBuffer.Location = new System.Drawing.Point(12, 18);
             this.checkBox_useEditBuffer.Name = "checkBox_useEditBuffer";
-            this.checkBox_useEditBuffer.Size = new System.Drawing.Size(144, 19);
-            this.checkBox_useEditBuffer.TabIndex = 2;
-            this.checkBox_useEditBuffer.Text = "編集バッファを有効にする";
+            this.checkBox_useEditBuffer.Size = new System.Drawing.Size(153, 19);
+            this.checkBox_useEditBuffer.TabIndex = 0;
+            this.checkBox_useEditBuffer.Text = "編集ウィンドウを有効にする";
             this.toolTip1.SetToolTip(this.checkBox_useEditBuffer, resources.GetString("checkBox_useEditBuffer.ToolTip"));
             this.checkBox_useEditBuffer.UseVisualStyleBackColor = true;
             // 
             // checkBox_outputHeadSymbol
             // 
             this.checkBox_outputHeadSymbol.AutoSize = true;
-            this.checkBox_outputHeadSymbol.Location = new System.Drawing.Point(29, 43);
+            this.checkBox_outputHeadSymbol.Location = new System.Drawing.Point(31, 40);
             this.checkBox_outputHeadSymbol.Name = "checkBox_outputHeadSymbol";
-            this.checkBox_outputHeadSymbol.Size = new System.Drawing.Size(252, 19);
-            this.checkBox_outputHeadSymbol.TabIndex = 4;
-            this.checkBox_outputHeadSymbol.Text = "編集バッファの先頭の記号類をそのまま出力する";
+            this.checkBox_outputHeadSymbol.Size = new System.Drawing.Size(261, 19);
+            this.checkBox_outputHeadSymbol.TabIndex = 1;
+            this.checkBox_outputHeadSymbol.Text = "編集ウィンドウの先頭の記号類をそのまま出力する";
             this.toolTip1.SetToolTip(this.checkBox_outputHeadSymbol, "この設定がOFFであってもスペースはそのまま出力されます。");
             this.checkBox_outputHeadSymbol.UseVisualStyleBackColor = true;
             // 
@@ -6086,16 +6114,16 @@ namespace KanchokuWS.Gui
             this.textBox_editBufferFlushChar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_editBufferFlushChar.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_editBufferFlushChar.Location = new System.Drawing.Point(194, 64);
+            this.textBox_editBufferFlushChar.Location = new System.Drawing.Point(177, 107);
             this.textBox_editBufferFlushChar.Name = "textBox_editBufferFlushChar";
-            this.textBox_editBufferFlushChar.Size = new System.Drawing.Size(134, 19);
-            this.textBox_editBufferFlushChar.TabIndex = 5;
+            this.textBox_editBufferFlushChar.Size = new System.Drawing.Size(135, 19);
+            this.textBox_editBufferFlushChar.TabIndex = 4;
             this.toolTip1.SetToolTip(this.textBox_editBufferFlushChar, "ここで指定した文字を入力すると、編集バッファの\r\n内容がフラッシュされてアプリに送出されます。");
             // 
             // label158
             // 
             this.label158.AutoSize = true;
-            this.label158.Location = new System.Drawing.Point(26, 66);
+            this.label158.Location = new System.Drawing.Point(9, 109);
             this.label158.Name = "label158";
             this.label158.Size = new System.Drawing.Size(166, 15);
             this.label158.TabIndex = 53;
@@ -6115,7 +6143,7 @@ namespace KanchokuWS.Gui
             this.groupBox34.Controls.Add(this.label167);
             this.groupBox34.Controls.Add(this.textBox_multiStreamBeamSize);
             this.groupBox34.Controls.Add(this.label91);
-            this.groupBox34.Location = new System.Drawing.Point(364, 114);
+            this.groupBox34.Location = new System.Drawing.Point(364, 110);
             this.groupBox34.Name = "groupBox34";
             this.groupBox34.Size = new System.Drawing.Size(334, 159);
             this.groupBox34.TabIndex = 3;
@@ -6384,10 +6412,10 @@ namespace KanchokuWS.Gui
             this.groupBox51.Controls.Add(this.radioButton_mainRtNgramFile);
             this.groupBox51.Controls.Add(this.radioButton_tempRtNgramFile);
             this.groupBox51.Controls.Add(this.button_reloadDict);
-            this.groupBox51.Location = new System.Drawing.Point(15, 170);
+            this.groupBox51.Location = new System.Drawing.Point(364, 12);
             this.groupBox51.Name = "groupBox51";
             this.groupBox51.Size = new System.Drawing.Size(335, 87);
-            this.groupBox51.TabIndex = 1;
+            this.groupBox51.TabIndex = 2;
             this.groupBox51.TabStop = false;
             this.groupBox51.Text = "Ngramファイル";
             // 
@@ -8451,5 +8479,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label159;
         private System.Windows.Forms.TextBox textBox_morphMazeEntryPenalty;
         private System.Windows.Forms.Label label160;
+        private System.Windows.Forms.CheckBox checkBox_isSpaceFlushAndDirectInput;
+        private System.Windows.Forms.CheckBox checkBox_isEnterFlushAndDirectInput;
     }
 }

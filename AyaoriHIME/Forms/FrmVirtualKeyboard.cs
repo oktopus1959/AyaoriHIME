@@ -111,7 +111,9 @@ namespace KanchokuWS
                 int fRight = fX + fW;
                 int fBottom = fY + fH;
                 Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(cX, cY);
-                if (fRight >= rect.X + rect.Width) fX = cX - fW - Math.Abs(xOffset);
+                int rectRight = rect.X + rect.Width;
+                //if (fRight >= rectRight) fX = cX - fW - Math.Abs(xOffset);
+                if (fRight >= rectRight) fX = rectRight - fW - 2;
                 if (fBottom >= rect.Y + rect.Height) fY = cY - fH - Math.Abs(yOffset);
             }
             MoveWindow(this.Handle, fX, fY, fW, fH, true);

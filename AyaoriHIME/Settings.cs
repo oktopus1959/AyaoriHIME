@@ -272,8 +272,11 @@ namespace KanchokuWS
             return EditBufferFlushChar._safeIndexOf(ch) >= 0;
         }
 
+        /// <summary>Enter が入力されたら編集バッファをフラッシュして Enter をSendInputするか<br/></summary>
+        public static bool IsEnterFlushAndDirectInput { get; set; } = false;
+
         /// <summary>Space が入力されたら編集バッファをフラッシュして Space をSendInputするか<br/></summary>
-        public static bool IsSpaceFlushAndDirectInputChar { get; set; } = false;
+        public static bool IsSpaceFlushAndDirectInput { get; set; } = false;
 
         /// <summary>英大文字を入力されたら編集バッファをフラッシュする</summary>
         public static bool FlushEditBufferWhenCaptalAlphabet { get; set; } = false;
@@ -1734,7 +1737,8 @@ namespace KanchokuWS
             EditBufferFlushChar = GetString("editBufferFlushChar", "");                                         // 編集バッファをフラッシュさせる文字
             KanjiTableThresholdForDualTable = GetString("kanjiTableThresholdForDualTable")._parseInt(300);      // デュアルテーブルの時に、漢直用のテーブルと見なす漢字数
             FlushEditBufferWhenCaptalAlphabet = GetString("flushEditBufferWhenCaptalAlphabet")._parseBool(false); // 大文字アルファベット入力で編集バッファをフラッシュするか
-            IsSpaceFlushAndDirectInputChar = GetString("isSpaceFlushAndDirectInputChar")._parseBool(false);     // Space が入力されたら編集バッファをフラッシュして Space をSendInputするか
+            IsEnterFlushAndDirectInput = GetString("isEnterFlushAndDirectInput")._parseBool(false);             // Enter が入力されたら編集バッファをフラッシュして Enter をSendInputするか
+            IsSpaceFlushAndDirectInput = GetString("isSpaceFlushAndDirectInput")._parseBool(false);             // Space が入力されたら編集バッファをフラッシュして Space をSendInputするか
 
             //-------------------------------------------------------------------------------------
             // ClassName ごとの設定

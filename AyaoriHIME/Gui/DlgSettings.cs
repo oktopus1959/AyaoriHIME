@@ -1901,6 +1901,8 @@ namespace KanchokuWS.Gui
                 selectComboBoxItem(comboBox_editBufferCaretChar, "▴");
             }
             textBox_editBufferFlushChar.Text = $"{Settings.EditBufferFlushChar}";
+            checkBox_isEnterFlushAndDirectInput.Checked = Settings.IsEnterFlushAndDirectInput;
+            checkBox_isSpaceFlushAndDirectInput.Checked = Settings.IsSpaceFlushAndDirectInput;
             radioButton_mainRtNgramFile.Checked = !Settings.UseTmpRealtimeNgramFile;
             radioButton_tempRtNgramFile.Checked = Settings.UseTmpRealtimeNgramFile;
         }
@@ -1943,6 +1945,8 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(textBox_challengeNumForSameLeader);
             checkerFusion.Add(comboBox_editBufferCaretChar);
             checkerFusion.Add(textBox_editBufferFlushChar);
+            checkerFusion.Add(checkBox_isEnterFlushAndDirectInput);
+            checkerFusion.Add(checkBox_isSpaceFlushAndDirectInput);
             checkerFusion.Add(radioButton_mainRtNgramFile);
             checkerFusion.Add(radioButton_tempRtNgramFile);
 
@@ -1986,6 +1990,8 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("challengeNumForSameLeader", textBox_challengeNumForSameLeader.Text);
             Settings.SetUserIni("editBufferCaretChar", comboBox_editBufferCaretChar.Text.Trim());
             Settings.SetUserIni("editBufferFlushChar", textBox_editBufferFlushChar.Text.Trim());
+            Settings.SetUserIni("isEnterFlushAndDirectInput", checkBox_isEnterFlushAndDirectInput.Checked);
+            Settings.SetUserIni("isSpaceFlushAndDirectInput", checkBox_isSpaceFlushAndDirectInput.Checked);
             Settings.SetUserIni("useTmpRealtimeNgramFile", radioButton_tempRtNgramFile.Checked);
 
             Settings.ReadIniFile(false);

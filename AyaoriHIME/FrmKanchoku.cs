@@ -1273,14 +1273,14 @@ namespace KanchokuWS
                                 case DecoderKeys.UNDEFINED_DECKEY:
                                     // TODO (2026/2/21): ここで ^M などの FlushAndDirectInput すべきキーを処理する。
                                     // 主に英数モードから抜けるために使う
-                                    //if (origDeckey == 36 && mod == KeyModifiers.MOD_CONTROL) {
-                                    //    // ^M なら、Flush
-                                    //    frmEditBuf.FlushBuffer(true);
-                                    //    logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
-                                    //    result = sendVkeyFromDeckey(deckey, origDeckey, mod);
-                                    //    logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
-                                    //    return result;
-                                    //}
+                                    if (mod == KeyModifiers.MOD_CONTROL) {
+                                        // Ctrlキー なら、Flush してから直接送る
+                                        frmEditBuf.FlushBuffer(true);
+                                        logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
+                                        result = sendVkeyFromDeckey(deckey, origDeckey, mod);
+                                        logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                                        return result;
+                                    }
                                     logger.Info(() => $"CALL sendDeckeyToDecoder({deckey})");
                                     sendDeckeyToDecoder(deckey);
                                     if (origDeckey >= 0 && origDeckey < DecoderKeys.NORMAL_DECKEY_NUM) {
@@ -1298,8 +1298,10 @@ namespace KanchokuWS
                                     break;
                             }
                             bPrevDtUpdate = true;
-                            if (deckey == DecoderKeys.STROKE_SPACE_DECKEY && mod == 0 && Settings.IsSpaceFlushAndDirectInputChar) {
-                                // Spaceが FlushAndDirectInput なら、編集バッファをフラッシュして、スペースを直接送信する
+                            if (mod == 0 &&
+                                (deckey == DecoderKeys.STROKE_SPACE_DECKEY && Settings.IsSpaceFlushAndDirectInput) ||
+                                (deckey == DecoderKeys.ENTER_DECKEY && Settings.IsEnterFlushAndDirectInput)) {
+                                // Enter/Spaceが FlushAndDirectInput なら、編集バッファをフラッシュして、Enter/Spaceを直接送信する
                                 frmEditBuf.FlushBuffer(true);
                                 logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
                                 result = sendVkeyFromDeckey(deckey, origDeckey, mod);
