@@ -140,7 +140,7 @@ namespace KanchokuWS
             } else {
                 sDiff = $"{diffMs,6:#,0}";
             }
-            //sbStrokeLog.Append($"{dtNow.ToString("HH:mm:ss.fff")} | {sDiff} | {vkbMsg}\r\n");
+            //sbStrokeLog.Append($"{dtNow.ToDebugString("HH:mm:ss.fff")} | {sDiff} | {vkbMsg}\r\n");
             appendStringBufferAndQueue($"{dt.ToString("HH:mm:ss.fff")} | {sDiff} | {msg}\r\n");
             strokeLogLastDt = dt;
         }
@@ -978,7 +978,7 @@ namespace KanchokuWS
         /// <summary>無条件にデコーダを呼び出す</summary>
         public bool InvokeDecoderUnconditionally(int deckey, uint mod)
         {
-            if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: deckey={deckey:x}H({deckey}), mod={mod}H({mod})");
+            if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: deckey={DecoderKeys.ToDebugString(deckey)}, mod={mod}H({mod})");
             toDeactivateDecoder = false;
             if (IsDecoderActive)
                 handleKeyDecoder(deckey, -1, mod, false);
@@ -1025,223 +1025,309 @@ namespace KanchokuWS
         /// <summary>
         ///デコーダ機能のディスパッチ
         /// </summary>
-        /// <param name="deckey"></param>
+        /// <param name="deckey">非負整数であること</param>
+        /// <param name="mod">修飾キーフラグ</param>
         /// <returns>OSに処理を渡さない場合は true を返す</returns>
-        public bool FuncDispatcher(int deckey, int origDeckey, uint mod, bool rollOverStroke)
+        public bool FuncDispatcher(int deckey, int origDeckey, uint mod, bool bUnconditional, bool rollOverStroke)
         {
-            if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: deckey={deckey:x}H({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)}), origDeckey={origDeckey:x}H({origDeckey}), mod={mod:x}({mod})");
+            if (Settings.LoggingDecKeyInfo) {
+                logger.Info($"ENTER: deckey={DecoderKeys.ToDebugString(deckey)}, origDeckey={DecoderKeys.ToDebugString(origDeckey)}, mod={KeyModifiers.ToDebugString(mod)}");
+            }
+            bool result = false;
             bool bPrevDtUpdate = false;
-            //prevDeckey = prevFuncDeckey;
-            //prevFuncDeckey = deckey;
-            //int prevCount = prevFuncTotalCount;
-            try {
-                if (deckey == DecoderKeys.DATE_STRING_ROTATION_DECKEY) {
-                    return !isActiveWinExcel() && rotateDateString(1);
-                } else if (deckey == DecoderKeys.DATE_STRING_UNROTATION_DECKEY) {
-                    return !isActiveWinExcel() && rotateDateString(-1);
-                } else if (IsDecoderActive) {
-                    renewSaveDictsPlannedDt();
-                    switch (deckey) {
-                        // 英数モードから抜けようとしてESCを叩いた時もクリアされてしまうのはまずい
-                        // 替わりに "!{Abort}" を用意する
-                        //case DecoderKeys.ESC_DECKEY:
-                        //    // ESC なら編集バッファをクリアする
-                        //    if (mod == 0 && frmEditBuf.ClearBuffer()) {
-                        //        // 何か文字列が残っていて、それをクリアしたら、Decoderを非活性化する
-                        //        DeactivateDecoder();
-                        //        return true;
-                        //    }
-                        //    break;
-
-                        case DecoderKeys.VKB_SHOW_HIDE_DECKEY:
-                            logger.Info("VKB_SHOW_HIDE_DECKEY");
-                            if (IsVkbHiddenTemporay) {
-                                IsVkbHiddenTemporay = false;
-                                ShowFrmVkb();
-                            } else {
-                                IsVkbHiddenTemporay = true;
-                                frmVkb.Hide();
-                            }
-                            return true;
-                        case DecoderKeys.STROKE_HELP_ROTATION_DECKEY:
-                            logger.Info("STROKE_HELP_ROTATION_DECKEY");
-                            return rotateStrokeHelp(1);
-                        case DecoderKeys.STROKE_HELP_UNROTATION_DECKEY:
-                            logger.Info("STROKE_HELP_UNROTATION_DECKEY");
-                            return rotateStrokeHelp(-1);
-                        case DecoderKeys.DATE_STRING_ROTATION_DECKEY:
-                            logger.Info("DATE_STRING_ROTATION_DECKEY");
+            switch (deckey) {
+                case DecoderKeys.TOGGLE_DECKEY:
+                    ToggleDecoder(0);
+                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                    return true;
+                case DecoderKeys.MODE_TOGGLE_FOLLOW_CARET_DECKEY:
+                    Settings.VirtualKeyboardPosFixedTemporarily = false;
+                    ToggleDecoder(1);
+                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                    return true;
+                case DecoderKeys.MODE_TOGGLE_FOLLOW_CARET_DECKEY2:
+                    Settings.VirtualKeyboardPosFixedTemporarily = false;
+                    ToggleDecoder(2);
+                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                    return true;
+                case DecoderKeys.ACTIVE_DECKEY:
+                case DecoderKeys.ACTIVE2_DECKEY:
+                    ActivateDecoder();
+                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                    return true;
+                case DecoderKeys.DEACTIVE_DECKEY:
+                case DecoderKeys.DEACTIVE2_DECKEY:
+                    DeactivateDecoder();
+                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                    return true;
+                default:
+                    if (deckey >= DecoderKeys.UNCONDITIONAL_DECKEY_OFFSET && deckey < DecoderKeys.UNCONDITIONAL_DECKEY_END) {
+                        logger.Info(() => $"CALL InvokeDecoderUnconditionally(deckey={deckey - DecoderKeys.UNCONDITIONAL_DECKEY_OFFSET}, mod={mod}");
+                        result = InvokeDecoderUnconditionally(deckey - DecoderKeys.UNCONDITIONAL_DECKEY_OFFSET, mod);
+                        logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                        return result;
+                    }
+                    if (bUnconditional) {
+                        logger.Info(() => $"InvokeDecoderUnconditionally: deckey={deckey}, bUncond={bUnconditional}");
+                        result = InvokeDecoderUnconditionally(deckey, mod);
+                        logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                        return result;
+                    }
+                    //prevDeckey = prevFuncDeckey;
+                    //prevFuncDeckey = deckey;
+                    //int prevCount = prevFuncTotalCount;
+                    try {
+                        if (deckey == DecoderKeys.DATE_STRING_ROTATION_DECKEY) {
                             return !isActiveWinExcel() && rotateDateString(1);
-                        case DecoderKeys.DATE_STRING_UNROTATION_DECKEY:
-                            logger.Info("DATE_STRING_UNROTATION_DECKEY");
+                        } else if (deckey == DecoderKeys.DATE_STRING_UNROTATION_DECKEY) {
                             return !isActiveWinExcel() && rotateDateString(-1);
-                        case DecoderKeys.STROKE_HELP_DECKEY:
-                            logger.Info("STROKE_HELP_DECKEY");
-                            if (prevDeckey != deckey || prevFuncTotalCount + 1 < DeckeyTotalCount) {
-                                ShowStrokeHelp(null);
+                        } else if (IsDecoderActive) {
+                            // デコーダがアクティブ
+                            renewSaveDictsPlannedDt();
+                            switch (deckey) {
+                                // 英数モードから抜けようとしてESCを叩いた時もクリアされてしまうのはまずい
+                                // 替わりに "!{Abort}" を用意する
+                                //case DecoderKeys.ESC_DECKEY:
+                                //    // ESC なら編集バッファをクリアする
+                                //    if (mod == 0 && frmEditBuf.ClearBuffer()) {
+                                //        // 何か文字列が残っていて、それをクリアしたら、Decoderを非活性化する
+                                //        DeactivateDecoder();
+                                //        return true;
+                                //    }
+                                //    break;
+
+                                case DecoderKeys.VKB_SHOW_HIDE_DECKEY:
+                                    if (IsVkbHiddenTemporay) {
+                                        IsVkbHiddenTemporay = false;
+                                        ShowFrmVkb();
+                                    } else {
+                                        IsVkbHiddenTemporay = true;
+                                        frmVkb.Hide();
+                                    }
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.STROKE_HELP_ROTATION_DECKEY:
+                                    result = rotateStrokeHelp(1);
+                                    logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                                    return result;
+                                case DecoderKeys.STROKE_HELP_UNROTATION_DECKEY:
+                                    result = rotateStrokeHelp(-1);
+                                    logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                                    return result;
+                                case DecoderKeys.DATE_STRING_ROTATION_DECKEY:
+                                    result = !isActiveWinExcel() && rotateDateString(1);
+                                    logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                                    return result;
+                                case DecoderKeys.DATE_STRING_UNROTATION_DECKEY:
+                                    result = !isActiveWinExcel() && rotateDateString(-1);
+                                    logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                                    return result;
+                                case DecoderKeys.STROKE_HELP_DECKEY:
+                                    if (prevDeckey != deckey || prevFuncTotalCount + 1 < DeckeyTotalCount) {
+                                        ShowStrokeHelp(null);
+                                    } else {
+                                        ShowBushuCompHelp();
+                                    }
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.BUSHU_COMP_HELP_DECKEY:
+                                    ShowBushuCompHelp();
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.TOGGLE_ROMAN_STROKE_GUIDE_DECKEY:
+                                    if (IsDecoderActive) {
+                                        rotateStrokeHelp(0);
+                                        bRomanStrokeGuideMode = !bRomanStrokeGuideMode && !bRomanMode;
+                                        drawRomanOrHiraganaMode(bRomanStrokeGuideMode, false);
+                                    }
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.TOGGLE_UPPER_ROMAN_STROKE_GUIDE_DECKEY:
+                                    if (IsDecoderActive) {
+                                        rotateStrokeHelp(0);
+                                        bUpperRomanStrokeGuideMode = !bUpperRomanStrokeGuideMode && !bRomanMode;
+                                        if (!bRomanMode) drawRomanOrHiraganaMode(bUpperRomanStrokeGuideMode, false);
+                                    }
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.TOGGLE_HIRAGANA_STROKE_GUIDE_DECKEY:
+                                    if (IsDecoderActive) {
+                                        rotateStrokeHelp(0);
+                                        bHiraganaStrokeGuideMode = !bHiraganaStrokeGuideMode;
+                                        if (bHiraganaStrokeGuideMode) {
+                                            logger.Info("bHiraganaStrokeGuideMode=true; CALL InvokeDecoder()");
+                                            InvokeDecoder(DecoderKeys.FULL_ESCAPE_DECKEY, origDeckey, 0, rollOverStroke);   // やっぱり出力文字列をクリアしておく必要あり
+                                                                                                                            //ExecCmdDecoder("setHiraganaBlocker", null);       // こっちだと、以前のひらがなが出力文字列に残ったりして、それを拾ってしまう
+                                        } else {
+                                            logger.Info("bHiraganaStrokeGuideMode=false; CALL ExecCmdDecoder(clearTailHiraganaStr)");
+                                            //HandleDeckeyDecoder(decoderPtr, DecoderKeys.FULL_ESCAPE_DECKEY, 0, 0, ref decoderOutput); // こっちだと、見えなくなるだけで、ひらがな列が残ってしまう
+                                            ExecCmdDecoder("clearTailHiraganaStr", null);   // 物理的に読みのひらがな列を削除しておく必要あり
+                                        }
+                                        drawRomanOrHiraganaMode(false, bHiraganaStrokeGuideMode);
+                                    }
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.EXCHANGE_CODE_TABLE_DECKEY:
+                                    logger.Info("CALL ExchangeCodeTable()");
+                                    ExchangeCodeTable();
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.EXCHANGE_CODE_TABLE2_DECKEY:
+                                    logger.Info("CALL ExchangeCodeTable(true)");
+                                    ExchangeCodeTable(true);
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.SELECT_CODE_TABLE1_DECKEY:
+                                    logger.Info("CALL SelectCodeTable(1, false)");
+                                    SelectCodeTable(1, false);
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.SELECT_CODE_TABLE2_DECKEY:
+                                    logger.Info("CALL SelectCodeTable(2, false)");
+                                    SelectCodeTable(2, false);
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.SELECT_CODE_TABLE3_DECKEY:
+                                    logger.Info("CALL SelectCodeTable(3, false)");
+                                    SelectCodeTable(3, false);
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.TOGGLE_KATAKANA_CONVERSION1_DECKEY:
+                                    logger.Info("CALL SelectCodeTable(1, true)");
+                                    SelectCodeTable(1, true);
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.TOGGLE_KATAKANA_CONVERSION2_DECKEY:
+                                    logger.Info("CALL SelectCodeTable(2, true)");
+                                    SelectCodeTable(2, true);
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.KANA_TRAINING_TOGGLE_DECKEY:
+                                    logger.Info("CALL KanaTrainingModeToggle");
+                                    KanaTrainingModeToggle();
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.PSEUDO_SPACE_DECKEY:
+                                    deckey = DecoderKeys.STROKE_SPACE_DECKEY;
+                                    if (IsDecoderActive && decoderOutput.GetStrokeCount() >= 1) {
+                                        // 第2打鍵待ちなら、スペースを出力
+                                        logger.Info($"CALL InvokeDecoder");
+                                        InvokeDecoder(deckey, origDeckey, 0, rollOverStroke);
+                                    }
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.POST_NORMAL_SHIFT_DECKEY:
+                                case DecoderKeys.POST_PLANE_A_SHIFT_DECKEY:
+                                case DecoderKeys.POST_PLANE_B_SHIFT_DECKEY:
+                                case DecoderKeys.POST_PLANE_C_SHIFT_DECKEY:
+                                case DecoderKeys.POST_PLANE_D_SHIFT_DECKEY:
+                                case DecoderKeys.POST_PLANE_E_SHIFT_DECKEY:
+                                case DecoderKeys.POST_PLANE_F_SHIFT_DECKEY:
+                                    logger.Info(() => $"POST_PLANE_X_SHIFT_DECKEY=POST_NORMAL_SHIFT_DECKEY+{deckey - DecoderKeys.POST_NORMAL_SHIFT_DECKEY}, strokeCount={decoderOutput.GetStrokeCount()}");
+                                    if (IsDecoderActive && decoderOutput.GetStrokeCount() >= 1) {
+                                        // 第2打鍵待ちなら、いったんBSを出力してからシフトされたコードを出力
+                                        InvokeDecoder(DecoderKeys.BS_DECKEY, -1, 0, rollOverStroke);
+                                        deckey = (prevDeckey % DecoderKeys.PLANE_DECKEY_NUM) + (deckey - DecoderKeys.POST_NORMAL_SHIFT_DECKEY + 1) * DecoderKeys.PLANE_DECKEY_NUM;
+                                        logger.Info($"CALL InvokeDecoder");
+                                        InvokeDecoder(deckey, origDeckey, 0, rollOverStroke);
+                                    }
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.COPY_SELECTION_AND_SEND_TO_DICTIONARY_DECKEY:
+                                    logger.Info(() => $"CALL: copySelectionAndSendToDictionary()");
+                                    copySelectionAndSendToDictionary();
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.CLEAR_STROKE_DECKEY:
+                                    logger.Info(() => $"CALL: sendClearStrokeToDecoder()");
+                                    sendClearStrokeToDecoder();
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+                                case DecoderKeys.TOGGLE_BLOCKER_DECKEY:
+                                    logger.Info(() => $"CALL: sendDeckeyToDecoder(deckey={deckey})");
+                                    sendDeckeyToDecoder(deckey);
+                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                                    return true;
+
+                                //case DecoderKeys.MULTI_STREAM_MODE_TOGGLE_DECKEY:
+                                //    logger.Info(() => $"MULTI_STREAM_MODE_TOGGLE_DECKEY:{deckey}");
+                                //    MultiStreamModeToggle();
+                                //    return true;
+
+                                case DecoderKeys.MULTI_STREAM_NEXT_CAND_DECKEY:
+                                case DecoderKeys.MULTI_STREAM_PREV_CAND_DECKEY:
+                                case DecoderKeys.MULTI_STREAM_SELECT_FIRST_DECKEY:
+                                case DecoderKeys.MULTI_STREAM_COMMIT_DECKEY:
+                                    logger.Info(() => DecoderKeys.ToDebugString(deckey));
+                                    logger.Info("CALL: InvokeDecoder");
+                                    result = InvokeDecoder(deckey, origDeckey, mod, rollOverStroke);
+                                    logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                                    return result;
+
+                                case DecoderKeys.DIRECT_SPACE_DECKEY:
+                                    logger.Info(() => $"CALL sendVkeyFromDeckey(deckey=STROKE_SPACE_DECKEY, -1, mod={mod})");
+                                    result = sendVkeyFromDeckey(DecoderKeys.STROKE_SPACE_DECKEY, -1, mod);
+                                    logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                                    return result;
+
+                                case DecoderKeys.UNDEFINED_DECKEY:
+                                    // TODO (2026/2/21): ここで ^M などの FlushAndDirectInput すべきキーを処理する。
+                                    // 主に英数モードから抜けるために使う
+                                    //if (origDeckey == 36 && mod == KeyModifiers.MOD_CONTROL) {
+                                    //    // ^M なら、Flush
+                                    //    frmEditBuf.FlushBuffer(true);
+                                    //    logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
+                                    //    result = sendVkeyFromDeckey(deckey, origDeckey, mod);
+                                    //    logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                                    //    return result;
+                                    //}
+                                    logger.Info(() => $"CALL sendDeckeyToDecoder({deckey})");
+                                    sendDeckeyToDecoder(deckey);
+                                    if (origDeckey >= 0 && origDeckey < DecoderKeys.NORMAL_DECKEY_NUM) {
+                                        logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={origDeckey}, -1, mod={mod})");
+                                        result = sendVkeyFromDeckey(origDeckey, -1, mod);
+                                        logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
+                                        return result;
+                                    } else {
+                                        logger.Info("LEAVE: result=False");
+                                        return false;
+                                    }
+
+                                default:
+                                    logger.Info("DEFAULT");
+                                    break;
+                            }
+                            bPrevDtUpdate = true;
+                            if (deckey == DecoderKeys.STROKE_SPACE_DECKEY && mod == 0 && Settings.IsSpaceFlushAndDirectInputChar) {
+                                // Spaceが FlushAndDirectInput なら、編集バッファをフラッシュして、スペースを直接送信する
+                                frmEditBuf.FlushBuffer(true);
+                                logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
+                                result = sendVkeyFromDeckey(deckey, origDeckey, mod);
+                                return result;
+                            }
+                            if (IsDecoderActive && (deckey < DecoderKeys.DECKEY_CTRL_A || deckey > DecoderKeys.DECKEY_CTRL_Z)) {
+                                // デコーダで処理するやつ
+                                logger.Info("CALL: InvokeDecoder");
+                                result = InvokeDecoder(deckey, origDeckey, mod, rollOverStroke);
+                                return result;
                             } else {
-                                ShowBushuCompHelp();
+                                // Ctrl+A～Zは、デコーダで処理せず、直接送る
+                                logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
+                                result = sendVkeyFromDeckey(deckey, origDeckey, mod);
+                                return result;
                             }
-                            return true;
-                        case DecoderKeys.BUSHU_COMP_HELP_DECKEY:
-                            logger.Info("BUSHU_COMP_HELP_DECKEY");
-                            ShowBushuCompHelp();
-                            return true;
-                        case DecoderKeys.TOGGLE_ROMAN_STROKE_GUIDE_DECKEY:
-                            logger.Info("TOGGLE_ROMAN_STROKE_GUIDE_DECKEY");
-                            if (IsDecoderActive) {
-                                rotateStrokeHelp(0);
-                                bRomanStrokeGuideMode = !bRomanStrokeGuideMode && !bRomanMode;
-                                drawRomanOrHiraganaMode(bRomanStrokeGuideMode, false);
-                            }
-                            return true;
-                        case DecoderKeys.TOGGLE_UPPER_ROMAN_STROKE_GUIDE_DECKEY:
-                            logger.Info("TOGGLE_UPPER_ROMAN_STROKE_GUIDE_DECKEY");
-                            if (IsDecoderActive) {
-                                rotateStrokeHelp(0);
-                                bUpperRomanStrokeGuideMode = !bUpperRomanStrokeGuideMode && !bRomanMode;
-                                if (!bRomanMode) drawRomanOrHiraganaMode(bUpperRomanStrokeGuideMode, false);
-                            }
-                            return true;
-                        case DecoderKeys.TOGGLE_HIRAGANA_STROKE_GUIDE_DECKEY:
-                            logger.Info("TOGGLE_HIRAGANA_STROKE_GUIDE_DECKEY");
-                            if (IsDecoderActive) {
-                                rotateStrokeHelp(0);
-                                bHiraganaStrokeGuideMode = !bHiraganaStrokeGuideMode;
-                                if (bHiraganaStrokeGuideMode) {
-                                    InvokeDecoder(DecoderKeys.FULL_ESCAPE_DECKEY, origDeckey, 0, rollOverStroke);   // やっぱり出力文字列をクリアしておく必要あり
-                                                                                                        //ExecCmdDecoder("setHiraganaBlocker", null);       // こっちだと、以前のひらがなが出力文字列に残ったりして、それを拾ってしまう
-                                } else {
-                                    //HandleDeckeyDecoder(decoderPtr, DecoderKeys.FULL_ESCAPE_DECKEY, 0, 0, ref decoderOutput); // こっちだと、見えなくなるだけで、ひらがな列が残ってしまう
-                                    ExecCmdDecoder("clearTailHiraganaStr", null);   // 物理的に読みのひらがな列を削除しておく必要あり
-                                }
-                                drawRomanOrHiraganaMode(false, bHiraganaStrokeGuideMode);
-                            }
-                            return true;
-                        case DecoderKeys.EXCHANGE_CODE_TABLE_DECKEY:
-                            logger.Info("EXCHANGE_CODE_TABLE_DECKEY");
-                            ExchangeCodeTable();
-                            return true;
-                        case DecoderKeys.EXCHANGE_CODE_TABLE2_DECKEY:
-                            logger.Info("EXCHANGE_CODE_TABLE2_DECKEY");
-                            ExchangeCodeTable(true);
-                            return true;
-                        case DecoderKeys.SELECT_CODE_TABLE1_DECKEY:
-                            logger.Info("SELECT_CODE_TABLE1_DECKEY");
-                            SelectCodeTable(1, false);
-                            return true;
-                        case DecoderKeys.SELECT_CODE_TABLE2_DECKEY:
-                            logger.Info("SELECT_CODE_TABLE2_DECKEY");
-                            SelectCodeTable(2, false);
-                            return true;
-                        case DecoderKeys.SELECT_CODE_TABLE3_DECKEY:
-                            logger.Info("SELECT_CODE_TABLE3_DECKEY");
-                            SelectCodeTable(3, false);
-                            return true;
-                        case DecoderKeys.TOGGLE_KATAKANA_CONVERSION1_DECKEY:
-                            logger.Info("TOGGLE_KATAKANA_CONVERSION1_DECKEY");
-                            SelectCodeTable(1, true);
-                            return true;
-                        case DecoderKeys.TOGGLE_KATAKANA_CONVERSION2_DECKEY:
-                            logger.Info("TOGGLE_KATAKANA_CONVERSION2_DECKEY");
-                            SelectCodeTable(2, true);
-                            return true;
-                        case DecoderKeys.KANA_TRAINING_TOGGLE_DECKEY:
-                            logger.Info("KANA_TRAINING_TOGGLE");
-                            KanaTrainingModeToggle();
-                            return true;
-                        case DecoderKeys.PSEUDO_SPACE_DECKEY:
-                            logger.Info(() => $"PSEUDO_SPACE_DECKEY: strokeCount={decoderOutput.GetStrokeCount()}");
-                            deckey = DecoderKeys.STROKE_SPACE_DECKEY;
-                            if (IsDecoderActive && decoderOutput.GetStrokeCount() >= 1) {
-                                // 第2打鍵待ちなら、スペースを出力
-                                InvokeDecoder(deckey, origDeckey, 0, rollOverStroke);
-                            }
-                            return true;
-                        case DecoderKeys.POST_NORMAL_SHIFT_DECKEY:
-                        case DecoderKeys.POST_PLANE_A_SHIFT_DECKEY:
-                        case DecoderKeys.POST_PLANE_B_SHIFT_DECKEY:
-                        case DecoderKeys.POST_PLANE_C_SHIFT_DECKEY:
-                        case DecoderKeys.POST_PLANE_D_SHIFT_DECKEY:
-                        case DecoderKeys.POST_PLANE_E_SHIFT_DECKEY:
-                        case DecoderKeys.POST_PLANE_F_SHIFT_DECKEY:
-                            logger.Info(() => $"POST_PLANE_X_SHIFT_DECKEY=POST_NORMAL_SHIFT_DECKEY+{deckey - DecoderKeys.POST_NORMAL_SHIFT_DECKEY}, strokeCount={decoderOutput.GetStrokeCount()}");
-                            if (IsDecoderActive && decoderOutput.GetStrokeCount() >= 1) {
-                                // 第2打鍵待ちなら、いったんBSを出力してからシフトされたコードを出力
-                                InvokeDecoder(DecoderKeys.BS_DECKEY, -1, 0, rollOverStroke);
-                                deckey = (prevDeckey % DecoderKeys.PLANE_DECKEY_NUM) + (deckey - DecoderKeys.POST_NORMAL_SHIFT_DECKEY + 1) * DecoderKeys.PLANE_DECKEY_NUM;
-                                InvokeDecoder(deckey, origDeckey, 0, rollOverStroke);
-                            }
-                            return true;
-                        case DecoderKeys.COPY_SELECTION_AND_SEND_TO_DICTIONARY_DECKEY:
-                            logger.Info(() => $"COPY_SELECTION_AND_SEND_TO_DICTIONARY:{deckey}");
-                            copySelectionAndSendToDictionary();
-                            return true;
-                        case DecoderKeys.CLEAR_STROKE_DECKEY:
-                            logger.Info(() => $"CLEAR_STROKE_DECKEY:{deckey}");
-                            sendClearStrokeToDecoder();
-                            return true;
-                        case DecoderKeys.TOGGLE_BLOCKER_DECKEY:
-                            logger.Info(() => $"TOGGLE_BLOCKER_DECKEY:{deckey}");
-                            sendDeckeyToDecoder(deckey);
-                            return true;
-
-                        //case DecoderKeys.MULTI_STREAM_MODE_TOGGLE_DECKEY:
-                        //    logger.Info(() => $"MULTI_STREAM_MODE_TOGGLE_DECKEY:{deckey}");
-                        //    MultiStreamModeToggle();
-                        //    return true;
-
-                        case DecoderKeys.MULTI_STREAM_NEXT_CAND_DECKEY:
-                        case DecoderKeys.MULTI_STREAM_PREV_CAND_DECKEY:
-                        case DecoderKeys.MULTI_STREAM_SELECT_FIRST_DECKEY:
-                        case DecoderKeys.MULTI_STREAM_COMMIT_DECKEY:
-                            logger.Info(() => $"MULTI_STREAM_{(deckey == DecoderKeys.MULTI_STREAM_NEXT_CAND_DECKEY ? "NEXT" : deckey == DecoderKeys.MULTI_STREAM_PREV_CAND_DECKEY ? "PREV" : deckey == DecoderKeys.MULTI_STREAM_SELECT_FIRST_DECKEY ? "FIRST" : "COMMIT")}_DECKEY:{deckey}");
-                            return InvokeDecoder(deckey, origDeckey, mod, rollOverStroke);
-
-                        case DecoderKeys.DIRECT_SPACE_DECKEY:
-                            logger.Info(() => $"DIRECT_SPACE_DECKEY:{deckey}, mode={mod:x}H");
-                            return sendVkeyFromDeckey(DecoderKeys.STROKE_SPACE_DECKEY, -1, mod);
-
-                        case DecoderKeys.UNDEFINED_DECKEY:
-                            // 主に英数モードから抜けるために使う
-                            logger.Info(() => $"UNDEFINED_DECKEY:{deckey}");
-                            sendDeckeyToDecoder(deckey);
-                            if (origDeckey >= 0 && origDeckey < DecoderKeys.NORMAL_DECKEY_NUM) {
-                                return sendVkeyFromDeckey(origDeckey, -1, mod);
-                            } else {
-                                logger.Info("LEAVE: result=False");
-                                return false;
-                            }
-
-                        default:
-                            logger.Info("DEFAULT");
-                            break;
+                        } else {
+                            // Decoder Inactive
+                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Decoder Inactive: CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
+                            bPrevDtUpdate = true;
+                            result = sendVkeyFromDeckey(deckey, origDeckey, mod);
+                            return result;
+                        }
+                    } finally {
+                        prevFuncTotalCount = DeckeyTotalCount;
+                        prevDeckey = deckey;
+                        if (bPrevDtUpdate) prevDecDt = HRDateTime.Now;
                     }
-                    bPrevDtUpdate = true;
-                    if (IsDecoderActive && (deckey < DecoderKeys.DECKEY_CTRL_A || deckey > DecoderKeys.DECKEY_CTRL_Z)) {
-                        logger.Info("InvokeDecoder");
-                        return InvokeDecoder(deckey, origDeckey, mod, rollOverStroke);
-                    } else {
-                        logger.Info("sendVkeyFromDeckey");
-                        return sendVkeyFromDeckey(deckey, origDeckey, mod);
-                    }
-                } else {
-                    // Decoder Inactive
-                    if (Settings.LoggingDecKeyInfo) logger.Info("Decoder Inactive");
-                    bPrevDtUpdate = true;
-                    //if (deckey >= 0 && deckey < DecoderKeys.SPECIAL_DECKEY_ID_BASE /*deckey != DecoderKeys.UNDEFINED_DECKEY*/) {
-                    //    // DecoderKeyから仮想キーのComboに変換できるやつ
-                    //    return sendVkeyFromDeckey(deckey, origDeckey, mod);
-                    //} else if (origDeckey >= 0) {
-                    //    return sendVkeyFromDeckey(origDeckey, -1, mod);
-                    //}
-                    //return false;
-                    return sendVkeyFromDeckey(deckey, origDeckey, mod);
-                }
-            } finally {
-                prevFuncTotalCount = DeckeyTotalCount;
-                prevDeckey = deckey;
-                if (bPrevDtUpdate) prevDecDt = HRDateTime.Now;
             }
         }
 
@@ -1863,7 +1949,7 @@ namespace KanchokuWS
         {
             if (IsDecoderActive) {
                 ++DeckeyTotalCount;
-                logger.InfoH(() => $"\nRECEIVED deckey={(deckey < DecoderKeys.SPECIAL_DECKEY_ID_BASE ? $"{deckey}" : $"{deckey:x}H")}({DecoderKeys.GetDeckeyNameFromId(deckey)}), " +
+                logger.InfoH(() => $"\nRECEIVED deckey={DecoderKeys.ToDebugString(deckey)}, " +
                                    $"mod={mod:x}, roolOver={rollOverStroke}, totalCount={DeckeyTotalCount}");
 
                 // DecKey 無限ループの検出
@@ -1986,7 +2072,7 @@ namespace KanchokuWS
         /// </summary>
         private bool handleKeyDecoder(int deckey, int origDeckey, uint mod, bool rollOverStroke)
         {
-            logger.InfoH(() => $"ENTER: deckey={deckey:x}H({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)}), mod={mod:x}, rollOver={rollOverStroke}");
+            logger.InfoH(() => $"ENTER: deckey={DecoderKeys.ToDebugString(deckey)}, mod={mod:x}, rollOver={rollOverStroke}");
 
             if (!bRomanStrokeGuideMode && !bHiraganaStrokeGuideMode && (!bUpperRomanStrokeGuideMode || deckey < DecoderKeys.NORMAL_DECKEY_NUM)) {
                 // ローマ字ストロークガイドモードでないときは、ガイド文字の取得を行う
@@ -2271,7 +2357,7 @@ namespace KanchokuWS
         /// </summary>
         private void sendDeckeyToDecoder(int deckey)
         {
-            logger.Info(() => $"CLLED: deckey={deckey:x}H({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)})");
+            logger.Info(() => $"ENTER: deckey={DecoderKeys.ToDebugString(deckey)}");
             CallHandleDeckeyDecoder(cmdParamsPtr => {
                 HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, 0, 0, ref decoderOutput);
             });
@@ -2281,6 +2367,7 @@ namespace KanchokuWS
                 // 仮想キーボードにヘルプや文字候補を表示
                 frmVkb.DrawVirtualKeyboardChars();
             }
+            logger.Info(() => $"LEAVE");
         }
 
         private bool isFuncVkeyContained(char[] str, int len = -1)
@@ -2325,13 +2412,13 @@ namespace KanchokuWS
                  (mod & (KeyModifiers.MOD_CONTROL | KeyModifiers.MOD_LCTRL | KeyModifiers.MOD_RCTRL | KeyModifiers.MOD_ALT)) == 0);
 
             if (Settings.LoggingDecKeyInfo) {
-                logger.Info($"ENTER: deckey={deckey:x}H({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)}), origDeckey={origDeckey:x}H({origDeckey}={DecoderKeys.GetDeckeyNameFromId(origDeckey)}), mod={mod:x}({mod}), anyCtrl={ctrlKeyState.AnyKeyDown}, shortcutConv={bShortcutConversion}");
+                logger.Info($"ENTER: deckey={DecoderKeys.ToDebugString(deckey)}, origDeckey={DecoderKeys.ToDebugString(origDeckey)}, mod={KeyModifiers.ToDebugString(mod)}, anyCtrl={ctrlKeyState.AnyKeyDown}, shortcutConv={bShortcutConversion}");
             }
 
             if (deckey == DecoderKeys.STROKE_BACK_DECKEY) {
                 deckey = DecoderKeys.BS_DECKEY;
                 if (Settings.LoggingDecKeyInfo) {
-                    logger.Info($"STROKE_BACK_DECKEY({DecoderKeys.STROKE_BACK_DECKEY}) converted to BS_DECKEY({deckey})");
+                    logger.Info($"STROKE_BACK_DECKEY({DecoderKeys.ToDebugString(DecoderKeys.STROKE_BACK_DECKEY)}) converted to BS_DECKEY({DecoderKeys.ToDebugString(deckey)})");
                 }
             }
 
@@ -2396,7 +2483,7 @@ namespace KanchokuWS
                     if (Settings.LoggingDecKeyInfo) logger.Info($"LEAVE: TRUE");
                     return true;
                 } else {
-                    if (Settings.LoggingDecKeyInfo) logger.Info($"NO VKEY COMBO for deckey={deckey:x}H({deckey})");
+                    if (Settings.LoggingDecKeyInfo) logger.Info($"NO VKEY COMBO for deckey={DecoderKeys.ToDebugString(deckey)}");
                 }
             } else if (Settings.ShortcutKeyConversionEnabled && (mod & KeyModifiers.MOD_CONTROL) == 0 && origDeckey >= 0 && origDeckey < DecoderKeys.NORMAL_DECKEY_NUM) {
                 // Ctrl修飾を受け付けないウィンドウへのCtrl修飾キーの送信であり、ショートカットキーの変換をやる (PuTTYとか)

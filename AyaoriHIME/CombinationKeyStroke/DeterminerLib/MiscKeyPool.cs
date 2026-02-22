@@ -62,7 +62,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         public string DebugString()
         {
             return "RepeatableKeys=" + (repeatableKeySet._isEmpty() ? "empty" : repeatableKeySet.Select(x => x.ToString())._join(","))
-                // + "\nPreRewriteKeys=" + (preRewriteKeySet._isEmpty() ? "empty" : preRewriteKeySet.Select(x => x.ToString())._join(","))
+                // + "\nPreRewriteKeys=" + (preRewriteKeySet._isEmpty() ? "empty" : preRewriteKeySet.Select(x => x.ToDebugString())._join(","))
                 ;
         }
     }

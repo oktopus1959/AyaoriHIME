@@ -124,7 +124,7 @@ namespace KanchokuWS.Forms
                 if (funcInfo != null && funcInfo.KeyOrFunc != null && funcInfo.KeyOrFunc.IsFunction) {
                     // "!{DECKEY_NAME}" の形式で、特殊機能キー(TOGGLE_DECKEYなど)の場合
                     logger.InfoH($"CALL: FuncDispatcher({funcInfo.KeyOrFunc})");
-                    frmMain.FuncDispatcher(funcInfo.KeyOrFunc.DecKey, -1, 0, false);
+                    frmMain.FuncDispatcher(funcInfo.KeyOrFunc.DecKey, -1, 0, false, false);
                 } else {
                     // 何もせずに、呼び出し元に任せる
                     logger.InfoH(() => $"CALL: SendStringViaClipboardIfNeeded({str}, {numBS}, true)");
@@ -210,7 +210,7 @@ namespace KanchokuWS.Forms
                             postText = "";
                         } else if (fkey.KeyOrFunc != null && fkey.KeyOrFunc.IsFunction) {
                             logger.InfoH($"CALL: FuncDispatcher({fkey.KeyOrFunc.DecKey}:{fkey.Alias})");
-                            frmMain.FuncDispatcher(fkey.KeyOrFunc.DecKey, -1, 0, false);
+                            frmMain.FuncDispatcher(fkey.KeyOrFunc.DecKey, -1, 0, false, false);
                         }
                         break;
                 }

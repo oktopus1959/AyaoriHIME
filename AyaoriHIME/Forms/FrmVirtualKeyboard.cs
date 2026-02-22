@@ -1120,7 +1120,7 @@ namespace KanchokuWS
                 resetVkbControls(topText, 0, 0, 0);
                 int nRow = 0;
                 for (int i = 0; i < LongVkeyNum; ++i) {
-                    //logger.Info(decoderOutput.candidateStrings.Skip(i*20).Take(20).Select(c => c.ToString())._join(""));
+                    //logger.Info(decoderOutput.candidateStrings.Skip(i*20).Take(20).Select(c => c.ToDebugString())._join(""));
                     if (drawHorizontalCandidateCharsWithColor(decoderOutput, i, decoderOutput.candidateStrings)) ++nRow;
                 }
                 dgvHorizontal.CurrentCell = null;   // どのセルも選択されていない状態にする

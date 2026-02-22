@@ -55,7 +55,7 @@ namespace KanchokuWS.Domain
             return (alt ? MOD_ALT : 0) + (ctrl ? MOD_CONTROL : 0) + (shift ? MOD_SHIFT : 0);
         }
 
-        public static string ToString(uint modifier)
+        public static string ToDebugString(uint modifier)
         {
             List<string> list = new List<string>();
             if ((modifier & MOD_ALT) != 0) list.Add("ALT");

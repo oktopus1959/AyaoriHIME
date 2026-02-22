@@ -1185,7 +1185,7 @@ namespace KanchokuWS.TableParser
                         if (sb._notEmpty() && !altKanji.StartsWith("|")) sb.Append('|');
                     }
                     sb.Append(altKanji);
-                    //logger.WarnH($"sb={sb.ToString()}");
+                    //logger.WarnH($"sb={sb.ToDebugString()}");
                 }
             }
             string result;
@@ -1196,7 +1196,7 @@ namespace KanchokuWS.TableParser
                 if (sb._isEmpty()) {
                     result = "";
                 } else {
-                    //var added = sb.ToString();
+                    //var added = sb.ToDebugString();
                     result = bSecondKanjiMap ? sb.ToString() : $"{str}|{sb}";
                 }
             }

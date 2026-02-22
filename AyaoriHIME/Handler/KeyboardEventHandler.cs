@@ -1228,61 +1228,28 @@ namespace KanchokuWS.Handler
 
         private bool invokeHandler(int kanchokuCode, int origDecKey, uint mod, bool rollOverStroke, bool bUnconditional = false)
         {
+            if (kanchokuCode == -1) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"invokeHandler: kanchokuCode={kanchokuCode} is UNDEFINED");
+                kanchokuCode = DecoderKeys.UNDEFINED_DECKEY;
+            }
             if (Settings.LoggingDecKeyInfo) logger.Info(() =>
-                $"ENTER: kanchokuCode={kanchokuCode:x}H({kanchokuCode}={DecoderKeys.GetDeckeyNameFromId(kanchokuCode)}), mod={mod:x}H({mod}), bUnconditional={bUnconditional}, " +
+                $"ENTER: kanchokuCode={DecoderKeys.ToDebugString(kanchokuCode)}, mod={mod:x}H({mod}), bUnconditional={bUnconditional}, " +
                 $"UNCONDITIONAL_DECKEY_OFFSET={DecoderKeys.UNCONDITIONAL_DECKEY_OFFSET}, UNCONDITIONAL_DECKEY_END={DecoderKeys.UNCONDITIONAL_DECKEY_END}");
 
             bool result = false;
 
             if (bInvokeHandlerBusy) {
                 logger.WarnH("Handler Busy");
-            } else {
+            } else if (kanchokuCode >= 0) {
                 bInvokeHandlerBusy = true;
-                result = _invokeHandler(kanchokuCode, origDecKey, mod, bUnconditional, rollOverStroke);
+                if (Settings.LoggingDecKeyInfo) logger.Info("CALL: frmKanchoku.FuncDispatcher()");
+                result = frmKanchoku?.FuncDispatcher(kanchokuCode, origDecKey, mod, bUnconditional, rollOverStroke) ?? false;
             }
             bInvokeHandlerBusy = false;
 
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: result={result}");
 
             return result;
-        }
-
-        private bool _invokeHandler(int kanchokuCode, int origDecKey, uint mod, bool bUnconditional, bool rollOverStroke)
-        {
-            switch (kanchokuCode) {
-                case DecoderKeys.TOGGLE_DECKEY:
-                    frmKanchoku?.ToggleDecoder(0);
-                    return true;
-                case DecoderKeys.MODE_TOGGLE_FOLLOW_CARET_DECKEY:
-                case DecoderKeys.MODE_TOGGLE_FOLLOW_CARET_DECKEY2:
-                    Settings.VirtualKeyboardPosFixedTemporarily = false;
-                    frmKanchoku?.ToggleDecoder(kanchokuCode == DecoderKeys.MODE_TOGGLE_FOLLOW_CARET_DECKEY ? 1 : 2);
-                    return true;
-                case DecoderKeys.ACTIVE_DECKEY:
-                case DecoderKeys.ACTIVE2_DECKEY:
-                    frmKanchoku?.ActivateDecoder();
-                    return true;
-                case DecoderKeys.DEACTIVE_DECKEY:
-                case DecoderKeys.DEACTIVE2_DECKEY:
-                    frmKanchoku?.DeactivateDecoder();
-                    return true;
-                case -1:
-                    return frmKanchoku?.FuncDispatcher(DecoderKeys.UNDEFINED_DECKEY, origDecKey, mod, rollOverStroke) ?? false;
-                default:
-                    if (kanchokuCode >= DecoderKeys.UNCONDITIONAL_DECKEY_OFFSET && kanchokuCode < DecoderKeys.UNCONDITIONAL_DECKEY_END) {
-                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"InvokeDecoderUnconditionally: kanchokuCode={kanchokuCode}");
-                        return frmKanchoku?.InvokeDecoderUnconditionally(kanchokuCode - DecoderKeys.UNCONDITIONAL_DECKEY_OFFSET, mod) ?? false;
-                    }
-                    if (bUnconditional) {
-                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"InvokeDecoderUnconditionally: kanchokuCode={kanchokuCode}, bUncond={bUnconditional}");
-                        return frmKanchoku?.InvokeDecoderUnconditionally(kanchokuCode, mod) ?? false;
-                    }
-                    if (kanchokuCode >= 0) {
-                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"FuncDispatcher: kanchokuCode={kanchokuCode}");
-                        return frmKanchoku?.FuncDispatcher(kanchokuCode, origDecKey, mod, rollOverStroke) ?? false;
-                    }
-                    return false;
-            }
         }
 
     }
