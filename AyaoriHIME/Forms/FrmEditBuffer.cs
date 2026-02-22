@@ -113,6 +113,7 @@ namespace KanchokuWS.Forms
                 return (!(Helper.IsAlphaNumeric(ch) || Helper.IsJapaneseChar(ch)));
             }
 
+            // デコーダの再呼び出しチェック
             if (editTextBox.Text._isEmpty() &&
                 (str._isEmpty() ||
                 (str._safeCount() == 1 && isSpace(chars[0])) ||
@@ -259,7 +260,7 @@ namespace KanchokuWS.Forms
                                     }
                                 }
                                 preText += str[pos];
-                                if (pos == str.Length - 1 && Settings.EditBufferFlushChar._safeIndexOf(str[pos]) >= 0) {
+                                if (pos == str.Length - 1 && Settings.IsEditBufferFlushChar(str[pos])) {
                                     // 末尾のフラッシュ文字
                                     toFlush = true;
                                 }

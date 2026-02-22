@@ -55,6 +55,25 @@ namespace KanchokuWS.Domain
             return (alt ? MOD_ALT : 0) + (ctrl ? MOD_CONTROL : 0) + (shift ? MOD_SHIFT : 0);
         }
 
+        public static string ToString(uint modifier)
+        {
+            List<string> list = new List<string>();
+            if ((modifier & MOD_ALT) != 0) list.Add("ALT");
+            if ((modifier & MOD_CONTROL) != 0) list.Add("CTRL");
+            if ((modifier & MOD_SHIFT) != 0) list.Add("SHIFT");
+            if ((modifier & MOD_WIN) != 0) list.Add("WIN");
+            if ((modifier & MOD_SPACE) != 0) list.Add("SPACE");
+            if ((modifier & MOD_CAPS) != 0) list.Add("CAPS");
+            if ((modifier & MOD_ALNUM) != 0) list.Add("ALNUM");
+            if ((modifier & MOD_NFER) != 0) list.Add("NFER");
+            if ((modifier & MOD_XFER) != 0) list.Add("XFER");
+            if ((modifier & MOD_RSHIFT) != 0) list.Add("RSHIFT");
+            if ((modifier & MOD_LCTRL) != 0) list.Add("LCTRL");
+            if ((modifier & MOD_RCTRL) != 0) list.Add("RCTRL");
+            if ((modifier & MOD_SINGLE) != 0) list.Add("SINGLE");
+            if ((modifier & MOD_LSHIFT) != 0) list.Add("LSHIFT");
+            return $"{modifier:x}({string.Join("+", list)})";
+        }
     }
 
 }
