@@ -1232,9 +1232,9 @@ namespace KanchokuWS.Handler
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"invokeHandler: kanchokuCode={kanchokuCode} is UNDEFINED");
                 kanchokuCode = DecoderKeys.UNDEFINED_DECKEY;
             }
-            if (Settings.LoggingDecKeyInfo) logger.Info(() =>
-                $"ENTER: kanchokuCode={DecoderKeys.ToDebugString(kanchokuCode)}, mod={mod:x}H({mod}), bUnconditional={bUnconditional}, " +
-                $"UNCONDITIONAL_DECKEY_OFFSET={DecoderKeys.UNCONDITIONAL_DECKEY_OFFSET}, UNCONDITIONAL_DECKEY_END={DecoderKeys.UNCONDITIONAL_DECKEY_END}");
+            if (Settings.LoggingDecKeyInfo) {
+                logger.Info(() => $"ENTER: kanchokuCode={DecoderKeys.ToDebugString(kanchokuCode)}, mod={mod:x}H({mod}), bUnconditional={bUnconditional}");
+            }
 
             bool result = false;
 
