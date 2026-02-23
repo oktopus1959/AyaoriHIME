@@ -336,13 +336,27 @@ namespace lattice2 {
         if (startPos < endPos1 && startPos < endPos2) {
             size_t len1 = endPos1 - startPos;
             size_t len2 = endPos2 - startPos;
-            if (len1 == 1 || len2 == 1) {
-                // 1文字差分の場合は、前後の1文字を含めて更新する
+            auto checkShortDiff = [&]() -> bool {
+                if (len1 == 1 || len2 == 1) {
+                    return true;
+                }
+                if (len1 == 2 && (utils::is_hiragana(oldCand[startPos]) || utils::is_hiragana(oldCand[startPos + 1]))) {
+                    // oldCandの2文字のうちどちらかがひらがななら、短い差分としてみなす
+                    return true;
+                }
+                if (len2 == 2 && (utils::is_hiragana(newCand[startPos]) || utils::is_hiragana(newCand[startPos + 1]))) {
+                    // newCandの2文字のうちどちらかがひらがななら、短い差分としてみなす
+                    return true;
+                }
+                return false;
+            };
+            if (checkShortDiff()) {
+                // 2文字以下の差分の場合は、前後の1文字を含めて更新する
                 if (startPos == 0) {
                     // 先頭だったら、〓を前に追加して処理する
-                    if (len1 == 1 && len2 == 1) {
+                    if (len1 <= 2 && len2 <= 2) {
                         if (len1 + 1 <= baseSize && len2 + 1 <= diffSize) {
-                            // 両者ともに1文字差分の場合は、後ろ1文字も含めて処理する
+                            // 両者ともに2文字以下の差分の場合は、後ろ1文字も含めて処理する
                             selectedNgramInstance.updateSelectedNgram(
                                 MSTR_GETA + newCand.substr(startPos, len2 + 1),
                                 MSTR_GETA + oldCand.substr(startPos, len1 + 1));
@@ -366,7 +380,7 @@ namespace lattice2 {
                         oldCand.substr(startPos, len1));
                 }
             } else if (len1 <= MAX_SELECTED_NGRAM_LEN && len2 <= MAX_SELECTED_NGRAM_LEN) {
-                // 2~5文字の差分の場合は、そのまま更新する
+                // 3~5文字の差分の場合は、そのまま更新する
                 selectedNgramInstance.updateSelectedNgram(
                     newCand.substr(startPos, len2),
                     oldCand.substr(startPos, len1));
