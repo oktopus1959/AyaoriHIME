@@ -501,7 +501,10 @@ namespace lattice2 {
             const MString& candStr = newCandStr.string();
             //MString targetStr = substringBetweenPunctuations(candStr);
             //MString targetStr = substringBetweenNonJapaneseChars(candStr);
-            int headLen = minLen > (size_t)SETTINGS->analyzeMorphLen + 1 ? (int)minLen - SETTINGS->analyzeMorphLen : 0;
+            //int analyzeMorphLen = SETTINGS->analyzeMorphLen;
+            int analyzeMorphLen = (SETTINGS->variableTailLength * 3) / 2;
+            if (analyzeMorphLen < SETTINGS->analyzeMorphLen) analyzeMorphLen = SETTINGS->analyzeMorphLen;
+            int headLen = minLen > (size_t)analyzeMorphLen + 1 ? (int)minLen - analyzeMorphLen : 0;
             MString subStr = removeHeadSubstring(candStr, headLen);
             _LOG_DETAIL(_T("candStr={}, minLen={}, headLen={}, subStr={}"), to_wstr(candStr), minLen, headLen, to_wstr(subStr));
 
@@ -649,6 +652,7 @@ namespace lattice2 {
         }
 
         // beamSize を超えた部分を削除する
+        // また、variableTailLength より前の部分が、kBestのトップの文字列と異なる候補は削除する
         // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
         void truncateTailCandidates(std::vector<CandidateString>& newCandidates) {
             _LOG_DETAIL(_T("ENTER: newCandidates.size={}, beamSieze={}, extraBeamSizeRate={}"), newCandidates.size(), SETTINGS->multiStreamBeamSize, SETTINGS->extraBeamSizeRate);
@@ -660,66 +664,76 @@ namespace lattice2 {
             bool bNonPaddingFound = false;  // Padding piece を含まない候補が見つかったか
             size_t pos = 0;
             size_t pickCount = 0;
-            while (pos < newCandidates.size()) {
-                auto iter = newCandidates.begin() + pos;
-                const MString& str = iter->string();
-                const MString uni = str.size() >= 1 ? utils::safe_tailstr(str, 1) : EMPTY_MSTR;
-                const MString bi = str.size() >= 2 ? utils::safe_tailstr(str, 2) : EMPTY_MSTR;
-                const MString tri = str.size() >= 3 ? utils::safe_tailstr(str, 3) : EMPTY_MSTR;
-                if (iter->penalty() < PADDING_PENALTY) bNonPaddingFound = true;
-                // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
-                if (!bNonPaddingFound || iter->penalty() < PADDING_PENALTY) {
-                    if (pos < beamSize) {
-                        if (!uni.empty()) uniGrams.insert(uni);
-                        if (!bi.empty()) biGrams.insert(bi);
-                        if (!tri.empty()) triGrams.insert(tri);
-                        _LOG_DETAIL(_T("[{}] PICK: {}: OK"), pos, iter->debugString());
-                        ++pos;
-                        ++pickCount;
-                        continue;
-                    } else {
-                        if (IS_LOG_DEBUGH_ENABLED && pos == beamSize) {
-                            _LOG_DETAIL(_T("pos reached at beamSize={}, beamSize2={}"), beamSize, beamSize2);
-                            _LOG_DETAIL(_T("tail 1grams={}"), to_wstr(utils::join(uniGrams, ',')));
-                            _LOG_DETAIL(_T("tail 2gams={}"), to_wstr(utils::join(biGrams, ',')));
-                            _LOG_DETAIL(_T("tail 3grams={}"), to_wstr(utils::join(triGrams, ',')));
-                        }
-                        if (iter->isNonTerminal()) {
-                            // 非終端は残す(pickCountしない)
-                            _LOG_DETAIL(_T("[{}]: PICK: {}: non terminal"), pos, iter->debugString());
-                            ++pos;
-                            continue;
-                        }
-                        if (!uni.empty() && uniGrams.find(uni) == uniGrams.end()) {
-                            // 未見のunigramは残す(pickCountしない)
-                            uniGrams.insert(uni);
-                            _LOG_DETAIL(_T("[{}] PICK: {}: uniGram({}) OK, uniGrams.size={}"), pos, iter->debugString(), to_wstr(uni), uniGrams.size());
-                            ++pos;
-                            continue;
-                        }
-                        if (pickCount < beamSize2) {
-                            // まだ余裕がある
-                            if (!tri.empty() && triGrams.find(tri) == triGrams.end()) {
-                                // 未見のtrigramであり、まだ余裕がある
-                                triGrams.insert(tri);
-                                _LOG_DETAIL(_T("[{}] PICK: {}: triGram({}) OK, triGrams.size={}"), pos, iter->debugString(), to_wstr(tri), triGrams.size());
+            if (!newCandidates.empty()) {
+                const MString& topStr = newCandidates.front().string();
+                MString topHead;
+                if (SETTINGS->variableTailLength > 0 && (size_t)SETTINGS->variableTailLength < topStr.size()) {
+                    // variableTailLength より前の部分が、kBestのトップの文字列と異なる候補は削除する
+                    topHead = topStr.substr(0, topStr.size() - SETTINGS->variableTailLength);
+                }
+                while (pos < newCandidates.size()) {
+                    auto iter = newCandidates.begin() + pos;
+                    const MString& str = iter->string();
+                    const MString uni = str.size() >= 1 ? utils::safe_tailstr(str, 1) : EMPTY_MSTR;
+                    const MString bi = str.size() >= 2 ? utils::safe_tailstr(str, 2) : EMPTY_MSTR;
+                    const MString tri = str.size() >= 3 ? utils::safe_tailstr(str, 3) : EMPTY_MSTR;
+                    if (iter->penalty() < PADDING_PENALTY) bNonPaddingFound = true;
+                    if (topHead.size() == 0 || utils::startsWith(str, topHead)) {
+                        // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
+                        if (!bNonPaddingFound || iter->penalty() < PADDING_PENALTY) {
+                            if (pos < beamSize) {
+                                if (!uni.empty()) uniGrams.insert(uni);
+                                if (!bi.empty()) biGrams.insert(bi);
+                                if (!tri.empty()) triGrams.insert(tri);
+                                _LOG_DETAIL(_T("[{}] PICK: {}: OK"), pos, iter->debugString());
                                 ++pos;
                                 ++pickCount;
                                 continue;
-                            }
-                            if (!bi.empty() && biGrams.find(bi) == biGrams.end()) {
-                                // 未見のbigramであり、まだ余裕がある
-                                biGrams.insert(bi);
-                                _LOG_DETAIL(_T("[{}] PICK: {}: biGram({}) OK, biGrams.size={}"), pos, iter->debugString(), to_wstr(bi), biGrams.size());
-                                ++pos;
-                                ++pickCount;
-                                continue;
+                            } else {
+                                if (IS_LOG_DEBUGH_ENABLED && pos == beamSize) {
+                                    _LOG_DETAIL(_T("pos reached at beamSize={}, beamSize2={}"), beamSize, beamSize2);
+                                    _LOG_DETAIL(_T("tail 1grams={}"), to_wstr(utils::join(uniGrams, ',')));
+                                    _LOG_DETAIL(_T("tail 2gams={}"), to_wstr(utils::join(biGrams, ',')));
+                                    _LOG_DETAIL(_T("tail 3grams={}"), to_wstr(utils::join(triGrams, ',')));
+                                }
+                                if (iter->isNonTerminal()) {
+                                    // 非終端は残す(pickCountしない)
+                                    _LOG_DETAIL(_T("[{}]: PICK: {}: non terminal"), pos, iter->debugString());
+                                    ++pos;
+                                    continue;
+                                }
+                                if (!uni.empty() && uniGrams.find(uni) == uniGrams.end()) {
+                                    // 未見のunigramは残す(pickCountしない)
+                                    uniGrams.insert(uni);
+                                    _LOG_DETAIL(_T("[{}] PICK: {}: uniGram({}) OK, uniGrams.size={}"), pos, iter->debugString(), to_wstr(uni), uniGrams.size());
+                                    ++pos;
+                                    continue;
+                                }
+                                if (pickCount < beamSize2) {
+                                    // まだ余裕がある
+                                    if (!tri.empty() && triGrams.find(tri) == triGrams.end()) {
+                                        // 未見のtrigramであり、まだ余裕がある
+                                        triGrams.insert(tri);
+                                        _LOG_DETAIL(_T("[{}] PICK: {}: triGram({}) OK, triGrams.size={}"), pos, iter->debugString(), to_wstr(tri), triGrams.size());
+                                        ++pos;
+                                        ++pickCount;
+                                        continue;
+                                    }
+                                    if (!bi.empty() && biGrams.find(bi) == biGrams.end()) {
+                                        // 未見のbigramであり、まだ余裕がある
+                                        biGrams.insert(bi);
+                                        _LOG_DETAIL(_T("[{}] PICK: {}: biGram({}) OK, biGrams.size={}"), pos, iter->debugString(), to_wstr(bi), biGrams.size());
+                                        ++pos;
+                                        ++pickCount;
+                                        continue;
+                                    }
+                                }
                             }
                         }
                     }
+                    _LOG_DETAIL(_T("[{}] ERASE: {}"), pos, iter->debugString());
+                    newCandidates.erase(iter);
                 }
-                _LOG_DETAIL(_T("[{}] ERASE: {}"), pos, iter->debugString());
-                newCandidates.erase(iter);
             }
             if (pos < newCandidates.size()) {
                 newCandidates.resize(pos);

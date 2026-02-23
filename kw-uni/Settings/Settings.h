@@ -133,6 +133,7 @@ struct Settings {
     int multiStreamBeamSize = 10;           // multi-stream モードでのBeamSize
     double extraBeamSizeRate = 0.5;         // 余分に残しておく候補の割合
     int remainingStrokeSize = 5;            // 残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
+    int variableTailLength = 10;            // 入力の末尾部分で、可変となる部分の長さ
     int challengeNumForSameLeader = 4;      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
     int kanjiNoKanjiBonus = 1500;           // 「漢字+の+漢字」のような場合に与えるボーナス
     int loweredContinuousKanjiNum = 0;      // 連続するN文字の漢字列にはコストを与える

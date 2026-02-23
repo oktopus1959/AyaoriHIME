@@ -241,6 +241,9 @@ namespace KanchokuWS
         /// <summary>残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)</summary>
         public static int RemainingStrokeSize { get; set; }
 
+        /// <summary>入力の末尾部分で、可変となる部分の長さ</summary>
+        public static int VariableTailLength { get; set; }
+
         /// <summary>解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数</summary>
         public static int ChallengeNumForSameLeader { get; set; }
 
@@ -1900,6 +1903,7 @@ namespace KanchokuWS
             MultiStreamBeamSize = addDecoderSetting("multiStreamBeamSize", 10);                 // 融合モードにおける解探索のビームサイズ
             ExtraBeamSizeRate = addDecoderSetting("extraBeamSizeRate", 0.5);                    // 余分に残しておく候補の割合
             RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲
+            VariableTailLength = addDecoderSetting("variableTailLength", 10, 8);                // 入力の末尾部分で、可変となる部分の長さ
             ChallengeNumForSameLeader = addDecoderSetting("challengeNumForSameLeader", 4);      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
             KanjiNoKanjiBonus = addDecoderSetting("kanjiNoKanjiBonus", 1500);                   // 「漢字+の+漢字」のような場合に与えるボーナス
             MergerCandidateMin = addDecoderSetting("mergerCandidateMin", 3, 0, 10);             // 複数候補表示の最小数
