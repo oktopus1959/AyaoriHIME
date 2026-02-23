@@ -7,6 +7,15 @@
 #include "StrokeTable.h"
 #include "Settings.h"
 
+#if 1
+#undef LOG_INFO
+#undef LOG_DEBUGH
+#undef LOG_DEBUG
+#define LOG_INFO LOG_INFOH
+#define LOG_DEBUGH LOG_INFOH
+#define LOG_DEBUG LOG_INFOH
+#endif
+
 DEFINE_LOCAL_LOGGER(Settings);
 
 namespace {
@@ -21,21 +30,26 @@ namespace {
     inline wchar_t safe_get_head_char(StringRef s) {
         return s.empty() ? '\0' : s[0];
     }
+
+    inline bool make_bool(StringRef s, bool defaultValue) {
+        return s.empty() ? defaultValue : utils::strToBool(s);
+    }
 }
 
 void Settings::SetValues(const std::map<String, String>& dict) {
 
-#define SET_KEY_VALUE(k) k = utils::safe_get(dict, String(_T(#k))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_ROOT_FILE_PATH(k) k = make_path(SETTINGS->rootDir, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_SYSTEM_FILE_PATH(k) k = make_path(SETTINGS->rootDir, SETTINGS->systemFilesFolder, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_USER_FILE_PATH(k) k = make_path(SETTINGS->rootDir, SETTINGS->userFilesFolder, utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_CHAR_VALUE(k) k = safe_get_head_char(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_INT_VALUE(k) k = utils::strToInt(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_INT_VALUE2(k,d) k = utils::strToInt(utils::safe_get(dict, String(_T(#k))), d); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_UINT_VALUE(k) k = (size_t)utils::strToInt(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_DOUBLE_VALUE(k) k = utils::strToDouble(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define SET_BOOL_VALUE(k) k = utils::strToBool(utils::safe_get(dict, String(_T(#k)))); LOG_DEBUGH(_T(#k "={}"), k)
-#define GET_BOOL_VALUE(k) utils::strToBool(utils::safe_get(dict, String(_T(#k))))
+#define GET_VALUE(k) utils::safe_get(dict, String(_T(#k)))
+#define SET_KEY_VALUE(k) k = GET_VALUE(k); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_ROOT_FILE_PATH(k) k = make_path(SETTINGS->rootDir, GET_VALUE(k)); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_SYSTEM_FILE_PATH(k) k = make_path(SETTINGS->rootDir, SETTINGS->systemFilesFolder, GET_VALUE(k)); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_USER_FILE_PATH(k) k = make_path(SETTINGS->rootDir, SETTINGS->userFilesFolder, GET_VALUE(k)); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_CHAR_VALUE(k) k = safe_get_head_char(GET_VALUE(k)); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_INT_VALUE(k) k = utils::strToInt(GET_VALUE(k), k); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_INT_VALUE2(k,d) k = utils::strToInt(GET_VALUE(k), d); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_UINT_VALUE(k) k = (size_t)utils::strToInt(GET_VALUE(k), k); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_DOUBLE_VALUE(k) k = utils::strToDouble(GET_VALUE(k), k); LOG_DEBUGH(_T(#k "={}"), k)
+#define SET_BOOL_VALUE(k) k = make_bool(GET_VALUE(k), k); LOG_DEBUGH(_T(#k "={}"), k)
+#define GET_BOOL_VALUE(k) utils::strToBool(GET_VALUE(k))
 #define RESET_STROKE_FUNC(k) StrokeTableNode::AssignFucntion(utils::safe_get(dict, String(_T(k "KeySeq"))), _T(k))
 
     SET_BOOL_VALUE(firstUse);
