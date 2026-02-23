@@ -270,13 +270,69 @@ namespace lattice2 {
         return { startPos, len1, len2 };
     }
 
+    // 2つの文字列の最初の差分部分を見つける(拡張版)
+    // * findFirstDiff と同様に、先頭共通部の直後から、次に同じ文字で再同期できる最初の位置までを差分として返す
+    // * ただし、再同期した部分が1文字だけで、次の文字からまた差分がある場合は、その再同期した1文字も含めて差分とみなす
+    //   (例: 「おのれの」と「その学」は、2文字目の「の」を含んで差分とみなす)
+    // 戻り値: (startPos, endPos1, endPos2) (「先頭共通部の直後から、次に同じ文字で再同期できる最初の位置まで」を差分として返す)
+    std::tuple<size_t, size_t, size_t> findFirstDiffEx(const MString& s1, const MString& s2) {
+        size_t len1 = s1.size();
+        size_t len2 = s2.size();
+        size_t startPos = 0;
+        // 最初に差分がある位置まで進む
+        while (startPos < len1 && startPos < len2 && s1[startPos] == s2[startPos]) {
+            ++startPos;
+        }
+
+        auto checkResync = [&](size_t endPos1, size_t endPos2) -> int {
+            if (s1[endPos1] == s2[endPos1]) {
+                if (endPos1 + 1 < len1 && endPos2 + 1 < len2 && s1[endPos1 + 1] != s2[endPos2 + 1]) {
+                    return 1;
+                }
+                return 0;
+            }
+            return -1;
+        };
+
+        if (startPos < len1 && startPos < len2) {
+            size_t endPos = startPos + 1;
+            while (endPos < len1 && endPos < len2) {
+                int res = checkResync(endPos, endPos);
+                if (res > 0) {
+                    return { startPos, endPos, endPos };
+                } else if (res < 0) {
+                    size_t pos = endPos - 1;
+                    while (pos > startPos) {
+                        res = checkResync(pos, endPos);
+                        if (res > 0) {
+                            return { startPos, pos, endPos };
+                        }
+                        if (res == 0) {
+                            break;
+                        }
+                        res = checkResync(endPos, pos);
+                        if (res > 0) {
+                            return { startPos, endPos, pos };
+                        }
+                        if (res == 0) {
+                            break;
+                        }
+                        --pos;
+                    }
+                }
+                ++endPos;
+            }
+        }
+        return { startPos, len1, len2 };
+    }
+
     // 候補選択による、SelectedNgramの更新
     void updateSelectedNgramByUserSelect(const MString& oldCand, const MString& newCand) {
         LOG_INFOH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
         size_t baseSize = oldCand.size();
         size_t diffSize = newCand.size();
         LOG_DEBUGH(L"baseSize={}, diffSize={}", baseSize, diffSize);
-        auto [startPos, endPos1, endPos2] = findFirstDiff(oldCand, newCand);
+        auto [startPos, endPos1, endPos2] = findFirstDiffEx(oldCand, newCand);
         if (startPos < endPos1 && startPos < endPos2) {
             size_t len1 = endPos1 - startPos;
             size_t len2 = endPos2 - startPos;

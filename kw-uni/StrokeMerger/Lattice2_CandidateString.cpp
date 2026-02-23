@@ -516,6 +516,7 @@ namespace lattice2 {
             // 素片のストローク数が適合した
             if (piece.rewriteNode()) {
                 // 書き換えノード
+                LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
                 const RewriteInfo* rewInfo;
                 int numBS = 0;
                 std::tie(rewInfo, numBS) = matchWithTailString(piece.rewriteNode());
@@ -524,6 +525,7 @@ namespace lattice2 {
                 if (rewInfo) {
                     // 末尾にマッチする書き換え情報があった
                     for (MString s : split_piece_str(rewInfo->rewriteStr)) {
+                        LOG_DEBUGH(_T("add rewrite piece: {}"), to_wstr(s));
                         ss.push_back(utils::safe_substr(_str, 0, -numBS) + s);
                         if (!SETTINGS->multiCandidateMode) {
                             // 単一候補モードの場合は最初の候補だけを追加
@@ -533,9 +535,9 @@ namespace lattice2 {
                     }
                 }
                 if (!bRewriteFound) {
-                    // 書き換えない候補も追加
+                    // 複数候補モードの場合か、書き換えがなかったら場合は、書き換えない候補も追加
                     // 複数文字が設定されたストロークの扱い
-                    LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
+                    LOG_DEBUGH(_T("add Non-rewrite pieces: {}"), to_wstr(piece.rewriteNode()->getString()));
                     for (MString s : split_piece_str(piece.rewriteNode()->getString())) {
                         ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
                     }
