@@ -6208,6 +6208,8 @@ namespace KanchokuWS.Gui
             this.tabPage_fusion.Controls.Add(this.groupBox34);
             this.tabPage_fusion.Controls.Add(this.textBox_analyzeMorphLen);
             this.tabPage_fusion.Controls.Add(this.groupBox8);
+            this.tabPage_fusion.Controls.Add(this.textBox_maxStrokeBackCount);
+            this.tabPage_fusion.Controls.Add(this.label46);
             this.tabPage_fusion.Controls.Add(this.label159);
             this.tabPage_fusion.Controls.Add(this.checkBox_useMorphAndNgramAnalyzer);
             this.tabPage_fusion.Controls.Add(this.groupBox51);
@@ -6263,7 +6265,7 @@ namespace KanchokuWS.Gui
             this.groupBox44.Controls.Add(this.checkBox_outputHeadSymbol);
             this.groupBox44.Controls.Add(this.textBox_editBufferFlushChar);
             this.groupBox44.Controls.Add(this.label158);
-            this.groupBox44.Location = new System.Drawing.Point(15, 175);
+            this.groupBox44.Location = new System.Drawing.Point(15, 150);
             this.groupBox44.Name = "groupBox44";
             this.groupBox44.Size = new System.Drawing.Size(335, 133);
             this.groupBox44.TabIndex = 1;
@@ -6485,13 +6487,11 @@ namespace KanchokuWS.Gui
             this.groupBox8.Controls.Add(this.textBox_mergerCandidateMin);
             this.groupBox8.Controls.Add(this.checkBox_multiCandidateMode);
             this.groupBox8.Controls.Add(this.checkBox_strokeBackByBS);
-            this.groupBox8.Controls.Add(this.textBox_maxStrokeBackCount);
-            this.groupBox8.Controls.Add(this.label46);
             this.groupBox8.Controls.Add(this.label168);
             this.groupBox8.Controls.Add(this.textBox_remainingStrokeSize);
             this.groupBox8.Location = new System.Drawing.Point(15, 12);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(335, 152);
+            this.groupBox8.Size = new System.Drawing.Size(335, 128);
             this.groupBox8.TabIndex = 0;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "基本設定";
@@ -6499,7 +6499,7 @@ namespace KanchokuWS.Gui
             // label112
             // 
             this.label112.AutoSize = true;
-            this.label112.Location = new System.Drawing.Point(9, 128);
+            this.label112.Location = new System.Drawing.Point(9, 104);
             this.label112.Name = "label112";
             this.label112.Size = new System.Drawing.Size(141, 15);
             this.label112.TabIndex = 83;
@@ -6508,7 +6508,7 @@ namespace KanchokuWS.Gui
             // textBox_mergerCandidateMax
             // 
             this.textBox_mergerCandidateMax.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_mergerCandidateMax.Location = new System.Drawing.Point(164, 126);
+            this.textBox_mergerCandidateMax.Location = new System.Drawing.Point(164, 102);
             this.textBox_mergerCandidateMax.Name = "textBox_mergerCandidateMax";
             this.textBox_mergerCandidateMax.Size = new System.Drawing.Size(34, 19);
             this.textBox_mergerCandidateMax.TabIndex = 5;
@@ -6519,7 +6519,7 @@ namespace KanchokuWS.Gui
             // label113
             // 
             this.label113.AutoSize = true;
-            this.label113.Location = new System.Drawing.Point(9, 106);
+            this.label113.Location = new System.Drawing.Point(9, 82);
             this.label113.Name = "label113";
             this.label113.Size = new System.Drawing.Size(153, 15);
             this.label113.TabIndex = 82;
@@ -6528,7 +6528,7 @@ namespace KanchokuWS.Gui
             // textBox_mergerCandidateMin
             // 
             this.textBox_mergerCandidateMin.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_mergerCandidateMin.Location = new System.Drawing.Point(164, 104);
+            this.textBox_mergerCandidateMin.Location = new System.Drawing.Point(164, 80);
             this.textBox_mergerCandidateMin.Name = "textBox_mergerCandidateMin";
             this.textBox_mergerCandidateMin.Size = new System.Drawing.Size(34, 19);
             this.textBox_mergerCandidateMin.TabIndex = 4;
@@ -6561,7 +6561,7 @@ namespace KanchokuWS.Gui
             // textBox_maxStrokeBackCount
             // 
             this.textBox_maxStrokeBackCount.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_maxStrokeBackCount.Location = new System.Drawing.Point(30, 81);
+            this.textBox_maxStrokeBackCount.Location = new System.Drawing.Point(27, 338);
             this.textBox_maxStrokeBackCount.Name = "textBox_maxStrokeBackCount";
             this.textBox_maxStrokeBackCount.Size = new System.Drawing.Size(34, 19);
             this.textBox_maxStrokeBackCount.TabIndex = 3;
@@ -6569,15 +6569,17 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.textBox_maxStrokeBackCount, "指定回数BSを打鍵すると本来のBS動作に戻る\r\n\r\nデフォルトのBS動作設定になっている場合に、ここで指定した\r\n回数だけBSを連続打鍵したら、本来のBSの動作、" +
         "すなわち、\r\n表示されている文字列の末尾の文字を直接削除するように\r\nなります。\r\n\r\n0 に設定すると、「BSを本来の動作に戻す」をONにしない限り、\r\n本来" +
         "のBS動作には戻りません。");
+            this.textBox_maxStrokeBackCount.Visible = false;
             // 
             // label46
             // 
             this.label46.AutoSize = true;
-            this.label46.Location = new System.Drawing.Point(66, 83);
+            this.label46.Location = new System.Drawing.Point(63, 340);
             this.label46.Name = "label46";
             this.label46.Size = new System.Drawing.Size(201, 15);
             this.label46.TabIndex = 77;
             this.label46.Text = "回の連続BS打鍵で本来のBS動作に戻る";
+            this.label46.Visible = false;
             // 
             // label168
             // 
@@ -7752,6 +7754,7 @@ namespace KanchokuWS.Gui
             this.label159.Size = new System.Drawing.Size(125, 15);
             this.label159.TabIndex = 85;
             this.label159.Text = "形態素解析の文字列長";
+            this.label159.Visible = false;
             // 
             // textBox_analyzeMorphLen
             // 
@@ -7763,6 +7766,7 @@ namespace KanchokuWS.Gui
             this.textBox_analyzeMorphLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_analyzeMorphLen, "形態素解析実行時の最大文字列長\r\n\r\n入力文字列に対してその妥当性を計るために形態素解析を実行しています。\r\nその際に、実行時間の短縮のため入力文字列全体ではなく" +
         "、ここで設定された\r\n長さの末尾部分文字列を対象とします。\r\n");
+            this.textBox_analyzeMorphLen.Visible = false;
             // 
             // DlgSettings
             // 
