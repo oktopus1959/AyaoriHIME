@@ -177,11 +177,12 @@ namespace MazegakiPreprocessor {
         if (items.size() < 2 || items.size() > 4) {
             return line;
         }
-        auto yomi = items[0];
-        auto base = items[1];
-        if (yomi.empty() || base.empty()) {
+        if (items[0].empty() || items[1].empty()) {
             return line;
         }
+        bool firstIsYomi = utils::is_hiragana_str(items[0]);
+        auto yomi = firstIsYomi ? items[0] : items[1];
+        auto base = firstIsYomi ? items[1] : items[0];
         auto hinshi = items.size() <= 2 || items[2].empty() ? L"名詞" : items[2];
         if (hinshi == L"地名") {
             hinshi = L"地域";
@@ -627,8 +628,8 @@ namespace MazegakiPreprocessor {
             return false;
         }
 
-        if (kFormExpandFlag || bUserDic) {
-            // 活用形の展開(or ユーザー辞書形式)の場合、標準形に変換
+        if (bUserDic) {
+            // ユーザー辞書形式の場合、標準形に変換
             line = convertToNormalForm(line);
         }
 

@@ -703,8 +703,16 @@ namespace utils
         return last_substr(s, n);
     }
 
-    inline bool is_hirakana(mchar_t ch) {
+    inline bool is_hirakana(wchar_t ch) {
         return ch >= 0x3041 && ch <= 0x3096;    // 'ぁ' 〜 '小け'
+    }
+
+    inline bool is_hirakana(mchar_t ch) {
+        return is_hirakana(wchar_t(ch));
+    }
+
+    inline bool is_hiragana(wchar_t ch) {
+        return is_hirakana(ch);
     }
 
     inline bool is_hiragana(mchar_t ch) {
@@ -754,6 +762,14 @@ namespace utils
 
     inline bool is_kanji_or_katakana(mchar_t ch) {
         return is_kanji(ch) || is_katakana(ch);
+    }
+
+    template<typename T>
+    inline bool is_hiragana_str(const T& s) {
+        for (auto ch : s) {
+            if (!is_hiragana(ch)) return false;
+        }
+        return true;
     }
 
     template<typename T>
