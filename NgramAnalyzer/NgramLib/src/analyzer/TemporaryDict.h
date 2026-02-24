@@ -6,17 +6,20 @@ namespace analyzer {
     class TemporaryDict {
         std::set<wchar_t> firstChars;
         std::set<String> entries;
+        size_t maxEntryLen = 0;
 
         void addEntry(const String& entry) {
             if (!entry.empty()) {
                 firstChars.insert(entry[0]);
                 entries.insert(entry);
+                if (entry.length() > maxEntryLen) maxEntryLen = entry.length();
             }
         }
 
         void clear() {
             firstChars.clear();
             entries.clear();
+            maxEntryLen = 0;
         }
 
     public:
@@ -35,6 +38,10 @@ namespace analyzer {
 
         bool hasFirstChar(wchar_t ch) const {
             return firstChars.find(ch) != firstChars.end();
+        }
+
+        size_t getMaxEntryLen() const {
+            return maxEntryLen;
         }
     };
 }

@@ -96,11 +96,12 @@ namespace analyzer {
          * 単語の辞書引きと先行ノードとの接続処理を行って、ラティス構造を構築する。
          */
         void viterbi(LatticePtr lattice, StringRef tempDictEntries) {
-            LOG_INFO(L"ENTER");
             auto sentence = lattice->sentence;
             auto len = sentence->length();
             auto begin = sentence->begin();
             auto end = sentence->end();
+
+            LOG_INFO(L"ENTER: lattice->sentence={}, tempDictEntries={}", sentence->toString(), tempDictEntries);
 
             // 処理前の番兵ノード
             auto bos_node = lattice->bosNode();

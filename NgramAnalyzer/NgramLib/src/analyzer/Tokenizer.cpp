@@ -10,8 +10,10 @@
 #include "TemporaryDict.h"
 
 #if 0
+#undef LOG_INFO
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
+#define LOG_INFO LOG_INFOH
 #define LOG_DEBUGH LOG_INFOH
 #define LOG_DEBUG LOG_INFOH
 #endif
@@ -22,7 +24,7 @@ namespace analyzer {
     int UNKNOWN_KANJI_COST = 5000;
     int UNKNOWN_KANJI_MAX_LEN = 4;
 
-    int MORPH_ENTRY_COST = 5000;
+    int MORPH_ENTRY_COST = 7000;
 
     //-----------------------------------------------------------------------------
     /**
@@ -114,12 +116,14 @@ namespace analyzer {
                     }
                 }
             }
-            if (maxLen < 2) {
-                // 辞書引きしても2gram以上が得られなかったら、TemporaryDictを検索してみる(5文字まで)
-                for (size_t len = 2; begin2 + len <= end && len <= 5; ++len) {
+            // TemporaryDictも検索してみる(5文字まで)
+            if (tempDict.hasFirstChar(rngStrPtr->charAt(begin2))) {
+                size_t maxEntryLen = tempDict.getMaxEntryLen();
+                for (size_t len = 2; begin2 + len <= end && len <= 5 && len <= maxEntryLen; ++len) {
                     auto substr = rngStrPtr->toString(begin2, begin2 + len);
                     if (tempDict.hasEntry(substr)) {
                         __addNewNode(MORPH_ENTRY_COST, begin2 + len);
+                        LOG_DEBUG(L"tempDict entry added: {}", substr);
                     }
                 }
             }
