@@ -125,7 +125,7 @@ struct Settings {
     int ngramMaxBonusPoint = 25;            // Ngramに与えるボーナスポイントの最大値
     int ngramBonusPointFactor = 100;        // 嵩上げされたNgramに与えるボーナスの係数
     int ngramManualSelectDelta = 10;        // 候補選択によるNgramカウントの変動幅
-    int mazegakiBonusPointFactor = 1000;    // 交ぜ書きで選択された候補に対するボーナス
+    int mazegakiBonusPointFactor = 2000;    // 交ぜ書きで選択された候補に対するボーナス
     //bool commitByPunctuation = true;        // 句読点でコミットする
     bool outputHeadSymbol = true;           // 先頭の記号類をそのまま出力する
     bool strokeBackByBS = false;            // BSで打鍵取消を行う
