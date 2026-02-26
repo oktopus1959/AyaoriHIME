@@ -195,7 +195,7 @@ namespace lattice2 {
                     bUpdated = true;
                 }
             }
-            _LOG_DETAIL(L"key={}, bonusPoint={}", to_wstr(key), bonusPoint);
+            LOG_INFOH(L"key={}, bonusPoint={}", to_wstr(key), bonusPoint);
         }
 
         //void updateSelectedNgram(const MString& posi, const MString& nega, bool geta) {
@@ -331,8 +331,8 @@ namespace lattice2 {
         LOG_INFOH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
         size_t baseSize = oldCand.size();
         size_t diffSize = newCand.size();
-        LOG_DEBUGH(L"baseSize={}, diffSize={}", baseSize, diffSize);
         auto [startPos, endPos1, endPos2] = findFirstDiffEx(oldCand, newCand);
+        LOG_INFOH(L"startPos={}, endPos1={}, endPos2={}, baseSize={}, diffSize={}", startPos, endPos1, endPos2, baseSize, diffSize);
         if (startPos < endPos1 && startPos < endPos2) {
             size_t len1 = endPos1 - startPos;
             size_t len2 = endPos2 - startPos;
@@ -352,20 +352,22 @@ namespace lattice2 {
             };
             if (checkShortDiff()) {
                 // 2文字以下の差分の場合は、前後の1文字を含めて更新する
+                LOG_INFOH(L"short diff");
                 if (startPos == 0) {
                     // 先頭だったら、〓を前に追加して処理する
+                    size_t lenx1 = len1;
+                    size_t lenx2 = len2;
                     if (len1 <= 2 && len2 <= 2) {
                         if (len1 + 1 <= baseSize && len2 + 1 <= diffSize) {
                             // 両者ともに2文字以下の差分の場合は、後ろ1文字も含めて処理する
-                            selectedNgramInstance.updateSelectedNgram(
-                                MSTR_GETA + newCand.substr(startPos, len2 + 1),
-                                MSTR_GETA + oldCand.substr(startPos, len1 + 1));
+                            LOG_INFOH(L"apped postfix char");
+                            ++lenx1;
+                            ++lenx2;
                         }
-                    } else {
-                        selectedNgramInstance.updateSelectedNgram(
-                            MSTR_GETA + newCand.substr(startPos, len2),
-                            MSTR_GETA + oldCand.substr(startPos, len1));
                     }
+                    selectedNgramInstance.updateSelectedNgram(
+                        MSTR_GETA + newCand.substr(startPos, lenx2),
+                        MSTR_GETA + oldCand.substr(startPos, lenx1));
                 }
                 ++len1;
                 ++len2;
@@ -381,6 +383,7 @@ namespace lattice2 {
                 }
             } else if (len1 <= MAX_SELECTED_NGRAM_LEN && len2 <= MAX_SELECTED_NGRAM_LEN) {
                 // 3~5文字の差分の場合は、そのまま更新する
+                LOG_INFOH(L"long diff");
                 selectedNgramInstance.updateSelectedNgram(
                     newCand.substr(startPos, len2),
                     oldCand.substr(startPos, len1));
