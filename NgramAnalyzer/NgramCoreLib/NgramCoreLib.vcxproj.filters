@@ -1,0 +1,330 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ソース ファイル\analyzer">
+      <UniqueIdentifier>{f7ae7c2b-eadf-4e8f-a902-2e547b1df960}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\compiler">
+      <UniqueIdentifier>{e2ead907-49c4-438a-80a7-a589c8da2120}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\darts">
+      <UniqueIdentifier>{960acd0e-5d99-40b7-b18d-1dd020c35c65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\dict">
+      <UniqueIdentifier>{e53513d5-bfd5-4df1-8f4a-9522aafa81f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\node">
+      <UniqueIdentifier>{4e5b2fb9-41a9-4d56-be0e-37b834688339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\reporting">
+      <UniqueIdentifier>{30f7be22-5641-4e2b-a14d-4df54745132b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\unitTest">
+      <UniqueIdentifier>{ff81da20-2616-4eff-a7f7-ee6231c76cde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\unitTest\analyzer">
+      <UniqueIdentifier>{0200d4be-c188-4124-a91c-92fe47e8dc1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\unitTest\compiler">
+      <UniqueIdentifier>{9f5e9dcd-9c9a-4cf4-b84e-a2e721a3c304}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\unitTest\darts">
+      <UniqueIdentifier>{2310c136-0f81-4100-814f-901f617e5e07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\unitTest\dict">
+      <UniqueIdentifier>{05b73420-c9bd-43e6-bd90-69f9538008a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\unitTest\util">
+      <UniqueIdentifier>{b4f225f4-8b0f-41d6-9250-ecbd714d494a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\util">
+      <UniqueIdentifier>{20e916ab-bd0e-4457-8163-5da7441f9872}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\analyzer">
+      <UniqueIdentifier>{2ba156a7-df61-4fd8-a45b-2a573080b952}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\compiler">
+      <UniqueIdentifier>{d8c578be-74bd-4f4a-8130-b7de2a42edf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\constants">
+      <UniqueIdentifier>{451763a3-5df8-4115-b2a9-744bccc0cf0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\darts">
+      <UniqueIdentifier>{2b2f77c1-695b-4224-ac20-28040db1d13b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\dict">
+      <UniqueIdentifier>{35f52c9b-618a-46aa-82de-da6e5d92be2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\node">
+      <UniqueIdentifier>{f8d2cea1-078e-48c2-9b54-74283798d79e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\reporting">
+      <UniqueIdentifier>{527c6333-69bf-48a9-a954-8ee3c3dd66b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\unitTest">
+      <UniqueIdentifier>{fe11bc4f-6485-4c4f-8fba-6d075ce19171}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\util">
+      <UniqueIdentifier>{0db49b1d-f87a-4c98-8f5f-d2ae5b072507}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\util\langedge">
+      <UniqueIdentifier>{91abf1ba-b45b-4bd7-8156-e708d71a2a04}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\Connector.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\DictionaryRewriter.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\featureDef.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\Lattice.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\Model.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\NBestGenerator.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\RangeString.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\Tagger.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\TemporaryDict.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\Token.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\Tokenizer.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\analyzer\Viterbi.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\compiler\DictionaryBuilder.h">
+      <Filter>ヘッダー ファイル\compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\constants\Constants.h">
+      <Filter>ヘッダー ファイル\constants</Filter>
+    </ClInclude>
+    <ClInclude Include="src\darts\DoubleArray.h">
+      <Filter>ヘッダー ファイル\darts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\darts\DoubleArrayTestHelper.h">
+      <Filter>ヘッダー ファイル\darts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dict\Dictionary.h">
+      <Filter>ヘッダー ファイル\dict</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dict\DictionaryInfo.h">
+      <Filter>ヘッダー ファイル\dict</Filter>
+    </ClInclude>
+    <ClInclude Include="src\node\Node.h">
+      <Filter>ヘッダー ファイル\node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\node\NodeType.h">
+      <Filter>ヘッダー ファイル\node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\node\Path.h">
+      <Filter>ヘッダー ファイル\node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\reporting\ErrorHandler.h">
+      <Filter>ヘッダー ファイル\reporting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\reporting\Logger.h">
+      <Filter>ヘッダー ファイル\reporting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\unitTest\unittest_util.h">
+      <Filter>ヘッダー ファイル\unitTest</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\exception.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\file_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\Lazy.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\misc_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\my_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\OptHandler.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\PackedString.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\path_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\ptr_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\regex_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\std_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\string_type.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\string_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\transform_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\xsv_parser.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\xsvparser.hpp">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\langedge\ctypeutil.hpp">
+      <Filter>ヘッダー ファイル\util\langedge</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pch.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\NgramCoreLib.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\analyzer\Connector.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analyzer\DictionaryRewriter.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analyzer\Lattice.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analyzer\Model.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analyzer\NBestGenerator.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analyzer\Tagger.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analyzer\Tokenizer.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analyzer\Viterbi.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compiler\DictionaryBuilder.cpp">
+      <Filter>ソース ファイル\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\darts\DoubleArray.cpp">
+      <Filter>ソース ファイル\darts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dict\Dictionary.cpp">
+      <Filter>ソース ファイル\dict</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dict\DictionaryCompiler.cpp">
+      <Filter>ソース ファイル\dict</Filter>
+    </ClCompile>
+    <ClCompile Include="src\node\Node.cpp">
+      <Filter>ソース ファイル\node</Filter>
+    </ClCompile>
+    <ClCompile Include="src\node\Path.cpp">
+      <Filter>ソース ファイル\node</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reporting\ErrorHandler.cpp">
+      <Filter>ソース ファイル\reporting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reporting\Logger.cpp">
+      <Filter>ソース ファイル\reporting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\CharPropertyTest.cpp">
+      <Filter>ソース ファイル\unitTest\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\ConnectorCompileTest.cpp">
+      <Filter>ソース ファイル\unitTest\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\FeatureIndexCompileTest.cpp">
+      <Filter>ソース ファイル\unitTest\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\TaggerTest.cpp">
+      <Filter>ソース ファイル\unitTest\analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\DictionaryBuilderTest.cpp">
+      <Filter>ソース ファイル\unitTest\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\DoubleArrayTest.cpp">
+      <Filter>ソース ファイル\unitTest\darts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\DictionaryCompilerTest.cpp">
+      <Filter>ソース ファイル\unitTest\dict</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\DictionaryTest.cpp">
+      <Filter>ソース ファイル\unitTest\dict</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\CsvTest.cpp">
+      <Filter>ソース ファイル\unitTest\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\OptHandlerTest.cpp">
+      <Filter>ソース ファイル\unitTest\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\PackedStringTest.cpp">
+      <Filter>ソース ファイル\unitTest\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\TestLogger.cpp">
+      <Filter>ソース ファイル\unitTest\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitTest\UtilsTest.cpp">
+      <Filter>ソース ファイル\unitTest\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\my_utils.cpp">
+      <Filter>ソース ファイル\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\OptHandler.cpp">
+      <Filter>ソース ファイル\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\PackedString.cpp">
+      <Filter>ソース ファイル\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\path_utils.cpp">
+      <Filter>ソース ファイル\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\utf_utils.cpp">
+      <Filter>ソース ファイル\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pch.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NgramCoreLib.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
