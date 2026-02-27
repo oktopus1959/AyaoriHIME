@@ -222,6 +222,7 @@
     <ClCompile Include="src\util\my_utils.cpp" />
     <ClCompile Include="src\util\OptHandler.cpp" />
     <ClCompile Include="src\util\PackedString.cpp" />
+    <ClCompile Include="src\util\path_utils.cpp" />
     <ClCompile Include="src\util\utf_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -257,6 +258,7 @@
     <ClInclude Include="src\util\langedge\ctypeutil.hpp" />
     <ClInclude Include="src\util\Lazy.h" />
     <ClInclude Include="src\util\misc_utils.h" />
+    <ClInclude Include="src\util\my_utils.h" />
     <ClInclude Include="src\util\OptHandler.h" />
     <ClInclude Include="src\util\PackedString.h" />
     <ClInclude Include="src\util\path_utils.h" />

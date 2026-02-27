@@ -28,7 +28,9 @@ namespace {
 
     const wchar_t HAN_CHOON = 0xff70; // 'ー'
 
-    const wchar_t QUESTION_MARK = 0xff1f;   // '？'
+    const wchar_t QUESTION_MARK = L'？';   // '？'
+
+    const wchar_t EXCLAM_MARK = L'！';
 
     inline MString to_mstr(mchar_t x) {
         return x != 0 ? MString(1, x) : MString();
@@ -48,6 +50,10 @@ namespace {
 
     const MString MSTR_PLUS = to_mstr('+');
 
+    const MString MSTR_MINUS = to_mstr('-');
+
+    const MString MSTR_GETA = to_mstr(L'〓');
+
     const MString MSTR_CMD_HEADER = MString({mchar_t('!'), mchar_t('{')});
 
     const mchar_t strip_delims[] = {' ', '\r', '\n', '\0' };
@@ -63,6 +69,14 @@ namespace {
     inline wchar_t to_lower(wchar_t ch) { return wchar_t(langedge::CtypeUtil::toLower(ch)); }
 
     inline mchar_t to_lower(mchar_t ch) { return mchar_t(langedge::CtypeUtil::toLower(ch)); }
+
+    inline mchar_t tail_char(const MString& s) {
+        return s.empty() ? 0 : s.back();
+    }
+
+    inline wchar_t tail_char(const String& s) {
+        return s.empty() ? 0 : s.back();
+    }
 
     //inline bool is_ascii_char(mchar_t ch) {
     //    return ch >= 0x20 && ch <= 0x7f;
@@ -82,6 +96,10 @@ namespace {
 
     inline bool is_alphabet(mchar_t ch) {
         return is_upper_alphabet(ch) || is_lower_alphabet(ch);
+    }
+
+    inline bool is_wide_alphabet(wchar_t ch) {
+        return ch >= L'Ａ' && ch <= L'Ｚ' || ch >= L'ａ' && ch <= L'ｚ';
     }
 
     inline bool is_numeral(wchar_t ch) {
@@ -132,10 +150,26 @@ namespace {
         return true;
     }
 
+    inline bool is_upper_alphabet_str(const MString& s) {
+        if (s.empty()) return false;
+        for (auto c : s) {
+            if (!is_upper_alphabet(c)) return false;
+        }
+        return true;
+    }
+
     inline bool is_ascii_str(StringRef s) {
         if (s.empty()) return false;
         for (auto c : s) {
             if (!is_ascii_char(c)) return false;
+        }
+        return true;
+    }
+
+    inline bool is_upper_alphabet_str(StringRef s) {
+        if (s.empty()) return false;
+        for (auto c : s) {
+            if (!is_upper_alphabet(c)) return false;
         }
         return true;
     }
@@ -222,8 +256,10 @@ namespace {
     MString to_mstr(const wchar_t* wp) {
         MString result;
         size_t pos = 0;
-        while (wp[pos] != 0) {
-            result.push_back(make_mchar(wp, &pos));
+        if (wp) {
+            while (wp[pos] != 0) {
+                result.push_back(make_mchar(wp, &pos));
+            }
         }
         return result;
     }
@@ -231,13 +267,16 @@ namespace {
     MString to_mstr(const wchar_t* wp, size_t len) {
         MString result;
         size_t pos = 0;
-        while (pos < len) {
-            result.push_back(make_mchar(wp, &pos));
+        if (wp) {
+            while (pos < len) {
+                result.push_back(make_mchar(wp, &pos));
+            }
         }
         return result;
     }
 
     const MString MSTR_VERT_BAR_2 = to_mstr(_T("||"));
+    const MString MSTR_VERT_BAR_3 = to_mstr(_T(" ||| "));
 
     void push_back_wstr(mchar_t m, String& ws) {
         auto mp = decomp_mchar(m);
@@ -254,6 +293,32 @@ namespace {
     String to_wstr(const MString& mstr) {
         String result;
         for (auto m : mstr) {
+            push_back_wstr(m, result);
+        }
+        return result;
+    }
+
+    String to_wstr(const mchar_t* mstr, size_t len, bool bStopByNull = false) {
+        String result;
+        for (size_t i = 0; i < len; ++i) {
+            mchar_t m = mstr[i];
+            if (m == 0) {
+                if (bStopByNull) break;
+                m = L'　';   // 全角スペース
+            }
+            push_back_wstr(m, result);
+        }
+        return result;
+    }
+
+    String to_debug_wstr(const mchar_t* mstr, size_t len, bool bStopByNull = false) {
+        String result;
+        for (size_t i = 0; i < len; ++i) {
+            mchar_t m = mstr[i];
+            if (m == 0) {
+                if (bStopByNull) break;
+                m = L'□';   // 全角スペース
+            }
             push_back_wstr(m, result);
         }
         return result;
@@ -340,9 +405,10 @@ namespace {
     }
 } // namespace
 
-namespace utils
-{
-#define UTILS_BUFSIZ 2048
+namespace utils {
+    const int SAFE_SUBSTR_DEFAULT_LEN = 99999999;
+
+    const int UTILS_BUFSIZ = 2048;
 
 #ifdef _WINDOWS_
     // hWnd で指定されたウインドウのクラス名を取得する
@@ -368,8 +434,7 @@ namespace utils
     /**
     * Convert a wide Unicode string to an UTF8 string
     */
-    inline std::string utf8_encode(StringRef wstr)
-    {
+    inline std::string utf8_encode(StringRef wstr) {
         std::string utf8str;
         if (!wstr.empty()) ConvWstrToU8str(wstr, utf8str);
         return utf8str;
@@ -378,8 +443,7 @@ namespace utils
     /**
     * Convert a wide Unicode string to an UTF8 string
     */
-    inline std::vector<uchar_t> utf8_byte_encode(StringRef wstr)
-    {
+    inline std::vector<uchar_t> utf8_byte_encode(StringRef wstr) {
         Vector<uchar_t> result;
         for (auto ch : utf8_encode(wstr)) {
             result.push_back((uchar_t)ch);
@@ -392,8 +456,7 @@ namespace utils
     /**
     * Convert an UTF8 string to a wide Unicode String
     */
-    inline String utf8_decode(const std::string& str)
-    {
+    inline String utf8_decode(const std::string& str) {
         String wstr;
         if (!str.empty()) ConvU8strToWstr(str, wstr);
         return wstr;
@@ -401,8 +464,7 @@ namespace utils
     }
 
     // wchar_t to mbs (_buffer は最低4バイト分確保しておくこと)
-    inline int wc_to_mbs(wchar_t wc, unsigned char* buffer)
-    {
+    inline int wc_to_mbs(wchar_t wc, unsigned char* buffer) {
         size_t size;
         wchar_t ws[2]{ wc, 0 };
         setlocale(LC_CTYPE, "ja-JP");
@@ -421,8 +483,7 @@ namespace utils
         }
     }
 
-    inline std::string ws_to_mbs(StringRef ws)
-    {
+    inline std::string ws_to_mbs(StringRef ws) {
         size_t size;
         char buffer[UTILS_BUFSIZ];
         setlocale(LC_CTYPE, "ja-JP");
@@ -431,8 +492,7 @@ namespace utils
         return (error == 0 && size > 0) ? buffer : "";
     }
 
-    inline std::string wc_to_mbs(wchar_t wc)
-    {
+    inline std::string wc_to_mbs(wchar_t wc) {
         size_t size;
         wchar_t ws[2]{ wc,0 };
         char buffer[8];
@@ -447,8 +507,7 @@ namespace utils
     inline int strToInt(StringRef s, int defval = 0) {
         try {
             return std::stoi(s);
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -456,8 +515,7 @@ namespace utils
     inline int strToInt(const MString& s, int defval = 0) {
         try {
             return std::stoi(to_wstr(s));
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -466,8 +524,7 @@ namespace utils
     inline int strToHex(StringRef s, int defval = 0) {
         try {
             return std::stoi(s, nullptr, 16);
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -475,8 +532,7 @@ namespace utils
     inline float strToFloat(StringRef s, float defval = 0.0) {
         try {
             return std::stof(s, nullptr);
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -484,8 +540,7 @@ namespace utils
     inline double strToDouble(StringRef s, double defval = 0.0) {
         try {
             return std::stod(s, nullptr);
-        }
-        catch (...) {
+        } catch (...) {
             return defval;
         }
     }
@@ -545,16 +600,22 @@ namespace utils
         return std::hash<MString>()(s);
     }
 
-    inline String safe_substr(StringRef s, size_t start, int len = 0) {
-        if (start >= s.size()) start = s.size();
-        if (len <= 0) len = (int)(s.size() - start + len);
-        if (len < 0) len = 0;
-        return s.substr(start, len);
-    }
+    //inline String safe_substr(StringRef s, size_t start, int len = 0) {
+    //    if (start >= s.size()) start = s.size();
+    //    if (len <= 0) len = (int)(s.size() - start + len);
+    //    return s.substr(start, len);
+    //}
 
-    inline MString safe_substr(const MString& s, size_t start, int len = 0) {
-        if (start >= s.size()) start = s.size();
-        if (len <= 0) len = (int)(s.size() - start + len);
+    //inline MString safe_substr(const MString& s, size_t start, int len = 0) {
+    //    if (start >= s.size()) start = s.size();
+    //    if (len <= 0) len = (int)(s.size() - start + len);
+    //    return s.substr(start, len);
+    //}
+
+    template<typename T>
+    inline std::basic_string<T> safe_substr(const std::basic_string<T>& s, size_t start, int len = SAFE_SUBSTR_DEFAULT_LEN) {
+        if (start > s.size()) start = s.size();
+        if (len < 0) len = (int)(s.size() - start) + len;
         if (len < 0) len = 0;
         return s.substr(start, len);
     }
@@ -571,24 +632,39 @@ namespace utils
         return s.substr(start, len);
     }
 
-    inline bool contains(StringRef s, StringRef t) {
+    inline String substr_upto(StringRef s, wchar_t ch) {
+        size_t pos = s.find(ch);
+        return (pos == String::npos) ? s : s.substr(0, pos);
+    }
+
+    inline MString substr_upto(const MString& s, mchar_t ch) {
+        size_t pos = s.find(ch);
+        return (pos == MString::npos) ? s : s.substr(0, pos);
+    }
+
+    inline String substr_tail_upto(StringRef s, wchar_t ch) {
+        size_t pos = s.find_last_of(ch);
+        return (pos == String::npos) ? s : s.substr(pos + 1);
+    }
+
+    inline MString substr_tail_upto(const MString& s, mchar_t ch) {
+        size_t pos = s.find_last_of(ch);
+        return (pos == MString::npos) ? s : s.substr(pos + 1);
+    }
+
+    template<typename T>
+    inline bool contains(const std::basic_string<T>& s, const std::basic_string<T>& t) {
         return s.find(t) != String::npos;
     }
 
-    inline bool contains(StringRef s, const wchar_t* t) {
+    template<typename T>
+    inline bool contains(const std::basic_string<T>& s, const T* t) {
         return s.find(t) != String::npos;
-    }
-
-    inline bool contains(const MString& s, const MString& t) {
-        return s.find(t) != MString::npos;
-    }
-
-    inline bool contains(const MString& s, const mchar_t* t) {
-        return s.find(t) != MString::npos;
     }
 
     // n 回目の出現位置を返す。見つからなければ npos を返す。
-    inline size_t find_nth(StringRef s, wchar_t ch, size_t n) {
+    template<typename T>
+    inline size_t find_nth(const std::basic_string<T>& s, T ch, size_t n) {
         size_t pos = 0;
         for (size_t i = 0; i < n; ++i) {
             pos = s.find(ch, pos);
@@ -599,29 +675,8 @@ namespace utils
     }
 
     // n 回目の出現位置を返す。見つからなければ npos を返す。
-    inline size_t find_nth(const MString& s, mchar_t ch, size_t n) {
-        size_t pos = 0;
-        for (size_t i = 0; i < n; ++i) {
-            pos = s.find(ch, pos);
-            if (pos == String::npos) return String::npos;
-            pos += 1;
-        }
-        return pos - 1;
-    }
-
-    // n 回目の出現位置を返す。見つからなければ npos を返す。
-    inline size_t find_nth(StringRef s, StringRef t, size_t n) {
-        size_t pos = 0;
-        for (size_t i = 0; i < n; ++i) {
-            pos = s.find(t, pos);
-            if (pos == String::npos) return String::npos;
-            pos += t.size();
-        }
-        return pos - t.size();
-    }
-
-    // n 回目の出現位置を返す。見つからなければ npos を返す。
-    inline size_t find_nth(const MString& s, const MString& t, size_t n) {
+    template<typename T>
+    inline size_t find_nth(const std::basic_string<T>& s, const std::basic_string<T> t, size_t n) {
         size_t pos = 0;
         for (size_t i = 0; i < n; ++i) {
             pos = s.find(t, pos);
@@ -703,6 +758,24 @@ namespace utils
         return last_substr(s, n);
     }
 
+    inline bool is_space(mchar_t ch) {
+        return ch == 0x20;
+    }
+
+    inline size_t commonPrefixLength(const MString& str1, const MString& str2) {
+        size_t length = 0;
+        size_t minLength = std::min(str1.size(), str2.size());
+
+        for (size_t i = 0; i < minLength; ++i) {
+            if (str1[i] != str2[i]) {
+                break;
+            }
+            ++length;
+        }
+
+        return length;
+    }
+
     inline bool is_hirakana(wchar_t ch) {
         return ch >= 0x3041 && ch <= 0x3096;    // 'ぁ' 〜 '小け'
     }
@@ -719,8 +792,28 @@ namespace utils
         return is_hirakana(ch);
     }
 
+    template<typename T>
+    inline bool is_hiragana_str(const T& s) {
+        for (auto ch : s) {
+            if (!is_hiragana(ch)) return false;
+        }
+        return true;
+    }
+
+    inline bool is_paren(mchar_t ch) {
+        return ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == L'（' || ch == L'）' || ch == L'「' || ch == L'」' || ch == L'『' || ch == L'』';
+    }
+
     inline bool is_punct(mchar_t ch) {
         return ch == TOTEN || ch == KUTEN;
+    }
+
+    inline bool is_punct_or_question(mchar_t ch) {
+        return ch == TOTEN || ch == KUTEN || ch == QUESTION_MARK;
+    }
+
+    inline bool is_punct_or_commit_char(mchar_t ch) {
+        return ch == TOTEN || ch == KUTEN || ch == QUESTION_MARK || ch == EXCLAM_MARK;
     }
 
     inline bool is_hiragana_or_punct(mchar_t ch) {
@@ -756,20 +849,16 @@ namespace utils
         return ch >= 0xff65 && ch <= 0xff9f;    // '・' 〜 'ﾟ'
     }
 
+    inline bool is_pure_kanji(mchar_t ch) {
+        return ch >= 0x4e00 && ch <= 0x9fff;
+    }
+
     inline bool is_kanji(mchar_t ch) {
-        return ch >= 0x4e00 && ch <= 0x9fff || ch == 0x3005 /*々*/;
+        return is_pure_kanji(ch) || ch == 0x3005 /*々*/;
     }
 
     inline bool is_kanji_or_katakana(mchar_t ch) {
         return is_kanji(ch) || is_katakana(ch);
-    }
-
-    template<typename T>
-    inline bool is_hiragana_str(const T& s) {
-        for (auto ch : s) {
-            if (!is_hiragana(ch)) return false;
-        }
-        return true;
     }
 
     template<typename T>
@@ -781,7 +870,7 @@ namespace utils
     }
 
     inline bool is_japanese_char(mchar_t ch) {
-        return is_hirakana(ch) || is_kanji(ch) || is_katakana(ch);
+        return is_hirakana(ch) || is_kanji(ch) || is_katakana(ch) || ch == L'ゝ';
     }
 
     inline bool is_kanji_or_katakana_except_nakaguro(mchar_t ch) {
@@ -798,6 +887,10 @@ namespace utils
 
     inline bool is_not_japanese_char(mchar_t ch) {
         return !is_japanese_char(ch);
+    }
+
+    inline bool is_morph_stop_char(mchar_t ch) {
+        return !((ch < 0xffff && (is_alphabet((wchar_t)ch) || is_numeral((wchar_t)ch) || is_wide_alphabet((wchar_t)ch) || is_wide_numeral((wchar_t)ch))) || is_japanese_char(ch));
     }
 
     inline String convert_star_and_question_to_hankaku(const wchar_t* wp) {
@@ -962,7 +1055,7 @@ namespace utils
     template<typename T>
     inline T find_tail_kanji_str(const T& s) {
         if (!s.empty()) {
-            int i = s.size() - 1;
+            int i = (int)(s.size() - 1);
             for (; i >= 0; --i) {
                 if (!is_kanji(s[i])) break;
             }
@@ -987,6 +1080,20 @@ namespace utils
                 if (!is_japanese_char(wchar_t(s[i - 1]))) break;
             }
             if (i < len && s[i] == NAKAGURO) ++i;
+            if (i < len) return s.substr(i, len - i);
+        }
+        return T();
+    }
+
+    template<typename T>
+    inline T find_tail_alphabet_str(const T& s) {
+        if (!s.empty()) {
+            size_t len = s.size();
+            size_t i = len;
+            for (; i > 0; --i) {
+                auto ch = wchar_t(s[i - 1]);
+                if (!is_alphabet(ch)) break;
+            }
             if (i < len) return s.substr(i, len - i);
         }
         return T();
@@ -1096,6 +1203,16 @@ namespace utils
         SPLIT(MString, n, __is_equals_to)
     }
 #undef SPLIT
+
+    // 正規表現 p に全体マッチするか
+    inline bool reMatch(StringRef s, const std::wregex& p) {
+        return std::regex_match(s, p);
+    }
+
+    // 正規表現 p に全体マッチするか
+    inline bool reMatch(StringRef s, StringRef p) {
+        return reMatch(s, std::wregex(p));
+    }
 
     // 正規表現 p に部分マッチするか
     inline bool reSearch(StringRef s, const std::wregex& p) {
@@ -1219,7 +1336,7 @@ namespace utils
     }
 
     template<typename T>
-    inline String join_primitive(const std::vector<T>& list, StringRef delim, size_t from = 0, size_t maxElem = 0)
+    inline String join_primitive(const std::vector<T>& list, StringRef delim, size_t maxElem = 0)
     {
         String result;
         if (maxElem == 0) maxElem = list.size();
@@ -1245,6 +1362,19 @@ namespace utils
         for (auto& e : list) {
             if (n++ >= maxElem) break;
             if (!result.empty()) result.push_back(delim);
+            result.append(e);
+        }
+        return result;
+    }
+
+    inline MString join(const std::vector<MString>& list, const MString& delim, size_t maxElem = 0)
+    {
+        MString result;
+        if (maxElem == 0) maxElem = list.size();
+        size_t n = 0;
+        for (auto& e : list) {
+            if (n++ >= maxElem) break;
+            if (!result.empty()) result.append(delim);
             result.append(e);
         }
         return result;
@@ -1276,20 +1406,34 @@ namespace utils
         return result;
     }
 
-    template <typename Iter>
-    inline String join(Iter first, Iter last, StringRef sep) {
-        String result;
-        if (first == last) return result;
-
-        result += *first; // 最初の要素
-        ++first;
-
-        for (; first != last; ++first) {
-            result += sep;
-            result += *first;
+    inline MString join(const std::set<MString>& list, const String& delim, size_t maxElem = 0)
+    {
+        MString result;
+        if (maxElem == 0) maxElem = list.size();
+        size_t n = 0;
+        MString mdelim = to_mstr(delim);
+        for (auto& e : list) {
+            if (n++ >= maxElem) break;
+            if (!result.empty()) result.append(mdelim);
+            result.append(e);
         }
         return result;
     }
+
+     template <typename Iter>
+     inline String join(Iter first, Iter last, StringRef sep) {
+         String result;
+         if (first == last) return result;
+
+         result += *first; // 最初の要素
+         ++first;
+
+         for (; first != last; ++first) {
+             result += sep;
+             result += *first;
+         }
+         return result;
+     }
 
     /**
     * strip
@@ -1330,6 +1474,18 @@ namespace utils
             // 左側にデリミタ以外の文字が見つかった
             auto right = s.find_last_not_of(strip_delims);
             result = s.substr(left, right - left + 1);
+        }
+        return result;
+    }
+
+    template<typename T>
+    inline std::basic_string<T> strip_tail(const std::basic_string<T>& s)
+    {
+        std::basic_string<T> result;
+
+        auto lastPos = s.find_last_not_of(strip_delims);
+        if (lastPos != std::basic_string<T>::npos) {
+            result = s.substr(0, lastPos + 1);
         }
         return result;
     }
@@ -1404,8 +1560,16 @@ namespace utils
         return is_ascii_str(s);
     }
 
+    inline bool isUpperAlphabetString(const MString& s) {
+        return is_upper_alphabet_str(s);
+    }
+
     inline bool isAsciiString(StringRef s) {
         return is_ascii_str(s);
+    }
+
+    inline bool isUpperAlphabetString(StringRef s) {
+        return is_upper_alphabet_str(s);
     }
 
     inline String boolToString(bool flag) {

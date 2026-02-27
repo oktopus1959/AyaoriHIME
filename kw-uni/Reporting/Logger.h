@@ -54,6 +54,7 @@ namespace Reporting {
         static int LogLevel() { return _logLevel; }
         static void SetLogLevel(int logLevel);
 
+        static StringRef LogFilename() { return _logFilename; }
         static void SetLogFilename(StringRef logFilename);
 
         static inline void EnableLogger() { SetLogLevel(LogLevelError); }
@@ -195,6 +196,7 @@ namespace Reporting {
 
 #define IS_LOG_INFOH_ENABLED    (Reporting::Logger::IsInfoHEnabled()) 
 #define IS_LOG_DEBUGH_ENABLED   (Reporting::Logger::IsDebugHEnabled()) 
+#define IS_LOG_DEBUG_ENABLED    (Reporting::Logger::IsDebugEnabled())
 
 #define _SAFE_CHAR(ch) (ch > 0 ? ch : ' ')
 

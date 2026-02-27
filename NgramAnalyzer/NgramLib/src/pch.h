@@ -33,6 +33,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
+
+#include "langedge/ctypeutil.hpp"
 
 #endif //PCH_H

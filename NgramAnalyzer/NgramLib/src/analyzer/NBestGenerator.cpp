@@ -97,8 +97,9 @@ namespace analyzer
         };
 
         struct CompareElementPtr {
+            // false を返すと、a が b より優先される (つまり、a の方が小さいとみなされる)
             bool operator()(const SharedPtr<QueueElement>& a, const SharedPtr<QueueElement>& b) const {
-                return a->fx() > b->fx(); // 小さい方を優先する（ヒープ内では "大きい" 扱い）
+                return a->fx() > b->fx(); // 小さい方を優先する
             }
         };
 

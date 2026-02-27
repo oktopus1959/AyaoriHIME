@@ -189,15 +189,16 @@ namespace util {
     }
 
     /**
-     * enum csv files in the specified directory
+     * 指定のディレクトリで、指定の拡張子を持つファイルを列挙する
      */
-    Vector<String> enum_csv_dictionaries(StringRef dir) {
+    Vector<String> enum_files(StringRef dir, StringRef extension) {
         Vector<String> result;
+        auto ext = L"." + extension;
         try {
             for (const auto& entry : std::filesystem::directory_iterator(dir)) {
                 if (entry.is_regular_file()) {
                     auto name = entry.path().wstring();
-                    if (utils::endsWith(name, L".csv")) result.push_back(name);
+                    if (utils::endsWith(name, ext)) result.push_back(name);
                 }
             }
         } catch (...) {

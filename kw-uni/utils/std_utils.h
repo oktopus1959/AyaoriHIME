@@ -40,7 +40,8 @@ using Vector = std::vector<T>;
 template<class T>
 using Deque = std::deque<T>;
 
-template<class T, class C = std::less<T>>
+/** 小さい順に並べる priority_queue */
+template<class T, class C = std::greater<T>>
 using PriorityQueue = std::priority_queue<T, std::vector<T>, C>;
 
 template<class T, class V>

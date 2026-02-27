@@ -13,8 +13,10 @@ namespace util {
 
     size_t PackedString::pack(StringRef str) {
         size_t ptr = _buffer.size();
-        _buffer.push_back((wchar_t)str.size());
-        _buffer.append(str);
+        size_t strSize = str.size();
+        if (strSize > 0 && str.back() == L'\n') --strSize;
+        _buffer.push_back((wchar_t)strSize);
+        _buffer.append(str, 0, strSize);
         return ptr;
     }
 

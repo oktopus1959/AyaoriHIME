@@ -2,6 +2,7 @@
 
 #include <regex>
 #include <stdarg.h>
+#include <unordered_map>
 
 #include "std_utils.h"
 #include "string_type.h"
@@ -651,12 +652,38 @@ namespace utils {
         return (pos == MString::npos) ? s : s.substr(pos + 1);
     }
 
-    inline bool contains(StringRef s, const wchar_t* t) {
+    template<typename T>
+    inline bool contains(const std::basic_string<T>& s, const std::basic_string<T>& t) {
         return s.find(t) != String::npos;
     }
 
-    inline bool contains(const MString& s, const mchar_t* t) {
-        return s.find(t) != MString::npos;
+    template<typename T>
+    inline bool contains(const std::basic_string<T>& s, const T* t) {
+        return s.find(t) != String::npos;
+    }
+
+    // n 回目の出現位置を返す。見つからなければ npos を返す。
+    template<typename T>
+    inline size_t find_nth(const std::basic_string<T>& s, T ch, size_t n) {
+        size_t pos = 0;
+        for (size_t i = 0; i < n; ++i) {
+            pos = s.find(ch, pos);
+            if (pos == String::npos) return String::npos;
+            pos += 1;
+        }
+        return pos - 1;
+    }
+
+    // n 回目の出現位置を返す。見つからなければ npos を返す。
+    template<typename T>
+    inline size_t find_nth(const std::basic_string<T>& s, const std::basic_string<T> t, size_t n) {
+        size_t pos = 0;
+        for (size_t i = 0; i < n; ++i) {
+            pos = s.find(t, pos);
+            if (pos == String::npos) return String::npos;
+            pos += t.size();
+        }
+        return pos - t.size();
     }
 
     inline MString replace(const MString& s, const MString& t, const MString& r) {
@@ -697,6 +724,11 @@ namespace utils {
         return head + tail;
     }
 
+    inline String replace_tail(StringRef s, size_t len, StringRef t) {
+        if (len >= s.size()) len = s.size();
+        return s.substr(0, s.size() - len) + t;
+    }
+
     inline void remove(MString& s, mchar_t t) {
         size_t pos = s.find(t);
         if (pos < s.size()) s.erase(pos);
@@ -726,6 +758,10 @@ namespace utils {
         return last_substr(s, n);
     }
 
+    inline bool is_space(mchar_t ch) {
+        return ch == 0x20;
+    }
+
     inline size_t commonPrefixLength(const MString& str1, const MString& str2) {
         size_t length = 0;
         size_t minLength = std::min(str1.size(), str2.size());
@@ -740,8 +776,16 @@ namespace utils {
         return length;
     }
 
-    inline bool is_hirakana(mchar_t ch) {
+    inline bool is_hirakana(wchar_t ch) {
         return ch >= 0x3041 && ch <= 0x3096;    // 'ぁ' 〜 '小け'
+    }
+
+    inline bool is_hirakana(mchar_t ch) {
+        return is_hirakana(wchar_t(ch));
+    }
+
+    inline bool is_hiragana(wchar_t ch) {
+        return is_hirakana(ch);
     }
 
     inline bool is_hiragana(mchar_t ch) {
@@ -783,6 +827,10 @@ namespace utils {
 
     inline mchar_t hiragana_to_katakana(mchar_t ch) {
         return ch + 0x0060;
+    }
+
+    inline wchar_t katakana_to_hiragana(wchar_t ch) {
+        return ch - 0x0060;
     }
 
     inline mchar_t katakana_to_hiragana(mchar_t ch) {
@@ -1239,6 +1287,25 @@ namespace utils {
         return reScan(s, std::wregex(p));
     }
 
+    inline String tr(StringRef input, StringRef from, StringRef to, size_t len = String::npos) {
+        // 置換マップ作成
+        std::unordered_map<wchar_t, wchar_t> mapping;
+        for (size_t i = 0; i < from.size(); ++i) {
+            mapping[from[i]] = to[i];
+        }
+
+        // 文字ごとに置換
+        String result = input;
+        size_t n = 0;
+        for (auto& ch : result) {
+            if (mapping.count(ch)) {
+                ch = mapping[ch];
+            }
+            if (++n >= len) break; // 長さ制限
+        }
+        return result;
+    }
+
     /**
     * join
     */
@@ -1352,6 +1419,21 @@ namespace utils {
         }
         return result;
     }
+
+     template <typename Iter>
+     inline String join(Iter first, Iter last, StringRef sep) {
+         String result;
+         if (first == last) return result;
+
+         result += *first; // 最初の要素
+         ++first;
+
+         for (; first != last; ++first) {
+             result += sep;
+             result += *first;
+         }
+         return result;
+     }
 
     /**
     * strip

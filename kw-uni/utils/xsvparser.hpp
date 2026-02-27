@@ -108,7 +108,7 @@ private:
 
 public:
     /// コンストラクタ
-    XSVParser() : stop(false), fail(false), linecount(0) { }
+    XSVParser() : stop(false), fail(false), length(0), linecount(0) { }
 
     /** CSV/TSV データを解析し、値を取得する.
      * CSV (Comma Separated Value) または TSV (Tab Separated Value) データを解析し、
@@ -345,7 +345,7 @@ inline bool XSVParser<SEPARATOR, InputIteratorT>::parse( InputIteratorT begin, I
             renew_xsvalues( xsvalues, token, spaces, maxCount );
             //state = xsvalues.size() >= maxCount ? AFTER_MAX_COUNT : AFTER_QUOTED_VALUE;
             state = AFTER_QUOTED_VALUE;
-            /* through */
+            [[fallthrough]];    /* through */
 
           case AFTER_QUOTED_VALUE:
             if (ch == ' ' || ch == '\r' || (SEPARATOR != '\t' && ch == '\t')) {

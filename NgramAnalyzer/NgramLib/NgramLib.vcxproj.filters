@@ -192,6 +192,9 @@
     <ClCompile Include="src\reporting\ErrorHandler.cpp">
       <Filter>ソース ファイル\reporting</Filter>
     </ClCompile>
+    <ClCompile Include="src\util\path_utils.cpp">
+      <Filter>ソース ファイル\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\framework.h">
@@ -322,6 +325,9 @@
     </ClInclude>
     <ClInclude Include="src\analyzer\TemporaryDict.h">
       <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\my_utils.h">
+      <Filter>ヘッダー ファイル\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

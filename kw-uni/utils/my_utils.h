@@ -64,9 +64,14 @@ namespace util {
         return (char)getEscapedChar((wchar_t)p);
     }
 
-    /**
-     * enum csv files in the specified directory
-     */
-    Vector<String> enum_csv_dictionaries(StringRef dir);
+     Vector<String> enum_files(StringRef dir, StringRef extension);
+    
+     inline Vector<String> enum_csv_dictionaries(StringRef dir) {
+         return enum_files(dir, L"csv");
+     }
+    
+     inline Vector<String> enum_txt_dictionaries(StringRef dir) {
+         return enum_files(dir, L"txt");
+     }
 
 } // namespace util

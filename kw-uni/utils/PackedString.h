@@ -24,7 +24,7 @@ namespace util {
         size_t pack(StringRef str);
 
         String unpack(size_t ptr) const {
-            return utils::safe_substr(_buffer, ptr + 1, length(ptr));
+            return utils::safe_substr(_buffer, ptr + 1, (int)length(ptr));
         }
 
         size_t length(size_t ptr) const {

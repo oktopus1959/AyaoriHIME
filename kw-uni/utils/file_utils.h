@@ -10,12 +10,14 @@ namespace utils {
     * appendNL == true なら末尾に lf を追加した一行読み込み
     * EOF なら bool として true を返す
     */
-    inline std::tuple<String, bool> getLine(std::istream& is, bool appendNL = false) {
-        char buffer[2048] = { 0 };
+    inline std::tuple<String, bool> getLine(std::istream& is, char* buffer, size_t bufsize, bool appendNL = false) {
+        //char buffer[2048] = { 0 };
+        //Vector<char> buffer(32000);
         // get one line
         bool eof = is.eof();
+        buffer[0] = '\0';
         if (!eof) {
-            is.getline(buffer, sizeof(buffer) - 2);
+            is.getline(buffer, bufsize - 2);
             size_t len = strlen(buffer);
             if (len == 0 && is.eof()) {
                 eof = true;
@@ -36,9 +38,9 @@ namespace utils {
     // 行末に NL を付加したまま1行読み込む
     // 空行とファイルの終わりを区別したい場合に有用
     // EOF なら bool として true を返す
-    inline String getLineWithNl(std::istream& is) {
+    inline String getLineWithNl(std::istream& is, char* buffer, size_t bufsize) {
         String result;
-        std::tie(result, std::ignore) = getLine(is, true);
+        std::tie(result, std::ignore) = getLine(is, buffer, bufsize, true);
         return result;
     }
 
@@ -58,14 +60,14 @@ namespace utils {
     class IfstreamReader {
     public:
         // 標準入力からテキストを読み込むコンストラクタ。
-        IfstreamReader() { }
+        IfstreamReader() : _buffer(32000) { }
 
         // 標準入力を使うコンストラクタ。バイナリー指定あり。
-        IfstreamReader(bool binary) : _binary(binary) { }
+        IfstreamReader(bool binary) : _binary(binary), _buffer(32000) { }
 
         // 指定のファイルから読み込むコンストラクタ。バイナリー指定あり。
         // ただし、filePath == "" or filePath == "-" の場合は、標準入力からの読み込みとなる。
-        IfstreamReader(StringRef filepath, bool binary = false) : _binary(binary) {
+        IfstreamReader(StringRef filepath, bool binary = false) : _binary(binary), _buffer(32000) {
             if (!filepath.empty() && filepath != L"-") {
                 open(filepath);
             }
@@ -98,14 +100,14 @@ namespace utils {
         // appendNL == true なら行末に NL を付加
         inline std::tuple<String, bool> getLine(bool appendNL = false) {
             return success()
-                ? utils::getLine(_is(), appendNL)
+                ? utils::getLine(_is(), _buffer.data(), _buffer.size(), appendNL)
                 : _dummyCount < _dummyLines.size() ? std::tuple<String, bool>{ _dummyLines[_dummyCount++], false } : std::tuple<String, bool>{ L"", true };
         }
 
         // 行末に NL を付加したまま1行読み込む
         // 空行とファイルの終わりを区別したい場合に有用
         inline String getLineWithNl() {
-            return utils::getLineWithNl(_is());
+            return utils::getLineWithNl(_is(), _buffer.data(), _buffer.size());
         }
 
         // 全行を読み込んで1行ずつ vector に push_back する。行末に NL は付かない。
@@ -252,6 +254,8 @@ namespace utils {
         bool _fail = false;
         bool _binary = false;
         bool _cin = true;
+
+        Vector<char> _buffer;
 
         std::vector<String> _dummyLines;
         size_t _dummyCount = 0;

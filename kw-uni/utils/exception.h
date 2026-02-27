@@ -17,6 +17,10 @@ namespace util {
 
         RuntimeException(const String& cause, const char* file, size_t line) : _cause(cause), _file(utils::utf8_decode(file)), _line(line) { }
 
+        const String getMessage() const {
+            return std::format(_T("{}({}): {}"), _file, _line, _cause);
+        }
+
         const String& getCause() const {
             return _cause;
         }
@@ -33,7 +37,6 @@ namespace util {
 } // namespace util
 
 #define THROW_RTE(fmt, ...)  { LOG_ERROR(fmt, __VA_ARGS__); throw util::RuntimeException(__VA_OPT__(std::format)(fmt __VA_OPT__(,) __VA_ARGS__), __FILE__, __LINE__); }
-//#define THROW_RTE(fmt, ...)  {}
 
 #define LOG_ERROR_AND_THROW_RTE(fmt, ...)  THROW_RTE(fmt, __VA_ARGS__)
 
