@@ -101,9 +101,20 @@ namespace analyzer {
             LOG_INFOH(L"LEAVE: file={}", ngramFilePath);
         }
 
+#include <cmath>
+
         int calcBonus(int bonusPoint) {
-            if (bonusPoint > ngramMaxBonusPoint) bonusPoint = ngramMaxBonusPoint;
-            return bonusPoint * ngramBonusPointFactor;
+            double point = bonusPoint;
+            if (point > ngramMaxBonusPoint) {
+                if (point <= ngramMaxBonusPoint * 2) {
+                    point = ngramMaxBonusPoint + (point - ngramMaxBonusPoint) * 0.4;
+                } else if (point <= ngramMaxBonusPoint * 4) {
+                    point = ngramMaxBonusPoint * 1.5 + (point - ngramMaxBonusPoint * 2) * 0.2;
+                } else {
+                    point = ngramMaxBonusPoint * 1.75 + (point - ngramMaxBonusPoint * 4) * 0.1;
+                }
+            }
+            return (int)(point * ngramBonusPointFactor);
         }
 
         // 与えられた文字列の先頭部分にマッチするエントリ（複数可）を検索する
