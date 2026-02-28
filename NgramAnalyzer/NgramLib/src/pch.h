@@ -10,32 +10,5 @@
 // プリコンパイルするヘッダーをここに追加します
 #define NOMINMAX
 #include "framework.h"
-#include <algorithm>
-#include <array>
-#include <cassert>
-#include <cmath>
-#include <filesystem>
-#include <format>
-#include <fstream>
-#include <functional>
-#include <iostream>
-#include <iterator>
-#include <limits.h>
-#include <locale.h>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <optional>
-#include <queue>
-#include <regex>
-#include <set>
-#include <stdarg.h>
-#include <stdio.h>
-#include <time.h>
-#include <tuple>
-#include <unordered_map>
-#include <vector>
-
-#include "langedge/ctypeutil.hpp"
 
 #endif //PCH_H

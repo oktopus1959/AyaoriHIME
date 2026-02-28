@@ -31,24 +31,6 @@
     <Filter Include="ソース ファイル\reporting">
       <UniqueIdentifier>{30f7be22-5641-4e2b-a14d-4df54745132b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\unitTest">
-      <UniqueIdentifier>{ff81da20-2616-4eff-a7f7-ee6231c76cde}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\unitTest\analyzer">
-      <UniqueIdentifier>{0200d4be-c188-4124-a91c-92fe47e8dc1c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\unitTest\compiler">
-      <UniqueIdentifier>{9f5e9dcd-9c9a-4cf4-b84e-a2e721a3c304}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\unitTest\darts">
-      <UniqueIdentifier>{2310c136-0f81-4100-814f-901f617e5e07}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\unitTest\dict">
-      <UniqueIdentifier>{05b73420-c9bd-43e6-bd90-69f9538008a0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\unitTest\util">
-      <UniqueIdentifier>{b4f225f4-8b0f-41d6-9250-ecbd714d494a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\util">
       <UniqueIdentifier>{20e916ab-bd0e-4457-8163-5da7441f9872}</UniqueIdentifier>
     </Filter>
@@ -72,9 +54,6 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\reporting">
       <UniqueIdentifier>{527c6333-69bf-48a9-a954-8ee3c3dd66b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\unitTest">
-      <UniqueIdentifier>{fe11bc4f-6485-4c4f-8fba-6d075ce19171}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\util">
       <UniqueIdentifier>{0db49b1d-f87a-4c98-8f5f-d2ae5b072507}</UniqueIdentifier>
@@ -155,9 +134,6 @@
     </ClInclude>
     <ClInclude Include="src\reporting\Logger.h">
       <Filter>ヘッダー ファイル\reporting</Filter>
-    </ClInclude>
-    <ClInclude Include="src\unitTest\unittest_util.h">
-      <Filter>ヘッダー ファイル\unitTest</Filter>
     </ClInclude>
     <ClInclude Include="src\util\exception.h">
       <Filter>ヘッダー ファイル\util</Filter>
@@ -265,45 +241,6 @@
     </ClCompile>
     <ClCompile Include="src\reporting\Logger.cpp">
       <Filter>ソース ファイル\reporting</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\CharPropertyTest.cpp">
-      <Filter>ソース ファイル\unitTest\analyzer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\ConnectorCompileTest.cpp">
-      <Filter>ソース ファイル\unitTest\analyzer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\FeatureIndexCompileTest.cpp">
-      <Filter>ソース ファイル\unitTest\analyzer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\TaggerTest.cpp">
-      <Filter>ソース ファイル\unitTest\analyzer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\DictionaryBuilderTest.cpp">
-      <Filter>ソース ファイル\unitTest\compiler</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\DoubleArrayTest.cpp">
-      <Filter>ソース ファイル\unitTest\darts</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\DictionaryCompilerTest.cpp">
-      <Filter>ソース ファイル\unitTest\dict</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\DictionaryTest.cpp">
-      <Filter>ソース ファイル\unitTest\dict</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\CsvTest.cpp">
-      <Filter>ソース ファイル\unitTest\util</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\OptHandlerTest.cpp">
-      <Filter>ソース ファイル\unitTest\util</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\PackedStringTest.cpp">
-      <Filter>ソース ファイル\unitTest\util</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\TestLogger.cpp">
-      <Filter>ソース ファイル\unitTest\util</Filter>
-    </ClCompile>
-    <ClCompile Include="src\unitTest\UtilsTest.cpp">
-      <Filter>ソース ファイル\unitTest\util</Filter>
     </ClCompile>
     <ClCompile Include="src\util\my_utils.cpp">
       <Filter>ソース ファイル\util</Filter>

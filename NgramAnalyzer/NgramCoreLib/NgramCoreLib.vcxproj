@@ -171,7 +171,6 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\reporting\ErrorHandler.h" />
     <ClInclude Include="src\reporting\Logger.h" />
-    <ClInclude Include="src\unitTest\unittest_util.h" />
     <ClInclude Include="src\util\exception.h" />
     <ClInclude Include="src\util\file_utils.h" />
     <ClInclude Include="src\util\langedge\ctypeutil.hpp" />
@@ -212,19 +211,6 @@
     </ClCompile>
     <ClCompile Include="src\reporting\ErrorHandler.cpp" />
     <ClCompile Include="src\reporting\Logger.cpp" />
-    <ClCompile Include="src\unitTest\CharPropertyTest.cpp" />
-    <ClCompile Include="src\unitTest\ConnectorCompileTest.cpp" />
-    <ClCompile Include="src\unitTest\CsvTest.cpp" />
-    <ClCompile Include="src\unitTest\DictionaryBuilderTest.cpp" />
-    <ClCompile Include="src\unitTest\DictionaryCompilerTest.cpp" />
-    <ClCompile Include="src\unitTest\DictionaryTest.cpp" />
-    <ClCompile Include="src\unitTest\DoubleArrayTest.cpp" />
-    <ClCompile Include="src\unitTest\FeatureIndexCompileTest.cpp" />
-    <ClCompile Include="src\unitTest\OptHandlerTest.cpp" />
-    <ClCompile Include="src\unitTest\PackedStringTest.cpp" />
-    <ClCompile Include="src\unitTest\TaggerTest.cpp" />
-    <ClCompile Include="src\unitTest\TestLogger.cpp" />
-    <ClCompile Include="src\unitTest\UtilsTest.cpp" />
     <ClCompile Include="src\util\my_utils.cpp" />
     <ClCompile Include="src\util\OptHandler.cpp" />
     <ClCompile Include="src\util\PackedString.cpp" />

@@ -49,6 +49,9 @@ public:
     // エラー情報を取得する。戻り値はエラーコード
     int GetErrorInfo(wchar_t* errMsgBuf, size_t bufsize) const;
 
+    // エラー情報を取得する。戻り値はエラーコード
+    int GetErrorInfo(String& errMsg) const;
+
 private:
     static std::unique_ptr<ErrorHandler> _singleton;
 

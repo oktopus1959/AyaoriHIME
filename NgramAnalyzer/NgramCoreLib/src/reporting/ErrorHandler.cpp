@@ -27,6 +27,14 @@ int ErrorHandler::GetErrorInfo(wchar_t* errMsgBuf, size_t bufsize) const {
     return errorLevel;
 }
 
+int ErrorHandler::GetErrorInfo(String& errMsg) const {
+    errMsg.clear();
+    if (errorLevel < 0) {
+        errMsg.append(errorMsg);
+    }
+    return errorLevel;
+}
+
 // エラー情報を格納
 int ErrorHandler::SetErrorInfo(int level, StringRef msg) {
     if (level != LEVEL_SUCCESS) {

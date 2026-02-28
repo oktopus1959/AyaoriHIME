@@ -26,10 +26,6 @@ namespace analyzer {
          */
         DictionaryInfoPtr dictionary_info();
 
-    public:
-        // Constructor
-        Model(OptHandlerPtr opts);
-
         /**
          * 形態素解析の実行
          * @param sentence 解析対象文
@@ -38,6 +34,21 @@ namespace analyzer {
          * @return 解析結果を格納したラティスオブジェクト
          */
         LatticePtr analyze(StringRef sentence, StringRef tempEntries, size_t nBest);
+
+    public:
+        // Constructor
+        Model(OptHandlerPtr opts);
+
+        /**
+         * N-Best 解析の実行。N-Bestな解析結果が一つずつ格納されたArrayを返す。
+         * @param sentence 解析対象文
+         * @param realtimeEntries リアルタイム登録による辞書エントリ
+         * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
+         * @param results N-Bestな解析結果を格納するvector
+         * @param nBest N-Bestの最大数
+         * @return 最良解析結果のコスト
+         */
+        int parseNBest(StringRef sentence, const std::map<String, int>& realtimeEntries, StringRef tempEntries, Vector<String>& results, size_t nBest, bool needResults);
 
         //static String getBosFeature(OptHandlerPtr opts, StringRef defval = L"");
 
