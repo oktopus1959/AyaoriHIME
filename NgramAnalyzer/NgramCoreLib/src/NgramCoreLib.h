@@ -1,7 +1,22 @@
-﻿
+﻿#pragma once
+#include "util/std_utils.h"
+
 namespace NgramCoreLib {
     // コマンドライン引数による形態素解析ライブラリの初期化
     int NgramInitialize(size_t argc, const wchar_t** argv, const wchar_t* logFile, wchar_t* errMsgBuf, size_t bufsiz, bool showError = false);
+
+    // リアルタイムNgram辞書のロード
+    int LoadRealtimeDict(StringRef ngramFilePath);
+
+    // リアルタイムNgramファイルの保存
+    // @param ngramFilePath リアルタイムNgramファイルのパス
+    // @param rotationNum 過去履歴の保存数 (0 なら保存しない)
+    void SaveRealtimeDict(StringRef ngramFilePath, int rotationNum);
+
+    // リアルタイムNgramエントリの更新
+    // @param delta 加算する値
+    // @return 更新後のエントリの値
+    int UpdateRealtimeEntry(const String& word, int delta);
 
     // ユーザー辞書の再オープン
     int NgramReloadUserDics(wchar_t* errMsgBuf, size_t bufsiz);

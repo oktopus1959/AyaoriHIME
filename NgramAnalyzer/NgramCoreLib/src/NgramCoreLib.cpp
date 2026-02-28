@@ -7,7 +7,8 @@
 #include "exception.h"
 
 #include "OptHandler.h"
-#include "analyzer/Model.h"
+#include "analyzer/Viterbi.h"
+#include "analyzer/RealtimeDict.h"
 #include "compiler/DictionaryBuilder.h"
 
 #include "file_utils.h"
@@ -29,9 +30,7 @@ namespace {
 
     OptHandlerPtr opts;
 
-    ModelPtr model;
-
-    //TaggerPtr tagger;
+    SharedPtr<Viterbi> viterbi;
 
     bool bShowError = false;
 
@@ -41,6 +40,30 @@ namespace {
 
     void doOneSentence() {
 
+    }
+
+    // ユーザー辞書の再ロード
+    // @return ErrorLevel 0: 成功, -1: 成功(情報メッセージあり), -2: 警告, -3: エラー
+    int reloadUserDics(wchar_t* errMsgBuf, size_t bufsiz) {
+        LOG_INFOH(L"ENTER");
+
+        try {
+            if (viterbi) {
+                // ユーザー辞書の再ロード
+                viterbi->reload_userdics();
+            } else {
+                ERROR_HANDLER->Warn(L"viterbi not created");
+            }
+        } catch (RuntimeException ex) {
+            ERROR_HANDLER->Error(ex.getMessage());
+        } catch (...) {
+            auto msg = L"Unknown exception occurred";
+            LOG_ERROR(msg);
+            ERROR_HANDLER->Error(msg);
+        }
+
+        LOG_INFOH(L"LEAVE: SUCCESS");
+        return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
     }
 }
 
@@ -65,8 +88,7 @@ namespace NgramCoreLib {
                 LOG_INFOH(L"dicdir={}", opts->getValue(L"dicdir"));
 
                 //opts->loadDictionaryResource();
-                model = MakeShared<Model>(opts);
-                //tagger = MakeShared<Tagger>(model);
+                viterbi = MakeShared<Viterbi>(opts);
             } catch (RuntimeException ex) {
                 ERROR_HANDLER->Error(ex.getMessage());
                 if (showError) printError(ex);
@@ -89,31 +111,32 @@ namespace NgramCoreLib {
         return 0;
     }
 
-    namespace {
-        // ユーザー辞書の再ロード
-        // @return ErrorLevel 0: 成功, -1: 成功(情報メッセージあり), -2: 警告, -3: エラー
-        int reloadUserDics(wchar_t* errMsgBuf, size_t bufsiz) {
-            LOG_INFOH(L"ENTER");
-
-            try {
-                if (model) {
-                    // ユーザー辞書の再ロード
-                    model->reload_userdics();
-                } else {
-                    ERROR_HANDLER->Warn(L"model not created");
-                }
-            } catch (RuntimeException ex) {
-                ERROR_HANDLER->Error(ex.getMessage());
-            } catch (...) {
-                auto msg = L"Unknown exception occurred";
-                LOG_ERROR(msg);
-                ERROR_HANDLER->Error(msg);
-            }
-
-            LOG_INFOH(L"LEAVE: SUCCESS");
-            return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
-        }
+    // リアルタイムNgramエントリの更新
+    // @param delta 加算する値
+    // @return 更新後のエントリの値
+    int UpdateRealtimeEntry(const String& word, int delta) {
+        return RealtimeDict::updateEntry(word, delta);
     }
+
+    // リアルタイムNgram辞書のロード
+    // @param ngramFilePath リアルタイムNgramファイルのパス
+    int LoadRealtimeDict(StringRef ngramFilePath) {
+        LOG_INFOH(L"ENTER");
+        ERROR_HANDLER->Clear();
+        int result = RealtimeDict::loadNgramFile(ngramFilePath);
+        LOG_INFOH(L"LEAVE");
+        return result;
+    }
+
+    // リアルタイムNgramファイルの保存
+    // @param ngramFilePath リアルタイムNgramファイルのパス
+    // @param rotationNum 過去履歴の保存数 (0 なら保存しない)
+    void SaveRealtimeDict(StringRef ngramFilePath, int rotationNum) {
+        LOG_INFOH(L"ENTER");
+        RealtimeDict::saveNgramFile(ngramFilePath, rotationNum);
+        LOG_INFOH(L"LEAVE");
+    }
+
     // ユーザー辞書の再ロード
     // @return ErrorLevel 0: 成功, -1: 成功(情報メッセージあり), -2: 警告, -3: エラー
     int NgramReloadUserDics(wchar_t* errMsgBuf, size_t bufsiz) {
@@ -191,12 +214,11 @@ namespace NgramCoreLib {
         try {
             int cost = 0;
             int nBest = opts->getInt(L"nbest", 1);
-            std::map<String, int> realtimeEntries; // 空辞書
             String tempEntriesStr = tempEntries ? tempEntries : L"";
             if (sentence) {
                 if (wakati_buf) wakati_buf[0] = L'\0';
                 Vector<String> results;
-                cost = model->parseNBest(sentence, realtimeEntries, tempEntriesStr, results, nBest, wakati_buf != nullptr);
+                cost = viterbi->parseNBest(sentence, tempEntriesStr, results, nBest, wakati_buf != nullptr);
                 bool bFirst = true;
                 for (const auto& result : results) {
                     if (wakati_buf) {
@@ -217,9 +239,8 @@ namespace NgramCoreLib {
                     _LOG_DEBUGH(L"line={}, eof={}", line, eof);
                     if (eof || (line == L"." && filePath == L"-")) break;
                     //if (line.empty()) continue;
-                    //String result = tagger->parse(line, nBest, mazePenalty);
                     Vector<String> results;
-                    model->parseNBest(line, realtimeEntries, tempEntriesStr, results, nBest, true);
+                    viterbi->parseNBest(line, tempEntriesStr, results, nBest, true);
                     for (const auto& result : results) {
                         std::cout << "----------------" << std::endl;
                         std::cout << utils::utf8_encode(result) << std::endl;
@@ -248,12 +269,11 @@ namespace NgramCoreLib {
 
     /**
      * Ngram解析の実行(コストを返す)
-     * @param realtimeEntries リアルタイム登録による辞書エントリ
      * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
      * @param mazePenalty 交ぜ書きエントリに対するペナルティ(0 ならデフォルト値を使う)
      * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
      */
-    int NgramAnalyze(StringRef sentence, const std::map<String, int>& realtimeEntries, StringRef tempEntries, std::vector<String>& ngrams, String& errMsg) {
+    int NgramAnalyze(StringRef sentence, StringRef tempEntries, std::vector<String>& ngrams, String& errMsg) {
         LOG_INFO(L"ENTER: sentence={}", sentence);
         ERROR_HANDLER->Clear();
 
@@ -261,7 +281,7 @@ namespace NgramCoreLib {
             int cost = 0;
             int nBest = opts->getInt(L"nbest", 1);
             ngrams.clear();
-            cost = model->parseNBest(sentence, realtimeEntries, tempEntries, ngrams, nBest, true);
+            cost = viterbi->parseNBest(sentence, tempEntries, ngrams, nBest, true);
             if (ERROR_HANDLER->HasError()) {
                 LOG_INFO(L"LEAVE: ERROR");
                 return ERROR_HANDLER->GetErrorInfo(errMsg);

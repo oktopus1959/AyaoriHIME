@@ -70,6 +70,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -150,9 +156,9 @@
     <ClInclude Include="src\analyzer\DictionaryRewriter.h" />
     <ClInclude Include="src\analyzer\featureDef.h" />
     <ClInclude Include="src\analyzer\Lattice.h" />
-    <ClInclude Include="src\analyzer\Model.h" />
     <ClInclude Include="src\analyzer\NBestGenerator.h" />
     <ClInclude Include="src\analyzer\RangeString.h" />
+    <ClInclude Include="src\analyzer\RealtimeDict.h" />
     <ClInclude Include="src\analyzer\TemporaryDict.h" />
     <ClInclude Include="src\analyzer\Token.h" />
     <ClInclude Include="src\analyzer\Tokenizer.h" />
@@ -192,8 +198,8 @@
     <ClCompile Include="src\analyzer\Connector.cpp" />
     <ClCompile Include="src\analyzer\DictionaryRewriter.cpp" />
     <ClCompile Include="src\analyzer\Lattice.cpp" />
-    <ClCompile Include="src\analyzer\Model.cpp" />
     <ClCompile Include="src\analyzer\NBestGenerator.cpp" />
+    <ClCompile Include="src\analyzer\RealtimeDict.cpp" />
     <ClCompile Include="src\analyzer\Tokenizer.cpp" />
     <ClCompile Include="src\analyzer\Viterbi.cpp" />
     <ClCompile Include="src\compiler\DictionaryBuilder.cpp" />

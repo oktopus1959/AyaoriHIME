@@ -3,8 +3,6 @@
 #include "std_utils.h"
 #include "util/file_utils.h"
 
-using namespace util;
-
 namespace analyzer {
     /**
      * Dictonary Entry Token

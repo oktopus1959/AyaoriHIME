@@ -6,6 +6,7 @@
 
 using namespace analyzer;
 using namespace darts;
+using namespace util;
 
 #if 0 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true

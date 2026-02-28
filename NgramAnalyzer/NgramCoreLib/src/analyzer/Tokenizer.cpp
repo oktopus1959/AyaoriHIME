@@ -286,4 +286,5 @@ namespace analyzer {
     void Tokenizer::resetTempDict(StringRef entries) {
         pImpl->resetTempDict(entries);
     }
+
 } // namespace analyzer

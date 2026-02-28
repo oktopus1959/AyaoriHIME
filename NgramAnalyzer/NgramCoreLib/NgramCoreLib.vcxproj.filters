@@ -78,9 +78,6 @@
     <ClInclude Include="src\analyzer\Lattice.h">
       <Filter>ヘッダー ファイル\analyzer</Filter>
     </ClInclude>
-    <ClInclude Include="src\analyzer\Model.h">
-      <Filter>ヘッダー ファイル\analyzer</Filter>
-    </ClInclude>
     <ClInclude Include="src\analyzer\NBestGenerator.h">
       <Filter>ヘッダー ファイル\analyzer</Filter>
     </ClInclude>
@@ -189,6 +186,9 @@
     <ClInclude Include="src\NgramCoreLib.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="src\analyzer\RealtimeDict.h">
+      <Filter>ヘッダー ファイル\analyzer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\analyzer\Connector.cpp">
@@ -198,9 +198,6 @@
       <Filter>ソース ファイル\analyzer</Filter>
     </ClCompile>
     <ClCompile Include="src\analyzer\Lattice.cpp">
-      <Filter>ソース ファイル\analyzer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\analyzer\Model.cpp">
       <Filter>ソース ファイル\analyzer</Filter>
     </ClCompile>
     <ClCompile Include="src\analyzer\NBestGenerator.cpp">
@@ -256,6 +253,9 @@
     </ClCompile>
     <ClCompile Include="src\NgramCoreLib.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analyzer\RealtimeDict.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
