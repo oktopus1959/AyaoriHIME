@@ -15,7 +15,7 @@
 
 using namespace analyzer;
 using namespace compiler;
-using Logger = Reporting::Logger;
+using Logger = NgramCoreLib::Logger;
 
 #if 0 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
@@ -302,12 +302,12 @@ namespace NgramCoreLib {
 
     void NgramSetLogLevel(int logLevel) {
         ERROR_HANDLER->Clear();
-        Reporting::Logger::SetLogLevel(logLevel);
+        Logger::SetLogLevel(logLevel);
     }
 
     void NgramSaveLog(wchar_t* errMsgBuf, size_t bufsiz) {
         ERROR_HANDLER->Clear();
-        Reporting::Logger::SaveLog();
+        Logger::SaveLog();
     }
 
     // 終了

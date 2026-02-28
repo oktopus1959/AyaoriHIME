@@ -1,9 +1,7 @@
 #include "std_utils.h"
 #include "string_utils.h"
-using sx = utils::StringUtil;
 #include "path_utils.h"
 #include "Logger.h"
-using Reporting::Logger;
 #include "exception.h"
 #include "my_utils.h"
 
@@ -12,6 +10,9 @@ using Reporting::Logger;
 #include "dict/DictionaryInfo.h"
 #include "dict/Dictionary.h"
 #include "DictionaryBuilder.h"
+
+using sx = utils::StringUtil;
+using NgramCoreLib::Logger;
 
 namespace compiler {
     DEFINE_CLASS_LOGGER(DictionaryBuilder);

@@ -328,8 +328,8 @@
     <ProjectReference Include="..\DyMazin\DyMazinLib\DyMazinLib.vcxproj">
       <Project>{aef1f796-7f90-4d1f-95e4-e9d428b42a9f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\NgramAnalyzer\NgramLib\NgramLib.vcxproj">
-      <Project>{0cd53198-f8b7-4a87-9023-bf709621dd27}</Project>
+    <ProjectReference Include="..\NgramAnalyzer\NgramCoreLib\NgramCoreLib.vcxproj">
+      <Project>{38826dcf-5b74-42cf-853d-50024178427e}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

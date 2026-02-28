@@ -7,6 +7,7 @@
 #include "Logger.h"
 #include "reporting/ErrorHandler.h"
 
+using NgramCoreLib::Logger;
 using sx = utils::StringUtil;
 
 template<class T>
@@ -494,13 +495,13 @@ namespace util {
     }
 
     void setLogLevel(StringRef logLevel) {
-        if (logLevel == L"error") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelError);
-        else if (logLevel == L"warnh") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelWarnH);
-        else if (logLevel == L"warn") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelWarn);
-        else if (logLevel == L"infoh") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelInfoH);
-        else if (logLevel == L"info") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelInfo);
-        else if (logLevel == L"debugh") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelDebugH);
-        else if (logLevel == L"debug") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelDebug);
+        if (logLevel == L"error") Logger::SetLogLevel(Logger::LogLevelError);
+        else if (logLevel == L"warnh") Logger::SetLogLevel(Logger::LogLevelWarnH);
+        else if (logLevel == L"warn") Logger::SetLogLevel(Logger::LogLevelWarn);
+        else if (logLevel == L"infoh") Logger::SetLogLevel(Logger::LogLevelInfoH);
+        else if (logLevel == L"info") Logger::SetLogLevel(Logger::LogLevelInfo);
+        else if (logLevel == L"debugh") Logger::SetLogLevel(Logger::LogLevelDebugH);
+        else if (logLevel == L"debug") Logger::SetLogLevel(Logger::LogLevelDebug);
     }
 
     SharedPtr<OptHandler> OptHandler::CreateOptHandler(size_t argc, const wchar_t** argv, const wchar_t* logFilePath) {
@@ -518,9 +519,9 @@ namespace util {
             }
         }
 
-        if (Reporting::Logger::LogFilename().empty() && logFilePath) {
-            //Reporting::Logger::LogFilename = _T("NgramLib.log");
-            Reporting::Logger::SetLogFilename(logFilePath);
+        if (Logger::LogFilename().empty() && logFilePath) {
+            //Logger::LogFilename = _T("NgramLib.log");
+            Logger::SetLogFilename(logFilePath);
             LOG_INFOH(L"\n==== START NgramLib: progname={}, args={} ====\n", progname, utils::join(args, L" | "));
         }
 

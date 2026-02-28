@@ -27,7 +27,7 @@
 #include "util/std_utils.h"
 #include "util/string_utils.h"
 
-namespace Reporting {
+namespace NgramCoreLib {
     class FileWriter;
 
     class Logger {
@@ -179,28 +179,28 @@ namespace Reporting {
 
     };
 
-#define EXTERN_LOGGER                   extern Reporting::Logger logger
+#define EXTERN_LOGGER                   extern NgramCoreLib::Logger logger
 #define DECLARE_LOGGER                  EXTERN_LOGGER
-#define DECLARE_CLASS_LOGGER            static Reporting::Logger logger
+#define DECLARE_CLASS_LOGGER            static NgramCoreLib::Logger logger
 
-#define DEFINE_QUALIFIED_LOGGER(name)   Reporting::Logger name::logger = Reporting::Logger::GetLogger(#name, _T(#name))
+#define DEFINE_QUALIFIED_LOGGER(name)   NgramCoreLib::Logger name::logger = NgramCoreLib::Logger::GetLogger(#name, _T(#name))
 #define DEFINE_CLASS_LOGGER(name)       DEFINE_QUALIFIED_LOGGER(name)
 
-#define DEFINE_LOGGER_STR(name)         Reporting::Logger logger = Reporting::Logger::GetLogger(name, _T(name))
+#define DEFINE_LOGGER_STR(name)         NgramCoreLib::Logger logger = NgramCoreLib::Logger::GetLogger(name, _T(name))
 #define DEFINE_LOGGER(name)             DEFINE_LOGGER_STR(#name)
 #define DEFINE_GLOBAL_LOGGER()          DEFINE_LOGGER_STR("GLOBAL")
 #define DEFINE_LOCAL_LOGGER(name)       DEFINE_LOGGER_STR("LOCAL." #name)
 #define DEFINE_NAMESPACE_LOGGER(name)   DEFINE_LOGGER_STR("NAMESPACE." #name)
 
-#define IS_LOG_DEBUGH_ENABLED   (Reporting::Logger::IsDebugHEnabled()) 
-#define IS_LOG_DEBUG_ENABLED    (Reporting::Logger::IsDebugEnabled()) 
+#define IS_LOG_DEBUGH_ENABLED   (NgramCoreLib::Logger::IsDebugHEnabled()) 
+#define IS_LOG_DEBUG_ENABLED    (NgramCoreLib::Logger::IsDebugEnabled()) 
 
 #define _SAFE_CHAR(ch) (ch > 0 ? ch : ' ')
 
 #define LOG_REPORT(level, fmt, ...)       logger.level(__VA_OPT__(std::format)(fmt __VA_OPT__(,) __VA_ARGS__), __func__, __FILE__, __LINE__)
 
 #define LOG_LEVEL_ENABLED(level)          Is ## level ## Enabled
-#define LOG_REPORT_COND(level, fmt, ...)  if (Reporting::Logger::LOG_LEVEL_ENABLED(level)()) LOG_REPORT(level, fmt, __VA_ARGS__)
+#define LOG_REPORT_COND(level, fmt, ...)  if (NgramCoreLib::Logger::LOG_LEVEL_ENABLED(level)()) LOG_REPORT(level, fmt, __VA_ARGS__)
 
 #ifndef _DEBUG
 #define LOG_TRACE(...)      {}
@@ -228,7 +228,7 @@ namespace Reporting {
 #define LOG_INFOH(fmt, ...) LOG_REPORT_COND(InfoH, fmt, __VA_ARGS__)
 #define LOG_INFOH_COND(flag, fmt, ...) if (flag) LOG_REPORT_COND(InfoH, fmt, __VA_ARGS__)
 #define LOG_INFO_COND(flag, fmt, ...)  if (flag) LOG_REPORT_COND(InfoH, fmt, __VA_ARGS__)
-#define LOG_INFO_UC(fmt, ...) if (!Reporting::Logger::IsAnyLogDisabled()) LOG_REPORT(InfoFile, fmt, __VA_ARGS__)
+#define LOG_INFO_UC(fmt, ...) if (!NgramCoreLib::Logger::IsAnyLogDisabled()) LOG_REPORT(InfoFile, fmt, __VA_ARGS__)
 #define LOG_WARN(fmt, ...)  LOG_REPORT_COND(Warn, fmt, __VA_ARGS__)
 #define LOG_WARNH(fmt, ...)  LOG_REPORT(WarnH, fmt, __VA_ARGS__)
 #define LOG_ERROR(fmt, ...) LOG_REPORT(Error, fmt, __VA_ARGS__)
@@ -237,9 +237,9 @@ namespace Reporting {
 #define LOG_DEBUG_INFOH     LOG_DEBUG
 #else
 #define LOG_DEBUG_INFOH(fmt, ...) if (LOG_DEBUG_INFOH_FLAG) {\
-                                if (Reporting::Logger::IsInfoHEnabled()) logger.InfoH(__VA_OPT__(std::format)(fmt __VA_OPT__(,) __VA_ARGS__), __func__, __FILE__, __LINE__);\
+                                if (NgramCoreLib::Logger::IsInfoHEnabled()) logger.InfoH(__VA_OPT__(std::format)(fmt __VA_OPT__(,) __VA_ARGS__), __func__, __FILE__, __LINE__);\
                             } else {\
-                                if (Reporting::Logger::IsDebugEnabled()) logger.Debug(__VA_OPT__(std::format)(fmt __VA_OPT__(,) __VA_ARGS__), __func__, __FILE__, __LINE__);\
+                                if (NgramCoreLib::Logger::IsDebugEnabled()) logger.Debug(__VA_OPT__(std::format)(fmt __VA_OPT__(,) __VA_ARGS__), __func__, __FILE__, __LINE__);\
                             }
 #endif
 }

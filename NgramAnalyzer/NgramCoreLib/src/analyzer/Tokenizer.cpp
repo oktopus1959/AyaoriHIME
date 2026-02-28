@@ -158,7 +158,7 @@ namespace analyzer {
                 LOG_DEBUG(L"END: unk");
             }
 
-            if (Reporting::Logger::IsDebugEnabled()) showResultNodes(result_nodes);
+            if (NgramCoreLib::Logger::IsDebugEnabled()) showResultNodes(result_nodes);
 
             LOG_DEBUG(L"LEAVE: result_nodes.size={}", result_nodes.size());
 
