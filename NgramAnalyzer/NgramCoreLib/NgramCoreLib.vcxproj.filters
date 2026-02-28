@@ -87,9 +87,6 @@
     <ClInclude Include="src\analyzer\RangeString.h">
       <Filter>ヘッダー ファイル\analyzer</Filter>
     </ClInclude>
-    <ClInclude Include="src\analyzer\Tagger.h">
-      <Filter>ヘッダー ファイル\analyzer</Filter>
-    </ClInclude>
     <ClInclude Include="src\analyzer\TemporaryDict.h">
       <Filter>ヘッダー ファイル\analyzer</Filter>
     </ClInclude>
@@ -207,9 +204,6 @@
       <Filter>ソース ファイル\analyzer</Filter>
     </ClCompile>
     <ClCompile Include="src\analyzer\NBestGenerator.cpp">
-      <Filter>ソース ファイル\analyzer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\analyzer\Tagger.cpp">
       <Filter>ソース ファイル\analyzer</Filter>
     </ClCompile>
     <ClCompile Include="src\analyzer\Tokenizer.cpp">

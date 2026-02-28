@@ -8,7 +8,6 @@
 
 #include "OptHandler.h"
 #include "analyzer/Model.h"
-#include "analyzer/Tagger.h"
 #include "compiler/DictionaryBuilder.h"
 
 #include "file_utils.h"
@@ -32,7 +31,7 @@ namespace {
 
     ModelPtr model;
 
-    TaggerPtr tagger;
+    //TaggerPtr tagger;
 
     bool bShowError = false;
 
@@ -67,7 +66,7 @@ namespace NgramCoreLib {
 
                 //opts->loadDictionaryResource();
                 model = MakeShared<Model>(opts);
-                tagger = MakeShared<Tagger>(model);
+                //tagger = MakeShared<Tagger>(model);
             } catch (RuntimeException ex) {
                 ERROR_HANDLER->Error(ex.getMessage());
                 if (showError) printError(ex);
