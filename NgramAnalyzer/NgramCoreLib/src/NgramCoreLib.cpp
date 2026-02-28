@@ -111,6 +111,15 @@ namespace NgramCoreLib {
         return 0;
     }
 
+    // リアルタイムNgram辞書のパラメータ設定
+    // @param minNgramLen 最小N-gram長
+    // @param maxNgramLen 最大N-gram長
+    // @param maxBonusPoint N-gramに与えるボーナスポイントの最大値
+    // @param bonusPointFactor ボーナスポイントに対するボーナス係数
+    void SetRealtimeDictParameters(size_t minNgramLen, size_t maxNgramLen, int maxBonusPoint, int bonusPointFactor) {
+        RealtimeDict::setParameters(minNgramLen, maxNgramLen, maxBonusPoint, bonusPointFactor);
+    }
+
     // リアルタイムNgramエントリの更新
     // @param delta 加算する値
     // @return 更新後のエントリの値
@@ -124,7 +133,7 @@ namespace NgramCoreLib {
         LOG_INFOH(L"ENTER");
         ERROR_HANDLER->Clear();
         int result = RealtimeDict::loadNgramFile(ngramFilePath);
-        LOG_INFOH(L"LEAVE");
+        LOG_INFOH(L"LEAVE: result={}", result);
         return result;
     }
 

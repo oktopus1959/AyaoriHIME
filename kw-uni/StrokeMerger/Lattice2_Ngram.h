@@ -6,6 +6,9 @@
 
 namespace lattice2 {
 
+    // リアルタイムNgram辞書のパラメータ設定
+    void setRealtimeDictParameters();
+
     struct SelectedNgramPairBonus {
         MString ngramPair;       // <Positive Ngram>|<Negative Ngram>
         int bonusPoint = 0;

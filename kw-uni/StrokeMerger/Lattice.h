@@ -193,6 +193,9 @@ public:
 
     static void reloadGlobalPostRewriteMapFile();
 
+    // リアルタイムNgram辞書のパラメータ設定
+    static void setRealtimeDictParameters();
+
     static std::unique_ptr<Lattice2> Singleton;
 
     //static void loadCostFile();

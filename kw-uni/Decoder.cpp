@@ -287,6 +287,9 @@ public:
         // ストロークヘルプを求めておく
         StrokeHelp::GatherStrokeHelp();
 
+        // リアルタイムNgram辞書のパラメータ設定
+        Lattice2::setRealtimeDictParameters();
+
         // ユーザー単語コストファイルの読み込み
         Lattice2::reloadUserCostFile();
 

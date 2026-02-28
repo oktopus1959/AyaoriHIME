@@ -5,6 +5,13 @@ namespace NgramCoreLib {
     // コマンドライン引数による形態素解析ライブラリの初期化
     int NgramInitialize(size_t argc, const wchar_t** argv, const wchar_t* logFile, wchar_t* errMsgBuf, size_t bufsiz, bool showError = false);
 
+    // リアルタイムNgram辞書のパラメータ設定
+    // @param minNgramLen 最小N-gram長
+    // @param maxNgramLen 最大N-gram長
+    // @param maxBonusPoint N-gramに与えるボーナスポイントの最大値
+    // @param bonusPointFactor ボーナスポイントに対するボーナス係数
+    void SetRealtimeDictParameters(size_t minNgramLen, size_t maxNgramLen, int maxBonusPoint, int bonusPointFactor);
+
     // リアルタイムNgram辞書のロード
     int LoadRealtimeDict(StringRef ngramFilePath);
 

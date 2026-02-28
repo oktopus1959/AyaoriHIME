@@ -353,6 +353,11 @@ void Lattice2::reloadGlobalPostRewriteMapFile() {
     lattice2::readGlobalPostRewriteMapFile();
 }
 
+// リアルタイムNgram辞書のパラメータ設定
+void Lattice2::setRealtimeDictParameters() {
+    lattice2::setRealtimeDictParameters();
+}
+
 String WordPiece::debugString() const {
     String result(L"<'");
     result.append(to_wstr(_rewriteNode ? _rewriteNode->getString() : _pieceStr));

@@ -7,9 +7,10 @@
 #include "dict/Dictionary.h"
 #include "Tokenizer.h"
 #include "Lattice.h"
+#include "RealtimeDict.h"
 #include "TemporaryDict.h"
 
-#if 0
+#if 1
 #undef LOG_INFO
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
@@ -25,6 +26,7 @@ namespace analyzer {
     int UNKNOWN_KANJI_MAX_LEN = 4;
 
     int MORPH_ENTRY_COST = 7000;
+    int REALTIME_ENTRY_BASE_COST = 5000;
 
     //-----------------------------------------------------------------------------
     /**
@@ -105,6 +107,9 @@ namespace analyzer {
                 result_nodes.push_back(node);
             };
 
+            // realtime Ngramを検索しておく
+            auto bonusList = RealtimeDict::commonPrefixSearch(lattice.sentence->toString(), begin2);
+
             // 辞書引きしてノード作成する
             for (const auto& dic : dics) {
                 // 各辞書ごとに辞書引きをして
@@ -112,10 +117,26 @@ namespace analyzer {
                     // 辞書引きされた各表層形ごとに
                     for (const auto& token : tokens) {
                         // 同一表層形の各Ngramごとにノードを作成
-                        __addNewNode(token->wcost, begin2 + length);
+                        int bonus = length < bonusList.size() ? bonusList[length] : 0;
+                        __addNewNode(token->wcost - bonus, begin2 + length);
+                        if (length < bonusList.size()) bonusList[length] = 0;  // 既に使用済み
+                        if (bonus > 0) {
+                            LOG_DEBUGH(L"bonus ngram: {}, cost={} (orig cost={} bonus={})", rngStrPtr->toString(begin2, begin2 + length), token->wcost - bonus, token->wcost, bonus);
+                        }
                     }
                 }
             }
+
+            // 使われなかった realtime Ngram
+            for (size_t len = 1; len < bonusList.size(); ++len) {
+                int bonus = bonusList[len];
+                if (bonus > 0) {
+                    int cost = REALTIME_ENTRY_BASE_COST - bonus;
+                    __addNewNode(cost, begin2 + len);
+                    LOG_DEBUGH(L"realtime ngram entiry added: {}, cost={}", rngStrPtr->toString(begin2, begin2 + len), cost);
+                }
+            }
+
             // TemporaryDictも検索してみる(5文字まで)
             if (tempDict.hasFirstChar(rngStrPtr->charAt(begin2))) {
                 size_t maxEntryLen = tempDict.getMaxEntryLen();

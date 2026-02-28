@@ -4,6 +4,14 @@
 
 namespace analyzer {
     namespace RealtimeDict {
+
+        // リアルタイムNgram辞書のパラメータ設定
+        // @param minNgramLen 最小N-gram長
+        // @param maxNgramLen 最大N-gram長
+        // @param maxBonusPoint N-gramに与えるボーナスポイントの最大値
+        // @param bonusPointFactor ボーナスポイントに対するボーナス係数
+        void setParameters(size_t minNgramLen, size_t maxNgramLen, int maxBonusPoint, int bonusPointFactor);
+
         // リアルタイムNgramエントリの更新
         // @param delta 加算する値
         // @return 更新後のエントリの値
@@ -22,6 +30,6 @@ namespace analyzer {
         // @param str 検索対象の文字列
         // @param pos 検索開始位置
         // @return マッチしたエントリのリスト。各エントリは、(Ngram長, ボーナス) のタプルで表される
-        std::vector<std::tuple<size_t, int>> commonPrefixSearch(const String& str, size_t pos);
+        std::vector<int> commonPrefixSearch(const String& str, size_t pos);
     }
 }

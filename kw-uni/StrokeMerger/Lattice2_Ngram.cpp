@@ -22,11 +22,8 @@ namespace lattice2 {
 
     const static int DATE_PATTERN_BONUMS_POINT = 100;
 
-    // 利用者の選択によって嵩上げされるNgramに課されるボーナスを計算するためのベースとなるカウント
-    std::map<MString, int> realtimeNgramBonusCounts;
-
-    // Ngram頻度がオンラインで更新されたか
-    bool realtimeNgram_updated = false;
+    const int minRealtimeNgramLen = 1;  // 最小N-gram長
+    const int maxRealtimeNgramLen = 4;  // 最大N-gram長
 
     // 利用者定義のボーナスを計算するためのカウント
     std::map<MString, int> userNgramBonusCounts;
@@ -68,6 +65,11 @@ namespace lattice2 {
         return mc == L'ァ' || mc == L'ィ' || mc == L'ゥ' || mc == L'ェ' || mc == L'ォ' || mc == L'ャ' || mc == L'ュ' || mc == L'ョ';
     }
 #endif
+
+    // リアルタイムNgram辞書のパラメータ設定
+    void setRealtimeDictParameters() {
+        NgramBridge::setRealtimeDictParameters(minRealtimeNgramLen, maxRealtimeNgramLen, SETTINGS->ngramMaxBonusPoint, SETTINGS->ngramBonusPointFactor);
+    }
 
     int _loadNgramFile(StringRef ngramFile, std::map<MString, int>& ngramMap) {
         auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
@@ -396,8 +398,9 @@ namespace lattice2 {
 
     void loadNgramFiles() {
         LOG_INFO(L"ENTER");
-        realtimeNgramBonusCounts.clear();
-        _loadNgramFile(REALTIME_NGRAM_FILE, realtimeNgramBonusCounts);
+        auto realtimeNgramPath = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
+        int nEntries = NgramBridge::loadRealtimeDict(realtimeNgramPath);
+        LOG_INFO(L"loadRealtimeDict(): nEntries={}", realtimeNgramPath, nEntries);
         fixedNgramBonusCounts.clear();
         userNgramBonusCounts.clear();
         _loadNgramFile(USER_NGRAM_FILE, userNgramBonusCounts);
@@ -408,35 +411,10 @@ namespace lattice2 {
 
     // リアルタイムNgramファイルの保存
     void saveRealtimeNgramFile() {
-        LOG_SAVE_DICT(L"ENTER: file={}, realtimeNgram_updated={}", REALTIME_NGRAM_FILE, realtimeNgram_updated);
+        LOG_SAVE_DICT(L"ENTER: file={}", REALTIME_NGRAM_FILE);
 #ifndef _DEBUG
-        auto path = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
-        if (realtimeNgram_updated) {
-            // 一旦、一時ファイルに書き込み
-            auto pathTmp = path + L".tmp";
-            {
-                LOG_SAVE_DICT(_T("SAVE: realtime ngram file pathTmp={}"), pathTmp.c_str());
-                utils::OfstreamWriter writer(pathTmp);
-                if (writer.success()) {
-                    for (const auto& pair : realtimeNgramBonusCounts) {
-                        String line;
-                        //int count = pair.second;
-                        //if (count < 0 || count > 1 || (count == 1 && Reporting::Logger::IsWarnEnabled())) {
-                            // count が 0 または 1 の N-gramは無視する
-                            line.append(to_wstr(pair.first));           // 単語
-                            line.append(_T("\t"));
-                            line.append(std::to_wstring(pair.second));  // カウント
-                            writer.writeLine(utils::utf8_encode(line));
-                        //}
-                    }
-                    realtimeNgram_updated = false;
-                }
-                LOG_SAVE_DICT(_T("DONE: entries count={}"), realtimeNgramBonusCounts.size());
-            }
-            // pathTmp ファイルのサイズが path ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
-            utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, SETTINGS->backFileRotationGeneration);
-        }
-
+        auto realtimeNgramPath = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
+        NgramBridge::saveRealtimeDict(realtimeNgramPath, SETTINGS->backFileRotationGeneration);
         selectedNgramInstance.saveSelectedNgramFile(SELECTED_NGRAM_FILE);
 #endif
         LOG_SAVE_DICT(L"LEAVE: file={}", REALTIME_NGRAM_FILE);
@@ -480,12 +458,11 @@ namespace lattice2 {
         if (!bIncrease) {
             delta = -delta;
         }
-        int count = realtimeNgramBonusCounts[word] += delta;
-        realtimeNgram_updated = true;
+        int count = NgramBridge::updateRealtimeEntry(to_wstr(word), delta);
         if (manualSelect) {
-            _LOG_DETAIL(L"Manual select: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
+            _LOG_DETAIL(L"Manual select: ngramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
         } else {
-            LOG_DEBUGH(L"Auto update: realtimeNgramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
+            LOG_DEBUGH(L"Auto update: ngramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
         }
     }
 
@@ -549,7 +526,7 @@ namespace lattice2 {
     int getNgramBonus(const MString& word) {
         int bonusPoint0 = _getFixedNgramBonusPoint(word);
         if (bonusPoint0 == 0) {
-            bonusPoint0 = _getNgramBonusPoint(word, realtimeNgramBonusCounts) + _getNgramBonusPoint(word, userNgramBonusCounts);
+            bonusPoint0 = _getNgramBonusPoint(word, userNgramBonusCounts);
         }
         int bonusPoint = bonusPoint0;
         if (bonusPoint > SETTINGS->ngramMaxBonusPoint) {
