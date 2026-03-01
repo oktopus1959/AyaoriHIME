@@ -20,7 +20,10 @@ namespace analyzer {
         // リアルタイムNgramファイルのロード
         // @param ngramFilePath リアルタイムNgramファイルのパス
         // @return ロードされたエントリの数
-        int loadNgramFile(StringRef ngramFilePath);
+        int loadRealtimeNgramFile(StringRef ngramFilePath);
+
+        // ユーザー定義のNgramファイルのロード
+        int loaUserdNgramFile(StringRef ngramFilePath);
 
         // リアルタイムNgramファイルの保存
         // @param ngramFilePath リアルタイムNgramファイルのパス

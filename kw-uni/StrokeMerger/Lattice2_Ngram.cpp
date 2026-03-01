@@ -25,11 +25,14 @@ namespace lattice2 {
     const int minRealtimeNgramLen = 1;  // 最小N-gram長
     const int maxRealtimeNgramLen = 4;  // 最大N-gram長
 
-    // 利用者定義のボーナスを計算するためのカウント
-    std::map<MString, int> userNgramBonusCounts;
+    //// 利用者定義のボーナスを計算するためのカウント
+    //std::map<MString, int> userNgramBonusCounts;
+
+    // 利用者定義のNgramエントリ
+    std::set<MString> userNgramEntries;
 
     // ボーナスの加減算の対象にならない固定Ngramリスト (user.ngram.txt で、カウントの先頭が FIXED_NGRAM_MARKER のもの)
-    std::map<MString, int> fixedNgramBonusCounts;
+    //std::map<MString, int> fixedNgramBonusCounts;
 
     const static wchar_t FIXED_NGRAM_MARKER = L'$';
 
@@ -71,36 +74,55 @@ namespace lattice2 {
         NgramBridge::setRealtimeDictParameters(minRealtimeNgramLen, maxRealtimeNgramLen, SETTINGS->ngramMaxBonusPoint, SETTINGS->ngramBonusPointFactor);
     }
 
-    int _loadNgramFile(StringRef ngramFile, std::map<MString, int>& ngramMap) {
-        auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
-        LOG_INFOH(_T("LOAD: {}"), path.c_str());
-        int maxFreq = 0;
-        utils::IfstreamReader reader(path);
+    //int _loadNgramFile(StringRef ngramFile, std::map<MString, int>& ngramMap) {
+    //    auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
+    //    LOG_INFOH(_T("LOAD: {}"), path.c_str());
+    //    int maxFreq = 0;
+    //    utils::IfstreamReader reader(path);
+    //    if (reader.success()) {
+    //        for (const auto& line : reader.getAllLines()) {
+    //            auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
+    //            if (items.size() == 2 &&
+    //                items[0].size() >= 2 && items[0].size() <= 3 && items[0][0] != L'#' &&         // 2-3gramに限定
+    //                !items[1].empty()) {
+
+    //                MString word = to_mstr(items[0]);
+    //                String sCount = items[1];
+    //                if (sCount.size() >= 2 && sCount[0] == FIXED_NGRAM_MARKER && isDecimalString(sCount.substr(1))) {
+    //                    // 固定Ngram
+    //                    int count = std::stoi(sCount.substr(1));
+    //                    if (count == 0) count = 1;   // 0 は 1 に補正
+    //                    _LOG_DETAIL(L"Fixed Ngram: word={}, count={}", to_wstr(word), count);
+    //                    fixedNgramBonusCounts[word] = count;
+    //                } else if (isDecimalString(sCount)) {
+    //                    int count = std::stoi(sCount);
+    //                    ngramMap[word] = count;
+    //                    if (maxFreq < count) maxFreq = count;
+    //                }
+    //            }
+    //        }
+    //    }
+    //    LOG_INFOH(_T("DONE: maxFreq={}"), maxFreq);
+    //    return maxFreq;
+    //}
+
+    int _loadUserNgramFile(StringRef ngramFilePath) {
+        LOG_INFOH(_T("LOAD: {}"), ngramFilePath.c_str());
+        size_t nEntries = 0;
+        utils::IfstreamReader reader(ngramFilePath);
         if (reader.success()) {
             for (const auto& line : reader.getAllLines()) {
                 auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
-                if (items.size() == 2 &&
-                    items[0].size() >= 2 && items[0].size() <= 3 && items[0][0] != L'#' &&         // 2-3gramに限定
-                    !items[1].empty()) {
-
+                if (items.size() >= 1 && !items[0].empty() && items[0][0] != L'#') {
                     MString word = to_mstr(items[0]);
-                    String sCount = items[1];
-                    if (sCount.size() >= 2 && sCount[0] == FIXED_NGRAM_MARKER && isDecimalString(sCount.substr(1))) {
-                        // 固定Ngram
-                        int count = std::stoi(sCount.substr(1));
-                        if (count == 0) count = 1;   // 0 は 1 に補正
-                        _LOG_DETAIL(L"Fixed Ngram: word={}, count={}", to_wstr(word), count);
-                        fixedNgramBonusCounts[word] = count;
-                    } else if (isDecimalString(sCount)) {
-                        int count = std::stoi(sCount);
-                        ngramMap[word] = count;
-                        if (maxFreq < count) maxFreq = count;
-                    }
+                    _LOG_DETAIL(L"User Ngram entry: {}", to_wstr(word));
+                    userNgramEntries.insert(word);
+                    ++nEntries;
                 }
             }
         }
-        LOG_INFOH(_T("DONE: maxFreq={}"), maxFreq);
-        return maxFreq;
+        LOG_INFOH(_T("DONE: nEntries={}"), nEntries);
+        return nEntries;
     }
 
     String SelectedNgramPairBonus::debugString() const {
@@ -396,16 +418,29 @@ namespace lattice2 {
 
 #define REALTIME_NGRAM_FILE (SETTINGS->useTmpRealtimeNgramFile ? REALTIME_NGRAM_TEMP_FILE : REALTIME_NGRAM_MAIN_FILE)
 
+    // 各種Ngramファイルの読み込み
     void loadNgramFiles() {
         LOG_INFO(L"ENTER");
+
+        // リアルタイムNgramファイルの読み込み
         auto realtimeNgramPath = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
         int nEntries = NgramBridge::loadRealtimeDict(realtimeNgramPath);
         LOG_INFO(L"loadRealtimeDict(): nEntries={}", realtimeNgramPath, nEntries);
-        fixedNgramBonusCounts.clear();
-        userNgramBonusCounts.clear();
-        _loadNgramFile(USER_NGRAM_FILE, userNgramBonusCounts);
+
+        // ユーザー定義Ngramファイルの読み込み
+        auto userNgramPath = utils::joinPath(SETTINGS->rootDir, USER_NGRAM_FILE);
+        nEntries = NgramBridge::loadUserNgram(userNgramPath);
+        LOG_INFO(L"loadUserNgram(): nEntries={}", userNgramPath, nEntries);
+        //fixedNgramBonusCounts.clear();
+        //userNgramBonusCounts.clear();
+        //_loadNgramFile(USER_NGRAM_FILE, userNgramBonusCounts);
+        _loadUserNgramFile(userNgramPath);
+
+        // ユーザー選択Ngramファイルの読み込み
         selectedNgramInstance.loadSelectedNgramFile(SELECTED_NGRAM_FILE);
+
         maxCandidatesSize = 0;
+
         LOG_INFO(L"LEAVE");
     }
 
@@ -424,33 +459,15 @@ namespace lattice2 {
     //    return ch == ' ' || ch == '|';
     //}
 
-    int _getFixedNgramBonusPoint(const MString& word) {
-        int bonusPoint = 0;
-        auto iter = fixedNgramBonusCounts.find(word);
-        if (iter != fixedNgramBonusCounts.end()) {
-            bonusPoint = iter->second;
-        } else if (word.size() > 2) {
-            // 3文字以上のNgramについて、先頭または末尾2文字が固定Ngramである場合、そのボーナスを適用する
-            MString head2 = word.substr(0, 2);
-            iter = fixedNgramBonusCounts.find(head2);
-            if (iter != fixedNgramBonusCounts.end()) {
-                bonusPoint = iter->second;
-            } else {
-                MString tail2 = word.substr(word.size() - 2, 2);
-                iter = fixedNgramBonusCounts.find(tail2);
-                if (iter != fixedNgramBonusCounts.end()) {
-                    bonusPoint = iter->second;
-                }
-            }
-        }
-        _LOG_DETAIL(L"{}: bonusPoint={}", to_wstr(word), bonusPoint);
-        return bonusPoint;
+    bool isUserNgramEntry(const MString& word) {
+        auto iter = userNgramEntries.find(word);
+        return iter != userNgramEntries.end();
     }
 
     void _updateRealtimeNgramCountByWord(bool bIncrease, const MString& word, bool manualSelect) {
         if (manualSelect) {
-            if (_getFixedNgramBonusPoint(word) != 0) {
-                _LOG_DETAIL(L"Manual select: {} is FIXED ngram, ignored.", to_wstr(word));
+            if (isUserNgramEntry(word)) {
+                _LOG_DETAIL(L"Manual select: {} is user ngram entry, ignored.", to_wstr(word));
                 return;
             }
         }
@@ -522,32 +539,32 @@ namespace lattice2 {
         return 0;
     }
 
-    // realtimeおよびユーザー定義によるNgramのボーナスを取得
-    int getNgramBonus(const MString& word) {
-        int bonusPoint0 = _getFixedNgramBonusPoint(word);
-        if (bonusPoint0 == 0) {
-            bonusPoint0 = _getNgramBonusPoint(word, userNgramBonusCounts);
-        }
-        int bonusPoint = bonusPoint0;
-        if (bonusPoint > SETTINGS->ngramMaxBonusPoint) {
-            bonusPoint = SETTINGS->ngramMaxBonusPoint;
-        } else if (bonusPoint < -SETTINGS->ngramMaxBonusPoint) {
-            bonusPoint = -SETTINGS->ngramMaxBonusPoint;
-        }
-        if (bonusPoint != bonusPoint0) {
-            _LOG_DETAIL(L"bonusPoint CLIPPED from {} to {}", bonusPoint0, bonusPoint);
-        }
-        int bonus = calcNgramBonus(bonusPoint);
-        _LOG_DETAIL(L"BONUS={}: bonusPoint={} (orig={})", bonus, bonusPoint, bonusPoint0);
-        return bonus;
-    }
+    //// realtimeおよびユーザー定義によるNgramのボーナスを取得
+    //int getNgramBonus(const MString& word) {
+    //    //int bonusPoint0 = _getFixedNgramBonusPoint(word);
+    //    //if (bonusPoint0 == 0) {
+    //    //    bonusPoint0 = _getNgramBonusPoint(word, userNgramBonusCounts);
+    //    //}
+    //    int bonusPoint = bonusPoint0;
+    //    if (bonusPoint > SETTINGS->ngramMaxBonusPoint) {
+    //        bonusPoint = SETTINGS->ngramMaxBonusPoint;
+    //    } else if (bonusPoint < -SETTINGS->ngramMaxBonusPoint) {
+    //        bonusPoint = -SETTINGS->ngramMaxBonusPoint;
+    //    }
+    //    if (bonusPoint != bonusPoint0) {
+    //        _LOG_DETAIL(L"bonusPoint CLIPPED from {} to {}", bonusPoint0, bonusPoint);
+    //    }
+    //    int bonus = calcNgramBonus(bonusPoint);
+    //    _LOG_DETAIL(L"BONUS={}: bonusPoint={} (orig={})", bonus, bonusPoint, bonusPoint0);
+    //    return bonus;
+    //}
 
     //int getWordConnCost(const MString& s1, const MString& s2) {
     //    return get_base_ngram_cost(utils::last_substr(s1, 1) + utils::safe_substr(s2, 0, 1)) / 2;
     //}
 
     MString kanjiNumChars = to_mstr(L"一二三四五六七八九十〇");
-    std::wregex kanjiDateTime(L"^[一二三四五六七八九十〇](年[一二三四五六七八九十〇]+月([一二三四五六七八九十〇]+日)?|月[一二三四五六七八九十〇]+日|[一二三四五六七八九十〇]日)");
+    std::wregex kanjiDateTime(L"[一二三四五六七八九十〇](年[一二三四五六七八九十〇]+月([一二三四五六七八九十〇]+日)?|月[一二三四五六七八九十〇]+日|[一二三四五六七八九十〇]日)");
     
     size_t datePatternMatchedLen(const MString& str, size_t pos) {
         if (pos < str.size() && kanjiNumChars.find(str[pos]) != MString::npos) {
@@ -560,22 +577,22 @@ namespace lattice2 {
         return 0;
     }
 
-    std::pair<int, size_t> findMatchedNgramPos(const MString& str, size_t startPos, size_t endPos, size_t n) {
-        size_t strlen = str.size();
-        if (endPos > strlen) {
-            endPos = strlen;
-        }
-        int bonus = 0;
-        for (size_t pos = startPos; pos + n <= endPos; ++pos) {
-            MString subStr = utils::safe_substr(str, pos, n);
-            bonus = getNgramBonus(subStr);
-            if (bonus != 0) {
-                _LOG_DETAIL(L"Matched {}gram: str={}, pos={}, word={}, bonus={}", n, to_wstr(str), pos, to_wstr(subStr), bonus);
-                return { bonus, pos };
-            }
-        }
-        return { 0, endPos };
-    }
+    //std::pair<int, size_t> findMatchedNgramPos(const MString& str, size_t startPos, size_t endPos, size_t n) {
+    //    size_t strlen = str.size();
+    //    if (endPos > strlen) {
+    //        endPos = strlen;
+    //    }
+    //    int bonus = 0;
+    //    for (size_t pos = startPos; pos + n <= endPos; ++pos) {
+    //        MString subStr = utils::safe_substr(str, pos, n);
+    //        bonus = getNgramBonus(subStr);
+    //        if (bonus != 0) {
+    //            _LOG_DETAIL(L"Matched {}gram: str={}, pos={}, word={}, bonus={}", n, to_wstr(str), pos, to_wstr(subStr), bonus);
+    //            return { bonus, pos };
+    //        }
+    //    }
+    //    return { 0, endPos };
+    //}
 
     // Ngramコストの取得
     int getNgramCost(const MString& str, const std::vector<MString>& morphs, bool bUseGeta) {
@@ -586,29 +603,32 @@ namespace lattice2 {
         int cost0 = NgramBridge::ngramCalcCost(targetStr, morphs, ngrams, SETTINGS->multiStreamDetailLog);
         int cost = cost0;
         _LOG_DETAIL(L"ngrams: initial cost={}\n--------\n{}\n--------", cost, to_wstr(utils::join(ngrams, '\n')));
-        if (targetStr.size() >= 2) {
-            for (size_t pos = 0; pos < targetStr.size() - 1; ++pos) {
-                // realtimeおよびユーザー定義による2gramと3gramのボーナスを差し引く
-                int bonus = 0;
-                int bonus2 = getNgramBonus(utils::safe_substr(targetStr, pos, 2));
-                int bonus3 = 0;
-                if (pos + 2 < targetStr.size()) {
-                    bonus3 = getNgramBonus(utils::safe_substr(targetStr, pos, 3));
-                    if (bonus3 == 0) {
-                        // 3gramボーナスがなければ、「M月N日」パターンに該当するか確認
-                        if (utils::reMatch(to_wstr(targetStr), kanjiDateTime)) {
-                            bonus3 = calcNgramBonus(DATE_PATTERN_BONUMS_POINT);
-                        }
-                    }
-                }
-                bonus = bonus2 + bonus3;
-                if (bonus2 != 0 && bonus3 != 0) {
-                    // 2gramと3gramの両方にボーナスがある場合は平均を取る
-                    bonus /= 2;
-                }
-                cost -= bonus;
-                _LOG_DETAIL(L"pos={}, word={}, cost={}, bonus={} (2gram={}, 3gram={})", pos, to_wstr(utils::safe_substr(targetStr, pos, 3)), cost, bonus, bonus2, bonus3);
-            }
+        //if (targetStr.size() >= 2) {
+        //    for (size_t pos = 0; pos < targetStr.size() - 1; ++pos) {
+        //        // realtimeおよびユーザー定義による2gramと3gramのボーナスを差し引く
+        //        int bonus = 0;
+        //        int bonus2 = getNgramBonus(utils::safe_substr(targetStr, pos, 2));
+        //        int bonus3 = 0;
+        //        if (pos + 2 < targetStr.size()) {
+        //            bonus3 = getNgramBonus(utils::safe_substr(targetStr, pos, 3));
+        //            if (bonus3 == 0) {
+        //                // 3gramボーナスがなければ、「M月N日」パターンに該当するか確認
+        //                if (utils::reMatch(to_wstr(targetStr), kanjiDateTime)) {
+        //                    bonus3 = calcNgramBonus(DATE_PATTERN_BONUMS_POINT);
+        //                }
+        //            }
+        //        }
+        //        bonus = bonus2 + bonus3;
+        //        if (bonus2 != 0 && bonus3 != 0) {
+        //            // 2gramと3gramの両方にボーナスがある場合は平均を取る
+        //            bonus /= 2;
+        //        }
+        //        cost -= bonus;
+        //        _LOG_DETAIL(L"pos={}, word={}, cost={}, bonus={} (2gram={}, 3gram={})", pos, to_wstr(utils::safe_substr(targetStr, pos, 3)), cost, bonus, bonus2, bonus3);
+        //    }
+        //}
+        if (utils::reMatch(to_wstr(targetStr), kanjiDateTime)) {
+            cost -= calcNgramBonus(DATE_PATTERN_BONUMS_POINT);
         }
         _LOG_DETAIL(L"LEAVE: str={}: initialCost={}, resultCost={}, adjustedCost={} (* NGRAM_COST_FACTOR({}))\n",
             to_wstr(str), cost0, cost, cost * SETTINGS->ngramCostFactor, SETTINGS->ngramCostFactor);

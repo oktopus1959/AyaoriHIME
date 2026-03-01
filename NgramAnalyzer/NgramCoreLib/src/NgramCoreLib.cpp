@@ -132,7 +132,17 @@ namespace NgramCoreLib {
     int LoadRealtimeDict(StringRef ngramFilePath) {
         LOG_INFOH(L"ENTER");
         ERROR_HANDLER->Clear();
-        int result = RealtimeDict::loadNgramFile(ngramFilePath);
+        int result = RealtimeDict::loadRealtimeNgramFile(ngramFilePath);
+        LOG_INFOH(L"LEAVE: result={}", result);
+        return result;
+    }
+
+    // ユーザーNgram辞書のロード
+    // @param ngramFilePath ユーザーNgramファイルのパス
+    int LoadUserNgram(StringRef ngramFilePath) {
+        LOG_INFOH(L"ENTER");
+        ERROR_HANDLER->Clear();
+        int result = RealtimeDict::loaUserdNgramFile(ngramFilePath);
         LOG_INFOH(L"LEAVE: result={}", result);
         return result;
     }

@@ -50,11 +50,7 @@ namespace analyzer {
     private:
         OptHandlerPtr opts;
 
-        //val whatLog = WhatLog();
-
         UniqPtr<Tokenizer> tokenizer;
-
-        //UniqPtr<Connector> connector;
 
         int cost_factor_;
         double theta;
@@ -63,7 +59,6 @@ namespace analyzer {
         Impl(OptHandlerPtr opts) :
             opts(opts),
             tokenizer(MakeUniq<Tokenizer>(opts)),
-            //connector(MakeUniq<Connector>(*opts)),
             cost_factor_(opts->getInt(L"cost-factor", 800)),
             theta(opts->getDouble(L"theta", kDefaultTheta))
         {
@@ -71,22 +66,6 @@ namespace analyzer {
             CHECK_OR_THROW(!tokenizer->getDictionaries().empty(), L"Dictionary is empty");
             LOG_INFOH(L"LEAVE");
         }
-
-        //---------------------------------------------------------------------------
-        ///**
-        // * 形態素解析処理
-        // */
-        //void analyze(LatticePtr lattice) {
-        //    LOG_INFO(L"ENTER");
-        //    CHECK_OR_THROW(lattice && lattice->sentence,
-        //        L"Viterbi.analyze: lattice must not be null and have non-null sentence");
-
-        //    // viterbi 処理 (解析部本体)
-        //    viterbi(lattice);
-        //    // 最良コストのPathを next で連結する
-        //    linkBestPath(lattice);
-        //    LOG_INFO(L"LEAVE");
-        //}
 
     private:
         //---------------------------------------------------------------------------

@@ -15,6 +15,10 @@ namespace NgramCoreLib {
     // リアルタイムNgram辞書のロード
     int LoadRealtimeDict(StringRef ngramFilePath);
 
+    // ユーザーNgram辞書のロード
+    // @param ngramFilePath ユーザーNgramファイルのパス
+    int LoadUserNgram(StringRef ngramFilePath);
+
     // リアルタイムNgramファイルの保存
     // @param ngramFilePath リアルタイムNgramファイルのパス
     // @param rotationNum 過去履歴の保存数 (0 なら保存しない)

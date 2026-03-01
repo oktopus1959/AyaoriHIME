@@ -17,7 +17,11 @@ namespace analyzer {
     namespace RealtimeDict {
         DEFINE_LOCAL_LOGGER(RealtimeDict);
 
+        // リアルタイムN-gramの辞書 (単語 -> カウント)
         static std::map<String, int> realtimeDict;
+
+        // ユーザー定義のN-gramの辞書 (単語 -> カウント)。ユーザー定義のN-gramカウントは、リアルタイムN-gramカウントに加算される
+        static std::map<String, int> userDict;
 
         size_t minLen = 1;  // 最小N-gram長
         size_t maxLen = 4;  // 最大N-gram長
@@ -46,7 +50,7 @@ namespace analyzer {
         }
 
         // リアルタイムNgramファイルのロード
-        int loadNgramFile(StringRef ngramFilePath) {
+        int loadRealtimeNgramFile(StringRef ngramFilePath) {
             LOG_INFOH(_T("LOAD: {}"), ngramFilePath);
             int nEntries = 0;
             realtimeDict.clear();
@@ -61,6 +65,32 @@ namespace analyzer {
                             realtimeDict[items[0]] = count;
                             ++nEntries;
                         }
+                    }
+                }
+            }
+            LOG_INFOH(_T("DONE: nEntries={}"), nEntries);
+            return nEntries;
+        }
+
+        // ユーザー定義のNgramファイルのロード
+        int loaUserdNgramFile(StringRef ngramFilePath) {
+            LOG_INFOH(_T("LOAD: {}"), ngramFilePath);
+            int nEntries = 0;
+            userDict.clear();
+            utils::IfstreamReader reader(ngramFilePath);
+            if (reader.success()) {
+                for (const auto& line : reader.getAllLines()) {
+                    auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
+                    if (items.size() >= 1 && !items[0].empty() && items[0][0] != L'#') {
+                        int count = ngramMaxBonusPoint;  // ユーザー定義のN-gramは、デフォルトで最大ボーナスポイントを与える
+                        if (!items[1].empty()) {
+                            String sCount = items[1];
+                            if (isDecimalString(sCount)) {
+                                count = std::stoi(sCount);
+                            }
+                        }
+                        userDict[items[0]] = count;
+                        ++nEntries;
                     }
                 }
             }
@@ -109,9 +139,13 @@ namespace analyzer {
                 if (point <= ngramMaxBonusPoint * 2) {
                     point = ngramMaxBonusPoint + (point - ngramMaxBonusPoint) * 0.4;
                 } else if (point <= ngramMaxBonusPoint * 4) {
-                    point = ngramMaxBonusPoint * 1.5 + (point - ngramMaxBonusPoint * 2) * 0.2;
+                    point = ngramMaxBonusPoint * 1.4 + (point - ngramMaxBonusPoint * 2) * 0.2;
+                } else if (point <= ngramMaxBonusPoint * 40) {
+                    point = ngramMaxBonusPoint * 1.8 + (point - ngramMaxBonusPoint * 4) * 0.1;
+                } else if (point <= ngramMaxBonusPoint * 400) {
+                    point = ngramMaxBonusPoint * 2.16 + (point - ngramMaxBonusPoint * 40) * 0.02;
                 } else {
-                    point = ngramMaxBonusPoint * 1.75 + (point - ngramMaxBonusPoint * 4) * 0.1;
+                    point = ngramMaxBonusPoint * 9.36 + (point - ngramMaxBonusPoint * 400) * 0.01;
                 }
             }
             return (int)(point * ngramBonusPointFactor);
@@ -124,21 +158,33 @@ namespace analyzer {
         std::vector<int> commonPrefixSearch(const String& str, size_t pos) {
             LOG_DEBUG(L"ENTER: str={}, pos={}", str, pos);
             std::vector<int> result;
-            result.resize(maxLen + 1, 0);  // インデックスはエントリの長さを表す。0 はエントリがないことを表す。
+            result.resize(maxLen + 1, 0);  // エントリの長さでインデックスされる。値 0 はエントリがないことを表す。
             if (minLen > 0) {
                 size_t end = std::min(pos + maxLen, str.size());
                 for (size_t i = pos + minLen; i <= end; ++i) {
                     size_t len = i - pos;
                     if (len == 1 && utils::is_pure_kanji(str[pos])) {
                         if (pos == 0 || pos + 1 >= str.size() || !utils::is_hiragana(str[pos - 1]) || !utils::is_hiragana(str[pos + 1])) {
+                            // 1文字の漢字で、前後がひらがなでない場合は、N-gramエントリとして扱わない
                             continue;
                         }
                     }
                     String key = str.substr(pos, i - pos);
+                    int count = 0;
+                    // リアルタイムN-gram辞書とユーザー定義N-gram辞書の両方を検索して、カウントを合算する
                     auto it = realtimeDict.find(key);
                     if (it != realtimeDict.end()) {
-                        result[len] = calcBonus(it->second);
-                        LOG_DEBUG(L"FOUND: key={}, bonus[{}]={}", key, len, result[len]);
+                        count = it->second;
+                        LOG_DEBUG(L"realtime FOUND: key={}, count={}", key, it->second);
+                    }
+                    it = userDict.find(key);
+                    if (it != userDict.end()) {
+                        count += it->second;
+                        LOG_DEBUG(L"userDic FOUND: key={}, count={}", key, it->second);
+                    }
+                    if (count > 0) {
+                        result[len] = calcBonus(count);
+                        LOG_DEBUG(L"FOUND: key={}, count={}, bonus[{}]={}", key, count, len, result[len]);
                     }
                 }
             }

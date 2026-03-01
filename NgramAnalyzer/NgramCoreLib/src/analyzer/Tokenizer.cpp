@@ -212,12 +212,6 @@ namespace analyzer {
             LOG_INFOH(L"ENTER");
             auto prefix = opts->getString(L"dicdir", L".");
 
-            // 未知語辞書
-            //LOG_INFOH(L"load Unknown dic: START");
-            //unkdic = MakeShared<dict::Dictionary>(opts);
-            //unkdic->load(utils::join_path(prefix, UNK_DIC_FILE));
-            //LOG_INFOH(L"load Unknown dic: DONE");
-
             // システム辞書
             sysdic = MakeShared<dict::Dictionary>(opts);
             sysdic->load(utils::join_path(prefix, SYS_DIC_FILE));
@@ -260,19 +254,6 @@ namespace analyzer {
         void resetTempDict(StringRef entries) {
             tempDict.resetEntries(entries);
         }
-
-        //size_t get_max_grouping_size() {
-        //    auto size = opts->getInt(L"max-grouping-size", 0);
-        //    return size <= 0 ? DEFAULT_MAX_GROUPING_SIZE : (size_t)size;
-        //}
-
-        //SharedPtr<dict::DictionaryInfo> make_dic_info_chain() {
-        //    auto dic_info : dict::DictionaryInfo = null;
-        //    dics.reverse.foreach{ dic = >
-        //      dic_info = dict::DictionaryInfo(dic.info, dic_info);
-        //    }
-        //    dic_info;
-        //}
 
     }; // Tokenizer::Impl
     DEFINE_CLASS_LOGGER(Tokenizer::Impl);
