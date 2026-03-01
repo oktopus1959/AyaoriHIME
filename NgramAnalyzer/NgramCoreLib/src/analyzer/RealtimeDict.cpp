@@ -152,6 +152,10 @@ namespace analyzer {
             return (int)(point * ngramBonusPointFactor);
         }
 
+        inline bool isKanjiOrGeta(wchar_t ch) {
+            return utils::is_kanji(ch) || ch == L'〓';
+        }
+
         // 与えられた文字列の先頭部分にマッチするエントリ（複数可）を検索する
         // @param str 検索対象の文字列
         // @param pos 検索開始位置
@@ -164,9 +168,9 @@ namespace analyzer {
                 size_t end = std::min(pos + maxLen, str.size());
                 for (size_t i = pos + minLen; i <= end; ++i) {
                     size_t len = i - pos;
-                    if (len == 1 && utils::is_pure_kanji(str[pos])) {
-                        if (pos == 0 || pos + 1 >= str.size() || !utils::is_hiragana(str[pos - 1]) || !utils::is_hiragana(str[pos + 1])) {
-                            // 1文字の漢字で、前後がひらがなでない場合は、N-gramエントリとして扱わない
+                    if (len == 1 && utils::is_kanji(str[pos])) {
+                        if (pos == 0 || pos + 1 >= str.size() || isKanjiOrGeta(str[pos - 1]) || isKanjiOrGeta(str[pos + 1])) {
+                            // 1文字の漢字で、前後も漢字かゲタ文字の場合は、N-gramエントリとして扱わない
                             continue;
                         }
                     }

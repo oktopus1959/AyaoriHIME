@@ -68,38 +68,6 @@ namespace lattice2 {
         NgramBridge::setRealtimeDictParameters(minRealtimeNgramLen, maxRealtimeNgramLen, SETTINGS->ngramMaxBonusPoint, SETTINGS->ngramBonusPointFactor);
     }
 
-    //int _loadNgramFile(StringRef ngramFile, std::map<MString, int>& ngramMap) {
-    //    auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
-    //    LOG_INFOH(_T("LOAD: {}"), path.c_str());
-    //    int maxFreq = 0;
-    //    utils::IfstreamReader reader(path);
-    //    if (reader.success()) {
-    //        for (const auto& line : reader.getAllLines()) {
-    //            auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
-    //            if (items.size() == 2 &&
-    //                items[0].size() >= 2 && items[0].size() <= 3 && items[0][0] != L'#' &&         // 2-3gramに限定
-    //                !items[1].empty()) {
-
-    //                MString word = to_mstr(items[0]);
-    //                String sCount = items[1];
-    //                if (sCount.size() >= 2 && sCount[0] == FIXED_NGRAM_MARKER && isDecimalString(sCount.substr(1))) {
-    //                    // 固定Ngram
-    //                    int count = std::stoi(sCount.substr(1));
-    //                    if (count == 0) count = 1;   // 0 は 1 に補正
-    //                    _LOG_DETAIL(L"Fixed Ngram: word={}, count={}", to_wstr(word), count);
-    //                    fixedNgramBonusCounts[word] = count;
-    //                } else if (isDecimalString(sCount)) {
-    //                    int count = std::stoi(sCount);
-    //                    ngramMap[word] = count;
-    //                    if (maxFreq < count) maxFreq = count;
-    //                }
-    //            }
-    //        }
-    //    }
-    //    LOG_INFOH(_T("DONE: maxFreq={}"), maxFreq);
-    //    return maxFreq;
-    //}
-
     // Ngram差分の登録対象にならない固定Ngramをユーザー定義Ngramファイルから読み込む
     int _loadFixedNgramFile(StringRef ngramFilePath) {
         LOG_INFOH(_T("LOAD: {}"), ngramFilePath.c_str());
@@ -201,6 +169,15 @@ namespace lattice2 {
             }
         }
 
+        void updateSelectdNgramMap(const MString& key, const MString& posi, const MString& nega, int bonusPoint) {
+            _LOG_DETAIL(L"key={}, pos={}, nega={}, bonusPoint={}", to_wstr(key), to_wstr(posi), to_wstr(nega), bonusPoint);
+            auto pred = [&key](const SelectedNgramPairBonus& item) { return item.ngramPair == key; };
+            if (selectedNgramMap.contains(posi)) std::erase_if(selectedNgramMap[posi], pred);
+            if (selectedNgramMap.contains(nega)) std::erase_if(selectedNgramMap[nega], pred);
+            selectedNgramMap[posi].insert(SelectedNgramPairBonus{ key, bonusPoint });       // positive ngram
+            selectedNgramMap[nega].insert(SelectedNgramPairBonus{ key, -bonusPoint });      // negative ngram
+        }
+
         // Ngram差分の更新
         void updateSelectedNgram(const MString& posi, const MString& nega) {
             if (isFixedNgramEntry(posi) && isFixedNgramEntry(nega)) {
@@ -210,24 +187,28 @@ namespace lattice2 {
             }
             auto key = nega + MSTR_VERT_BAR + posi;
             auto iter = selectedNgrams.find(key);
+            _LOG_DETAIL(L"key={} entry {}FOUND", to_wstr(key), iter != selectedNgrams.end() ? L"" : L"NOT ");
             int bonusPoint = 0;
             if (iter != selectedNgrams.end()) {
                 iter->second -= SETTINGS->ngramManualSelectDelta;
                 bonusPoint = iter->second;
+                updateSelectdNgramMap(key, posi, nega, -bonusPoint);
                 bUpdated = true;
             } else {
                 key = posi + MSTR_VERT_BAR + nega;
                 iter = selectedNgrams.find(key);
+                _LOG_DETAIL(L"key={} entry {}FOUND", to_wstr(key), iter != selectedNgrams.end() ? L"" : L"NOT ");
                 if (iter != selectedNgrams.end()) {
                     iter->second += SETTINGS->ngramManualSelectDelta;
                     bonusPoint = iter->second;
+                    updateSelectdNgramMap(key, posi, nega, bonusPoint);
                     bUpdated = true;
                 } else {
                     // 新規追加
+                    _LOG_DETAIL(L"add new entry: key={}", to_wstr(key));
                     bonusPoint = SETTINGS->ngramManualSelectDelta;
                     selectedNgrams[key] = bonusPoint;
-                    selectedNgramMap[posi].insert(SelectedNgramPairBonus{ key, SETTINGS->ngramManualSelectDelta });      // positive ngram
-                    selectedNgramMap[nega].insert(SelectedNgramPairBonus{ key, -SETTINGS->ngramManualSelectDelta });     // negative ngram
+                    updateSelectdNgramMap(key, posi, nega, bonusPoint);
                     bUpdated = true;
                 }
             }
@@ -253,12 +234,23 @@ namespace lattice2 {
         // Ngramは、2~5文字
         const std::set<SelectedNgramPairBonus> findNgramPairBonus(const MString& str) {
             std::set<SelectedNgramPairBonus> resultSet;
+            bool kanji = false;
+            bool pKanji = false;
+            bool ppKanji = false;
             for (size_t i = 0; i < str.size(); ++i) {
+                ppKanji = pKanji;
+                pKanji = kanji;
+                kanji = utils::is_kanji(str[i]);
                 if (i == 0) {
                     // 先頭文字の場合は、〓付きも調べる (例: 〓池 vs 〓での)
                     for (size_t len = 1; len <= MAX_SELECTED_NGRAM_LEN && i + len <= str.size(); ++len) {
                         gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(i, len));
                     }
+                }
+                if (i >= 3 && !ppKanji && pKanji && !kanji) {
+                    // 「非漢字-漢字-非漢字」のパターンの場合は、漢字1文字についても調べる
+                    _LOG_DETAIL(L"Pattern: non-kanji [{}] - kanji [{}] - non-kanji [{}]", to_wstr(str[i - 2]), to_wstr(str[i - 1]), to_wstr(str[i]));
+                    gatherSelectedNgramPairBonus(resultSet, str.substr(i - 1, 1));
                 }
                 for (size_t len = 2; len <= MAX_SELECTED_NGRAM_LEN && i + len <= str.size(); ++len) {
                     gatherSelectedNgramPairBonus(resultSet, str.substr(i, len));
@@ -323,10 +315,13 @@ namespace lattice2 {
         auto checkResync = [&](size_t endPos1, size_t endPos2) -> int {
             if (s1[endPos1] == s2[endPos1]) {
                 if (endPos1 + 1 < len1 && endPos2 + 1 < len2 && s1[endPos1 + 1] != s2[endPos2 + 1]) {
+                    // 再同期した位置の次の文字が異なっている
                     return 1;
                 }
+                // 再同期した
                 return 0;
             }
+            // 再同期できなかった
             return -1;
         };
 
@@ -334,24 +329,43 @@ namespace lattice2 {
             size_t endPos = startPos + 1;
             while (endPos < len1 && endPos < len2) {
                 int res = checkResync(endPos, endPos);
-                if (res > 0) {
+                _LOG_DETAIL(L"checkResync: endPos={}, endPos={}, res={}", endPos, endPos, res);
+                //if (res > 0) {
+                //    // 再同期した位置の次の文字が異なっている
+                //    _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, endPos={} )", startPos, endPos, endPos);
+                //    return { startPos, endPos, endPos };
+                //}
+                if (res == 0) {
+                    // 再同期した
+                    _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, endPos={} )", startPos, endPos, endPos);
                     return { startPos, endPos, endPos };
-                } else if (res < 0) {
+                } else {
+                    // 再同期できなかったか、再同期した位置の次の文字が異なっている
                     size_t pos = endPos - 1;
                     while (pos > startPos) {
                         res = checkResync(pos, endPos);
-                        if (res > 0) {
+                        _LOG_DETAIL(L"checkResync: pos={}, endPos={}, res={}", pos, endPos, res);
+                        //if (res > 0) {
+                        //    // 再同期した位置の次の文字が異なっている
+                        //    _LOG_DETAIL(L"RETURN: ( startPos={}, pos={}, endPos={} )", startPos, pos, endPos);
+                        //    return { startPos, pos, endPos };
+                        //}
+                        if (res == 0) {
+                            // 再同期した
+                            _LOG_DETAIL(L"RETURN: ( startPos={}, pos={}, endPos={} )", startPos, pos, endPos);
                             return { startPos, pos, endPos };
                         }
-                        if (res == 0) {
-                            break;
-                        }
                         res = checkResync(endPos, pos);
-                        if (res > 0) {
-                            return { startPos, endPos, pos };
-                        }
+                        _LOG_DETAIL(L"checkResync: endPos={}, pos={}, res={}", endPos, pos, res);
+                        //if (res > 0) {
+                        //    // 再同期した位置の次の文字が異なっている
+                        //    _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, pos={} )", startPos, endPos, pos);
+                        //    return { startPos, endPos, pos };
+                        //}
                         if (res == 0) {
-                            break;
+                            // 再同期した
+                            _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, pos={} )", startPos, endPos, pos);
+                            return { startPos, endPos, pos };
                         }
                         --pos;
                     }
@@ -359,6 +373,7 @@ namespace lattice2 {
                 ++endPos;
             }
         }
+        _LOG_DETAIL(L"RETURN: ( startPos={}, len1={}, len2={} )", startPos, len1, len2);
         return { startPos, len1, len2 };
     }
 
@@ -405,17 +420,27 @@ namespace lattice2 {
                         MSTR_GETA + newCand.substr(startPos, lenx2),
                         MSTR_GETA + oldCand.substr(startPos, lenx1));
                 }
-                ++len1;
-                ++len2;
-                if (startPos > 0) {
+                if (startPos > 0 && len1 == 1 && len2 == 1 && baseSize > startPos + 1 && diffSize > startPos + 1 &&
+                    utils::is_kanji(oldCand[startPos]) && utils::is_kanji(newCand[startPos]) &&
+                    !utils::is_kanji(oldCand[startPos - 1]) && !utils::is_kanji(oldCand[startPos + 1])) {
+                    // 漢字1文字だけが異なっている場合
+                    LOG_INFOH(L"apped only 1 kanji");
                     selectedNgramInstance.updateSelectedNgram(
-                        newCand.substr(startPos - 1, len2),
-                        oldCand.substr(startPos - 1, len1));
-                }
-                if (startPos + len1 <= baseSize && startPos + len2 < diffSize) {
-                    selectedNgramInstance.updateSelectedNgram(
-                        newCand.substr(startPos, len2),
-                        oldCand.substr(startPos, len1));
+                        newCand.substr(startPos, 1),
+                        oldCand.substr(startPos, 1));
+                } else {
+                    ++len1;
+                    ++len2;
+                    if (startPos > 0) {
+                        selectedNgramInstance.updateSelectedNgram(
+                            newCand.substr(startPos - 1, len2),
+                            oldCand.substr(startPos - 1, len1));
+                    }
+                    if (startPos + len1 <= baseSize && startPos + len2 < diffSize) {
+                        selectedNgramInstance.updateSelectedNgram(
+                            newCand.substr(startPos, len2),
+                            oldCand.substr(startPos, len1));
+                    }
                 }
             } else if (len1 <= MAX_SELECTED_NGRAM_LEN && len2 <= MAX_SELECTED_NGRAM_LEN) {
                 // 3~5文字の差分の場合は、そのまま更新する
@@ -483,28 +508,32 @@ namespace lattice2 {
         int strlen = (int)str.size();
         int hirakanLen = 0;
         int kanjiLen = 0;
-        int pKanjiLen = 0;
-        int ppKanjiLen = 0;
+        bool kanji = false;
+        bool pKanji = false;
+        bool ppKanji = false;
         for (int pos = 0; pos < strlen; ++pos) {
-            ppKanjiLen = pKanjiLen;
-            pKanjiLen = kanjiLen;
+            ppKanji = pKanji;
+            pKanji = kanji;
             if (utils::is_hiragana(str[pos])) {
+                kanji = false;
                 kanjiLen = 0;
                 ++hirakanLen;
             } else if (utils::is_kanji(str[pos])) {
+                kanji = true;
                 ++kanjiLen;
                 ++hirakanLen;
             } else {
                 hirakanLen = 0;
                 kanjiLen = 0;
+                kanji = false;
             }
             if (hirakanLen >= 3 && pos >= 2) {
                 // ひらがなor漢字が3文字以上連続している場合は、3gramを更新する
                 _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 2, 3));
-                // 漢字1文字で、前後がひらがなの場合は、その漢字のみのNgramも更新する (例: 「池」の前後がひらがななら、「池」も更新する)
-                if (ppKanjiLen == 0 && pKanjiLen == 1 && kanjiLen == 0) {
-                    _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 1));
-                }
+            }
+            // 漢字1文字で、前後が非漢字の場合は、その漢字のみのNgramも更新する (例: 「池」の前後がひらがななら、「池」も更新する)
+            if (pos >= 3 && !ppKanji == 0 && pKanji && !kanji) {
+                _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 1));
             }
             if (kanjiLen >= 2 && pos >= 1) {
                 // 漢字が2文字以上連続している場合は、2gramを更新する
