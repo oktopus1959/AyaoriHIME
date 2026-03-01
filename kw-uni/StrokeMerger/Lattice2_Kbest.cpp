@@ -569,17 +569,31 @@ namespace lattice2 {
             //return bAdded;
         }
 
+        String debugString(std::vector<CandidateString>& candidates) const {
+            String result;
+            result.append(_T("--------\n"));
+            for (size_t i = 0; i < candidates.size(); ++i) {
+                result.append(std::to_wstring(i));
+                result.append(_T(": "));
+                result.append(candidates[i].debugString());
+                result.append(_T("\n"));
+            }
+            result.append(_T("--------"));
+            return result;
+        }
+
         // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
         void reorderCandidates(std::vector<CandidateString>& newCandidates) {
             // CandidateString::totalCost() の昇順にソート
-            _LOG_DETAIL(_T("ENTER"));
+            _LOG_DETAIL(_T("ENTER: newCandidates:\n{}"), debugString(newCandidates));
             // ユーザー選択Ngramペアを探して、totalCostを調整
             std::map<MString, std::tuple<int, std::set<size_t>, std::set<size_t>>> foundNgram;   // <Ngram, <bonusPoint, positiveCandidateIndexes, negativeCandidateIndexes>>
             for (size_t i = 0; i < newCandidates.size(); ++i) {
+                _LOG_DETAIL(_T("cand[{}]={}"), i, newCandidates[i].debugString());
                 const MString& candStr = newCandidates[i].string();
                 //const std::set<SelectedNgramPairBonus> currentSet = findNgramPairBonus(candStr);
                 // TODO: 「あい|阿井」「あいう|阿井宇」のようなSelectedNgram対がある場合は、両者ともマッチしてしまうケースもある(現在は両方とも計算に入ってしまう)
-                _LOG_DETAIL(_T("candStr={}"), to_wstr(candStr));
+                //_LOG_DETAIL(_T("candStr={}"), to_wstr(candStr));
                 for (const auto& current : findNgramPairBonus(candStr)) {
                     if (current.isValid()) {
                         auto iter = foundNgram.find(current.ngramPair);
@@ -841,6 +855,7 @@ namespace lattice2 {
                         // 素片が追加されたことになるので、強制的に形態素解析を行う
                         useMorphAnalyzer = true;
                         calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
+                        _LOG_DETAIL(_T("add newCnadStr={}"), newCandStr.debugString());
                         newCandidates.push_back(newCandStr);
                         bAutoBushuFound = true;
                         if (!SETTINGS->multiCandidateMode) break;  // 複数候補モードでなければ、自動部首合成を見つけたら終了
@@ -866,9 +881,10 @@ namespace lattice2 {
                             prevKanjiCandCost = cost;
                         } else {
                             newCandStr.addNgramCost(prevKanjiCandCost - cost + 1);
-                            _LOG_DETAIL(_T("newCnadStr.totalCost={}"), newCandStr.totalCost());
+                            _LOG_DETAIL(_T("ngramCost adjusted. newCnadStr.totalCost={}"), newCandStr.totalCost());
                         }
                     }
+                    _LOG_DETAIL(_T("add newCnadStr={}"), newCandStr.debugString());
                     newCandidates.push_back(newCandStr);
                 }
                 // pieceが確定文字の場合
@@ -879,7 +895,7 @@ namespace lattice2 {
                 }
 
             }
-            _LOG_DETAIL(_T("LEAVE"));
+            _LOG_DETAIL(_T("LEAVE: {}\n"), piece.debugString());
         }
 
         //// 指定の打鍵回数分、解の先頭部分が同じなら、それらだけを残す

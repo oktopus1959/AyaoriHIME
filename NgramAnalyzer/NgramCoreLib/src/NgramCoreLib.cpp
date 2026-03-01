@@ -26,7 +26,7 @@ using Logger = NgramCoreLib::Logger;
 #endif
 
 namespace {
-    DEFINE_LOCAL_LOGGER(NgramLib);
+    DEFINE_LOCAL_LOGGER(NgramCoreLib);
 
     OptHandlerPtr opts;
 
@@ -227,7 +227,7 @@ namespace NgramCoreLib {
      * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
      */
     int NgramAnalyze(const wchar_t* sentence, const wchar_t* tempEntries, wchar_t* wakati_buf, size_t bufsize, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz) {
-        LOG_INFO(L"ENTER: sentence={}", sentence ? sentence : L"null");
+        LOG_INFOH(L"ENTER: sentence={}", sentence ? sentence : L"null");
         ERROR_HANDLER->Clear();
 
         try {
@@ -272,7 +272,7 @@ namespace NgramCoreLib {
                 LOG_INFO(L"LEAVE: ERROR");
                 return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
             }
-            LOG_INFO(L"LEAVE: cost={}", cost);
+            LOG_INFOH(L"LEAVE: cost={}, sent={}", cost, sentence ? sentence : L"null");
             return cost;
         } catch (RuntimeException ex) {
             ERROR_HANDLER->Error(ex.getMessage());

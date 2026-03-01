@@ -25,14 +25,8 @@ namespace lattice2 {
     const int minRealtimeNgramLen = 1;  // 最小N-gram長
     const int maxRealtimeNgramLen = 4;  // 最大N-gram長
 
-    //// 利用者定義のボーナスを計算するためのカウント
-    //std::map<MString, int> userNgramBonusCounts;
-
-    // 利用者定義のNgramエントリ
-    std::set<MString> userNgramEntries;
-
-    // ボーナスの加減算の対象にならない固定Ngramリスト (user.ngram.txt で、カウントの先頭が FIXED_NGRAM_MARKER のもの)
-    //std::map<MString, int> fixedNgramBonusCounts;
+    // Ngram差分の登録対象にならない固定Ngram
+    std::set<MString> fixedNgramEntries;
 
     const static wchar_t FIXED_NGRAM_MARKER = L'$';
 
@@ -106,7 +100,8 @@ namespace lattice2 {
     //    return maxFreq;
     //}
 
-    int _loadUserNgramFile(StringRef ngramFilePath) {
+    // Ngram差分の登録対象にならない固定Ngramをユーザー定義Ngramファイルから読み込む
+    int _loadFixedNgramFile(StringRef ngramFilePath) {
         LOG_INFOH(_T("LOAD: {}"), ngramFilePath.c_str());
         size_t nEntries = 0;
         utils::IfstreamReader reader(ngramFilePath);
@@ -115,14 +110,20 @@ namespace lattice2 {
                 auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
                 if (items.size() >= 1 && !items[0].empty() && items[0][0] != L'#') {
                     MString word = to_mstr(items[0]);
-                    _LOG_DETAIL(L"User Ngram entry: {}", to_wstr(word));
-                    userNgramEntries.insert(word);
+                    _LOG_DETAIL(L"Fixed ngram entry: {}", to_wstr(word));
+                    fixedNgramEntries.insert(word);
+                    fixedNgramEntries.insert(MSTR_GETA + word);
                     ++nEntries;
                 }
             }
         }
         LOG_INFOH(_T("DONE: nEntries={}"), nEntries);
         return nEntries;
+    }
+
+    bool isFixedNgramEntry(const MString& word) {
+        auto iter = fixedNgramEntries.find(word);
+        return iter != fixedNgramEntries.end();
     }
 
     String SelectedNgramPairBonus::debugString() const {
@@ -165,12 +166,17 @@ namespace lattice2 {
                         MString pair = to_mstr(items[0]);
                         auto words = utils::split(pair, '|');
                         if (words.size() == 2 && !words[0].empty() && !words[1].empty()) {
-                            int point = std::stoi(items[1]);
-                            selectedNgrams[pair] = point;
-                            selectedNgramMap[words[0]].insert(SelectedNgramPairBonus{ pair, point });      // positive ngram
-                            selectedNgramMap[words[1]].insert(SelectedNgramPairBonus{ pair, -point });     // negative ngram
-                            if (count < 10) {
-                                _LOG_DETAIL(L"Selected Ngram Pair: {} => point={}", to_wstr(pair), point);
+                            if (!isFixedNgramEntry(words[0]) && !isFixedNgramEntry(words[1])) {
+                                // 固定Ngramエントリが含まれていない場合のみ、選択Ngramペアとして登録
+                                int point = std::stoi(items[1]);
+                                selectedNgrams[pair] = point;
+                                selectedNgramMap[words[0]].insert(SelectedNgramPairBonus{ pair, point });      // positive ngram
+                                selectedNgramMap[words[1]].insert(SelectedNgramPairBonus{ pair, -point });     // negative ngram
+                                if (count++ < 100) {
+                                    _LOG_DETAIL(L"Selected Ngram Pair: {} => point={}", to_wstr(pair), point);
+                                }
+                            } else {
+                                _LOG_DETAIL(L"Skipped fixed ngram entry in selected ngram pair: {}", to_wstr(pair));
                             }
                         }
                     }
@@ -195,13 +201,13 @@ namespace lattice2 {
             }
         }
 
+        // Ngram差分の更新
         void updateSelectedNgram(const MString& posi, const MString& nega) {
-            //if (isUserNgramEntry(word)) {
-            //    // 手動で候補選択された場合で、かつそのNgramがユーザー定義エントリに含まれている場合は、リアルタイムNgramの更新は行わない
-            //    // (ユーザー定義エントリは、リアルタイムNgramの更新の対象外とする)
-            //    _LOG_DETAIL(L"Manual select: {} is user ngram entry, ignored.", to_wstr(word));
-            //    return;
-            //}
+            if (isFixedNgramEntry(posi) && isFixedNgramEntry(nega)) {
+                // Ngram差分が固定Ngramエントリに含まれている場合は、差分登録を行わない
+                _LOG_DETAIL(L"{} and {} are both fixed ngram entries", to_wstr(posi), to_wstr(nega));
+                return;
+            }
             auto key = nega + MSTR_VERT_BAR + posi;
             auto iter = selectedNgrams.find(key);
             int bonusPoint = 0;
@@ -440,7 +446,7 @@ namespace lattice2 {
         //fixedNgramBonusCounts.clear();
         //userNgramBonusCounts.clear();
         //_loadNgramFile(USER_NGRAM_FILE, userNgramBonusCounts);
-        _loadUserNgramFile(userNgramPath);
+        _loadFixedNgramFile(userNgramPath);
 
         // ユーザー選択Ngramファイルの読み込み
         selectedNgramInstance.loadSelectedNgramFile(SELECTED_NGRAM_FILE);
@@ -464,11 +470,6 @@ namespace lattice2 {
     //inline bool is_space_or_vbar(mchar_t ch) {
     //    return ch == ' ' || ch == '|';
     //}
-
-    bool isUserNgramEntry(const MString& word) {
-        auto iter = userNgramEntries.find(word);
-        return iter != userNgramEntries.end();
-    }
 
     void _updateRealtimeNgramCountByWord(bool bIncrease, const MString& word) {
         int delta = bIncrease ? 1 : -1;

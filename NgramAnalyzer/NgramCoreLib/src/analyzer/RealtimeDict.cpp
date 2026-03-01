@@ -90,6 +90,7 @@ namespace analyzer {
                             }
                         }
                         userDict[items[0]] = count;
+                        userDict[L"〓" + items[0]] = count;
                         ++nEntries;
                     }
                 }
