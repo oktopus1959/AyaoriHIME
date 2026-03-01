@@ -332,14 +332,6 @@ void Lattice2::updateRealtimeNgram(const MString& str) {
     lattice2::updateRealtimeNgram(str);
 }
 
-void Lattice2::increaseRealtimeNgramByGUI(const MString& str) {
-    lattice2::increaseRealtimeNgram(str, true);
-}
-
-void Lattice2::decreaseRealtimeNgramByGUI(const MString& str) {
-    lattice2::decreaseRealtimeNgram(str, true);
-}
-
 void Lattice2::saveRealtimeNgramFile() {
     lattice2::saveRealtimeNgramFile();
 }

@@ -183,10 +183,6 @@ public:
 
     static void updateRealtimeNgram(const MString& str);
 
-    static void increaseRealtimeNgramByGUI(const MString& str);
-
-    static void decreaseRealtimeNgramByGUI(const MString& str);
-    
     static void saveRealtimeNgramFile();
 
     static void saveLatticeRelatedFiles();

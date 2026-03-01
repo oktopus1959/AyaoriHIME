@@ -2027,16 +2027,16 @@ namespace KanchokuWS.Gui
 
         private void button_decreaseRealtimeNgram_Click(object sender, EventArgs e)
         {
-            logger.Info("CALLED");
-            if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("decreaseRealtimeNgram", textBox_realtimeNgram.Text);
-            //textBox_realtimeNgram.Text = "";
+            //logger.Info("CALLED");
+            //if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("decreaseRealtimeNgram", textBox_realtimeNgram.Text);
+            ////textBox_realtimeNgram.Text = "";
         }
 
         private void button_increaseRealtimeNgram_Click(object sender, EventArgs e)
         {
-            logger.Info("CALLED");
-            if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("increaseRealtimeNgram", textBox_realtimeNgram.Text);
-            //textBox_realtimeNgram.Text = "";
+            //logger.Info("CALLED");
+            //if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("increaseRealtimeNgram", textBox_realtimeNgram.Text);
+            ////textBox_realtimeNgram.Text = "";
         }
 
         private void button_fusionClose_Click(object sender, EventArgs e)

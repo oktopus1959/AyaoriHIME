@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "Lattice2_CandidateString.h"
 #include "utils/string_type.h"
 #include "settings.h"
 
@@ -40,12 +39,6 @@ namespace lattice2 {
     // リアルタイムNgramの更新
     void updateRealtimeNgram(const MString& str);
 
-    // リアルタイムNgramの蒿上げ
-    void increaseRealtimeNgram(const MString& str, bool bByGUI = false);
-
-    // リアルタイムNgramの抑制
-    void decreaseRealtimeNgram(const MString& str, bool bByGUI = false);
-
     // 候補選択による、SelectedNgramの更新
     void updateSelectedNgramByUserSelect(const MString& oldCand, const MString& newCand);
 
@@ -53,7 +46,6 @@ namespace lattice2 {
     const std::set<SelectedNgramPairBonus> findNgramPairBonus(const MString& str);
 
     // Ngramコストの取得
-    //int getNgramCost(const MString& str, const std::vector<MString>& morphs);
     int getNgramCost(const MString& str, const std::vector<MString>& morphs, bool bUseGeta = true);
 
 } // namespace lattice2

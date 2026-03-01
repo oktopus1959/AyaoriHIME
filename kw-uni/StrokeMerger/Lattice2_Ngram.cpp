@@ -196,6 +196,12 @@ namespace lattice2 {
         }
 
         void updateSelectedNgram(const MString& posi, const MString& nega) {
+            //if (isUserNgramEntry(word)) {
+            //    // 手動で候補選択された場合で、かつそのNgramがユーザー定義エントリに含まれている場合は、リアルタイムNgramの更新は行わない
+            //    // (ユーザー定義エントリは、リアルタイムNgramの更新の対象外とする)
+            //    _LOG_DETAIL(L"Manual select: {} is user ngram entry, ignored.", to_wstr(word));
+            //    return;
+            //}
             auto key = nega + MSTR_VERT_BAR + posi;
             auto iter = selectedNgrams.find(key);
             int bonusPoint = 0;
@@ -254,7 +260,7 @@ namespace lattice2 {
             }
             return resultSet;
         }
-    };
+    }; // class SelectedNgram
 
     SelectedNgram selectedNgramInstance;
 
@@ -464,32 +470,23 @@ namespace lattice2 {
         return iter != userNgramEntries.end();
     }
 
-    void _updateRealtimeNgramCountByWord(bool bIncrease, const MString& word, bool manualSelect) {
-        if (manualSelect) {
-            if (isUserNgramEntry(word)) {
-                _LOG_DETAIL(L"Manual select: {} is user ngram entry, ignored.", to_wstr(word));
-                return;
-            }
-        }
-        int delta = manualSelect ? SETTINGS->ngramManualSelectDelta : 1;
-        if (!bIncrease) {
-            delta = -delta;
-        }
+    void _updateRealtimeNgramCountByWord(bool bIncrease, const MString& word) {
+        int delta = bIncrease ? 1 : -1;
         int count = NgramBridge::updateRealtimeEntry(to_wstr(word), delta);
-        if (manualSelect) {
-            _LOG_DETAIL(L"Manual select: ngramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
-        } else {
-            LOG_DEBUGH(L"Auto update: ngramBonusCounts[{}] = {}, delta={}", to_wstr(word), count, delta);
-        }
+        LOG_DEBUGH(L"updateRealtimeEntry({}): resultCount={}", to_wstr(word), count);
     }
 
     // リアルタイムNgramの更新
-    void _updateRealtimeNgram(bool bIncrease, const MString& str, bool bManual) {
-        LOG_DEBUGH(L"ENTER: bIncrease={}, str={}, bManual={}", bIncrease, to_wstr(str), bManual);
+    void _updateRealtimeNgram(bool bIncrease, const MString& str) {
+        LOG_DEBUGH(L"ENTER: bIncrease={}, str={}", bIncrease, to_wstr(str));
         int strlen = (int)str.size();
         int hirakanLen = 0;
         int kanjiLen = 0;
+        int pKanjiLen = 0;
+        int ppKanjiLen = 0;
         for (int pos = 0; pos < strlen; ++pos) {
+            ppKanjiLen = pKanjiLen;
+            pKanjiLen = kanjiLen;
             if (utils::is_hiragana(str[pos])) {
                 kanjiLen = 0;
                 ++hirakanLen;
@@ -502,11 +499,15 @@ namespace lattice2 {
             }
             if (hirakanLen >= 3 && pos >= 2) {
                 // ひらがなor漢字が3文字以上連続している場合は、3gramを更新する
-                _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 2, 3), bManual);
+                _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 2, 3));
+                // 漢字1文字で、前後がひらがなの場合は、その漢字のみのNgramも更新する (例: 「池」の前後がひらがななら、「池」も更新する)
+                if (ppKanjiLen == 0 && pKanjiLen == 1 && kanjiLen == 0) {
+                    _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 1));
+                }
             }
             if (kanjiLen >= 2 && pos >= 1) {
                 // 漢字が2文字以上連続している場合は、2gramを更新する
-                _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 2), bManual);
+                _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 2));
             }
         }
         LOG_DEBUGH(L"LEAVE: str={}", to_wstr(str));
@@ -514,17 +515,7 @@ namespace lattice2 {
 
     // 編集バッファのフラッシュによるリアルタイムNgramの更新
     void updateRealtimeNgram(const MString& str) {
-        _updateRealtimeNgram(true, str, false);
-    }
-
-    // リアルタイムNgramの蒿上げ
-    void increaseRealtimeNgram(const MString& str, bool bManual) {
-        _updateRealtimeNgram(true, str, bManual);
-    }
-
-    // リアルタイムNgramの抑制
-    void decreaseRealtimeNgram(const MString& str, bool bManual) {
-        _updateRealtimeNgram(false, str, bManual);
+        _updateRealtimeNgram(true, str);
     }
 
     int _getNgramBonusPoint(const MString& word, std::map<MString, int>& ngramMap) {
@@ -538,30 +529,6 @@ namespace lattice2 {
         }
         return 0;
     }
-
-    //// realtimeおよびユーザー定義によるNgramのボーナスを取得
-    //int getNgramBonus(const MString& word) {
-    //    //int bonusPoint0 = _getFixedNgramBonusPoint(word);
-    //    //if (bonusPoint0 == 0) {
-    //    //    bonusPoint0 = _getNgramBonusPoint(word, userNgramBonusCounts);
-    //    //}
-    //    int bonusPoint = bonusPoint0;
-    //    if (bonusPoint > SETTINGS->ngramMaxBonusPoint) {
-    //        bonusPoint = SETTINGS->ngramMaxBonusPoint;
-    //    } else if (bonusPoint < -SETTINGS->ngramMaxBonusPoint) {
-    //        bonusPoint = -SETTINGS->ngramMaxBonusPoint;
-    //    }
-    //    if (bonusPoint != bonusPoint0) {
-    //        _LOG_DETAIL(L"bonusPoint CLIPPED from {} to {}", bonusPoint0, bonusPoint);
-    //    }
-    //    int bonus = calcNgramBonus(bonusPoint);
-    //    _LOG_DETAIL(L"BONUS={}: bonusPoint={} (orig={})", bonus, bonusPoint, bonusPoint0);
-    //    return bonus;
-    //}
-
-    //int getWordConnCost(const MString& s1, const MString& s2) {
-    //    return get_base_ngram_cost(utils::last_substr(s1, 1) + utils::safe_substr(s2, 0, 1)) / 2;
-    //}
 
     MString kanjiNumChars = to_mstr(L"一二三四五六七八九十〇");
     std::wregex kanjiDateTime(L"[一二三四五六七八九十〇](年[一二三四五六七八九十〇]+月([一二三四五六七八九十〇]+日)?|月[一二三四五六七八九十〇]+日|[一二三四五六七八九十〇]日)");
@@ -577,23 +544,6 @@ namespace lattice2 {
         return 0;
     }
 
-    //std::pair<int, size_t> findMatchedNgramPos(const MString& str, size_t startPos, size_t endPos, size_t n) {
-    //    size_t strlen = str.size();
-    //    if (endPos > strlen) {
-    //        endPos = strlen;
-    //    }
-    //    int bonus = 0;
-    //    for (size_t pos = startPos; pos + n <= endPos; ++pos) {
-    //        MString subStr = utils::safe_substr(str, pos, n);
-    //        bonus = getNgramBonus(subStr);
-    //        if (bonus != 0) {
-    //            _LOG_DETAIL(L"Matched {}gram: str={}, pos={}, word={}, bonus={}", n, to_wstr(str), pos, to_wstr(subStr), bonus);
-    //            return { bonus, pos };
-    //        }
-    //    }
-    //    return { 0, endPos };
-    //}
-
     // Ngramコストの取得
     int getNgramCost(const MString& str, const std::vector<MString>& morphs, bool bUseGeta) {
         _LOG_DETAIL(L"\nENTER: str={}: geta={}", to_wstr(str), bUseGeta);
@@ -603,30 +553,6 @@ namespace lattice2 {
         int cost0 = NgramBridge::ngramCalcCost(targetStr, morphs, ngrams, SETTINGS->multiStreamDetailLog);
         int cost = cost0;
         _LOG_DETAIL(L"ngrams: initial cost={}\n--------\n{}\n--------", cost, to_wstr(utils::join(ngrams, '\n')));
-        //if (targetStr.size() >= 2) {
-        //    for (size_t pos = 0; pos < targetStr.size() - 1; ++pos) {
-        //        // realtimeおよびユーザー定義による2gramと3gramのボーナスを差し引く
-        //        int bonus = 0;
-        //        int bonus2 = getNgramBonus(utils::safe_substr(targetStr, pos, 2));
-        //        int bonus3 = 0;
-        //        if (pos + 2 < targetStr.size()) {
-        //            bonus3 = getNgramBonus(utils::safe_substr(targetStr, pos, 3));
-        //            if (bonus3 == 0) {
-        //                // 3gramボーナスがなければ、「M月N日」パターンに該当するか確認
-        //                if (utils::reMatch(to_wstr(targetStr), kanjiDateTime)) {
-        //                    bonus3 = calcNgramBonus(DATE_PATTERN_BONUMS_POINT);
-        //                }
-        //            }
-        //        }
-        //        bonus = bonus2 + bonus3;
-        //        if (bonus2 != 0 && bonus3 != 0) {
-        //            // 2gramと3gramの両方にボーナスがある場合は平均を取る
-        //            bonus /= 2;
-        //        }
-        //        cost -= bonus;
-        //        _LOG_DETAIL(L"pos={}, word={}, cost={}, bonus={} (2gram={}, 3gram={})", pos, to_wstr(utils::safe_substr(targetStr, pos, 3)), cost, bonus, bonus2, bonus3);
-        //    }
-        //}
         if (utils::reMatch(to_wstr(targetStr), kanjiDateTime)) {
             cost -= calcNgramBonus(DATE_PATTERN_BONUMS_POINT);
         }
