@@ -15,7 +15,7 @@ using namespace analyzer;
 using namespace compiler;
 using Logger = Reporting::Logger;
 
-#if 0 || defined(_DEBUG)
+#if 1 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
 #undef _LOG_DEBUGH
 #define _LOG_DEBUGH LOG_INFOH
@@ -216,7 +216,7 @@ int DymazinMakeDictIndex(size_t argc, const wchar_t** argv, const wchar_t* logFi
  *   nullptr なら分かち書き表現は返さない。
  * @param bufsize wakati_buf のサイズ(文字数単位)
  * @param mazePenalty 交ぜ書きエントリに対するペナルティ(0 ならデフォルト値を使う)。これが負値ならボーナスなり、他の交ぜ書き候補を含めた解を返す
- * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
+ * @return 解のコスト(非負値; 実行時エラーがある場合は大きな正値を返す)
  */
 int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz) {
     LOG_INFOH(L"ENTER: sentence={}, mazePenalty={}, mazeConnPenalty={}, allowNonTerminal={}", sentence ? sentence : L"null", mazePenalty, mazeConnPenalty, allowNonTerminal);

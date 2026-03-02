@@ -6,7 +6,7 @@
 
 #include "path_utils.h"
 
-#if 0
+#if 1
 #undef _LOG_DEBUGH
 #define _LOG_DEBUGH LOG_INFOH
 #endif
@@ -96,33 +96,23 @@ namespace DymazinBridge {
         DymazinSaveLog(errMsgBuf, ARRAY_SIZE);
     }
 
-#if true
     // 文字列の形態素解析を行い、コストと形態素列を返す 
     // str: 入力文字列、morphs: 形態素列の出力先(改行区切り)、
     // mazePenalty: 交ぜ書きペナルティ、mazeConnPenalty: 交ぜ書き接続ペナルティ(mazePenalty < 0 の場合はボーナスとなり、他の交ぜ書き候補を含めた解を返す)
     // allowNonTerminal: 非終端形態素を許可するか
     int dymazinCalcCost(const MString& str, std::vector<MString>& morphs, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
         _LOG_DEBUGH(_T("ENTER: str={}"), to_wstr(str));
-        const size_t BUFSIZE = 1000;
-        wchar_t wchbuf[BUFSIZE] = { '\0' };
+        const size_t BUFSIZE = 10000;
+        std::vector<wchar_t> wchbuf(BUFSIZE, L'\0');
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
-        int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, mazePenalty, mazeConnPenalty, allowNonTerminal, false, errMsgBuf, ARRAY_SIZE);
-        // エラー時は大きなコストが返る (10000000以上)
-        //if (cost < 0) {
-        //    LOG_WARN(_T("DymazinAnalyze FAILED: result={}, errMsg={}"), cost, errMsgBuf);
-        //    return cost;
-        //}
-        //int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf, BUFSIZE, mazePenalty, allowNonTerminal, false);
-        for (const auto& s : utils::split(wchbuf, L'\n')) {
+        int cost = DymazinAnalyze(to_wstr(str).c_str(), wchbuf.data(), BUFSIZE, mazePenalty, mazeConnPenalty, allowNonTerminal, false, errMsgBuf, ARRAY_SIZE);
+        _LOG_DEBUGH(_T("wchbuf:\n----------------\n{}\n----------------"), wchbuf.data());
+        for (const auto& s : utils::split(wchbuf.data(), L'\n')) {
             morphs.push_back(to_mstr(s));
         }
         _LOG_DEBUGH(_T("LEAVE: dymazinCost={}, morphs={}"), cost, to_wstr(utils::join(morphs, ' ')));
         return cost;
     }
-#else
-    int dymazinCalcCost(const MString& str, std::vector<MString>& morphs) {
-        return 10000;
-    }
-#endif
+
 }
