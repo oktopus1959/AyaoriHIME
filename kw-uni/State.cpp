@@ -19,7 +19,7 @@
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughState)
 
-#if 0 || defined(_DEBUG)
+#if 1 || defined(_DEBUG)
 #undef _DEBUG_SENT
 //#undef LOG_INFO
 #undef LOG_DEBUGH
@@ -172,6 +172,19 @@ void State::DoIntermediateCheckChain() {
 }
 
 void State::DoIntermediateCheck() {
+    // Do nothing by Default
+    LOG_DEBUG(_T("CALLED: {}: DEFAULT"), Name);
+}
+
+// 最終チェック
+void State::DoFinalCheckChain() {
+    LOG_DEBUG(_T("ENTER: {}"), Name);
+    if (pNext) pNext->DoFinalCheckChain();
+    DoFinalCheck();
+    LOG_DEBUG(_T("LEAVE: {}"), Name);
+}
+
+void State::DoFinalCheck() {
     // Do nothing by Default
     LOG_DEBUG(_T("CALLED: {}: DEFAULT"), Name);
 }

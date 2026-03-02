@@ -40,8 +40,8 @@ enum class ResultFlags
     // DECKEYを仮想キーに変換してアクティブウィンドウに対して送信する
     DeckeyToVkey = 1,
 
-    // Ctrl-H や BS などの特殊キーをDECKEYで受け取る必要あり
-    SpecialDeckeyRequired = 2,
+    //// Ctrl-H や BS などの特殊キーをDECKEYで受け取る必要あり
+    //SpecialDeckeyRequired = 2,
 
     // 全角モード標識の表示が必要
     ShowZenkakuModeMarker = 4,
@@ -269,7 +269,7 @@ public:
     inline void ResetResultFlag(ResultFlags flag) { resultFlags &= ~(UINT32)flag; }
     inline void SetResultFlag(UINT32 flag) { resultFlags |= flag; }
     inline void SetDeckeyToVkeyFlag() { SetResultFlag(ResultFlags::DeckeyToVkey); }
-    inline void SetSpecialDeckeyRequiredFlag() { SetResultFlag(ResultFlags::SpecialDeckeyRequired); }
+    //inline void SetSpecialDeckeyRequiredFlag() { SetResultFlag(ResultFlags::SpecialDeckeyRequired); }
     inline void SetZenkakuModeMarkerShowFlag() { SetResultFlag(ResultFlags::ShowZenkakuModeMarker); }
     inline void SetZenkakuModeMarkerClearFlag() { ResetResultFlag(ResultFlags::ShowZenkakuModeMarker); SetResultFlag(ResultFlags::ClearZenkakuModeMarker); }
     inline void SetKatakanaModeMarkerShowFlag() { SetResultFlag(ResultFlags::ShowKatakanaModeMarker); }
@@ -326,7 +326,7 @@ public:
     inline bool IsResultFlagOn(ResultFlags flag) const { return (resultFlags & (UINT32)flag) != 0; }
     inline bool IsResultFlagOn(UINT32 flag) const { return (resultFlags & flag) != 0; }
     inline bool IsDeckeyToVkey() const { return IsResultFlagOn(ResultFlags::DeckeyToVkey); }
-    inline bool IsSpecialDeckeyRequired() const { return IsResultFlagOn(ResultFlags::SpecialDeckeyRequired); }
+    //inline bool IsSpecialDeckeyRequired() const { return IsResultFlagOn(ResultFlags::SpecialDeckeyRequired); }
     inline bool IsAppendBackspaceStopper() const { return IsResultFlagOn(ResultFlags::AppendBackspaceStopper); }
     inline bool IsSetHistoryBlockFlag() const { return IsResultFlagOn(ResultFlags::SetHistoryBlockFlag); }
     inline bool IsSetMazegakiBlockFlag() const { return IsResultFlagOn(ResultFlags::SetMazegakiBlockFlag); }

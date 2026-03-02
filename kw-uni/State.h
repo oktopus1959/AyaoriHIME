@@ -147,6 +147,10 @@ protected:
     void DoIntermediateCheckChain();
     virtual void DoIntermediateCheck();
 
+    // 最終チェック
+    void DoFinalCheckChain();
+    virtual void DoFinalCheck();
+
 //public:
 //    // DECKEY処理の後半部
 //    void DoDeckeyPostProcChain();
@@ -272,10 +276,10 @@ protected:
         return STATE_COMMON->IsDeckeyToVkey();
     }
 
-    // 特殊キーをDECKEYとして登録する必要あり
-    static void setSpecialDeckeys() {
-        STATE_COMMON->SetSpecialDeckeyRequiredFlag();
-    }
+    //// 特殊キーをDECKEYとして登録する必要あり
+    //static void setSpecialDeckeys() {
+    //    STATE_COMMON->SetSpecialDeckeyRequiredFlag();
+    //}
 
 public:
     // DECKEY はストロークキーか

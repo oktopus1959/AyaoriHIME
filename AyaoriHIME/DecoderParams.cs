@@ -15,7 +15,7 @@ namespace KanchokuWS
         /// <summary> アクティブウィンドウに対して文字列を送信する前に送りつけるBSの数 </summary>
         public int numBackSpaces;
 
-        /// <summary> class ResultKeys で値を定義</summary>
+        /// <summary> class ResultFlags で値を定義</summary>
         public uint resultFlags;
 
         /// <summary> 次の入力で期待されるキー (第2ストローク、履歴入力でのEnter、など)</summary>
@@ -125,8 +125,8 @@ namespace KanchokuWS
     {
         /// <summary> DECKEYを仮想キーに変換してアクティブウィンドウに対して送信する</summary>
         public const uint DeckeyToVkey = 1;
-        /// <summary> Ctrl-H や BS などの特殊キーをDECKEYで受け取る必要あり</summary>
-        public const uint SpecialDeckeyRequired = 2;
+        ///// <summary> Ctrl-H や BS などの特殊キーをDECKEYで受け取る必要あり</summary>
+        //public const uint SpecialDeckeyRequired = 2;
         /// <summary> 全角モード標識の表示が必要</summary>
         public const uint ShowZenkakuModeMarker = 4;
         /// <summary> 全角モード標識の表示をやめる</summary>

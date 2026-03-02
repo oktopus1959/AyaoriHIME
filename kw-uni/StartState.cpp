@@ -69,6 +69,11 @@ public:
         DeleteUnnecessarySuccessorStateChain();
         LOG_DEBUGH(_T("END: DeleteUnnecessarySuccessorStateChain: ========================"));
 
+        // チェーンをたどって最終チェックを実行する
+        LOG_DEBUGH(_T("\nBEGIN: DoFinalCheckChain: ========================"));
+        DoFinalCheckChain();
+        LOG_DEBUGH(_T("END: DoFinalCheckChain: ========================"));
+
         //LOG_DEBUGH(L"\nfaces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
         LOG_DEBUGH(_T("LEAVE: {}, NextNode={}, outStr={}\n================================\n"), Name, NODE_NAME(NextNodeMaybe()), to_wstr(resultStr.resultStr()));

@@ -314,6 +314,7 @@ namespace KanchokuWS.Forms
                 SendInputHandler.Singleton.SendVKeyCombo(modifier, vkey, 1);
                 return;
             }
+            bool isEditKey = true;
             switch (vkey) {
                 case (uint)Keys.Left:
                     logger.InfoH($"Left");
@@ -350,8 +351,11 @@ namespace KanchokuWS.Forms
                         ClearBuffer();
                     }
                     break;
+                default:
+                    isEditKey = false;
+                    break;
             }
-            if (Settings.UseEditBuffer) {
+            if (Settings.UseEditBuffer && isEditKey) {
                 if (EditText._notEmpty()) {
                     ShowNonActive();
                 } else {

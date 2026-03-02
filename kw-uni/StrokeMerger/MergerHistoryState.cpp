@@ -350,6 +350,9 @@ namespace {
         // 排他的なストロークの起点
         bool _bExclusivePrefix = false;
 
+        // 入力されたDECKEYをそのままGUI返すか
+        int _throughDeckey = 0;
+
         int _strokeCountBS = -1;
         int _prevStrokeCountBS = -1;
         int _startStrokeCountBS = -1;
@@ -376,9 +379,9 @@ namespace {
             STATE_COMMON->ClearVkbLayout();
         }
 
-        // とりあえず、無変換、変換、IME ON/OFFキーは単独打鍵扱いにする
+        // とりあえず、無変換、変換、IME ON/OFFキー, F1～F20は単独打鍵扱いにする
         inline static bool isSingleHitKey(int deckey) {
-            return deckey == NFER_DECKEY || deckey == XFER_DECKEY || deckey == IME_OFF_DECKEY || deckey == IME_ON_DECKEY;
+            return deckey == NFER_DECKEY || deckey == XFER_DECKEY || deckey == IME_OFF_DECKEY || deckey == IME_ON_DECKEY || (deckey >= F1_DECKEY && deckey <= F20_DECKEY);
         }
 
     public:
@@ -418,8 +421,8 @@ namespace {
             myChar = '\0';
 
             bDualTableMode = StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
-
             _followingPrefType = FollowingPreferenceType::Any;
+            _throughDeckey = 0;
 
             LOG_DEBUGH(_T("NextState={}"), STATE_NAME(NextState()));
             if (DeckeyUtil::is_combo_deckey(deckey) && !DeckeyUtil::is_ordered_combo(deckey) && NextState() && NextState()->GetName() == L"EisuState") {
@@ -442,7 +445,7 @@ namespace {
 
                 if (/*deckey != CLEAR_STROKE_DECKEY && */
                     ((deckey >= FUNC_DECKEY_START && deckey < F1_DECKEY && !isSingleHitKey(deckey)) || deckey >= CTRL_DECKEY_START)) {
-                    _LOG_DETAIL(L"Clear streamLists");
+                    _LOG_DETAIL(L"Functional Deckey: Clear streamLists");
                     clearStreamLists();
                     _strokeBack = false;
                     bool doDefault = false;
@@ -610,6 +613,7 @@ namespace {
                         State::dispatchDeckey(deckey);
                     }
                 } else {
+                    _LOG_DETAIL(L"Non Functional Deckey");
                     if (deckey == SETTINGS->exclusivePrefixCode) {
                         if (!_bExclusivePrefix) {
                             _LOG_DETAIL(L"ExclusivePrefix: {:x}H({})", deckey, deckey);
@@ -634,7 +638,9 @@ namespace {
                         _comboStrokeCount = 1;
                         _comboDeckey = deckey;
                     } else if (isSingleHitKey(deckey)) {
+                        _LOG_DETAIL(L"SingleHitKey: clearStreamLists");
                         clearStreamLists();
+                        _throughDeckey = deckey;
                     }
                     if (SETTINGS->eisuModeEnabled && _comboStrokeCount == 0
                         && deckey >= SHIFT_DECKEY_START && deckey < SHIFT_DECKEY_END && !STATE_COMMON->IsUpperRomanDirectMode()) {
@@ -682,6 +688,17 @@ namespace {
                 STATE_COMMON->SetCenterString(L'カ');
             }
             _LOG_DETAIL(_T("LEAVE: _comboStrokeCount={}\n"), _comboStrokeCount);
+        }
+
+        // 最終チェック
+        void DoFinalCheck() override {
+            LOG_DEBUG(_T("ENTER: {}"), Name);
+            if (_throughDeckey > 0 && _streamList1.Empty() && _streamList2.Empty()) {
+                LOG_DEBUGH(_T("Through Deckey: {}"), _throughDeckey);
+                STATE_COMMON->SetDeckeyToVkeyFlag();
+            }
+            _throughDeckey = 0;
+            LOG_DEBUG(_T("LEAVE: {}"), Name);
         }
 
         // 新しい状態作成のチェイン
@@ -748,6 +765,8 @@ namespace {
                         // ストロークを進めるために、空のpieceを追加する
                         LOG_DEBUGH(_T("CHECKPOINT-5-A: pieces is EMPTY. Add Padding Piece."));
                         pieces.push_back(WordPiece::paddingPiece());
+                    } else {
+                        _throughDeckey = 0;   // 文字が得られたので、Deckeyをそのまま返すモードは終了する
                     }
 #if 0
                     LOG_DEBUGH(_T("CHECKPOINT-6"));

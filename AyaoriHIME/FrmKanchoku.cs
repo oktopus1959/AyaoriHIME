@@ -2203,7 +2203,7 @@ namespace KanchokuWS
 
                     // 他のVKey送出(もしあれば)
                     if (decoderOutput.IsDeckeyToVkey()) {
-                        logger.DebugH(() => $"sendVkeyFromDeckey: deckey={deckey}({deckey:x}), origDeckey={origDeckey}({origDeckey:x}), mod={mod:x}");
+                        logger.DebugH(() => $"sendVkeyFromDeckey: deckey={deckey}({deckey:x}H), origDeckey={origDeckey}({origDeckey:x}), mod={mod:x}");
                         sendKeyFlag = sendVkeyFromDeckey(deckey, origDeckey, mod);
                         //nPreKeys += 1;
                     }
@@ -2439,6 +2439,7 @@ namespace KanchokuWS
 
                 if (bShortcutConversion) {
                     // ショートカットキーの変換をやる
+                    if (Settings.LoggingDecKeyInfo) { logger.Info($"ShortcutConversion"); }
                     var dkChar = Domain.DecoderKeyVsChar.GetArrangedCharFromDecKey(deckey);
                     if (dkChar != '\0') {
                         var vk = CharVsVKey.GetVKeyFromFaceChar(dkChar, deckey);
@@ -2479,10 +2480,11 @@ namespace KanchokuWS
                         vk = CharVsVKey.GetVKeyFromFaceChar(DecoderKeyVsChar.GetArrangedCharFromDecKey(normDeckey), deckey);
                     }
                     if (vk == 0) vk = DecoderKeyVsVKey.GetVKeyFromDecKey(normDeckey);
-                    if (Settings.LoggingDecKeyInfo) logger.Info($"SendVKeyCombo: mod={_mod:x}H({_mod}), vkey={vk:x}H({vk})");
                     if (IsDecoderActive) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info($"frmEditBuf.PutVkeyCombo(mod={_mod:x}H({_mod}), vkey={vk:x}H({vk}))");
                         frmEditBuf.PutVkeyCombo(_mod, vk);
                     } else {
+                        if (Settings.LoggingDecKeyInfo) logger.Info($"SendInputHandler.SendVKeyCombo(mod={_mod:x}H({_mod}), vkey={vk:x}H({vk}))");
                         SendInputHandler.Singleton.SendVKeyCombo(_mod, vk, 1);
                     }
                     if (Settings.LoggingDecKeyInfo) logger.Info($"LEAVE: TRUE");

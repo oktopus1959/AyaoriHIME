@@ -45,8 +45,7 @@
 #include "Ngram/NgramBridge.h"
 #include "Llama/LlamaBridge.h"
 
-#define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
-#if 0 || defined(_DEBUG)
+#if 1 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
 #undef LOG_INFO
 #undef LOG_DEBUGH
@@ -667,7 +666,7 @@ public:
         bool upperRomanDirectMode = (intputFlags & (int)InputFlags::UpperRomanDirectMode) != 0;
         bool rollOverStroke = (intputFlags & (int)InputFlags::RollOverStroke) != 0;
 
-        _LOG_DETAIL(_T("\nENTER: keyId={:x}H({}={}), guideTargetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}, editBuffer={}"),
+        LOG_INFOH(_T("\nENTER: keyId={:x}H({}={}), guideTargetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}, editBuffer={}"),
             keyId, keyId, DECKEY_TO_CHARS->GetDeckeyNameFromId(keyId), to_wstr(guideTargetChar), keyFaceDirectMode, upperRomanDirectMode, deckeyParams->editBufferData);
 
         // 編集バッファの内容を取得しておく
@@ -701,7 +700,7 @@ public:
         if (keyFaceDirectMode) STATE_COMMON->SetKeyFaceDirectMode();  // キーボードフェイス文字を返すモード
         if (upperRomanDirectMode) STATE_COMMON->SetUpperRomanDirectMode();    // 英大文字による入力ガイドモード
         if (rollOverStroke) STATE_COMMON->SetRollOverStroke();              // ロールオーバーされている打鍵
-        _LOG_DETAIL(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(20));
+        LOG_INFO(_T("outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(20));
 
         // 同時打鍵コードなら、RootStrokeStateを削除しておく⇒と思ったが、実際にはそのようなケースがあったのでコメントアウト(「のにいると」で  KkDF のケース)
         //if (keyId >= COMBO_DECKEY_START && keyId < EISU_COMBO_DECKEY_END) {
@@ -722,10 +721,10 @@ public:
         size_t maxLen = utils::array_length(OutParams->outString);
         size_t cpyLen = copy_mstr(resultStr.resultStr(), OutParams->outString, maxLen - 1);
         OutParams->resultFlags = STATE_COMMON->GetResultFlags();
-        if (startState->ChainLength() > 1) {
-            // 始状態に何か他の状態が後続していれば、Ctrl-Hなどの特殊キーをDECKEY化する
-            OutParams->resultFlags |= (UINT32)ResultFlags::SpecialDeckeyRequired;
-        }
+        //if (startState->ChainLength() > 1) {
+        //    // 始状態に何か他の状態が後続していれば、Ctrl-Hなどの特殊キーをDECKEY化する
+        //    OutParams->resultFlags |= (UINT32)ResultFlags::SpecialDeckeyRequired;
+        //}
         OutParams->numBackSpaces = resultStr.numBS();
         OutParams->strokeTableNum = StrokeTableNode::GetCurrentStrokeTableNum();
 
@@ -768,7 +767,7 @@ public:
         setHelpOrCandidates(guideTargetChar, resultStr);
 
         //String stack = std::regex_replace(to_wstr(OUTPUT_STACK->OutputStackBackStr(10)), std::wregex(_T("\n")), _T("|"));
-        _LOG_DETAIL(_T("LEAVE: states={} (len={}), flags={:x}, expKey={}, layout={}, centerStr={}, numBS={}, outLength={}, stack={}\n\n================================================\n"),
+        LOG_INFOH(_T("LEAVE: states={} (len={}), flags={:x}, expKey={}, layout={}, centerStr={}, numBS={}, outLength={}, stack={}\n\n================================================\n"),
             startState->JoinedName(), startState->ChainLength(), OutParams->resultFlags, STATE_COMMON->GetNextExpectedKeyType(),
             STATE_COMMON->GetLayoutInt(), outParams->centerString, resultStr.numBS(), cpyLen, OUTPUT_STACK->OutputStackBackStrForDebug(10));
     }
