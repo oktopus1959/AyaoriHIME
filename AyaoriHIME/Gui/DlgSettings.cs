@@ -2060,6 +2060,7 @@ namespace KanchokuWS.Gui
         /// <summary> リアルタイムNgramとユーザー定義Ngramファイルの再読み込み</summary>
         private void button_reloadDict_Click(object sender, EventArgs e)
         {
+            if (button_fusionEnter.Enabled) button_fusionEnter_Click(null, null);
             frmMain?.ExecCmdDecoder("saveRealtimeNgramFile", "");
             frmMain?.ExecCmdDecoder("reloadNgramFiles", "");
         }
