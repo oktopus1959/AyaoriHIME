@@ -230,9 +230,19 @@ namespace lattice2 {
             }
         }
 
+        String joinSelectedNgramPairBonusSet(const std::set<SelectedNgramPairBonus>& s) const {
+            String result;
+            for (const auto& item : s) {
+                if (!result.empty()) result.append(L", ");
+                result.append(item.debugString());
+            }
+            return result;
+        }
+
         // 指定された文字列に対して、そこに含まれるNgramに対応する選択Ngramペアボーナスを取得
-        // Ngramは、2~5文字
+        // Ngramは、1~5文字
         const std::set<SelectedNgramPairBonus> findNgramPairBonus(const MString& str) {
+            LOG_DEBUGH(L"ENTER: str={}", to_wstr(str));
             std::set<SelectedNgramPairBonus> resultSet;
             bool kanji = false;
             bool pKanji = false;
@@ -247,7 +257,7 @@ namespace lattice2 {
                         gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(i, len));
                     }
                 }
-                if (i >= 3 && !ppKanji && pKanji && !kanji) {
+                if (i >= 2 && !ppKanji && pKanji && !kanji) {
                     // 「非漢字-漢字-非漢字」のパターンの場合は、漢字1文字についても調べる
                     _LOG_DETAIL(L"Pattern: non-kanji [{}] - kanji [{}] - non-kanji [{}]", to_wstr(str[i - 2]), to_wstr(str[i - 1]), to_wstr(str[i]));
                     gatherSelectedNgramPairBonus(resultSet, str.substr(i - 1, 1));
@@ -256,6 +266,7 @@ namespace lattice2 {
                     gatherSelectedNgramPairBonus(resultSet, str.substr(i, len));
                 }
             }
+            LOG_DEBUGH(L"LEAVE: resultSet={}", joinSelectedNgramPairBonusSet(resultSet));
             return resultSet;
         }
     }; // class SelectedNgram
@@ -532,7 +543,7 @@ namespace lattice2 {
                 _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 2, 3));
             }
             // 漢字1文字で、前後が非漢字の場合は、その漢字のみのNgramも更新する (例: 「池」の前後がひらがななら、「池」も更新する)
-            if (pos >= 3 && !ppKanji == 0 && pKanji && !kanji) {
+            if (pos >= 3 && !ppKanji && pKanji && !kanji) {
                 _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 1));
             }
             if (kanjiLen >= 2 && pos >= 1) {
