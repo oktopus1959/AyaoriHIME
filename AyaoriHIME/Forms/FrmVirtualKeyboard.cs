@@ -1667,6 +1667,8 @@ namespace KanchokuWS
                     name = Settings.BgColorForBushuCompHelp;
                 } else if (decoderOutput.IsOtherStatus()) {
                     name = "Yellow";    // とりあえず Yellow 固定
+                } else if (!frmMain.IsEditBufEmpty()) {
+                    name = Settings.BgColorOnWaiting2ndStroke;          // 編集バッファが空のとき
                 }
                 if (name._isEmpty() && Settings.KanaTrainingMode) {
                     name = Settings.BgColorForKanaTrainingMode;         // かな入力練習モードのとき

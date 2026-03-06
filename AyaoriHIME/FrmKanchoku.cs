@@ -61,6 +61,11 @@ namespace KanchokuWS
             frmEditBuf.ShowNonActive();
         }
 
+        public bool IsEditBufEmpty()
+        {
+            return frmEditBuf.IsEmpty;
+        }
+
         private Queue<String> strokeLogQueue = new Queue<String>();
 
         private DlgStrokeLog dlgStrokeLog = null;

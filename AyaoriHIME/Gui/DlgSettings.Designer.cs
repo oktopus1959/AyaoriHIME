@@ -515,6 +515,7 @@ namespace KanchokuWS.Gui
             this.label167 = new System.Windows.Forms.Label();
             this.textBox_multiStreamBeamSize = new System.Windows.Forms.TextBox();
             this.label91 = new System.Windows.Forms.Label();
+            this.textBox_analyzeMorphLen = new System.Windows.Forms.TextBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.label112 = new System.Windows.Forms.Label();
             this.textBox_mergerCandidateMax = new System.Windows.Forms.TextBox();
@@ -522,10 +523,11 @@ namespace KanchokuWS.Gui
             this.textBox_mergerCandidateMin = new System.Windows.Forms.TextBox();
             this.checkBox_multiCandidateMode = new System.Windows.Forms.CheckBox();
             this.checkBox_strokeBackByBS = new System.Windows.Forms.CheckBox();
-            this.textBox_maxStrokeBackCount = new System.Windows.Forms.TextBox();
-            this.label46 = new System.Windows.Forms.Label();
             this.label168 = new System.Windows.Forms.Label();
             this.textBox_remainingStrokeSize = new System.Windows.Forms.TextBox();
+            this.textBox_maxStrokeBackCount = new System.Windows.Forms.TextBox();
+            this.label46 = new System.Windows.Forms.Label();
+            this.label159 = new System.Windows.Forms.Label();
             this.checkBox_useMorphAndNgramAnalyzer = new System.Windows.Forms.CheckBox();
             this.groupBox51 = new System.Windows.Forms.GroupBox();
             this.checkBox_collectRealtimeNgram = new System.Windows.Forms.CheckBox();
@@ -620,8 +622,6 @@ namespace KanchokuWS.Gui
             this.checkBox_bushuDicLogEnabled = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.label159 = new System.Windows.Forms.Label();
-            this.textBox_analyzeMorphLen = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -2827,9 +2827,9 @@ namespace KanchokuWS.Gui
             this.groupBox25.Controls.Add(this.textBox_firstCandidateBackColor);
             this.groupBox25.Controls.Add(this.label13);
             this.groupBox25.Controls.Add(this.label12);
-            this.groupBox25.Location = new System.Drawing.Point(302, 289);
+            this.groupBox25.Location = new System.Drawing.Point(320, 273);
             this.groupBox25.Name = "groupBox25";
-            this.groupBox25.Size = new System.Drawing.Size(243, 72);
+            this.groupBox25.Size = new System.Drawing.Size(243, 75);
             this.groupBox25.TabIndex = 4;
             this.groupBox25.TabStop = false;
             this.groupBox25.Text = "縦列・横列鍵盤背景色";
@@ -2889,7 +2889,7 @@ namespace KanchokuWS.Gui
             this.groupBox24.Controls.Add(this.textBox_on2ndStrokeBackColor);
             this.groupBox24.Controls.Add(this.label52);
             this.groupBox24.Controls.Add(this.label11);
-            this.groupBox24.Location = new System.Drawing.Point(302, 107);
+            this.groupBox24.Location = new System.Drawing.Point(320, 113);
             this.groupBox24.Name = "groupBox24";
             this.groupBox24.Size = new System.Drawing.Size(243, 150);
             this.groupBox24.TabIndex = 3;
@@ -3022,47 +3022,50 @@ namespace KanchokuWS.Gui
             this.groupBox21.Controls.Add(this.label9);
             this.groupBox21.Controls.Add(this.label48);
             this.groupBox21.Controls.Add(this.textBox_normalFont);
-            this.groupBox21.Location = new System.Drawing.Point(8, 4);
+            this.groupBox21.Location = new System.Drawing.Point(8, 6);
             this.groupBox21.Name = "groupBox21";
-            this.groupBox21.Size = new System.Drawing.Size(284, 216);
+            this.groupBox21.Size = new System.Drawing.Size(302, 210);
             this.groupBox21.TabIndex = 0;
             this.groupBox21.TabStop = false;
             this.groupBox21.Text = "仮想鍵盤フォント";
             // 
             // button_editBufferDlg
             // 
+            this.button_editBufferDlg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_editBufferDlg.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_editBufferDlg.Location = new System.Drawing.Point(231, 140);
+            this.button_editBufferDlg.Location = new System.Drawing.Point(245, 145);
             this.button_editBufferDlg.Name = "button_editBufferDlg";
             this.button_editBufferDlg.Size = new System.Drawing.Size(50, 23);
-            this.button_editBufferDlg.TabIndex = 20;
+            this.button_editBufferDlg.TabIndex = 11;
             this.button_editBufferDlg.Text = "選択...";
             this.button_editBufferDlg.UseVisualStyleBackColor = true;
             this.button_editBufferDlg.Click += new System.EventHandler(this.button_editBufferDlg_Click);
             // 
             // textBox_verticalFontHeightFactor
             // 
-            this.textBox_verticalFontHeightFactor.Location = new System.Drawing.Point(129, 176);
+            this.textBox_verticalFontHeightFactor.Location = new System.Drawing.Point(129, 179);
             this.textBox_verticalFontHeightFactor.Name = "textBox_verticalFontHeightFactor";
             this.textBox_verticalFontHeightFactor.Size = new System.Drawing.Size(44, 23);
-            this.textBox_verticalFontHeightFactor.TabIndex = 10;
+            this.textBox_verticalFontHeightFactor.TabIndex = 12;
             this.textBox_verticalFontHeightFactor.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_verticalFontHeightFactor, "縦列鍵盤の高さの計算の調整率を設定します。\r\n\r\n縦列鍵盤の高さは、使用するフォントの幅から自動で計算しますが、\r\nMS  Gothic, 9pt 以外のフォント" +
         "の場合は、計算がずれる場合があります。\r\nそのような場合には、ここの値を調整してください。");
             // 
             // textBox_editBufferFont
             // 
-            this.textBox_editBufferFont.Location = new System.Drawing.Point(80, 140);
+            this.textBox_editBufferFont.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_editBufferFont.Location = new System.Drawing.Point(90, 145);
             this.textBox_editBufferFont.Name = "textBox_editBufferFont";
-            this.textBox_editBufferFont.Size = new System.Drawing.Size(148, 23);
-            this.textBox_editBufferFont.TabIndex = 19;
-            this.toolTip1.SetToolTip(this.textBox_editBufferFont, "ミニバッファ(仮想鍵盤上部)に表示する文字のフォント\r\n\r\n以下のフォーマットでフォントを設定できます。\r\nフォント名とサイズについては、「選択...」ボタンをク" +
-        "リックして\r\nフォントダイアログから選択することもできます。\r\n\r\nフォント名 | サイズ(pt)\r\n");
+            this.textBox_editBufferFont.Size = new System.Drawing.Size(150, 23);
+            this.textBox_editBufferFont.TabIndex = 10;
+            this.toolTip1.SetToolTip(this.textBox_editBufferFont, "編集ウィンドウ(「配列融合」参照」に表示する文字のフォント\r\n\r\n以下のフォーマットでフォントを設定できます。\r\nフォント名とサイズについては、「選択...」ボタ" +
+        "ンをクリックして\r\nフォントダイアログから選択することもできます。\r\n\r\nフォント名 | サイズ(pt)\r\n");
             // 
             // label109
             // 
             this.label109.AutoSize = true;
-            this.label109.Location = new System.Drawing.Point(14, 180);
+            this.label109.Location = new System.Drawing.Point(14, 183);
             this.label109.Name = "label109";
             this.label109.Size = new System.Drawing.Size(111, 15);
             this.label109.TabIndex = 20;
@@ -3071,18 +3074,19 @@ namespace KanchokuWS.Gui
             // label164
             // 
             this.label164.AutoSize = true;
-            this.label164.Location = new System.Drawing.Point(14, 145);
+            this.label164.Location = new System.Drawing.Point(14, 150);
             this.label164.Name = "label164";
-            this.label164.Size = new System.Drawing.Size(64, 15);
+            this.label164.Size = new System.Drawing.Size(73, 15);
             this.label164.TabIndex = 21;
-            this.label164.Text = "編集バッファ";
+            this.label164.Text = "編集ウィンドウ";
             // 
             // button_showPaddingsDesc
             // 
-            this.button_showPaddingsDesc.Location = new System.Drawing.Point(214, 175);
+            this.button_showPaddingsDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_showPaddingsDesc.Location = new System.Drawing.Point(228, 179);
             this.button_showPaddingsDesc.Name = "button_showPaddingsDesc";
             this.button_showPaddingsDesc.Size = new System.Drawing.Size(67, 23);
-            this.button_showPaddingsDesc.TabIndex = 11;
+            this.button_showPaddingsDesc.TabIndex = 13;
             this.button_showPaddingsDesc.Text = "余白情報";
             this.toolTip1.SetToolTip(this.button_showPaddingsDesc, "通常鍵盤、中央鍵盤、縦列鍵盤の現在の余白値を表示します。");
             this.button_showPaddingsDesc.UseVisualStyleBackColor = true;
@@ -3090,8 +3094,9 @@ namespace KanchokuWS.Gui
             // 
             // button_normalDlg
             // 
+            this.button_normalDlg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_normalDlg.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_normalDlg.Location = new System.Drawing.Point(232, 20);
+            this.button_normalDlg.Location = new System.Drawing.Point(246, 20);
             this.button_normalDlg.Name = "button_normalDlg";
             this.button_normalDlg.Size = new System.Drawing.Size(50, 23);
             this.button_normalDlg.TabIndex = 1;
@@ -3101,8 +3106,9 @@ namespace KanchokuWS.Gui
             // 
             // button_minibufDlg
             // 
+            this.button_minibufDlg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_minibufDlg.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_minibufDlg.Location = new System.Drawing.Point(231, 116);
+            this.button_minibufDlg.Location = new System.Drawing.Point(245, 120);
             this.button_minibufDlg.Name = "button_minibufDlg";
             this.button_minibufDlg.Size = new System.Drawing.Size(50, 23);
             this.button_minibufDlg.TabIndex = 9;
@@ -3112,8 +3118,9 @@ namespace KanchokuWS.Gui
             // 
             // button_horizontalDlg
             // 
+            this.button_horizontalDlg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_horizontalDlg.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_horizontalDlg.Location = new System.Drawing.Point(231, 92);
+            this.button_horizontalDlg.Location = new System.Drawing.Point(245, 95);
             this.button_horizontalDlg.Name = "button_horizontalDlg";
             this.button_horizontalDlg.Size = new System.Drawing.Size(50, 23);
             this.button_horizontalDlg.TabIndex = 7;
@@ -3123,8 +3130,9 @@ namespace KanchokuWS.Gui
             // 
             // button_verticalDlg
             // 
+            this.button_verticalDlg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_verticalDlg.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_verticalDlg.Location = new System.Drawing.Point(231, 68);
+            this.button_verticalDlg.Location = new System.Drawing.Point(245, 70);
             this.button_verticalDlg.Name = "button_verticalDlg";
             this.button_verticalDlg.Size = new System.Drawing.Size(50, 23);
             this.button_verticalDlg.TabIndex = 5;
@@ -3134,8 +3142,9 @@ namespace KanchokuWS.Gui
             // 
             // button_centerDlg
             // 
+            this.button_centerDlg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_centerDlg.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_centerDlg.Location = new System.Drawing.Point(231, 44);
+            this.button_centerDlg.Location = new System.Drawing.Point(245, 45);
             this.button_centerDlg.Name = "button_centerDlg";
             this.button_centerDlg.Size = new System.Drawing.Size(50, 23);
             this.button_centerDlg.TabIndex = 3;
@@ -3145,9 +3154,11 @@ namespace KanchokuWS.Gui
             // 
             // textBox_minibufFont
             // 
-            this.textBox_minibufFont.Location = new System.Drawing.Point(80, 116);
+            this.textBox_minibufFont.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_minibufFont.Location = new System.Drawing.Point(90, 120);
             this.textBox_minibufFont.Name = "textBox_minibufFont";
-            this.textBox_minibufFont.Size = new System.Drawing.Size(148, 23);
+            this.textBox_minibufFont.Size = new System.Drawing.Size(150, 23);
             this.textBox_minibufFont.TabIndex = 8;
             this.toolTip1.SetToolTip(this.textBox_minibufFont, "ミニバッファ(仮想鍵盤上部)に表示する文字のフォント\r\n\r\n以下のフォーマットでフォントを設定できます。\r\nフォント名とサイズについては、「選択...」ボタンをク" +
         "リックして\r\nフォントダイアログから選択することもできます。\r\n\r\nフォント名 | サイズ(pt)\r\n");
@@ -3155,7 +3166,7 @@ namespace KanchokuWS.Gui
             // label50
             // 
             this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(14, 121);
+            this.label50.Location = new System.Drawing.Point(14, 125);
             this.label50.Name = "label50";
             this.label50.Size = new System.Drawing.Size(56, 15);
             this.label50.TabIndex = 18;
@@ -3163,9 +3174,11 @@ namespace KanchokuWS.Gui
             // 
             // textBox_horizontalFont
             // 
-            this.textBox_horizontalFont.Location = new System.Drawing.Point(80, 92);
+            this.textBox_horizontalFont.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_horizontalFont.Location = new System.Drawing.Point(90, 95);
             this.textBox_horizontalFont.Name = "textBox_horizontalFont";
-            this.textBox_horizontalFont.Size = new System.Drawing.Size(148, 23);
+            this.textBox_horizontalFont.Size = new System.Drawing.Size(150, 23);
             this.textBox_horizontalFont.TabIndex = 6;
             this.toolTip1.SetToolTip(this.textBox_horizontalFont, "横列鍵盤に表示する文字のフォント\r\n\r\n以下のフォーマットでフォントを設定できます。\r\nフォント名とサイズについては、「選択...」ボタンをクリックして\r\nフォン" +
         "トダイアログから選択することもできます。\r\n\r\nフォント名 | サイズ(pt)\r\n");
@@ -3173,7 +3186,7 @@ namespace KanchokuWS.Gui
             // label49
             // 
             this.label49.AutoSize = true;
-            this.label49.Location = new System.Drawing.Point(14, 97);
+            this.label49.Location = new System.Drawing.Point(14, 100);
             this.label49.Name = "label49";
             this.label49.Size = new System.Drawing.Size(55, 15);
             this.label49.TabIndex = 16;
@@ -3181,24 +3194,28 @@ namespace KanchokuWS.Gui
             // 
             // textBox_verticalFont
             // 
-            this.textBox_verticalFont.Location = new System.Drawing.Point(80, 68);
+            this.textBox_verticalFont.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_verticalFont.Location = new System.Drawing.Point(90, 70);
             this.textBox_verticalFont.Name = "textBox_verticalFont";
-            this.textBox_verticalFont.Size = new System.Drawing.Size(148, 23);
+            this.textBox_verticalFont.Size = new System.Drawing.Size(150, 23);
             this.textBox_verticalFont.TabIndex = 4;
             this.toolTip1.SetToolTip(this.textBox_verticalFont, resources.GetString("textBox_verticalFont.ToolTip"));
             // 
             // textBox_centerFont
             // 
-            this.textBox_centerFont.Location = new System.Drawing.Point(80, 44);
+            this.textBox_centerFont.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_centerFont.Location = new System.Drawing.Point(90, 45);
             this.textBox_centerFont.Name = "textBox_centerFont";
-            this.textBox_centerFont.Size = new System.Drawing.Size(148, 23);
+            this.textBox_centerFont.Size = new System.Drawing.Size(150, 23);
             this.textBox_centerFont.TabIndex = 2;
             this.toolTip1.SetToolTip(this.textBox_centerFont, resources.GetString("textBox_centerFont.ToolTip"));
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(14, 73);
+            this.label8.Location = new System.Drawing.Point(14, 75);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(55, 15);
             this.label8.TabIndex = 13;
@@ -3207,7 +3224,7 @@ namespace KanchokuWS.Gui
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(14, 48);
+            this.label9.Location = new System.Drawing.Point(14, 49);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(55, 15);
             this.label9.TabIndex = 12;
@@ -3224,9 +3241,11 @@ namespace KanchokuWS.Gui
             // 
             // textBox_normalFont
             // 
-            this.textBox_normalFont.Location = new System.Drawing.Point(80, 20);
+            this.textBox_normalFont.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_normalFont.Location = new System.Drawing.Point(90, 20);
             this.textBox_normalFont.Name = "textBox_normalFont";
-            this.textBox_normalFont.Size = new System.Drawing.Size(148, 23);
+            this.textBox_normalFont.Size = new System.Drawing.Size(150, 23);
             this.textBox_normalFont.TabIndex = 0;
             this.toolTip1.SetToolTip(this.textBox_normalFont, resources.GetString("textBox_normalFont.ToolTip"));
             // 
@@ -3243,9 +3262,9 @@ namespace KanchokuWS.Gui
             this.groupBox3.Controls.Add(this.label35);
             this.groupBox3.Controls.Add(this.label34);
             this.groupBox3.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox3.Location = new System.Drawing.Point(8, 234);
+            this.groupBox3.Location = new System.Drawing.Point(8, 226);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(255, 152);
+            this.groupBox3.Size = new System.Drawing.Size(302, 152);
             this.groupBox3.TabIndex = 1;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "通常鍵盤背景色";
@@ -3360,7 +3379,7 @@ namespace KanchokuWS.Gui
             this.groupBox5.Controls.Add(this.label25);
             this.groupBox5.Controls.Add(this.label17);
             this.groupBox5.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox5.Location = new System.Drawing.Point(302, 4);
+            this.groupBox5.Location = new System.Drawing.Point(320, 6);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(243, 97);
             this.groupBox5.TabIndex = 2;
@@ -3474,7 +3493,7 @@ namespace KanchokuWS.Gui
             // label51
             // 
             this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(559, 120);
+            this.label51.Location = new System.Drawing.Point(569, 120);
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(74, 15);
             this.label51.TabIndex = 7;
@@ -3497,7 +3516,7 @@ namespace KanchokuWS.Gui
             // 
             this.textBox_onSecondaryTable.BackColor = System.Drawing.Color.White;
             this.textBox_onSecondaryTable.ForBackColor = true;
-            this.textBox_onSecondaryTable.Location = new System.Drawing.Point(562, 227);
+            this.textBox_onSecondaryTable.Location = new System.Drawing.Point(572, 227);
             this.textBox_onSecondaryTable.Name = "textBox_onSecondaryTable";
             this.textBox_onSecondaryTable.ReadOnly = true;
             this.textBox_onSecondaryTable.Size = new System.Drawing.Size(132, 23);
@@ -6479,6 +6498,18 @@ namespace KanchokuWS.Gui
             this.label91.TabIndex = 81;
             this.label91.Text = "ボーナスポイントの係数";
             // 
+            // textBox_analyzeMorphLen
+            // 
+            this.textBox_analyzeMorphLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_analyzeMorphLen.Location = new System.Drawing.Point(356, 324);
+            this.textBox_analyzeMorphLen.Name = "textBox_analyzeMorphLen";
+            this.textBox_analyzeMorphLen.Size = new System.Drawing.Size(34, 19);
+            this.textBox_analyzeMorphLen.TabIndex = 1;
+            this.textBox_analyzeMorphLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_analyzeMorphLen, "形態素解析実行時の最大文字列長\r\n\r\n入力文字列に対してその妥当性を計るために形態素解析を実行しています。\r\nその際に、実行時間の短縮のため入力文字列全体ではなく" +
+        "、ここで設定された\r\n長さの末尾部分文字列を対象とします。\r\n");
+            this.textBox_analyzeMorphLen.Visible = false;
+            // 
             // groupBox8
             // 
             this.groupBox8.Controls.Add(this.label112);
@@ -6558,6 +6589,27 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.checkBox_strokeBackByBS, resources.GetString("checkBox_strokeBackByBS.ToolTip"));
             this.checkBox_strokeBackByBS.UseVisualStyleBackColor = true;
             // 
+            // label168
+            // 
+            this.label168.AutoSize = true;
+            this.label168.Location = new System.Drawing.Point(9, 39);
+            this.label168.Name = "label168";
+            this.label168.Size = new System.Drawing.Size(154, 15);
+            this.label168.TabIndex = 70;
+            this.label168.Text = "保存しておく直近のストローク数";
+            // 
+            // textBox_remainingStrokeSize
+            // 
+            this.textBox_remainingStrokeSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(165, 37);
+            this.textBox_remainingStrokeSize.Name = "textBox_remainingStrokeSize";
+            this.textBox_remainingStrokeSize.Size = new System.Drawing.Size(34, 19);
+            this.textBox_remainingStrokeSize.TabIndex = 1;
+            this.textBox_remainingStrokeSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_remainingStrokeSize, "直近の何ストローク分を保存しておくかを指定\r\n\r\n少なくとも、使用している配列で、一文字を入力するのにかかる\r\n最大ストローク数(あるいは同時打鍵のキー数)以上に" +
+        "設定してください。\r\n\r\nまた、BSでストロークを戻す設定になっている場合も、保存してある\r\nストローク数までしか戻せないので、そのあたりも考慮して設定してくだ" +
+        "さい。");
+            // 
             // textBox_maxStrokeBackCount
             // 
             this.textBox_maxStrokeBackCount.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
@@ -6581,26 +6633,15 @@ namespace KanchokuWS.Gui
             this.label46.Text = "回の連続BS打鍵で本来のBS動作に戻る";
             this.label46.Visible = false;
             // 
-            // label168
+            // label159
             // 
-            this.label168.AutoSize = true;
-            this.label168.Location = new System.Drawing.Point(9, 39);
-            this.label168.Name = "label168";
-            this.label168.Size = new System.Drawing.Size(154, 15);
-            this.label168.TabIndex = 70;
-            this.label168.Text = "保存しておく直近のストローク数";
-            // 
-            // textBox_remainingStrokeSize
-            // 
-            this.textBox_remainingStrokeSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(165, 37);
-            this.textBox_remainingStrokeSize.Name = "textBox_remainingStrokeSize";
-            this.textBox_remainingStrokeSize.Size = new System.Drawing.Size(34, 19);
-            this.textBox_remainingStrokeSize.TabIndex = 1;
-            this.textBox_remainingStrokeSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_remainingStrokeSize, "直近の何ストローク分を保存しておくかを指定\r\n\r\n少なくとも、使用している配列で、一文字を入力するのにかかる\r\n最大ストローク数(あるいは同時打鍵のキー数)以上に" +
-        "設定してください。\r\n\r\nまた、BSでストロークを戻す設定になっている場合も、保存してある\r\nストローク数までしか戻せないので、そのあたりも考慮して設定してくだ" +
-        "さい。");
+            this.label159.AutoSize = true;
+            this.label159.Location = new System.Drawing.Point(204, 326);
+            this.label159.Name = "label159";
+            this.label159.Size = new System.Drawing.Size(125, 15);
+            this.label159.TabIndex = 85;
+            this.label159.Text = "形態素解析の文字列長";
+            this.label159.Visible = false;
             // 
             // checkBox_useMorphAndNgramAnalyzer
             // 
@@ -7745,28 +7786,6 @@ namespace KanchokuWS.Gui
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // label159
-            // 
-            this.label159.AutoSize = true;
-            this.label159.Location = new System.Drawing.Point(204, 326);
-            this.label159.Name = "label159";
-            this.label159.Size = new System.Drawing.Size(125, 15);
-            this.label159.TabIndex = 85;
-            this.label159.Text = "形態素解析の文字列長";
-            this.label159.Visible = false;
-            // 
-            // textBox_analyzeMorphLen
-            // 
-            this.textBox_analyzeMorphLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_analyzeMorphLen.Location = new System.Drawing.Point(356, 324);
-            this.textBox_analyzeMorphLen.Name = "textBox_analyzeMorphLen";
-            this.textBox_analyzeMorphLen.Size = new System.Drawing.Size(34, 19);
-            this.textBox_analyzeMorphLen.TabIndex = 1;
-            this.textBox_analyzeMorphLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_analyzeMorphLen, "形態素解析実行時の最大文字列長\r\n\r\n入力文字列に対してその妥当性を計るために形態素解析を実行しています。\r\nその際に、実行時間の短縮のため入力文字列全体ではなく" +
-        "、ここで設定された\r\n長さの末尾部分文字列を対象とします。\r\n");
-            this.textBox_analyzeMorphLen.Visible = false;
             // 
             // DlgSettings
             // 
