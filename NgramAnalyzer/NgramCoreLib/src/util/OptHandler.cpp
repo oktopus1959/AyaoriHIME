@@ -23,7 +23,7 @@ namespace {
         Vector<String>({L"N/nbest:INT",                   L"1", L"output N best results (default 1)"}),
         Vector<String>({L"a/assign-user-dictionary-costs", L"", L"only assign costs/ids to user dictionary"}),
         Vector<String>({L"s/build-sysdic",                 L"", L"build system dictionary"}),
-        Vector<String>({L"t/theta:FLOAT",              L"0.75", L"set temparature parameter theta (default 0.75)"}),
+        Vector<String>({L"b/hiragana-bigram",              L"", L"hiragana bigram enabled"}),
         Vector<String>({L"c/cost-factor:INT",           L"700", L"set cost factor (default 700)"}),
         Vector<String>({L"?/non-terminal-cost:INT",        L"10000", L"set non terminal word cost (default 10000)"}),
         Vector<String>({L"f/output:FILE",                  L"", L"set the output file name"}),

@@ -33,6 +33,6 @@ namespace analyzer {
         // @param str 検索対象の文字列
         // @param pos 検索開始位置
         // @return マッチしたエントリのリスト。各エントリは、(Ngram長, ボーナス) のタプルで表される
-        std::vector<int> commonPrefixSearch(const String& str, size_t pos);
+        std::vector<int> commonPrefixSearch(const String& str, size_t pos, bool hiraganaBigramEnabled);
     }
 }

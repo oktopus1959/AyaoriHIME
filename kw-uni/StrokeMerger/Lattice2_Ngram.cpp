@@ -546,8 +546,12 @@ namespace lattice2 {
             if (pos >= 3 && !ppKanji && pKanji && !kanji) {
                 _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 1));
             }
-            if (kanjiLen >= 2 && pos >= 1) {
-                // 漢字が2文字以上連続している場合は、2gramを更新する
+            //if (kanjiLen >= 2 && pos >= 1) {
+            //    // 漢字が2文字以上連続している場合は、2gramを更新する
+            //    _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 2));
+            //}
+            if (hirakanLen >= 2 && pos >= 1) {
+                // ひらがなor漢字が2文字以上連続している場合は、2gramを更新する
                 _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 2));
             }
         }

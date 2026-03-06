@@ -160,7 +160,7 @@ namespace analyzer {
         // @param str 検索対象の文字列
         // @param pos 検索開始位置
         // @return マッチしたエントリのボーナスポイントのリスト。(各エントリの長さのをインデックスとする)
-        std::vector<int> commonPrefixSearch(const String& str, size_t pos) {
+        std::vector<int> commonPrefixSearch(const String& str, size_t pos, bool hiraganaBigramEnabled) {
             LOG_DEBUG(L"ENTER: str={}, pos={}", str, pos);
             std::vector<int> result;
             result.resize(maxLen + 1, 0);  // エントリの長さでインデックスされる。値 0 はエントリがないことを表す。
@@ -174,13 +174,15 @@ namespace analyzer {
                             continue;
                         }
                     }
-                    String key = str.substr(pos, i - pos);
+                    String key = str.substr(pos, len);
                     int count = 0;
                     // リアルタイムN-gram辞書とユーザー定義N-gram辞書の両方を検索して、カウントを合算する
                     auto it = realtimeDict.find(key);
                     if (it != realtimeDict.end()) {
-                        count = it->second;
-                        LOG_DEBUG(L"realtime FOUND: key={}, count={}", key, it->second);
+                        if (len != 2 || hiraganaBigramEnabled || (utils::is_kanji(key[0]) && utils::is_kanji(key[1]))) {
+                            count = it->second;
+                            LOG_DEBUG(L"realtime FOUND: key={}, count={}", key, it->second);
+                        }
                     }
                     it = userDict.find(key);
                     if (it != userDict.end()) {

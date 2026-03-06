@@ -42,6 +42,7 @@ namespace analyzer {
     private:
         OptHandlerPtr opts;
 
+        bool hiraganaBigramEnabled = false;
         String verbose;
         int debugLevel = 0;
 
@@ -56,13 +57,14 @@ namespace analyzer {
         // Constructor
         Impl(OptHandlerPtr opts) : opts(opts) {
             LOG_INFOH(L"ENTER: ctor: opts");
+            hiraganaBigramEnabled = opts->getBoolean(L"hiragana-bigram");
             verbose = opts->getString(L"verbose");
             debugLevel = utils::parseInt(verbose);
 
             // 辞書および設定ファイルのオープン
             open_dics();
 
-            LOG_INFOH(L"LEAVE: ctor");
+            LOG_INFOH(L"LEAVE: ctor: hiragana-bigram={}", hiraganaBigramEnabled);
         }
 
 
@@ -108,7 +110,7 @@ namespace analyzer {
             };
 
             // realtime Ngramを検索しておく
-            auto bonusList = RealtimeDict::commonPrefixSearch(lattice.sentence->toString(), begin2);
+            auto bonusList = RealtimeDict::commonPrefixSearch(lattice.sentence->toString(), begin2, hiraganaBigramEnabled);
 
             // 辞書引きしてノード作成する
             for (const auto& dic : dics) {

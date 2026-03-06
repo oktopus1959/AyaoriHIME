@@ -53,16 +53,14 @@ namespace analyzer {
         UniqPtr<Tokenizer> tokenizer;
 
         int cost_factor_;
-        double theta;
 
     public:
         Impl(OptHandlerPtr opts) :
             opts(opts),
             tokenizer(MakeUniq<Tokenizer>(opts)),
-            cost_factor_(opts->getInt(L"cost-factor", 800)),
-            theta(opts->getDouble(L"theta", kDefaultTheta))
+            cost_factor_(opts->getInt(L"cost-factor", 800))
         {
-            LOG_INFOH(L"ENTER: cost_factor_={}, theta={}", cost_factor_, theta);
+            LOG_INFOH(L"ENTER: cost_factor_={}", cost_factor_);
             CHECK_OR_THROW(!tokenizer->getDictionaries().empty(), L"Dictionary is empty");
             LOG_INFOH(L"LEAVE");
         }
