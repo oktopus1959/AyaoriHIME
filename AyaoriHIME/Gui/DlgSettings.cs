@@ -1882,9 +1882,9 @@ namespace KanchokuWS.Gui
             checkBox_collectRealtimeNgram.Checked = Settings.CollectRealtimeNgram;
             checkBox_useMorphAndNgramAnalyzer.Checked = Settings.UseMorphAnalyzerAlways;
             checkBox_strokeBackByBS.Checked = !Settings.StrokeBackByBS;
-            checkBox_useEditBuffer.Checked = Settings.UseEditBuffer;
+            checkBox_useEditBuffer.Checked = Settings.UseEditWindow;
             checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbolSub;
-            checkBox_outputHeadSymbol.Enabled = Settings.UseEditBuffer;
+            checkBox_outputHeadSymbol.Enabled = Settings.UseEditWindow;
             textBox_mergerCandidateMin.Text = $"{Settings.MergerCandidateMin}";
             textBox_mergerCandidateMax.Text = $"{Settings.MergerCandidateMax}";
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
@@ -1975,7 +1975,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("collectRealtimeNgram", checkBox_collectRealtimeNgram.Checked);
             Settings.SetUserIni("useMorphAnalyzerAlways", checkBox_useMorphAndNgramAnalyzer.Checked);
             Settings.SetUserIni("strokeBackByBS", !checkBox_strokeBackByBS.Checked);
-            Settings.SetUserIni("useEditBuffer", checkBox_useEditBuffer.Checked);
+            Settings.SetUserIni("useEditWindow", checkBox_useEditBuffer.Checked);
             if (checkBox_useEditBuffer.Checked) {
                 Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);
             }

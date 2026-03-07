@@ -281,7 +281,7 @@ namespace KanchokuWS.Forms
                 ClearBuffer();
                 frmMain.ToDeactivateDecoder();
             }
-            if (Settings.UseEditBuffer) {
+            if (Settings.UseEditWindow) {
                 if (EditText._notEmpty()) {
                     if (bWasEmpty && Settings.OutputSpaceAndBsAtFirstInChrome) {
                         if (ActiveWindowHandler.Singleton.ActiveWinClassName._startsWith("Chrome_WidgetWin")) {
@@ -355,7 +355,7 @@ namespace KanchokuWS.Forms
                     isEditKey = false;
                     break;
             }
-            if (Settings.UseEditBuffer && isEditKey) {
+            if (Settings.UseEditWindow && isEditKey) {
                 if (EditText._notEmpty()) {
                     ShowNonActive();
                 } else {
@@ -458,7 +458,8 @@ namespace KanchokuWS.Forms
                 editTextBox.SelectionStart = 0;
             }
             this.Hide();
-            if (Settings.UseEditBuffer) {
+            frmCands?.Hide();
+            if (Settings.UseEditWindow) {
                 //frmCands?.Hide();
                 //Helper.WaitMilliSeconds(10);
                 //System.Windows.Forms.Application.DoEvents();
@@ -577,7 +578,7 @@ namespace KanchokuWS.Forms
         /// <summary>バッファが空でない場合に入力フォームを表示する</summary>
         public void ShowNonActive()
         {
-            if (Settings.UseEditBuffer && EditText._notEmpty()) ShowWindow(this.Handle, SW_SHOWNA);   // NonActive
+            if (Settings.UseEditWindow && EditText._notEmpty()) ShowWindow(this.Handle, SW_SHOWNA);   // NonActive
         }
 
         /// <summary>

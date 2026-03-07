@@ -1655,7 +1655,7 @@ namespace KanchokuWS
             Color makeSpecifiedColor()
             {
                 string name = null;
-                if (decoderOutput.IsWaiting2ndStroke()) {
+                if (!frmMain.IsEditBufEmpty() && decoderOutput.IsWaiting2ndStroke()) {
                     name = Settings.BgColorOnWaiting2ndStroke;
                 //} else if (decoderOutput.IsMazeCandSelecting()) {
                 //    name = Settings.BgColorForMazegaki;
@@ -1668,7 +1668,7 @@ namespace KanchokuWS
                 } else if (decoderOutput.IsOtherStatus()) {
                     name = "Yellow";    // とりあえず Yellow 固定
                 } else if (!frmMain.IsEditBufEmpty()) {
-                    name = Settings.BgColorOnWaiting2ndStroke;          // 編集バッファが空のとき
+                    name = Settings.BgColorOnWaiting2ndStroke;          // 編集バッファが空でないとき
                 }
                 if (name._isEmpty() && Settings.KanaTrainingMode) {
                     name = Settings.BgColorForKanaTrainingMode;         // かな入力練習モードのとき

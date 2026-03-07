@@ -111,6 +111,7 @@ struct Settings {
     bool googleCompatible = false;          // Google日本語入力と互換な後置書き換えか(falseなら書き換えられた文字列も1文字ずつが対象になる)
     bool multiStreamMode = false;           // 漢直・かな融合モードか
     bool multiCandidateMode = false;        // 複数候補モードか
+    bool isHiraganaOnly = false;            // かな配列だけを使用するか
 
     bool collectRealtimeNgram = true;         // Realtime Ngram 情報を収集する
     bool useTmpRealtimeNgramFile = false;   // 一時的なRealtime Ngram ファイルを使用する
@@ -142,7 +143,7 @@ struct Settings {
     String mergerCandidateFile;             // 解候補ログファイル
     int mergerCandidateMin = 3;             // 解候補ログに出力する最小解数
     int mergerCandidateMax = 10;            // 解候補ログに出力する最大解数
-    bool useEditBuffer = false;             // 編集バッファを使用するか
+    bool useEditWindow = false;             // 編集バッファを使用するか
     String editBufferCaretChar = L"▴";      // 編集バッファのカレット文字
     bool multiStreamDetailLog = false;      // multi-stream モードでの詳細ログを有効にする
 

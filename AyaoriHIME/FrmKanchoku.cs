@@ -532,6 +532,7 @@ namespace KanchokuWS
                 // 漢直テーブルが存在しない場合は、MorphMazeのエントリペナルティを最小にして、Mazeエントリも候補に出るようにする
                 Settings.SetMinMorphMazeEntryPenalty();
             }
+            Settings.SetHiraganaTableOnly(!hasKanchokuTable);
 
             logger.InfoH("LEAVE");
         }
@@ -1291,6 +1292,7 @@ namespace KanchokuWS
                                     if (mod == KeyModifiers.MOD_CONTROL) {
                                         // Ctrlキー なら、Flush してから直接送る
                                         frmEditBuf.FlushBuffer(true);
+                                        frmVkb.DrawVirtualKeyboardChars();
                                         logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
                                         result = sendVkeyFromDeckey(deckey, origDeckey, mod);
                                         logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
@@ -2231,7 +2233,7 @@ namespace KanchokuWS
                     var outString = decoderOutput.outString;
                     int outLen = outString._strlen();
                     int numBS = decoderOutput.numBackSpaces;
-                    bool bFlush = decoderOutput.IsFlushOutputString();
+                    bool bFlush = decoderOutput.IsFlushOutputString() || deckey == DecoderKeys.ENTER_DECKEY;
                     if (outLen > 0 || numBS > 0 || bFlush) {
                         logger.DebugH("PATH-4");
                         // 送出文字列中に特殊機能キー(tabやleftArrowなど)が含まれているか

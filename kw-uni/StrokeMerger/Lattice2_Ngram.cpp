@@ -591,7 +591,7 @@ namespace lattice2 {
 
     // Ngramコストの取得
     int getNgramCost(const MString& str, const std::vector<MString>& morphs, bool bUseGeta) {
-        _LOG_DETAIL(L"\nENTER: str={}: geta={}", to_wstr(str), bUseGeta);
+        _LOG_DETAIL(L"\nENTER: str={}: geta={}, morphs={}", to_wstr(str), bUseGeta, to_wstr(utils::join(morphs, L'|')));
         std::vector<MString> ngrams;
         MString targetStr = bUseGeta ? MSTR_GETA + str : str;
         // Ngram 解析

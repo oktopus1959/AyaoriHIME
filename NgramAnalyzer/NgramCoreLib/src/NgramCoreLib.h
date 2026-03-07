@@ -41,6 +41,9 @@ namespace NgramCoreLib {
     // 形態素解析の実行(コストを返す)
     int NgramAnalyze(const wchar_t* sentence, const wchar_t* tempEntries, wchar_t* wakati_buf, size_t bufsize, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz);
 
+    // 形態素解析の実行(コストを返す)
+    int NgramAnalyze(StringRef sentence, StringRef tempEntries, std::vector<String>& ngrams, String& errMsg, bool needResults);
+
     // ログレベルの設定
     void NgramSetLogLevel(int logLevel);
 

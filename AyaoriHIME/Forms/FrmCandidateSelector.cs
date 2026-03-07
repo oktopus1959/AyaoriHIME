@@ -211,7 +211,7 @@ namespace KanchokuWS.Forms
 
             if (Settings.LoggingVirtualKeyboardInfo) logger.InfoH(() => $"ENTER: layout={decoderOutput.layout}, selectPos={decoderOutput.nextSelectPos}, faceString={decoderOutput.candidateStrings._toString()}");
 
-            if ((Settings.UseEditBuffer && frmEditBuf.IsEmpty)
+            if ((Settings.UseEditWindow && frmEditBuf.IsEmpty)
                 || decoderOutput.layout != (int)VkbLayout.MultiStreamCandidates
                 || decoderOutput.candidateStrings._isEmpty()
                 || decoderOutput.candidateStrings[0] == 0) {

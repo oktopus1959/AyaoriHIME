@@ -441,7 +441,7 @@ namespace {
                 _streamList2.DebugPrintStatesChain(_T("HandleDeckeyChain::BEGIN: streamList2"));
 
                 bool bHasAnyStroke = !_streamList1.Empty() || !_streamList2.Empty();
-                _LOG_DETAIL(_T("\nuseEditBuffer={}, bDualTableMode={}, bHasAnyStroke={}"), SETTINGS->useEditBuffer, bDualTableMode, bHasAnyStroke);
+                _LOG_DETAIL(_T("\nuseEditWindow={}, bDualTableMode={}, bHasAnyStroke={}"), SETTINGS->useEditWindow, bDualTableMode, bHasAnyStroke);
 
                 if (/*deckey != CLEAR_STROKE_DECKEY && */
                     ((deckey >= FUNC_DECKEY_START && deckey < F1_DECKEY && !isSingleHitKey(deckey)) || deckey >= CTRL_DECKEY_START)) {
@@ -453,11 +453,11 @@ namespace {
                     switch (deckey) {
                     case ENTER_DECKEY:
                         multiCands = WORD_LATTICE->hasMultiCandidates();
-                        LOG_DEBUGH(_T("EnterKey: clear streamList: useEditBuffer={}, hasMultiCandidates={}"), SETTINGS->useEditBuffer, multiCands);
+                        LOG_DEBUGH(_T("EnterKey: clear streamList: useEditWindow={}, hasMultiCandidates={}"), SETTINGS->useEditWindow, multiCands);
                         WORD_LATTICE->raiseAndLowerByCandSelection();
                         _isKatakanaConversionMode = false;
                         WORD_LATTICE->clearAll();
-                        if (SETTINGS->useEditBuffer || !multiCands) {
+                        if (SETTINGS->useEditWindow || !multiCands) {
                             LOG_DEBUGH(_T("CALL dispatchDeckey"));
                             State::dispatchDeckey(deckey);
                         }
@@ -502,7 +502,7 @@ namespace {
                     case DOWN_ARROW_DECKEY:
                         LOG_DEBUGH(_T("DOWN_ARROW_DECKEY: select next candidate"));
                         if (!WORD_LATTICE->hasMultiCandidates() &&
-                            (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || !SETTINGS->useEditBuffer || WORD_LATTICE->isEmpty())) {
+                            (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || !SETTINGS->useEditWindow || WORD_LATTICE->isEmpty())) {
                             //State::handleDownArrow();
                             doDefault = true;
                             break;
@@ -516,7 +516,7 @@ namespace {
                     case UP_ARROW_DECKEY:
                         LOG_DEBUGH(_T("UP_ARROW_DECKEY: select prev candidate"));
                         if (!WORD_LATTICE->hasMultiCandidates() &&
-                            (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || !SETTINGS->useEditBuffer || WORD_LATTICE->isEmpty())) {
+                            (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || !SETTINGS->useEditWindow || WORD_LATTICE->isEmpty())) {
                             //State::handleUpArrow();
                             doDefault = true;
                             break;

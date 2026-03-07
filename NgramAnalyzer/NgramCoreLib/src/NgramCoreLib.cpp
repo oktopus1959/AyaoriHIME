@@ -292,15 +292,15 @@ namespace NgramCoreLib {
      * @param mazePenalty 交ぜ書きエントリに対するペナルティ(0 ならデフォルト値を使う)
      * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
      */
-    int NgramAnalyze(StringRef sentence, StringRef tempEntries, std::vector<String>& ngrams, String& errMsg) {
-        LOG_INFO(L"ENTER: sentence={}", sentence);
+    int NgramAnalyze(StringRef sentence, StringRef tempEntries, std::vector<String>& ngrams, String& errMsg, bool needResults) {
+        LOG_INFO(L"ENTER: sentence={}, tempEntries={}", sentence, tempEntries);
         ERROR_HANDLER->Clear();
 
         try {
             int cost = 0;
             int nBest = opts->getInt(L"nbest", 1);
             ngrams.clear();
-            cost = viterbi->parseNBest(sentence, tempEntries, ngrams, nBest, true);
+            cost = viterbi->parseNBest(sentence, tempEntries, ngrams, nBest, needResults);
             if (ERROR_HANDLER->HasError()) {
                 LOG_INFO(L"LEAVE: ERROR");
                 return ERROR_HANDLER->GetErrorInfo(errMsg);

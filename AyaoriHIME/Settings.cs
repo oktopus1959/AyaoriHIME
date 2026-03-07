@@ -163,7 +163,7 @@ namespace KanchokuWS
         public static bool OpenSettingsDlgWhenIconClicked { get; private set; } = false;
 
         //-------------------------------------------------------------------------------------
-        // 配列融合と編集バッファ
+        // 配列融合と編集バッファ/ウィンドウ
         //-------------------------------------------------------------------------------------
         /// <summary> 複数配列の融合モードか </summary>        
         public static bool MultiStreamMode { get; set; } = true;
@@ -171,8 +171,8 @@ namespace KanchokuWS
         /// <summary> 複数候補モードか </summary>        
         public static bool MultiCandidateMode { get; set; } = true;
 
-        /// <summary> 編集バッファを表示するか </summary>
-        public static bool UseEditBuffer { get; set; } = false;
+        /// <summary> 編集ウィンドウを表示するか </summary>
+        public static bool UseEditWindow { get; set; } = false;
 
         /// <summary>複数配列の融合モード時の従配列番号(1始まり; 通常は漢直側)</summary>
         public static int SecondaryTableWhenMultiStream { get; set; } = 2;
@@ -1785,7 +1785,7 @@ namespace KanchokuWS
             MultiCandidateMode = MultiStreamMode || GetString("multiCandidateMode")._parseBool();
             setDecoderSetting("multiCandidateMode", MultiCandidateMode);
             MultiStreamDetailLog = addDecoderSetting("multiStreamDetailLog", false);
-            UseEditBuffer = addDecoderSetting("useEditBuffer", false);                  // 編集バッファを使用するか
+            UseEditWindow = addDecoderSetting("useEditWindow", false);                  // 編集ウィンドウを使用するか
             BushuAssocFile = addDecoderSetting("bushuAssocFile", "kwassoc.txt");
             BushuFile = addDecoderSetting("bushuFile", "bushu", "kwbushu.rev");
             AutoBushuFile = addDecoderSetting("autoBushuFile", "bushuAuto", "kwbushu.aut");
@@ -1897,7 +1897,7 @@ namespace KanchokuWS
             LoweredContinuousKanjiNum = addDecoderSetting("loweredContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード
             OutputHeadSymbolSub = GetString("outputHeadSymbol")._parseBool(true);               // 先頭の記号類をそのまま出力するか
-            OutputHeadSymbol = setDecoderSetting("outputHeadSymbol", UseEditBuffer && OutputHeadSymbolSub);    // 先頭の記号類をそのまま出力する
+            OutputHeadSymbol = setDecoderSetting("outputHeadSymbol", UseEditWindow && OutputHeadSymbolSub);    // 先頭の記号類をそのまま出力する
             StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う
             //MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 0);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
             MultiStreamBeamSize = addDecoderSetting("multiStreamBeamSize", 10);                 // 融合モードにおける解探索のビームサイズ
@@ -1975,6 +1975,11 @@ namespace KanchokuWS
         public static void SetMinMorphMazeEntryPenalty()
         {
             setDecoderSetting("morphMazeEntryPenalty", 1);
+        }
+
+        public static void SetHiraganaTableOnly(bool bHiragaOnly)
+        {
+            setDecoderSetting("isHiraganaOnly", bHiragaOnly);
         }
 
         public static string GetVerticalFontHeightFactorStr(string strFactor)

@@ -149,6 +149,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
 
     SET_BOOL_VALUE(multiStreamMode);
     SET_BOOL_VALUE(multiCandidateMode);
+    SET_BOOL_VALUE(isHiraganaOnly);
     SET_BOOL_VALUE(collectRealtimeNgram);
     SET_BOOL_VALUE(useTmpRealtimeNgramFile);
     SET_BOOL_VALUE(hiraganaBigramEnabled);
@@ -176,7 +177,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(kanjiNoKanjiBonus);
     SET_INT_VALUE(mergerCandidateMin);
     SET_INT_VALUE(mergerCandidateMax);
-    SET_BOOL_VALUE(useEditBuffer);
+    SET_BOOL_VALUE(useEditWindow);
     SET_KEY_VALUE(editBufferCaretChar);
     SET_INT_VALUE(loweredContinuousKanjiNum);
     SET_INT_VALUE2(exclusivePrefixCode, -1);
