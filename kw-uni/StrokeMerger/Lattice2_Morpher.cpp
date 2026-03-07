@@ -138,7 +138,7 @@ namespace lattice2 {
             // 形態素解析器の呼び出し
             // mazePenalty = 0 なので、形態素解析器の中で、デフォルトの mazePenalty が加算される。
             // 戻りの morph の構造は、"表層形 <TAB> 変換形[| 別候補]...(or -) <TAB> 品詞:細品詞,交ぜ基本形,変換基本形,変換表層形[,MAZE]" となっている。
-            cost = MorphBridge::morphCalcCost(s, morphs, 0, 0, true);
+            cost = MorphBridge::morphCalcCost(s, morphs, SETTINGS->morphMazeEntryPenalty, 0, true);
 
             _LOG_DETAIL(L"ENTER: {}: orig morph cost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(morphs, to_mstr(L" || "))));
             std::vector<std::vector<MString>> wordItemsList;

@@ -1490,12 +1490,13 @@ namespace KanchokuWS.TableParser
         /// <param name="filename"></param>
         /// <param name="outFilename"></param>
         /// <param name="pool">対象となる KeyComboPool</param>
-        public void ParseTableFile(string filename, string outFilename, KeyCombinationPool poolK, KeyCombinationPool poolA, int tableNo, bool bDualTable, bool bTest)
+        public bool ParseTableFile(string filename, string outFilename, KeyCombinationPool poolK, KeyCombinationPool poolA, int tableNo, bool bDualTable, bool bTest)
         {
             logger.InfoH(() => $"ENTER: filename={filename}, tableNo={tableNo}, bDualTable={bDualTable}");
 
             List<string> outputLines = new List<string>();
 
+            // テーブルに漢字が300個以上含まれているかどうか
             bool isKanchokuTable()
             {
                 if (Settings.KanjiTableThresholdForDualTable > 0) {
@@ -1536,6 +1537,8 @@ namespace KanchokuWS.TableParser
 
             string errorMsg = "";
 
+            bool bKanchokuTable = false;
+
             // 漢直モードの解析
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"Analyze for KANCHOKU/KANA mode");
             TableLines tableLines = new TableLines();
@@ -1550,13 +1553,14 @@ namespace KanchokuWS.TableParser
                 parseRootTable(tableLines, poolA, false);
                 if (errorMsg._isEmpty()) errorMsg = tableLines.getErrorMessage();
                 // 解析結果の出力
-                if (bDualTable && isKanchokuTable()) {
+                bKanchokuTable = isKanchokuTable();
+                if (bDualTable && bKanchokuTable) {
                     // 両テーブルモードで、テーブルに漢字が300個以上含まれている場合、かな文字の行を削除する
                     logger.InfoH("DualTable and KanjiTable: remove Hiragana Entries");
                     removeHiraganaLines();
                 }
                 writeAllLines(outFilename, outputLines);
-            if (Settings.LoggingTableFileInfo) logger.Info("LEAVE");
+                if (Settings.LoggingTableFileInfo) logger.Info("LEAVE");
             } else {
                 tableLines.Error($"テーブルファイル({filename})が開けないか、内容が空でした。");
             }
@@ -1565,7 +1569,9 @@ namespace KanchokuWS.TableParser
                 SystemHelper.ShowWarningMessageBox(errorMsg);
             }
 
-            logger.InfoH("LEAVE");
+            logger.InfoH($"LEAVE: kanchokuTable={bKanchokuTable}");
+
+            return bKanchokuTable;
         }
 
         /// <summary>

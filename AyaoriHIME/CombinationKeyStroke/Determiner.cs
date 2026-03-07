@@ -245,7 +245,7 @@ namespace KanchokuWS.CombinationKeyStroke
         /// <param name="tableFile">主テーブルファイル名</param>
         /// <param name="tableFile2">副テーブルファイル名</param>
         /// <param name="tableFile3">第3テーブルファイル名</param>
-        public void Initialize(string tableFile, string tableFile2, string tableFile3, bool bTest = false)
+        public bool Initialize(string tableFile, string tableFile2, string tableFile3, bool bTest = false)
         {
             logger.InfoH("ENTER");
             Settings.ClearSpecificDecoderSettings();
@@ -253,20 +253,26 @@ namespace KanchokuWS.CombinationKeyStroke
             Clear();
 
             bool bDualTable = tableFile._notEmpty() && tableFile2._notEmpty();
-
+            bool bKanchokuTable = false;
             if (tableFile._notEmpty()) {
-                new TableFileParser().ParseTableFile(tableFile, "tmp/tableFile1.tbl", KeyCombinationPool.SingletonK1, KeyCombinationPool.SingletonA1, 1, bDualTable, bTest);
+                if (new TableFileParser().ParseTableFile(tableFile, "tmp/tableFile1.tbl", KeyCombinationPool.SingletonK1, KeyCombinationPool.SingletonA1, 1, bDualTable, bTest)) {
+                    bKanchokuTable = true;
+                }
             }
 
             if (tableFile2._notEmpty()) {
-                new TableFileParser().ParseTableFile(tableFile2, "tmp/tableFile2.tbl", KeyCombinationPool.SingletonK2, KeyCombinationPool.SingletonA2, 2, bDualTable, bTest);
+                if (new TableFileParser().ParseTableFile(tableFile2, "tmp/tableFile2.tbl", KeyCombinationPool.SingletonK2, KeyCombinationPool.SingletonA2, 2, bDualTable, bTest)) {
+                    bKanchokuTable = true;
+                }
             }
 
             if (tableFile3._notEmpty()) {
                 new TableFileParser().ParseTableFile(tableFile3, "tmp/tableFile3.tbl", KeyCombinationPool.SingletonK3, KeyCombinationPool.SingletonA3, 3, bDualTable, bTest);
             }
             logger.InfoH($"KeyCombinationPool._KContainsComboShiftKey={KeyCombinationPool._KContainsComboShiftKey}");
-            logger.InfoH("LEAVE");
+            logger.InfoH($"LEAVE: kanchokuTable={bKanchokuTable}");
+
+            return bKanchokuTable;
         }
 
         ///// <summary>

@@ -280,6 +280,11 @@ namespace KanchokuWS
         /// </summary>
         private string complexCommandStr = null;
 
+        /// <summary>
+        /// 漢直テーブルが存在するか
+        /// </summary>
+        private bool hasKanchokuTable = false;
+
         //------------------------------------------------------------------
         /// <summary>
         /// コンストラクタ
@@ -478,7 +483,7 @@ namespace KanchokuWS
         /// <summary> 各種定義ファイルの読み込み </summary>
         public void ReadDefFiles()
         {
-            logger.Info("ENTER");
+            logger.InfoH("ENTER");
 
             logConstant();
 
@@ -518,12 +523,17 @@ namespace KanchokuWS
                     tableFile2 = Settings.TableFile;
                 }
             }
-            CombinationKeyStroke.Determiner.Singleton.Initialize(tableFile1, tableFile2, Settings.TableFile3);
+            hasKanchokuTable = CombinationKeyStroke.Determiner.Singleton.Initialize(tableFile1, tableFile2, Settings.TableFile3);
 
             // 設定ファイルの再読み込み
             Settings.ReadIniFile(false);
 
-            logger.Info("LEAVE");
+            if (!hasKanchokuTable) {
+                // 漢直テーブルが存在しない場合は、MorphMazeのエントリペナルティを最小にして、Mazeエントリも候補に出るようにする
+                Settings.SetMinMorphMazeEntryPenalty();
+            }
+
+            logger.InfoH("LEAVE");
         }
 
         private void logConstant()
@@ -571,7 +581,7 @@ namespace KanchokuWS
         /// <summary> 各種定義ファイルの読み込み </summary>
         public void ReloadDefFiles()
         {
-            logger.Info("ENTER");
+            logger.InfoH("ENTER");
 
             // 各種定義ファイルの読み込み
             ReadDefFiles();
@@ -590,7 +600,7 @@ namespace KanchokuWS
                 frmVkb?.MakeStrokeTables(Settings.StrokeHelpFile);
             }
 
-            logger.Info("LEAVE");
+            logger.InfoH("LEAVE");
         }
 
         //------------------------------------------------------------------
@@ -2744,7 +2754,7 @@ namespace KanchokuWS
         // 設定ファイルと各種定義ファイルをリロードする
         public void ReloadSettingsAndDefFiles()
         {
-            logger.Info("ENTER");
+            logger.InfoH("ENTER");
 
             // 初期化
             //KanchokuIni.Singleton.IsUserIniAbsent = false;
@@ -2762,7 +2772,7 @@ namespace KanchokuWS
             //// 文字定義ファイルの読み込み
             //DecoderKeyVsChar.ReadCharsDefFile();
 
-            // 設定ファイルの読み込み
+            // 設定ファイルの先行読み込み
             Settings.ReadIniFile(true);
 
             if (!resultOK) return;
@@ -2779,7 +2789,7 @@ namespace KanchokuWS
             // 辞書保存チャレンジ開始時刻の再初期化
             reinitializeSaveDictsChallengeDt();
 
-            logger.Info("LEAVE");
+            logger.InfoH("LEAVE");
         }
 
         public void KanaTrainingModeToggle()

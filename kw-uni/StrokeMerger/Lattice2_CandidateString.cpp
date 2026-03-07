@@ -272,7 +272,7 @@ namespace lattice2 {
             int srcAccumCost = accum_cost(vecWork);
             std::vector<MString> morphs;
             // 形態素解析コストの計算
-            int morphCost = MorphBridge::morphCalcCost(str, morphs, 0, 0, false);
+            int morphCost = MorphBridge::morphCalcCost(str, morphs, SETTINGS->morphMazeEntryPenalty, 0, false);
             //morphs.clear();
             // Ngramコストの計算
             int ngramCost = getNgramCost(str, morphs, false);

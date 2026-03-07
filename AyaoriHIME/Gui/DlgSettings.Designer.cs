@@ -6407,7 +6407,7 @@ namespace KanchokuWS.Gui
             this.textBox_morphMazeEntryPenalty.TabIndex = 5;
             this.textBox_morphMazeEntryPenalty.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_morphMazeEntryPenalty, "交ぜ書きエントリに対するペナルティ\r\n\r\n辞書引きした見出し語が交ぜ書きだった場合に与えるペナルティ。\r\n漢直に自信がなかったり、ひらがなのみで入力する場合は、\r" +
-        "\n低めの値にしておくとよいでしょう。");
+        "\n低めの値にしておくとよいでしょう。\r\n\r\nなお、かな配列だけを使用する場合には、このペナルティは強制的に\r\n1 となります。");
             // 
             // label160
             // 

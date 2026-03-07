@@ -8,7 +8,7 @@
 #include "Tokenizer.h"
 #include "Lattice.h"
 
-#if 0
+#if 1
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
 #define LOG_DEBUGH LOG_INFOH

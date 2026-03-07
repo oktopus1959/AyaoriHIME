@@ -1368,7 +1368,7 @@ namespace KanchokuWS
         /// <returns></returns>
         public static bool ReadIniFile(bool bFirst)
         {
-            logger.Info(() => $"ENTER: {(bFirst ? "First" : "Second")}");
+            logger.InfoH(() => $"ENTER: {(bFirst ? "First" : "Second")}");
 
             if (bFirst) {
                 // 1回目はテーブルファイルによる設定をクリア（iniファイルによる設定だけを読み込む）
@@ -1967,9 +1967,14 @@ namespace KanchokuWS
             //addDecoderSetting("debughKatakana", false);
             BushuDicLogEnabled = addDecoderSetting("bushuDicLogEnabled", false);
 
-            logger.Info(() => $"LEAVE");
+            logger.InfoH(() => $"LEAVE");
 
             return true;
+        }
+
+        public static void SetMinMorphMazeEntryPenalty()
+        {
+            setDecoderSetting("morphMazeEntryPenalty", 1);
         }
 
         public static string GetVerticalFontHeightFactorStr(string strFactor)

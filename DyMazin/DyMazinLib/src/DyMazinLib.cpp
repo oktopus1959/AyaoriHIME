@@ -215,8 +215,9 @@ int DymazinMakeDictIndex(size_t argc, const wchar_t** argv, const wchar_t* logFi
  *   (表層形 <TAB> 変換形[|別候補]...(or -) <TAB> 品詞:細品詞,交ぜ基本形,変換基本形,変換表層形[,MAZE])
  *   nullptr なら分かち書き表現は返さない。
  * @param bufsize wakati_buf のサイズ(文字数単位)
- * @param mazePenalty 交ぜ書きエントリに対するペナルティ(0 ならデフォルト値を使う)。これが負値ならボーナスなり、他の交ぜ書き候補を含めた解を返す
- * @return 解のコスト(非負値; 実行時エラーがある場合は大きな正値を返す)
+ * @param mazePenalty 交ぜ書きエントリに対するペナルティ(0 ならデフォルト値を使う)。これが負値なら、他の交ぜ書き候補を含めた解を返す
+ * @param mazeConnPenalty 交ぜ書きの接続に対するペナルティ(0 ならデフォルト値を使う)。mazePenalty < 0 の場合にのみ有効。
+ * @return 解のコスト(負値もありえる; 実行時エラーがある場合は大きな正値を返す)
  */
 int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz) {
     LOG_INFOH(L"ENTER: sentence={}, mazePenalty={}, mazeConnPenalty={}, allowNonTerminal={}", sentence ? sentence : L"null", mazePenalty, mazeConnPenalty, allowNonTerminal);

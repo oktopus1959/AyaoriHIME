@@ -93,7 +93,7 @@ namespace analyzer {
          * 単語の辞書引きと先行ノードとの接続処理を行って、ラティス構造を構築する。
          */
         void viterbi(LatticePtr lattice, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
-            LOG_INFOH(L"ENTER");
+            LOG_DEBUGH(L"ENTER: mazePenalty={}, mazeConnPenalty={}", mazePenalty, mazeConnPenalty);
             auto sentence = lattice->sentence;
             auto len = sentence->length();
             auto begin = sentence->begin();
@@ -131,7 +131,7 @@ namespace analyzer {
             // 両番兵に変化がないか確認 (TODO: 後で削除する)
             //assert(lattice->getEndNodes(0).size() == 1 && lattice->bosNode() == bos_node);
             assert(lattice->getLastBeginNodes().size() == 1 && lattice->eosNode() == eos_node);
-            LOG_INFOH(L"LEAVE");
+            LOG_DEBUGH(L"LEAVE");
         }
 
         // 末尾Nodeからたどって、最良コストのPathを next で連結する
