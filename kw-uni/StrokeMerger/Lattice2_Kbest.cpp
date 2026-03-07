@@ -1062,11 +1062,11 @@ namespace lattice2 {
                 // 素片のストロークと適合する候補だけを追加
                 addOnePiece(newCandidates, piece, prefType, useMorphAnalyzer, strokeCount, paddingLen, bKatakanaConversion);
             }
-            // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
-            reorderCandidates(newCandidates);
-            _LOG_DETAIL(_T("B: newCandidates.size={}"), newCandidates.size());
-
             if (!isPaddingPiece) {
+                // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
+                reorderCandidates(newCandidates);
+                _LOG_DETAIL(_T("B: newCandidates.size={}"), newCandidates.size());
+
                 //rotateSameTailCandidates(newCandidates);
                 truncateTailCandidates(newCandidates);
             }
