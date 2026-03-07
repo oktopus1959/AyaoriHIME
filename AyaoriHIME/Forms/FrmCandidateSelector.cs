@@ -250,7 +250,7 @@ namespace KanchokuWS.Forms
             Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(frmEditBuf.Location.X, frmEditBuf.Location.Y);
             if (rect != Rectangle.Empty) {
                 if ((fX + fW) >= rect.X + rect.Width) fX = rect.X + rect.Width - fW - 2;
-                if ((fY + fH) >= rect.Y + rect.Height) fY = frmEditBuf.Location.Y - fH;
+                if (Settings.MergerCandidateOverCaret || (fY + fH) >= rect.Y + rect.Height) fY = frmEditBuf.Location.Y - fH;  // カレットの上に表示
             }
             MoveWindow(this.Handle, fX, fY, fW, fH, true);
         }

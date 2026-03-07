@@ -287,8 +287,11 @@ namespace KanchokuWS
         /// <summary>複数候補表示の最小数</summary>
         public static int MergerCandidateMin { get; set; } = 3;
 
-        /// <summary>複数候補表示の最小数</summary>
+        /// <summary>複数候補表示の最大数</summary>
         public static int MergerCandidateMax { get; set; } = 10;
+
+        /// <summary>候補をカレットの上に表示</summary>
+        public static bool MergerCandidateOverCaret { get; set; } = false;
 
         /// <summary>Chrome では、最初に編集バッファを表示する時、カレット位置を調整するために Space+BS を出力してみる</summary>
         public static bool OutputSpaceAndBsAtFirstInChrome { get; set; } = false;
@@ -1742,6 +1745,7 @@ namespace KanchokuWS
             FlushEditBufferWhenCaptalAlphabet = GetString("flushEditBufferWhenCaptalAlphabet")._parseBool(false); // 大文字アルファベット入力で編集バッファをフラッシュするか
             IsEnterFlushAndDirectInput = GetString("isEnterFlushAndDirectInput")._parseBool(false);             // Enter が入力されたら編集バッファをフラッシュして Enter をSendInputするか
             IsSpaceFlushAndDirectInput = GetString("isSpaceFlushAndDirectInput")._parseBool(false);             // Space が入力されたら編集バッファをフラッシュして Space をSendInputするか
+            MergerCandidateOverCaret = addDecoderSetting("mergerCandidateOverCaret", false);                    // 候補をカレットの上に表示
 
             //-------------------------------------------------------------------------------------
             // ClassName ごとの設定
@@ -1898,7 +1902,7 @@ namespace KanchokuWS
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード
             OutputHeadSymbolSub = GetString("outputHeadSymbol")._parseBool(true);               // 先頭の記号類をそのまま出力するか
             OutputHeadSymbol = setDecoderSetting("outputHeadSymbol", UseEditWindow && OutputHeadSymbolSub);    // 先頭の記号類をそのまま出力する
-            StrokeBackByBS = addDecoderSetting("strokeBackByBS", false);                        // BSで打鍵取消を行う
+            StrokeBackByBS = addDecoderSetting("strokeBackByBS", true);                         // BSで打鍵取消を行う
             //MaxStrokeBackCount = addDecoderSetting("maxStrokeBackCount", 0);                    // BSで打鍵取消を行う時に、何回を超えたら通常のBS動作に戻すか
             MultiStreamBeamSize = addDecoderSetting("multiStreamBeamSize", 10);                 // 融合モードにおける解探索のビームサイズ
             ExtraBeamSizeRate = addDecoderSetting("extraBeamSizeRate", 0.5);                    // 余分に残しておく候補の割合

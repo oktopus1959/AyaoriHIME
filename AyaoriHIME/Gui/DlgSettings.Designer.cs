@@ -493,6 +493,12 @@ namespace KanchokuWS.Gui
             this.checkBox_convertJaComma = new System.Windows.Forms.CheckBox();
             this.checkBox_convertJaPeriod = new System.Windows.Forms.CheckBox();
             this.tabPage_fusion = new System.Windows.Forms.TabPage();
+            this.groupBox23 = new System.Windows.Forms.GroupBox();
+            this.checkBox_mergerCandidateOverCaret = new System.Windows.Forms.CheckBox();
+            this.label112 = new System.Windows.Forms.Label();
+            this.label113 = new System.Windows.Forms.Label();
+            this.textBox_mergerCandidateMax = new System.Windows.Forms.TextBox();
+            this.textBox_mergerCandidateMin = new System.Windows.Forms.TextBox();
             this.label_fusionReload = new System.Windows.Forms.Label();
             this.button_multiStreamFAQ = new System.Windows.Forms.Button();
             this.groupBox44 = new System.Windows.Forms.GroupBox();
@@ -517,10 +523,6 @@ namespace KanchokuWS.Gui
             this.label91 = new System.Windows.Forms.Label();
             this.textBox_analyzeMorphLen = new System.Windows.Forms.TextBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.label112 = new System.Windows.Forms.Label();
-            this.textBox_mergerCandidateMax = new System.Windows.Forms.TextBox();
-            this.label113 = new System.Windows.Forms.Label();
-            this.textBox_mergerCandidateMin = new System.Windows.Forms.TextBox();
             this.checkBox_multiCandidateMode = new System.Windows.Forms.CheckBox();
             this.checkBox_strokeBackByBS = new System.Windows.Forms.CheckBox();
             this.label168 = new System.Windows.Forms.Label();
@@ -674,6 +676,7 @@ namespace KanchokuWS.Gui
             this.groupBox37.SuspendLayout();
             this.groupBox27.SuspendLayout();
             this.tabPage_fusion.SuspendLayout();
+            this.groupBox23.SuspendLayout();
             this.groupBox44.SuspendLayout();
             this.groupBox34.SuspendLayout();
             this.groupBox8.SuspendLayout();
@@ -6221,6 +6224,7 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_fusion
             // 
+            this.tabPage_fusion.Controls.Add(this.groupBox23);
             this.tabPage_fusion.Controls.Add(this.label_fusionReload);
             this.tabPage_fusion.Controls.Add(this.button_multiStreamFAQ);
             this.tabPage_fusion.Controls.Add(this.groupBox44);
@@ -6250,6 +6254,71 @@ namespace KanchokuWS.Gui
             this.tabPage_fusion.Text = "配列融合";
             this.tabPage_fusion.UseVisualStyleBackColor = true;
             // 
+            // groupBox23
+            // 
+            this.groupBox23.Controls.Add(this.checkBox_mergerCandidateOverCaret);
+            this.groupBox23.Controls.Add(this.label112);
+            this.groupBox23.Controls.Add(this.label113);
+            this.groupBox23.Controls.Add(this.textBox_mergerCandidateMax);
+            this.groupBox23.Controls.Add(this.textBox_mergerCandidateMin);
+            this.groupBox23.Location = new System.Drawing.Point(15, 251);
+            this.groupBox23.Name = "groupBox23";
+            this.groupBox23.Size = new System.Drawing.Size(335, 90);
+            this.groupBox23.TabIndex = 2;
+            this.groupBox23.TabStop = false;
+            this.groupBox23.Text = "入力候補表示";
+            // 
+            // checkBox_mergerCandidateOverCaret
+            // 
+            this.checkBox_mergerCandidateOverCaret.AutoSize = true;
+            this.checkBox_mergerCandidateOverCaret.Location = new System.Drawing.Point(12, 19);
+            this.checkBox_mergerCandidateOverCaret.Name = "checkBox_mergerCandidateOverCaret";
+            this.checkBox_mergerCandidateOverCaret.Size = new System.Drawing.Size(198, 19);
+            this.checkBox_mergerCandidateOverCaret.TabIndex = 0;
+            this.checkBox_mergerCandidateOverCaret.Text = "入力候補を文字カーソルの上に表示";
+            this.toolTip1.SetToolTip(this.checkBox_mergerCandidateOverCaret, "複数の入力候補がある場合に文字カーソルの上に表示する\r\n\r\nこの設定にチェックがない場合は、文字カーソルの下に表示します。\r\nIME と併用していて、IMEの候補" +
+        "表示と被るような場合は、この\r\n設定にチェックを入れてください。");
+            this.checkBox_mergerCandidateOverCaret.UseVisualStyleBackColor = true;
+            // 
+            // label112
+            // 
+            this.label112.AutoSize = true;
+            this.label112.Location = new System.Drawing.Point(9, 66);
+            this.label112.Name = "label112";
+            this.label112.Size = new System.Drawing.Size(141, 15);
+            this.label112.TabIndex = 83;
+            this.label112.Text = "選択時に表示する候補の数";
+            // 
+            // label113
+            // 
+            this.label113.AutoSize = true;
+            this.label113.Location = new System.Drawing.Point(9, 44);
+            this.label113.Name = "label113";
+            this.label113.Size = new System.Drawing.Size(153, 15);
+            this.label113.TabIndex = 82;
+            this.label113.Text = "未選択時に表示する候補の数";
+            // 
+            // textBox_mergerCandidateMax
+            // 
+            this.textBox_mergerCandidateMax.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_mergerCandidateMax.Location = new System.Drawing.Point(164, 64);
+            this.textBox_mergerCandidateMax.Name = "textBox_mergerCandidateMax";
+            this.textBox_mergerCandidateMax.Size = new System.Drawing.Size(34, 19);
+            this.textBox_mergerCandidateMax.TabIndex = 2;
+            this.textBox_mergerCandidateMax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_mergerCandidateMax, "入力候補の選択時の表示数\r\n\r\n最小は 0、最大は 10 です。\r\n↑↓キーで入力候補を選択した時に表示する候補数となります。\r\n0 を設定すると、候補表示を行い" +
+        "ません。");
+            // 
+            // textBox_mergerCandidateMin
+            // 
+            this.textBox_mergerCandidateMin.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_mergerCandidateMin.Location = new System.Drawing.Point(164, 42);
+            this.textBox_mergerCandidateMin.Name = "textBox_mergerCandidateMin";
+            this.textBox_mergerCandidateMin.Size = new System.Drawing.Size(34, 19);
+            this.textBox_mergerCandidateMin.TabIndex = 1;
+            this.textBox_mergerCandidateMin.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_mergerCandidateMin, "入力候補の未選択時の表示数\r\n\r\n最小は 0、最大は 10 です。\r\n0 を設定すると、候補表示を行いません。");
+            // 
             // label_fusionReload
             // 
             this.label_fusionReload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -6270,7 +6339,7 @@ namespace KanchokuWS.Gui
             this.button_multiStreamFAQ.Location = new System.Drawing.Point(15, 363);
             this.button_multiStreamFAQ.Name = "button_multiStreamFAQ";
             this.button_multiStreamFAQ.Size = new System.Drawing.Size(59, 23);
-            this.button_multiStreamFAQ.TabIndex = 4;
+            this.button_multiStreamFAQ.TabIndex = 5;
             this.button_multiStreamFAQ.Text = "FAQ(&F)";
             this.toolTip1.SetToolTip(this.button_multiStreamFAQ, "「よくある質問と回答」ページのURLをブラウザで開きます");
             this.button_multiStreamFAQ.UseVisualStyleBackColor = true;
@@ -6284,7 +6353,7 @@ namespace KanchokuWS.Gui
             this.groupBox44.Controls.Add(this.checkBox_outputHeadSymbol);
             this.groupBox44.Controls.Add(this.textBox_editBufferFlushChar);
             this.groupBox44.Controls.Add(this.label158);
-            this.groupBox44.Location = new System.Drawing.Point(15, 150);
+            this.groupBox44.Location = new System.Drawing.Point(15, 109);
             this.groupBox44.Name = "groupBox44";
             this.groupBox44.Size = new System.Drawing.Size(335, 133);
             this.groupBox44.TabIndex = 1;
@@ -6371,10 +6440,10 @@ namespace KanchokuWS.Gui
             this.groupBox34.Controls.Add(this.label167);
             this.groupBox34.Controls.Add(this.textBox_multiStreamBeamSize);
             this.groupBox34.Controls.Add(this.label91);
-            this.groupBox34.Location = new System.Drawing.Point(364, 110);
+            this.groupBox34.Location = new System.Drawing.Point(364, 109);
             this.groupBox34.Name = "groupBox34";
             this.groupBox34.Size = new System.Drawing.Size(334, 157);
-            this.groupBox34.TabIndex = 3;
+            this.groupBox34.TabIndex = 4;
             this.groupBox34.TabStop = false;
             this.groupBox34.Text = "実験的設定";
             // 
@@ -6512,64 +6581,21 @@ namespace KanchokuWS.Gui
             // 
             // groupBox8
             // 
-            this.groupBox8.Controls.Add(this.label112);
-            this.groupBox8.Controls.Add(this.textBox_mergerCandidateMax);
-            this.groupBox8.Controls.Add(this.label113);
-            this.groupBox8.Controls.Add(this.textBox_mergerCandidateMin);
             this.groupBox8.Controls.Add(this.checkBox_multiCandidateMode);
             this.groupBox8.Controls.Add(this.checkBox_strokeBackByBS);
             this.groupBox8.Controls.Add(this.label168);
             this.groupBox8.Controls.Add(this.textBox_remainingStrokeSize);
             this.groupBox8.Location = new System.Drawing.Point(15, 12);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(335, 128);
+            this.groupBox8.Size = new System.Drawing.Size(335, 87);
             this.groupBox8.TabIndex = 0;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "基本設定";
             // 
-            // label112
-            // 
-            this.label112.AutoSize = true;
-            this.label112.Location = new System.Drawing.Point(9, 104);
-            this.label112.Name = "label112";
-            this.label112.Size = new System.Drawing.Size(141, 15);
-            this.label112.TabIndex = 83;
-            this.label112.Text = "選択時に表示する候補の数";
-            // 
-            // textBox_mergerCandidateMax
-            // 
-            this.textBox_mergerCandidateMax.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_mergerCandidateMax.Location = new System.Drawing.Point(164, 102);
-            this.textBox_mergerCandidateMax.Name = "textBox_mergerCandidateMax";
-            this.textBox_mergerCandidateMax.Size = new System.Drawing.Size(34, 19);
-            this.textBox_mergerCandidateMax.TabIndex = 5;
-            this.textBox_mergerCandidateMax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_mergerCandidateMax, "入力候補の選択時の表示数\r\n\r\n最小は 0、最大は 10 です。\r\n↑↓キーで入力候補を選択した時に表示する候補数となります。\r\n0 を設定すると、候補表示を行い" +
-        "ません。");
-            // 
-            // label113
-            // 
-            this.label113.AutoSize = true;
-            this.label113.Location = new System.Drawing.Point(9, 82);
-            this.label113.Name = "label113";
-            this.label113.Size = new System.Drawing.Size(153, 15);
-            this.label113.TabIndex = 82;
-            this.label113.Text = "未選択時に表示する候補の数";
-            // 
-            // textBox_mergerCandidateMin
-            // 
-            this.textBox_mergerCandidateMin.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_mergerCandidateMin.Location = new System.Drawing.Point(164, 80);
-            this.textBox_mergerCandidateMin.Name = "textBox_mergerCandidateMin";
-            this.textBox_mergerCandidateMin.Size = new System.Drawing.Size(34, 19);
-            this.textBox_mergerCandidateMin.TabIndex = 4;
-            this.textBox_mergerCandidateMin.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_mergerCandidateMin, "入力候補の未選択時の表示数\r\n\r\n最小は 0、最大は 10 です。\r\n0 を設定すると、候補表示を行いません。");
-            // 
             // checkBox_multiCandidateMode
             // 
             this.checkBox_multiCandidateMode.AutoSize = true;
-            this.checkBox_multiCandidateMode.Location = new System.Drawing.Point(12, 17);
+            this.checkBox_multiCandidateMode.Location = new System.Drawing.Point(12, 19);
             this.checkBox_multiCandidateMode.Name = "checkBox_multiCandidateMode";
             this.checkBox_multiCandidateMode.Size = new System.Drawing.Size(126, 19);
             this.checkBox_multiCandidateMode.TabIndex = 0;
@@ -6581,10 +6607,10 @@ namespace KanchokuWS.Gui
             // checkBox_strokeBackByBS
             // 
             this.checkBox_strokeBackByBS.AutoSize = true;
-            this.checkBox_strokeBackByBS.Location = new System.Drawing.Point(12, 60);
+            this.checkBox_strokeBackByBS.Location = new System.Drawing.Point(12, 41);
             this.checkBox_strokeBackByBS.Name = "checkBox_strokeBackByBS";
             this.checkBox_strokeBackByBS.Size = new System.Drawing.Size(137, 19);
-            this.checkBox_strokeBackByBS.TabIndex = 2;
+            this.checkBox_strokeBackByBS.TabIndex = 1;
             this.checkBox_strokeBackByBS.Text = "BSを本来の動作に戻す";
             this.toolTip1.SetToolTip(this.checkBox_strokeBackByBS, resources.GetString("checkBox_strokeBackByBS.ToolTip"));
             this.checkBox_strokeBackByBS.UseVisualStyleBackColor = true;
@@ -6592,7 +6618,7 @@ namespace KanchokuWS.Gui
             // label168
             // 
             this.label168.AutoSize = true;
-            this.label168.Location = new System.Drawing.Point(9, 39);
+            this.label168.Location = new System.Drawing.Point(9, 64);
             this.label168.Name = "label168";
             this.label168.Size = new System.Drawing.Size(154, 15);
             this.label168.TabIndex = 70;
@@ -6601,10 +6627,10 @@ namespace KanchokuWS.Gui
             // textBox_remainingStrokeSize
             // 
             this.textBox_remainingStrokeSize.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(165, 37);
+            this.textBox_remainingStrokeSize.Location = new System.Drawing.Point(165, 62);
             this.textBox_remainingStrokeSize.Name = "textBox_remainingStrokeSize";
             this.textBox_remainingStrokeSize.Size = new System.Drawing.Size(34, 19);
-            this.textBox_remainingStrokeSize.TabIndex = 1;
+            this.textBox_remainingStrokeSize.TabIndex = 2;
             this.textBox_remainingStrokeSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_remainingStrokeSize, "直近の何ストローク分を保存しておくかを指定\r\n\r\n少なくとも、使用している配列で、一文字を入力するのにかかる\r\n最大ストローク数(あるいは同時打鍵のキー数)以上に" +
         "設定してください。\r\n\r\nまた、BSでストロークを戻す設定になっている場合も、保存してある\r\nストローク数までしか戻せないので、そのあたりも考慮して設定してくだ" +
@@ -6665,7 +6691,7 @@ namespace KanchokuWS.Gui
             this.groupBox51.Location = new System.Drawing.Point(364, 12);
             this.groupBox51.Name = "groupBox51";
             this.groupBox51.Size = new System.Drawing.Size(335, 87);
-            this.groupBox51.TabIndex = 2;
+            this.groupBox51.TabIndex = 3;
             this.groupBox51.TabStop = false;
             this.groupBox51.Text = "Ngramファイル";
             // 
@@ -7905,6 +7931,8 @@ namespace KanchokuWS.Gui
             this.groupBox27.PerformLayout();
             this.tabPage_fusion.ResumeLayout(false);
             this.tabPage_fusion.PerformLayout();
+            this.groupBox23.ResumeLayout(false);
+            this.groupBox23.PerformLayout();
             this.groupBox44.ResumeLayout(false);
             this.groupBox44.PerformLayout();
             this.groupBox34.ResumeLayout(false);
@@ -8530,5 +8558,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label161;
         private System.Windows.Forms.TextBox textBox_analyzeMorphLen;
         private System.Windows.Forms.Label label159;
+        private System.Windows.Forms.GroupBox groupBox23;
+        private System.Windows.Forms.CheckBox checkBox_mergerCandidateOverCaret;
     }
 }

@@ -1885,6 +1885,7 @@ namespace KanchokuWS.Gui
             checkBox_useEditBuffer.Checked = Settings.UseEditWindow;
             checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbolSub;
             checkBox_outputHeadSymbol.Enabled = Settings.UseEditWindow;
+            checkBox_mergerCandidateOverCaret.Checked = Settings.MergerCandidateOverCaret;
             textBox_mergerCandidateMin.Text = $"{Settings.MergerCandidateMin}";
             textBox_mergerCandidateMax.Text = $"{Settings.MergerCandidateMax}";
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
@@ -1933,6 +1934,7 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(checkBox_strokeBackByBS);
             checkerFusion.Add(checkBox_useEditBuffer);
             checkerFusion.Add(checkBox_outputHeadSymbol);
+            checkerFusion.Add(checkBox_mergerCandidateOverCaret);
             checkerFusion.Add(textBox_mergerCandidateMin);
             checkerFusion.Add(textBox_mergerCandidateMax);
             checkerFusion.Add(textBox_multiStreamBeamSize);
@@ -1979,6 +1981,7 @@ namespace KanchokuWS.Gui
             if (checkBox_useEditBuffer.Checked) {
                 Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);
             }
+            Settings.SetUserIni("mergerCandidateOverCaret", checkBox_mergerCandidateOverCaret.Checked);
             Settings.SetUserIni("mergerCandidateMin", textBox_mergerCandidateMin.Text);
             Settings.SetUserIni("mergerCandidateMax", textBox_mergerCandidateMax.Text);
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
