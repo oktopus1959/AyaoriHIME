@@ -1981,9 +1981,9 @@ namespace KanchokuWS
             setDecoderSetting("morphMazeEntryPenalty", 1);
         }
 
-        public static void SetHiraganaTableOnly(bool bHiragaOnly)
+        public static void SetHiraganaTableOnly(bool bHiraganaOnly)
         {
-            setDecoderSetting("isHiraganaOnly", bHiragaOnly);
+            setDecoderSetting("isHiraganaTableOnly", bHiraganaOnly);
         }
 
         public static string GetVerticalFontHeightFactorStr(string strFactor)

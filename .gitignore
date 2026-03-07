@@ -3,7 +3,6 @@ test_script.txt
 _git/
 bin/
 Debug/
-Ngram/
 Release/
 ipch/
 obj/
