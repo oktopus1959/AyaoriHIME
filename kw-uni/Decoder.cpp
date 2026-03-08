@@ -45,7 +45,7 @@
 #include "Ngram/NgramBridge.h"
 #include "Llama/LlamaBridge.h"
 
-#if 1 || defined(_DEBUG)
+#if 0 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
 #undef LOG_INFO
 #undef LOG_DEBUGH

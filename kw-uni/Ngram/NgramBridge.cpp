@@ -6,7 +6,7 @@
 
 #include "path_utils.h"
 
-#if 1
+#if 0
 #undef _LOG_DEBUGH
 #define _LOG_DEBUGH LOG_INFOH
 #endif

@@ -15,7 +15,7 @@ using namespace analyzer;
 using namespace compiler;
 using Logger = Reporting::Logger;
 
-#if 1 || defined(_DEBUG)
+#if 0 || defined(_DEBUG)
 #define _LOG_DEBUGH_FLAG true
 #undef _LOG_DEBUGH
 #define _LOG_DEBUGH LOG_INFOH

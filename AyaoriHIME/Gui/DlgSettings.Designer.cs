@@ -6368,9 +6368,7 @@ namespace KanchokuWS.Gui
             this.checkBox_isSpaceFlushAndDirectInput.Size = new System.Drawing.Size(302, 19);
             this.checkBox_isSpaceFlushAndDirectInput.TabIndex = 3;
             this.checkBox_isSpaceFlushAndDirectInput.Text = "Spaceで編集バッファをフラッシュし、対象アプリにも送出する";
-            this.toolTip1.SetToolTip(this.checkBox_isSpaceFlushAndDirectInput, "編集バッファをフラッシュした後、Space自身も対象アプリに送出します。\r\n\r\nIMEを利用していて、Spaceでフラッシュと同時にかな漢字変換を\r\n実行したいよ" +
-        "うな場合に設定してください。\r\n\r\nこの設定がOFFの場合、編集バッファのフラッシュも対象アプリへの\r\nSpaceの送出も行いません。\r\n\r\nなお、編集バッファ" +
-        "が空の場合は、常に対象アプリに対してSpaceを\r\n送出します。\r\n");
+            this.toolTip1.SetToolTip(this.checkBox_isSpaceFlushAndDirectInput, resources.GetString("checkBox_isSpaceFlushAndDirectInput.ToolTip"));
             this.checkBox_isSpaceFlushAndDirectInput.UseVisualStyleBackColor = true;
             // 
             // checkBox_isEnterFlushAndDirectInput
