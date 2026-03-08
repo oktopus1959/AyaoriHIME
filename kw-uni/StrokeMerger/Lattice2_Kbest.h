@@ -51,6 +51,8 @@ namespace lattice2 {
 
         virtual std::vector<MString> getTopCandStrings() const = 0;
 
+        virtual bool hasMultiCandStringsWithSameStrokeLen() const = 0;
+
         virtual std::vector<MString> getCandStringsInSelectedBlock() const = 0;
 
         virtual String debugCandidates(size_t maxLn = 100000) const = 0;

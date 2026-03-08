@@ -17,7 +17,7 @@
 
 #define _LOG_INFOH LOG_INFO
 #define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
-#if 1
+#if 0
 #undef _LOG_INFOH
 #undef LOG_INFO
 #undef LOG_DEBUGH

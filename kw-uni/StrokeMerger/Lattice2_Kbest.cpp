@@ -389,15 +389,22 @@ namespace lattice2 {
             return result;
         }
 
+        // 同一ストローク長の複数候補が存在するか
+        bool hasMultiCandStringsWithSameStrokeLen() const override {
+            int nSameLen = getNumOfSameStrokeLen();
+            _LOG_DETAIL(L"CALLED: result={}: nSameLen={}", nSameLen > 1, nSameLen);
+            return nSameLen > 1;
+        }
+
         // 選択位置を含む、同一ストローク長の候補ブロック(最大10件)を返す
         std::vector<MString> getCandStringsInSelectedBlock() const override {
-            _LOG_DETAIL(L"ENTER: _candidates.size={}, _origFirstCand={}, _selectedCandPos={}", _candidates.size(), _origFirstCand, _selectedCandPos);
-            std::vector<MString> result;
             // ブロックサイズ (最初は最小数, 選択開始後は最大数)
             const int BLOCK_SIZE = selectedCandPos() < 0 ? SETTINGS->mergerCandidateMin : SETTINGS->mergerCandidateMax;
+            _LOG_DETAIL(L"ENTER: _candidates.size={}, BLOCK_SIZE={}, _origFirstCand={}, _selectedCandPos={}", _candidates.size(), BLOCK_SIZE, _origFirstCand, _selectedCandPos);
+            std::vector<MString> result;
             int nSameLen = getNumOfSameStrokeLen();
             if (nSameLen <= 0 || BLOCK_SIZE <= 0) {
-                _LOG_DETAIL(L"LEAVE: nSameLen<=0");
+                _LOG_DETAIL(L"LEAVE: nSameLen({})<=0 || BLOCKSIZE({})<=0", nSameLen, BLOCK_SIZE);
                 return result;
             }
 
@@ -431,8 +438,8 @@ namespace lattice2 {
                 }
             }
 
-            _LOG_DETAIL(L"LEAVE: nSameLen={}, first={}, selPos={}, blockStart={}, blockEnd={}, result.size()={}",
-                nSameLen, first, selPos, blockStart, blockEnd, result.size());
+            _LOG_DETAIL(L"LEAVE: result.size()={}: nSameLen={}, first={}, selPos={}, blockStart={}, blockEnd={}",
+                result.size(), nSameLen, first, selPos, blockStart, blockEnd);
             return result;
         }
 

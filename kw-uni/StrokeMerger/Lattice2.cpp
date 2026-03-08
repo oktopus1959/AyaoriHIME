@@ -187,10 +187,7 @@ namespace lattice2 {
         }
 
         bool hasMultiCandidates() const override {
-            if (_kBestList->selectedCandPos() >= 0) return true;
-
-            std::vector<MString> candStrings = _kBestList->getCandStringsInSelectedBlock();
-            return candStrings.size() > 1;
+            return _kBestList->hasMultiCandStringsWithSameStrokeLen();
         }
 
     public:
