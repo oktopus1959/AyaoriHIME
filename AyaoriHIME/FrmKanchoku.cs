@@ -1322,6 +1322,7 @@ namespace KanchokuWS
                                 (deckey == DecoderKeys.NFER_DECKEY || deckey == DecoderKeys.XFER_DECKEY ||
                                  deckey == DecoderKeys.IME_OFF_DECKEY || deckey == DecoderKeys.IME_ON_DECKEY))) {
                                 // Enter/Spaceが FlushAndDirectInput あるいは単打扱いの NFER/XFER/IME_OFF/IME_ON なら、編集バッファをフラッシュして、それらを直接送信する
+                                CommitMultStream();
                                 frmEditBuf.FlushBuffer(true);
                                 logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
                                 result = sendVkeyFromDeckey(deckey, origDeckey, mod);

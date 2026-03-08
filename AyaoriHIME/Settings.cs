@@ -279,7 +279,7 @@ namespace KanchokuWS
         public static bool IsEnterFlushAndDirectInput { get; set; } = false;
 
         /// <summary>Space が入力されたら編集バッファをフラッシュして Space をSendInputするか<br/></summary>
-        public static bool IsSpaceFlushAndDirectInput { get; set; } = false;
+        public static bool IsSpaceFlushAndDirectInput { get; set; } = true;
 
         /// <summary>英大文字を入力されたら編集バッファをフラッシュする</summary>
         public static bool FlushEditBufferWhenCaptalAlphabet { get; set; } = false;
@@ -1744,7 +1744,7 @@ namespace KanchokuWS
             KanjiTableThresholdForDualTable = GetString("kanjiTableThresholdForDualTable")._parseInt(300);      // デュアルテーブルの時に、漢直用のテーブルと見なす漢字数
             FlushEditBufferWhenCaptalAlphabet = GetString("flushEditBufferWhenCaptalAlphabet")._parseBool(false); // 大文字アルファベット入力で編集バッファをフラッシュするか
             IsEnterFlushAndDirectInput = GetString("isEnterFlushAndDirectInput")._parseBool(false);             // Enter が入力されたら編集バッファをフラッシュして Enter をSendInputするか
-            IsSpaceFlushAndDirectInput = GetString("isSpaceFlushAndDirectInput")._parseBool(false);             // Space が入力されたら編集バッファをフラッシュして Space をSendInputするか
+            IsSpaceFlushAndDirectInput = GetString("isSpaceFlushAndDirectInput")._parseBool(true);              // Space が入力されたら編集バッファをフラッシュして Space をSendInputするか
             MergerCandidateOverCaret = addDecoderSetting("mergerCandidateOverCaret", false);                    // 候補をカレットの上に表示
 
             //-------------------------------------------------------------------------------------
