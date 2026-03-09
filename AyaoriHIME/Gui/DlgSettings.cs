@@ -2068,6 +2068,15 @@ namespace KanchokuWS.Gui
             frmMain?.ExecCmdDecoder("reloadNgramFiles", "");
         }
 
+        /// <summary>ユーザーNgram定義ファイルを開く</summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button_openUserNgramFile_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openFileInUserFolder(Settings.UserNgramFile);
+        }
+
         private void button_showCandidates_Click(object sender, EventArgs e)
         {
             //frmMain?.ShowDlgCandidateLog(this, Right - 10, Top);

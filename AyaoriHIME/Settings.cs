@@ -165,6 +165,9 @@ namespace KanchokuWS
         //-------------------------------------------------------------------------------------
         // 配列融合と編集バッファ/ウィンドウ
         //-------------------------------------------------------------------------------------
+        /// <summary>ユーザー定義Ngramファイル</summary>
+        public static string UserNgramFile { get; set; } = "user.ngram.txt";
+
         /// <summary> 複数配列の融合モードか </summary>        
         public static bool MultiStreamMode { get; set; } = true;
 

@@ -624,6 +624,8 @@ namespace KanchokuWS.Gui
             this.checkBox_bushuDicLogEnabled = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.label162 = new System.Windows.Forms.Label();
+            this.button_openUserNgramFile = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -6438,7 +6440,7 @@ namespace KanchokuWS.Gui
             this.groupBox34.Controls.Add(this.label167);
             this.groupBox34.Controls.Add(this.textBox_multiStreamBeamSize);
             this.groupBox34.Controls.Add(this.label91);
-            this.groupBox34.Location = new System.Drawing.Point(364, 109);
+            this.groupBox34.Location = new System.Drawing.Point(364, 134);
             this.groupBox34.Name = "groupBox34";
             this.groupBox34.Size = new System.Drawing.Size(334, 157);
             this.groupBox34.TabIndex = 4;
@@ -6681,6 +6683,8 @@ namespace KanchokuWS.Gui
             // 
             // groupBox51
             // 
+            this.groupBox51.Controls.Add(this.button_openUserNgramFile);
+            this.groupBox51.Controls.Add(this.label162);
             this.groupBox51.Controls.Add(this.checkBox_collectRealtimeNgram);
             this.groupBox51.Controls.Add(this.label6);
             this.groupBox51.Controls.Add(this.radioButton_mainRtNgramFile);
@@ -6688,7 +6692,7 @@ namespace KanchokuWS.Gui
             this.groupBox51.Controls.Add(this.button_reloadDict);
             this.groupBox51.Location = new System.Drawing.Point(364, 12);
             this.groupBox51.Name = "groupBox51";
-            this.groupBox51.Size = new System.Drawing.Size(335, 87);
+            this.groupBox51.Size = new System.Drawing.Size(335, 112);
             this.groupBox51.TabIndex = 3;
             this.groupBox51.TabStop = false;
             this.groupBox51.Text = "Ngramファイル";
@@ -6742,7 +6746,6 @@ namespace KanchokuWS.Gui
             // 
             // button_reloadDict
             // 
-            this.button_reloadDict.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_reloadDict.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.button_reloadDict.Location = new System.Drawing.Point(255, 56);
             this.button_reloadDict.Name = "button_reloadDict";
@@ -7811,6 +7814,27 @@ namespace KanchokuWS.Gui
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // label162
+            // 
+            this.label162.AutoSize = true;
+            this.label162.Location = new System.Drawing.Point(17, 87);
+            this.label162.Name = "label162";
+            this.label162.Size = new System.Drawing.Size(229, 15);
+            this.label162.TabIndex = 75;
+            this.label162.Text = "ユーザー定義Ngramファイル(user.ngram.txt)を";
+            // 
+            // button_openUserNgramFile
+            // 
+            this.button_openUserNgramFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_openUserNgramFile.Location = new System.Drawing.Point(255, 83);
+            this.button_openUserNgramFile.Name = "button_openUserNgramFile";
+            this.button_openUserNgramFile.Size = new System.Drawing.Size(72, 23);
+            this.button_openUserNgramFile.TabIndex = 76;
+            this.button_openUserNgramFile.Text = "開く(&U)";
+            this.toolTip1.SetToolTip(this.button_openUserNgramFile, "ユーザー定義の Ngram ファイルをエディタで開く\r\n\r\nuserFiles/user.ngram.txt をテキストエディターで開きます。");
+            this.button_openUserNgramFile.UseVisualStyleBackColor = true;
+            this.button_openUserNgramFile.Click += new System.EventHandler(this.button_openUserNgramFile_Click);
+            // 
             // DlgSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -8558,5 +8582,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label159;
         private System.Windows.Forms.GroupBox groupBox23;
         private System.Windows.Forms.CheckBox checkBox_mergerCandidateOverCaret;
+        private System.Windows.Forms.Label label162;
+        private System.Windows.Forms.Button button_openUserNgramFile;
     }
 }
