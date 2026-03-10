@@ -4,21 +4,11 @@
 #include "Dictionary.h"
 #include "constants/Constants.h"
 
+#include "NgramDebugLog.h"
+
 using namespace analyzer;
 using namespace darts;
 using namespace util;
-
-#if 0 || defined(_DEBUG)
-#define _LOG_DEBUGH_FLAG true
-#undef LOG_INFO
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
-#undef _LOG_DEBUGH
-#define LOG_INFO LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFOH
-#define _LOG_DEBUGH LOG_INFOH
-#endif
 
 #define DEFAULT_MAZE_PENALTY 1000
 

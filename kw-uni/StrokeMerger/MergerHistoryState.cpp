@@ -17,16 +17,7 @@
 
 #define _LOG_INFOH LOG_INFO
 #define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
-#if 0
-#undef _LOG_INFOH
-#undef LOG_INFO
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
-#define _LOG_INFOH LOG_INFOH
-#define LOG_INFO LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFOH
-#endif
+#include "DebugLog.h"
 
 namespace {
 

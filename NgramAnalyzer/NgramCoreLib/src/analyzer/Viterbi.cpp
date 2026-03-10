@@ -8,13 +8,7 @@
 #include "util/xsv_parser.h"
 #include "featureDef.h"
 
-#if 0 || defined(_DEBUG)
-#define _LOG_DEBUGH_FLAG true
-#undef LOG_DEBUGH
-#define LOG_DEBUGH LOG_INFOH
-#else
-#define _LOG_DEBUGH_FLAG false
-#endif
+#include "NgramDebugLog.h"
 
 namespace analyzer {
     DECLARE_LOGGER;
@@ -222,7 +216,7 @@ namespace analyzer {
             glueNgramMaxLens[pos] = rnodeMaxLen;
 
 #if _LOG_DEBUGH_FLAG
-            if (Reporting::Logger::IsDebugHEnabled()) showConnectionResult(rightNodes);
+            if (NgramCoreLib::Logger::IsDebugHEnabled()) showConnectionResult(rightNodes);
 #endif
         }
 

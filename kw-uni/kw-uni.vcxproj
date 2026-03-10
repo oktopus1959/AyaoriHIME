@@ -188,6 +188,7 @@
     <ClInclude Include="BushuComp\BushuDic.h" />
     <ClInclude Include="BushuComp\BushuAssoc.h" />
     <ClInclude Include="BushuComp\BushuAssocDic.h" />
+    <ClInclude Include="DebugLog.h" />
     <ClInclude Include="DeckeyUtil.h" />
     <ClInclude Include="DyMazin\DymazinBridge.h" />
     <ClInclude Include="DyMazin\MorphBridge.h" />

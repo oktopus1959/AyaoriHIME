@@ -13,17 +13,11 @@
 
 #include "file_utils.h"
 
+#include "NgramDebugLog.h"
+
 using namespace analyzer;
 using namespace compiler;
 using Logger = NgramCoreLib::Logger;
-
-#if 0 || defined(_DEBUG)
-#define _LOG_DEBUGH_FLAG true
-#undef _LOG_DEBUGH
-#define _LOG_DEBUGH LOG_INFOH
-#else
-#define _LOG_DEBUGH_FLAG false
-#endif
 
 namespace {
     DEFINE_LOCAL_LOGGER(NgramCoreLib);

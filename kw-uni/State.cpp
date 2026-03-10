@@ -19,18 +19,7 @@
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughState)
 
-#if 0 || defined(_DEBUG)
-#undef _DEBUG_SENT
-//#undef LOG_INFO
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
-#undef _LOG_DEBUGH
-#define _DEBUG_SENT(x) x
-//#define LOG_INFO LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFO
-#define _LOG_DEBUGH LOG_INFOH
-#endif
+#include "DebugLog.h"
 
 DEFINE_CLASS_LOGGER(State);
 

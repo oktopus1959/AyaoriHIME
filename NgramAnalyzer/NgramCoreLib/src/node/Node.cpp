@@ -1,13 +1,7 @@
 #include "Node.h"
 #include "Logger.h"
 
-#if 0 || defined(_DEBUG)
-#define _LOG_DEBUGH_FLAG true
-#undef LOG_DEBUGH
-#define LOG_DEBUGH LOG_INFOH
-#else
-#define _LOG_DEBUGH_FLAG false
-#endif
+#include "NgramDebugLog.h"
 
 namespace {
 

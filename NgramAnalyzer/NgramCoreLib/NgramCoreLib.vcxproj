@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="NgramDebugLog.h" />
     <ClInclude Include="src\analyzer\Connector.h" />
     <ClInclude Include="src\analyzer\DictionaryRewriter.h" />
     <ClInclude Include="src\analyzer\featureDef.h" />

@@ -5,14 +5,7 @@
 //#include "ResidentState.h"
 //#include "History/HistoryResidentState.h"
 
-#if 0
-#undef LOG_INFO
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
-#define LOG_INFO LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFOH
-#endif
+#include "DebugLog.h"
 
 // 始状態 -- 仮想鍵盤のモード管理も行う
 class StartStateImpl : public StartState {

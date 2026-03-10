@@ -10,14 +10,7 @@
 #include "RealtimeDict.h"
 #include "TemporaryDict.h"
 
-#if 0
-#undef LOG_INFO
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
-#define LOG_INFO LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFOH
-#endif
+#include "NgramDebugLog.h"
 
 namespace analyzer {
 

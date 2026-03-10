@@ -7,18 +7,7 @@
 
 #define LOG_SAVE_DICT LOG_INFOH
 #define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
-#if 0
-#undef IS_LOG_DEBUGH_ENABLED
-#define IS_LOG_DEBUGH_ENABLED true
-#undef LOG_SAVE_DICT
-#undef LOG_INFO
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
-#define LOG_SAVE_DICT LOG_INFOH
-#define LOG_INFO LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFOH
-#endif
+#include "DebugLog.h"
 
 namespace lattice2 {
 

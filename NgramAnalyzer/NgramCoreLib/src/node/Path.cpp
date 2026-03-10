@@ -2,6 +2,8 @@
 #include "Path.h"
 #include "Node.h"
 
+#include "NgramDebugLog.h"
+
 namespace node
 {
     DEFINE_CLASS_LOGGER(Path);

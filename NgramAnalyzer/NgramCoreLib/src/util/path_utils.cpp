@@ -1,6 +1,6 @@
 #include "path_utils.h"
 
-#include "Reporting/Logger.h"
+#include "reporting/Logger.h"
 
 #if 0
 #undef LOG_WARN
@@ -14,6 +14,7 @@
 #define LOG_DEBUGH LOG_WARNH
 #define LOG_DEBUG LOG_WARNH
 #endif
+
 namespace utils {
     DEFINE_NAMESPACE_LOGGER(utils);
 

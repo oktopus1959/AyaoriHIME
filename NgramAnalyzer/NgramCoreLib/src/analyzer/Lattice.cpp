@@ -1,6 +1,8 @@
 #include "Lattice.h"
 #include "util/string_utils.h"
 
+#include "NgramDebugLog.h"
+
 namespace analyzer {
     DEFINE_NAMESPACE_LOGGER(analyzer);
     DEFINE_CLASS_LOGGER(Lattice);

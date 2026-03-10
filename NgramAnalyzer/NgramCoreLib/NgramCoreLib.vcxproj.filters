@@ -189,6 +189,9 @@
     <ClInclude Include="src\analyzer\RealtimeDict.h">
       <Filter>ヘッダー ファイル\analyzer</Filter>
     </ClInclude>
+    <ClInclude Include="NgramDebugLog.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\analyzer\Connector.cpp">

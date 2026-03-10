@@ -4,14 +4,7 @@
 #include "Logger.h"
 #include "RealtimeDict.h"
 
-#if 0
-#undef LOG_INFO
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
-#define LOG_INFO LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFOH
-#endif
+#include "NgramDebugLog.h"
 
 namespace analyzer {
     namespace RealtimeDict {
@@ -113,7 +106,7 @@ namespace analyzer {
                         for (const auto& pair : realtimeDict) {
                             String line;
                             //int count = pair.second;
-                            //if (count < 0 || count > 1 || (count == 1 && Reporting::Logger::IsWarnEnabled())) {
+                            //if (count < 0 || count > 1 || (count == 1 && NgramCoreLib::Logger::IsWarnEnabled())) {
                                 // count が 0 または 1 の N-gramは無視する
                             line.append(pair.first);           // 単語
                             line.append(_T("\t"));
