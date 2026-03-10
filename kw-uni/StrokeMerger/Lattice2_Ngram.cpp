@@ -322,11 +322,15 @@ namespace lattice2 {
         while (startPos < len1 && startPos < len2 && s1[startPos] == s2[startPos]) {
             ++startPos;
         }
+        _LOG_DETAIL(L"first diff: startPos={}, len1={}, len2={}", startPos, len1, len2);
 
+        bool firstResync = true;    // 最初の再同期か
         auto checkResync = [&](size_t endPos1, size_t endPos2) -> int {
-            if (s1[endPos1] == s2[endPos1]) {
-                if (endPos1 + 1 < len1 && endPos2 + 1 < len2 && s1[endPos1 + 1] != s2[endPos2 + 1]) {
+            //_LOG_DETAIL(L"checkResync: s1[{}]={:c}, s2[{}]={:c}", endPos1, endPos1 < len1 ? s1[endPos1] : L'_', endPos2, endPos2 < len2 ? s2[endPos2] : L'_');
+            if (endPos1 < len1 && endPos2 < len2 && s1[endPos1] == s2[endPos2]) {
+                if (firstResync && endPos1 + 1 < len1 && endPos2 + 1 < len2 && s1[endPos1 + 1] != s2[endPos2 + 1]) {
                     // 再同期した位置の次の文字が異なっている
+                    firstResync = false;
                     return 1;
                 }
                 // 再同期した
@@ -338,14 +342,9 @@ namespace lattice2 {
 
         if (startPos < len1 && startPos < len2) {
             size_t endPos = startPos + 1;
-            while (endPos < len1 && endPos < len2) {
+            while (endPos < len1 || endPos < len2) {
                 int res = checkResync(endPos, endPos);
-                _LOG_DETAIL(L"checkResync: endPos={}, endPos={}, res={}", endPos, endPos, res);
-                //if (res > 0) {
-                //    // 再同期した位置の次の文字が異なっている
-                //    _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, endPos={} )", startPos, endPos, endPos);
-                //    return { startPos, endPos, endPos };
-                //}
+                _LOG_DETAIL(L"checkResync: pos1={}, pos2={}, res={}", endPos, endPos, res == 0 ? L"SYNC" : L"NG");
                 if (res == 0) {
                     // 再同期した
                     _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, endPos={} )", startPos, endPos, endPos);
@@ -355,24 +354,14 @@ namespace lattice2 {
                     size_t pos = endPos - 1;
                     while (pos > startPos) {
                         res = checkResync(pos, endPos);
-                        _LOG_DETAIL(L"checkResync: pos={}, endPos={}, res={}", pos, endPos, res);
-                        //if (res > 0) {
-                        //    // 再同期した位置の次の文字が異なっている
-                        //    _LOG_DETAIL(L"RETURN: ( startPos={}, pos={}, endPos={} )", startPos, pos, endPos);
-                        //    return { startPos, pos, endPos };
-                        //}
+                        _LOG_DETAIL(L"checkResync: pos1={}, pos2={}, res={}", pos, endPos, res == 0 ? L"SYNC" : L"NG");
                         if (res == 0) {
                             // 再同期した
                             _LOG_DETAIL(L"RETURN: ( startPos={}, pos={}, endPos={} )", startPos, pos, endPos);
                             return { startPos, pos, endPos };
                         }
                         res = checkResync(endPos, pos);
-                        _LOG_DETAIL(L"checkResync: endPos={}, pos={}, res={}", endPos, pos, res);
-                        //if (res > 0) {
-                        //    // 再同期した位置の次の文字が異なっている
-                        //    _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, pos={} )", startPos, endPos, pos);
-                        //    return { startPos, endPos, pos };
-                        //}
+                        _LOG_DETAIL(L"checkResync: pos1={}, pos2={}, res={}", endPos, pos, res == 0 ? L"SYNC" : L"NG");
                         if (res == 0) {
                             // 再同期した
                             _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, pos={} )", startPos, endPos, pos);
