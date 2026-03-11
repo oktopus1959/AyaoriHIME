@@ -222,6 +222,12 @@ namespace KanchokuWS
         /// <summary>候補選択によるNgramカウントの変動幅</summary>
         public static int NgramManualSelectDelta { get; set; } = 10;
 
+        /// <summary>ひらがなの2-gramを有効にするか</summary>
+        public static bool HiraganaBigramEnabled { get; set; } = false;
+
+        /// <summary>ひらがなの4-gramを有効にするか</summary>
+        public static bool HiraganaQuadgramEnabled { get; set; } = false;
+
         ///// <summary>句読点でコミットする</summary>
         //public static bool CommitByPunctuation { get; set; }
 
@@ -1900,6 +1906,8 @@ namespace KanchokuWS
             NgramMaxBonusPoint = addDecoderSetting("ngramMaxBonusPoint", 25);                   // Ngramに与えるボーナスポイントの最大値
             NgramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 250);            // 嵩上げされたNgramに与えるボーナスの係数
             NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 10);           // 候補選択によるNgramカウントの変動幅
+            HiraganaBigramEnabled = addDecoderSetting("hiraganaBigramEnabled", false);          // ひらがなの2-gramを有効にするか
+            HiraganaQuadgramEnabled = addDecoderSetting("hiraganaQuadgramEnabled", false);      // ひらがなの4-gramを有効にするか
             //CommitByPunctuation = addDecoderSetting("commitByPunctuation", true);               // 句読点でコミットする
             LoweredContinuousKanjiNum = addDecoderSetting("loweredContinuousKanjiNum", 0, 0); // 連続するN文字の漢字列にはコストを与える
             ExclusivePrefixCode = addDecoderSetting("exclusivePrefixCode", -1, -1);             // 排他的なストローク処理を開始する文字のコード

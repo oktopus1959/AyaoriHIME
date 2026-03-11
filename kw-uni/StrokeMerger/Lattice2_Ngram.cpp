@@ -507,6 +507,7 @@ namespace lattice2 {
         LOG_DEBUGH(L"ENTER: bIncrease={}, str={}", bIncrease, to_wstr(str));
         int strlen = (int)str.size();
         int hirakanLen = 0;
+        int hiraLen = 0;
         int kanjiLen = 0;
         bool kanji = false;
         bool pKanji = false;
@@ -517,19 +518,18 @@ namespace lattice2 {
             if (utils::is_hiragana(str[pos])) {
                 kanji = false;
                 kanjiLen = 0;
+                ++hiraLen;
                 ++hirakanLen;
             } else if (utils::is_kanji(str[pos])) {
                 kanji = true;
                 ++kanjiLen;
                 ++hirakanLen;
+                hiraLen = 0;
             } else {
                 hirakanLen = 0;
+                hiraLen = 0;
                 kanjiLen = 0;
                 kanji = false;
-            }
-            if (hirakanLen >= 3 && pos >= 2) {
-                // ひらがなor漢字が3文字以上連続している場合は、3gramを更新する
-                _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 2, 3));
             }
             // 漢字1文字で、前後が非漢字の場合は、その漢字のみのNgramも更新する (例: 「池」の前後がひらがななら、「池」も更新する)
             if (pos >= 3 && !ppKanji && pKanji && !kanji) {
@@ -542,6 +542,14 @@ namespace lattice2 {
             if (hirakanLen >= 2 && pos >= 1) {
                 // ひらがなor漢字が2文字以上連続している場合は、2gramを更新する
                 _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 1, 2));
+            }
+            if (hirakanLen >= 3 && pos >= 2) {
+                // ひらがなor漢字が3文字以上連続している場合は、3gramを更新する
+                _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 2, 3));
+            }
+            if (hiraLen >= 4 && pos >= 3) {
+                // ひらがなが4文字以上連続している場合は、4gramを更新する
+                _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 3, 4));
             }
         }
         LOG_DEBUGH(L"LEAVE: str={}", to_wstr(str));

@@ -28,6 +28,9 @@ namespace NgramBridge {
         if (SETTINGS->hiraganaBigramEnabled) {
             av.push_back(L"--hiragana-bigram");
         }
+        if (SETTINGS->hiraganaQuadgramEnabled) {
+            av.push_back(L"--hiragana-quadgram");
+        }
 
         const int ARRAY_SIZE = 1024;
         wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };

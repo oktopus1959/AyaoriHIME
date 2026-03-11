@@ -24,6 +24,7 @@ namespace {
         Vector<String>({L"a/assign-user-dictionary-costs", L"", L"only assign costs/ids to user dictionary"}),
         Vector<String>({L"s/build-sysdic",                 L"", L"build system dictionary"}),
         Vector<String>({L"b/hiragana-bigram",              L"", L"hiragana bigram enabled"}),
+        Vector<String>({L"b/hiragana-quadgram",            L"", L"hiragana 4-gram enabled"}),
         Vector<String>({L"c/cost-factor:INT",           L"700", L"set cost factor (default 700)"}),
         Vector<String>({L"?/non-terminal-cost:INT",        L"10000", L"set non terminal word cost (default 10000)"}),
         Vector<String>({L"f/output:FILE",                  L"", L"set the output file name"}),

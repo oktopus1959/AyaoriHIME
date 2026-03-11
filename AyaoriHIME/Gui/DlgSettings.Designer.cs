@@ -509,6 +509,8 @@ namespace KanchokuWS.Gui
             this.textBox_editBufferFlushChar = new System.Windows.Forms.TextBox();
             this.label158 = new System.Windows.Forms.Label();
             this.groupBox34 = new System.Windows.Forms.GroupBox();
+            this.checkBox_hiraganaQuadgramEnabled = new System.Windows.Forms.CheckBox();
+            this.checkBox_hiraganaBigramEnabled = new System.Windows.Forms.CheckBox();
             this.textBox_variableTailLength = new System.Windows.Forms.TextBox();
             this.label161 = new System.Windows.Forms.Label();
             this.textBox_morphMazeEntryPenalty = new System.Windows.Forms.TextBox();
@@ -532,6 +534,8 @@ namespace KanchokuWS.Gui
             this.label159 = new System.Windows.Forms.Label();
             this.checkBox_useMorphAndNgramAnalyzer = new System.Windows.Forms.CheckBox();
             this.groupBox51 = new System.Windows.Forms.GroupBox();
+            this.button_openUserNgramFile = new System.Windows.Forms.Button();
+            this.label162 = new System.Windows.Forms.Label();
             this.checkBox_collectRealtimeNgram = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.radioButton_mainRtNgramFile = new System.Windows.Forms.RadioButton();
@@ -624,8 +628,6 @@ namespace KanchokuWS.Gui
             this.checkBox_bushuDicLogEnabled = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.label162 = new System.Windows.Forms.Label();
-            this.button_openUserNgramFile = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -6428,6 +6430,8 @@ namespace KanchokuWS.Gui
             // 
             // groupBox34
             // 
+            this.groupBox34.Controls.Add(this.checkBox_hiraganaQuadgramEnabled);
+            this.groupBox34.Controls.Add(this.checkBox_hiraganaBigramEnabled);
             this.groupBox34.Controls.Add(this.textBox_variableTailLength);
             this.groupBox34.Controls.Add(this.label161);
             this.groupBox34.Controls.Add(this.textBox_morphMazeEntryPenalty);
@@ -6442,10 +6446,32 @@ namespace KanchokuWS.Gui
             this.groupBox34.Controls.Add(this.label91);
             this.groupBox34.Location = new System.Drawing.Point(364, 134);
             this.groupBox34.Name = "groupBox34";
-            this.groupBox34.Size = new System.Drawing.Size(334, 157);
+            this.groupBox34.Size = new System.Drawing.Size(334, 209);
             this.groupBox34.TabIndex = 4;
             this.groupBox34.TabStop = false;
             this.groupBox34.Text = "実験的設定";
+            // 
+            // checkBox_hiraganaQuadgramEnabled
+            // 
+            this.checkBox_hiraganaQuadgramEnabled.AutoSize = true;
+            this.checkBox_hiraganaQuadgramEnabled.Location = new System.Drawing.Point(15, 173);
+            this.checkBox_hiraganaQuadgramEnabled.Name = "checkBox_hiraganaQuadgramEnabled";
+            this.checkBox_hiraganaQuadgramEnabled.Size = new System.Drawing.Size(238, 19);
+            this.checkBox_hiraganaQuadgramEnabled.TabIndex = 7;
+            this.checkBox_hiraganaQuadgramEnabled.Text = "Ngram解析で ひらがな 4gram を有効にする";
+            this.toolTip1.SetToolTip(this.checkBox_hiraganaQuadgramEnabled, "ON/OFF どちらが良いかお試しください。");
+            this.checkBox_hiraganaQuadgramEnabled.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_hiraganaBigramEnabled
+            // 
+            this.checkBox_hiraganaBigramEnabled.AutoSize = true;
+            this.checkBox_hiraganaBigramEnabled.Location = new System.Drawing.Point(15, 152);
+            this.checkBox_hiraganaBigramEnabled.Name = "checkBox_hiraganaBigramEnabled";
+            this.checkBox_hiraganaBigramEnabled.Size = new System.Drawing.Size(238, 19);
+            this.checkBox_hiraganaBigramEnabled.TabIndex = 6;
+            this.checkBox_hiraganaBigramEnabled.Text = "Ngram解析で ひらがな 2gram を有効にする";
+            this.toolTip1.SetToolTip(this.checkBox_hiraganaBigramEnabled, "漢直配列も並用する場合は、OFFにしておいたほうが無難です。");
+            this.checkBox_hiraganaBigramEnabled.UseVisualStyleBackColor = true;
             // 
             // textBox_variableTailLength
             // 
@@ -6696,6 +6722,27 @@ namespace KanchokuWS.Gui
             this.groupBox51.TabIndex = 3;
             this.groupBox51.TabStop = false;
             this.groupBox51.Text = "Ngramファイル";
+            // 
+            // button_openUserNgramFile
+            // 
+            this.button_openUserNgramFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_openUserNgramFile.Location = new System.Drawing.Point(255, 83);
+            this.button_openUserNgramFile.Name = "button_openUserNgramFile";
+            this.button_openUserNgramFile.Size = new System.Drawing.Size(72, 23);
+            this.button_openUserNgramFile.TabIndex = 76;
+            this.button_openUserNgramFile.Text = "開く(&U)";
+            this.toolTip1.SetToolTip(this.button_openUserNgramFile, "ユーザー定義の Ngram ファイルをエディタで開く\r\n\r\nuserFiles/user.ngram.txt をテキストエディターで開きます。");
+            this.button_openUserNgramFile.UseVisualStyleBackColor = true;
+            this.button_openUserNgramFile.Click += new System.EventHandler(this.button_openUserNgramFile_Click);
+            // 
+            // label162
+            // 
+            this.label162.AutoSize = true;
+            this.label162.Location = new System.Drawing.Point(17, 87);
+            this.label162.Name = "label162";
+            this.label162.Size = new System.Drawing.Size(229, 15);
+            this.label162.TabIndex = 75;
+            this.label162.Text = "ユーザー定義Ngramファイル(user.ngram.txt)を";
             // 
             // checkBox_collectRealtimeNgram
             // 
@@ -7814,27 +7861,6 @@ namespace KanchokuWS.Gui
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // label162
-            // 
-            this.label162.AutoSize = true;
-            this.label162.Location = new System.Drawing.Point(17, 87);
-            this.label162.Name = "label162";
-            this.label162.Size = new System.Drawing.Size(229, 15);
-            this.label162.TabIndex = 75;
-            this.label162.Text = "ユーザー定義Ngramファイル(user.ngram.txt)を";
-            // 
-            // button_openUserNgramFile
-            // 
-            this.button_openUserNgramFile.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_openUserNgramFile.Location = new System.Drawing.Point(255, 83);
-            this.button_openUserNgramFile.Name = "button_openUserNgramFile";
-            this.button_openUserNgramFile.Size = new System.Drawing.Size(72, 23);
-            this.button_openUserNgramFile.TabIndex = 76;
-            this.button_openUserNgramFile.Text = "開く(&U)";
-            this.toolTip1.SetToolTip(this.button_openUserNgramFile, "ユーザー定義の Ngram ファイルをエディタで開く\r\n\r\nuserFiles/user.ngram.txt をテキストエディターで開きます。");
-            this.button_openUserNgramFile.UseVisualStyleBackColor = true;
-            this.button_openUserNgramFile.Click += new System.EventHandler(this.button_openUserNgramFile_Click);
-            // 
             // DlgSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -8584,5 +8610,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.CheckBox checkBox_mergerCandidateOverCaret;
         private System.Windows.Forms.Label label162;
         private System.Windows.Forms.Button button_openUserNgramFile;
+        private System.Windows.Forms.CheckBox checkBox_hiraganaQuadgramEnabled;
+        private System.Windows.Forms.CheckBox checkBox_hiraganaBigramEnabled;
     }
 }

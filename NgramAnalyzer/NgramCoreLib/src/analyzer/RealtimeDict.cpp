@@ -153,8 +153,8 @@ namespace analyzer {
         // @param str 検索対象の文字列
         // @param pos 検索開始位置
         // @return マッチしたエントリのボーナスポイントのリスト。(各エントリの長さのをインデックスとする)
-        std::vector<int> commonPrefixSearch(const String& str, size_t pos, bool hiraganaBigramEnabled) {
-            LOG_DEBUG(L"ENTER: str={}, pos={}", str, pos);
+        std::vector<int> commonPrefixSearch(const String& str, size_t pos, bool hiraganaBigramEnabled, bool hiraganaQuadgramEnabled) {
+            LOG_DEBUG(L"ENTER: str={}, pos={}, bigram={}, quadgram={}", str, pos, hiraganaBigramEnabled, hiraganaQuadgramEnabled);
             std::vector<int> result;
             result.resize(maxLen + 1, 0);  // エントリの長さでインデックスされる。値 0 はエントリがないことを表す。
             if (minLen > 0) {
@@ -172,7 +172,12 @@ namespace analyzer {
                     // リアルタイムN-gram辞書とユーザー定義N-gram辞書の両方を検索して、カウントを合算する
                     auto it = realtimeDict.find(key);
                     if (it != realtimeDict.end()) {
-                        if (len != 2 || hiraganaBigramEnabled || (utils::is_kanji(key[0]) && utils::is_kanji(key[1]))) {
+                        // リアルタイムN-gram辞書では、エントリの長さが 3 であれば常にカウントを使用する。
+                        // エントリの長さが 2 であれば、hiraganaBigramEnabled が有効な場合、または両方の文字が漢字の場合にカウントを使用する。
+                        // エントリの長さが 4 であれば、hiraganaQuadgramEnabled が有効な場合にカウントを使用する。
+                        if (len == 3 ||
+                            (len == 2 && (hiraganaBigramEnabled || (utils::is_kanji(key[0]) && utils::is_kanji(key[1])))) ||
+                            (len == 4 && hiraganaQuadgramEnabled)) {
                             count = it->second;
                             LOG_DEBUG(L"realtime FOUND: key={}, count={}", key, it->second);
                         }

@@ -352,9 +352,10 @@ namespace KanchokuWS
         public const int MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY = MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY + 1;    // 漢直・かな配列の融合時に次の打鍵ではひらがなを優先する
 
         public const int STROKE_BACK_DECKEY = MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY + 1;  // ストロークを1つ前に戻す
-        public const int FLUSH_OUTPUT_STRING_DECKEY = STROKE_BACK_DECKEY + 1;               // 出力バッファに溜まっている文字列をフラッシュする
+        public const int FLUSH_OUTPUT_STRING_DECKEY = STROKE_BACK_DECKEY + 1;                   // 出力バッファに溜まっている文字列をフラッシュする
+        public const int EDIT_WINDOW_TOGGLE_DECKEY = FLUSH_OUTPUT_STRING_DECKEY + 1;            // 編集ウィンドウの表示/非表示の切り替え
 
-        public const int UNDEFINED_DECKEY = FLUSH_OUTPUT_STRING_DECKEY + 1;                                // 未定義のキー
+        public const int UNDEFINED_DECKEY = EDIT_WINDOW_TOGGLE_DECKEY + 1;                                // 未定義のキー
         public const int GLOBAL_DECKEY_ID_END = SPECIAL_DECKEY_ID_BASE + 100;
 
         // END_OF_AUTO_MAKE
