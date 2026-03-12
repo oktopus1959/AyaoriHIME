@@ -160,6 +160,7 @@ namespace KanchokuWS
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY, 0, "MultiStreamHiraganaPreferredNext", "", "配列融合時に、次の打鍵ではひらがなのみを通す"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY, 0, "MultiStreamKanjiPreferredNext", "", "配列融合時に、次の打鍵では漢字のみを通す"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.STROKE_BACK_DECKEY, 0, "StrokeBack", "", "配列融合時に、ストロークを1つ前の状態に戻す"),
+            new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.EDIT_WINDOW_TOGGLE_DECKEY, 0, "ToggleEditWindow", "", "編集ウィンドウの有効・無効を切り替える"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.CLEAR_STROKE_DECKEY, 0, "ClearStroke", "", "打鍵中のストロークを取り消して、第1打鍵待ちに戻る"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.FLUSH_OUTPUT_STRING_DECKEY, 0, "FlushOutputString", "", "出力バッファに溜まっている文字列をフラッシュする"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MAZE_CONVERSION_DECKEY, 0, "MazeConversion", "", "交ぜ書き変換の実行"),

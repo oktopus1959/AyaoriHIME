@@ -391,5 +391,18 @@ namespace KanchokuWS
                 default: return 0;
             }
         }
+
+        public static string GetDeckeyNameFromId(int id)
+        {
+            if (id >= UNCONDITIONAL_DECKEY_OFFSET && id < UNCONDITIONAL_DECKEY_END) {
+                return $"UNCONDITIONAL-{GetDeckeyNameFromId(id - UNCONDITIONAL_DECKEY_OFFSET)}";
+            }
+            return KeyMap._safeGet(id) ?? (id >= 0 && id < 49 ? $"{Domain.DecoderKeyVsChar.GetArrangedFaceCharFromDecKey(id)}" : "?");
+        }
+
+        public static string ToDebugString(int id)
+        {
+            return $"{id:x}H({id}={GetDeckeyNameFromId(id)})";
+        }
     }
 }

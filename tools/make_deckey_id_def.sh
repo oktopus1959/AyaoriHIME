@@ -87,9 +87,6 @@ sed -n -r 's/^ *public const int *(\w+)_DECKEY *= *([^;]+).*$/            { \2, 
 cat <<EOS >> $TGTFILE2
         };
 
-        public static string GetDeckeyNameFromId(int id) {
-            return KeyMap._safeGet(id) ?? "?";
-        }
     }
 
 } // namespace deckey_id_defs

@@ -1997,6 +1997,12 @@ namespace KanchokuWS
             setDecoderSetting("isHiraganaTableOnly", bHiraganaOnly);
         }
 
+        public static void ToggleUseEditWindow()
+        {
+            UseEditWindow = !UseEditWindow;
+            setDecoderSetting("useEditWindow", UseEditWindow);
+        }
+
         public static string GetVerticalFontHeightFactorStr(string strFactor)
         {
             var factor = strFactor._parseDouble();

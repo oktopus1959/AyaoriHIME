@@ -1280,6 +1280,11 @@ namespace KanchokuWS
                                     logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
                                     return result;
 
+                                case DecoderKeys.EDIT_WINDOW_TOGGLE_DECKEY:
+                                    Settings.ToggleUseEditWindow();
+                                    frmVkb.SetTopText("Edit Window " + (Settings.UseEditWindow ? "ON" : "OFF"));
+                                    return true;
+
                                 case DecoderKeys.DIRECT_SPACE_DECKEY:
                                     logger.Info(() => $"CALL sendVkeyFromDeckey(deckey=STROKE_SPACE_DECKEY, -1, mod={mod})");
                                     result = sendVkeyFromDeckey(DecoderKeys.STROKE_SPACE_DECKEY, -1, mod);
