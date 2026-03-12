@@ -6,10 +6,7 @@
 
 #include "path_utils.h"
 
-#if 0
-#undef _LOG_DEBUGH
-#define _LOG_DEBUGH LOG_INFOH
-#endif
+#include "DebugLog.h"
 
 #define NGRAM_DICDIR  JOIN_SYSTEM_FILES_FOLDER(_T("ngram/dic"))
 
@@ -175,7 +172,7 @@ namespace NgramBridge {
     int ngramCalcCost(const MString& str, const std::vector<MString>& tempDictEntries, std::vector<MString>& ngrams, bool needNgrams) {
         if (!initializeSucceeded) return 0;
 
-        _LOG_DEBUGH(_T("ENTER: str={}"), to_wstr(str));
+        _LOG_DEBUGH(_T("ENTER: str={}, tempDic=<{}>"), to_wstr(str), to_wstr(utils::join(tempDictEntries, '|')));
         std::vector<String> results;
         String  errMsg;
         int cost = NgramCoreLib::NgramAnalyze(to_wstr(str), pickMainMorphs(tempDictEntries), results, errMsg, needNgrams);
@@ -189,7 +186,7 @@ namespace NgramBridge {
                 ngrams.push_back(to_mstr(s));
             }
         }
-        _LOG_DEBUGH(_T("LEAVE: ngramCost={}, ngrams={}"), cost, to_wstr(utils::join(ngrams, ' ')));
+        _LOG_DEBUGH(_T("LEAVE: str={}, ngramCost={}, ngrams={}"), to_wstr(str), cost, to_wstr(utils::join(ngrams, ' ')));
         return cost;
     }
 }

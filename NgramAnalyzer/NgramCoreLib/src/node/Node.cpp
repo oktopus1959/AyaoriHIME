@@ -89,7 +89,7 @@ namespace node
     }
 
     Node::~Node() {
-        LOG_DEBUGH(L"CALLED: dtor: {:p}", (void*)this);
+        LOG_DEBUG(L"CALLED: dtor: {:p}", (void*)this);
     }
 
     String Node::toVerbose() const {

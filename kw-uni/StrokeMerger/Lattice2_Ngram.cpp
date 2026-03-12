@@ -242,7 +242,7 @@ namespace lattice2 {
         // 指定された文字列に対して、そこに含まれるNgramに対応する選択Ngramペアボーナスを取得
         // Ngramは、1~5文字
         const std::set<SelectedNgramPairBonus> findNgramPairBonus(const MString& str) {
-            LOG_DEBUGH(L"ENTER: str={}", to_wstr(str));
+            //LOG_DEBUGH(L"ENTER: str={}", to_wstr(str));
             std::set<SelectedNgramPairBonus> resultSet;
             bool kanji = false;
             bool pKanji = false;
@@ -266,7 +266,11 @@ namespace lattice2 {
                     gatherSelectedNgramPairBonus(resultSet, str.substr(i, len));
                 }
             }
-            LOG_DEBUGH(L"LEAVE: resultSet={}", joinSelectedNgramPairBonusSet(resultSet));
+#if _LOG_DEBUG_ENABLED
+            if (!resultSet.empty()) {
+                LOG_DEBUGH(L"CALLED: str={}, resultSet={}", to_wstr(str), joinSelectedNgramPairBonusSet(resultSet));
+            }
+#endif
             return resultSet;
         }
     }; // class SelectedNgram

@@ -20,14 +20,12 @@
 
 
 #if 0
-#undef IS_LOG_DEBUGH_ENABLED
 #undef _DEBUG_SENT
 #undef _DEBUG_FLAG
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
 #undef _LOG_DEBUGH
 #undef _LOG_DEBUGH_COND
-#define IS_LOG_DEBUGH_ENABLED true
 #define _DEBUG_SENT(x) x
 #define _DEBUG_FLAG(x) (x)
 #define LOG_DEBUGH LOG_INFO

@@ -12,8 +12,13 @@ namespace lattice2 {
         MString ngramPair;       // <Positive Ngram>|<Negative Ngram>
         int bonusPoint = 0;
 
-        bool isValid() const {
-            return !ngramPair.empty() && bonusPoint != 0;
+        bool isValid(bool hiraganaBigramEnabled) const {
+            return !ngramPair.empty() && bonusPoint != 0 &&
+                (hiraganaBigramEnabled ||
+                    // 「びら|かな」のような、ひらがな2文字のNgramペアを除外する
+                    ngramPair.size() != 5 ||
+                    !utils::is_hiragana(ngramPair[0]) || !utils::is_hiragana(ngramPair[1]) ||
+                    !utils::is_hiragana(ngramPair[3]) || !utils::is_hiragana(ngramPair[4]));
         }
 
         bool operator<(const SelectedNgramPairBonus& other) const {

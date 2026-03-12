@@ -6,12 +6,13 @@
 #undef _LOG_DEBUGH
 #undef _DEBUG_SENT
 #undef LOG_SAVE_DICT
-#undef IS_LOG_DEBUGH_ENABLED
 
 #define LOG_DEBUGH LOG_INFOH
 #define LOG_DEBUG LOG_INFO
 #define _LOG_DEBUGH LOG_INFOH
 #define _DEBUG_SENT(x) x
 #define LOG_SAVE_DICT LOG_INFOH
-#define IS_LOG_DEBUGH_ENABLED true
+#define _LOG_DEBUG_ENABLED true
+#else
+#define _LOG_DEBUG_ENABLED false
 #endif

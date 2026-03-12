@@ -502,7 +502,8 @@ namespace lattice2 {
 
         // 候補のコストを計算
         // minLenは、形態素解析やNgram解析の際に、長い候補文字列に対して共通の先頭部分を避けるために使用する
-        void calcCandidateCost(CandidateString& newCandStr, size_t minLen, bool useMorphAnalyzer, bool isStrokeBS) {
+        // @returns 末尾の形態素の長さ (末尾の形態素がある場合)
+        int calcCandidateCost(CandidateString& newCandStr, size_t minLen, bool useMorphAnalyzer, bool isStrokeBS) {
             _LOG_DETAIL(_T("\nENTER: newCandStr={}, useMorphAnalyzer={}, isStrokeBS={}"), newCandStr.debugString(), useMorphAnalyzer, isStrokeBS);
 
             const MString& candStr = newCandStr.string();
@@ -519,6 +520,8 @@ namespace lattice2 {
 
             int myTotalCost = newCandStr.totalCost();
 
+            int tailMorphLen = 0;
+
             if (useMorphAnalyzer) {
                 // 形態素解析コスト
                 // 1文字以下なら、形態素解析しない(過|禍」で「禍」のほうが優先されて出力されることがあるため（「禍」のほうが単語コストが低いため）)
@@ -527,9 +530,15 @@ namespace lattice2 {
                 if (subStr.size() == 1) {
                     if (utils::is_katakana(subStr[0])) morphCost += 5000; // 1文字カタカナならさらに上乗せ
                 }
-                if (!morphs.empty() && isNonTerminalMorph(morphs.back())) {
-                    _LOG_DETAIL(_T("NON TERMINAL morph={}"), to_wstr(morphs.back()));
-                    newCandStr.setNonTerminal();
+                if (!morphs.empty()) {
+                    if (isNonTerminalMorph(morphs.back())) {
+                        _LOG_DETAIL(_T("NON TERMINAL morph={}"), to_wstr(morphs.back()));
+                        newCandStr.setNonTerminal();
+                    }
+                    size_t delimiterPos = morphs.back().find(L'\t');
+                    if (delimiterPos != MString::npos) {
+                        tailMorphLen = (int)delimiterPos;
+                    }
                 }
 
                 // Ngramコスト
@@ -560,6 +569,9 @@ namespace lattice2 {
                         to_wstr(candStr), myTotalCost, candCost, morphCost, utils::reReplace(to_wstr(utils::join(morphs, to_mstr(L"> <"))), L"\t", L" "), ngramCost));
                 }
             }
+
+            // 末尾の形態素の長さを返す
+            return tailMorphLen;
 
             //if (!bAdded) {
             //    // 末尾に追加
@@ -602,7 +614,7 @@ namespace lattice2 {
                 // TODO: 「あい|阿井」「あいう|阿井宇」のようなSelectedNgram対がある場合は、両者ともマッチしてしまうケースもある(現在は両方とも計算に入ってしまう)
                 //_LOG_DETAIL(_T("candStr={}"), to_wstr(candStr));
                 for (const auto& current : findNgramPairBonus(candStr)) {
-                    if (current.isValid()) {
+                    if (current.isValid(SETTINGS->hiraganaBigramEnabled)) {
                         auto iter = foundNgram.find(current.ngramPair);
                         if (iter != foundNgram.end()) {
                             // 既に見つかっている場合
@@ -862,7 +874,7 @@ namespace lattice2 {
                         // 素片が追加されたことになるので、強制的に形態素解析を行う
                         useMorphAnalyzer = true;
                         calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
-                        _LOG_DETAIL(_T("add newCnadStr={}"), newCandStr.debugString());
+                        _LOG_DETAIL(_T("add newCandStr={}"), newCandStr.debugString());
                         newCandidates.push_back(newCandStr);
                         bAutoBushuFound = true;
                         if (!SETTINGS->multiCandidateMode) break;  // 複数候補モードでなければ、自動部首合成を見つけたら終了
@@ -877,21 +889,21 @@ namespace lattice2 {
                     newCandStr.setFollowingPreferenceType(prefType);
                     // ここで形態素解析やNgram解析をしてコストを計算し、末尾に追加する
                     //MString subStr = substringBetweenNonJapaneseChars(s);
-                    calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
-                    if (isTailIsolatedKanji(s)) {
+                    int tailMorphLen = calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
+                    if (tailMorphLen == 1 && isTailIsolatedKanji(s)) {
                         // 末尾が孤立した漢字なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
                         int cost = newCandStr.totalCost();
-                        _LOG_DETAIL(_T("IsolatedKanji={}, cost={}, prevCost={}"), to_wstr(s), cost, prevKanjiCandCost);
+                        _LOG_DETAIL(_T("ISOLATED KANJI={}, cost={}, prevCost={}"), to_wstr(s), cost, prevKanjiCandCost);
                         if (prevKanjiCandCost == INT_MIN) {
                             prevKanjiCandCost = cost;
                         } else if (cost > prevKanjiCandCost) {
                             prevKanjiCandCost = cost;
                         } else {
                             newCandStr.addNgramCost(prevKanjiCandCost - cost + 1);
-                            _LOG_DETAIL(_T("ngramCost adjusted. newCnadStr.totalCost={}"), newCandStr.totalCost());
+                            _LOG_DETAIL(_T("ngramCost adjusted. newCandStr.totalCost={}"), newCandStr.totalCost());
                         }
                     }
-                    _LOG_DETAIL(_T("add newCnadStr={}"), newCandStr.debugString());
+                    _LOG_DETAIL(_T("add newCandStr={}"), newCandStr.debugString());
                     newCandidates.push_back(newCandStr);
                 }
                 // pieceが確定文字の場合
