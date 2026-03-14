@@ -19,7 +19,8 @@ namespace analyzer {
     int UNKNOWN_KANJI_MAX_LEN = 4;
 
     int MORPH_ENTRY_COST = 7000;
-    int REALTIME_ENTRY_BASE_COST = 5000;
+    int REALTIME_NORMALENTRY_BASE_COST = 6000;  // システムNgramに含まれない、リアルタイムNgramの通常エントリの基本コスト
+    int REALTIME_GETA_ENTRY_BASE_COST = 9500;   // システムNgramに含まれない、GETAで始まるリアルタイムNgramの通常エントリの基本コスト
 
     //-----------------------------------------------------------------------------
     /**
@@ -106,8 +107,10 @@ namespace analyzer {
 
             // realtime Ngramを検索しておく
             auto bonusList = RealtimeDict::commonPrefixSearch(lattice.sentence->toString(), begin2, hiraganaBigramEnabled, hiraganaQuadgramEnabled);
+            LOG_DEBUGH(L"realtime bonus list=[{}]", utils::join(bonusList, L", "));
 
             // 辞書引きしてノード作成する
+            LOG_DEBUGH(L"SYSTEM ngram dics lookup START");
             for (const auto& dic : dics) {
                 // 各辞書ごとに辞書引きをして
                 for (const auto& [tokens, length] : dic->commonPrefixSearch(rngStrPtr->toString(begin2), false)) {
@@ -118,21 +121,25 @@ namespace analyzer {
                         __addNewNode(token->wcost - bonus, begin2 + length);
                         if (length < bonusList.size()) bonusList[length] = 0;  // 既に使用済み
                         if (bonus > 0) {
-                            LOG_DEBUGH(L"bonus ngram: {}, cost={} (orig cost={} bonus={})", rngStrPtr->toString(begin2, begin2 + length), token->wcost - bonus, token->wcost, bonus);
+                            LOG_DEBUGH(L"system ngram FOUND in bonusList: {}, cost={} (orig cost={} bonus={})", rngStrPtr->toString(begin2, begin2 + length), token->wcost - bonus, token->wcost, bonus);
                         }
                     }
                 }
             }
+            LOG_DEBUGH(L"SYSTEM ngram dics lookup END");
 
             // 使われなかった realtime Ngram
+            LOG_DEBUGH(L"unused REALTIME ngrams START");
             for (size_t len = 1; len < bonusList.size(); ++len) {
                 int bonus = bonusList[len];
                 if (bonus > 0) {
-                    int cost = REALTIME_ENTRY_BASE_COST - bonus;
+                    int baseCost = (rngStrPtr->charAt(begin2) == GETA_CHAR) ? REALTIME_GETA_ENTRY_BASE_COST : REALTIME_NORMALENTRY_BASE_COST;
+                    int cost = baseCost - bonus;
                     __addNewNode(cost, begin2 + len);
-                    LOG_DEBUGH(L"realtime ngram entiry added: {}, cost={}", rngStrPtr->toString(begin2, begin2 + len), cost);
+                    LOG_DEBUGH(L"realtime only ngram entry added: {}, cost={} (baseCost={}, len={}, bonus={})", rngStrPtr->toString(begin2, begin2 + len), cost, baseCost, len, bonus);
                 }
             }
+            LOG_DEBUGH(L"unused REALTIME ngrams END");
 
             // TemporaryDictも検索してみる(5文字まで)
             if (tempDict.hasFirstChar(rngStrPtr->charAt(begin2))) {

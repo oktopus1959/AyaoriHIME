@@ -192,6 +192,9 @@ namespace NgramCoreLib {
 #define DEFINE_LOCAL_LOGGER(name)       DEFINE_LOGGER_STR("LOCAL." #name)
 #define DEFINE_NAMESPACE_LOGGER(name)   DEFINE_LOGGER_STR("NAMESPACE." #name)
 
+#define IS_LOG_WARN_ENABLED     (NgramCoreLib::Logger::IsWarnEnabled()) 
+#define IS_LOG_INFOH_ENABLED    (NgramCoreLib::Logger::IsInfoHEnabled()) 
+#define IS_LOG_INFO_ENABLED     (NgramCoreLib::Logger::IsInfoEnabled()) 
 #define IS_LOG_DEBUGH_ENABLED   (NgramCoreLib::Logger::IsDebugHEnabled()) 
 #define IS_LOG_DEBUG_ENABLED    (NgramCoreLib::Logger::IsDebugEnabled()) 
 

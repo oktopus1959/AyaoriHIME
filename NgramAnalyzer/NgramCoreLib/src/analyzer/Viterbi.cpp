@@ -72,7 +72,7 @@ namespace analyzer {
             auto begin = sentence->begin();
             auto end = sentence->end();
 
-            LOG_INFO(L"ENTER: lattice->sentence={}, tempDictEntries={}", sentence->toString(), tempDictEntries);
+            LOG_INFOH(L"ENTER: lattice->sentence={}, tempDictEntries={}", sentence->toString(), tempDictEntries);
 
             // 処理前の番兵ノード
             auto bos_node = lattice->bosNode();
@@ -106,10 +106,13 @@ namespace analyzer {
             //auto pos = lattice->end_nodes.lastIndexWhere{ _.nonEmpty };
             connect(lattice, len, glueNgramMaxLens, { eos_node }, lattice->getLastNonEmptyEndNodes(), lattice->isNBest());
 
-            // 両番兵に変化がないか確認 (TODO: 後で削除する)
-            assert(lattice->getEndNodes(0).size() == 1 && lattice->bosNode() == bos_node);
-            assert(lattice->getLastBeginNodes().size() == 1 && lattice->eosNode() == eos_node);
-            LOG_INFO(L"LEAVE");
+            if (IS_LOG_WARN_ENABLED) {
+                // 両番兵に変化がないか確認
+                LOG_INFO(L"CHECK BOTH SENTINELS STATUS");
+                assert(lattice->getEndNodes(0).size() == 1 && lattice->bosNode() == bos_node);
+                assert(lattice->getLastBeginNodes().size() == 1 && lattice->eosNode() == eos_node);
+            }
+            LOG_INFOH(L"LEAVE: lattice->sentence={}", sentence->toString());
         }
 
         // 末尾Nodeからたどって、最良コストのPathを next で連結する
@@ -216,8 +219,9 @@ namespace analyzer {
             glueNgramMaxLens[pos] = rnodeMaxLen;
 
 #if _LOG_DEBUGH_FLAG
-            if (NgramCoreLib::Logger::IsDebugHEnabled()) showConnectionResult(rightNodes);
+            if (NgramCoreLib::Logger::IsInfoHEnabled()) showConnectionResult(rightNodes);
 #endif
+            LOG_DEBUGH(L"LEAVE");
         }
 
 #if 0

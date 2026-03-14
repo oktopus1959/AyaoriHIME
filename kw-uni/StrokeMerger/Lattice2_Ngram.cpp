@@ -182,7 +182,7 @@ namespace lattice2 {
         void updateSelectedNgram(const MString& posi, const MString& nega) {
             if (isFixedNgramEntry(posi) && isFixedNgramEntry(nega)) {
                 // Ngram差分が固定Ngramエントリに含まれている場合は、差分登録を行わない
-                _LOG_DETAIL(L"{} and {} are both fixed ngram entries", to_wstr(posi), to_wstr(nega));
+                _LOG_DETAIL(L"{} and {} are BOTH FIXED ngram entries", to_wstr(posi), to_wstr(nega));
                 return;
             }
             auto key = nega + MSTR_VERT_BAR + posi;
@@ -595,7 +595,7 @@ namespace lattice2 {
         _LOG_DETAIL(L"\nENTER: str={}: geta={}, morphs={}", to_wstr(str), bUseGeta, to_wstr(utils::join(morphs, L'|')));
         std::vector<MString> ngrams;
         MString targetStr = bUseGeta ? MSTR_GETA + str : str;
-        // Ngram 解析
+        // Ngram 解析 (NgramAnalyzer)
         int cost0 = NgramBridge::ngramCalcCost(targetStr, morphs, ngrams, SETTINGS->multiStreamDetailLog);
         int cost = cost0;
         _LOG_DETAIL(L"ngrams: initial cost={}\n--------\n{}\n--------", cost, to_wstr(utils::join(ngrams, '\n')));

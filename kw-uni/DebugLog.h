@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Logger.h"
+
 #if 1 || defined(_DEBUG)
 #undef LOG_DEBUGH
 #undef LOG_DEBUG

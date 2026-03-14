@@ -168,7 +168,7 @@ namespace analyzer {
         //    prev = p->prev.get();
         //}
         int bestCost = accumCost + conCost;
-        LOG_INFO(L"bestCost={}, sent={}", bestCost, sentence->toString());
+        LOG_INFOH(L"bestCost={}, sent={}", bestCost, sentence->toString());
         return bestCost;
     }
 
