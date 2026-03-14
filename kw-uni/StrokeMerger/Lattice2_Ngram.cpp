@@ -222,7 +222,8 @@ namespace lattice2 {
         //    _updateSelectedNgram(posi, nega);
         //}
 
-        void gatherSelectedNgramPairBonus(std::set<SelectedNgramPairBonus>& resultSet, const MString& ngram) const {
+    private:
+        void _gatherSelectedNgramPairBonus(std::set<SelectedNgramPairBonus>& resultSet, const MString& ngram) const {
             auto iter = selectedNgramMap.find(ngram);
             if (iter != selectedNgramMap.end()) {
                 resultSet.insert(iter->second.begin(), iter->second.end());
@@ -230,7 +231,7 @@ namespace lattice2 {
             }
         }
 
-        String joinSelectedNgramPairBonusSet(const std::set<SelectedNgramPairBonus>& s) const {
+        String _joinSelectedNgramPairBonusSet(const std::set<SelectedNgramPairBonus>& s) const {
             String result;
             for (const auto& item : s) {
                 if (!result.empty()) result.append(L", ");
@@ -239,6 +240,7 @@ namespace lattice2 {
             return result;
         }
 
+    public:
         // 指定された文字列に対して、そこに含まれるNgramに対応する選択Ngramペアボーナスを取得
         // Ngramは、1~5文字
         const std::set<SelectedNgramPairBonus> findNgramPairBonus(const MString& str) {
@@ -252,24 +254,24 @@ namespace lattice2 {
                 pKanji = kanji;
                 kanji = utils::is_kanji(str[i]);
                 if (i == 0) {
-                    // 先頭文字の場合は、〓付きも調べる (例: 〓池 vs 〓での)
-                    for (size_t len = 1; len <= MAX_SELECTED_NGRAM_LEN && i + len <= str.size(); ++len) {
-                        gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(i, len));
-                    }
+                    // 先頭文字の場合は、str と一致する〓付きも調べる (例: 〓池 vs 〓での)
+                    //for (size_t len = 1; len <= MAX_SELECTED_NGRAM_LEN && i + len <= str.size(); ++len) {
+                    //    _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(i, len));
+                    //}
+                    _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str));
+                    _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str);
                 }
                 if (i >= 2 && !ppKanji && pKanji && !kanji) {
                     // 「非漢字-漢字-非漢字」のパターンの場合は、漢字1文字についても調べる
                     _LOG_DETAIL(L"Pattern: non-kanji [{}] - kanji [{}] - non-kanji [{}]", to_wstr(str[i - 2]), to_wstr(str[i - 1]), to_wstr(str[i]));
-                    gatherSelectedNgramPairBonus(resultSet, str.substr(i - 1, 1));
+                    _gatherSelectedNgramPairBonus(resultSet, str.substr(i - 1, 1));
                 }
                 for (size_t len = 2; len <= MAX_SELECTED_NGRAM_LEN && i + len <= str.size(); ++len) {
-                    gatherSelectedNgramPairBonus(resultSet, str.substr(i, len));
+                    _gatherSelectedNgramPairBonus(resultSet, str.substr(i, len));
                 }
             }
 #if _LOG_DEBUG_ENABLED
-            if (!resultSet.empty()) {
-                LOG_DEBUGH(L"CALLED: str={}, resultSet={}", to_wstr(str), joinSelectedNgramPairBonusSet(resultSet));
-            }
+            LOG_DEBUGH(L"RESULTS: str={}, resultSet={}", to_wstr(str), resultSet.empty() ? L"EMPTY" : _joinSelectedNgramPairBonusSet(resultSet));
 #endif
             return resultSet;
         }
