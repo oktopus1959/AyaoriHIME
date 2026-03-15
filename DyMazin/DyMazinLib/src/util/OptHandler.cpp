@@ -54,6 +54,7 @@ namespace {
         Vector<String>({L"f/output:FILE",                  L"", L"set the output file name"}),
         Vector<String>({L"Z/print-config",                 L"", L"print configuration and exit."}),
         Vector<String>({L"L/log-level:STR",                L"", L"set log level (default none)"}),
+        Vector<String>({L"?/show-line-separator",          L"", L"show line separator"}),
         Vector<String>({L"V/verbose:*",                    L"", L"show debug/verbose message."}),
         Vector<String>({L"v/version",                      L"", L"show the version and exit."}),
         Vector<String>({L"h/help",                         L"", L"show this help and exit."})

@@ -252,6 +252,7 @@ int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize,
                 bFirst = false;
             }
         } else {
+            bool showLineSeparator = opts->getBoolean(L"show-line-separator");
             String filePath = (opts && !opts->restArgs().empty()) ? opts->restArgs().front() : L"-";
             utils::IfstreamReader reader(filePath);
             while (true) {
@@ -263,10 +264,10 @@ int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize,
                 Vector<String> results;
                 tagger->parseNBest(line, results, nBest, mazePenalty, mazeConnPenalty, allowNonTerminal);
                 for (const auto& result : results) {
-                    std::cout << "----------------" << std::endl;
+                    if (showLineSeparator) std::cout << "----------------" << std::endl;
                     std::cout << utils::utf8_encode(result) << std::endl;
                 }
-                std::cout << "----------------------------------------------------------------" << std::endl;
+                if (showLineSeparator) std::cout << "----------------------------------------------------------------" << std::endl;
             }
         }
         if (ERROR_HANDLER->HasError()) {
