@@ -1303,7 +1303,7 @@ int HistoryDic::CreateHistoryDic(StringRef histFile, StringRef sysRomanFile) {
         if (!utils::contains(filename, _T("*"))) {
             // エラーメッセージを表示
             LOG_WARN(_T("hist file should be a wildcard form such as 'xxxx.*.yyy': {}"), filename);
-            ERROR_HANDLER->Warn(std::format(_T("入力履歴ファイル({})はワイルドード文字(*)を含む形式である必要があります。\r\nデフォルトのファイル名パターン 'kwhist.*.txt' を使用します。"), filename));
+            ERROR_HANDLER->Warn(std::format(_T("入力履歴ファイル({})はワイルドカード文字(*)を含む形式である必要があります。\r\nデフォルトのファイル名パターン 'kwhist.*.txt' を使用します。"), filename));
             filename = _T("kwhist.*.txt");
         }
         auto path = utils::joinPath(SETTINGS->userFilesFolder, filename);
@@ -1336,7 +1336,7 @@ int HistoryDic::ReadUserRomanFile() {
         if (!utils::contains(filename, _T("*"))) {
             // エラーメッセージを表示
             LOG_WARN(_T("hist file should be a wildcard form such as 'xxxx.*.yyy': {}"), filename);
-            ERROR_HANDLER->Warn(std::format(_T("入力履歴ファイル({})はワイルドード文字(*)を含む形式である必要があります。\r\nデフォルトのファイル名パターン 'kwhist.*.txt' を使用します。"), filename));
+            ERROR_HANDLER->Warn(std::format(_T("入力履歴ファイル({})はワイルドカード文字(*)を含む形式である必要があります。\r\nデフォルトのファイル名パターン 'kwhist.*.txt' を使用します。"), filename));
             filename = _T("kwhist.*.txt");
         }
         auto path = utils::joinPath(SETTINGS->userFilesFolder, filename);

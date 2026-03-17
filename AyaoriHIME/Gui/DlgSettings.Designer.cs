@@ -6731,7 +6731,8 @@ namespace KanchokuWS.Gui
             this.button_openUserNgramFile.Size = new System.Drawing.Size(72, 23);
             this.button_openUserNgramFile.TabIndex = 76;
             this.button_openUserNgramFile.Text = "開く(&U)";
-            this.toolTip1.SetToolTip(this.button_openUserNgramFile, "ユーザー定義の Ngram ファイルをエディタで開く\r\n\r\nuserFiles/user.ngram.txt をテキストエディターで開きます。");
+            this.toolTip1.SetToolTip(this.button_openUserNgramFile, "ユーザー定義の Ngram ファイルをエディタで開く\r\n\r\nuserFiles/user.ngram.txt をテキストエディターで開きます。\r\nファイルを編集し" +
+        "た場合は、上の「再ロード」ボタンをクリックしてください。");
             this.button_openUserNgramFile.UseVisualStyleBackColor = true;
             this.button_openUserNgramFile.Click += new System.EventHandler(this.button_openUserNgramFile_Click);
             // 
