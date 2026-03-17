@@ -15,7 +15,7 @@ namespace lattice2 {
 //#define SYSTEM_NGRAM_FILE           JOIN_USER_FILES_FOLDER(L"mixed_all.ngram.txt")
 //#define KATAKANA_COST_FILE          JOIN_USER_FILES_FOLDER(L"katakana.cost.txt")
 #define REALTIME_NGRAM_MAIN_FILE    JOIN_USER_FILES_FOLDER(L"realtime.ngram.txt")
-#define REALTIME_NGRAM_TEMP_FILE    JOIN_USER_FILES_FOLDER(L"realtime.ngram.tmp.txt")
+#define REALTIME_NGRAM_TEMP_FILE    JOIN_USER_FILES_FOLDER(L"realtime.ngram.txt.tmp")
 #define SELECTED_NGRAM_FILE         JOIN_USER_FILES_FOLDER(L"selected.ngram.txt")
 #define USER_NGRAM_FILE             JOIN_USER_FILES_FOLDER(L"user.ngram.txt")
 //#define USER_COST_FILE              JOIN_USER_FILES_FOLDER(L"userword.cost.txt")
@@ -492,7 +492,8 @@ namespace lattice2 {
         LOG_SAVE_DICT(L"ENTER: file={}", REALTIME_NGRAM_FILE);
 #ifndef _DEBUG
         auto realtimeNgramPath = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
-        NgramBridge::saveRealtimeDict(realtimeNgramPath, SETTINGS->backFileRotationGeneration);
+        int backupGeneration = SETTINGS->useTmpRealtimeNgramFile ? 0 : SETTINGS->backFileRotationGeneration;
+        NgramBridge::saveRealtimeDict(realtimeNgramPath, backupGeneration);
         selectedNgramInstance.saveSelectedNgramFile(SELECTED_NGRAM_FILE);
 #endif
         LOG_SAVE_DICT(L"LEAVE: file={}", REALTIME_NGRAM_FILE);

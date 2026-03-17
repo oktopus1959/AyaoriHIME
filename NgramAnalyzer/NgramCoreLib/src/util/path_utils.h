@@ -134,6 +134,9 @@ namespace utils {
     // ファイルを back ディレクトリに移動(backファイルのローテートもやる)
     bool moveFileToBackDirWithRotation(StringRef path, int genNum = 3, bool bCopy = false);
 
+    // ファイルを back ディレクトリに移動(backファイルのローテートもやる)
+    bool moveFileToBackDirWithRotationEx(StringRef path, int genNum = 3, bool bCopy = false);
+
     // tmpファイルとcurrentファイルのサイズを比較し、tmpのサイズの方が大きかったら、current を back ディレクトリに移動し、tmp を current にする
     bool compareAndMoveFileToBackDirWithRotation(StringRef pathTmp, StringRef pathCurrent, int genNum = 3, bool bCopy = false);
 

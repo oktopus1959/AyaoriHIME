@@ -6799,8 +6799,8 @@ namespace KanchokuWS.Gui
             this.button_reloadDict.Size = new System.Drawing.Size(72, 23);
             this.button_reloadDict.TabIndex = 3;
             this.button_reloadDict.Text = "再ロード(&L)";
-            this.toolTip1.SetToolTip(this.button_reloadDict, "Ngram ファイルの内容の再読み込み\r\n\r\n内部の ngram 情報をクリアした上で、\r\nuserFiles/realtime.ngram.txt と user" +
-        ".ngram.txt を\r\n再読み込みします。");
+            this.toolTip1.SetToolTip(this.button_reloadDict, "Ngram ファイルの内容の再読み込み\r\n\r\n内部の ngram 情報をクリアした上で、 userFiles配下の\r\n以下のファイルを再読み込みします。\r\n- r" +
+        "ealtime.ngram.txt\r\n- selected.ngram.txt\r\n- user.ngram.txt");
             this.button_reloadDict.UseVisualStyleBackColor = true;
             this.button_reloadDict.Click += new System.EventHandler(this.button_reloadDict_Click);
             // 
