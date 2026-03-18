@@ -380,5 +380,8 @@
     <ClInclude Include="src\reporting\ErrorHandler.h">
       <Filter>ヘッダー ファイル\reporting</Filter>
     </ClInclude>
+    <ClInclude Include="src\DyMazinDebugLog.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

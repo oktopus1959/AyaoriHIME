@@ -8,13 +8,7 @@
 #include "util/xsv_parser.h"
 #include "featureDef.h"
 
-#if 0 || defined(_DEBUG)
-#define _LOG_DEBUGH_FLAG true
-#undef LOG_DEBUGH
-#define LOG_DEBUGH LOG_INFOH
-#else
-#define _LOG_DEBUGH_FLAG false
-#endif
+#include "DyMazinDebugLog.h"
 
 namespace analyzer {
     DECLARE_LOGGER;

@@ -1,12 +1,7 @@
 #include "MazePrepro_Common.h"
 #include "reporting/ErrorHandler.h"
 
-#if 0
-#undef LOG_DEBUGH
-#undef LOG_DEBUG
-#define LOG_DEBUGH LOG_INFOH
-#define LOG_DEBUG LOG_INFO
-#endif
+#include "DyMazinDebugLog.h"
 
 namespace MazegakiPreprocessor {
     DECLARE_LOGGER;

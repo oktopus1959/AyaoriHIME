@@ -242,6 +242,7 @@
     <ClInclude Include="src\compiler\DictionaryBuilder.h" />
     <ClInclude Include="src\dict\MazegakiPreprocessor.h" />
     <ClInclude Include="src\dict\MazePrepro_Common.h" />
+    <ClInclude Include="src\DyMazinDebugLog.h" />
     <ClInclude Include="src\DyMazinLib.h" />
     <ClInclude Include="src\node\LearnerNode.h" />
     <ClInclude Include="src\node\LearnerPath.h" />

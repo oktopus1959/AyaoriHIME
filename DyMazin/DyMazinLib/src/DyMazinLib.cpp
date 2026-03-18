@@ -15,13 +15,7 @@ using namespace analyzer;
 using namespace compiler;
 using Logger = Reporting::Logger;
 
-#if 0 || defined(_DEBUG)
-#define _LOG_DEBUGH_FLAG true
-#undef _LOG_DEBUGH
-#define _LOG_DEBUGH LOG_INFOH
-#else
-#define _LOG_DEBUGH_FLAG false
-#endif
+#include "DyMazinDebugLog.h"
 
 namespace {
     DEFINE_LOCAL_LOGGER(DyMazinLib);
