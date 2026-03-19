@@ -1145,6 +1145,9 @@ namespace {
         catch (String msg) {
             LOG_ERROR(msg);
         }
+        catch (const std::exception& e) {
+            LOG_ERROR(utils::utf8_decode(e.what()));
+        }
         catch (...) {
             LOG_ERROR(_T("Some exception caught"));
         }

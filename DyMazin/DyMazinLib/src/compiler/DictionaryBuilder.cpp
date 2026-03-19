@@ -154,23 +154,34 @@ namespace compiler {
      */
     int DictionaryBuilder::make_user_dict(OptHandlerPtr opts, const Vector<String>& dic_lines, StringRef outputPath) {
 
-        auto dicdir = opts->getString(L"dicdir");
+        try {
+            auto dicdir = opts->getString(L"dicdir");
 
-        LOG_INFOH(L"ENTER: dicdir={}, userdic={}", dicdir, outputPath);
+            LOG_INFOH(L"ENTER: dicdir={}, userdic={}", dicdir, outputPath);
 
-        opts->loadDictionaryResource();
+            opts->loadDictionaryResource();
 
-        auto dicrc = utils::join_path(dicdir, DICRC);
-        if (opts->loadConfig(dicrc) != 0) {
-            LOG_ERROR(L"no such file or directory: {}", dicrc);
+            auto dicrc = utils::join_path(dicdir, DICRC);
+            if (opts->loadConfig(dicrc) != 0) {
+                LOG_ERROR(L"no such file or directory: {}", dicrc);
+                return EXIT_FAILURE;
+            }
+
+            opts->set(L"type", dict::DictionaryInfo::USER_DIC);
+            dict::Dictionary::compileUserDict(opts, dic_lines, outputPath);
+
+            LOG_INFOH(L"LEAVE: DONE");
+            return EXIT_SUCCESS;
+        } catch (const util::RuntimeException& ex) {
+            LOG_ERROR(L"Runtime error: {}({}): {}", ex.getFile(), ex.getLine(), ex.getMessage());
+            return EXIT_FAILURE;
+        } catch (const std::exception& ex) {
+            LOG_ERROR(L"Standard exception: {}", utils::utf8_decode(ex.what()));
+            return EXIT_FAILURE;
+        } catch (...) {
+            LOG_ERROR(L"Unknown exception occurred");
             return EXIT_FAILURE;
         }
-
-        opts->set(L"type", dict::DictionaryInfo::USER_DIC);
-        dict::Dictionary::compileUserDict(opts, dic_lines, outputPath);
-
-        LOG_INFOH(L"LEAVE: DONE");
-        return EXIT_SUCCESS;
     }
 
 }

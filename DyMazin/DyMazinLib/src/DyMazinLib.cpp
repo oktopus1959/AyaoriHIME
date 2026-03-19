@@ -124,7 +124,7 @@ int DymazinCompileAndLoadUserDic(const wchar_t* dicDir, const wchar_t* srcFilePa
         return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
     }
 #if _LOG_DEBUGH_FLAG
-    if (Reporting::Logger::LOG_LEVEL_ENABLED(InfoH)) {
+    if (Reporting::Logger::LOG_LEVEL_ENABLED(InfoH)()) {
         if (dic_lines.size() > 0) {
             String lines = dic_lines[0];
             for (size_t i = 1; i < dic_lines.size() && i < 1000; ++i) {

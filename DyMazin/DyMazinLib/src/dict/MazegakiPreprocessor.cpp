@@ -170,10 +170,10 @@ namespace MazegakiPreprocessor {
         const auto items = utils::split(line, L",");
         LOG_DEBUGH(L"ENTER: line={}, items={}", line, utils::join(items, L":"));
         if (items.size() < 2 || items.size() > 4) {
-            return line;
+            return L"";
         }
         if (items[0].empty() || items[1].empty()) {
-            return line;
+            return L"";
         }
         bool firstIsYomi = utils::is_hiragana_str(items[0]);
         auto yomi = firstIsYomi ? items[0] : items[1];
@@ -186,9 +186,17 @@ namespace MazegakiPreprocessor {
         }
         auto iter = ktypeDefs.find(hinshi);
         if (iter == ktypeDefs.end()) {
-            return line;
+            return L"";
         }
-        auto cost = items.size() >= 4 ? items[3] : L"5000";
+        String cost;
+        if (items.size() >= 4) {
+            cost = items[3];
+            if (!utils::isDecimalString(cost)) {
+                return L"";
+            }
+        } else {
+            cost = L"5000";
+        }
         LOG_DEBUGH(L"RESULT: line={}", base + L"," + replaceCost(iter->second, cost) + L"," + base + L"," + yomi);
         return base + L"," + replaceCost(iter->second, cost) + L"," + base + L"," + yomi;
     }
@@ -626,6 +634,11 @@ namespace MazegakiPreprocessor {
         if (bUserDic) {
             // ユーザー辞書形式の場合、標準形に変換
             line = convertToNormalForm(line);
+            if (line.empty()) {
+                errorLines.push_back(origLine);
+                LOG_DEBUGH(L"LEAVE: false: empty after conversion");
+                return false;
+            }
         }
 
         const auto items = utils::split(line, L",");
@@ -633,6 +646,13 @@ namespace MazegakiPreprocessor {
         if (items[0].empty()) {
             errorLines.push_back(origLine);
             LOG_DEBUGH(L"LEAVE: false: empty head");
+            return false;
+        }
+
+        if (items.size() < 5) {
+            errorLines.push_back(origLine);
+            LOG_DEBUGH(L"LEAVE: false: items less than 5");
+            // 項目数が少ないものは削除
             return false;
         }
 

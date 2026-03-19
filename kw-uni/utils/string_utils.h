@@ -1224,6 +1224,13 @@ namespace utils {
         return reSearch(s, std::wregex(p));
     }
 
+    inline std::wregex _reDecimalStr(_T("[+\\-]?[0-9]+"));
+
+    // 10 進数の文字列か
+    inline bool isDecimalString(StringRef s) {
+        return reMatch(s, _reDecimalStr);
+    }
+
     // 正規表現 delim で n 個に分割する。先頭が delim の場合、戻値の先頭要素は空文字列になる
     inline std::vector<String> reSplit(StringRef s, size_t n, const std::wregex& reDelim) {
         std::vector<String> result;

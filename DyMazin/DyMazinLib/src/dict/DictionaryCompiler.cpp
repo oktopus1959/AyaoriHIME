@@ -20,6 +20,8 @@
 #include "darts/DoubleArray.h"
 #include "Dictionary.h"
 
+#include "DyMazinDebugLog.h"
+
 using namespace util;
 using namespace analyzer;
 using Reporting::Logger;
@@ -381,6 +383,7 @@ namespace {
 
         for (const auto& line : dic_lines) {
             auto items = utils::parseCSV(line, 5);
+            LOG_DEBUGH(L"line={}, items.size={}", line, items.size());
             if (items.size() != 5) THROW_RTE(L"format error: {}", line); // CHECK_OR_THROW(n == 5)
 
             // 0: 表層形
@@ -390,12 +393,14 @@ namespace {
             // 4: Feature
             const auto& key = items[0];
             if (key.empty()) {
-                std::wcerr << L"empty word is found, discard this line: " << line << std::endl;
+                //std::wcerr << L"empty word is found, discard this line: " << line << std::endl;
+                LOG_ERROR(L"empty word is found, discard this line: {}", line);
             } else {
                 const auto& feature = items[4];
 
                 auto lid = to_short(items[1]);  // left ID;
                 auto rid = to_short(items[2]);  // right ID
+                LOG_DEBUGH(L"leftId={}, rightId={}", lid, rid);
                 auto idPair = (is_valid_attr_index(ShortPair(lid, rid), ShortPair(SHRT_MAX, SHRT_MAX)))
                     ? IdPair(lid, rid)
                     : featRwtr->makeIdPair(feature);
@@ -404,6 +409,7 @@ namespace {
                 }
 
                 auto cost = to_int(items[3]);
+                LOG_DEBUGH(L"cost={}", cost);
                 if (cost == INT_MAX) {
                     if (dicType != DictionaryInfo::USER_DIC) THROW_RTE(L"cost field should not be empty in sys/unk dic.");
                     // 単語コストが設定されていないのでここで計算する
@@ -419,6 +425,7 @@ namespace {
                 dictionary.push_back(MakeUniq<ElementType>(key, tokenFactory.createToken(lid, rid, cost, isWakati ? L"" : feature)));
 
                 count += 1;
+                LOG_DEBUGH(L"count={}", count);
             }
         }
 
@@ -561,6 +568,7 @@ namespace dict {
     // ユーザ辞書のコンパイル
     // (dic_lines で与えられた行を辞書ソースとして扱う)
     void Dictionary::compileUserDict(OptHandlerPtr opts, const Vector<String>& dic_lines, StringRef outputfile) {
+        LOG_INFOH(_T("ENTER"));
 
         // コンパイルされた情報を格納する辞書
         Dictionary dict(opts);
@@ -596,6 +604,8 @@ namespace dict {
         LOG_INFOH(L"serializing dict: {}: START", outputfile);
         dict.serialize(outputfile);
         LOG_INFOH(L"serializing dict: DONE");
+
+        LOG_INFOH(_T("LEAVE"));
     }
     // end of compile()
 
