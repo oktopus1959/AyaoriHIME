@@ -9,8 +9,11 @@
 
 #include "Ngram/NgramBridge.h"
 
+namespace {
+    DEFINE_LOGGER(Lattice2_Ngram);
+}
+
 namespace lattice2 {
-    DECLARE_LOGGER;     // defined in Lattice2.cpp
 
 //#define SYSTEM_NGRAM_FILE           JOIN_USER_FILES_FOLDER(L"mixed_all.ngram.txt")
 //#define KATAKANA_COST_FILE          JOIN_USER_FILES_FOLDER(L"katakana.cost.txt")
@@ -384,15 +387,20 @@ namespace lattice2 {
     }
 
     // 候補選択による、SelectedNgramの更新
+    // 
     void updateSelectedNgramByUserSelect(const MString& oldCand, const MString& newCand) {
         LOG_INFOH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
         size_t baseSize = oldCand.size();
         size_t diffSize = newCand.size();
         auto [startPos, endPos1, endPos2] = findFirstDiffEx(oldCand, newCand);
-        LOG_INFOH(L"startPos={}, endPos1={}, endPos2={}, baseSize={}, diffSize={}", startPos, endPos1, endPos2, baseSize, diffSize);
+        LOG_INFOH(L"{}|{}, startPos={}, endPos1={}, endPos2={}, baseSize={}, diffSize={}",
+            to_wstr(utils::safe_substr(oldCand, startPos, endPos1-startPos)),
+            to_wstr(utils::safe_substr(newCand, startPos, endPos2-startPos)),
+            startPos, endPos1, endPos2, baseSize, diffSize);
         if (startPos < endPos1 && startPos < endPos2) {
             size_t len1 = endPos1 - startPos;
             size_t len2 = endPos2 - startPos;
+
             auto checkShortDiff = [&]() -> bool {
                 if (len1 == 1 || len2 == 1) {
                     return true;
@@ -407,45 +415,67 @@ namespace lattice2 {
                 }
                 return false;
             };
+
+            auto addShortPairWithGeta = [&](size_t xlen1, size_t xlen2) -> void {
+                // 先頭だったら、〓を前に追加して処理する
+                if (xlen1 <= 2 && xlen2 <= 2) {
+                    if (xlen1 + 1 <= baseSize && xlen2 + 1 <= diffSize) {
+                        // 両者ともに2文字以下の差分の場合は、後ろ1文字も含めて処理する
+                        LOG_INFOH(L"append postfix char");
+                        ++xlen1;
+                        ++xlen2;
+                    }
+                }
+                selectedNgramInstance.updateSelectedNgram(
+                    MSTR_GETA + newCand.substr(0, xlen2),
+                    MSTR_GETA + oldCand.substr(0, xlen1));
+            };
+
+            auto addPair = [&](size_t xstartPos, size_t xlen1, size_t xlen2) -> void {
+                selectedNgramInstance.updateSelectedNgram(
+                    newCand.substr(xstartPos, xlen2),
+                    oldCand.substr(xstartPos, xlen1));
+            };
+
             if (checkShortDiff()) {
                 // 2文字以下の差分の場合は、前後の1文字を含めて更新する
                 LOG_INFOH(L"short diff");
                 if (startPos == 0) {
                     // 先頭だったら、〓を前に追加して処理する
-                    size_t lenx1 = len1;
-                    size_t lenx2 = len2;
-                    if (len1 <= 2 && len2 <= 2) {
-                        if (len1 + 1 <= baseSize && len2 + 1 <= diffSize) {
-                            // 両者ともに2文字以下の差分の場合は、後ろ1文字も含めて処理する
-                            LOG_INFOH(L"apped postfix char");
-                            ++lenx1;
-                            ++lenx2;
-                        }
-                    }
-                    selectedNgramInstance.updateSelectedNgram(
-                        MSTR_GETA + newCand.substr(startPos, lenx2),
-                        MSTR_GETA + oldCand.substr(startPos, lenx1));
-                }
-                if (startPos > 0 && len1 == 1 && len2 == 1 && baseSize > startPos + 1 && diffSize > startPos + 1 &&
-                    utils::is_kanji(oldCand[startPos]) && utils::is_kanji(newCand[startPos]) &&
-                    !utils::is_kanji(oldCand[startPos - 1]) && !utils::is_kanji(oldCand[startPos + 1])) {
-                    // 漢字1文字だけが異なっている場合
-                    LOG_INFOH(L"apped only 1 kanji");
-                    selectedNgramInstance.updateSelectedNgram(
-                        newCand.substr(startPos, 1),
-                        oldCand.substr(startPos, 1));
+                    addShortPairWithGeta(len1, len2);
                 } else {
-                    ++len1;
-                    ++len2;
-                    if (startPos > 0) {
-                        selectedNgramInstance.updateSelectedNgram(
-                            newCand.substr(startPos - 1, len2),
-                            oldCand.substr(startPos - 1, len1));
-                    }
-                    if (startPos + len1 <= baseSize && startPos + len2 < diffSize) {
-                        selectedNgramInstance.updateSelectedNgram(
-                            newCand.substr(startPos, len2),
-                            oldCand.substr(startPos, len1));
+                    // 先頭以外の短い差分の場合
+                    if (len1 == 1 && len2 == 1 && baseSize > startPos + 1 && diffSize > startPos + 1 &&
+                        utils::is_kanji(oldCand[startPos]) && utils::is_kanji(newCand[startPos]) &&
+                        !utils::is_kanji(oldCand[startPos - 1]) && !utils::is_kanji(oldCand[startPos + 1])) {
+                        // 文字列中の漢字1文字だけが異なっている場合
+                        LOG_INFOH(L"pair with only 1 kanji");
+                        addPair(startPos, 1, 1);
+                        //selectedNgramInstance.updateSelectedNgram(
+                        //    newCand.substr(startPos, 1),
+                        //    oldCand.substr(startPos, 1));
+                    } else {
+                        if (startPos == 1) {
+                            // 1文字目だったら、〓と先頭文字を前に追加して処理する
+                            LOG_INFOH(L"append GETA and prefix char: startPos=0, len1={}, len2={}", len1 + 1, len2 + 1);
+                            addShortPairWithGeta(len1, len2);
+                        } else {
+                            // 前後の1文字も含めて処理する
+                            if ((len1 == 1 || len2 == 1) && startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
+                                // 差分のどちらかが1文字の場合は、前後の1文字も含めて3文字で処理する
+                                LOG_INFOH(L"append prefix and postfix char: startPos={}, len1={}, len2={}", startPos - 1, len1 + 2, len2 + 2);
+                                addPair(startPos - 1, len1 + 2, len2 + 2);
+                            } else {
+                                // 前の1文字も含めて処理する
+                                LOG_INFOH(L"append prefix char: startPos={}, len1={}, len2={}", startPos - 1, len1, len2);
+                                addPair(startPos - 1, len1, len2);
+                                if (startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
+                                    // 後の1文字も含めて処理する
+                                    LOG_INFOH(L"append postfix char: startPos={}, len1={}, len2={}", startPos, len1 + 1, len2 + 1);
+                                    addPair(startPos, len1 + 1, len2 + 1);
+                                }
+                            }
+                        }
                     }
                 }
             } else if (len1 <= MAX_SELECTED_NGRAM_LEN && len2 <= MAX_SELECTED_NGRAM_LEN) {

@@ -7,9 +7,11 @@
 #include "Lattice2_Common.h"
 #include "Lattice2_Morpher.h"
 
-namespace lattice2 {
-    DECLARE_LOGGER;     // defined in Lattice2.cpp
+namespace {
+    DEFINE_LOGGER(Lattice2_Morpher);
+}
 
+namespace lattice2 {
 #define MAZEGAKI_PREFERENCE_FILE    JOIN_USER_FILES_FOLDER(L"mazegaki.pref.txt")
 
     // 交ぜ書き優先度辞書

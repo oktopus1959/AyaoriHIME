@@ -11,9 +11,11 @@
 #include "Lattice2_Ngram.h"
 #include "Lattice2_Morpher.h"
 
-namespace lattice2 {
-    DECLARE_LOGGER;     // defined in Lattice2.cpp
+namespace {
+    DEFINE_LOGGER(Lattice2_Kbest);
+}
 
+namespace lattice2 {
     // 漢字用の余裕
     //int EXTRA_KANJI_BEAM_SIZE = 3;
 

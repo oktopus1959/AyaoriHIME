@@ -15,9 +15,11 @@
 #include "Lattice2_Ngram.h"
 #include "Lattice2_Morpher.h"
 
-namespace lattice2 {
-    DECLARE_LOGGER;     // defined in Lattice2.cpp
+namespace {
+    DEFINE_LOGGER(Lattice2_CandidateString);
+}
 
+namespace lattice2 {
 #define GLOBAL_POST_REWRITE_FILE    JOIN_USER_FILES_FOLDER(L"global-post-rewrite-map.txt")
 
     // グローバルな後置書き換えマップ

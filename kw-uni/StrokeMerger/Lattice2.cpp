@@ -11,9 +11,11 @@
 #include "Lattice2_Morpher.h"
 #include "Lattice2_Ngram.h"
 
-namespace lattice2 {
-    DEFINE_LOCAL_LOGGER(lattice);
+namespace {
+    DEFINE_LOGGER(Lattice2);
+}
 
+namespace lattice2 {
     //--------------------------------------------------------------------------------------
     // Lattice
     class LatticeImpl : public Lattice2 {
