@@ -126,12 +126,15 @@ namespace NgramBridge {
             if (items.size() > 2) {
                 const MString& surf = items[0];
                 // かな配列だけの場合は、ひらがなのみの形態素や交ぜ書き候補も含める。
-                if (surf.size() >= 2 && (SETTINGS->isHiraganaTableOnly || utils::contains_kanji(surf))) {
-                    const MString& feat = items[2];
-                    if (feat.find(unkMarker) == std::string::npos && (SETTINGS->isHiraganaTableOnly || !utils::endsWith(feat, mazeMarker))) {
-                        if (!first) mainMorphs.append(MSTR_VERT_BAR);
-                        first = false;
-                        mainMorphs.append(surf);
+                if (surf.size() >= 2) {
+                    bool bHiraganaOK = surf.size() >= 4 || SETTINGS->isHiraganaTableOnly;
+                    if (bHiraganaOK || utils::contains_kanji(surf)) {
+                        const MString& feat = items[2];
+                        if (feat.find(unkMarker) == std::string::npos && (bHiraganaOK || !utils::endsWith(feat, mazeMarker))) {
+                            if (!first) mainMorphs.append(MSTR_VERT_BAR);
+                            first = false;
+                            mainMorphs.append(surf);
+                        }
                     }
                 }
             }
