@@ -276,15 +276,20 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             }
         }
 
+        private bool _isLittleFingerDeckey(int deckey)
+        {
+            int mod = deckey % 10;
+            return mod == 0 || mod == 9 || deckey >= 41;
+        }
+
         /// <summary>押下時間からStrokeをHold状態に移行する</summary>
         /// <param name="deckey">Down時は負数, Up時は当刻DecoderKeyコード</param>
         public void CheckAndSetHoldFlagByTapDance(int deckey, DateTime dt)
         {
             logger.DebugH(() => $"CALLED: deckey={deckey}, dt={dt.ToString("HH:MM:ss.fff")}, holdTimeMs={Settings.TapDanceHoldTimeMs}, shiftPlaneOff={Settings.TapDanceHoldShiftPlaneOffset}");
-            int holdTimeMs = Settings.TapDanceHoldTimeMs;
-            if (holdTimeMs > 0 && Settings.TapDanceHoldShiftPlaneOffset > 0) {
-                _setHoldFlagByTapDance(downKeyList, deckey, dt, holdTimeMs);
-                _setHoldFlagByTapDance(unprocList, deckey, dt, holdTimeMs);
+            if (Settings.IsTapDanceHoldEnabled && !_isLittleFingerDeckey(deckey)) {     // 小指キーはタップダンスホールドの対象外とする
+                _setHoldFlagByTapDance(downKeyList, deckey, dt, Settings.TapDanceHoldTimeMs);
+                _setHoldFlagByTapDance(unprocList, deckey, dt, Settings.TapDanceHoldTimeMs);
             }
         }
 

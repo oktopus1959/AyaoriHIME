@@ -575,11 +575,12 @@ namespace KanchokuWS.CombinationKeyStroke
             logger.InfoH(() =>
                 $"decKey={decKey}, lastRepeatedDecKey={lastRepeatedDecKey}, ComboShiftKeyRepeated={bComboShiftKeyRepeated}");
             strokeList.RemoveUpKey(decKey);
-            if (bComboShiftKeyRepeated) {
-                // ComboShiftキーがリピートされている状態だったら、それを無視
+            if (bComboShiftKeyRepeated && !Settings.IsTapDanceHoldEnabled) {
+                // TabDanceが無効で ComboShiftキーがリピートされている状態だったら、それを無視
                 logger.InfoH("REPEATED COMBO SHIFT KEY IGNORED");
                 strokeList.Clear();
             } else if (!bTimer || bSameLastKey) {    // タイマーの場合は、最後に押下されたキーと一致しているか
+                logger.InfoH("NOT REPEATED OR TAP DANCE ENABLED");
                 frmMain?.WriteStrokeLog(decKey, dtNow, false, false, bTimer);
                 procQueue.Enqueue(() => keyUp(decKey, dtNow, bTimer, bDecoderOn));
                 HandleQueue();

@@ -1045,6 +1045,7 @@ namespace KanchokuWS
 
         public static int TapDanceHoldShiftPlaneOffset { get; set; }
 
+        public static bool IsTapDanceHoldEnabled => TapDanceHoldTimeMs > 0 && TapDanceHoldShiftPlaneOffset > 0;
         //------------------------------------------------------------------------------
         // IME連携
         //------------------------------------------------------------------------------
