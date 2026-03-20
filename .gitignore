@@ -28,3 +28,5 @@ _tables/
 *.lock
 *.xlsx
 *.swp
+
+!DyMazin/work/

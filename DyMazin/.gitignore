@@ -33,3 +33,9 @@ UnitTest/
 *.xlsx
 *.swp
 *.asta
+
+!work/
+work/*
+!work/ipa/
+work/ipa/*
+!work/ipa/matrix.def
