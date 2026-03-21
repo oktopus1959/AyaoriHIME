@@ -481,6 +481,9 @@ public:
             } else if (cmd == _T("reloadNgramFiles")) {
                 // 単語コストファイルとNgramファイルの読み込み
                 Lattice2::reloadNgramFiles();
+            } else if (cmd == _T("doMorphAndNgramAnalysis")) {
+                // 形態素解析とNgram解析の実行 (引数: 解析対象文字列)
+                Lattice2::doMorphAndNgramAnalysis(to_mstr(items.size() > 1 ? items[1] : _T("")));
             } else if (cmd == _T("showStrokeHelp") && STROKE_HELP) {
                 // ストロークヘルプの表示
                 //OutParams = outParams;

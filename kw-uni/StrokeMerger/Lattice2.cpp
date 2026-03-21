@@ -349,6 +349,22 @@ void Lattice2::setRealtimeDictParameters() {
     lattice2::setRealtimeDictParameters();
 }
 
+void Lattice2::doMorphAndNgramAnalysis(const MString& str) {
+    WORD_LATTICE->clearAll();
+
+    std::vector<WordPiece> pieces;
+    STATE_COMMON->IncrementTotalDecKeyCount();
+    pieces.push_back(WordPiece::paddingPiece());
+    WORD_LATTICE->addPieces(pieces, FollowingPreferenceType::Any, true, false, false);
+
+    pieces.clear();
+    STATE_COMMON->IncrementTotalDecKeyCount();
+    for (const auto& s : utils::split(str, '|')) {
+        pieces.push_back(WordPiece(s, 1, 0));
+    }
+    WORD_LATTICE->addPieces(pieces, FollowingPreferenceType::Any, true, false, false);
+}
+
 String WordPiece::debugString() const {
     String result(L"<'");
     result.append(to_wstr(_rewriteNode ? _rewriteNode->getString() : _pieceStr));

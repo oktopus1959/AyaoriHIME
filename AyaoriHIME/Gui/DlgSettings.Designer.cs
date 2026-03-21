@@ -628,6 +628,9 @@ namespace KanchokuWS.Gui
             this.checkBox_bushuDicLogEnabled = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.groupBox54 = new System.Windows.Forms.GroupBox();
+            this.button_analyze = new System.Windows.Forms.Button();
+            this.textBox_analyzeTarget = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -695,6 +698,7 @@ namespace KanchokuWS.Gui
             this.tabPage_develop.SuspendLayout();
             this.groupBox15.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAbout)).BeginInit();
+            this.groupBox54.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -7079,6 +7083,7 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_register
             // 
+            this.tabPage_register.Controls.Add(this.groupBox54);
             this.tabPage_register.Controls.Add(this.label_okResultRegister);
             this.tabPage_register.Controls.Add(this.button_registerClose);
             this.tabPage_register.Controls.Add(this.button_registerEnter);
@@ -7862,6 +7867,39 @@ namespace KanchokuWS.Gui
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // groupBox54
+            // 
+            this.groupBox54.Controls.Add(this.button_analyze);
+            this.groupBox54.Controls.Add(this.textBox_analyzeTarget);
+            this.groupBox54.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.groupBox54.Location = new System.Drawing.Point(6, 185);
+            this.groupBox54.Name = "groupBox54";
+            this.groupBox54.Size = new System.Drawing.Size(410, 52);
+            this.groupBox54.TabIndex = 28;
+            this.groupBox54.TabStop = false;
+            this.groupBox54.Text = "形態素解析・Ngram解析";
+            // 
+            // button_analyze
+            // 
+            this.button_analyze.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_analyze.Location = new System.Drawing.Point(346, 19);
+            this.button_analyze.Name = "button_analyze";
+            this.button_analyze.Size = new System.Drawing.Size(60, 21);
+            this.button_analyze.TabIndex = 1;
+            this.button_analyze.Text = "実行";
+            this.button_analyze.UseVisualStyleBackColor = true;
+            this.button_analyze.Click += new System.EventHandler(this.button_analyze_Click);
+            // 
+            // textBox_analyzeTarget
+            // 
+            this.textBox_analyzeTarget.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_analyzeTarget.Location = new System.Drawing.Point(16, 18);
+            this.textBox_analyzeTarget.Name = "textBox_analyzeTarget";
+            this.textBox_analyzeTarget.Size = new System.Drawing.Size(324, 23);
+            this.textBox_analyzeTarget.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.textBox_analyzeTarget, resources.GetString("textBox_analyzeTarget.ToolTip"));
+            // 
             // DlgSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -8009,6 +8047,8 @@ namespace KanchokuWS.Gui
             this.groupBox15.ResumeLayout(false);
             this.groupBox15.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAbout)).EndInit();
+            this.groupBox54.ResumeLayout(false);
+            this.groupBox54.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -8613,5 +8653,8 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Button button_openUserNgramFile;
         private System.Windows.Forms.CheckBox checkBox_hiraganaQuadgramEnabled;
         private System.Windows.Forms.CheckBox checkBox_hiraganaBigramEnabled;
+        private System.Windows.Forms.GroupBox groupBox54;
+        private System.Windows.Forms.Button button_analyze;
+        private System.Windows.Forms.TextBox textBox_analyzeTarget;
     }
 }

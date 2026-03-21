@@ -697,17 +697,17 @@ namespace lattice2 {
             const size_t beamSize = SETTINGS->multiStreamBeamSize;
             const size_t beamSize2 = beamSize + (int)(beamSize * SETTINGS->extraBeamSizeRate);
             bool bNonPaddingFound = false;  // Padding piece を含まない候補が見つかったか
-            size_t pos = 0;
+            size_t candCount = 0;
             size_t pickCount = 0;
             if (!newCandidates.empty()) {
                 const MString& topStr = newCandidates.front().string();
                 MString topHead;
-                if (SETTINGS->variableTailLength > 0 && (size_t)SETTINGS->variableTailLength < topStr.size()) {
-                    // variableTailLength より前の部分が、kBestのトップの文字列と異なる候補は削除する
-                    topHead = topStr.substr(0, topStr.size() - SETTINGS->variableTailLength);
-                }
-                while (pos < newCandidates.size()) {
-                    auto iter = newCandidates.begin() + pos;
+                //if (SETTINGS->variableTailLength > 0 && (size_t)SETTINGS->variableTailLength < topStr.size()) {
+                //    // variableTailLength より前の部分が、kBestのトップの文字列と異なる候補は削除する
+                //    topHead = topStr.substr(0, topStr.size() - SETTINGS->variableTailLength);
+                //}
+                while (candCount < newCandidates.size()) {
+                    auto iter = newCandidates.begin() + candCount;
                     const MString& str = iter->string();
                     const MString uni = str.size() >= 1 ? utils::safe_tailstr(str, 1) : EMPTY_MSTR;
                     const MString bi = str.size() >= 2 ? utils::safe_tailstr(str, 2) : EMPTY_MSTR;
@@ -716,32 +716,32 @@ namespace lattice2 {
                     if (topHead.size() == 0 || utils::startsWith(str, topHead)) {
                         // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
                         if (!bNonPaddingFound || iter->penalty() < PADDING_PENALTY) {
-                            if (pos < beamSize) {
+                            if (candCount < beamSize) {
                                 if (!uni.empty()) uniGrams.insert(uni);
                                 if (!bi.empty()) biGrams.insert(bi);
                                 if (!tri.empty()) triGrams.insert(tri);
-                                _LOG_DETAIL(_T("[{}] PICK: {}: OK"), pos, iter->debugString());
-                                ++pos;
+                                _LOG_DETAIL(_T("[{}] PICK: {}: OK"), candCount, iter->debugString());
+                                ++candCount;
                                 ++pickCount;
                                 continue;
                             } else {
-                                if (IS_LOG_DEBUGH_ENABLED && pos == beamSize) {
-                                    _LOG_DETAIL(_T("pos reached at beamSize={}, beamSize2={}"), beamSize, beamSize2);
+                                if (IS_LOG_DEBUGH_ENABLED && candCount == beamSize) {
+                                    _LOG_DETAIL(_T("count reached at beamSize={}, beamSize2={}"), beamSize, beamSize2);
                                     _LOG_DETAIL(_T("tail 1grams={}"), to_wstr(utils::join(uniGrams, ',')));
                                     _LOG_DETAIL(_T("tail 2gams={}"), to_wstr(utils::join(biGrams, ',')));
                                     _LOG_DETAIL(_T("tail 3grams={}"), to_wstr(utils::join(triGrams, ',')));
                                 }
                                 if (iter->isNonTerminal()) {
                                     // 非終端は残す(pickCountしない)
-                                    _LOG_DETAIL(_T("[{}]: PICK: {}: non terminal"), pos, iter->debugString());
-                                    ++pos;
+                                    _LOG_DETAIL(_T("[{}]: PICK: {}: non terminal"), candCount, iter->debugString());
+                                    ++candCount;
                                     continue;
                                 }
                                 if (!uni.empty() && uniGrams.find(uni) == uniGrams.end()) {
                                     // 未見のunigramは残す(pickCountしない)
                                     uniGrams.insert(uni);
-                                    _LOG_DETAIL(_T("[{}] PICK: {}: uniGram({}) OK, uniGrams.size={}"), pos, iter->debugString(), to_wstr(uni), uniGrams.size());
-                                    ++pos;
+                                    _LOG_DETAIL(_T("[{}] PICK: {}: uniGram({}) OK, uniGrams.size={}"), candCount, iter->debugString(), to_wstr(uni), uniGrams.size());
+                                    ++candCount;
                                     continue;
                                 }
                                 if (pickCount < beamSize2) {
@@ -749,16 +749,16 @@ namespace lattice2 {
                                     if (!tri.empty() && triGrams.find(tri) == triGrams.end()) {
                                         // 未見のtrigramであり、まだ余裕がある
                                         triGrams.insert(tri);
-                                        _LOG_DETAIL(_T("[{}] PICK: {}: triGram({}) OK, triGrams.size={}"), pos, iter->debugString(), to_wstr(tri), triGrams.size());
-                                        ++pos;
+                                        _LOG_DETAIL(_T("[{}] PICK: {}: triGram({}) OK, triGrams.size={}"), candCount, iter->debugString(), to_wstr(tri), triGrams.size());
+                                        ++candCount;
                                         ++pickCount;
                                         continue;
                                     }
                                     if (!bi.empty() && biGrams.find(bi) == biGrams.end()) {
                                         // 未見のbigramであり、まだ余裕がある
                                         biGrams.insert(bi);
-                                        _LOG_DETAIL(_T("[{}] PICK: {}: biGram({}) OK, biGrams.size={}"), pos, iter->debugString(), to_wstr(bi), biGrams.size());
-                                        ++pos;
+                                        _LOG_DETAIL(_T("[{}] PICK: {}: biGram({}) OK, biGrams.size={}"), candCount, iter->debugString(), to_wstr(bi), biGrams.size());
+                                        ++candCount;
                                         ++pickCount;
                                         continue;
                                     }
@@ -766,12 +766,12 @@ namespace lattice2 {
                             }
                         }
                     }
-                    _LOG_DETAIL(_T("[{}] ERASE: {}"), pos, iter->debugString());
+                    _LOG_DETAIL(_T("[{}] ERASE: {}"), candCount, iter->debugString());
                     newCandidates.erase(iter);
                 }
             }
-            if (pos < newCandidates.size()) {
-                newCandidates.resize(pos);
+            if (candCount < newCandidates.size()) {
+                newCandidates.resize(candCount);
             }
             _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
             if (newCandidates.size() > maxCandidatesSize) {

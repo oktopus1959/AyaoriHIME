@@ -3154,6 +3154,10 @@ namespace KanchokuWS.Gui
             comboBox_ctrlKey_setItems(comboBox_vkbShowHideTemporaryKey);
         }
 
+        private void button_analyze_Click(object sender, EventArgs e)
+        {
+            frmMain.ExecCmdDecoder("doMorphAndNgramAnalysis", textBox_analyzeTarget.Text);
+        }
     }
 }
 

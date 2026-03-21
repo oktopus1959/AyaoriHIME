@@ -192,6 +192,8 @@ public:
     // リアルタイムNgram辞書のパラメータ設定
     static void setRealtimeDictParameters();
 
+    static void doMorphAndNgramAnalysis(const MString& str);
+
     static std::unique_ptr<Lattice2> Singleton;
 
     //static void loadCostFile();
