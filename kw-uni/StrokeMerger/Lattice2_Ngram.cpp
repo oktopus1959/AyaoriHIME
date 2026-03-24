@@ -623,6 +623,43 @@ namespace lattice2 {
         return 0;
     }
 
+//#define SUCCESSIVE_HIRAGANA_LEN 8
+//#define LONG_HIRAGANA_LEN 4
+//#define SUCCESSIVE_HIRAGANA_COST 5000
+//
+//    // 8文字以上連続するひらがな列は、その中に 4gram 以上の長さのひらがな列が存在しなければ、コスト増(SUCCESSIVE_HIRAGANA_COST)となる
+//    int calcSuccessiveHiraganaCost(const std::vector<MString>& morphs) {
+//        size_t hiraganaSeqLen = 0;
+//        bool hasLongHiragana = false;
+//        int cost = 0;
+//        for (const auto& morph : morphs) {
+//            size_t tabPos = morph.find(L'\t');
+//            if (tabPos >= morph.size()) tabPos = morph.size();
+//            MString word = morph.substr(0, tabPos);
+//            if (std::all_of(word.begin(), word.end(), [](mchar_t ch) { return utils::is_hiragana(ch) || (wchar_t)ch == L'〓'; })) {
+//                size_t wordLen = word.size();
+//                hiraganaSeqLen += wordLen;
+//                if (wordLen >= LONG_HIRAGANA_LEN) {
+//                    hasLongHiragana = true;
+//                }
+//                _LOG_DETAIL(L"HIRAGANA word={}, wordLen={}, hiraganaSeqLen={}, hasLongHiragana={}", to_wstr(word), wordLen, hiraganaSeqLen, hasLongHiragana);
+//            } else {
+//                _LOG_DETAIL(L"NON-HIRAGANA word={}", to_wstr(word));
+//                if (hiraganaSeqLen >= SUCCESSIVE_HIRAGANA_LEN && !hasLongHiragana) {
+//                    cost += SUCCESSIVE_HIRAGANA_COST;
+//                    _LOG_DETAIL(L"Successive hiragana cost applied: cost={}", SUCCESSIVE_HIRAGANA_COST);
+//                }
+//                hiraganaSeqLen = 0;
+//                hasLongHiragana = false;
+//            }
+//        }
+//        if (hiraganaSeqLen >= SUCCESSIVE_HIRAGANA_LEN && !hasLongHiragana) {
+//            cost += SUCCESSIVE_HIRAGANA_COST;
+//            _LOG_DETAIL(L"Successive hiragana cost applied: cost={}", SUCCESSIVE_HIRAGANA_COST);
+//        }
+//        return cost;
+//    }
+
     // Ngramコストの取得
     int getNgramCost(const MString& str, const std::vector<MString>& morphs, bool bUseGeta) {
         _LOG_DETAIL(L"\nENTER: str={}: geta={}, morphs={}", to_wstr(str), bUseGeta, to_wstr(utils::join(morphs, L'|')));
@@ -635,6 +672,7 @@ namespace lattice2 {
         if (utils::reMatch(to_wstr(targetStr), kanjiDateTime)) {
             cost -= calcNgramBonus(DATE_PATTERN_BONUMS_POINT);
         }
+        //cost += calcSuccessiveHiraganaCost(morphs);
         _LOG_DETAIL(L"LEAVE: str={}: initialCost={}, resultCost={}, adjustedCost={} (* NGRAM_COST_FACTOR({}))\n",
             to_wstr(str), cost0, cost, cost * SETTINGS->ngramCostFactor, SETTINGS->ngramCostFactor);
         return cost;

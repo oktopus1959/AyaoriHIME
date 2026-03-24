@@ -78,6 +78,9 @@ namespace node
         int _accumCost = 0;
         int _accumCost2 = 0;
 
+        //// 連続するひらがなの累積長
+        //int _succHiraganaLen = 0;
+
     public:
         inline RangeStringPtr surface() const { return _surface; }
 
