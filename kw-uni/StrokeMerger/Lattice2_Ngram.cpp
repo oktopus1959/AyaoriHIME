@@ -263,6 +263,17 @@ namespace lattice2 {
                     //}
                     _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str));
                     _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str);
+                } else if (i + 1 < str.size()) {
+                    // 先頭以外で、後続する文字がある場合は、先頭からの〓付きも調べる
+                    if (i == 1 && (pKanji || kanji)) {
+                        // 先頭から2文字目にかけて、漢字が含まれるパターンの場合
+                        _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str.substr(0, 2)));
+                        _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(0, 2));
+                    } else if (i > 1) {
+                        // 先頭から3文字目以降の場合は、ひらがなのみのパターンも含めて調べる
+                        _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str.substr(0, i + 1)));
+                        _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(0, i + 1));
+                    }
                 }
                 if (i >= 2 && !ppKanji && pKanji && !kanji) {
                     // 「非漢字-漢字-非漢字」のパターンの場合は、漢字1文字についても調べる
@@ -270,6 +281,7 @@ namespace lattice2 {
                     _gatherSelectedNgramPairBonus(resultSet, str.substr(i - 1, 1));
                 }
                 for (size_t len = 2; len <= MAX_SELECTED_NGRAM_LEN && i + len <= str.size(); ++len) {
+                    // 2文字以上の差分についてはGETA(〓)なしパターンも調べる
                     _gatherSelectedNgramPairBonus(resultSet, str.substr(i, len));
                 }
             }
@@ -387,7 +399,12 @@ namespace lattice2 {
     }
 
     // 候補選択による、SelectedNgramの更新
-    // 
+    // 対となるのは
+    //   - GETA(〓)付きの先頭Ngram
+    //   - 「非漢字-漢字-非漢字」のパターンの漢字1文字
+    //   - 漢字のみの2gram以上
+    //   - それ以外の3gram以上
+    //   - 短い差分で、どちらかにひらがなが含まれる場合は、前後の文字も含めて更新
     void updateSelectedNgramByUserSelect(const MString& oldCand, const MString& newCand) {
         LOG_INFOH(L"ENTER: oldCand={}, newCand={}", to_wstr(oldCand), to_wstr(newCand));
         size_t baseSize = oldCand.size();
@@ -401,6 +418,7 @@ namespace lattice2 {
             size_t len1 = endPos1 - startPos;
             size_t len2 = endPos2 - startPos;
 
+            // 共に1文字の差分、またはどちらかが2文字以下でひらがなを含む差分の場合は、短い差分として扱う
             auto checkShortDiff = [&]() -> bool {
                 if (len1 == 1 || len2 == 1) {
                     return true;
@@ -420,7 +438,7 @@ namespace lattice2 {
                 // 先頭だったら、〓を前に追加して処理する
                 if (xlen1 <= 2 && xlen2 <= 2) {
                     if (xlen1 + 1 <= baseSize && xlen2 + 1 <= diffSize) {
-                        // 両者ともに2文字以下の差分の場合は、後ろ1文字も含めて処理する
+                        // 両者ともに2文字以下の差分の場合は、可能なら後ろ1文字も含めて処理する
                         LOG_INFOH(L"append postfix char");
                         ++xlen1;
                         ++xlen2;
@@ -438,17 +456,24 @@ namespace lattice2 {
             };
 
             if (checkShortDiff()) {
-                // 2文字以下の差分の場合は、前後の1文字を含めて更新する
+                // 短い差分の場合は、前後の文字を含めて更新する
                 LOG_INFOH(L"short diff");
                 if (startPos == 0) {
                     // 先頭だったら、〓を前に追加して処理する
-                    addShortPairWithGeta(len1, len2);
+                    if ((len1 <= 2 || len2 <= 2) && len1 + 1 <= baseSize && len2 + 1 <= diffSize) {
+                        // どちらかが2文字以下で後に文字が続くなら、後の1文字も含めて処理する
+                        LOG_INFOH(L"append GETA and postfix char: startPos={}, len1={}, len2={}", startPos, len1 + 1, len2 + 1);
+                        addShortPairWithGeta(len1 + 1, len2 + 1);
+                    } else {
+                        LOG_INFOH(L"append GETA: startPos={}, len1={}, len2={}", startPos, len1, len2);
+                        addShortPairWithGeta(len1, len2);
+                    }
                 } else {
                     // 先頭以外の短い差分の場合
                     if (len1 == 1 && len2 == 1 && baseSize > startPos + 1 && diffSize > startPos + 1 &&
                         utils::is_kanji(oldCand[startPos]) && utils::is_kanji(newCand[startPos]) &&
                         !utils::is_kanji(oldCand[startPos - 1]) && !utils::is_kanji(oldCand[startPos + 1])) {
-                        // 文字列中の漢字1文字だけが異なっている場合
+                        // 文字列中の漢字1文字だけが異なっている場合(比較の時も漢字1文字だけが異なっている場合にその1文字だけを差分として処理する)
                         LOG_INFOH(L"pair with only 1 kanji");
                         addPair(startPos, 1, 1);
                         //selectedNgramInstance.updateSelectedNgram(
@@ -457,29 +482,37 @@ namespace lattice2 {
                     } else {
                         if (startPos == 1) {
                             // 1文字目だったら、〓と先頭文字を前に追加して処理する
-                            LOG_INFOH(L"append GETA and prefix char: startPos=0, len1={}, len2={}", len1 + 1, len2 + 1);
-                            addShortPairWithGeta(len1, len2);
+                            if (startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
+                                LOG_INFOH(L"append GETA and prefix and postfix chars: startPos=0, len1={}, len2={}", len1 + 1, len2 + 1);
+                                addShortPairWithGeta(len1 + 1, len2 + 1);
+                            } else {
+                                LOG_INFOH(L"append GETA and prefix char: startPos=0, len1={}, len2={}", len1 + 1, len2 + 1);
+                                addShortPairWithGeta(len1, len2);
+                            }
                         } else {
-                            // 前後の1文字も含めて処理する
-                            if ((len1 == 1 || len2 == 1) && startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
-                                // 差分のどちらかが1文字の場合は、前後の1文字も含めて3文字で処理する
+                            // 2文字目以降の場合
+                            // 前後の文字も含めて処理する
+                            if (startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
+                                // 後続文字があれば、前後の1文字も含めて3文字以上で処理する
                                 LOG_INFOH(L"append prefix and postfix char: startPos={}, len1={}, len2={}", startPos - 1, len1 + 2, len2 + 2);
                                 addPair(startPos - 1, len1 + 2, len2 + 2);
                             } else {
-                                // 前の1文字も含めて処理する
-                                LOG_INFOH(L"append prefix char: startPos={}, len1={}, len2={}", startPos - 1, len1, len2);
-                                addPair(startPos - 1, len1, len2);
-                                if (startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
-                                    // 後の1文字も含めて処理する
-                                    LOG_INFOH(L"append postfix char: startPos={}, len1={}, len2={}", startPos, len1 + 1, len2 + 1);
-                                    addPair(startPos, len1 + 1, len2 + 1);
+                                // 後続文字がない場合
+                                if (len1 == 1 || len2 == 1) {
+                                    // どちらかが1文字の差分の場合は、前の2文字を含めて3文字以上で処理する
+                                    LOG_INFOH(L"append prefix 2 chars: startPos={}, len1={}, len2={}", startPos - 2, len1 + 2, len2 + 2);
+                                    addPair(startPos - 2, len1 + 2, len2 + 2);
+                                } else {
+                                    // 両者とも2文字以上の差分の場合は、前の1文字を含めて3文字以上で処理する
+                                    LOG_INFOH(L"append prefix char: startPos={}, len1={}, len2={}", startPos - 1, len1 + 1, len2 + 1);
+                                    addPair(startPos - 1, len1 + 1, len2 + 1);
                                 }
                             }
                         }
                     }
                 }
             } else if (len1 <= MAX_SELECTED_NGRAM_LEN && len2 <= MAX_SELECTED_NGRAM_LEN) {
-                // 3~5文字の差分の場合は、そのまま更新する
+                // 3~5文字の差分または両者とも漢字のみの差分の場合は、そのまま更新する
                 LOG_INFOH(L"long diff");
                 selectedNgramInstance.updateSelectedNgram(
                     newCand.substr(startPos, len2),
