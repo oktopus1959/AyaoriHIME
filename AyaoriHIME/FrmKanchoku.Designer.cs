@@ -212,7 +212,7 @@
             this.Name = "FrmKanchoku";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "KanchokuWS";
+            this.Text = "漢織媛";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmKanchoku_FormClosing);
             this.Load += new System.EventHandler(this.FrmKanchoku_Load);
             this.contextMenuStrip1.ResumeLayout(false);

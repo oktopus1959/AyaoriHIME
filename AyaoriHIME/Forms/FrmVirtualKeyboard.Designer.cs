@@ -269,7 +269,7 @@ namespace KanchokuWS
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "漢直窓 WS";
+            this.Text = "漢織媛";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmVirtualKeyboard_FormClosing);
             this.Load += new System.EventHandler(this.DlgVirtualKeyboard_Load);
