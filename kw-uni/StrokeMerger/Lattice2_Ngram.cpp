@@ -160,8 +160,9 @@ namespace lattice2 {
             if (bUpdated) {
                 LOG_INFOH(_T("Selected Ngram updated. Saving to file..."));
                 auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
-                LOG_INFOH(_T("SAVE SELECTED: {}"), path.c_str());
-                utils::OfstreamWriter writer(path);
+                auto pathTmp = path + L".tmp";
+                LOG_INFOH(_T("SAVE SELECTED: {}"), pathTmp.c_str());
+                utils::OfstreamWriter writer(pathTmp);
                 if (writer.success()) {
                     for (const auto& entry : selectedNgrams) {
                         writer.writeLine(std::format(L"{}\t{}", to_wstr(entry.first), entry.second));
@@ -169,6 +170,8 @@ namespace lattice2 {
                 }
                 bUpdated = false;
                 LOG_INFOH(_T("DONE"));
+                // pathTmp ファイルのサイズが pathTmp ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
+                utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, SETTINGS->backFileRotationGeneration);
             }
         }
 
