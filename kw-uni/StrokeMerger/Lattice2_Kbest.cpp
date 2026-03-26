@@ -188,6 +188,9 @@ namespace lattice2 {
     private:
         std::vector<bool> _highFreqJoshiStroke;
         std::vector<bool> _rollOverStroke;
+        MString _prevTopCandidateString;
+        std::vector<int> _leaderPrefixStableCounts;
+        size_t _fixedLeaderPrefixLen = 0;
 
         void setHighFreqJoshiStroke(int count, mchar_t ch) {
             if (count >= 0 && count < 1024) {
@@ -220,6 +223,63 @@ namespace lattice2 {
             return minLen == SIZE_MAX ? 0 : minLen;
         }
 
+        // 先頭部固定の判定状態をリセットする
+        void resetFixedLeaderPrefixState() {
+            _prevTopCandidateString.clear();
+            _leaderPrefixStableCounts.clear();
+            _fixedLeaderPrefixLen = 0;
+        }
+
+        // 先頭候補の各文字位置について、同じ文字が連続して現れた回数を更新し、固定 prefix 長を再計算する
+        void updateFixedLeaderPrefixState(const MString& topStr) {
+            int threshold = SETTINGS->fixLeaderCharStrokeCount;
+            if (threshold <= 0 || topStr.empty()) {
+                resetFixedLeaderPrefixState();
+                return;
+            }
+
+            std::vector<int> counts(topStr.size(), 1);
+            size_t commonLen = 0;
+            while (commonLen < topStr.size() && commonLen < _prevTopCandidateString.size() &&
+                topStr[commonLen] == _prevTopCandidateString[commonLen]) {
+                ++commonLen;
+            }
+
+            for (size_t i = 0; i < commonLen; ++i) {
+                counts[i] = i < _leaderPrefixStableCounts.size() ? _leaderPrefixStableCounts[i] + 1 : 2;
+            }
+
+            _prevTopCandidateString = topStr;
+            _leaderPrefixStableCounts = std::move(counts);
+            _fixedLeaderPrefixLen = 0;
+            while (_fixedLeaderPrefixLen < _leaderPrefixStableCounts.size() &&
+                _leaderPrefixStableCounts[_fixedLeaderPrefixLen] >= threshold) {
+                ++_fixedLeaderPrefixLen;
+            }
+            _LOG_DETAIL(L"topStr={}, fixedLeaderPrefixLen={}, stableCounts={}",
+                to_wstr(topStr), _fixedLeaderPrefixLen, utils::join(_leaderPrefixStableCounts, L", "));
+        }
+
+        // 固定済み prefix を持たない候補を候補列から除外する
+        void applyFixedLeaderPrefixFilter() {
+            if (_fixedLeaderPrefixLen == 0 || _candidates.size() <= 1) return;
+
+            MString prefix = utils::safe_substr(_candidates.front().string(), 0, _fixedLeaderPrefixLen);
+            int topStrokeLen = _candidates.front().strokeLen();
+            size_t idx = 1;
+            while (idx < _candidates.size()) {
+                if (_candidates[idx].strokeLen() < topStrokeLen) {
+                    // これより後は、ストローク長が短い候補しかないので、ループを抜ける
+                    break;
+                } else if (!utils::startsWith(_candidates[idx].string(), prefix)) {
+                    _LOG_DETAIL(L"erase by fixed leader prefix: prefix={}, cand={}", to_wstr(prefix), _candidates[idx].debugString());
+                    _candidates.erase(_candidates.begin() + idx);
+                } else {
+                    ++idx;
+                }
+            }
+        }
+
     public:
         //void setPrevBS(bool flag) override {
         //    _prevBS = flag;
@@ -250,6 +310,7 @@ namespace lattice2 {
             _highFreqJoshiStroke.clear();
             _rollOverStroke.clear();
             _origFirstCand = -1;
+            resetFixedLeaderPrefixState();
             //_extendedCandNum = 0;
             if (clearAll) {
                 //clearKanjiXorHiraganaPreferredNext();
@@ -687,7 +748,7 @@ namespace lattice2 {
         }
 
         // beamSize を超えた部分を削除する
-        // また、variableTailLength より前の部分が、kBestのトップの文字列と異なる候補は削除する
+        // また、SETTINGS->fixLeaderCharStrokeCount で指定されたストローク数以上、先頭部が同じ文字の場合にその部分を固定する
         // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
         void truncateTailCandidates(std::vector<CandidateString>& newCandidates) {
             _LOG_DETAIL(_T("ENTER: newCandidates.size={}, beamSieze={}, extraBeamSizeRate={}"), newCandidates.size(), SETTINGS->multiStreamBeamSize, SETTINGS->extraBeamSizeRate);
@@ -700,12 +761,7 @@ namespace lattice2 {
             size_t candCount = 0;
             size_t pickCount = 0;
             if (!newCandidates.empty()) {
-                const MString& topStr = newCandidates.front().string();
                 MString topHead;
-                //if (SETTINGS->variableTailLength > 0 && (size_t)SETTINGS->variableTailLength < topStr.size()) {
-                //    // variableTailLength より前の部分が、kBestのトップの文字列と異なる候補は削除する
-                //    topHead = topStr.substr(0, topStr.size() - SETTINGS->variableTailLength);
-                //}
                 while (candCount < newCandidates.size()) {
                     auto iter = newCandidates.begin() + candCount;
                     const MString& str = iter->string();
@@ -1148,6 +1204,7 @@ namespace lattice2 {
             _LOG_DETAIL(_T("ENTER: _candidates.size()={}, pieces.size()={}, prefType={}, useMorphAnalyzer={}, currentStrokeCount={}, strokeBack={}"),
                 _candidates.size(), pieces.size(), to_string(prefType), useMorphAnalyzer, currentStrokeCount, strokeBack);
             _debugLog.clear();
+            bool bCandidateSelecting = _origFirstCand >= 0;
 
             setRollOverStroke(currentStrokeCount - 1, STATE_COMMON->IsRollOverStroke());
 
@@ -1183,8 +1240,15 @@ namespace lattice2 {
             //if (!_candidates.empty()) {
             //    if (isKanjiKatakanaConsecutive(_candidates.front())) selectFirst();
             //}
-            // 指定の打鍵回数分、解の先頭部分が同じなら、それらだけを残す (ただし、候補の選択状態でない場合)
-            //if (_origFirstCand < 0) commitOnlyWithSameLeaderString();
+
+            // ストローク戻しや候補選択中は、先頭候補の安定判定を引き継がない
+            if (strokeBack || bCandidateSelecting) {
+                resetFixedLeaderPrefixState();
+            } else if (!_candidates.empty()) {
+                // 通常更新時は先頭候補の安定度を更新し、固定済み prefix を持たない候補を抑制する
+                updateFixedLeaderPrefixState(_candidates.front().string());
+                applyFixedLeaderPrefixFilter();
+            }
             _LOG_DETAIL(_T("LEAVE: _candidates.size()={}"), _candidates.size());
         }
 

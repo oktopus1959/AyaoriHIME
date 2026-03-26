@@ -253,6 +253,9 @@ namespace KanchokuWS
         /// <summary>入力の末尾部分で、可変となる部分の長さ</summary>
         public static int VariableTailLength { get; set; }
 
+        /// <summary>指定されたストローク数以上、先頭部が同じ文字の場合にその部分を固定するための、ストローク長の閾値</summary>
+        public static int FixLeaderCharStrokeCount { get; set; }
+
         /// <summary>解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数</summary>
         public static int ChallengeNumForSameLeader { get; set; }
 
@@ -1920,6 +1923,7 @@ namespace KanchokuWS
             ExtraBeamSizeRate = addDecoderSetting("extraBeamSizeRate", 0.5);                    // 余分に残しておく候補の割合
             RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲
             VariableTailLength = addDecoderSetting("variableTailLength", 10, 5);                // 入力の末尾部分で、可変となる部分の長さ
+            FixLeaderCharStrokeCount = addDecoderSetting("fixLeaderCharStrokeCount", 10);       // 指定されたストローク数以上、先頭部が同じ文字の場合にその部分を固定するための、ストローク長の閾値
             ChallengeNumForSameLeader = addDecoderSetting("challengeNumForSameLeader", 4);      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
             KanjiNoKanjiBonus = addDecoderSetting("kanjiNoKanjiBonus", 1500);                   // 「漢字+の+漢字」のような場合に与えるボーナス
             MergerCandidateMin = addDecoderSetting("mergerCandidateMin", 3, 0, 10);             // 複数候補表示の最小数

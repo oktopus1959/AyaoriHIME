@@ -1899,7 +1899,7 @@ namespace KanchokuWS.Gui
             checkBox_hiraganaQuadgramEnabled.Checked = Settings.HiraganaQuadgramEnabled;
             textBox_maxStrokeBackCount.Text = $"{Settings.MaxStrokeBackCount}";
             textBox_analyzeMorphLen.Text = $"{Settings.AnalyzeMorphLen}";
-            textBox_challengeNumForSameLeader.Text = $"{Settings.ChallengeNumForSameLeader}";
+            textBox_fixLeaderCharStrokeCount.Text = $"{Settings.FixLeaderCharStrokeCount}";
             comboBox_editBufferCaretChar.Text = $"{Settings.EditBufferCaretChar}";
             if (comboBox_editBufferCaretChar.Text._isEmpty() && comboBox_editBufferCaretChar.Text._isEmpty()) {
                 selectComboBoxItem(comboBox_editBufferCaretChar, "▴");
@@ -1950,7 +1950,7 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(checkBox_hiraganaQuadgramEnabled);
             checkerFusion.Add(textBox_maxStrokeBackCount);
             checkerFusion.Add(textBox_analyzeMorphLen);
-            checkerFusion.Add(textBox_challengeNumForSameLeader);
+            checkerFusion.Add(textBox_fixLeaderCharStrokeCount);
             checkerFusion.Add(comboBox_editBufferCaretChar);
             checkerFusion.Add(textBox_editBufferFlushChar);
             checkerFusion.Add(checkBox_isEnterFlushAndDirectInput);
@@ -1999,7 +1999,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("hiraganaQuadgramEnabled", checkBox_hiraganaQuadgramEnabled.Checked);
             Settings.SetUserIni("maxStrokeBackCount", textBox_maxStrokeBackCount.Text);
             Settings.SetUserIni("analyzeMorphLen", textBox_analyzeMorphLen.Text);
-            Settings.SetUserIni("challengeNumForSameLeader", textBox_challengeNumForSameLeader.Text);
+            Settings.SetUserIni("fixLeaderCharStrokeCount", textBox_fixLeaderCharStrokeCount.Text);
             Settings.SetUserIni("editBufferCaretChar", comboBox_editBufferCaretChar.Text.Trim());
             Settings.SetUserIni("editBufferFlushChar", textBox_editBufferFlushChar.Text.Trim());
             Settings.SetUserIni("isEnterFlushAndDirectInput", checkBox_isEnterFlushAndDirectInput.Checked);
