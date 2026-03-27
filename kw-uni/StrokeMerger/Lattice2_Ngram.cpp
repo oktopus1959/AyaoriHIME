@@ -496,9 +496,12 @@ namespace lattice2 {
                             // 2文字目以降の場合
                             // 前後の文字も含めて処理する
                             if (startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
-                                // 後続文字があれば、前後の1文字も含めて3文字以上で処理する
-                                LOG_INFOH(L"append prefix and postfix char: startPos={}, len1={}, len2={}", startPos - 1, len1 + 2, len2 + 2);
-                                addPair(startPos - 1, len1 + 2, len2 + 2);
+                                //// 後続文字があれば、前後の1文字も含めて3文字以上で処理する
+                                //LOG_INFOH(L"append prefix and postfix char: startPos={}, len1={}, len2={}", startPos - 1, len1 + 2, len2 + 2);
+                                //addPair(startPos - 1, len1 + 2, len2 + 2);
+                                // 後続文字があれば、その1文字も含めて3文字以上で処理する
+                                LOG_INFOH(L"append postfix char: startPos={}, len1={}, len2={}", startPos, len1 + 1, len2 + 1);
+                                addPair(startPos, len1 + 1, len2 + 1);
                             } else {
                                 // 後続文字がない場合
                                 if (len1 == 1 || len2 == 1) {
