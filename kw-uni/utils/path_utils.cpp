@@ -101,8 +101,10 @@ namespace utils {
     // - ただし、直近3時間以内のバックアップは最新 genNum 件と最古の 1 件を残す
     // - bCopy が true の場合はコピー、false の場合は移動する
     bool moveFileToBackDirWithRotationEx(StringRef path, int genNum, bool bCopy) {
+        // 退避元ファイルが存在しない場合は何もしない
+        if (!utils::isFileExistent(path)) return true;
+
         // 退避元ファイルの更新日時をバックアップ名に使う
-        if (!utils::isFileExistent(path)) return false;
         std::time_t lastWriteTime = 0;
         if (!getFileLastWriteTime(path, lastWriteTime)) return false;
 
