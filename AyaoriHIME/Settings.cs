@@ -349,6 +349,8 @@ namespace KanchokuWS
         //public static string HistoryNgramFile {get; private set; }
         //public static string MazegakiFile { get; private set; }
 
+        public static string KanaRomanFile { get; private set; } = "kana-roman.def.txt";
+
         //-------------------------------------------------------------------------------------
         // 詳細設定
         //-------------------------------------------------------------------------------------
