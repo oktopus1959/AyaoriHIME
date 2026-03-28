@@ -91,14 +91,15 @@ namespace analyzer {
             auto begin2 = rngStrPtr->skipSpace(pos);
 
             // ノードを作成してリストに追加するローカル関数
-            auto __addNewNode = [&](int wcost, size_t end2, int addCost = 0)
+            auto __addNewNode = [&](int wcost, size_t end2, int bonus = 0)
             {
                 //auto node = node::Node::Create(sentence->subString(begin2, end2));
                 auto nt = node::NodeType::NORMAL_NODE;
                 auto node = lattice.newNode(begin2, end2, nt);
                 //    node->posid   = token.posId;
                 if (maxLen < end2 - begin2) maxLen = end2 - begin2;
-                node->setWcost(wcost + addCost);
+                node->setWcost(wcost);
+                node->setBonus(bonus);
                 node->setRlength((int)(end2 - rngStrPtr->begin()));
                 //node->setStat(node::NodeType::NORMAL_NODE);
                 //node->isUnknown = isUnk;
@@ -118,10 +119,10 @@ namespace analyzer {
                     for (const auto& token : tokens) {
                         // 同一表層形の各Ngramごとにノードを作成
                         int bonus = length < bonusList.size() ? bonusList[length] : 0;
-                        __addNewNode(token->wcost - bonus, begin2 + length);
+                        __addNewNode(token->wcost, begin2 + length, bonus);
                         if (length < bonusList.size()) bonusList[length] = 0;  // 既に使用済み
                         if (bonus > 0) {
-                            LOG_DEBUGH(L"system ngram FOUND in bonusList: {}, cost={} (orig cost={} bonus={})", rngStrPtr->toString(begin2, begin2 + length), token->wcost - bonus, token->wcost, bonus);
+                            LOG_DEBUGH(L"system ngram FOUND in bonusList: {}, cost={} (orig cost={} BONUS={})", rngStrPtr->toString(begin2, begin2 + length), token->wcost - bonus, token->wcost, bonus);
                         }
                     }
                 }

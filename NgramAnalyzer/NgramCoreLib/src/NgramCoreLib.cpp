@@ -287,7 +287,7 @@ namespace NgramCoreLib {
      * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
      */
     int NgramAnalyze(StringRef sentence, StringRef tempEntries, std::vector<String>& ngrams, String& errMsg, bool needResults) {
-        LOG_INFO(L"ENTER: sentence={}, tempEntries={}", sentence, tempEntries);
+        LOG_INFOH(L"\nENTER: sentence={}, tempEntries={}", sentence, tempEntries);
         ERROR_HANDLER->Clear();
 
         try {
@@ -296,10 +296,10 @@ namespace NgramCoreLib {
             ngrams.clear();
             cost = viterbi->parseNBest(sentence, tempEntries, ngrams, nBest, needResults);
             if (ERROR_HANDLER->HasError()) {
-                LOG_INFO(L"LEAVE: ERROR");
+                LOG_INFOH(L"LEAVE: ERROR");
                 return ERROR_HANDLER->GetErrorInfo(errMsg);
             }
-            LOG_INFO(L"LEAVE: cost={}", cost);
+            LOG_INFOH(L"LEAVE: cost={}\n", cost);
             return cost;
         } catch (RuntimeException ex) {
             ERROR_HANDLER->Error(ex.getMessage());

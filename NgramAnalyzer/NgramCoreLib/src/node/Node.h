@@ -78,6 +78,12 @@ namespace node
         int _accumCost = 0;
         int _accumCost2 = 0;
 
+        // 単体Bonus
+        int _bonus = 0;
+
+        // 累積Bonus
+        int _accumBonus = 0;
+
         //// 連続するひらがなの累積長
         //int _succHiraganaLen = 0;
 
@@ -126,6 +132,12 @@ namespace node
 
         inline int accumCost2() const { return _accumCost2; }
         inline void setAccumCost2(int cost) { _accumCost2 = cost; }
+
+        inline int bonus() const { return _bonus; }
+        inline void setBonus(int bonus) { _bonus = bonus; }
+
+        inline int accumBonus() const { return _accumBonus; }
+        inline void setAccumBonus(int bonus) { _accumBonus = bonus; }
 
         inline Path* rpath() const { return _rpath; }
         inline void setRpath(Path* path) { _rpath = path; }

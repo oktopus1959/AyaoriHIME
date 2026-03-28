@@ -167,6 +167,59 @@ namespace analyzer {
         //    p = prev;
         //    prev = p->prev.get();
         //}
+#if _LOG_DEBUGH_FLAG
+        // BOSからEOSまでのノード列とコスト(接続コストも含む)をログに出力する
+        if (NgramCoreLib::Logger::IsInfoHEnabled()) {
+            Vector<const Node*> bestPath;
+            for (auto node = eosNode(); node != nullptr; node = node->prev()) {
+                bestPath.push_back(node);
+                if (node->isBOS()) break;
+            }
+
+            auto nodeLabel = [](const Node* node) -> String {
+                if (!node) return L"(null)";
+                if (node->isBOS()) return L"BOS";
+                if (node->isEOS()) return L"EOS";
+                return node->surface()->toString();
+            };
+
+            StringStream msg;
+            msg << L"\nBest path with cost:\n--------------------------------------------------\n";
+
+            int pathWordCost = 0;
+            int pathConnCost = 0;
+            int pathBonus = 0;
+
+            for (auto it = bestPath.rbegin(); it != bestPath.rend(); ++it) {
+                const Node* node = *it;
+                const Node* prev = node->prev();
+                int conn = 0;
+                if (prev) {
+                    conn = node->accumCost() - prev->accumCost() - node->wcost() + node->bonus();
+                    pathConnCost += conn;
+                }
+                pathWordCost += node->wcost();
+                pathBonus += node->bonus();
+
+                msg << nodeLabel(node)
+                    << L"\twcost=" << node->wcost()
+                    << L", bonus=" << node->bonus()
+                    << L", conn=" << conn
+                    << L", accum=" << node->accumCost();
+
+                msg << L"\n";
+            }
+
+            msg << L"totalWordCost=" << pathWordCost
+                << L", totalConnCost=" << pathConnCost
+                << L", totalBonus=" << pathBonus
+                << L", accumCost=" << accumCost
+                << L", extraConnCost=" << conCost
+                << L", bestCost=" << (accumCost + conCost) << L"\n";
+            msg << L"--------------------------------------------------\n";
+            LOG_INFOH(msg.str());
+        }
+#endif
         int bestCost = accumCost + conCost;
         LOG_INFOH(L"bestCost={}, sent={}", bestCost, sentence->toString());
         return bestCost;

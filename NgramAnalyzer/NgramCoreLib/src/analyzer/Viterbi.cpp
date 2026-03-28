@@ -17,6 +17,7 @@ namespace analyzer {
     int GLUE_BONUS_FACTOR = 1000;
     int GLUE_BONUS_MIN_LEN = 4;
     static const int kShortHiraganaPenalty = 2000;
+    static const int MaxAccumBonus = 10000;
 
     static const double kDefaultTheta = 0.75;
 
@@ -33,7 +34,7 @@ namespace analyzer {
             msg<< node->toVerbose() << L"\n";
         };
         msg<< L"--------------------------------------------------\n";
-        LOG_INFO(msg.str());
+        LOG_INFOH(msg.str());
     }
 #endif
 
@@ -78,7 +79,7 @@ namespace analyzer {
             auto bos_node = lattice->bosNode();
             auto eos_node = lattice->eosNode();
 
-            Vector<int>  glueNgramMaxLens(len + 1, 0); // 各位置におけるグルーピングNgramの最大長
+            Vector<int>  glueNgramMaxLens(len + 1, 0); // 各位置における、lookupされたNgram群の最大長
 
             // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
             tokenizer->resetTempDict(tempDictEntries);
@@ -141,18 +142,19 @@ namespace analyzer {
             LOG_DEBUGH(L"ENTER: isNbest={}", isNbest);
             int rnodeMaxLen = 0;
             for (const NodePtr rnode : rightNodes) {
-                LOG_DEBUGH(L"rnode={}", rnode->toVerbose());
+                LOG_DEBUGH(L"  rnode: BEGIN={}", rnode->toVerbose());
                 int best_cost = INT_MAX;
+                int best_accumBonus = 0;
                 NodePtr best_node = nullptr;
                 // rnodeに接続する lnodeのうち、最良コストのものを選出する
                 for (const NodePtr lnode : leftNodes) {
                     int connCost = 0; //connector->cost(*lnode, *rnode);  // connCost: connection cost
-                    LOG_DEBUGH(L"lnode={}, isShortHira={}", lnode->toVerbose() ,lnode->isShortHiragana());
+                    LOG_DEBUGH(L"    lnode={}, isShortHira={}", lnode->toVerbose() ,lnode->isShortHiragana());
                     if (lnode->isShortHiragana()) {
                         // 直前ノードが短いひらがな語の場合はペナルティを加算する
                         NodePtr llnode = lnode->prev();
-                        LOG_DEBUGH(L"rnode->isHeadHiragana={}", rnode->isHeadHiragana());
-                        LOG_DEBUGH(L"llnode->isTailHiragana={}", llnode && llnode->isTailHiragana());
+                        LOG_DEBUGH(L"      rnode->isHeadHiragana={}", rnode->isHeadHiragana());
+                        LOG_DEBUGH(L"      llnode->isTailHiragana={}", llnode && llnode->isTailHiragana());
                         if (rnode->isHeadHiragana() || (llnode && llnode->isTailHiragana())) {
                             connCost += kShortHiraganaPenalty;
                         }
@@ -163,7 +165,7 @@ namespace analyzer {
                         } else if (rnode->length() == 3) {
                             connCost -= UNKNOWN_OTHER_COST / 2;
                         }
-                        LOG_DEBUGH(L"lnode: GETA, rnode: KANJI, connCost={}", connCost);
+                        LOG_DEBUGH(L"      lnode: GETA, rnode: KANJI, connCost={}", connCost);
                     }
                     // GLUE ボーナスの適用
                     size_t chkPos = (int)pos <= lnode->length() ? 0 : pos - lnode->length();
@@ -173,18 +175,39 @@ namespace analyzer {
                         if (gnl > (int)(pos - chkPos) && gnl > maxGlueLen) maxGlueLen = gnl;
                         ++chkPos;
                     }
+                    int glueBonus = 0;
                     if (maxGlueLen >= GLUE_BONUS_MIN_LEN) {
-                        int glueBonus = (maxGlueLen - GLUE_BONUS_MIN_LEN + 1) * GLUE_BONUS_FACTOR;
-                        connCost -= glueBonus;
-                        LOG_DEBUGH(L"GLUE BONUS applied: maxGlueLen={}, glueBonus={}, connCost={}", maxGlueLen, glueBonus, connCost);
+                        glueBonus = (maxGlueLen - GLUE_BONUS_MIN_LEN + 1) * GLUE_BONUS_FACTOR;
+                        LOG_DEBUGH(L"      glueBonus={}", glueBonus);
                     }
 
-                    int cost = lnode->accumCost() + connCost + rnode->wcost();
+                    int bonus = rnode->bonus();
+                    int accumBonus = lnode->accumBonus() + glueBonus;
+                    if (accumBonus >= MaxAccumBonus) {
+                        LOG_DEBUGH(L"      accumBonus + gluBonus capped: orig={}, capped={}", accumBonus, MaxAccumBonus);
+                        accumBonus = MaxAccumBonus;
+                        glueBonus = accumBonus - lnode->accumBonus();  // lnodeの累積ボーナスと合わせて上限に達する分だけglueBonusを適用する
+                        bonus = 0;      // 累積ボーナスが上限に達している場合は、rnodeのボーナスも適用しない
+                    } else {
+                        accumBonus += bonus;
+                        if (accumBonus >= MaxAccumBonus) {
+                            LOG_DEBUGH(L"      accumBonus + bonus capped: orig={}, capped={}", accumBonus, MaxAccumBonus);
+                            accumBonus = MaxAccumBonus;
+                            bonus = accumBonus - lnode->accumBonus() - glueBonus;
+                        }
+                    }
+                    connCost -= glueBonus;
+                    LOG_DEBUGH(L"      connCost={}, glueBonus={}, bonus={}, accumBonus={}", connCost, glueBonus, bonus, accumBonus);
+
+                    int cost = lnode->accumCost() + connCost + rnode->wcost() - bonus;
 
                     if (cost < best_cost) {
                         best_node = lnode;
                         best_cost = cost;
+                        best_accumBonus = accumBonus;
                     }
+
+                    LOG_DEBUGH(L"      cost={}, best_cost={}, best_accumBonus={}", cost, best_cost, best_accumBonus);
 
                     if (isNbest) {
                         // NBest の場合は、 Path オブジェクトによってノード間の接続関係を記録しておき、あとでたどれるようにしておく
@@ -198,9 +221,9 @@ namespace analyzer {
                         rnode->setLpath(path);
                         path->setRnext(lnode->rpath());
                         lnode->setRpath(path);
-                        LOG_DEBUGH(L"path: {}", path->debugString());
+                        LOG_DEBUGH(L"      path: {}", path->debugString());
                     }
-                }
+                } // for lnode
 
                 if (!best_node) {
                     THROW_RTE(L"{}: no left node found or cost calculation failed.", rnode->surface()->caseForm());
@@ -211,11 +234,13 @@ namespace analyzer {
                 //rnode->next.reset();
                 rnode->setNext(nullptr);
                 rnode->setAccumCost(best_cost);
+                rnode->setAccumBonus(best_accumBonus);
 
                 if (rnode->length() > rnodeMaxLen) {
                     rnodeMaxLen = rnode->length();
                 }
-            }
+                LOG_DEBUGH(L"  rnode: END={}", rnode->toVerbose());
+            } // for rnode
             glueNgramMaxLens[pos] = rnodeMaxLen;
 
 #if _LOG_DEBUGH_FLAG

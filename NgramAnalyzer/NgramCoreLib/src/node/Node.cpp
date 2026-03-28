@@ -97,6 +97,8 @@ namespace node
             + _T("[wcost=") + std::to_wstring(wcost())
             + _T(", accum=") + std::to_wstring((int)_accumCost)
             + _T(", accum2=") + std::to_wstring((int)_accumCost2)
+            + _T(", bonus=") + std::to_wstring(bonus())
+            + _T(", accBo=") + std::to_wstring((int)accumBonus())
             + _T(", wtype=") + getWordTypeStr(_word_type)
             + _T("]");
     }
