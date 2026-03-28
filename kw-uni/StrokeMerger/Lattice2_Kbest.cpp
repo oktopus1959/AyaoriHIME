@@ -664,8 +664,13 @@ namespace lattice2 {
             return result;
         }
 
+        void appendGeneratedCandidate(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags, const CandidateString& cand, bool promote) {
+            newCandidates.push_back(cand);
+            promotedFlags.push_back(promote);
+        }
+
         // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
-        void reorderCandidates(std::vector<CandidateString>& newCandidates) {
+        void reorderCandidates(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags) {
             // CandidateString::totalCost() の昇順にソート
             _LOG_DETAIL(_T("ENTER: newCandidates:\n{}"), debugString(newCandidates));
             // ユーザー選択Ngramペアを探して、totalCostを調整
@@ -720,11 +725,68 @@ namespace lattice2 {
             }
 
             // 調整された totalCost に基づいてソート
-            std::sort(newCandidates.begin(), newCandidates.end(),
-                [](const CandidateString& a, const CandidateString& b) {
-                    return a.totalCost() < b.totalCost();
+            std::vector<std::pair<CandidateString, bool>> zippedCandidates;
+            zippedCandidates.reserve(newCandidates.size());
+            for (size_t i = 0; i < newCandidates.size(); ++i) {
+                zippedCandidates.emplace_back(newCandidates[i], i < promotedFlags.size() ? promotedFlags[i] : false);
+            }
+            std::sort(zippedCandidates.begin(), zippedCandidates.end(),
+                [](const auto& a, const auto& b) {
+                    return a.first.totalCost() < b.first.totalCost();
                 });
+            for (size_t i = 0; i < zippedCandidates.size(); ++i) {
+                newCandidates[i] = std::move(zippedCandidates[i].first);
+                if (i < promotedFlags.size()) {
+                    promotedFlags[i] = zippedCandidates[i].second;
+                }
+            }
             _LOG_DETAIL(_T("LEAVE"));
+        }
+
+        void promoteRepresentativeCandidates(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags) {
+            _LOG_DETAIL(_T("ENTER: newCandidates.size={}, promotedFlags.size={}"), newCandidates.size(), promotedFlags.size());
+            if (newCandidates.size() <= 1 || promotedFlags.size() != newCandidates.size()) return;
+
+            std::vector<CandidateString> promoted;
+            std::vector<bool> promotedMarks;
+            std::vector<CandidateString> others;
+            std::vector<bool> otherMarks;
+            promoted.reserve(newCandidates.size());
+            others.reserve(newCandidates.size());
+
+            CandidateString firstCand = newCandidates.front();
+            bool firstMark = promotedFlags.front();
+
+            for (size_t i = 1; i < newCandidates.size(); ++i) {
+                if (promotedFlags[i]) {
+                    promoted.push_back(std::move(newCandidates[i]));
+                    promotedMarks.push_back(true);
+                } else {
+                    others.push_back(std::move(newCandidates[i]));
+                    otherMarks.push_back(false);
+                }
+            }
+
+            if (promoted.empty()) {
+                _LOG_DETAIL(_T("LEAVE: no representative candidates"));
+                return;
+            }
+
+            newCandidates.clear();
+            promotedFlags.clear();
+            newCandidates.reserve(1 + promoted.size() + others.size());
+            promotedFlags.reserve(1 + promotedMarks.size() + otherMarks.size());
+            newCandidates.push_back(std::move(firstCand));
+            promotedFlags.push_back(firstMark);
+            for (size_t i = 0; i < promoted.size(); ++i) {
+                newCandidates.push_back(std::move(promoted[i]));
+                promotedFlags.push_back(promotedMarks[i]);
+            }
+            for (size_t i = 0; i < others.size(); ++i) {
+                newCandidates.push_back(std::move(others[i]));
+                promotedFlags.push_back(otherMarks[i]);
+            }
+            _LOG_DETAIL(_T("LEAVE: promotedCount={}, newCandidates.size={}"), promotedMarks.size(), newCandidates.size());
         }
 
         // 同じ末尾部分を持つ候補が連続しないように移動する
@@ -864,7 +926,7 @@ namespace lattice2 {
 
     private:
         // 素片のストロークと適合する候補だけを追加
-        void addOnePiece(std::vector<CandidateString>& newCandidates, const WordPiece& piece, FollowingPreferenceType prefType, bool useMorphAnalyzer, int strokeCount, int paddingLen, bool bKatakanaConversion) {
+        void addOnePiece(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags, const WordPiece& piece, FollowingPreferenceType prefType, bool useMorphAnalyzer, int strokeCount, int paddingLen, bool bKatakanaConversion) {
             _LOG_DETAIL(_T("ENTER: _candidates.size={}, piece={}, useMorphAnalyzer={}"), _candidates.size(), piece.debugString(), useMorphAnalyzer);
             bool bAutoBushuFound = false;           // 自動部首合成は一回だけ実行する
             bool isStrokeBS = piece.numBS() > 0;
@@ -901,9 +963,11 @@ namespace lattice2 {
             // 素片のストロークと適合する候補の最小ストローク長を取得
             // minLenは、形態素解析やNgram解析の際に、長い候補文字列に対して共通の先頭部分を避けるために使用する
             size_t minLen = getMinimumCandidateLength(targetCandidates);
+            std::set<int> representativeStrokeLens;
 
             for (const auto& cand : targetCandidates) {
                 _LOG_DETAIL(L"targetCand={}", cand.infoString());
+                bool isRepresentativeSource = representativeStrokeLens.insert(cand.strokeLen()).second;
                 // 素片のストロークと適合する候補
                 int penalty = cand.penalty();
                 if (piece.isPadding()) {
@@ -933,7 +997,7 @@ namespace lattice2 {
                         useMorphAnalyzer = true;
                         calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
                         _LOG_DETAIL(_T("add newCandStr={}"), newCandStr.debugString());
-                        newCandidates.push_back(newCandStr);
+                        appendGeneratedCandidate(newCandidates, promotedFlags, newCandStr, isRepresentativeSource);
                         bAutoBushuFound = true;
                         if (!SETTINGS->multiCandidateMode) break;  // 複数候補モードでなければ、自動部首合成を見つけたら終了
                     }
@@ -962,7 +1026,7 @@ namespace lattice2 {
                         }
                     }
                     _LOG_DETAIL(_T("add newCandStr={}"), newCandStr.debugString());
-                    newCandidates.push_back(newCandStr);
+                    appendGeneratedCandidate(newCandidates, promotedFlags, newCandStr, isRepresentativeSource);
                 }
                 // pieceが確定文字の場合
                 if (pieceStr.size() == 1 && lattice2::isCommitChar(pieceStr[0])) {
@@ -1098,6 +1162,7 @@ namespace lattice2 {
             _LOG_DETAIL(_T("ENTER: pieces.size={}, strokeCount={}, useMorphAnalyzer={}, strokeBack={}, paddingLen={}"),
                 pieces.size(), strokeCount, useMorphAnalyzer, strokeBack, paddingLen);
             std::vector<CandidateString> newCandidates;
+            std::vector<bool> promotedFlags;
             if (strokeBack) {
                 // strokeBackの場合
                 _LOG_DETAIL(L"strokeBack");
@@ -1137,11 +1202,12 @@ namespace lattice2 {
             // BS でないか、以前の候補が無くなっていた
             for (const auto& piece : pieces) {
                 // 素片のストロークと適合する候補だけを追加
-                addOnePiece(newCandidates, piece, prefType, useMorphAnalyzer, strokeCount, paddingLen, bKatakanaConversion);
+                addOnePiece(newCandidates, promotedFlags, piece, prefType, useMorphAnalyzer, strokeCount, paddingLen, bKatakanaConversion);
             }
             if (!isPaddingPiece) {
                 // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
-                reorderCandidates(newCandidates);
+                reorderCandidates(newCandidates, promotedFlags);
+                promoteRepresentativeCandidates(newCandidates, promotedFlags);
                 _LOG_DETAIL(_T("B: newCandidates.size={}"), newCandidates.size());
 
                 //rotateSameTailCandidates(newCandidates);
