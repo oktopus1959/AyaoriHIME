@@ -228,6 +228,7 @@ namespace KanchokuWS
                 dlgCandidateLog_Height = dlgCandidateLog.Height;
             }
             dlgCandidateLog = null;
+            CloseDlgCandidateLog();
         }
 
         //------------------------------------------------------------------

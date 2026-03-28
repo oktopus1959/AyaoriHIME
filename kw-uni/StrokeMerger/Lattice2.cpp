@@ -275,30 +275,30 @@ namespace lattice2 {
 
         // 融合候補の表示を有効化・無効化する
         void enableCandidateLog(bool enabled) override {
-            LOG_INFO(_T("CALLED: enabled={}"), enabled);
+            LOG_INFOH(_T("CALLED: enabled={}"), enabled);
             _candidateLogEnabled = enabled;
         }
 
         bool isCandidateLogEnabled() override {
-            LOG_INFO(_T("CALLED: enabled={}"), _candidateLogEnabled);
+            LOG_INFOH(_T("CALLED: enabled={}"), _candidateLogEnabled);
             return _candidateLogEnabled;
         }
 
         // 融合候補の表示
         void saveCandidateLog() override {
-            LOG_INFO(_T("ENTER"));
+            LOG_INFOH(_T("ENTER"));
             String result;
             while (!_candidateLogQueue.empty()) {
                 result.append(_candidateLogQueue.front());
                 _candidateLogQueue.pop_front();
             }
-            LOG_INFO(L"result: {}", result);
+            LOG_INFOH(L"result: {}", result);
             utils::OfstreamWriter writer(utils::joinPath(SETTINGS->rootDir, SETTINGS->mergerCandidateFile));
             if (writer.success()) {
                 writer.writeLine(utils::utf8_encode(result));
                 LOG_INFO(_T("result written"));
             }
-            LOG_INFO(_T("LEAVE"));
+            LOG_INFOH(_T("LEAVE"));
         }
 
     };
