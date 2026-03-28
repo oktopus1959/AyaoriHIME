@@ -14,7 +14,7 @@ namespace analyzer {
     DECLARE_LOGGER;
 
     extern int UNKNOWN_OTHER_COST;
-    int GLUE_BONUS_FACTOR = 1000;
+    int GLUE_BONUS_FACTOR = 500;
     int GLUE_BONUS_MIN_LEN = 4;
     static const int kShortHiraganaPenalty = 2000;
     static const int MaxAccumBonus = 10000;
@@ -79,7 +79,9 @@ namespace analyzer {
             auto bos_node = lattice->bosNode();
             auto eos_node = lattice->eosNode();
 
-            Vector<int>  glueNgramMaxLens(len + 1, 0); // 各位置における、lookupされたNgram群の最大長
+            // 各位置における、lookupされたNgram群の最大長
+            // Ngramの接続位置で、それをカバーするようなNgramがあればその長さを GLUE ボーナスの計算に使用するために記録しておく
+            Vector<int>  glueNgramMaxLens(len + 1, 0);
 
             // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
             tokenizer->resetTempDict(tempDictEntries);

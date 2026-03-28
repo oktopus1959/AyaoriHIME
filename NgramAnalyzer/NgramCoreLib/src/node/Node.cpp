@@ -80,7 +80,7 @@ namespace node
         _rpath(nullptr),
         _lpath(nullptr) {
         StringRef s = _surface->toString();
-        LOG_DEBUGH(L"CALLED: ctor: _surface={}, word_type={}", s, getWordTypeStr(_word_type));
+        LOG_DEBUG(L"CALLED: ctor: _surface={}, word_type={}", s, getWordTypeStr(_word_type));
         if (!s.empty()) {
             _is_head_hiragana = utils::is_hiragana(s.front());
             _is_tail_hiragana = utils::is_hiragana(s.back());

@@ -10,6 +10,9 @@ namespace analyzer {
     namespace RealtimeDict {
         DEFINE_LOCAL_LOGGER(RealtimeDict);
 
+        // リアルタイムN-gramの最大ボーナス
+        static const int kMaxNgramBonus = 5000;
+
         // リアルタイムN-gramの辞書 (単語 -> カウント)
         static std::map<String, int> realtimeDict;
 
@@ -21,6 +24,8 @@ namespace analyzer {
 
         int ngramMaxBonusPoint = 25;            // Ngramに与えるボーナスポイントの最大値
         int ngramBonusPointFactor = 100;        // ボーナスポイントに対するボーナス係数
+
+        int maxRealtimeCount = 0;  // リアルタイムN-gramの最大カウント (ユーザー定義のN-gramのカウントは含まない)
 
         bool realtimeNgram_updated = false;
 
@@ -34,6 +39,9 @@ namespace analyzer {
 
         int updateEntry(const String& word, int delta) {
             int count = realtimeDict[word] += delta;
+            if (count > kMaxNgramBonus) {
+                maxRealtimeCount = count;
+            }
             realtimeNgram_updated = true;
             return count;
         }
@@ -47,6 +55,7 @@ namespace analyzer {
             LOG_INFOH(_T("LOAD: {}"), ngramFilePath);
             int nEntries = 0;
             realtimeDict.clear();
+            maxRealtimeCount = 0;
             utils::IfstreamReader reader(ngramFilePath);
             if (reader.success()) {
                 for (const auto& line : reader.getAllLines()) {
@@ -56,6 +65,9 @@ namespace analyzer {
                         if (isDecimalString(sCount)) {
                             int count = std::stoi(sCount);
                             realtimeDict[items[0]] = count;
+                            if (count > maxRealtimeCount) {
+                                maxRealtimeCount = count;
+                            }
                             ++nEntries;
                         }
                     }
@@ -127,7 +139,31 @@ namespace analyzer {
 
 #include <cmath>
 
-        int calcBonus(int bonusPoint) {
+        // リアルタイムN-gramのカウントからボーナスポイントを計算する。
+        // カウントが大きくなるほど、ボーナスポイントの増加は緩やかになるようにする。
+        // ボーナスポイントの最大値は kMaxNgramBonus で、カウントが maxRealtimeCount 以上の場合は常に kMaxNgramBonus を与える。
+        int calcRealtimeBonus(int count) {
+            if (count <= 0 || maxRealtimeCount <= 0) {
+                return 0;
+            }
+
+            if (count >= maxRealtimeCount) {
+                return kMaxNgramBonus;
+            }
+
+            double normalized = std::log1p(static_cast<double>(count)) / std::log1p(static_cast<double>(maxRealtimeCount));
+            int bonus = static_cast<int>(std::round(normalized * kMaxNgramBonus));
+            if (bonus < 0) {
+                return 0;
+            }
+            if (bonus > kMaxNgramBonus) {
+                return kMaxNgramBonus;
+            }
+            return bonus;
+        }
+
+        // ユーザー定義のN-gramのカウントからボーナスポイントを計算する。カウントが大きくなるほど、ボーナスポイントの増加は緩やかになるようにする。
+        int calcUserBonus(int bonusPoint) {
             double point = bonusPoint;
             if (point > ngramMaxBonusPoint) {
                 if (point <= ngramMaxBonusPoint * 2) {
@@ -154,8 +190,8 @@ namespace analyzer {
         // @param pos 検索開始位置
         // @return マッチしたエントリのボーナスポイントのリスト。(各エントリの長さのをインデックスとする)
         std::vector<int> commonPrefixSearch(const String& str, size_t pos, bool hiraganaBigramEnabled, bool hiraganaQuadgramEnabled) {
-            LOG_DEBUG(L"ENTER: str={}, pos={}, bigram={}, quadgram={}", str, pos, hiraganaBigramEnabled, hiraganaQuadgramEnabled);
-            std::vector<int> result;
+            LOG_DEBUGH(L"ENTER: str={}, pos={}, bigram={}, quadgram={}, maxCount={}", str, pos, hiraganaBigramEnabled, hiraganaQuadgramEnabled, maxRealtimeCount);
+            std::vector<int> result;    // マッチしたエントリのボーナスポイントのリスト。(各エントリの長さのをインデックスとする)
             result.resize(maxLen + 1, 0);  // エントリの長さでインデックスされる。値 0 はエントリがないことを表す。
             if (minLen > 0) {
                 size_t end = std::min(pos + maxLen, str.size());
@@ -168,7 +204,7 @@ namespace analyzer {
                         }
                     }
                     String key = str.substr(pos, len);
-                    int count = 0;
+                    int bonus = 0;
                     // リアルタイムN-gram辞書とユーザー定義N-gram辞書の両方を検索して、カウントを合算する
                     auto it = realtimeDict.find(key);
                     if (it != realtimeDict.end()) {
@@ -178,22 +214,20 @@ namespace analyzer {
                         if (len == 3 ||
                             (len == 2 && (hiraganaBigramEnabled || (utils::is_kanji(key[0]) && utils::is_kanji(key[1])))) ||
                             (len == 4 && hiraganaQuadgramEnabled)) {
-                            count = it->second;
-                            LOG_DEBUG(L"realtime FOUND: key={}, count={}", key, it->second);
+                            bonus = calcRealtimeBonus(it->second);
+                            LOG_DEBUG(L"realtime FOUND: key={}, count={}, bonus={}", key, it->second, bonus);
                         }
                     }
                     it = userDict.find(key);
                     if (it != userDict.end()) {
-                        count += it->second;
-                        LOG_DEBUG(L"userDic FOUND: key={}, count={}", key, it->second);
+                        int userBonus = calcUserBonus(it->second);
+                        LOG_DEBUG(L"userDic FOUND: key={}, count={}, bonus={}", key, it->second, userBonus);
+                        bonus += userBonus;
                     }
-                    if (count > 0) {
-                        result[len] = calcBonus(count);
-                        LOG_DEBUG(L"FOUND: key={}, count={}, bonus[{}]={}", key, count, len, result[len]);
-                    }
+                    result[len] = bonus;
                 }
             }
-            LOG_DEBUG(L"LEAVE: result.size()={}", result.size());
+            LOG_DEBUGH(L"LEAVE: result.size()={}", result.size());
             return result;
         }
     } // namespace RealtimeDict

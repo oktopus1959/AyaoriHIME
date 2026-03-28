@@ -76,7 +76,7 @@ namespace analyzer {
          * @return 候補となるNgramノードのリスト。空白文字しかなくて有効なNgramノードが作成できない場合は、空リストのまま返す。
          */
         Vector<NodePtr> lookup(Lattice& lattice, size_t pos) {
-            LOG_DEBUG(L"ENTER: pos={}", pos);
+            LOG_DEBUGH(L"ENTER: pos={}", pos);
 
             auto rngStrPtr = lattice.sentence->subString(pos);
             auto end = rngStrPtr->end();
@@ -108,10 +108,10 @@ namespace analyzer {
 
             // realtime Ngramを検索しておく
             auto bonusList = RealtimeDict::commonPrefixSearch(lattice.sentence->toString(), begin2, hiraganaBigramEnabled, hiraganaQuadgramEnabled);
-            LOG_DEBUGH(L"realtime bonus list=[{}]", utils::join(bonusList, L", "));
+            LOG_DEBUGH(L"  realtime bonus list=[{}]", utils::join(bonusList, L", "));
 
             // 辞書引きしてノード作成する
-            LOG_DEBUGH(L"SYSTEM ngram dics lookup START");
+            LOG_DEBUGH(L"  SYSTEM ngram dics lookup START");
             for (const auto& dic : dics) {
                 // 各辞書ごとに辞書引きをして
                 for (const auto& [tokens, length] : dic->commonPrefixSearch(rngStrPtr->toString(begin2), false)) {
@@ -121,26 +121,26 @@ namespace analyzer {
                         int bonus = length < bonusList.size() ? bonusList[length] : 0;
                         __addNewNode(token->wcost, begin2 + length, bonus);
                         if (length < bonusList.size()) bonusList[length] = 0;  // 既に使用済み
-                        if (bonus > 0) {
-                            LOG_DEBUGH(L"system ngram FOUND in bonusList: {}, cost={} (orig cost={} BONUS={})", rngStrPtr->toString(begin2, begin2 + length), token->wcost - bonus, token->wcost, bonus);
-                        }
+                        LOG_DEBUGH(L"    system ngram FOUND: {}, total cost={} (orig cost={} BONUS={})",
+                            rngStrPtr->toString(begin2, begin2 + length), token->wcost - bonus, token->wcost, bonus);
                     }
                 }
             }
-            LOG_DEBUGH(L"SYSTEM ngram dics lookup END");
+            LOG_DEBUGH(L"  SYSTEM ngram dics lookup END");
 
             // 使われなかった realtime Ngram
-            LOG_DEBUGH(L"unused REALTIME ngrams START");
+            LOG_DEBUGH(L"  unused REALTIME ngrams START");
             for (size_t len = 1; len < bonusList.size(); ++len) {
                 int bonus = bonusList[len];
                 if (bonus > 0) {
                     int baseCost = (rngStrPtr->charAt(begin2) == GETA_CHAR) ? REALTIME_GETA_ENTRY_BASE_COST : REALTIME_NORMALENTRY_BASE_COST;
                     int cost = baseCost - bonus;
                     __addNewNode(cost, begin2 + len);
-                    LOG_DEBUGH(L"realtime only ngram entry added: {}, cost={} (baseCost={}, len={}, bonus={})", rngStrPtr->toString(begin2, begin2 + len), cost, baseCost, len, bonus);
+                    LOG_DEBUGH(L"    realtime only ngram entry added: {}, cost={} (baseCost={}, len={}, bonus={})",
+                        rngStrPtr->toString(begin2, begin2 + len), cost, baseCost, len, bonus);
                 }
             }
-            LOG_DEBUGH(L"unused REALTIME ngrams END");
+            LOG_DEBUGH(L"  unused REALTIME ngrams END");
 
             // TemporaryDictも検索してみる(5文字まで)
             if (tempDict.hasFirstChar(rngStrPtr->charAt(begin2))) {
@@ -149,23 +149,23 @@ namespace analyzer {
                     auto substr = rngStrPtr->toString(begin2, begin2 + len);
                     if (tempDict.hasEntry(substr)) {
                         __addNewNode(MORPH_ENTRY_COST, begin2 + len);
-                        LOG_DEBUG(L"tempDict entry added: {}", substr);
+                        LOG_DEBUG(L"  tempDict entry added: {}", substr);
                     }
                 }
             }
 
             // 先頭が 〓
             if (rngStrPtr->charAt(begin2) == GETA_CHAR) {
-                LOG_DEBUG(L"BEGIN: geta");
+                LOG_DEBUG(L"  BEGIN: geta");
                 // 〓を1文字の未知語として切り出す
                 __addNewNode(UNKNOWN_OTHER_COST, begin2 + 1);
-                LOG_DEBUG(L"END: geta");
+                LOG_DEBUG(L"  END: geta");
             }
             // -- ここまでは辞書にある単語、以下は解の候補として未知語も考慮に入れる --
 
             if (result_nodes.empty()) {
                 // 辞書引きしてもNgramが得られなかった
-                LOG_DEBUG(L"BEGIN: unk");
+                LOG_DEBUG(L"  BEGIN: unk");
 
                 // 未知語長さの候補に対して未知語を切り出してノードリストに追加
                 if (utils::is_kanji(rngStrPtr->charAt(begin2))) {
@@ -181,12 +181,12 @@ namespace analyzer {
                     }
                     __addNewNode(UNKNOWN_OTHER_COST, begin2 + len);
                 }
-                LOG_DEBUG(L"END: unk");
+                LOG_DEBUG(L"  END: unk");
             }
 
             if (NgramCoreLib::Logger::IsDebugEnabled()) showResultNodes(result_nodes);
 
-            LOG_DEBUG(L"LEAVE: result_nodes.size={}", result_nodes.size());
+            LOG_DEBUGH(L"LEAVE: result_nodes.size={}", result_nodes.size());
 
             std::reverse(result_nodes.begin(), result_nodes.end());
             return result_nodes;
