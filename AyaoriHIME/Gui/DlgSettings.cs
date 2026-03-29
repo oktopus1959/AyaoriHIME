@@ -1890,6 +1890,7 @@ namespace KanchokuWS.Gui
             textBox_mergerCandidateMax.Text = $"{Settings.MergerCandidateMax}";
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
+            textBox_recentConnectionKeepStrokeCount.Text = $"{Settings.RecentConnectionKeepStrokeCount}";
             textBox_variableTailLength.Text = $"{Settings.VariableTailLength}";
             textBox_ngramManualSelectDelta.Text = $"{Settings.NgramManualSelectDelta}";
             textBox_ngramMaxBonusPoint.Text = $"{Settings.NgramMaxBonusPoint}";
@@ -1941,6 +1942,7 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(textBox_mergerCandidateMax);
             checkerFusion.Add(textBox_multiStreamBeamSize);
             checkerFusion.Add(textBox_remainingStrokeSize);
+            checkerFusion.Add(textBox_recentConnectionKeepStrokeCount);
             checkerFusion.Add(textBox_variableTailLength);
             checkerFusion.Add(textBox_ngramManualSelectDelta);
             checkerFusion.Add(textBox_ngramMaxBonusPoint);
@@ -1990,6 +1992,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("mergerCandidateMax", textBox_mergerCandidateMax.Text);
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
+            Settings.SetUserIni("recentConnectionKeepStrokeCount", textBox_recentConnectionKeepStrokeCount.Text);
             Settings.SetUserIni("variableTailLength", textBox_variableTailLength.Text);
             Settings.SetUserIni("ngramManualSelectDelta", textBox_ngramManualSelectDelta.Text);
             Settings.SetUserIni("ngramMaxBonusPoint", textBox_ngramMaxBonusPoint.Text);

@@ -166,6 +166,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(multiStreamBeamSize);
     SET_DOUBLE_VALUE(extraBeamSizeRate);
     SET_INT_VALUE(remainingStrokeSize);
+    SET_INT_VALUE(recentConnectionKeepStrokeCount);
     SET_INT_VALUE(variableTailLength);
     SET_INT_VALUE(fixLeaderCharStrokeCount);
     SET_INT_VALUE(challengeNumForSameLeader);

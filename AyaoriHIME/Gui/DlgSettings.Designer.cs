@@ -529,6 +529,8 @@ namespace KanchokuWS.Gui
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.checkBox_multiCandidateMode = new System.Windows.Forms.CheckBox();
             this.checkBox_strokeBackByBS = new System.Windows.Forms.CheckBox();
+            this.label170 = new System.Windows.Forms.Label();
+            this.textBox_recentConnectionKeepStrokeCount = new System.Windows.Forms.TextBox();
             this.label168 = new System.Windows.Forms.Label();
             this.textBox_remainingStrokeSize = new System.Windows.Forms.TextBox();
             this.textBox_maxStrokeBackCount = new System.Windows.Forms.TextBox();
@@ -6232,13 +6234,13 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_fusion
             // 
+            this.tabPage_fusion.Controls.Add(this.groupBox34);
             this.tabPage_fusion.Controls.Add(this.groupBox23);
             this.tabPage_fusion.Controls.Add(this.label_fusionReload);
             this.tabPage_fusion.Controls.Add(this.textBox_variableTailLength);
             this.tabPage_fusion.Controls.Add(this.button_multiStreamFAQ);
             this.tabPage_fusion.Controls.Add(this.label161);
             this.tabPage_fusion.Controls.Add(this.groupBox44);
-            this.tabPage_fusion.Controls.Add(this.groupBox34);
             this.tabPage_fusion.Controls.Add(this.textBox_analyzeMorphLen);
             this.tabPage_fusion.Controls.Add(this.groupBox8);
             this.tabPage_fusion.Controls.Add(this.textBox_maxStrokeBackCount);
@@ -6458,6 +6460,8 @@ namespace KanchokuWS.Gui
             // 
             this.groupBox34.Controls.Add(this.checkBox_hiraganaQuadgramEnabled);
             this.groupBox34.Controls.Add(this.checkBox_hiraganaBigramEnabled);
+            this.groupBox34.Controls.Add(this.label170);
+            this.groupBox34.Controls.Add(this.textBox_recentConnectionKeepStrokeCount);
             this.groupBox34.Controls.Add(this.textBox_morphMazeEntryPenalty);
             this.groupBox34.Controls.Add(this.label160);
             this.groupBox34.Controls.Add(this.label157);
@@ -6472,7 +6476,7 @@ namespace KanchokuWS.Gui
             this.groupBox34.Controls.Add(this.label91);
             this.groupBox34.Location = new System.Drawing.Point(364, 132);
             this.groupBox34.Name = "groupBox34";
-            this.groupBox34.Size = new System.Drawing.Size(334, 209);
+            this.groupBox34.Size = new System.Drawing.Size(334, 215);
             this.groupBox34.TabIndex = 4;
             this.groupBox34.TabStop = false;
             this.groupBox34.Text = "実験的設定";
@@ -6480,7 +6484,7 @@ namespace KanchokuWS.Gui
             // checkBox_hiraganaQuadgramEnabled
             // 
             this.checkBox_hiraganaQuadgramEnabled.AutoSize = true;
-            this.checkBox_hiraganaQuadgramEnabled.Location = new System.Drawing.Point(15, 173);
+            this.checkBox_hiraganaQuadgramEnabled.Location = new System.Drawing.Point(15, 194);
             this.checkBox_hiraganaQuadgramEnabled.Name = "checkBox_hiraganaQuadgramEnabled";
             this.checkBox_hiraganaQuadgramEnabled.Size = new System.Drawing.Size(238, 19);
             this.checkBox_hiraganaQuadgramEnabled.TabIndex = 7;
@@ -6491,7 +6495,7 @@ namespace KanchokuWS.Gui
             // checkBox_hiraganaBigramEnabled
             // 
             this.checkBox_hiraganaBigramEnabled.AutoSize = true;
-            this.checkBox_hiraganaBigramEnabled.Location = new System.Drawing.Point(15, 152);
+            this.checkBox_hiraganaBigramEnabled.Location = new System.Drawing.Point(15, 173);
             this.checkBox_hiraganaBigramEnabled.Name = "checkBox_hiraganaBigramEnabled";
             this.checkBox_hiraganaBigramEnabled.Size = new System.Drawing.Size(238, 19);
             this.checkBox_hiraganaBigramEnabled.TabIndex = 6;
@@ -6502,7 +6506,7 @@ namespace KanchokuWS.Gui
             // textBox_morphMazeEntryPenalty
             // 
             this.textBox_morphMazeEntryPenalty.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_morphMazeEntryPenalty.Location = new System.Drawing.Point(164, 130);
+            this.textBox_morphMazeEntryPenalty.Location = new System.Drawing.Point(177, 151);
             this.textBox_morphMazeEntryPenalty.Name = "textBox_morphMazeEntryPenalty";
             this.textBox_morphMazeEntryPenalty.Size = new System.Drawing.Size(34, 19);
             this.textBox_morphMazeEntryPenalty.TabIndex = 5;
@@ -6513,7 +6517,7 @@ namespace KanchokuWS.Gui
             // label160
             // 
             this.label160.AutoSize = true;
-            this.label160.Location = new System.Drawing.Point(12, 132);
+            this.label160.Location = new System.Drawing.Point(12, 153);
             this.label160.Name = "label160";
             this.label160.Size = new System.Drawing.Size(139, 15);
             this.label160.TabIndex = 87;
@@ -6531,7 +6535,7 @@ namespace KanchokuWS.Gui
             // textBox_ngramMaxBonusPoint
             // 
             this.textBox_ngramMaxBonusPoint.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramMaxBonusPoint.Location = new System.Drawing.Point(164, 86);
+            this.textBox_ngramMaxBonusPoint.Location = new System.Drawing.Point(177, 107);
             this.textBox_ngramMaxBonusPoint.Name = "textBox_ngramMaxBonusPoint";
             this.textBox_ngramMaxBonusPoint.Size = new System.Drawing.Size(34, 19);
             this.textBox_ngramMaxBonusPoint.TabIndex = 3;
@@ -6542,7 +6546,7 @@ namespace KanchokuWS.Gui
             // textBox_fixLeaderCharStrokeCount
             // 
             this.textBox_fixLeaderCharStrokeCount.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_fixLeaderCharStrokeCount.Location = new System.Drawing.Point(164, 41);
+            this.textBox_fixLeaderCharStrokeCount.Location = new System.Drawing.Point(177, 41);
             this.textBox_fixLeaderCharStrokeCount.Name = "textBox_fixLeaderCharStrokeCount";
             this.textBox_fixLeaderCharStrokeCount.Size = new System.Drawing.Size(34, 19);
             this.textBox_fixLeaderCharStrokeCount.TabIndex = 5;
@@ -6553,7 +6557,7 @@ namespace KanchokuWS.Gui
             // label128
             // 
             this.label128.AutoSize = true;
-            this.label128.Location = new System.Drawing.Point(12, 88);
+            this.label128.Location = new System.Drawing.Point(12, 109);
             this.label128.Name = "label128";
             this.label128.Size = new System.Drawing.Size(125, 15);
             this.label128.TabIndex = 83;
@@ -6562,7 +6566,7 @@ namespace KanchokuWS.Gui
             // textBox_ngramBonusPointFactor
             // 
             this.textBox_ngramBonusPointFactor.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramBonusPointFactor.Location = new System.Drawing.Point(164, 108);
+            this.textBox_ngramBonusPointFactor.Location = new System.Drawing.Point(177, 129);
             this.textBox_ngramBonusPointFactor.Name = "textBox_ngramBonusPointFactor";
             this.textBox_ngramBonusPointFactor.Size = new System.Drawing.Size(34, 19);
             this.textBox_ngramBonusPointFactor.TabIndex = 4;
@@ -6573,7 +6577,7 @@ namespace KanchokuWS.Gui
             // label89
             // 
             this.label89.AutoSize = true;
-            this.label89.Location = new System.Drawing.Point(12, 66);
+            this.label89.Location = new System.Drawing.Point(12, 87);
             this.label89.Name = "label89";
             this.label89.Size = new System.Drawing.Size(142, 15);
             this.label89.TabIndex = 79;
@@ -6582,7 +6586,7 @@ namespace KanchokuWS.Gui
             // textBox_ngramManualSelectDelta
             // 
             this.textBox_ngramManualSelectDelta.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_ngramManualSelectDelta.Location = new System.Drawing.Point(164, 64);
+            this.textBox_ngramManualSelectDelta.Location = new System.Drawing.Point(177, 85);
             this.textBox_ngramManualSelectDelta.Name = "textBox_ngramManualSelectDelta";
             this.textBox_ngramManualSelectDelta.Size = new System.Drawing.Size(34, 19);
             this.textBox_ngramManualSelectDelta.TabIndex = 2;
@@ -6613,7 +6617,7 @@ namespace KanchokuWS.Gui
             // label91
             // 
             this.label91.AutoSize = true;
-            this.label91.Location = new System.Drawing.Point(12, 110);
+            this.label91.Location = new System.Drawing.Point(12, 131);
             this.label91.Name = "label91";
             this.label91.Size = new System.Drawing.Size(113, 15);
             this.label91.TabIndex = 81;
@@ -6639,7 +6643,7 @@ namespace KanchokuWS.Gui
             this.groupBox8.Controls.Add(this.textBox_remainingStrokeSize);
             this.groupBox8.Location = new System.Drawing.Point(15, 12);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(335, 87);
+            this.groupBox8.Size = new System.Drawing.Size(335, 88);
             this.groupBox8.TabIndex = 0;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "基本設定";
@@ -6666,6 +6670,26 @@ namespace KanchokuWS.Gui
             this.checkBox_strokeBackByBS.Text = "BSを本来の動作に戻す";
             this.toolTip1.SetToolTip(this.checkBox_strokeBackByBS, resources.GetString("checkBox_strokeBackByBS.ToolTip"));
             this.checkBox_strokeBackByBS.UseVisualStyleBackColor = true;
+            // 
+            // label170
+            // 
+            this.label170.AutoSize = true;
+            this.label170.Location = new System.Drawing.Point(12, 65);
+            this.label170.Name = "label170";
+            this.label170.Size = new System.Drawing.Size(163, 15);
+            this.label170.TabIndex = 72;
+            this.label170.Text = "上位保持する接続のストローク数";
+            // 
+            // textBox_recentConnectionKeepStrokeCount
+            // 
+            this.textBox_recentConnectionKeepStrokeCount.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
+            this.textBox_recentConnectionKeepStrokeCount.Location = new System.Drawing.Point(177, 63);
+            this.textBox_recentConnectionKeepStrokeCount.Name = "textBox_recentConnectionKeepStrokeCount";
+            this.textBox_recentConnectionKeepStrokeCount.Size = new System.Drawing.Size(34, 19);
+            this.textBox_recentConnectionKeepStrokeCount.TabIndex = 3;
+            this.textBox_recentConnectionKeepStrokeCount.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_recentConnectionKeepStrokeCount, "現在の入力片を過去候補へ接続した結果のうち、\r\n直近何ストローク分までを代表候補として\r\n先頭側に残しやすくするかを指定します。\r\n\r\n多ストローク入力を重視した" +
+        "い場合は\r\n大きめの値にしてください。");
             // 
             // label168
             // 
@@ -8598,6 +8622,8 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.CheckBox checkBox_strokeBackByBS;
         private System.Windows.Forms.TextBox textBox_remainingStrokeSize;
         private System.Windows.Forms.Label label168;
+        private System.Windows.Forms.Label label170;
+        private System.Windows.Forms.TextBox textBox_recentConnectionKeepStrokeCount;
         private System.Windows.Forms.CheckBox checkBox_outputHeadSymbol;
         private System.Windows.Forms.RadioButton radioButton_tempRtNgramFile;
         private System.Windows.Forms.RadioButton radioButton_mainRtNgramFile;

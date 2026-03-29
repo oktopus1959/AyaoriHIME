@@ -669,6 +669,10 @@ namespace lattice2 {
             promotedFlags.push_back(promote);
         }
 
+        bool isMultiChoicePiece(const MString& s) {
+            return s.size() > 1 && s.find('|') != MString::npos;
+        }
+
         // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
         void reorderCandidates(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags) {
             // CandidateString::totalCost() の昇順にソート
@@ -812,7 +816,7 @@ namespace lattice2 {
         // beamSize を超えた部分を削除する
         // また、SETTINGS->fixLeaderCharStrokeCount で指定されたストローク数以上、先頭部が同じ文字の場合にその部分を固定する
         // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
-        void truncateTailCandidates(std::vector<CandidateString>& newCandidates) {
+        void truncateTailCandidates(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags) {
             _LOG_DETAIL(_T("ENTER: newCandidates.size={}, beamSieze={}, extraBeamSizeRate={}"), newCandidates.size(), SETTINGS->multiStreamBeamSize, SETTINGS->extraBeamSizeRate);
             std::set<MString> triGrams;
             std::set<MString> biGrams;
@@ -826,6 +830,7 @@ namespace lattice2 {
                 MString topHead;
                 while (candCount < newCandidates.size()) {
                     auto iter = newCandidates.begin() + candCount;
+                    bool isPromoted = candCount < promotedFlags.size() ? promotedFlags[candCount] : false;
                     const MString& str = iter->string();
                     const MString uni = str.size() >= 1 ? utils::safe_tailstr(str, 1) : EMPTY_MSTR;
                     const MString bi = str.size() >= 2 ? utils::safe_tailstr(str, 2) : EMPTY_MSTR;
@@ -834,6 +839,15 @@ namespace lattice2 {
                     if (topHead.size() == 0 || utils::startsWith(str, topHead)) {
                         // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
                         if (!bNonPaddingFound || iter->penalty() < PADDING_PENALTY) {
+                            if (isPromoted && pickCount < beamSize2) {
+                                if (!uni.empty()) uniGrams.insert(uni);
+                                if (!bi.empty()) biGrams.insert(bi);
+                                if (!tri.empty()) triGrams.insert(tri);
+                                _LOG_DETAIL(_T("[{}] PICK: {}: representative"), candCount, iter->debugString());
+                                ++candCount;
+                                ++pickCount;
+                                continue;
+                            }
                             if (candCount < beamSize) {
                                 if (!uni.empty()) uniGrams.insert(uni);
                                 if (!bi.empty()) biGrams.insert(bi);
@@ -886,10 +900,16 @@ namespace lattice2 {
                     }
                     _LOG_DETAIL(_T("[{}] ERASE: {}"), candCount, iter->debugString());
                     newCandidates.erase(iter);
+                    if (candCount < promotedFlags.size()) {
+                        promotedFlags.erase(promotedFlags.begin() + candCount);
+                    }
                 }
             }
             if (candCount < newCandidates.size()) {
                 newCandidates.resize(candCount);
+                if (candCount < promotedFlags.size()) {
+                    promotedFlags.resize(candCount);
+                }
             }
             _LOG_DETAIL(_T("LEAVE: newCandidates.size={}"), newCandidates.size());
             if (newCandidates.size() > maxCandidatesSize) {
@@ -963,11 +983,21 @@ namespace lattice2 {
             // 素片のストロークと適合する候補の最小ストローク長を取得
             // minLenは、形態素解析やNgram解析の際に、長い候補文字列に対して共通の先頭部分を避けるために使用する
             size_t minLen = getMinimumCandidateLength(targetCandidates);
-            std::set<int> representativeStrokeLens;
+            std::map<int, int> representativeStrokeCounts;
+            int recentKeepStrokeCount = std::max(0, SETTINGS->recentConnectionKeepStrokeCount);
+            bool multiChoicePiece = isMultiChoicePiece(pieceStr);
 
             for (const auto& cand : targetCandidates) {
                 _LOG_DETAIL(L"targetCand={}", cand.infoString());
-                bool isRepresentativeSource = representativeStrokeLens.insert(cand.strokeLen()).second;
+                bool isRecentConnection = !piece.isPadding() && !isStrokeBS && strokeCount - cand.strokeLen() <= recentKeepStrokeCount;
+                bool isRepresentativeSource = false;
+                if (isRecentConnection) {
+                    int& count = representativeStrokeCounts[cand.strokeLen()];
+                    if (count < 2) {
+                        isRepresentativeSource = true;
+                        ++count;
+                    }
+                }
                 // 素片のストロークと適合する候補
                 int penalty = cand.penalty();
                 if (piece.isPadding()) {
@@ -984,6 +1014,7 @@ namespace lattice2 {
                 // 漢字 xor ひらがな優先条件を満たしていなければスキップ
                 if (!isKanjiOrHiraganaPreferenceSatisfied(cand, piece)) continue;
 
+                bool representativeMarked = false;
                 if (!bAutoBushuFound && !piece.isPadding()) {
                     MString s;
                     int numBS;
@@ -998,6 +1029,7 @@ namespace lattice2 {
                         calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
                         _LOG_DETAIL(_T("add newCandStr={}"), newCandStr.debugString());
                         appendGeneratedCandidate(newCandidates, promotedFlags, newCandStr, isRepresentativeSource);
+                        representativeMarked = isRepresentativeSource;
                         bAutoBushuFound = true;
                         if (!SETTINGS->multiCandidateMode) break;  // 複数候補モードでなければ、自動部首合成を見つけたら終了
                     }
@@ -1025,8 +1057,10 @@ namespace lattice2 {
                             _LOG_DETAIL(_T("ngramCost adjusted. newCandStr.totalCost={}"), newCandStr.totalCost());
                         }
                     }
+                    bool promoteThisCandidate = isRepresentativeSource && !representativeMarked;
                     _LOG_DETAIL(_T("add newCandStr={}"), newCandStr.debugString());
-                    appendGeneratedCandidate(newCandidates, promotedFlags, newCandStr, isRepresentativeSource);
+                    appendGeneratedCandidate(newCandidates, promotedFlags, newCandStr, promoteThisCandidate);
+                    if (promoteThisCandidate || multiChoicePiece) representativeMarked = true;
                 }
                 // pieceが確定文字の場合
                 if (pieceStr.size() == 1 && lattice2::isCommitChar(pieceStr[0])) {
@@ -1211,7 +1245,7 @@ namespace lattice2 {
                 _LOG_DETAIL(_T("B: newCandidates.size={}"), newCandidates.size());
 
                 //rotateSameTailCandidates(newCandidates);
-                truncateTailCandidates(newCandidates);
+                truncateTailCandidates(newCandidates, promotedFlags);
             }
             _LOG_DETAIL(_T("C: newCandidates.size={}"), newCandidates.size());
 
