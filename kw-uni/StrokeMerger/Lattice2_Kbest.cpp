@@ -673,6 +673,16 @@ namespace lattice2 {
             return s.size() > 1 && s.find('|') != MString::npos;
         }
 
+        // reorder 後の先頭候補と比べて、末尾側でどれだけ違うかを測る
+        size_t calcTailDifferenceLen(const MString& a, const MString& b) {
+            size_t commonSuffixLen = 0;
+            while (commonSuffixLen < a.size() && commonSuffixLen < b.size() &&
+                a[a.size() - commonSuffixLen - 1] == b[b.size() - commonSuffixLen - 1]) {
+                ++commonSuffixLen;
+            }
+            return std::max(a.size() - commonSuffixLen, b.size() - commonSuffixLen);
+        }
+
         // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
         void reorderCandidates(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags) {
             // CandidateString::totalCost() の昇順にソート
@@ -747,6 +757,7 @@ namespace lattice2 {
             _LOG_DETAIL(_T("LEAVE"));
         }
 
+        // reorder 後の候補列から、代表候補だけを先頭候補の直後へ寄せ直す
         void promoteRepresentativeCandidates(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags) {
             _LOG_DETAIL(_T("ENTER: newCandidates.size={}, promotedFlags.size={}"), newCandidates.size(), promotedFlags.size());
             if (newCandidates.size() <= 1 || promotedFlags.size() != newCandidates.size()) return;
@@ -760,9 +771,11 @@ namespace lattice2 {
 
             CandidateString firstCand = newCandidates.front();
             bool firstMark = promotedFlags.front();
+            const MString& topStr = firstCand.string();
 
             for (size_t i = 1; i < newCandidates.size(); ++i) {
-                if (promotedFlags[i]) {
+                // 先頭候補と末尾が近すぎるものは前寄せせず、通常のコスト順に任せる (とりあえず4文字以上違うものだけを前寄せの対象とする)
+                if (promotedFlags[i] && calcTailDifferenceLen(topStr, newCandidates[i].string()) >= 4) {
                     promoted.push_back(std::move(newCandidates[i]));
                     promotedMarks.push_back(true);
                 } else {
@@ -776,6 +789,7 @@ namespace lattice2 {
                 return;
             }
 
+            // 先頭候補はそのまま残し、その直後へ代表候補群を安定挿入する
             newCandidates.clear();
             promotedFlags.clear();
             newCandidates.reserve(1 + promoted.size() + others.size());
@@ -989,9 +1003,11 @@ namespace lattice2 {
 
             for (const auto& cand : targetCandidates) {
                 _LOG_DETAIL(L"targetCand={}", cand.infoString());
+                // 現在打鍵から近い接続元だけを代表候補の候補にする
                 bool isRecentConnection = !piece.isPadding() && !isStrokeBS && strokeCount - cand.strokeLen() <= recentKeepStrokeCount;
                 bool isRepresentativeSource = false;
                 if (isRecentConnection) {
+                    // 同じ strokeLen からは、現在の並び順で先頭2件までを代表接続元として扱う
                     int& count = representativeStrokeCounts[cand.strokeLen()];
                     if (count < 2) {
                         isRepresentativeSource = true;
@@ -1057,6 +1073,7 @@ namespace lattice2 {
                             _LOG_DETAIL(_T("ngramCost adjusted. newCandStr.totalCost={}"), newCandStr.totalCost());
                         }
                     }
+                    // 多値 piece では通常候補は全展開しつつ、代表候補としては先頭に対応する1件だけを前寄せ対象にする
                     bool promoteThisCandidate = isRepresentativeSource && !representativeMarked;
                     _LOG_DETAIL(_T("add newCandStr={}"), newCandStr.debugString());
                     appendGeneratedCandidate(newCandidates, promotedFlags, newCandStr, promoteThisCandidate);
