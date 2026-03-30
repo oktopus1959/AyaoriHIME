@@ -367,6 +367,17 @@ namespace lattice2 {
             return -1;
         };
 
+
+        // startPos <= i < pos の範囲に漢字があるか
+        auto checkKanji = [&](const MString& s, size_t pos) -> bool {
+            for (size_t i = startPos; i < pos && i < s.size(); ++i) {
+                if (utils::is_kanji(s[i])) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
         if (startPos < len1 && startPos < len2) {
             size_t endPos = startPos + 1;
             while (endPos < len1 || endPos < len2) {
@@ -380,19 +391,25 @@ namespace lattice2 {
                     // 再同期できなかったか、再同期した位置の次の文字が異なっている
                     size_t pos = endPos - 1;
                     while (pos > startPos) {
-                        res = checkResync(pos, endPos);
-                        _LOG_DETAIL(L"checkResync: pos1={}, pos2={}, res={}", pos, endPos, res == 0 ? L"SYNC" : L"NG");
-                        if (res == 0) {
-                            // 再同期した
-                            _LOG_DETAIL(L"RETURN: ( startPos={}, pos={}, endPos={} )", startPos, pos, endPos);
-                            return { startPos, pos, endPos };
+                        if (checkKanji(s1, pos) || !checkKanji(s2, endPos)) {
+                            // pos < endPos なので、s1のpos位置までに漢字がなく、かつs2のendPos位置までに漢字がある場合はスキップ
+                            res = checkResync(pos, endPos);
+                            _LOG_DETAIL(L"checkResync: pos1={}, pos2={}, res={}", pos, endPos, res == 0 ? L"SYNC" : L"NG");
+                            if (res == 0) {
+                                // 再同期した
+                                _LOG_DETAIL(L"RETURN: ( startPos={}, pos={}, endPos={} )", startPos, pos, endPos);
+                                return { startPos, pos, endPos };
+                            }
                         }
-                        res = checkResync(endPos, pos);
-                        _LOG_DETAIL(L"checkResync: pos1={}, pos2={}, res={}", endPos, pos, res == 0 ? L"SYNC" : L"NG");
-                        if (res == 0) {
-                            // 再同期した
-                            _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, pos={} )", startPos, endPos, pos);
-                            return { startPos, endPos, pos };
+                        if (checkKanji(s2, pos) || !checkKanji(s1, endPos)) {
+                            // pos < endPos なので、s2のpos位置までに漢字がなく、かつs1のendPos位置までに漢字がある場合はスキップ
+                            res = checkResync(endPos, pos);
+                            _LOG_DETAIL(L"checkResync: pos1={}, pos2={}, res={}", endPos, pos, res == 0 ? L"SYNC" : L"NG");
+                            if (res == 0) {
+                                // 再同期した
+                                _LOG_DETAIL(L"RETURN: ( startPos={}, endPos={}, pos={} )", startPos, endPos, pos);
+                                return { startPos, endPos, pos };
+                            }
                         }
                         --pos;
                     }
