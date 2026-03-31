@@ -261,10 +261,10 @@ namespace KanchokuWS
         // 終了
         private void Exit_ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //frmMain.DeactivateDecoderWithModifiersOff();
+            //FrmMain.DeactivateDecoderWithModifiersOff();
             //if (!Settings.ConfirmOnClose || SystemHelper.OKCancelDialog("漢直窓を終了します。\r\nよろしいですか。")) {
             //    this.Close();
-            //    frmMain.Close();
+            //    FrmMain.Close();
             //}
             logger.Debug("ENTER");
             frmMain.Terminate();

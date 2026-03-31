@@ -20,15 +20,23 @@ namespace KanchokuWS.Gui
 
         private Action RefreshLog;
 
+        private FrmKanchoku FrmMain;
+
         //private Form frmFocus;
 
-        public DlgCandidateLog(Action notifier, Action refreshLog /*, Form focusFrm*/)
+        public DlgCandidateLog(FrmKanchoku frm, Action notifier, Action refreshLog /*, Form focusFrm*/)
         {
+            FrmMain = frm;
             NotifyToClose = notifier;
             RefreshLog = refreshLog;
             //frmFocus = focusFrm;
 
             InitializeComponent();
+        }
+
+        private void DlgCandidateLog_Load(object sender, EventArgs e)
+        {
+            AcceptButton = button_analyze;
         }
 
         public void WriteLog(string msg)
@@ -63,5 +71,12 @@ namespace KanchokuWS.Gui
         {
             RefreshLog?.Invoke();
         }
+
+        private void button_analyze_Click(object sender, EventArgs e)
+        {
+            FrmMain?.ExecCmdDecoder("doMorphAndNgramAnalysis", textBox_analyzeTarget.Text);
+            RefreshLog?.Invoke();
+        }
+
     }
 }

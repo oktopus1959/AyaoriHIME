@@ -70,7 +70,7 @@ namespace KanchokuWS.Forms
         {
             this.Width = 8;
             this.Height = 20;
-            //frmMain.MoveFormEditBuffer();
+            //FrmMain.MoveFormEditBuffer();
             //MoveWindow(this.Handle, this.Location.X, this.Location.Y, this.Width, this.Height, true);
             //ShowNonActive();
             logger.InfoH(() => $"MOVE: X={Location.X}, Y={Location.Y}, W={Size.Width}, H={Size.Height}");

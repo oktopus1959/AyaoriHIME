@@ -945,7 +945,7 @@ namespace KanchokuWS
                 // 第1打鍵待ちである
                 StrokeTableDef tblDef = null;
                 // 主コードテーブルか
-                //bool isPrimary = frmMain.DecoderOutput.IsCurrentStrokeTablePrimary();
+                //bool isPrimary = FrmMain.DecoderOutput.IsCurrentStrokeTablePrimary();
                 int tableNum = frmMain.DecoderOutput.strokeTableNum;
                 if (tableNum < 1 || tableNum > 3 || (tableNum == 1 && StrokeTables1._isEmpty()) || (tableNum == 2 && StrokeTables2._isEmpty()) || (tableNum == 3 && StrokeTables3._isEmpty())) {
                     tblDef = null;
@@ -996,7 +996,7 @@ namespace KanchokuWS
         /// <returns>実際に表示された文字の集まり</returns>
         public string[] DrawStrokeHelp(char[] chars)
         {
-            //char[] result = chars._isEmpty() ? null : frmMain.CallDecoderFunc("reorderByFirstStrokePosition", chars._toString());
+            //char[] result = chars._isEmpty() ? null : FrmMain.CallDecoderFunc("reorderByFirstStrokePosition", chars._toString());
             char[] result = chars._isEmpty() ? null : frmMain.CallDecoderFunc("reorderByFirstStrokePosition2", chars._toString());
 
             var charOrKeys = new string[DecoderKeys.NORMAL_DECKEY_NUM];
@@ -1193,7 +1193,7 @@ namespace KanchokuWS
             this.Height = newHeight;
             if (newHeight != oldHeight) {
                 // ウィンドウ位置の再取得を行わずに移動するので正しくない場所に表示される可能性はあるが、たいていの場合は大丈夫だろう
-                //frmMain.MoveFormVirtualKeyboard();
+                //FrmMain.MoveFormVirtualKeyboard();
                 MoveWindow(this.Handle, this.Location.X, this.Location.Y, this.Width, this.Height, true);
             }
             if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}, this.Height={this.Height}");
@@ -1838,7 +1838,7 @@ namespace KanchokuWS
         private void pictureBox_Main_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             //logger.Info($"CALLED: e.Delta={e.Delta}, scrollLines={SystemInformation.MouseWheelScrollLines}");
-            //frmMain.RotateStrokeTable(e.Delta * SystemInformation.MouseWheelScrollLines / 120);
+            //FrmMain.RotateStrokeTable(e.Delta * SystemInformation.MouseWheelScrollLines / 120);
             frmMain.RotateStrokeTable(-e.Delta / 120);
         }
 
@@ -1846,12 +1846,12 @@ namespace KanchokuWS
         private void Exit_ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             logger.Info("ENTER");
-            //frmMain.DeactivateDecoderWithModifiersOff();
+            //FrmMain.DeactivateDecoderWithModifiersOff();
             //logger.Debug("Decoder OFF");
             //if (!Settings.ConfirmOnClose || SystemHelper.OKCancelDialog("漢直窓を終了します。\r\nよろしいですか。")) {
             //    this.Close();
             //    logger.Debug("this.Closed");
-            //    frmMain.Close();
+            //    FrmMain.Close();
             //    logger.Debug("Main.Closed");
             //}
             frmMain.Terminate();

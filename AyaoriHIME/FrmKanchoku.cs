@@ -182,34 +182,36 @@ namespace KanchokuWS
             logger.DebugH("ENTER");
             // 解候補ログ表示ダイアログの作成
             CloseDlgCandidateLog();
-            var dlg = new DlgCandidateLog(NotifyToCloseDlgCandidateLog, ShowDlgCandidateLog);
-
-            refreshCandidateLog(dlg);
-            //dlg._showTopMost();
-            //dlgCandidateLog.MoveCaretToTail();
-            dlgCandidateLog = dlg;
+            //var dlg = new DlgCandidateLog(this, NotifyToCloseDlgCandidateLog, ShowDlgCandidateLog);
+            //refreshCandidateLog(dlg);
+            dlgCandidateLog = new DlgCandidateLog(this, NotifyToCloseDlgCandidateLog, () => refreshCandidateLog());
+            dlgCandidateLog._showTopMost();
+            dlgCandidateLog.MoveCaretToTail();
             ExecCmdDecoder("enableCandidateLog", null);
             logger.DebugH("LEAVE");
         }
 
-        private void refreshCandidateLog(DlgCandidateLog dlg)
+        private void refreshCandidateLog()
         {
-            //dlg.Hide();
+            if (dlgCandidateLog == null) return;
+
+            //dlgCandidateLog.Hide();
             ExecCmdDecoder("saveCandidateLog", null);
             var absPath = KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.MergerCandidateFile);
             var contents = Helper.ReadAllLines(absPath);
             if (contents._notEmpty()) {
-                //dlg.WriteLog("\r\n========================================\r\n");
+                //dlgCandidateLog.WriteLog("\r\n========================================\r\n");
                 foreach (var line in contents) {
-                    dlg.WriteLog(line + "\r\n");
+                    dlgCandidateLog.WriteLog(line + "\r\n");
                 }
             } else {
                 logger.Error($"log file: {absPath} couldn't read");
             }
             if (dlgCandidateLog_Width > 0 && dlgCandidateLog_Height > 0) {
-                dlg.Size = new Size(dlgCandidateLog_Width, dlgCandidateLog_Height);
+                dlgCandidateLog.Size = new Size(dlgCandidateLog_Width, dlgCandidateLog_Height);
             }
-            dlg._showTopMost();
+            dlgCandidateLog.MoveCaretToTail();
+            //dlgCandidateLog._showTopMost();
         }
 
         public void CloseDlgCandidateLog()

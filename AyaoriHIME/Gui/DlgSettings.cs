@@ -482,9 +482,9 @@ namespace KanchokuWS.Gui
             checkerMiscSettings.Reinitialize();
 
             // 各種定義ファイルの再読み込み
-            //frmMain?.ReloadDefFiles();
+            //FrmMain?.ReloadDefFiles();
 
-            //frmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
 
             // 英数用仮想鍵盤の再表示
             if (frmMain?.IsDecoderActivated() != true) {
@@ -537,9 +537,9 @@ namespace KanchokuWS.Gui
             checkerAll.Reinitialize();
 
             // 各種定義ファイルの再読み込み
-            //frmMain?.ReloadDefFiles();
+            //FrmMain?.ReloadDefFiles();
 
-            //frmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
         }
 
         private void button_basicClose_Click(object sender, EventArgs e)
@@ -903,9 +903,9 @@ namespace KanchokuWS.Gui
             frmMode?.ShowImmediately();
 
             // 各種定義ファイルの再読み込み
-            //frmMain?.ReloadDefFiles();
+            //FrmMain?.ReloadDefFiles();
 
-            //frmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
 
             label_okResultAdvanced.Show();
 
@@ -1265,9 +1265,9 @@ namespace KanchokuWS.Gui
             checkerFontColor.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
 
             // 各種定義ファイルの再読み込み
-            //frmMain?.ReloadDefFiles();
+            //FrmMain?.ReloadDefFiles();
 
-            //frmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
 
             label_okResultFontColor.Show();
 
@@ -1402,10 +1402,10 @@ namespace KanchokuWS.Gui
             frmMode?.ShowImmediately();
 
             // 各種定義ファイルの再読み込み
-            //frmMain?.ReloadDefFiles();
+            //FrmMain?.ReloadDefFiles();
 
-            //frmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
-            //frmMain?.MakeInitialVkbTable();
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+            //FrmMain?.MakeInitialVkbTable();
 
             label_okResultKeyAssign.Show();
 
@@ -1794,9 +1794,9 @@ namespace KanchokuWS.Gui
             checkerHistory.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
 
             // 各種定義ファイルの再読み込み
-            //frmMain?.ReloadDefFiles();
+            //FrmMain?.ReloadDefFiles();
 
-            //frmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
 
             label_okResultHist.Show();
 
@@ -1972,7 +1972,7 @@ namespace KanchokuWS.Gui
         private void button_fusionEnter_Click(object sender, EventArgs e)
         {
             logger.Info("ENTER");
-            //frmMain?.ExecCmdDecoder("stopRealtimeNgramCollection", "");
+            //FrmMain?.ExecCmdDecoder("stopRealtimeNgramCollection", "");
             bool rtNgramFiledChanged = (Settings.UseTmpRealtimeNgramFile != radioButton_tempRtNgramFile.Checked);
             frmMain?.ExecCmdDecoder("saveRealtimeNgramFile", "");
             frmMain?.DeactivateDecoderWithModifiersOff();
@@ -2040,14 +2040,14 @@ namespace KanchokuWS.Gui
         private void button_decreaseRealtimeNgram_Click(object sender, EventArgs e)
         {
             //logger.Info("CALLED");
-            //if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("decreaseRealtimeNgram", textBox_realtimeNgram.Text);
+            //if (textBox_realtimeNgram.Text._notEmpty()) FrmMain?.ExecCmdDecoder("decreaseRealtimeNgram", textBox_realtimeNgram.Text);
             ////textBox_realtimeNgram.Text = "";
         }
 
         private void button_increaseRealtimeNgram_Click(object sender, EventArgs e)
         {
             //logger.Info("CALLED");
-            //if (textBox_realtimeNgram.Text._notEmpty()) frmMain?.ExecCmdDecoder("increaseRealtimeNgram", textBox_realtimeNgram.Text);
+            //if (textBox_realtimeNgram.Text._notEmpty()) FrmMain?.ExecCmdDecoder("increaseRealtimeNgram", textBox_realtimeNgram.Text);
             ////textBox_realtimeNgram.Text = "";
         }
 
@@ -2088,7 +2088,7 @@ namespace KanchokuWS.Gui
 
         private void button_showCandidates_Click(object sender, EventArgs e)
         {
-            //frmMain?.ShowDlgCandidateLog(this, Right - 10, Top);
+            //FrmMain?.ShowDlgCandidateLog(this, Right - 10, Top);
             frmMain?.ShowDlgCandidateLog();
         }
 
@@ -2214,9 +2214,9 @@ namespace KanchokuWS.Gui
             checkerMiscSettings.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
 
             // 各種定義ファイルの再読み込み
-            //frmMain?.ReloadDefFiles();
+            //FrmMain?.ReloadDefFiles();
 
-            //frmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
 
             label_okResultMisc.Show();
 
@@ -2288,7 +2288,7 @@ namespace KanchokuWS.Gui
             logger.Info("CALLED");
             var line = textBox_history.Text.Trim().Replace(" ", "");
             if (line._notEmpty()) {
-                //frmMain?.ExecCmdDecoder("addHistEntry", line);
+                //FrmMain?.ExecCmdDecoder("addHistEntry", line);
                 frmMain?.AddHistEntry(line);
                 label_saveHist.Hide();
                 label_history.Show();
@@ -3157,10 +3157,6 @@ namespace KanchokuWS.Gui
             comboBox_ctrlKey_setItems(comboBox_vkbShowHideTemporaryKey);
         }
 
-        private void button_analyze_Click(object sender, EventArgs e)
-        {
-            frmMain.ExecCmdDecoder("doMorphAndNgramAnalysis", textBox_analyzeTarget.Text);
-        }
     }
 }
 

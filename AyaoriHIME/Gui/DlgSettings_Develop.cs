@@ -90,9 +90,9 @@ namespace KanchokuWS.Gui
             frmMode?.ShowImmediately();
 
             // 各種定義ファイルの再読み込み
-            //frmMain?.ReloadDefFiles();
+            //FrmMain?.ReloadDefFiles();
 
-            //frmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
 
             label_okResultDevelop.Show();
 
@@ -157,7 +157,7 @@ namespace KanchokuWS.Gui
         /// <summary>ファイル出力(OBSOLETE)</summary>
         private void button_developSaveDebugTableFile_Click(object sender, EventArgs e)
         {
-            //frmMain?.ExecCmdDecoder("SaveDumpTable", null);    // tmp/dump-table[13].txt (Decoder が実際に保持しているテーブルの内容をダンプしたもの)
+            //FrmMain?.ExecCmdDecoder("SaveDumpTable", null);    // tmp/dump-table[13].txt (Decoder が実際に保持しているテーブルの内容をダンプしたもの)
 
             //KeyCombinationPool.SingletonK1?.DebugPrintFile("tmp/key-combination1.txt");
             //KeyCombinationPool.SingletonK2?.DebugPrintFile("tmp/key-combination2.txt");

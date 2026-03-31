@@ -19,12 +19,12 @@ namespace KanchokuWS
 
         private const int timerInterval = 200;
 
-        //private FrmKanchoku frmMain;
+        //private FrmKanchoku FrmMain;
         private int showCount = 30 * (1000 / timerInterval);
 
         public FrmSplash(int sec)
         {
-            //frmMain = frm;
+            //FrmMain = frm;
             showCount = sec * (1000 / timerInterval);
 
             InitializeComponent();

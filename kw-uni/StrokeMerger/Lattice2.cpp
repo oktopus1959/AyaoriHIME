@@ -250,7 +250,7 @@ namespace lattice2 {
                 //while (_candidateLogQueue.size() >= DEBUG_LOG_SIZE) _candidateLogQueue.pop_front();
                 _candidateLogQueue.clear();
                 _candidateLogQueue.push_back(
-                    std::format(L"========================================\nENTER: currentStrokeCount={}, pieces: {}\n",
+                    std::format(L"================================================================================\nENTER: currentStrokeCount={}, pieces: {}\n",
                         currentStrokeCount, formatStringOfWordPieces(pieces)));
                 if (pieces.back().numBS() <= 0) {
                     _candidateLogQueue.push_back(

@@ -117,33 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="button_restartWithNoSave.ToolTip" xml:space="preserve">
+    <value>デコーダが保持している辞書内容をファイルに保存せずに再起動します。
+
+エディタなどで辞書ファイルを編集したい場合は、まず「一括保存」で、
+デコーダが保持している辞書内容をファイルに反映させます。
+
+その後、辞書ファイルを編集し、当ボタンをクリックしてください。
+
+漢織媛は終了時に辞書内容を自動的にファイルに新規保存します。
+(既存ファイルは *.back に名前が変更されます)
+辞書ファイルを編集したい場合は、ここに記述した手順に従うか、
+または漢織媛を終了させてから行ってください。
+</value>
+  </data>
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="checkBox_strokeBackByBS.ToolTip" xml:space="preserve">
-    <value>BSで末尾文字を直接削除するという本来の動作に戻す
-
-デフォルトでは、BSを打鍵した時に、表示されている文字列の
-末尾文字を直接に削除するのではなく、その文字を出力する
-ためのストローク列を取り消すことによって、結果的に末尾文字を
-削除しています。これにより、入力候補列も、末尾文字が未入力
-だった時点の状態に戻ります。
-
-この設定をONにすると、入力候補列の先頭のものだけを残して、
-その末尾文字を削除するとという、本来のBSの動作に戻ります。</value>
-  </data>
-  <data name="comboBox_editBufferCaretChar.ToolTip" xml:space="preserve">
-    <value>Ctrlキーの修飾なしで漢直(かな)モードと英字モードを切り替えるためのキーの指定
-
-使用するキーの仮想キーコードを16進数で指定します。
-仮想キーコードについては「windows 仮想キーコード 一覧」でググると見つかります。
-主なキーについては候補を用意してあるので、それを選択してください。
-
-「Ctrlキー修飾なしOFF」が設定された場合は、このキーは「漢直モードON」のための
-キーとなります。
-
-キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
-  </data>
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
@@ -1014,21 +1004,29 @@ IMEを利用していて、Spaceでフラッシュと同時にかな漢字変換
 のフラッシュ文字の入力で、その内容をまとめてアプリに送出します。
 これにより、文字出力のもたつきを軽減することができます。</value>
   </data>
-  <data name="textBox_analyzeTarget.ToolTip" xml:space="preserve">
-    <value>連想文字の登録を行います。次のフォーマットで記述します。
+  <data name="checkBox_strokeBackByBS.ToolTip" xml:space="preserve">
+    <value>BSで末尾文字を直接削除するという本来の動作に戻す
 
-A=BC...
+デフォルトでは、BSを打鍵した時に、表示されている文字列の
+末尾文字を直接に削除するのではなく、その文字を出力する
+ためのストローク列を取り消すことによって、結果的に末尾文字を
+削除しています。これにより、入力候補列も、末尾文字が未入力
+だった時点の状態に戻ります。
 
-例えば、「恋=戀変」という記述があると、「恋」から「戀」や「変」への変換が
-可能になります。選択された変換文字は、先頭に移動し、漢直WSの終了時に
-辞書ファイルに書き込まれます。
+この設定をONにすると、入力候補列の先頭のものだけを残して、
+その末尾文字を削除するとという、本来のBSの動作に戻ります。</value>
+  </data>
+  <data name="comboBox_editBufferCaretChar.ToolTip" xml:space="preserve">
+    <value>Ctrlキーの修飾なしで漢直(かな)モードと英字モードを切り替えるためのキーの指定
 
-変換ターゲット文字列の途中に「|」があると、ターゲットの先頭から「|」までは
-順序が固定され、「|」以降の文字が選択された場合は「|」の直後に移動します。
+使用するキーの仮想キーコードを16進数で指定します。
+仮想キーコードについては「windows 仮想キーコード 一覧」でググると見つかります。
+主なキーについては候補を用意してあるので、それを選択してください。
 
-なお、すでに同じ文字に対する連想文字列が登録されている場合は、
-ここで登録した文字列がマージされます。既存の文字列が削除されることは
-ありません。</value>
+「Ctrlキー修飾なしOFF」が設定された場合は、このキーは「漢直モードON」のための
+キーとなります。
+
+キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
   </data>
   <data name="textBox_autoBushuComp.ToolTip" xml:space="preserve">
     <value>自動部首合成の登録を行います。
@@ -1063,20 +1061,6 @@ A=BC...
 
 無効化された2文字の組み合わせを再び有効化したい場合は、ここで再登録を行って
 ください。</value>
-  </data>
-  <data name="button_restartWithNoSave.ToolTip" xml:space="preserve">
-    <value>デコーダが保持している辞書内容をファイルに保存せずに再起動します。
-
-エディタなどで辞書ファイルを編集したい場合は、まず「一括保存」で、
-デコーダが保持している辞書内容をファイルに反映させます。
-
-その後、辞書ファイルを編集し、当ボタンをクリックしてください。
-
-漢織媛は終了時に辞書内容を自動的にファイルに新規保存します。
-(既存ファイルは *.back に名前が変更されます)
-辞書ファイルを編集したい場合は、ここに記述した手順に従うか、
-または漢織媛を終了させてから行ってください。
-</value>
   </data>
   <data name="textBox_bushuComp.ToolTip" xml:space="preserve">
     <value>部首合成の登録を行います。
