@@ -354,7 +354,7 @@ void Lattice2::doMorphAndNgramAnalysis(const MString& str) {
 
     std::vector<WordPiece> pieces;
     STATE_COMMON->IncrementTotalDecKeyCount();
-    pieces.push_back(WordPiece::paddingPiece());
+    pieces.push_back(WordPiece::paddingPiece(0)); // add dummy piece
     WORD_LATTICE->addPieces(pieces, FollowingPreferenceType::Any, true, false, false);
 
     pieces.clear();

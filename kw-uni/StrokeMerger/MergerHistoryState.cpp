@@ -754,8 +754,8 @@ namespace {
                     LOG_DEBUGH(_T("CHECKPOINT-5: Check pieces.empty()"));
                     if (pieces.empty()) {
                         // ストロークを進めるために、空のpieceを追加する
-                        LOG_DEBUGH(_T("CHECKPOINT-5-A: pieces is EMPTY. Add Padding Piece."));
-                        pieces.push_back(WordPiece::paddingPiece());
+                        LOG_DEBUGH(_T("CHECKPOINT-5-A: pieces is EMPTY. Add {} Piece."), StrokeTableChainLength() > 0 ? L"PADDING" : L"DUMMY");
+                        pieces.push_back(WordPiece::paddingPiece(StrokeTableChainLength()));
                     } else {
                         _throughDeckey = 0;   // 文字が得られたので、Deckeyをそのまま返すモードは終了する
                     }

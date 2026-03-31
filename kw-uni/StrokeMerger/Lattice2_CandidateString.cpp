@@ -512,7 +512,7 @@ namespace lattice2 {
         _LOG_DETAIL(_T("ENTER: this={}, pieces={}, strokeCount={}, paddingLen={}, isStrokeBS={}, _strokeLen={}"),
             infoString(), piece.debugString(), strokeCount, paddingLen, isStrokeBS, _strokeLen);
         std::vector<MString> ss;
-        if (isStrokeBS || (piece.isPadding() && _strokeLen + paddingLen == strokeCount) || (_strokeLen + piece.strokeLen() == strokeCount)) {
+        if (isStrokeBS || (piece.isAnyPadding() && _strokeLen + paddingLen == strokeCount) || (_strokeLen + piece.strokeLen() == strokeCount)) {
             LOG_DEBUGH(_T("isStrokeBS({}) || _strokeLen({}) + (piece.strokeLen({})|paddingLen({})) == strokeCount({})"),
                 isStrokeBS, _strokeLen, piece.strokeLen(), paddingLen, strokeCount);
             // 素片のストローク数が適合した
@@ -590,6 +590,7 @@ namespace lattice2 {
             + _T("(_morph=") + std::to_wstring(_morphCost)
             + _T(",_ngram=") + std::to_wstring(_ngramCost)
             + _T(",_penalty=") + std::to_wstring(_penalty)
+            + _T(",_padding=") + (_paddingDerived ? _T("1") : _T("0"))
             //+ _T(",_llama_loss=") + std::to_wstring(_llama_loss)
             + _T("), strokeLen=") + std::to_wstring(_strokeLen)
             + _T(", prefType=") + to_string(_prefType)
@@ -598,4 +599,3 @@ namespace lattice2 {
     }
 
 } // namespace lattice2
-

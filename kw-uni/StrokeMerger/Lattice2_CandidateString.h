@@ -21,6 +21,7 @@ namespace lattice2 {
         int _morphCost = 0;
         int _ngramCost = 0;
         int _penalty = 0;
+        bool _paddingDerived = false;
         bool _isNonTerminal = false;
         FollowingPreferenceType _prefType = FollowingPreferenceType::Any;
         MString _mazeFeat;
@@ -51,12 +52,12 @@ namespace lattice2 {
 
         CandidateString(const CandidateString& cand)
             : _str(cand._str), _strokeLen(cand._strokeLen), _morphCost(cand._morphCost), _ngramCost(cand._ngramCost),
-              _penalty(cand._penalty), _isNonTerminal(cand._isNonTerminal), _prefType(cand._prefType), _mazeFeat(cand._mazeFeat) {
+              _penalty(cand._penalty), _paddingDerived(cand._paddingDerived), _isNonTerminal(cand._isNonTerminal), _prefType(cand._prefType), _mazeFeat(cand._mazeFeat) {
         }
 
         CandidateString(const CandidateString& cand, int strokeDelta)
             : _str(cand._str), _strokeLen(cand._strokeLen + strokeDelta), _morphCost(cand._morphCost), _ngramCost(cand._ngramCost),
-              _penalty(cand._penalty), _prefType(cand._prefType), _mazeFeat(cand._mazeFeat) {
+              _penalty(cand._penalty), _paddingDerived(cand._paddingDerived), _prefType(cand._prefType), _mazeFeat(cand._mazeFeat) {
         }
 
         // 自動部首合成の実行
@@ -121,8 +122,17 @@ namespace lattice2 {
             _penalty = penalty;
         }
 
-        void zeroPenalty() {
+        void clean() {
             _penalty = 0;
+            _paddingDerived = false;
+        }
+
+        inline bool isPaddingDerived() const {
+            return _paddingDerived;
+        }
+
+        inline void setPaddingDerived(bool flag = true) {
+            _paddingDerived = flag;
         }
 
         inline bool isNonTerminal() const {
@@ -171,4 +181,3 @@ namespace lattice2 {
     };
 
 } // namespace lattice2
-

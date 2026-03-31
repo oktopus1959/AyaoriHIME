@@ -45,8 +45,8 @@ namespace lattice2 {
     // 非優先候補に与えるペナルティ
     int NON_PREFERRED_PENALTY = 1000000;
 
-    // パディング候補に与えるペナルティ(ペナルティの中で最大値; 候補のCostがこれ以上なら、その候補に Padding Piece が含まれていることが分かるようにする)
-    int PADDING_PENALTY = 100000000;
+    //// パディング候補に与えるペナルティ(ペナルティの中で最大値; 候補のCostがこれ以上なら、その候補に Padding Piece が含まれていることが分かるようにする)
+    //int PADDING_PENALTY = 100000000;
 
     //--------------------------------------------------------------------------------------
     inline bool isHighFreqJoshi(mchar_t mc) {
@@ -109,10 +109,10 @@ namespace lattice2 {
         return false;
     }
 
-    // 先頭候補以外に、非優先候補ペナルティを与える (先頭候補のペナルティは 0 にする)
+    // 先頭候補以外に、非優先候補ペナルティを与える (先頭候補のペナルティは 0 にし、PaddingDerivedをfalseにする)
     void arrangePenalties(std::vector<CandidateString>& candidates, size_t nSameLen) {
         _LOG_DETAIL(_T("CALLED"));
-        candidates.front().zeroPenalty();
+        candidates.front().clean();
         for (size_t i = 1; i < nSameLen; ++i) {
             candidates[i].setPenalty(NON_PREFERRED_PENALTY * (int)i);
         }
@@ -330,7 +330,7 @@ namespace lattice2 {
             _LOG_DETAIL(L"ENTER");
             if (_candidates.size() > 0) {
                 _candidates.erase(_candidates.begin() + 1, _candidates.end());
-                _candidates.front().zeroPenalty();
+                _candidates.front().clean();
             }
             _LOG_DETAIL(L"LEAVE");
         }
@@ -344,7 +344,7 @@ namespace lattice2 {
                     if (!utils::startsWith(first, _candidates[n].string())) {
                         _candidates.erase(_candidates.begin() + n);
                     } else {
-                        _candidates[n].zeroPenalty();
+                        _candidates[n].clean();
                         ++n;
                     }
                 }
@@ -619,7 +619,7 @@ namespace lattice2 {
                 //// 「漢字+の+漢字」のような場合はペナルティを解除
                 //size_t len = candStr.size();
                 //if (len >= 3 && candStr[len - 2] == L'の' && !utils::is_hiragana(candStr[len - 3]) && !utils::is_hiragana(candStr[len - 1])) {
-                //    newCandStr.zeroPenalty();
+                //    newCandStr.clean();
                 //}
 
                 int candCost = morphCost + ngramCost;   // +llamaCost;
@@ -837,10 +837,13 @@ namespace lattice2 {
             std::set<MString> uniGrams;
             const size_t beamSize = SETTINGS->multiStreamBeamSize;
             const size_t beamSize2 = beamSize + (int)(beamSize * SETTINGS->extraBeamSizeRate);
-            bool bNonPaddingFound = false;  // Padding piece を含まない候補が見つかったか
             size_t candCount = 0;
             size_t pickCount = 0;
             if (!newCandidates.empty()) {
+                // Padding piece を含まない候補(「燃」など)を見つける
+                bool bNonPaddingFound = std::any_of(newCandidates.begin(), newCandidates.end(),
+                    [](const CandidateString& cand) { return !cand.isPaddingDerived(); });
+
                 MString topHead;
                 while (candCount < newCandidates.size()) {
                     auto iter = newCandidates.begin() + candCount;
@@ -849,10 +852,9 @@ namespace lattice2 {
                     const MString uni = str.size() >= 1 ? utils::safe_tailstr(str, 1) : EMPTY_MSTR;
                     const MString bi = str.size() >= 2 ? utils::safe_tailstr(str, 2) : EMPTY_MSTR;
                     const MString tri = str.size() >= 3 ? utils::safe_tailstr(str, 3) : EMPTY_MSTR;
-                    if (iter->penalty() < PADDING_PENALTY) bNonPaddingFound = true;
                     if (topHead.size() == 0 || utils::startsWith(str, topHead)) {
-                        // Padding piece を含まない候補が見つかったら、Padding piece を含む候補は削除する
-                        if (!bNonPaddingFound || iter->penalty() < PADDING_PENALTY) {
+                        // Padding piece を含まない候補(「燃」など)が見つかったら、Padding piece を含む候補は削除する
+                        if (!bNonPaddingFound || !iter->isPaddingDerived()) {
                             if (isPromoted && pickCount < beamSize2) {
                                 if (!uni.empty()) uniGrams.insert(uni);
                                 if (!bi.empty()) biGrams.insert(bi);
@@ -937,7 +939,7 @@ namespace lattice2 {
         bool isKanjiOrHiraganaPreferenceSatisfied(const CandidateString& cand, const WordPiece& piece) {
             _LOG_DETAIL(L"cand.string()=\"{}\", piece={}", to_wstr(cand.string()), piece.debugString());
             bool result = true;
-            if (!cand.isAnyFollowed() && !piece.isPadding()) {
+            if (!cand.isAnyFollowed() && !piece.isAnyPadding()) {
                 const MString& pieceStr = piece.getString();
                 if (piece.numBS() <= 0 && !pieceStr.empty()
                     && ((cand.isHiraganaFollowed() && !utils::is_hiragana(pieceStr[0])) || (cand.isKanjiFollowed() && !utils::is_kanji(pieceStr[0])))) {
@@ -975,7 +977,7 @@ namespace lattice2 {
             // 素片のストロークと適合する候補を抽出
             for (const auto& cand : _candidates) {
                 //if (topStrokeLen < 0) topStrokeLen = cand.strokeLen();
-                bool bStrokeCountMatched = (piece.isPadding() && cand.strokeLen() + paddingLen == strokeCount) || (!piece.isPadding() && cand.strokeLen() + piece.strokeLen() == strokeCount);
+                bool bStrokeCountMatched = (piece.isAnyPadding() && cand.strokeLen() + paddingLen == strokeCount) || (!piece.isAnyPadding() && cand.strokeLen() + piece.strokeLen() == strokeCount);
                 _LOG_DETAIL(_T("cand.string={}, cand.strokeLen={}, piece.strokeLen={}, strokeCount={}, paddingLen={}: {}"),
                     to_wstr(cand.string()), cand.strokeLen(), piece.strokeLen(), strokeCount, paddingLen, (bStrokeCountMatched ? L"MATCH" : L"UNMATCH"));
                 if (isStrokeBS || bStrokeCountMatched) {
@@ -1004,7 +1006,7 @@ namespace lattice2 {
             for (const auto& cand : targetCandidates) {
                 _LOG_DETAIL(L"targetCand={}", cand.infoString());
                 // 現在打鍵から近い接続元だけを代表候補の候補にする
-                bool isRecentConnection = !piece.isPadding() && !isStrokeBS && strokeCount - cand.strokeLen() <= recentKeepStrokeCount;
+                bool isRecentConnection = !piece.isAnyPadding() && !isStrokeBS && strokeCount - cand.strokeLen() <= recentKeepStrokeCount;
                 bool isRepresentativeSource = false;
                 if (isRecentConnection) {
                     // 同じ strokeLen からは、現在の並び順で先頭2件までを代表接続元として扱う
@@ -1016,10 +1018,9 @@ namespace lattice2 {
                 }
                 // 素片のストロークと適合する候補
                 int penalty = cand.penalty();
-                if (piece.isPadding()) {
-                    // パディング素片の場合はペナルティを加算
-                    penalty += PADDING_PENALTY;
-                    _LOG_DETAIL(L"Padding piece penalty, total penalty={}", penalty);
+                bool bPaddingDerived = cand.isPaddingDerived() || piece.isExStrokePadding();
+                if (bPaddingDerived) {
+                    _LOG_DETAIL(L"PADDING piece({}) or derived({})", piece.isExStrokePadding(), cand.isPaddingDerived());
                 }
                 if (singleHitHighFreqJoshiCost > 0) {
                     // 複数ストロークによる入力で、2打鍵目がロールオーバーでなかったらペナルティ
@@ -1031,7 +1032,7 @@ namespace lattice2 {
                 if (!isKanjiOrHiraganaPreferenceSatisfied(cand, piece)) continue;
 
                 bool representativeMarked = false;
-                if (!bAutoBushuFound && !piece.isPadding()) {
+                if (!bAutoBushuFound && !bPaddingDerived) {
                     MString s;
                     int numBS;
                     std::tie(s, numBS) = cand.applyAutoBushu(piece, strokeCount);  // 自動部首合成
@@ -1039,6 +1040,7 @@ namespace lattice2 {
                         _LOG_DETAIL(_T("AutoBush FOUND"));
                         CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                         newCandStr.setPenalty(penalty);
+                        newCandStr.setPaddingDerived(bPaddingDerived);
                         // ここで形態素解析やNgram解析をしてコストを計算し、末尾に追加する
                         // 素片が追加されたことになるので、強制的に形態素解析を行う
                         useMorphAnalyzer = true;
@@ -1056,6 +1058,7 @@ namespace lattice2 {
                 for (MString s : ss) {
                     CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                     newCandStr.setPenalty(penalty);
+                    newCandStr.setPaddingDerived(bPaddingDerived);
                     newCandStr.setFollowingPreferenceType(prefType);
                     // ここで形態素解析やNgram解析をしてコストを計算し、末尾に追加する
                     //MString subStr = substringBetweenNonJapaneseChars(s);
@@ -1141,6 +1144,7 @@ namespace lattice2 {
                         }
                         // 1ストローク以上前の候補を残す
                         CandidateString newCand(cand, delta);
+                        newCand.clean();    // ペナルティとPaddingDerivedをクリアしておく
                         _LOG_DETAIL(L"add cand={}", newCand.debugString());
                         newCandidates.push_back(newCand);
                     }
@@ -1226,7 +1230,7 @@ namespace lattice2 {
                 // 以前のストロークの候補が無ければ、通常のBSの動作とする
                 removeOtherThanFirst();
             }
-            bool isPaddingPiece = pieces.size() == 1 && pieces.front().isPadding();
+            bool isPaddingPiece = pieces.size() == 1 && pieces.front().isAnyPadding();
             bool isBSpiece = pieces.size() == 1 && pieces.front().isBS();
             _LOG_DETAIL(_T("newCandidates.size={}, isPaddingPiece={}, isBSpiece={}"), newCandidates.size(), isPaddingPiece, isBSpiece);
 
@@ -1269,7 +1273,7 @@ namespace lattice2 {
             //sortByLlamaLoss(newCandidates);
 
             // 残りの _candidates のうち、stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく
-            if (!isBSpiece /* && !_isPadding(newCandidates)*/) {     // isPadding()だったら、BSなどで先頭のものだけが残されたということ
+            if (!isBSpiece /* && !_isAnyPadding(newCandidates)*/) {     // isAnyPadding()だったら、BSなどで先頭のものだけが残されたということ
                 _LOG_DETAIL(_T("D: newCandidates.size={}, _candidates.size={}, remainingStrokeSize={}, strokeCount={}"),
                     newCandidates.size(), _candidates.size(), SETTINGS->remainingStrokeSize, strokeCount);
                 for (const auto& cand : _candidates) {
@@ -1295,16 +1299,13 @@ namespace lattice2 {
             std::vector<CandidateString> newCandidates;
             if (isKanjiOrHiraganaPreferenceSatisfied(dummyCand, piece)) {
                 // 漢字 xor ひらがな優先条件を満たしている
-                int penalty = 0;
-                //if (piece.isPadding()) {
-                //    // パディング素片の場合はペナルティを加算
-                //    penalty += PADDING_PENALTY;
-                //    _LOG_DETAIL(L"Padding piece penalty, total penalty={}", penalty);
-                //}
+                bool bPaddingDerived = piece.isExStrokePadding();
+                if (bPaddingDerived) _LOG_DETAIL(L"PADDING piece. set PADDING DERIVED");
                 std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
                 for (MString s : ss) {
                     CandidateString newCandStr(s, strokeCount);
-                    newCandStr.setPenalty(penalty);
+                    //newCandStr.setPenalty(penalty);
+                    newCandStr.setPaddingDerived(bPaddingDerived);
                     newCandStr.setFollowingPreferenceType(prefType);
                     _LOG_DETAIL(L"Add initial cand={}", newCandStr.debugString());
                     newCandidates.emplace_back(newCandStr);
@@ -1329,7 +1330,7 @@ namespace lattice2 {
             addDummyCandidate();
 
             int paddingLen = 0;
-            if (pieces.front().isPadding()) {
+            if (pieces.front().isAnyPadding()) {
                 paddingLen = currentStrokeCount - _candidates.front().strokeLen();
                 _LOG_DETAIL(_T("paddingLen={}"), paddingLen);
             }
@@ -1372,7 +1373,7 @@ namespace lattice2 {
     private:
         // 先頭候補以外に、非優先候補ペナルティを与える (先頭候補のペナルティは 0 にする)
         void arrangePenalties(size_t nSameLen) {
-            //_candidates.front().zeroPenalty();
+            //_candidates.front().clean();
             //for (size_t i = 1; i < nSameLen; ++i) {
             //    _candidates[i].penalty(NON_PREFERRED_PENALTY * (int)i);
             //}

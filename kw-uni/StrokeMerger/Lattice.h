@@ -41,8 +41,9 @@ public:
         return _rewriteNode == rewriteNode && _strokeLen == len;
     }
 
-    static WordPiece paddingPiece() {
-        return WordPiece(EMPTY_MSTR, -1);
+    // strokeTableLen > 0 のとき、他のストロークとは独立しているストロークを表す padding 素片を作成する
+    static WordPiece paddingPiece(size_t strokeTableLen) {
+        return WordPiece(EMPTY_MSTR, -(int)strokeTableLen);
     }
 
     static WordPiece BSPiece() {
@@ -69,7 +70,13 @@ public:
         return _numBS;
     }
 
-    bool isPadding() const {
+    // 何らかのPadding素片か
+    bool isAnyPadding() const {
+        return _strokeLen <= 0;
+    }
+
+    // 拡張漢字ストロークの第一打鍵のような、他のストロークとは独立しているストロークを表す素片か
+    bool isExStrokePadding() const {
         return _strokeLen < 0;
     }
 
