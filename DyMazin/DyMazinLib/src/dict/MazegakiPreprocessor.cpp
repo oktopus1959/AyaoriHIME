@@ -117,7 +117,9 @@ namespace MazegakiPreprocessor {
     }
 
     std::map<String, String> ktypeDefs = {
-        { L"形容詞",    L"43,43,X,形容詞,自立,*,*,形容詞・イ段,基本形" },
+        { L"形容詞し", L"43,43,X,形容詞,自立,*,*,形容詞・イ段,基本形" },
+        { L"形容詞い", L"43,43,X,形容詞,自立,*,*,形容詞・アウオ段,基本形" },
+        { L"形容詞く", L"43,43,X,形容詞,自立,*,*,形容詞・動詞転化,連用テ接続" },
         { L"五段く",   L"679,679,X,動詞,自立,*,*,五段・カ行イ音便,基本形" },
         { L"五段ぐ",   L"723,723,X,動詞,自立,*,*,五段・ガ行,基本形" },
         { L"五段す",   L"731,731,X,動詞,自立,*,*,五段・サ行,基本形" },
@@ -183,6 +185,14 @@ namespace MazegakiPreprocessor {
             hinshi = L"地域";
         } else if (hinshi == L"五段" || hinshi == L"四段") {
             hinshi += base.back();
+        } else if (hinshi == L"形容詞") {
+            if (base.ends_with(L"しい")) {
+                hinshi += L"し";
+            } else if (base.back() == L'く') {
+                hinshi += L"く";
+            } else {
+                hinshi += L'い';
+            }
         }
         auto iter = ktypeDefs.find(hinshi);
         if (iter == ktypeDefs.end()) {
@@ -333,6 +343,12 @@ namespace MazegakiPreprocessor {
               L"体言接続,き,21", L"仮定形,けれ,13", L"命令ｅ,かれ,29", L"仮定縮約１,けりゃ,15", L"仮定縮約２,きゃ,17", L"ガル接続,,11" }
         },
 
+        // 形容詞・動詞転化
+        { L"形容詞・動詞転化",
+            { L"未然ヌ接,から,27", L"未然ウ接続,かろ,25", L"連用タ接続,かっ,33", L"連用テ接続,く,35", L"連用テ接続,くっ,35",
+              L"仮定形,けれ,13", L"命令ｅ,かれ,29", L"仮定縮約１,けりゃ,15", L"仮定縮約２,きゃ,17" }
+        },
+
     };
 
     int getGobiLength(StringRef ktype) {
@@ -359,13 +375,12 @@ namespace MazegakiPreprocessor {
 
             StringRef ktype = items[8];
             StringRef yomi = items[11];
-            if (surf.size() > 1 && yomi.size() > 1) {
+            if (!ktype.empty() && ktype != L"*" && surf.size() > 1 && yomi.size() > 1) {
                 int gobiLen = getGobiLength(ktype);
                 String stem = utils::safe_substr(surf, 0, -gobiLen);
                 String yomiStem = utils::safe_substr(yomi, 0, -gobiLen);
                 LOG_DEBUGH(L"gobiLen={}, stem={}, yomiStem={}", gobiLen, stem, yomiStem);
 
-                String ktype = items[8];
                 auto defs = kformDefs.find(ktype);
                 if (defs != kformDefs.end()) {
                     for (const auto& val : defs->second) {
