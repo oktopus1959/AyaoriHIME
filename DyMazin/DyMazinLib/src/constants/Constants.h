@@ -14,6 +14,7 @@
 #define UNK_DEF_FILE            L"unk.def"
 #define UNK_DIC_FILE            L"unk.dic"
 #define MATRIX_DEF_FILE         L"matrix.def"
+#define MATRIX_DEF_CSV_FILE     L"matrix.def.csv"
 #define MATRIX_EOS_PENALTY_FILE L"matrix-eos-penalty.def"
 #define MATRIX_FILE             L"matrix.bin"
 #define CHAR_PROPERTY_DEF_FILE  L"char.def"

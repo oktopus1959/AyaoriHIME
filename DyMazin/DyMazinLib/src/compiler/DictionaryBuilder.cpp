@@ -120,7 +120,7 @@ namespace compiler {
         if (opt_matrix) {
             // Connection Matrix
             analyzer::Connector::compile(
-                utils::join_path(dicdir, MATRIX_DEF_FILE),
+                utils::join_path(dicdir, MATRIX_DEF_CSV_FILE),
                 utils::join_path(dicdir, MATRIX_EOS_PENALTY_FILE),
                 utils::join_path(outdir, MATRIX_FILE));
         }

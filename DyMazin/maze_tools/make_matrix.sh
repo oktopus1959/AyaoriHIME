@@ -12,7 +12,8 @@ SRC_DIR=$MY_DIR/../work/ipa
 TGT_DIR=$MY_DIR/../work/maze_ipadic
 
 RUN_CMD -m "mkdir -p $TGT_DIR/bin"
-RUN_CMD -m "cp $SRC_DIR/matrix.def $TGT_DIR/"
+#RUN_CMD -m "cp $SRC_DIR/matrix.def $TGT_DIR/"
+RUN_CMD -m "cp $SRC_DIR/matrix.def.csv $TGT_DIR/"
 RUN_CMD -m "cd $TGT_DIR"
 RUN_CMD -m "pwd"
 RUN_CMD -m "$COMPILER --build-matrix -o bin -L info"
