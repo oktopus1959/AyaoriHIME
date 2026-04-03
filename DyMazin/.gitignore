@@ -39,3 +39,7 @@ work/*
 !work/ipa/
 work/ipa/*
 !work/ipa/matrix.def
+!work/ipa/matrix.def.csv
+!work/ipa/matrix-eos-penalty.def
+!work/ipa/left-id.def
+!work/ipa/right-id.def
