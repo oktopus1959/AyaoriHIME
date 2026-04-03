@@ -35,4 +35,5 @@ fi
 
 cd $TGT_DIR
 RUN_CMD -m "pwd"
+RUN_CMD -m "rm -f matrix.def.csv"
 RUN_CMD -m "$COMPILER --build-sysdic -o bin -L info"

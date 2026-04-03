@@ -110,19 +110,19 @@ namespace compiler {
             }
         }
 
-        if (opt_sysdic) {
-            // System dic
-            CHECK_OR_THROW(!dics.empty(), L"no dictionaries are specified");
-            opts->set(L"type", dict::DictionaryInfo::SYSTEM_DIC);
-            dict::Dictionary::compile(opts, dics, utils::join_path(outdir, SYS_DIC_FILE));
-        }
-
         if (opt_matrix) {
             // Connection Matrix
             analyzer::Connector::compile(
                 utils::join_path(dicdir, MATRIX_DEF_CSV_FILE),
                 utils::join_path(dicdir, MATRIX_EOS_PENALTY_FILE),
                 utils::join_path(outdir, MATRIX_FILE));
+        }
+
+        if (opt_sysdic) {
+            // System dic
+            CHECK_OR_THROW(!dics.empty(), L"no dictionaries are specified");
+            opts->set(L"type", dict::DictionaryInfo::SYSTEM_DIC);
+            dict::Dictionary::compile(opts, dics, utils::join_path(outdir, SYS_DIC_FILE));
         }
 
         LOG_INFOH(L"LEAVE");
