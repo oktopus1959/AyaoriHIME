@@ -206,8 +206,14 @@ namespace {
     }
 
     // 左右接続属性のサイズを取得
-    IdPair get_id_range(OptHandlerPtr opts) {
+    IdPair get_id_range(OptHandlerPtr opts, bool useMatrixBin = false) {
         const auto& dicdir = opts->getValue(_T("dicdir"));
+        if (useMatrixBin) {
+            auto matrix_file = utils::joinPath(dicdir, MATRIX_FILE);
+            auto [lsize, rsize] = Connector::readMatrixBinSize(matrix_file);
+            return IdPair(lsize, rsize);
+        }
+
         auto matrix_file = utils::joinPath(dicdir, MATRIX_DEF_FILE);
 
         auto [lsize, rsize] = Connector::readMatrixSize(matrix_file);
@@ -576,7 +582,7 @@ namespace dict {
         int dicType = opts->getInt(_T("type"), 0);
 
         // 左右接続属性のサイズ
-        auto attrRange = get_id_range(opts);
+        auto attrRange = get_id_range(opts, true);
 
         // 辞書ソースを Token 列にコンパイルする (ソート済み)
         Vector<String> keys;

@@ -39,6 +39,8 @@ namespace analyzer {
 
         static std::tuple<size_t, size_t> readMatrixSize(StringRef filename);
 
+        static std::tuple<size_t, size_t> readMatrixBinSize(StringRef filename);
+
     private:
         Connector(size_t lsize, size_t rsize);
 

@@ -257,6 +257,23 @@ namespace analyzer {
         return { utils::strToInt(columns[0]), utils::strToInt(columns[1]) };
     }
 
+    std::tuple<size_t, size_t> Connector::readMatrixBinSize(StringRef filename) {
+        LOG_INFOH(L"ENTER: filename={}", filename);
+        CHECK_OR_THROW(utils::isFileExistent(filename), L"matrix.bin is not found: {}", filename);
+
+        utils::IfstreamReader reader(filename, true);
+        CHECK_OR_THROW(reader.success(), L"can't open matrix.bin for read: {}", filename);
+
+        size_t lr_size = 0;
+        size_t rl_size = 0;
+        reader.read(lr_size);
+        reader.read(rl_size);
+
+        CHECK_OR_THROW(lr_size > 0 && rl_size > 0, L"matrix.bin header is invalid: {} (left={}, right={})", filename, lr_size, rl_size);
+        LOG_INFOH(L"LEAVE: lr_size={}, rl_size={}", lr_size, rl_size);
+        return { lr_size, rl_size };
+    }
+
     // 左側ノードの右接続属性の数を取得
     size_t Connector::left_size() const {
         return pMatrix->lr_size;
