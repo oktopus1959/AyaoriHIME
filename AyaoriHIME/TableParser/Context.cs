@@ -1066,7 +1066,9 @@ namespace KanchokuWS.TableParser
         // エラー処理
         void handleError(string msg) {
             logger.Error(msg);
+            logger.Warn(msg);
             logger.Error("lines=\n" + MakeErrorLines());
+            logger.Warn("lines=\n" + MakeErrorLines());
             // エラーメッセージを投げる
             Error(msg);
         }
@@ -1077,8 +1079,8 @@ namespace KanchokuWS.TableParser
         // 警告処理
         void handleWarning(string msg) {
             if (numWarnLog++ < 10) {
-                logger.WarnH(msg);
-                logger.WarnH("lines=\n" + MakeErrorLines());
+                logger.Warn(msg);
+                logger.Warn("lines=\n" + MakeErrorLines());
                 // エラーメッセージを投げる
                 Warn(msg);
             }
@@ -1204,18 +1206,18 @@ namespace KanchokuWS.TableParser
         /// <param name="k"></param>
         /// <returns></returns>
         public string ConvertKanji(string str) {
-            //logger.WarnH($"ENTER: str={str}, second={bSecondKanjiMap}");
+            //logger.Warn($"ENTER: str={str}, second={bSecondKanjiMap}");
             var sb = new StringBuilder();
             foreach (var k in str._split('|')) {
                 var altKanji = kanjiConvMap._safeGet(k._strip());
                 if (altKanji._notEmpty()) {
-                    //logger.WarnH($"k={k}, altKanji={altKanji}");
+                    //logger.Warn($"k={k}, altKanji={altKanji}");
                     if (sb._notEmpty()) {
                         sb._chop('-');
                         if (sb._notEmpty() && !altKanji.StartsWith("|")) sb.Append('|');
                     }
                     sb.Append(altKanji);
-                    //logger.WarnH($"sb={sb.ToDebugString()}");
+                    //logger.Warn($"sb={sb.ToDebugString()}");
                 }
             }
             string result;
@@ -1230,7 +1232,7 @@ namespace KanchokuWS.TableParser
                     result = bSecondKanjiMap ? sb.ToString() : $"{str}|{sb}";
                 }
             }
-            //logger.WarnH($"LEAVE: result={result}");
+            //logger.Warn($"LEAVE: result={result}");
             return result;
         }
 

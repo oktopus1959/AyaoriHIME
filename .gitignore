@@ -11,6 +11,8 @@ Work/
 junk/
 *.junk/
 .vs/
+.dotnet/
+_build_check/
 _tables/
 *__.cs
 *.back*

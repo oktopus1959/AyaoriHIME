@@ -18,6 +18,15 @@ namespace KanchokuWS
         /// <summary> テーブルファイルなど内部で設定された値 </summary>
         private static Dictionary<string, string> internalSetValues = new Dictionary<string, string>();
 
+        public class HoldShiftKeySetting
+        {
+            public int ShiftPlane { get; set; }
+            public bool EnabledWhenDecoderOff { get; set; }
+        }
+
+        /// <summary> テーブルファイルで定義された HoldShift キー設定 </summary>
+        private static Dictionary<int, HoldShiftKeySetting> holdShiftKeySettings = new Dictionary<int, HoldShiftKeySetting>();
+
         public static bool IsInternalValueSet(string key) => internalSetValues.ContainsKey(key._toLower());
 
         /// <summary>
@@ -40,6 +49,33 @@ namespace KanchokuWS
         public static string GetInternalValue(string key)
         {
             return internalSetValues._safeGet(key._toLower());
+        }
+
+        public static IReadOnlyDictionary<int, HoldShiftKeySetting> HoldShiftKeySettings => holdShiftKeySettings;
+
+        public static void ClearHoldShiftKeySettings()
+        {
+            holdShiftKeySettings.Clear();
+        }
+
+        public static void SetHoldShiftKeySetting(int deckey, int shiftPlane, bool enabledWhenDecoderOff = true)
+        {
+            if (deckey >= 0 && shiftPlane > 0) {
+                holdShiftKeySettings[deckey] = new HoldShiftKeySetting() {
+                    ShiftPlane = shiftPlane,
+                    EnabledWhenDecoderOff = enabledWhenDecoderOff
+                };
+            }
+        }
+
+        public static void RemoveHoldShiftKeySetting(int deckey)
+        {
+            holdShiftKeySettings.Remove(deckey);
+        }
+
+        public static HoldShiftKeySetting GetHoldShiftKeySetting(int deckey)
+        {
+            return holdShiftKeySettings._safeGet(deckey);
         }
 
         //-------------------------------------------------------------------------------------
@@ -1394,6 +1430,7 @@ namespace KanchokuWS
             if (bFirst) {
                 // 1回目はテーブルファイルによる設定をクリア（iniファイルによる設定だけを読み込む）
                 internalSetValues.Clear();
+                holdShiftKeySettings.Clear();
                 DefGuide1 = "";
                 DefGuide2 = "";
                 StrokeHelpExtraCharsPosition1 = false;
