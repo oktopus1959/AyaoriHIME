@@ -974,8 +974,10 @@ namespace KanchokuWS.Handler
             // SandS の一時シフト状態をリセットする
             keyInfoManager.resetSandSShiftedOneshot();
 
-            if (!bDecoderOn && (kanchokuCode < 0 || normalDecKey < 0 || (kanchokuCode == normalDecKey && normalDecKey >= DecoderKeys.FUNC_DECKEY_START))) {
-                // デコーダーがOFFで、どの DecoderKey にもヒモ付けられていないか、または通常キーでもないキーが押されたら、そのままシステムに処理させる
+            bool isComboShiftKey = kanchokuCode >= 0 && CombinationKeyStroke.DeterminerLib.KeyCombinationPool.IsComboShift(kanchokuCode);
+            if (!bDecoderOn && (kanchokuCode < 0 || normalDecKey < 0 ||
+                (kanchokuCode == normalDecKey && normalDecKey >= DecoderKeys.FUNC_DECKEY_START && !isComboShiftKey))) {
+                // デコーダーがOFFで、どの DecoderKey にもヒモ付けられていないか、または通常キーでも同時シフトキーでもないキーが押されたら、そのままシステムに処理させる
                 // ⇒ Astah など、なぜか自身で キーボード入力を監視していると思われるソフトがあるため
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: false: Decoder=OFF, no assigned deckey and not normal key");
                 if (vkey == FuncVKeys.HENKAN) logger.Warn(() => $"LEAVE: HENKAN: result=False");

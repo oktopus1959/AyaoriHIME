@@ -404,7 +404,10 @@ namespace KanchokuWS.CombinationKeyStroke
                         // キーリピート時は、リピートの終わりに1回だけ KeyUp が発生するので、そこで strokeListのUplistがクリアされる
                         logger.InfoH($"key repeatable detected: strokeList={strokeList.ToDebugString()}");
                         bAutoRepeated = true;
-                        if (!bDecoderOn) {
+                        if (!bDecoderOn && decKey >= DecoderKeys.ESC_DECKEY && KeyCombinationPool.IsComboShift(decKey)) {
+                            // Esc が同時打鍵シフトキーとして使われている場合は、オートリピートを無視する
+                            logger.InfoH("Decoder OFF and Esc combo-shift repeat ignored");
+                        } else if (!bDecoderOn) {
                             // DecoderがOFFのときはキーリピート扱いとする
                             logger.InfoH("Decoder OFF, so repeat key");
                             result = makeSingleHitResult();
