@@ -459,14 +459,14 @@ namespace lattice2 {
 
             auto addShortPairWithGeta = [&](size_t xlen1, size_t xlen2) -> void {
                 // 先頭だったら、〓を前に追加して処理する
-                if (xlen1 <= 2 && xlen2 <= 2) {
-                    if (xlen1 + 1 <= baseSize && xlen2 + 1 <= diffSize) {
-                        // 両者ともに2文字以下の差分の場合は、可能なら後ろ1文字も含めて処理する
-                        LOG_INFOH(L"append postfix char");
-                        ++xlen1;
-                        ++xlen2;
-                    }
-                }
+                //if (xlen1 <= 2 && xlen2 <= 2) {
+                //    if (xlen1 + 1 <= baseSize && xlen2 + 1 <= diffSize) {
+                //        // 両者ともに2文字以下の差分の場合は、可能なら後ろ1文字も含めて処理する
+                //        LOG_INFOH(L"append postfix char");
+                //        ++xlen1;
+                //        ++xlen2;
+                //    }
+                //}
                 selectedNgramInstance.updateSelectedNgram(
                     MSTR_GETA + newCand.substr(0, xlen2),
                     MSTR_GETA + oldCand.substr(0, xlen1));
@@ -506,22 +506,26 @@ namespace lattice2 {
                         if (startPos == 1) {
                             // 1文字目だったら、〓と先頭文字を前に追加して処理する
                             if (startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
-                                LOG_INFOH(L"append GETA and prefix and postfix chars: startPos=0, len1={}, len2={}", len1 + 1, len2 + 1);
-                                addShortPairWithGeta(len1 + 1, len2 + 1);
+                                LOG_INFOH(L"append GETA and prefix and postfix chars: startPos=0, len1={}, len2={}", len1 + 2, len2 + 2);
+                                addShortPairWithGeta(len1 + 2, len2 + 2);
                             } else {
                                 LOG_INFOH(L"append GETA and prefix char: startPos=0, len1={}, len2={}", len1 + 1, len2 + 1);
-                                addShortPairWithGeta(len1, len2);
+                                addShortPairWithGeta(len1 + 1, len2 + 1);
                             }
                         } else {
                             // 2文字目以降の場合
                             // 前後の文字も含めて処理する
                             if (startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
-                                //// 後続文字があれば、前後の1文字も含めて3文字以上で処理する
-                                //LOG_INFOH(L"append prefix and postfix char: startPos={}, len1={}, len2={}", startPos - 1, len1 + 2, len2 + 2);
-                                //addPair(startPos - 1, len1 + 2, len2 + 2);
-                                // 後続文字があれば、その1文字も含めて3文字以上で処理する
-                                LOG_INFOH(L"append postfix char: startPos={}, len1={}, len2={}", startPos, len1 + 1, len2 + 1);
-                                addPair(startPos, len1 + 1, len2 + 1);
+                                // 後続文字がある
+                                if (len1 == 1 || len2 == 1) {
+                                    // どちらも1文字の差分の場合は、前後の1文字を含めて3文字で処理する
+                                    LOG_INFOH(L"append prefix and postfix char: startPos={}, len1={}, len2={}", startPos - 1, len1 + 2, len2 + 2);
+                                    addPair(startPos - 1, len1 + 2, len2 + 2);
+                                } else {
+                                    // どちらかが2文字以上の差分の場合は、後続の1文字も含めて処理する
+                                    LOG_INFOH(L"append postfix char: startPos={}, len1={}, len2={}", startPos, len1 + 1, len2 + 1);
+                                    addPair(startPos, len1 + 1, len2 + 1);
+                                }
                             } else {
                                 // 後続文字がない場合
                                 if (len1 == 1 || len2 == 1) {
