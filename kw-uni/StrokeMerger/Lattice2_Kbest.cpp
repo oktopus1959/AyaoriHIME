@@ -48,6 +48,9 @@ namespace lattice2 {
     //// パディング候補に与えるペナルティ(ペナルティの中で最大値; 候補のCostがこれ以上なら、その候補に Padding Piece が含まれていることが分かるようにする)
     //int PADDING_PENALTY = 100000000;
 
+    // 上位保持する際の末尾の差分の長さ
+    int tailDiffLenForPromotion = 8;
+
     //--------------------------------------------------------------------------------------
     inline bool isHighFreqJoshi(mchar_t mc) {
         return mc == L'が' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は';
@@ -775,7 +778,7 @@ namespace lattice2 {
 
             for (size_t i = 1; i < newCandidates.size(); ++i) {
                 // 先頭候補と末尾が近すぎるものは前寄せせず、通常のコスト順に任せる (とりあえず4文字以上違うものだけを前寄せの対象とする)
-                if (promotedFlags[i] && calcTailDifferenceLen(topStr, newCandidates[i].string()) >= 4) {
+                if (promotedFlags[i] && calcTailDifferenceLen(topStr, newCandidates[i].string()) >= tailDiffLenForPromotion) {
                     promoted.push_back(std::move(newCandidates[i]));
                     promotedMarks.push_back(true);
                 } else {
