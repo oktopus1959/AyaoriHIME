@@ -46,6 +46,7 @@ namespace darts
     private:
         std::vector<int> baseArray;
         std::vector<int> checkArray;
+        std::vector<char> hasChildTransition;
 
     //public:
         //std::vector<int>& baseArray() { return _baseAry; }
@@ -63,12 +64,30 @@ namespace darts
             reader.read(dupAllowed);
             reader.read(baseArray);
             reader.read(checkArray);
+            rebuild_child_transition_cache();
         }
 
     private:
         // 同じプレフィックス系列か
         bool is_prefix_matched(int idx, int pid) {
             return idx > ROOT_INDEX && idx < (int)size() && pid == checkArray[idx];
+        }
+
+        void rebuild_child_transition_cache() {
+            hasChildTransition.assign(size(), 0);
+            for (int idx = ROOT_INDEX + 1; idx < (int)size(); ++idx) {
+                int parent = checkArray[idx];
+                if (parent > ROOT_INDEX && parent < (int)size() && idx != baseArray[parent]) {
+                    hasChildTransition[parent] = 1;
+                }
+            }
+        }
+
+        bool has_non_terminal_child(int pIdx) {
+            if (hasChildTransition.size() != size()) {
+                rebuild_child_transition_cache();
+            }
+            return pIdx > ROOT_INDEX && pIdx < (int)hasChildTransition.size() && hasChildTransition[pIdx] != 0;
         }
 
     public:
@@ -160,26 +179,25 @@ namespace darts
                     // 親インデックスと一致
                     pIdx = idx;
                     base = baseArray[pIdx];
-                    // 単語終端か
-                    if (is_prefix_matched(base, pIdx)) {    // ここの base は base + '\0'(終端) と見なされる
+                    bool isTerminal = is_prefix_matched(base, pIdx);   // ここの base は base + '\0'(終端) と見なされる
+                    if (isTerminal) {
                         int pv = baseArray[base];
                         if (pv >= 0) {
-                            results.push_back(ResultPair(pv, i));
+                            results.emplace_back(pv, i);
                         } else {
                             int pb = -pv;
                             int sh = 0;
                             while (sh != LAST_ENTRY) {
-                                results.push_back(ResultPair(baseArray[pb], i));
+                                results.emplace_back(baseArray[pb], i);
                                 sh = checkArray[pb];
                                 pb = pb + sh;
                             }
                         }
-                    } else if (allowNonTerminal) {
-                        if (i > 1 && i == key.size()) {
-                            // keyが 2文字以上で、末尾になったが続きがある⇒非終端トークン(pos=-1)として扱う
-                            results.emplace_back(NON_TERMINAL_POS, i);
-                            //results.push_back(ResultPair(-1, i));
-                        }
+                    }
+                    if (allowNonTerminal && i > 1 && i == key.size() && has_non_terminal_child(pIdx)) {
+                        // keyが 2文字以上で、末尾になり、さらに継続遷移がある⇒非終端トークン(pos=-1)として扱う
+                        results.emplace_back(NON_TERMINAL_POS, i);
+                        //results.push_back(ResultPair(-1, i));
                     }
                 }
             }

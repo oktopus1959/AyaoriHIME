@@ -11,7 +11,11 @@
 
 namespace dict {
 
-    // 非終端トークンのコスト
+    // 非終端のLID/RID
+    const int NON_TERMINAL_LID = 1285;  // 名詞,一般
+    const int NON_TERMINAL_RID = 1285;  // 名詞,一般
+
+    // 非終端トークンのデフォルトコスト(オプション non-terminal-cost で指定可能)
     const int NON_TERMINAL_DEFAULT_COST = 10000;
 
     // 非終端トークンの featurePtr
@@ -32,7 +36,7 @@ namespace dict {
 
         std::vector<analyzer::Token> tokens;
         // 非終端トークン (コストはオプション non-terminal-cost で指定可能)
-        analyzer::Token nonTerminalToken = analyzer::Token(1285, 1285, NON_TERMINAL_DEFAULT_COST, NON_TERMINAL_FEATURE_PTR);
+        analyzer::Token nonTerminalToken = analyzer::Token(NON_TERMINAL_LID, NON_TERMINAL_RID, NON_TERMINAL_DEFAULT_COST, NON_TERMINAL_FEATURE_PTR);
 
         util::PackedString features;
 

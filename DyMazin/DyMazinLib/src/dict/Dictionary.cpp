@@ -51,6 +51,7 @@ namespace dict {
     // Dictonary class
 
     Dictionary::Dictionary(OptHandlerPtr opts) {
+        // 非終端トークンのコストをオプションから取得して初期化
         nonTerminalToken.wcost = opts->getInt(L"non-terminal-cost");
     }
 

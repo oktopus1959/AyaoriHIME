@@ -214,7 +214,7 @@ int DymazinMakeDictIndex(size_t argc, const wchar_t** argv, const wchar_t* logFi
  * @return 解のコスト(負値もありえる; 実行時エラーがある場合は大きな正値を返す)
  */
 int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz) {
-    LOG_INFOH(L"ENTER: sentence={}, mazePenalty={}, mazeConnPenalty={}, allowNonTerminal={}", sentence ? sentence : L"null", mazePenalty, mazeConnPenalty, allowNonTerminal);
+    LOG_INFOH(L"\n\nENTER: sentence={}, mazePenalty={}, mazeConnPenalty={}, allowNonTerminal={}", sentence ? sentence : L"null", mazePenalty, mazeConnPenalty, allowNonTerminal);
     ERROR_HANDLER->Clear();
 
     try {
