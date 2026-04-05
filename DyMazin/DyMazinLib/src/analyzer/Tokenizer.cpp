@@ -109,11 +109,12 @@ namespace analyzer {
                 if (mazePenalty != 0) {
                     String feat = node->feature();
                     if (utils::endsWith(feat, L"MAZE")) {
+                        // 交ぜ書き候補
                         int factor = 1;
-                        if (mazePenalty > 0) {
-                            size_t len = end2 > begin2 ? end2 - begin2 : 0;
-                            factor = len <= 2 ? 5 : len == 3 ? 3 : len == 4 ? 1 : 0;
-                        }
+                        //if (mazePenalty > 0) {
+                        //    size_t len = end2 > begin2 ? end2 - begin2 : 0;
+                        //    factor = len <= 2 ? 5 : len == 3 ? 3 : len == 4 ? 1 : 0;
+                        //}
                         if (utils::startsWith(feat, L"名詞:固有名詞")) factor += 2;
                         LOG_DEBUG(L"__addNewNode: MAZE penalty={}, factor={}", mazePenalty, factor);
                         node->addWcost(mazePenalty * factor);
