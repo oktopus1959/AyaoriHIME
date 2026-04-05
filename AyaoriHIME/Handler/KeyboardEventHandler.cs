@@ -225,6 +225,11 @@ namespace KanchokuWS.Handler
             return (Settings.SandSEnabledCurrently && decoderActivated) || (Settings.SandSEnabledWhenOffMode && !decoderActivated);
         }
 
+        private void updateStrokeHelpHoldShiftPlane(bool bDecoderOn)
+        {
+            frmKanchoku?.SetStrokeHelpShiftPlane(keyInfoManager?.getShiftPlane(bDecoderOn, false) ?? ShiftPlane.ShiftPlane_NONE);
+        }
+
         /// <summary> 特殊キーの押下状態</summary>
         class ExModiferKeyInfo {
             public enum ExModKeyBehavior
@@ -930,6 +935,7 @@ namespace KanchokuWS.Handler
                             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: prevUpDt={keyInfo.PrevUpDt}.{keyInfo.PrevUpDt:fff}");
                             if (HRDateTime.Now > keyInfo.PrevUpDt.AddMilliseconds(Settings.SandSEnableSpaceOrRepeatMillisec)) {
                                 keyInfo.SetShifted();
+                                updateStrokeHelpHoldShiftPlane(bDecoderOn);
                                 return true;
                             } else {
                                 keyInfo.SetRepeated();
@@ -1327,6 +1333,7 @@ namespace KanchokuWS.Handler
                         return false;
                     }
                     if (bPrevPressed || keyInfo.Repeated || keyInfo.Shifted) keyInfo.PrevUpDt = HRDateTime.Now;
+                    updateStrokeHelpHoldShiftPlane(bDecoderOn);
                     if (bPrevPressed || bPrevPressedOneshot) {
                         if (bDecoderOn) {
                             keyboardDownHandler(vkey, leftCtrl, rightCtrl);
