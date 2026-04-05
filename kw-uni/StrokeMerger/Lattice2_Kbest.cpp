@@ -49,7 +49,7 @@ namespace lattice2 {
     //int PADDING_PENALTY = 100000000;
 
     // 上位保持する際の末尾の差分の長さ
-    int tailDiffLenForPromotion = 8;
+    size_t tailDiffLenForPromotion = 8;
 
     //--------------------------------------------------------------------------------------
     inline bool isHighFreqJoshi(mchar_t mc) {
@@ -889,13 +889,10 @@ namespace lattice2 {
                                     continue;
                                 }
                                 if (!uni.empty() && uniGrams.find(uni) == uniGrams.end()) {
-                                    // 末尾文字の未採用バリエーションは最低1件残す
-                                    if (!uni.empty()) uniGrams.insert(uni);
-                                    if (!bi.empty()) biGrams.insert(bi);
-                                    if (!tri.empty()) triGrams.insert(tri);
-                                    _LOG_DETAIL(_T("[{}] PICK: {}: tailCharVariation({})"), candCount, iter->debugString(), to_wstr(uni));
+                                    // 未見のunigramは残す(pickCountしない)
+                                    uniGrams.insert(uni);
+                                    _LOG_DETAIL(_T("[{}] PICK: {}: uniGram({}) OK, uniGrams.size={}"), candCount, iter->debugString(), to_wstr(uni), uniGrams.size());
                                     ++candCount;
-                                    ++pickCount;
                                     continue;
                                 }
                                 if (pickCount < beamSize2) {
