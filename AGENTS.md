@@ -52,6 +52,7 @@
 - `awk`, `head`, `tail`, `wc`, `cut`：軽量なテキスト確認
 - `ls`, `tree`, `find`：ディレクトリ／ファイル構成の把握
 - `git grep`, `git log`, `git blame`：履歴・責務・変更理由の確認
+- `C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe`
 
 これらのコマンドは **標準的な調査手段であり、毎回ユーザーに確認する必要はない**。
 

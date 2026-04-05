@@ -889,10 +889,13 @@ namespace lattice2 {
                                     continue;
                                 }
                                 if (!uni.empty() && uniGrams.find(uni) == uniGrams.end()) {
-                                    // 未見のunigramは残す(pickCountしない)
-                                    uniGrams.insert(uni);
-                                    _LOG_DETAIL(_T("[{}] PICK: {}: uniGram({}) OK, uniGrams.size={}"), candCount, iter->debugString(), to_wstr(uni), uniGrams.size());
+                                    // 末尾文字の未採用バリエーションは最低1件残す
+                                    if (!uni.empty()) uniGrams.insert(uni);
+                                    if (!bi.empty()) biGrams.insert(bi);
+                                    if (!tri.empty()) triGrams.insert(tri);
+                                    _LOG_DETAIL(_T("[{}] PICK: {}: tailCharVariation({})"), candCount, iter->debugString(), to_wstr(uni));
                                     ++candCount;
+                                    ++pickCount;
                                     continue;
                                 }
                                 if (pickCount < beamSize2) {
