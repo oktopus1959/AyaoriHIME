@@ -35,11 +35,42 @@ namespace KanchokuWS
         /// <summary> 仮想鍵盤フォーム </summary>
         private FrmVirtualKeyboard frmVkb;
 
-        public bool IsVkbHiddenTemporay = false;
+        private bool isVkbHiddenTemporayWhenDecoderOn = false;
+        private bool isVkbHiddenTemporayWhenDecoderOff = false;
+
+        public bool IsVkbHiddenTemporay {
+            get { return IsDecoderActive ? isVkbHiddenTemporayWhenDecoderOn : isVkbHiddenTemporayWhenDecoderOff; }
+            set {
+                if (IsDecoderActive) {
+                    isVkbHiddenTemporayWhenDecoderOn = value;
+                } else {
+                    isVkbHiddenTemporayWhenDecoderOff = value;
+                }
+            }
+        }
 
         public void ShowFrmVkb()
         {
             frmVkb.ShowNonActive();   // NonActive
+        }
+
+        public void ShowEisuVkbIfNeeded()
+        {
+            if (Settings.ShowEisuVkb) {
+                frmVkb.DrawEisuVkb();
+                if (isVkbHiddenTemporayWhenDecoderOff) {
+                    frmVkb.Hide();
+                } else {
+                    ShowFrmVkb();
+                }
+            } else {
+                frmVkb.Hide();
+            }
+        }
+
+        public void ResetEisuVkbHiddenTemporay()
+        {
+            isVkbHiddenTemporayWhenDecoderOff = false;
         }
 
         /// <summary> 漢直モードマーカーフォーム </summary>
@@ -745,7 +776,7 @@ namespace KanchokuWS
         private void splashClosedListener()
         {
             logger.Info("CALLED");
-            if (Settings.ShowEisuVkb) frmVkb.Show();
+            ShowEisuVkbIfNeeded();
         }
 
         //------------------------------------------------------------------
@@ -1017,10 +1048,16 @@ namespace KanchokuWS
         public void SetStrokeHelpShiftPlane(int shiftPlane)
         {
             logger.Info(() => $"CALLED: shiftPlane={shiftPlane}, IsDecoderActive={IsDecoderActive}");
-            if (IsDecoderActive) {
-                if (shiftPlane >= 0 && shiftPlane < ShiftPlane.ShiftPlane_NUM) {
-                    frmVkb.StrokeHelpShiftPlane = shiftPlane;
+            if (shiftPlane >= 0 && shiftPlane < ShiftPlane.ShiftPlane_NUM) {
+                frmVkb.StrokeHelpShiftPlane = shiftPlane;
+                if (IsDecoderActive) {
                     if (frmVkb.IsCurrentNormalVkb) frmVkb.DrawInitialVkb();
+                } else if (Settings.ShowEisuVkb) {
+                    if (shiftPlane > 0) {
+                        frmVkb.DrawInitialVkb();
+                    } else {
+                        frmVkb.DrawEisuVkb();
+                    }
                 }
             }
         }
@@ -1105,6 +1142,20 @@ namespace KanchokuWS
                             return !isActiveWinExcel() && rotateDateString(1);
                         } else if (deckey == DecoderKeys.DATE_STRING_UNROTATION_DECKEY) {
                             return !isActiveWinExcel() && rotateDateString(-1);
+                        } else if (deckey == DecoderKeys.VKB_SHOW_HIDE_DECKEY && (IsDecoderActive || Settings.ShowEisuVkb)) {
+                            if (IsVkbHiddenTemporay) {
+                                IsVkbHiddenTemporay = false;
+                                if (IsDecoderActive) {
+                                    ShowFrmVkb();
+                                } else {
+                                    ShowEisuVkbIfNeeded();
+                                }
+                            } else {
+                                IsVkbHiddenTemporay = true;
+                                frmVkb.Hide();
+                            }
+                            logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
+                            return true;
                         } else if (IsDecoderActive) {
                             // デコーダがアクティブ
                             renewSaveDictsPlannedDt();
@@ -1120,16 +1171,6 @@ namespace KanchokuWS
                                 //    }
                                 //    break;
 
-                                case DecoderKeys.VKB_SHOW_HIDE_DECKEY:
-                                    if (IsVkbHiddenTemporay) {
-                                        IsVkbHiddenTemporay = false;
-                                        ShowFrmVkb();
-                                    } else {
-                                        IsVkbHiddenTemporay = true;
-                                        frmVkb.Hide();
-                                    }
-                                    logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
-                                    return true;
                                 case DecoderKeys.STROKE_HELP_ROTATION_DECKEY:
                                     result = rotateStrokeHelp(1);
                                     logger.Info(() => $"LEAVE: {result}: {DecoderKeys.ToDebugString(deckey)}");
@@ -1655,7 +1696,7 @@ namespace KanchokuWS
                 Settings.VirtualKeyboardShowStrokeCountTemp = 0;
                 bHiraganaStrokeGuideMode = false;
                 bRomanStrokeGuideMode = false;
-                IsVkbHiddenTemporay = false;
+                isVkbHiddenTemporayWhenDecoderOn = false;
                 frmVkb.StrokeHelpShiftPlane = 0;
                 frmVkb.DecKeysForNextTableStrokeHelp.Clear();
                 frmVkb.DrawInitialVkb();
@@ -1706,11 +1747,7 @@ namespace KanchokuWS
             if (decoderPtr != IntPtr.Zero) {
                 handleKeyDecoder(DecoderKeys.DEACTIVE_DECKEY, -1, 0, false);   // DecoderOff の処理をやる
                 if (bModifiersOff) SendInputHandler.Singleton.UpCtrlAndShftKeys();                  // CtrlとShiftキーをUP状態に戻す
-                if (Settings.ShowEisuVkb) {
-                    frmVkb.DrawEisuVkb();
-                } else {
-                    frmVkb.Hide();
-                }
+                ShowEisuVkbIfNeeded();
                 frmMode.Hide();
                 notifyIcon1.Icon = AyaoriHIME.Properties.Resources.kanmini0;
                 frmMode.SetKanjiMode();
@@ -2835,10 +2872,7 @@ namespace KanchokuWS
                 notifyIcon1.Icon = AyaoriHIME.Properties.Resources.kanmini2;
             } else {
                 notifyIcon1.Icon = AyaoriHIME.Properties.Resources.kanmini0;
-                if (Settings.ShowEisuVkb) {
-                    frmVkb.DrawEisuVkb();
-                    frmVkb.Show();
-                }
+                ShowEisuVkbIfNeeded();
             }
         }
 
