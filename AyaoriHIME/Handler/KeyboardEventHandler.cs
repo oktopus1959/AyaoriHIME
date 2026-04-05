@@ -192,6 +192,11 @@ namespace KanchokuWS.Handler
             return (GetAsyncKeyState(FuncVKeys.ALT) & 0x8000) != 0;
         }
 
+        private static bool isWinKeyPressed()
+        {
+            return (GetAsyncKeyState(0x5b) & 0x8000) != 0 || (GetAsyncKeyState(0x5c) & 0x8000) != 0;
+        }
+
         private bool ctrlKeyPressed()
         {
             return (Settings.UseLeftControlToConversion && (GetAsyncKeyState(FuncVKeys.LCONTROL) & 0x8000) != 0)
@@ -812,6 +817,8 @@ namespace KanchokuWS.Handler
                 }
 
                 bool bShift = shiftKeyPressed(vkey);
+                bool bAlt = isAltKeyPressed();
+                bool bWin = isWinKeyPressed();
                 bool bDecoderOn = isDecoderActivated();
                 uint modFlag = ExModiferKeyInfoManager.getModFlagForExModVkey(vkey);
                 uint modPressedOrShifted = keyInfoManager.getPressedOrShiftedExModFlag();
@@ -909,7 +916,11 @@ namespace KanchokuWS.Handler
                         // 上記以外はスペース入力として扱う。すでに押下状態にある拡張修飾キーをSHIFT状態に遷移させる
                         keyInfoManager.makeExModKeyShifted(bDecoderOn);
                     } else if (keyInfo.IsGenericHoldShift) {
-                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: keyState={keyInfo.KeyState}, ctrl={bCtrl}, shift={bShift}, modPressedOrShifted={modPressedOrShifted:x}");
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: keyState={keyInfo.KeyState}, ctrl={bCtrl}, shift={bShift}, alt={bAlt}, win={bWin}, modPressedOrShifted={modPressedOrShifted:x}");
+                        if (bCtrl || bShift || bAlt || bWin) {
+                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: modifier shortcut pass-through");
+                            return false;
+                        }
                         if (keyInfo.Shifted) {
                             return true;
                         }
@@ -1260,6 +1271,8 @@ namespace KanchokuWS.Handler
             }
 
             bool bDecoderOn = isDecoderActivated();
+            bool bAlt = isAltKeyPressed();
+            bool bWin = isWinKeyPressed();
 
             uint modFlag = ExModiferKeyInfoManager.getModFlagForExModVkey(vkey);
             var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
@@ -1309,6 +1322,10 @@ namespace KanchokuWS.Handler
                     }
                     return false;
                 } else if (keyInfo.IsGenericHoldShift) {
+                    if (bCtrl || leftShift || bAlt || bWin) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift UP: modifier shortcut pass-through");
+                        return false;
+                    }
                     if (bPrevPressed || keyInfo.Repeated || keyInfo.Shifted) keyInfo.PrevUpDt = HRDateTime.Now;
                     if (bPrevPressed || bPrevPressedOneshot) {
                         if (bDecoderOn) {
