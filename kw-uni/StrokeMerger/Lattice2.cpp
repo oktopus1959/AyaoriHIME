@@ -196,16 +196,16 @@ namespace lattice2 {
         // 単語素片リストの追加(単語素片が得られなかった場合も含め、各打鍵ごとに呼び出すこと)
         // 単語素片(WordPiece): 打鍵後に得られた出力文字列と、それにかかった打鍵数
         LatticeResult addPieces(const std::vector<WordPiece>& pieces, FollowingPreferenceType prefType, bool useMorphAnalyzer, bool strokeBack, bool bKatakanaConversion) override {
-            _LOG_DETAIL(_T("\nENTER: pieces: {}, bMulti={}, prefType={}, useMorphAnalyzer={}"), formatStringOfWordPieces(pieces), SETTINGS->multiCandidateMode, to_string(prefType), useMorphAnalyzer);
+            _LOG_DETAILW(_T("\nENTER: pieces: {}, bMulti={}, prefType={}, useMorphAnalyzer={}"), formatStringOfWordPieces(pieces), SETTINGS->multiCandidateMode, to_string(prefType), useMorphAnalyzer);
             int totalStrokeCount = (int)(STATE_COMMON->GetTotalDecKeyCount());
             if (_startStrokeCount == 0) _startStrokeCount = totalStrokeCount;
             int currentStrokeCount = totalStrokeCount - _startStrokeCount + 1;
 
             //LOG_DEBUGH(_T("ENTER: currentStrokeCount={}, pieces: {}\nkBest:\n{}"), currentStrokeCount, formatStringOfWordPieces(pieces), _kBestList->debugString());
-            _LOG_DETAIL(_T("INPUT: _kBestList.size={}, _origFirstCand={}, totalStrokeCount={}, currentStrokeCount={}, strokeBack={}, rollOver={}, pieces: {}"),
-                _kBestList->size(), _kBestList->origFirstCand(), totalStrokeCount, currentStrokeCount, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
+            _LOG_DETAIL(_T("INPUT: beamSieze={}, _kBestList.size={}, _origFirstCand={}, totalStrokeCount={}, currentStrokeCount={}, strokeBack={}, rollOver={}, pieces: {}"),
+                SETTINGS->multiStreamBeamSize, _kBestList->size(), _kBestList->origFirstCand(), totalStrokeCount, currentStrokeCount, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
 
-            _LOG_DETAIL(L"CURRENT:\nkBest:\n{}", _kBestList->debugCandidates(10));
+            _LOG_DETAIL(L"CURRENT:\nkBest:\n{}", _kBestList->debugCandidates(50));
 
             if (pieces.empty()) {
                 // pieces が空になるのは、同時打鍵の途中の状態などで、文字が確定していない場合
@@ -269,7 +269,7 @@ namespace lattice2 {
             }
             //LOG_DEBUGH(L"I:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
-            _LOG_DETAIL(_T("LEAVE"));
+            _LOG_DETAILW(_T("LEAVE"));
             return LatticeResult(outStr, numBS);
         }
 
@@ -280,7 +280,7 @@ namespace lattice2 {
         }
 
         bool isCandidateLogEnabled() override {
-            LOG_INFOH(_T("CALLED: enabled={}"), _candidateLogEnabled);
+            LOG_INFO(_T("CALLED: enabled={}"), _candidateLogEnabled);
             return _candidateLogEnabled;
         }
 

@@ -57,21 +57,21 @@ namespace lattice2 {
         bool bRollOverStroke = STATE_COMMON->IsRollOverStroke();
         _LOG_DETAIL(_T("bRollOverStroke={}"), bRollOverStroke);
         while (maxlen > 0) {
-            LOG_DEBUGH(_T("maxlen={}"), maxlen);
+            LOG_DEBUG(_T("maxlen={}"), maxlen);
 // TODO: OUTPUT_STACK への出力が正しくなるように修正する
 #if true
             const MString targetStr = utils::safe_tailstr(_str, maxlen);
 #else
             const MString targetStr = SETTINGS->googleCompatible ? OUTPUT_STACK->backStringWhileOnlyRewritable(maxlen) : OUTPUT_STACK->backStringUptoRewritableBlock(maxlen);
 #endif
-            LOG_DEBUGH(_T("targetStr={}"), to_wstr(targetStr));
+            LOG_DEBUG(_T("targetStr={}"), to_wstr(targetStr));
             if (targetStr.empty()) break;
 
             const RewriteInfo* rewInfo = 0;
             if (bRollOverStroke) rewInfo = rewriteNode->getRewriteInfo(targetStr + MSTR_PLUS);        // ロールオーバー打ちのときは"+"を付加したエントリを検索
             if (!rewInfo) rewInfo = rewriteNode->getRewriteInfo(targetStr);
             if (rewInfo) {
-                LOG_DEBUGH(_T("REWRITE_INFO found: outStr={}, rewritableLen={}, subTable={:p}"), to_wstr(rewInfo->rewriteStr), rewInfo->rewritableLen, (void*)rewInfo->subTable);
+                LOG_DEBUG(_T("REWRITE_INFO found: outStr={}, rewritableLen={}, subTable={:p}"), to_wstr(rewInfo->rewriteStr), rewInfo->rewritableLen, (void*)rewInfo->subTable);
                 return { rewInfo, (int)targetStr.size() };
             }
 
@@ -106,11 +106,11 @@ namespace lattice2 {
         if (maxlen > _str.size()) maxlen = _str.size();
         for (size_t len = maxlen; len > 0; --len) {
             MString key = utils::safe_tailstr(_str, len) + adder;
-            LOG_DEBUGH(_T("key={}"), to_wstr(key));
+            LOG_DEBUG(_T("key={}"), to_wstr(key));
             auto iter = globalPostRewriteMap.find(key);
             if (iter != globalPostRewriteMap.end()) {
                 // 書き換え文字列が見つかった
-                LOG_DEBUGH(_T("FOUND: rewrite={}"), to_wstr(iter->second));
+                LOG_DEBUG(_T("FOUND: rewrite={}"), to_wstr(iter->second));
                 return len < _str.size() ? utils::safe_substr(_str, 0, _str.size() - len) + iter->second : iter->second;
             }
         }
@@ -119,7 +119,7 @@ namespace lattice2 {
 
     // 自動部首合成の実行
     std::tuple<MString, int> CandidateString::applyAutoBushu(const WordPiece& piece, int strokeCount) const {
-        LOG_DEBUGH(_T("CALLED: _str={}, _strokeLen={}, piece={}, strokeCount={}"), to_wstr(_str), piece.debugString(), _strokeLen, strokeCount);
+        LOG_DEBUG(_T("CALLED: _str={}, _strokeLen={}, piece={}, strokeCount={}"), to_wstr(_str), piece.debugString(), _strokeLen, strokeCount);
         MStringResult resultOut;
         if (_strokeLen + piece.strokeLen() == strokeCount) {
             if (SETTINGS->autoBushuCompMinCount > 0 && BUSHU_DIC) {
@@ -127,7 +127,7 @@ namespace lattice2 {
                 const MString& pieceStr = piece.getString();
                 if (_str.size() > 0 && (pieceStr.size() == 1 || (pieceStr.size() > 1 && pieceStr[1] == '|'))) {
                     // 自動部首合成の実行 (複数文字がある場合は先頭の文字だけを対象)
-                    LOG_DEBUGH(L"CALL ReduceByAutoBushu({}, {})", (wchar_t)_str.back(), (wchar_t)pieceStr.front());
+                    LOG_DEBUG(L"CALL ReduceByAutoBushu({}, {})", (wchar_t)_str.back(), (wchar_t)pieceStr.front());
                     BUSHU_COMP_NODE->ReduceByAutoBushu(_str.back(), pieceStr.front(), resultOut);
                     if (!resultOut.resultStr().empty()) {
                         MString s(_str);
@@ -136,7 +136,7 @@ namespace lattice2 {
                     }
                     //mchar_t m = BUSHU_DIC->FindAutoComposite(_str.back(), piece.getString().front());
                     ////if (m == 0) m = BUSHU_DIC->FindComposite(_str.back(), piece.getString().front(), 0);
-                    //LOG_DEBUGH(_T("BUSHU_DIC->FindAutoComposite({}, {}) -> {}"),
+                    //LOG_DEBUG(_T("BUSHU_DIC->FindAutoComposite({}, {}) -> {}"),
                     //    to_wstr(utils::safe_tailstr(_str, 1)), to_wstr(utils::safe_substr(piece.getString(), 0, 1)), to_wstr(m));
                     //if (m != 0) {
                     //    MString s(_str);
@@ -164,7 +164,7 @@ namespace lattice2 {
                     return s;
                 }
                 //mchar_t m = BUSHU_DIC->FindComposite(_str[_str.size() - 2], _str[_str.size() - 1], '\0');
-                //LOG_DEBUGH(_T("BUSHU_DIC->FindComposite({}, {}) -> {}"),
+                //LOG_DEBUG(_T("BUSHU_DIC->FindComposite({}, {}) -> {}"),
                 //    to_wstr(_str[_str.size() - 2]), to_wstr(_str[_str.size() - 1]), to_wstr(m));
                 //if (m != 0) {
                 //    MString s(_str.substr(0, _str.size() - 2));
@@ -513,12 +513,12 @@ namespace lattice2 {
             infoString(), piece.debugString(), strokeCount, paddingLen, isStrokeBS, _strokeLen);
         std::vector<MString> ss;
         if (isStrokeBS || (piece.isAnyPadding() && _strokeLen + paddingLen == strokeCount) || (_strokeLen + piece.strokeLen() == strokeCount)) {
-            LOG_DEBUGH(_T("isStrokeBS({}) || _strokeLen({}) + (piece.strokeLen({})|paddingLen({})) == strokeCount({})"),
+            LOG_DEBUG(_T("isStrokeBS({}) || _strokeLen({}) + (piece.strokeLen({})|paddingLen({})) == strokeCount({})"),
                 isStrokeBS, _strokeLen, piece.strokeLen(), paddingLen, strokeCount);
             // 素片のストローク数が適合した
             if (piece.rewriteNode()) {
                 // 書き換えノード
-                LOG_DEBUGH(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
+                LOG_DEBUG(_T("rewriteNode: {}"), to_wstr(piece.rewriteNode()->getString()));
                 const RewriteInfo* rewInfo;
                 int numBS = 0;
                 std::tie(rewInfo, numBS) = matchWithTailString(piece.rewriteNode());
@@ -527,7 +527,7 @@ namespace lattice2 {
                 if (rewInfo) {
                     // 末尾にマッチする書き換え情報があった
                     for (MString s : split_piece_str(rewInfo->rewriteStr)) {
-                        LOG_DEBUGH(_T("add rewrite piece: {}"), to_wstr(s));
+                        LOG_DEBUG(_T("add rewrite piece: {}"), to_wstr(s));
                         ss.push_back(utils::safe_substr(_str, 0, -numBS) + s);
                         if (!SETTINGS->multiCandidateMode) {
                             // 単一候補モードの場合は最初の候補だけを追加
@@ -539,7 +539,7 @@ namespace lattice2 {
                 if (!bRewriteFound) {
                     // 複数候補モードの場合か、書き換えがなかったら場合は、書き換えない候補も追加
                     // 複数文字が設定されたストロークの扱い
-                    LOG_DEBUGH(_T("add Non-rewrite pieces: {}"), to_wstr(piece.rewriteNode()->getString()));
+                    LOG_DEBUG(_T("add Non-rewrite pieces: {}"), to_wstr(piece.rewriteNode()->getString()));
                     for (MString s : split_piece_str(piece.rewriteNode()->getString())) {
                         ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
                     }
@@ -547,17 +547,17 @@ namespace lattice2 {
             } else {
                 int numBS = piece.numBS();
                 if (numBS > 0) {
-                    LOG_DEBUGH(_T("cand.str={}, numBS={}, piece.str={}"), to_wstr(_str), numBS, to_wstr(piece.getString()));
+                    LOG_DEBUG(_T("cand.str={}, numBS={}, piece.str={}"), to_wstr(_str), numBS, to_wstr(piece.getString()));
                     MString s;
                     if ((size_t)numBS < _str.size()) {
                         s.append(utils::safe_substr(_str, 0, (int)(_str.size() - numBS)));
                     }
                     s.append(piece.getString());
-                    LOG_DEBUGH(_T("new.str={}"), to_wstr(s));
+                    LOG_DEBUG(_T("new.str={}"), to_wstr(s));
                     ss.push_back(s);
                 } else {
                     // 複数文字が設定されたストロークの扱い
-                    LOG_DEBUGH(_T("normalNode: {}"), to_wstr(piece.getString()));
+                    LOG_DEBUG(_T("normalNode: {}"), to_wstr(piece.getString()));
                     for (MString s : split_piece_str(piece.getString())) {
                         if (bKatakanaConversion) {
                             ss.push_back(_str + convertoToKatakanaIfAny(s, bKatakanaConversion));
@@ -573,7 +573,7 @@ namespace lattice2 {
             }
         } else {
             // ここで空文字列を push_back してはいけない。_candidates の stroke が進むことによって余計な候補が追加されてしまう。
-            LOG_DEBUGH(_T("return NO result: _strokeLen({}) + piece.strokeLen({}) != strokeCount({})"), _strokeLen, piece.strokeLen(), strokeCount);
+            LOG_DEBUG(_T("return NO result: _strokeLen({}) + piece.strokeLen({}) != strokeCount({})"), _strokeLen, piece.strokeLen(), strokeCount);
         }
 
         _LOG_DETAIL(L"LEAVE: ss=\"{}\"", to_wstr(utils::join(ss, '|')));

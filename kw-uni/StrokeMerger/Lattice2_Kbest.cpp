@@ -509,18 +509,32 @@ namespace lattice2 {
             return result;
         }
 
-        String debugCandidates(size_t maxLn = 100000) const override {
+        String debugCandidates(size_t maxLn = 10000) const override {
             String result;
+            int maxLen = 1000;
+            size_t maxSize = 30;
+            int strokeLen = maxLen;
+            size_t n = 0;
             for (size_t i = 0; i < _candidates.size() && i < maxLn; ++i) {
-                result.append(std::to_wstring(i));
-                result.append(_T(": "));
-                result.append(_candidates[i].debugString());
-                result.append(_T("\n"));
+                const auto& cand = _candidates[i];
+                if (cand.strokeLen() != strokeLen) {
+                    if (strokeLen != maxLen) { result.append(std::format(L"--- StrokeLen: {}, size={} ---\n", strokeLen, n)); }
+                    n = 0;
+                    strokeLen = cand.strokeLen();
+                }
+                ++n;
+                if (n <= maxSize) {
+                    result.append(std::to_wstring(i));
+                    result.append(_T(": "));
+                    result.append(cand.debugString());
+                    result.append(_T("\n"));
+                }
             }
+            if (strokeLen != maxLen) { result.append(std::format(L"--- StrokeLen: {}, size={} ---\n", strokeLen, n)); }
             return result;
         }
 
-        String debugKBestString(size_t maxLn = 100000) const override {
+        String debugKBestString(size_t maxLn = 10000) const override {
             String result;
             result.append(_debugLog);
             result.append(std::format(L"\nTotal candidates={}\n", _candidates.size()));
@@ -842,6 +856,9 @@ namespace lattice2 {
             const size_t beamSize2 = beamSize + (int)(beamSize * SETTINGS->extraBeamSizeRate);
             size_t candCount = 0;
             size_t pickCount = 0;
+            size_t unigramPickCount = 0;
+            size_t nonTerminalPickCount = 0;
+            const size_t extraLimit = std::max<size_t>(1, beamSize / 3);
             if (!newCandidates.empty()) {
                 // Padding piece を含まない候補(「燃」など)を見つける
                 bool bNonPaddingFound = std::any_of(newCandidates.begin(), newCandidates.end(),
@@ -883,17 +900,25 @@ namespace lattice2 {
                                     _LOG_DETAIL(_T("tail 3grams={}"), to_wstr(utils::join(triGrams, ',')));
                                 }
                                 if (iter->isNonTerminal()) {
-                                    // 非終端は残す(pickCountしない)
-                                    _LOG_DETAIL(_T("[{}]: PICK: {}: non terminal"), candCount, iter->debugString());
-                                    ++candCount;
-                                    continue;
+                                    if (nonTerminalPickCount < extraLimit) {
+                                        // 非終端候補は通常 beam とは別枠で一定数だけ残す
+                                        _LOG_DETAIL(_T("[{}]: PICK: {}: non terminal({}/{})"), candCount, iter->debugString(), nonTerminalPickCount + 1, extraLimit);
+                                        ++candCount;
+                                        ++nonTerminalPickCount;
+                                        continue;
+                                    }
+                                    _LOG_DETAIL(_T("[{}]: SKIP: {}: non terminal limit reached({}/{})"), candCount, iter->debugString(), nonTerminalPickCount, extraLimit);
                                 }
                                 if (!uni.empty() && uniGrams.find(uni) == uniGrams.end()) {
-                                    // 未見のunigramは残す(pickCountしない)
-                                    uniGrams.insert(uni);
-                                    _LOG_DETAIL(_T("[{}] PICK: {}: uniGram({}) OK, uniGrams.size={}"), candCount, iter->debugString(), to_wstr(uni), uniGrams.size());
-                                    ++candCount;
-                                    continue;
+                                    if (unigramPickCount < extraLimit) {
+                                        // 未見のunigramは通常 beam とは別枠で一定数だけ残す
+                                        uniGrams.insert(uni);
+                                        _LOG_DETAIL(_T("[{}] PICK: {}: uniGram({}) OK, uniGrams.size={}/{}"), candCount, iter->debugString(), to_wstr(uni), uniGrams.size(), extraLimit);
+                                        ++candCount;
+                                        ++unigramPickCount;
+                                        continue;
+                                    }
+                                    _LOG_DETAIL(_T("[{}]: SKIP: {}: unigram limit reached({}/{})"), candCount, iter->debugString(), unigramPickCount, extraLimit);
                                 }
                                 if (pickCount < beamSize2) {
                                     // まだ余裕がある
