@@ -264,14 +264,11 @@ namespace lattice2 {
         }
 
         // 直近N件の先頭候補から固定 prefix を再計算する
-        // N: SETTINGS->fixLeaderCharStrokeCount - REQUIRED_PREFIX_WEIGHT * 2
-        // REQUIRED_PREFIX_WEIGHT: 固定 prefix と見なすために必要な重み (漢字1文字=1.0、その他の文字=0.5 として計算)
-        // FILTER_SUFFIX_TRIM_WEIGHT: 固定 prefix として残すために必要な重み (末尾からこの重み分をトリムして残す)
+        // N: std::max(SETTINGS->fixLeaderCharStrokeCount, 5)
+        // FILTER_SUFFIX_TRIM_WEIGHT: common prefix から固定用prefix を導出するための、可変部として残す末尾の重み
         void updateFixedLeaderPrefixState(const MString& topStr) {
-            const double REQUIRED_PREFIX_WEIGHT = 4.0;
-            const double FILTER_SUFFIX_TRIM_WEIGHT = 3.0;
-            int histSize = SETTINGS->fixLeaderCharStrokeCount - (int)REQUIRED_PREFIX_WEIGHT * 2;
-            const size_t REQUIRED_HISTORY_SIZE = histSize > 0 ? histSize : 2;
+            const size_t REQUIRED_HISTORY_SIZE = std::max(SETTINGS->fixLeaderCharStrokeCount, 5);
+            const double FILTER_SUFFIX_TRIM_WEIGHT = 2.5;
 
             if (topStr.empty()) {
                 resetFixedLeaderPrefixState();
@@ -296,7 +293,7 @@ namespace lattice2 {
             }
 
             double prefixWeight = calcLeaderPrefixWeight(commonPrefix);
-            if (prefixWeight >= REQUIRED_PREFIX_WEIGHT) {
+            if (prefixWeight > FILTER_SUFFIX_TRIM_WEIGHT) {
                 _fixedLeaderPrefix = trimLeaderPrefixTailByWeight(commonPrefix, FILTER_SUFFIX_TRIM_WEIGHT);
             }
 

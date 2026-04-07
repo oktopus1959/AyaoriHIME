@@ -138,7 +138,7 @@ struct Settings {
     int remainingStrokeSize = 5;            // 残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
     int recentConnectionKeepStrokeCount = 2;    // 直近Nストローク分の接続候補を上位に保持する範囲
     int variableTailLength = 10;            // 入力の末尾部分で、可変となる部分の長さ (TODO: 後で、形態素解析の対象となる長さに変更する)
-    int fixLeaderCharStrokeCount = 10;      // 指定されたストローク数以上、先頭部が同じ文字の場合にその部分を固定するための、ストローク長の閾値
+    int fixLeaderCharStrokeCount = 5;       // 指定されたストローク数以上、先頭部が同じ文字の場合にその部分を固定するための、ストローク長の閾値
     int challengeNumForSameLeader = 4;      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
     int kanjiNoKanjiBonus = 1500;           // 「漢字+の+漢字」のような場合に与えるボーナス
     int loweredContinuousKanjiNum = 0;      // 連続するN文字の漢字列にはコストを与える

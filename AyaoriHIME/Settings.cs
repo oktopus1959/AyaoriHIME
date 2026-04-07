@@ -1947,7 +1947,7 @@ namespace KanchokuWS
             MorphCostWithoutEOS = addDecoderSetting("morphCostWithoutEOS", false);              // EOSまで含めた形態素解析コストを使用しない
             MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze2");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
             MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000, 1, 10000); // 交ぜ書きエントリに対するペナルティ
-            MorphMazeConnectionPenalty = addDecoderSetting("morphMazeConnectionPenalty", 1000); // 交ぜ書きエントリの接続に対するペナルティ
+            MorphMazeConnectionPenalty = addDecoderSetting("morphMazeConnectionPenalty", 2000); // 交ぜ書きエントリの接続に対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 10000);            // 非終端形態素の単語コスト
             AnalyzeMorphLen = addDecoderSetting("analyzeMorphLen", 10);                         // 形態素解析を行う際の最大形態素長
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
@@ -1968,7 +1968,7 @@ namespace KanchokuWS
             RemainingStrokeSize = addDecoderSetting("remainingStrokeSize", 5);                  // 残しておく多ストロークの範囲
             RecentConnectionKeepStrokeCount = addDecoderSetting("recentConnectionKeepStrokeCount", 0);   // 直近Nストローク分の接続候補を上位に保持する範囲
             VariableTailLength = addDecoderSetting("variableTailLength", 10, 5);                // 入力の末尾部分で、可変となる部分の長さ
-            FixLeaderCharStrokeCount = addDecoderSetting("fixLeaderCharStrokeCount", 12, 10);   // 指定されたストローク数以上、先頭部が同じ文字の場合にその部分を固定するための、ストローク長の閾値
+            FixLeaderCharStrokeCount = addDecoderSetting("fixLeaderCharStrokeCount", 5, 2);     // 指定されたストローク数以上、先頭部が同じ文字の場合にその部分を固定するための、ストローク長の閾値
             ChallengeNumForSameLeader = addDecoderSetting("challengeNumForSameLeader", 4);      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
             KanjiNoKanjiBonus = addDecoderSetting("kanjiNoKanjiBonus", 1500);                   // 「漢字+の+漢字」のような場合に与えるボーナス
             MergerCandidateMin = addDecoderSetting("mergerCandidateMin", 3, 0, 10);             // 複数候補表示の最小数
