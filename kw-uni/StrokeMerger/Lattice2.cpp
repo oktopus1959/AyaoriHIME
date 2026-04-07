@@ -205,7 +205,7 @@ namespace lattice2 {
             _LOG_DETAIL(_T("INPUT: beamSieze={}, _kBestList.size={}, _origFirstCand={}, totalStrokeCount={}, currentStrokeCount={}, strokeBack={}, rollOver={}, pieces: {}"),
                 SETTINGS->multiStreamBeamSize, _kBestList->size(), _kBestList->origFirstCand(), totalStrokeCount, currentStrokeCount, strokeBack, STATE_COMMON->IsRollOverStroke(), formatStringOfWordPieces(pieces));
 
-            _LOG_DETAIL(L"CURRENT:\nkBest:\n{}", _kBestList->debugCandidates(50));
+            _LOG_DETAIL(L"CURRENT:\nkBest:\n{}", _kBestList->debugCandidates(20));
 
             if (pieces.empty()) {
                 // pieces が空になるのは、同時打鍵の途中の状態などで、文字が確定していない場合
@@ -244,9 +244,9 @@ namespace lattice2 {
             _prevOutputStr = outStr;
             outStr = utils::safe_substr(outStr, commonLen);
 
-            _LOG_DETAIL(_T("OUTPUT: {}, numBS={}\n\n{}"), to_wstr(outStr), numBS, _kBestList->debugKBestString());
+            _LOG_DETAIL(_T("OUTPUT: {}, numBS={}\n\n{}"), to_wstr(outStr), numBS, _kBestList->debugKBestString(1000));
             if (_candidateLogEnabled || SETTINGS->multiStreamDetailLog) {
-                const int DEBUG_LOG_SIZE = SETTINGS->multiStreamBeamSize * 2;
+                //const int DEBUG_LOG_SIZE = SETTINGS->multiStreamBeamSize * 2;
                 //while (_candidateLogQueue.size() >= DEBUG_LOG_SIZE) _candidateLogQueue.pop_front();
                 _candidateLogQueue.clear();
                 _candidateLogQueue.push_back(
@@ -255,7 +255,7 @@ namespace lattice2 {
                 if (pieces.back().numBS() <= 0) {
                     _candidateLogQueue.push_back(
                         std::format(L"\n{}\nOUTPUT: {}, numBS={}\n\n",
-                            _kBestList->debugKBestString(DEBUG_LOG_SIZE), to_wstr(outStr), numBS));
+                            _kBestList->debugKBestString(200), to_wstr(outStr), numBS));
                 }
             }
 

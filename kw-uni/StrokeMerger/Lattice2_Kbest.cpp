@@ -191,9 +191,8 @@ namespace lattice2 {
     private:
         std::vector<bool> _highFreqJoshiStroke;
         std::vector<bool> _rollOverStroke;
-        MString _prevTopCandidateString;
-        std::vector<int> _leaderPrefixStableCounts;
-        size_t _fixedLeaderPrefixLen = 0;
+        std::vector<MString> _topCandidateHistory;
+        MString _fixedLeaderPrefix;
 
         void setHighFreqJoshiStroke(int count, mchar_t ch) {
             if (count >= 0 && count < 1024) {
@@ -228,54 +227,95 @@ namespace lattice2 {
 
         // 先頭部固定の判定状態をリセットする
         void resetFixedLeaderPrefixState() {
-            _prevTopCandidateString.clear();
-            _leaderPrefixStableCounts.clear();
-            _fixedLeaderPrefixLen = 0;
+            _topCandidateHistory.clear();
+            _fixedLeaderPrefix.clear();
         }
 
-        // 先頭候補の各文字位置について、同じ文字が連続して現れた回数を更新し、固定 prefix 長を再計算する
+        static double getLeaderPrefixCharWeight(mchar_t ch) {
+            return utils::is_kanji(ch) ? 1.0 : 0.5;
+        }
+
+        static MString getWeightedCommonPrefix(const MString& lhs, const MString& rhs) {
+            size_t commonLen = 0;
+            while (commonLen < lhs.size() && commonLen < rhs.size() && lhs[commonLen] == rhs[commonLen]) {
+                ++commonLen;
+            }
+            return utils::safe_substr(lhs, 0, commonLen);
+        }
+
+        static double calcLeaderPrefixWeight(const MString& prefix) {
+            double weight = 0.0;
+            for (auto ch : prefix) {
+                weight += getLeaderPrefixCharWeight(ch);
+            }
+            return weight;
+        }
+
+        static MString trimLeaderPrefixTailByWeight(const MString& prefix, double trimWeight) {
+            if (prefix.empty() || trimWeight <= 0.0) return prefix;
+
+            double tailWeight = 0.0;
+            size_t keepLen = prefix.size();
+            while (keepLen > 0 && tailWeight < trimWeight) {
+                --keepLen;
+                tailWeight += getLeaderPrefixCharWeight(prefix[keepLen]);
+            }
+            return utils::safe_substr(prefix, 0, keepLen);
+        }
+
+        // 直近N件の先頭候補から固定 prefix を再計算する
+        // N: SETTINGS->fixLeaderCharStrokeCount - REQUIRED_PREFIX_WEIGHT * 2
+        // REQUIRED_PREFIX_WEIGHT: 固定 prefix と見なすために必要な重み (漢字1文字=1.0、その他の文字=0.5 として計算)
+        // FILTER_SUFFIX_TRIM_WEIGHT: 固定 prefix として残すために必要な重み (末尾からこの重み分をトリムして残す)
         void updateFixedLeaderPrefixState(const MString& topStr) {
-            int threshold = SETTINGS->fixLeaderCharStrokeCount;
-            if (threshold <= 0 || topStr.empty()) {
+            const double REQUIRED_PREFIX_WEIGHT = 4.0;
+            const double FILTER_SUFFIX_TRIM_WEIGHT = 3.0;
+            int histSize = SETTINGS->fixLeaderCharStrokeCount - (int)REQUIRED_PREFIX_WEIGHT * 2;
+            const size_t REQUIRED_HISTORY_SIZE = histSize > 0 ? histSize : 2;
+
+            if (topStr.empty()) {
                 resetFixedLeaderPrefixState();
                 return;
             }
 
-            std::vector<int> counts(topStr.size(), 1);
-            size_t commonLen = 0;
-            while (commonLen < topStr.size() && commonLen < _prevTopCandidateString.size() &&
-                topStr[commonLen] == _prevTopCandidateString[commonLen]) {
-                ++commonLen;
+            _topCandidateHistory.push_back(topStr);
+            if (_topCandidateHistory.size() > REQUIRED_HISTORY_SIZE) {
+                _topCandidateHistory.erase(_topCandidateHistory.begin());
             }
 
-            for (size_t i = 0; i < commonLen; ++i) {
-                counts[i] = i < _leaderPrefixStableCounts.size() ? _leaderPrefixStableCounts[i] + 1 : 2;
+            _fixedLeaderPrefix.clear();
+            if (_topCandidateHistory.size() < REQUIRED_HISTORY_SIZE) {
+                _LOG_DETAIL(L"topStr={}, historySize={}, fixedLeaderPrefix=<pending>",
+                    to_wstr(topStr), _topCandidateHistory.size());
+                return;
             }
 
-            _prevTopCandidateString = topStr;
-            _leaderPrefixStableCounts = std::move(counts);
-            _fixedLeaderPrefixLen = 0;
-            while (_fixedLeaderPrefixLen < _leaderPrefixStableCounts.size() &&
-                _leaderPrefixStableCounts[_fixedLeaderPrefixLen] >= threshold) {
-                ++_fixedLeaderPrefixLen;
+            MString commonPrefix = _topCandidateHistory.front();
+            for (size_t i = 1; i < _topCandidateHistory.size() && !commonPrefix.empty(); ++i) {
+                commonPrefix = getWeightedCommonPrefix(commonPrefix, _topCandidateHistory[i]);
             }
-            _LOG_DETAIL(L"topStr={}, fixedLeaderPrefixLen={}, stableCounts={}",
-                to_wstr(topStr), _fixedLeaderPrefixLen, utils::join(_leaderPrefixStableCounts, L", "));
+
+            double prefixWeight = calcLeaderPrefixWeight(commonPrefix);
+            if (prefixWeight >= REQUIRED_PREFIX_WEIGHT) {
+                _fixedLeaderPrefix = trimLeaderPrefixTailByWeight(commonPrefix, FILTER_SUFFIX_TRIM_WEIGHT);
+            }
+
+            _LOG_DETAIL(L"topStr={}, historySize={}, commonPrefix={}, fixedLeaderPrefix={}, prefixWeight={}",
+                to_wstr(topStr), _topCandidateHistory.size(), to_wstr(commonPrefix), to_wstr(_fixedLeaderPrefix), prefixWeight);
         }
 
         // 固定済み prefix を持たない候補を候補列から除外する
         void applyFixedLeaderPrefixFilter() {
-            if (_fixedLeaderPrefixLen == 0 || _candidates.size() <= 1) return;
+            if (_fixedLeaderPrefix.empty() || _candidates.size() <= 1) return;
 
-            MString prefix = utils::safe_substr(_candidates.front().string(), 0, _fixedLeaderPrefixLen);
             int topStrokeLen = _candidates.front().strokeLen();
             size_t idx = 1;
             while (idx < _candidates.size()) {
                 if (_candidates[idx].strokeLen() < topStrokeLen) {
                     // これより後は、ストローク長が短い候補しかないので、ループを抜ける
                     break;
-                } else if (!utils::startsWith(_candidates[idx].string(), prefix)) {
-                    _LOG_DETAIL(L"erase by fixed leader prefix: prefix={}, cand={}", to_wstr(prefix), _candidates[idx].debugString());
+                } else if (!utils::startsWith(_candidates[idx].string(), _fixedLeaderPrefix)) {
+                    _LOG_DETAIL(L"erase by fixed leader prefix: prefix={}, cand={}", to_wstr(_fixedLeaderPrefix), _candidates[idx].debugString());
                     _candidates.erase(_candidates.begin() + idx);
                 } else {
                     ++idx;
@@ -302,7 +342,7 @@ namespace lattice2 {
                 updateMazegakiPreference(_candidates[0], _candidates[_origFirstCand]);
                 removeOtherThanFirstForEachStroke();
                 _origFirstCand = -1;
-                _LOG_DETAIL(L"LEAVE: CAND_SELECT:\nkBest:\n{}", debugCandidates(10));
+                _LOG_DETAIL(L"LEAVE: CAND_SELECT:\nkBest:\n{}", debugCandidates(20));
             }
         }
 
@@ -509,21 +549,24 @@ namespace lattice2 {
             return result;
         }
 
-        String debugCandidates(size_t maxLn = 10000) const override {
+        String debugCandidates(size_t maxLn) const override {
             String result;
             int maxLen = 1000;
-            size_t maxSize = 30;
             int strokeLen = maxLen;
             size_t n = 0;
+            bool firstBlock = true;
             for (size_t i = 0; i < _candidates.size() && i < maxLn; ++i) {
                 const auto& cand = _candidates[i];
                 if (cand.strokeLen() != strokeLen) {
-                    if (strokeLen != maxLen) { result.append(std::format(L"--- StrokeLen: {}, size={} ---\n", strokeLen, n)); }
+                    if (strokeLen != maxLen) {
+                        result.append(std::format(L"--- StrokeLen: {}, size={} ---\n", strokeLen, n));
+                        firstBlock = false;
+                    }
                     n = 0;
                     strokeLen = cand.strokeLen();
                 }
                 ++n;
-                if (n <= maxSize) {
+                if (firstBlock || n <= 5) {
                     result.append(std::to_wstring(i));
                     result.append(_T(": "));
                     result.append(cand.debugString());
@@ -1530,7 +1573,7 @@ namespace lattice2 {
                         _LOG_DETAIL(L"applyMazegaki: SKIP same as source");
                     }
                 }
-                _LOG_DETAIL(L"LEAVE\nkBest:\n{}", debugCandidates(SETTINGS->multiStreamBeamSize));
+                _LOG_DETAIL(L"LEAVE\nkBest:\n{}", debugCandidates(20));
             }
         }
 
