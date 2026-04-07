@@ -19,8 +19,10 @@ namespace lattice2 {
 //#define KATAKANA_COST_FILE          JOIN_USER_FILES_FOLDER(L"katakana.cost.txt")
 #define REALTIME_NGRAM_MAIN_FILE    JOIN_USER_FILES_FOLDER(L"realtime.ngram.txt")
 #define REALTIME_NGRAM_TEMP_FILE    JOIN_USER_FILES_FOLDER(L"realtime.ngram.txt.tmp")
-#define SELECTED_NGRAM_FILE         JOIN_USER_FILES_FOLDER(L"selected.ngram.txt")
-#define USER_NGRAM_FILE             JOIN_USER_FILES_FOLDER(L"user.ngram.txt")
+#define SELECTED_NGRAM_MAIN_FILE    JOIN_USER_FILES_FOLDER(L"selected.ngram.txt")
+#define SELECTED_NGRAM_TEMP_FILE    JOIN_USER_FILES_FOLDER(L"selected.ngram.txt.tmp")
+#define USER_NGRAM_MAIN_FILE        JOIN_USER_FILES_FOLDER(L"user.ngram.txt")
+#define USER_NGRAM_TEMP_FILE        JOIN_USER_FILES_FOLDER(L"user.ngram.txt.tmp")
 //#define USER_COST_FILE              JOIN_USER_FILES_FOLDER(L"userword.cost.txt")
 
     const static int DATE_PATTERN_BONUMS_POINT = 100;
@@ -553,6 +555,8 @@ namespace lattice2 {
     }
 
 #define REALTIME_NGRAM_FILE (SETTINGS->useTmpRealtimeNgramFile ? REALTIME_NGRAM_TEMP_FILE : REALTIME_NGRAM_MAIN_FILE)
+#define SELECTED_NGRAM_FILE (SETTINGS->useTmpRealtimeNgramFile ? SELECTED_NGRAM_TEMP_FILE : SELECTED_NGRAM_MAIN_FILE)
+#define USER_NGRAM_FILE (SETTINGS->useTmpRealtimeNgramFile ? USER_NGRAM_TEMP_FILE : USER_NGRAM_MAIN_FILE)
 
     // 各種Ngramファイルの読み込み
     void loadNgramFiles() {
