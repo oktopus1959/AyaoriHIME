@@ -22,15 +22,20 @@ namespace MazegakiPreprocessor {
         LOG_DEBUGH(L"make_variation: ENTER: yomi={}, h1={}, k1={}, h2={}, k2={}, h3={}, k3={}, h4={}, k4={}, r={}", yomi, h1, k1, h2, k2, h3, k3, h4, k4, r);
 
         if (yomi.empty() || yomi == L"#") {
+            LOG_DEBUGH(L"LEAVE: empty yomi");
             return {}; // 空の読みは無視
         }
 
         //auto yomis = findYomi(yomi, h1, k1, h2, k2 == L"々" ? k1 : k2, h3, k3.empty() ? k2 : k3, h4, k4.empty() ? k3 : k4, r);
-        auto subYomi = utils::safe_substr(utils::safe_substr(yomi, h1.size()), 0, -(int)r.size());
+        //auto subYomi = utils::safe_substr(utils::safe_substr(yomi, h1.size()), 0, -(int)r.size());
+        size_t subStart = h1.size();
+        size_t subLen = yomi.size() - subStart - r.size();
+        auto subYomi = utils::safe_substr(yomi, subStart, subLen);
         auto yomis = findYomi(subYomi, k1, h2, k2 == L"々" ? k1 : k2, h3, k3, h4, k4);
         LOG_DEBUGH(L"yomis={}", utils::join(yomis, L","));
 
         if (yomis.empty()) {
+            LOG_DEBUGH(L"LEAVE: empty yomis");
             return {};
         }
 
@@ -113,6 +118,7 @@ namespace MazegakiPreprocessor {
         RegexUtil reKanji(L"[一-龠々]+");
         VectorString result;
         std::copy_if(mazeSet.begin(), mazeSet.end(), std::back_inserter(result), [&reKanji](StringRef iter) {return !reKanji.match(iter);});
+        LOG_DEBUGH(L"LEAVE");
         return result;
     }
 
@@ -377,8 +383,8 @@ namespace MazegakiPreprocessor {
             StringRef yomi = items[11];
             if (!ktype.empty() && ktype != L"*" && surf.size() > 1 && yomi.size() > 1) {
                 int gobiLen = getGobiLength(ktype);
-                String stem = utils::safe_substr(surf, 0, -gobiLen);
-                String yomiStem = utils::safe_substr(yomi, 0, -gobiLen);
+                String stem = gobiLen > 0 ? utils::safe_substr(surf, 0, -gobiLen) : surf;
+                String yomiStem = gobiLen > 0 ? utils::safe_substr(yomi, 0, -gobiLen) : yomi;
                 LOG_DEBUGH(L"gobiLen={}, stem={}, yomiStem={}", gobiLen, stem, yomiStem);
 
                 auto defs = kformDefs.find(ktype);
@@ -430,7 +436,8 @@ namespace MazegakiPreprocessor {
     void checkMazeBase(StringRef mazeYomi, StringRef ktype, StringRef kform) {
         LOG_DEBUGH(L"ENTER: mazeYomi={}, ktype={}, kform={}", mazeYomi, ktype, kform);
         if (kform == L"基本形") {
-            String mazeStem = utils::safe_substr(mazeYomi, 0, -getGobiLength(ktype));
+            int gobiLen = getGobiLength(ktype);
+            String mazeStem = gobiLen > 0 ? utils::safe_substr(mazeYomi, 0, -gobiLen) : mazeYomi;
             LOG_DEBUGH(L"_mazeBaseMap[{}] = {}", mazeStem, mazeYomi);
             _mazeBaseMap[mazeStem] = mazeYomi;
         }
