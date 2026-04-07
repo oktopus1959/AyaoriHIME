@@ -28,8 +28,10 @@ mkdir -p $TGT_DIR/bin
 #rm -f $TGT_DIR/Maze.csv
 if [ "$SRC_FILES" ]; then
     for x in $SRC_FILES; do
-        BASENAME=$(basename $x)
-        RUN_CMD -m "$EXPANDER $x > $TGT_DIR/$BASENAME"
+        if [ "$(basename $x)" != "matrix.def.csv" ]; then
+            BASENAME=$(basename $x)
+            RUN_CMD -m "$EXPANDER $x > $TGT_DIR/$BASENAME"
+        fi
     done
 fi
 
