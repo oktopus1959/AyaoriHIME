@@ -12,8 +12,8 @@
 namespace dict {
 
     // 非終端のLID/RID
-    const int NON_TERMINAL_LID = 1285;  // 名詞,一般
-    const int NON_TERMINAL_RID = 1285;  // 名詞,一般
+    const int NON_TERMINAL_LID = 1318;  // 名詞,非終端
+    const int NON_TERMINAL_RID = 1318;  // 名詞,非終端
 
     // 非終端トークンのデフォルトコスト(オプション non-terminal-cost で指定可能)
     const int NON_TERMINAL_DEFAULT_COST = 10000;
