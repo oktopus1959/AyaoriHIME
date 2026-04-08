@@ -44,14 +44,14 @@ namespace KanchokuWS.Gui
             this.richTextBox1.Font = new System.Drawing.Font("ＭＳ ゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.richTextBox1.Location = new System.Drawing.Point(5, 34);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(1575, 692);
+            this.richTextBox1.Size = new System.Drawing.Size(775, 492);
             this.richTextBox1.TabIndex = 1;
             this.richTextBox1.Text = "";
             // 
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(1505, 732);
+            this.button1.Location = new System.Drawing.Point(705, 532);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 2;
@@ -62,7 +62,7 @@ namespace KanchokuWS.Gui
             // button_refresh
             // 
             this.button_refresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_refresh.Location = new System.Drawing.Point(1408, 732);
+            this.button_refresh.Location = new System.Drawing.Point(608, 532);
             this.button_refresh.Name = "button_refresh";
             this.button_refresh.Size = new System.Drawing.Size(75, 23);
             this.button_refresh.TabIndex = 3;
@@ -72,8 +72,7 @@ namespace KanchokuWS.Gui
             // 
             // button_analyze
             // 
-            this.button_analyze.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_analyze.Location = new System.Drawing.Point(479, 7);
+            this.button_analyze.Location = new System.Drawing.Point(705, 7);
             this.button_analyze.Name = "button_analyze";
             this.button_analyze.Size = new System.Drawing.Size(60, 21);
             this.button_analyze.TabIndex = 1;
@@ -83,11 +82,9 @@ namespace KanchokuWS.Gui
             // 
             // textBox_analyzeTarget
             // 
-            this.textBox_analyzeTarget.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_analyzeTarget.Location = new System.Drawing.Point(149, 8);
             this.textBox_analyzeTarget.Name = "textBox_analyzeTarget";
-            this.textBox_analyzeTarget.Size = new System.Drawing.Size(324, 19);
+            this.textBox_analyzeTarget.Size = new System.Drawing.Size(554, 19);
             this.textBox_analyzeTarget.TabIndex = 0;
             // 
             // label98
@@ -104,16 +101,14 @@ namespace KanchokuWS.Gui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1584, 761);
+            this.ClientSize = new System.Drawing.Size(784, 561);
             this.Controls.Add(this.label98);
             this.Controls.Add(this.button_analyze);
             this.Controls.Add(this.textBox_analyzeTarget);
             this.Controls.Add(this.button_refresh);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.richTextBox1);
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(300, 200);
+            this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "DlgCandidateLog";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
