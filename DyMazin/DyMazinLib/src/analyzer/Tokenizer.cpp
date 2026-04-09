@@ -115,9 +115,10 @@ namespace analyzer {
                         //    size_t len = end2 > begin2 ? end2 - begin2 : 0;
                         //    factor = len <= 2 ? 5 : len == 3 ? 3 : len == 4 ? 1 : 0;
                         //}
+                        int oneCharPenalty = (end2 - begin2 == 1) ? 2000 : 0;
                         if (utils::startsWith(feat, L"名詞:固有名詞")) factor += 2;
-                        LOG_DEBUG(L"__addNewNode: MAZE penalty={}, factor={}", mazePenalty, factor);
-                        node->addWcost(mazePenalty * factor);
+                        LOG_DEBUG(L"__addNewNode: MAZE penalty={}, factor={}, oneCharPenalty={}", mazePenalty, factor, oneCharPenalty);
+                        node->addWcost(mazePenalty * factor + oneCharPenalty);
                     } else if (mazePenalty < 0) {
                         if (utils::contains(feat, L",非MAZE") || utils::contains(feat, L",非交")) {
                             // 非交ぜ書きエントリに対するペナルティ(負値の場合のみ)
