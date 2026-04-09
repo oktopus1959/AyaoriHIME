@@ -6,8 +6,9 @@
 namespace MazegakiPreprocessor {
     DEFINE_NAMESPACE_LOGGER(MazegakiPreprocessor);
 
+    const int MinKatakanaWordCost = 6000;
 
-    int _mazeCost = 0;
+    //int _mazeCost = 0;
 
     inline String _getNthYomi(VectorString yomis, size_t n) {
         if (n < yomis.size()) {
@@ -504,6 +505,12 @@ namespace MazegakiPreprocessor {
             return false;
         }
 
+        if (std::any_of(surf.begin(), surf.end(), [](wchar_t ch) { return utils::is_katakana(ch); })) {
+            // カタカナを含む語はコストを高くする
+            cost = std::max(cost, MinKatakanaWordCost); // コストを高く設定
+            LOG_DEBUGH(L"Katakana surf={}, cost=", surf, cost);
+        }
+
         // 元の定義を追加
         //  origKey = "#{surf},#{keyRest},#{base}"
         String origKey = std::format(L"{},{},{}", surf, keyRest, base);
@@ -534,7 +541,7 @@ namespace MazegakiPreprocessor {
         //  #mazeRest = "#{leftId},#{rightId},#{cost+_mazeCost},#{base},#{hinshi},#{surf},MAZE"
         //  mazeRestHead = "#{leftId},#{rightId},#{cost+_mazeCost}"
         //  mazeRestTail = "#{hinshi},#{base},#{surf},MAZE"
-        String mazeRestHead = std::format(L"{},{},{}", leftId, rightId, cost + _mazeCost);
+        String mazeRestHead = std::format(L"{},{},{}", leftId, rightId, cost);
         String mazeRestTail = std::format(L"{},{},MAZE", base, surf);
 
         //#  next if kf != '*' && kf != '基本形'
