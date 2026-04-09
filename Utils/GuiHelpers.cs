@@ -508,6 +508,7 @@ namespace Utils
         public static void _showTopMost(this Form form)
         {
             if (form != null) {
+                form.WindowState = FormWindowState.Normal;
                 form.Show();
                 form.TopMost = true;
                 Helper.WaitMilliSeconds(20);

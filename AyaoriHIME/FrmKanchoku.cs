@@ -205,20 +205,22 @@ namespace KanchokuWS
         //------------------------------------------------------------------
         private DlgCandidateLog dlgCandidateLog = null;
 
-        private int dlgCandidateLog_Width = 0;
-        private int dlgCandidateLog_Height = 0;
+        //private int dlgCandidateLog_Width = 0;
+        //private int dlgCandidateLog_Height = 0;
 
         public void ShowDlgCandidateLog()
         {
             logger.DebugH("ENTER");
             // 解候補ログ表示ダイアログの作成
-            CloseDlgCandidateLog();
+            //CloseDlgCandidateLog();
             //var dlg = new DlgCandidateLog(this, NotifyToCloseDlgCandidateLog, ShowDlgCandidateLog);
             //refreshCandidateLog(dlg);
-            dlgCandidateLog = new DlgCandidateLog(this, NotifyToCloseDlgCandidateLog, () => refreshCandidateLog());
+            if (dlgCandidateLog == null) {
+                dlgCandidateLog = new DlgCandidateLog(this, NotifyToCloseDlgCandidateLog, () => refreshCandidateLog());
+                dlgCandidateLog.MoveCaretToTail();
+                ExecCmdDecoder("enableCandidateLog", null);
+            }
             dlgCandidateLog._showTopMost();
-            dlgCandidateLog.MoveCaretToTail();
-            ExecCmdDecoder("enableCandidateLog", null);
             logger.DebugH("LEAVE");
         }
 
@@ -238,9 +240,9 @@ namespace KanchokuWS
             } else {
                 logger.Error($"log file: {absPath} couldn't read");
             }
-            if (dlgCandidateLog_Width > 0 && dlgCandidateLog_Height > 0) {
-                dlgCandidateLog.Size = new Size(dlgCandidateLog_Width, dlgCandidateLog_Height);
-            }
+            //if (dlgCandidateLog_Width > 0 && dlgCandidateLog_Height > 0) {
+            //    dlgCandidateLog.Size = new Size(dlgCandidateLog_Width, dlgCandidateLog_Height);
+            //}
             dlgCandidateLog.MoveCaretToTail();
             //dlgCandidateLog._showTopMost();
         }
@@ -256,10 +258,10 @@ namespace KanchokuWS
         public void NotifyToCloseDlgCandidateLog()
         {
             logger.DebugH("CALLED");
-            if (dlgCandidateLog != null) {
-                dlgCandidateLog_Width = dlgCandidateLog.Width;
-                dlgCandidateLog_Height = dlgCandidateLog.Height;
-            }
+            //if (dlgCandidateLog != null) {
+            //    dlgCandidateLog_Width = dlgCandidateLog.Width;
+            //    dlgCandidateLog_Height = dlgCandidateLog.Height;
+            //}
             dlgCandidateLog = null;
             CloseDlgCandidateLog();
         }
