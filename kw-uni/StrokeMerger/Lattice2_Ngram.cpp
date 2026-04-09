@@ -234,12 +234,14 @@ namespace lattice2 {
         //}
 
     private:
-        void _gatherSelectedNgramPairBonus(std::set<SelectedNgramPairBonus>& resultSet, const MString& ngram) const {
+        bool _gatherSelectedNgramPairBonus(std::set<SelectedNgramPairBonus>& resultSet, const MString& ngram) const {
             auto iter = selectedNgramMap.find(ngram);
             if (iter != selectedNgramMap.end()) {
                 resultSet.insert(iter->second.begin(), iter->second.end());
                 _LOG_DETAIL(L"FOUND: ngram={}, set<SelectedNgramPairBonus>: {}", to_wstr(ngram), debugStringOfSelectedNgramPairBonusSet(resultSet));
+                return true;
             }
+            return false;
         }
 
         String _joinSelectedNgramPairBonusSet(const std::set<SelectedNgramPairBonus>& s) const {
@@ -270,7 +272,14 @@ namespace lattice2 {
                     //    _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(i, len));
                     //}
                     _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str));
-                    _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str);
+                    bool found = _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str);
+                    if (!found && str.size() > 2) {
+                        // 先頭全体の〓付きパターンが見つからなかった場合は、短い長さのパターンも調べる
+                        for (size_t len = 3; len <= MAX_SELECTED_NGRAM_LEN && len < str.size(); ++len) {
+                            _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str.substr(0, len)));
+                            _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(0, len));
+                        }
+                    }
                 } else if (i + 1 < str.size()) {
                     // 先頭以外で、後続する文字がある場合は、先頭からの〓付きも調べる
                     if (i == 1 && (pKanji || kanji)) {
@@ -489,6 +498,11 @@ namespace lattice2 {
                         // どちらかが2文字以下で後に文字が続くなら、後の1文字も含めて処理する
                         LOG_INFOH(L"append GETA and postfix char: startPos={}, len1={}, len2={}", startPos, len1 + 1, len2 + 1);
                         addShortPairWithGeta(len1 + 1, len2 + 1);
+                        if ((len1 == 1 || len2 == 1) && len1 + 2 <= baseSize && len2 + 2 <= diffSize) {
+                            // どちらかが1文字で後に2文字が続くなら、後の2文字も含めて処理する
+                            LOG_INFOH(L"append GETA and postfix char: startPos={}, len1={}, len2={}", startPos, len1 + 2, len2 + 2);
+                            addShortPairWithGeta(len1 + 2, len2 + 2);
+                        }
                     } else {
                         LOG_INFOH(L"append GETA: startPos={}, len1={}, len2={}", startPos, len1, len2);
                         addShortPairWithGeta(len1, len2);
