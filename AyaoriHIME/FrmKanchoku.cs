@@ -1633,7 +1633,7 @@ namespace KanchokuWS
         // アクティブと非アクティブを切り替える
         public void ToggleActiveState(bool bRevertCtrl = false, int activatorCode = 0)
         {
-            logger.Info(() => $"ENTER");
+            logger.Info(() => $"ENTER: IsDecoderActive={IsDecoderActive}, bRevertCtrl={bRevertCtrl}, activatorCode={activatorCode}");
             if (!IsDecoderActive) {
                 ActivateDecoder(activatorCode);
             } else {
@@ -1641,7 +1641,7 @@ namespace KanchokuWS
                 DeactivateDecoder(!bRevertCtrl);
                 if (bRevertCtrl) SendInputHandler.Singleton.RevertCtrlKey(keyState);
             }
-            logger.Info("LEAVE");
+            logger.Info(() => $"LEAVE: IsDecoderActive={IsDecoderActive}");
         }
 
         public void ActivateDecoder(int activatorCode = 0)
@@ -1764,7 +1764,9 @@ namespace KanchokuWS
         // デコーダをOFFにする
         public void DeactivateDecoderWithModifiersOff()
         {
+            logger.Info("ENTER");
             DeactivateDecoder(true);
+            logger.Info("LEAVE");
         }
 
         private bool bFirstMove = true;
@@ -2733,6 +2735,7 @@ namespace KanchokuWS
             if (Settings.DecoderSuspended) return;
 
             if (IMEHandler.GetImeStateChanged(frmVkb) && Settings.ImeCooperationEnabled) {
+                logger.Info("IME Status changed");
                 if (IMEHandler.ImeEnabled) {
                     ActivateDecoder();
                 } else {

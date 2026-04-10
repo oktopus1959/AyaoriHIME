@@ -592,6 +592,7 @@ namespace KanchokuWS
             CurrentScreen = ScreenInfo.Singleton.GetScreenIndexByDpi(e.DeviceDpiNew);
 
             if (frmMain.IsDecoderActive) {
+                if (Settings.LoggingVirtualKeyboardInfo) logger.Info("Hide me and deactivate decoder");
                 this.Hide();
                 frmMain.DeactivateDecoderWithModifiersOff();
             }

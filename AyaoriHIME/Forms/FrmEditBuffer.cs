@@ -497,7 +497,8 @@ namespace KanchokuWS.Forms
             // 余裕を持たせて TextBox の幅を設定(上下左右にアンカーしているので、外側のフォームのサイズを変えればよい)
             this.Width = textWidth + 8;
             this.Height = textHeight + 7;
-            //logger.InfoH($"Width={Size.Width}, Height={this.Size.Height}");
+
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"Text=<{editTextBox.Text}>, Width={Size.Width}, Height={this.Size.Height}");
         }
 
         //------------------------------------------------------------------------------------
@@ -528,10 +529,10 @@ namespace KanchokuWS.Forms
 
             CurrentScreen = ScreenInfo.Singleton.GetScreenIndexByDpi(e.DeviceDpiNew);
 
-            if (frmMain.IsDecoderActive) {
-                this.Hide();
-                frmMain.DeactivateDecoderWithModifiersOff();
-            }
+            //if (frmMain.IsDecoderActive) {
+            //    this.Hide();
+            //    frmMain.DeactivateDecoderWithModifiersOff();
+            //}
 
             resetDrawParameters(e.DeviceDpiNew);
 
