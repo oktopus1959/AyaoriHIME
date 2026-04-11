@@ -83,6 +83,12 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             return (CurrentPool1?.IsMajorComboShift(keyCode) ?? false) || (CurrentPool2?.IsMajorComboShift(keyCode) ?? false);
         }
 
+        public static KeyCombination _GetTerminalComboForThreeKeyPrefix(IEnumerable<Stroke> prefixStrokes, Stroke tailStroke)
+        {
+            return (CurrentPool1?.GetTerminalComboForThreeKeyPrefix(prefixStrokes, tailStroke) ??
+                CurrentPool2?.GetTerminalComboForThreeKeyPrefix(prefixStrokes, tailStroke)) ?? null;
+        }
+        
         private static string detectCurrentPool()
         {
             return CurrentPool == SingletonK1 ? "K1"
@@ -378,6 +384,16 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             return combo;
         }
 
+        public KeyCombination GetTerminalComboForThreeKeyPrefix(IEnumerable<Stroke> prefixStrokes, Stroke tailStroke)
+        {
+            if (prefixStrokes._isEmpty() || tailStroke == null) return null;
+
+            var strokes = new List<Stroke>(prefixStrokes);
+            strokes.Add(tailStroke);
+            var combo = GetEntry(strokes, tailStroke.IsUpKey);
+            return combo != null && combo.IsTerminal && combo.IsUnordered && combo.DecKeyList._safeCount() >= 3 ? combo : null;
+        }
+
         public KeyCombination GetEntry(Stroke stroke)
         {
             return GetEntry(stroke.OrigDecoderKey, stroke.ModuloDecKey);
@@ -409,6 +425,43 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         /// </summary>        
         public void SetNonTerminalMarkForSubkeys(bool bEisu)
         {
+            bool shouldAddUnorderedSubkeyShiftKeys(string subkey, ComboKind kind, int keylen)
+            {
+                if (kind != ComboKind.UnorderedSuccessiveShift || keylen != 2) return false;
+
+                bool shouldAddKey(int keyCode)
+                {
+                    int dupKeyCode = KeyCombination.MakeNonTerminalDuplicatableComboKey(keyCode);
+                    int comboCount = keyComboDict.GetKeyComboList().Count(kc =>
+                        kc != null &&
+                        kc.IsTerminal &&
+                        kc.IsUnordered &&
+                        kc.DecKeyList._safeCount() >= 3 &&
+                        kc.DecKeyList._getSecond() == dupKeyCode);
+                    return comboCount >= 4;
+                }
+
+                return subkey._decodeKeyStr().Any(shouldAddKey);
+            }
+
+            void addUnorderedSubkeyShiftKeys(string subkey, ComboKind kind, int keylen)
+            {
+                if (!shouldAddUnorderedSubkeyShiftKeys(subkey, kind, keylen)) return;
+
+                foreach (var keyCode in subkey._split(':').Select(x => x._parseInt(-1))) {
+                    int dupKeyCode = KeyCombination.MakeNonTerminalDuplicatableComboKey(keyCode);
+                    int comboCount = keyComboDict.GetKeyComboList().Count(kc =>
+                        kc != null &&
+                        kc.IsTerminal &&
+                        kc.IsUnordered &&
+                        kc.DecKeyList._safeCount() >= 3 &&
+                        kc.DecKeyList._getSecond() == dupKeyCode);
+                    if (keyCode >= 0 && ComboShiftKeys.GetComboKind(keyCode) == ComboKind.None && comboCount >= 4) {
+                        ComboShiftKeys.AddShiftKey(keyCode, kind);
+                    }
+                }
+            }
+
             if (Settings.LoggingTableFileInfo) logger.DebugH($"ENTER: comboSubKeys.Count={comboSubKeys.Count}");
             int i = 0;
             foreach (var pair in comboSubKeys) {
@@ -438,6 +491,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
                         keyComboDict.Add(subkey, keyCombo, true);
                     }
                     keyCombo.SetNonTerminal();
+                    addUnorderedSubkeyShiftKeys(subkey, shiftKind, keylen);
 
                     // 順不定のサブキーになっている固定順キーがあったら、それを非終端としてマークしておく
                     if (keylen >= 2) {
