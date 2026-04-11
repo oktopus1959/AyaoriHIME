@@ -106,6 +106,10 @@ Get-ChildItem -Path $RealtimePattern -File -ErrorAction SilentlyContinue | Sort-
                 continue
             }
 
+            if ((Test-HiraganaOnly $parts[0]) -and ($len -eq 2 -or $len -eq 4)) {
+                continue
+            }
+
             if ($count -le 1 -and $len -ge 4 -and (Test-HiraganaOnly $parts[0])) {
                 continue
             }

@@ -82,9 +82,10 @@ Dir.glob(realtime_pattern).sort.each do |realtime_file|
       next
     end
 
+    next if hiragana_only?(key) && (len == 2 || len == 4)
+
     count = count_str.to_i
-    #next if count <= 1 && len >= 4 && hiragana_only?(key)
-    next if count <= 1
+    next if count <= 1 && len >= 4 && hiragana_only?(key)
 
     rt_counts[key] += count
   end
