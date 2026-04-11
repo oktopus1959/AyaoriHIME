@@ -784,6 +784,7 @@ namespace {
         // 新規登録
         void AddNewEntry(const MString& word) override {
             _LOG_DEBUGH(_T("CALLED: word={}"), to_wstr(word));
+            if (SETTINGS->suppressAutoHistRegister) return;
             if (word.empty()) return;
             if (!STROKE_HELP->Find(utils::safe_back(word))) {
                 // 末尾文字がストローク可能文字でなければ、履歴に登録しておく

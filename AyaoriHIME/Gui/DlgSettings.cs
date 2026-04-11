@@ -1657,6 +1657,7 @@ namespace KanchokuWS.Gui
             textBox_histRomanKeyLen.Text = $"{Settings.HistRomanKeyLength}";
             textBox_histHorizontalCandMax.Text = $"{Settings.HistHorizontalCandMax}";
             checkBox_autoHistEnabled.Checked = Settings.AutoHistSearchEnabled;
+            checkBox_suppressAutoHistRegister.Checked = !Settings.SuppressAutoHistRegister;
             comboBox_historySearchKey.Enabled = checkBox_historySearchKey.Checked;
             checkBox_historySearchKey.Checked = Settings.HistorySearchCtrlKey._notEmpty() && !Settings.HistorySearchCtrlKey.StartsWith("#");
             comboBox_selectCtrlKeyItem(comboBox_historySearchKey, $"{Settings.HistorySearchCtrlKey.Replace("#", "")}");
@@ -1708,6 +1709,7 @@ namespace KanchokuWS.Gui
             checkerHistory.Add(textBox_histRomanKeyLen);
             checkerHistory.Add(textBox_histHorizontalCandMax);
             checkerHistory.Add(checkBox_autoHistEnabled);
+            checkerHistory.Add(checkBox_suppressAutoHistRegister);
             checkerHistory.Add(checkBox_historySearchKey);
             checkerHistory.Add(comboBox_historySearchKey);
             //checkerHistory.Add(checkBox_histSearchByShiftSpace);
@@ -1763,6 +1765,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("histKatakanaKeyLength", textBox_histKatakanaKeyLen.Text.Trim());
             Settings.SetUserIni("histKanjiKeyLength", textBox_histKanjiKeyLen.Text.Trim());
             Settings.SetUserIni("autoHistSearchEnabled", checkBox_autoHistEnabled.Checked);
+            Settings.SetUserIni("suppressAutoHistRegister", !checkBox_suppressAutoHistRegister.Checked);
             Settings.SetUserIni("histSearchCtrlKey", makeCtrlKeyConversion(checkBox_historySearchKey, comboBox_historySearchKey));
             //Settings.SetUserIni("histSearchByShiftSpace", checkBox_histSearchByShiftSpace.Checked);
             Settings.SetUserIni("showHistCandsFromFirst", !checkBox_showHistCandsFromFirst.Checked);
