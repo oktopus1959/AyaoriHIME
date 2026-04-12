@@ -38,11 +38,13 @@ namespace analyzer {
         }
 
         int updateEntry(const String& word, int delta) {
+            LOG_DEBUGH(L"ENTER: word={}, delta={}", word, delta);
             int count = realtimeDict[word] += delta;
             if (count > kMaxNgramBonus) {
                 maxRealtimeCount = count;
             }
             realtimeNgram_updated = true;
+            LOG_DEBUGH(L"LEAVE: word={}, count={}", word, count);
             return count;
         }
 
@@ -193,8 +195,11 @@ namespace analyzer {
             LOG_DEBUGH(L"ENTER: str={}, pos={}, bigram={}, quadgram={}, maxRtCount={}, minLen={}, maxLen={}", str, pos, hiraganaBigramEnabled, hiraganaQuadgramEnabled, maxRealtimeCount, minLen, maxLen);
             std::vector<int> result;    // マッチしたエントリのボーナスポイントのリスト。(各エントリの長さのをインデックスとする)
             result.resize(maxLen + 1, 0);  // エントリの長さでインデックスされる。値 0 はエントリがないことを表す。
-            if (minLen > 0) {
+            if (minLen > 0 && !str.empty()) {
                 size_t end = std::min(pos + maxLen, str.size());
+                bool firstGeta = pos == 0 && str[0] == L'〓';
+                bool isKanjiNextToGeta = firstGeta && str.size() > 1 && utils::is_pure_kanji(str[1]);
+                size_t nextPos = isKanjiNextToGeta ? pos + 1 : pos;     // 先頭がゲタ+漢字なら、ゲタを飛ばして漢字から始まるNgramも検索対象とする
                 for (size_t i = pos + minLen; i <= end; ++i) {
                     bool bSkipRealTimeSearch = false;
                     size_t len = i - pos;
@@ -205,33 +210,36 @@ namespace analyzer {
                             LOG_DEBUG(L"Skip Realtime Kanji unigram");
                         }
                     }
-                    String key = str.substr(pos, len);
-                    int bonus = 0;
-                    if (!bSkipRealTimeSearch) {
-                        // リアルタイムN-gram辞書とユーザー定義N-gram辞書の両方を検索して、カウントを合算する
-                        auto it = realtimeDict.find(key);
-                        if (it != realtimeDict.end()) {
-                            // リアルタイムN-gram辞書では、エントリの長さが 3 であれば常にカウントを使用する。
-                            // エントリの長さが 2 であれば、hiraganaBigramEnabled が有効な場合、または両方の文字が漢字の場合にカウントを使用する。
-                            // エントリの長さが 4 であれば、hiraganaQuadgramEnabled が有効な場合にカウントを使用する。
-                            if (len == 3 ||
-                                (len == 2 && (hiraganaBigramEnabled || (utils::is_kanji(key[0]) && utils::is_kanji(key[1])))) ||
-                                (len == 4 && hiraganaQuadgramEnabled)) {
-                                bonus = calcRealtimeBonus(it->second);
-                                LOG_DEBUG(L"realtime FOUND: key={}, count={}, bonus={}", key, it->second, bonus);
+                    // 先頭が漢字なら、ゲタで始まらないNgramも検索対象とする
+                    for (size_t j = pos; j <= nextPos; ++j) {
+                        String key = str.substr(j, len);
+                        int bonus = 0;
+                        if (!bSkipRealTimeSearch) {
+                            // リアルタイムN-gram辞書とユーザー定義N-gram辞書の両方を検索して、カウントを合算する
+                            auto it = realtimeDict.find(key);
+                            if (it != realtimeDict.end()) {
+                                // リアルタイムN-gram辞書では、エントリの長さが 3 であれば常にカウントを使用する。
+                                // エントリの長さが 2 であれば、hiraganaBigramEnabled が有効な場合、または両方の文字が漢字の場合にカウントを使用する。
+                                // エントリの長さが 4 であれば、hiraganaQuadgramEnabled が有効な場合にカウントを使用する。
+                                if (len == 3 ||
+                                    (len == 2 && (hiraganaBigramEnabled || (utils::is_kanji(key[0]) && utils::is_kanji(key[1])))) ||
+                                    (len == 4 && hiraganaQuadgramEnabled)) {
+                                    bonus = calcRealtimeBonus(it->second);
+                                    LOG_DEBUG(L"realtime FOUND: key={}, count={}, bonus={}", key, it->second, bonus);
+                                }
                             }
                         }
-                    }
-                    {
-                        // ユーザー定義N-gram辞書を検索して、カウントを合算する
-                        auto it = userDict.find(key);
-                        if (it != userDict.end()) {
-                            int userBonus = calcUserBonus(it->second);
-                            LOG_DEBUG(L"userDic FOUND: key={}, count={}, bonus={}", key, it->second, userBonus);
-                            bonus += userBonus;
+                        {
+                            // ユーザー定義N-gram辞書を検索して、カウントを合算する
+                            auto it = userDict.find(key);
+                            if (it != userDict.end()) {
+                                int userBonus = calcUserBonus(it->second);
+                                LOG_DEBUG(L"userDic FOUND: key={}, count={}, bonus={}", key, it->second, userBonus);
+                                bonus += userBonus;
+                            }
                         }
+                        result[len] = bonus;
                     }
-                    result[len] = bonus;
                 }
             }
             LOG_DEBUGH(L"LEAVE: result.size()={}", result.size());
