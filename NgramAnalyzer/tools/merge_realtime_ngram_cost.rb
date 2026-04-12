@@ -38,6 +38,21 @@ def hiragana_only?(text)
   /\A\p{Hiragana}+\z/.match?(text)
 end
 
+def starts_with_kanji?(text)
+  /\A\p{Han}/.match?(text)
+end
+
+def apply_bonus!(merged, key, bonus, normal_base_cost, geta_base_cost, geta_char)
+  if merged.key?(key)
+    merged[key] -= bonus
+    return :overwritten
+  end
+
+  base_cost = key.start_with?(geta_char) ? geta_base_cost : normal_base_cost
+  merged[key] = base_cost - bonus
+  :added
+end
+
 base_score_file = options[:base_score_file]
 realtime_pattern = options[:realtime_pattern]
 output_file = options[:output_file]
@@ -102,13 +117,16 @@ rt_counts.each do |key, count|
   bonus = realtime_bonus(count, max_realtime_count, options[:max_realtime_bonus])
   next if bonus <= 0
 
-  if merged.key?(key)
-    merged[key] -= bonus
-    overwritten_count += 1
-  else
-    base_cost = key.start_with?(geta_char) ? options[:realtime_geta_base_cost] : options[:realtime_base_cost]
-    merged[key] = base_cost - bonus
-    added_count += 1
+  targets = [key]
+  targets << "#{geta_char}#{key}" if starts_with_kanji?(key)
+
+  targets.each do |target|
+    case apply_bonus!(merged, target, bonus, options[:realtime_base_cost], options[:realtime_geta_base_cost], geta_char)
+    when :overwritten
+      overwritten_count += 1
+    when :added
+      added_count += 1
+    end
   end
 end
 

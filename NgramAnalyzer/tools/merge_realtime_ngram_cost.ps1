@@ -34,6 +34,24 @@ function Test-HiraganaOnly([string]$text) {
     return $text -match '^\p{IsHiragana}+$'
 }
 
+function Test-StartsWithKanji([string]$text) {
+    return $text -match '^\p{IsCJKUnifiedIdeographs}'
+}
+
+function Apply-Bonus([System.Collections.Generic.Dictionary[string, int]]$dict, [string]$key, [int]$bonus, [int]$normalBaseCost, [int]$getaBaseCost, [string]$getaChar) {
+    if ($dict.ContainsKey($key)) {
+        $dict[$key] = [int]$dict[$key] - $bonus
+        return "overwritten"
+    }
+
+    $baseCost = $normalBaseCost
+    if ($key.StartsWith($getaChar)) {
+        $baseCost = $getaBaseCost
+    }
+    $dict[$key] = $baseCost - $bonus
+    return "added"
+}
+
 function New-Utf8Writer([string]$path) {
     $dir = Split-Path -Parent $path
     if ($dir) {
@@ -142,17 +160,20 @@ foreach ($entry in $rtCounts.GetEnumerator()) {
         continue
     }
 
-    if ($merged.ContainsKey($entry.Key)) {
-        $merged[$entry.Key] = [int]$merged[$entry.Key] - $bonus
-        $overwrittenCount++
+    $targets = [System.Collections.Generic.List[string]]::new()
+    $targets.Add($entry.Key)
+    if (Test-StartsWithKanji $entry.Key) {
+        $targets.Add($GetaChar + $entry.Key)
     }
-    else {
-        $baseCost = $RealtimeBaseCost
-        if ($entry.Key.StartsWith($GetaChar)) {
-            $baseCost = $RealtimeGetaBaseCost
+
+    foreach ($target in $targets) {
+        $result = Apply-Bonus $merged $target $bonus $RealtimeBaseCost $RealtimeGetaBaseCost $GetaChar
+        if ($result -eq "overwritten") {
+            $overwrittenCount++
         }
-        $merged[$entry.Key] = $baseCost - $bonus
-        $addedCount++
+        elseif ($result -eq "added") {
+            $addedCount++
+        }
     }
 }
 
