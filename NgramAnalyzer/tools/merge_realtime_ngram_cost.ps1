@@ -124,11 +124,11 @@ Get-ChildItem -Path $RealtimePattern -File -ErrorAction SilentlyContinue | Sort-
                 continue
             }
 
-            if ((Test-HiraganaOnly $parts[0]) -and ($len -eq 2 -or $len -eq 4)) {
+            if ((Test-HiraganaOnly $parts[0]) -and $len -eq 2) {
                 continue
             }
 
-            if ($count -le 1 -and $len -ge 4 -and (Test-HiraganaOnly $parts[0])) {
+            if ($count -le 2 -and $len -ge 4 -and (Test-HiraganaOnly $parts[0])) {
                 continue
             }
 
