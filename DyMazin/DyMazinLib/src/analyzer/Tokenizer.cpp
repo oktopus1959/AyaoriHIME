@@ -127,6 +127,15 @@ namespace analyzer {
                         }
                     }
                 }
+                if (feat.starts_with(L"非終端")) {
+                    // 非終端エントリに対するペナルティ
+                    if (node->rlength() > 3) {
+                        // 長い非終端はペナルティを課す
+                        int penalty = (node->rlength() - 3) * 2500;
+                        node->addWcost(penalty);
+                        LOG_DEBUG(L"__addNewNode: add LONG non-terminal penalty: penalty={}, wcost={}", penalty, node->wcost());
+                    }
+                }
                 //node->isUnknown = isUnk;
                 LOG_DEBUG(L"__addNewNode: LEAVE: node={}", node->toVerbose());
                 result_nodes.push_back(node);
