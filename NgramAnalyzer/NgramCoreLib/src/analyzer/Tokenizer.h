@@ -44,6 +44,9 @@ namespace analyzer {
         // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
         void resetTempDict(StringRef entries);
 
+        // 与えられた文字列に完全一致するエントリがあるか
+        bool findExactMatch(const StringRef entries);
+
     }; // Tokenizer
 
 } // namespace analyzer

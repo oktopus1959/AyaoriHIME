@@ -1,46 +1,35 @@
 #pragma once
 
 #include "string_utils.h"
+#include "Logger.h"
 
 namespace analyzer {
     class TemporaryDict {
+        DECLARE_CLASS_LOGGER;
+
         std::set<wchar_t> firstChars;
         std::set<String> entries;
         size_t maxEntryLen = 0;
 
-        void addEntry(const String& entry) {
-            if (!entry.empty()) {
-                firstChars.insert(entry[0]);
-                entries.insert(entry);
-                if (entry.length() > maxEntryLen) maxEntryLen = entry.length();
-            }
-        }
+        void addEntry(const String& entry);
 
-        void clear() {
-            firstChars.clear();
-            entries.clear();
-            maxEntryLen = 0;
-        }
+        void clear();
 
     public:
         TemporaryDict() = default;
 
-        void resetEntries(StringRef entries) {
-            clear();
-            for (const auto& morph : utils::split(entries, L'|')) {
-                addEntry(morph);
-            }
-        }
+        // 一時的なユーザー辞書を作成する
+        void resetEntries(StringRef entries);
 
-        bool hasEntry(const String& entry) const {
+        inline bool hasEntry(const String& entry) const {
             return entries.find(entry) != entries.end();
         }
 
-        bool hasFirstChar(wchar_t ch) const {
+        inline bool hasFirstChar(wchar_t ch) const {
             return firstChars.find(ch) != firstChars.end();
         }
 
-        size_t getMaxEntryLen() const {
+        inline size_t getMaxEntryLen() const {
             return maxEntryLen;
         }
     };

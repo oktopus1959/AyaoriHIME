@@ -143,6 +143,41 @@ namespace NgramBridge {
         return to_wstr(mainMorphs);
     }
 
+    // 形態素解析の結果から、ペナルティとなる形態素を抽出する。具体的には、単一ひらがなの4gram
+    String pickPenaltyMorphs(const std::vector<MString>& morphs) {
+        MString penaltyMorphs;
+        MString hiraganaStr;
+        size_t startPos = 0;
+        size_t hiraganaCount = 0;
+        bool first = true;
+        for (const auto& morph : morphs) {
+            auto items = utils::split(morph, '\t');
+            if (items.size() > 2) {
+                const MString& surf = items[0];
+                // かな配列だけの場合は、ひらがなのみの形態素や交ぜ書き候補も含める。
+                if (surf.size() <= 2 && utils::is_hiragana(surf.front()) && (surf.size() == 1 || utils::is_hiragana(surf[1]))) {
+                    hiraganaStr.append(surf);
+                    ++hiraganaCount;
+                    if (hiraganaStr.size() >= 4 && hiraganaCount >= 4) {
+                        // 1~2文字ひらがなが4つ以上続く場合は、ペナルティ対象とする
+                        while (startPos + 4 <= hiraganaStr.size()) {
+                            if (!first) penaltyMorphs.append(MSTR_VERT_BAR);
+                            first = false;
+                            penaltyMorphs.append(hiraganaStr.substr(startPos, 4));
+                            ++startPos;
+                        }
+                    }
+                } else {
+                    hiraganaStr.clear();
+                    startPos = 0;
+                    hiraganaCount = 0;
+                }
+            }
+        }
+        _LOG_DEBUGH(_T("RESULT: penaltyMorphs={}"), to_wstr(penaltyMorphs));
+        return to_wstr(penaltyMorphs);
+    }
+
     // リアルタイムNgram辞書のパラメータ設定
     void setRealtimeDictParameters(size_t minNgramLen, size_t maxNgramLen, int maxBonusPoint, int bonusPointFactor) {
         NgramCoreLib::SetRealtimeDictParameters(minNgramLen, maxNgramLen, maxBonusPoint, bonusPointFactor);
@@ -178,7 +213,7 @@ namespace NgramBridge {
         _LOG_DEBUGH(_T("ENTER: str={}, tempDic=<{}>"), to_wstr(str), to_wstr(utils::join(tempDictEntries, '|')));
         std::vector<String> results;
         String  errMsg;
-        int cost = NgramCoreLib::NgramAnalyze(to_wstr(str), pickMainMorphs(tempDictEntries), results, errMsg, needNgrams);
+        int cost = NgramCoreLib::NgramAnalyze(to_wstr(str), pickMainMorphs(tempDictEntries), pickPenaltyMorphs(tempDictEntries), results, errMsg, needNgrams);
         if (cost < 0) {
             LOG_WARN(_T("NgramAnalyze FAILED: result={}, errMsg={}"), cost, errMsg);
             return cost;

@@ -102,6 +102,13 @@ namespace dict {
         return getTokenSeq(res.value);
     }
 
+    /**
+     * 与えられた文字列に完全一致するエントリがあるか
+     */
+    bool Dictionary::findExactMatch(const String& key) {
+        return _dblAry->exactMatchSearch(key).length > 0;
+    }
+
     std::vector<SafePtr<Token>> Dictionary::getTokenSeq(int resultVal) {
         Vector<SafePtr<Token>> result;
         if (resultVal >= 0) {

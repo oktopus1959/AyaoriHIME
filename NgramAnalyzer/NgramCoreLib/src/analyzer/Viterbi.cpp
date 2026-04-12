@@ -19,6 +19,8 @@ namespace analyzer {
     static const int kShortHiraganaPenalty = 2000;
     static const int MaxAccumBonus = 10000;
 
+    static const int MorphPenaltyEntryFound = 10000;
+
     static const double kDefaultTheta = 0.75;
 
 #if _LOG_DEBUGH_FLAG
@@ -66,14 +68,15 @@ namespace analyzer {
         /**
          * viterbi 処理 --
          * 単語の辞書引きと先行ノードとの接続処理を行って、ラティス構造を構築する。
+         * @param wakatiEntries 形態素解析によって分かち書きされた形態素列 ("|" 区切り)
          */
-        void viterbi(LatticePtr lattice, StringRef tempDictEntries) {
+        void viterbi(LatticePtr lattice, StringRef wakatiEntries) {
             auto sentence = lattice->sentence;
             auto len = sentence->length();
             auto begin = sentence->begin();
             auto end = sentence->end();
 
-            LOG_INFOH(L"ENTER: lattice->sentence={}, tempDictEntries={}", sentence->toString(), tempDictEntries);
+            LOG_INFOH(L"ENTER: lattice->sentence={}, wakatiEntries={}", sentence->toString(), wakatiEntries);
 
             // 処理前の番兵ノード
             auto bos_node = lattice->bosNode();
@@ -84,7 +87,7 @@ namespace analyzer {
             Vector<int>  glueNgramMaxLens(len + 1, 0);
 
             // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
-            tokenizer->resetTempDict(tempDictEntries);
+            tokenizer->resetTempDict(wakatiEntries);
 
             // 文の先頭から末尾に向かって、形態素ノードを作成し、先行ノードと接続させてラティスを作っていく
             for (size_t pos = 0; pos < len; ++pos) {
@@ -155,8 +158,8 @@ namespace analyzer {
                     if (lnode->isShortHiragana()) {
                         // 直前ノードが短いひらがな語の場合はペナルティを加算する
                         NodePtr llnode = lnode->prev();
-                        LOG_DEBUGH(L"      rnode->isHeadHiragana={}", rnode->isHeadHiragana());
-                        LOG_DEBUGH(L"      llnode->isTailHiragana={}", llnode && llnode->isTailHiragana());
+                        LOG_DEBUG(L"      rnode->isHeadHiragana={}", rnode->isHeadHiragana());
+                        LOG_DEBUG(L"      llnode->isTailHiragana={}", llnode && llnode->isTailHiragana());
                         if (rnode->isHeadHiragana() || (llnode && llnode->isTailHiragana())) {
                             connCost += kShortHiraganaPenalty;
                         }
@@ -167,7 +170,7 @@ namespace analyzer {
                         } else if (rnode->length() == 3) {
                             connCost -= UNKNOWN_OTHER_COST / 2;
                         }
-                        LOG_DEBUGH(L"      lnode: GETA, rnode: KANJI, connCost={}", connCost);
+                        LOG_DEBUG(L"      lnode: GETA, rnode: KANJI, connCost={}", connCost);
                     }
                     // GLUE ボーナスの適用
                     size_t chkPos = (int)pos <= lnode->length() ? 0 : pos - lnode->length();
@@ -180,26 +183,26 @@ namespace analyzer {
                     int glueBonus = 0;
                     if (maxGlueLen >= GLUE_BONUS_MIN_LEN) {
                         glueBonus = (maxGlueLen - GLUE_BONUS_MIN_LEN + 1) * GLUE_BONUS_FACTOR;
-                        LOG_DEBUGH(L"      glueBonus={}", glueBonus);
+                        LOG_DEBUG(L"      glueBonus={}", glueBonus);
                     }
 
                     int bonus = rnode->bonus();
                     int accumBonus = lnode->accumBonus() + glueBonus;
                     if (accumBonus >= MaxAccumBonus) {
-                        LOG_DEBUGH(L"      accumBonus + gluBonus capped: orig={}, capped={}", accumBonus, MaxAccumBonus);
+                        LOG_DEBUG(L"      accumBonus + gluBonus capped: orig={}, capped={}", accumBonus, MaxAccumBonus);
                         accumBonus = MaxAccumBonus;
                         glueBonus = accumBonus - lnode->accumBonus();  // lnodeの累積ボーナスと合わせて上限に達する分だけglueBonusを適用する
                         bonus = 0;      // 累積ボーナスが上限に達している場合は、rnodeのボーナスも適用しない
                     } else {
                         accumBonus += bonus;
                         if (accumBonus >= MaxAccumBonus) {
-                            LOG_DEBUGH(L"      accumBonus + bonus capped: orig={}, capped={}", accumBonus, MaxAccumBonus);
+                            LOG_DEBUG(L"      accumBonus + bonus capped: orig={}, capped={}", accumBonus, MaxAccumBonus);
                             accumBonus = MaxAccumBonus;
                             bonus = accumBonus - lnode->accumBonus() - glueBonus;
                         }
                     }
                     connCost -= glueBonus;
-                    LOG_DEBUGH(L"      connCost={}, glueBonus={}, bonus={}, accumBonus={}", connCost, glueBonus, bonus, accumBonus);
+                    LOG_DEBUG(L"      connCost={}, glueBonus={}, bonus={}, accumBonus={}", connCost, glueBonus, bonus, accumBonus);
 
                     int cost = lnode->accumCost() + connCost + rnode->wcost() - bonus;
 
@@ -251,6 +254,19 @@ namespace analyzer {
             LOG_DEBUGH(L"LEAVE");
         }
 
+        // penaltyEntries によるペナルティの取得
+        // penaltyEntries ペナルティを与えるべき形態素列 ("|" 区切り)
+        int getMorphPenalty(StringRef penaltyEntries) {
+            LOG_DEBUGH(L"ENTER: penaltyEntries={}", penaltyEntries);
+            int morphPenalty = 0;
+            if (!penaltyEntries.empty() && !tokenizer->findExactMatch(penaltyEntries)) {
+                morphPenalty = MorphPenaltyEntryFound;
+                LOG_INFOH(L"ADD morphPenalty");
+            }
+            LOG_DEBUGH(L"LEAVE: morphPenalty={}", morphPenalty);
+            return morphPenalty;
+        }
+
 #if 0
         static void calc_alpha(Node& n, double beta) {
             n.alpha(0.0);
@@ -297,25 +313,27 @@ namespace analyzer {
      * N-Best 解析の実行。N-Bestな解析結果が一つずつ格納されたArrayを返す。
      * @param sentence 解析対象文
      * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
+     * @param penaltyEntries ペナルティを与えるべき形態素列 ("|" 区切り)
      * @param results N-Bestな解析結果を格納するvector
      * @param nBest N-Bestの最大数
      * @param mazePenalty 交ぜ書き候補に与えるペナルティ。これが負値ならボーナスなり、他の交ぜ書き候補を含めた解を返す
      * @return 最良解析結果のコスト
      */
-    int Viterbi::parseNBest(StringRef sentence, StringRef tempEntries, Vector<String>& results, size_t nBest, bool needResults) {
+    int Viterbi::parseNBest(StringRef sentence, StringRef tempEntries, StringRef penaltyEntries, Vector<String>& results, size_t nBest, bool needResults) {
         //warnings.clear();
-        LOG_INFO(L"CALLED: sentence={}, nBest={}", sentence, nBest);
+        LOG_INFO(L"CALLED: sentence={}, penaltyEntries={}, nBest={}", sentence, penaltyEntries, nBest);
 
         auto lattice = Lattice::CreateLattice(sentence, L"", nBest);
-        analyze(lattice, tempEntries);
-        return lattice->getSolutions(results, needResults);
+        analyze(lattice, tempEntries, penaltyEntries);
+        return lattice->getSolutions(results, needResults) + pImpl->getMorphPenalty(penaltyEntries);
     }
 
     /**
      * 形態素解析処理
      * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
+     * @param penaltyEntries ペナルティを与えるべき形態素列 ("|" 区切り)
      */
-    void Viterbi::analyze(LatticePtr lattice, StringRef tempDictEntries) {
+    void Viterbi::analyze(LatticePtr lattice, StringRef tempDictEntries, StringRef penaltyEntries) {
         LOG_INFO(L"ENTER");
         CHECK_OR_THROW(lattice && lattice->sentence,
             L"Viterbi.analyze: lattice must not be null and have non-null sentence");

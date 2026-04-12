@@ -260,5 +260,8 @@
     <ClCompile Include="src\analyzer\RealtimeDict.cpp">
       <Filter>ソース ファイル\analyzer</Filter>
     </ClCompile>
+    <ClCompile Include="src\analyzer\TemporaryDict.cpp">
+      <Filter>ソース ファイル\analyzer</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

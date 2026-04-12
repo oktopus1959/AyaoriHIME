@@ -192,6 +192,13 @@ namespace analyzer {
             return result_nodes;
         }
 
+        // 与えられた文字列に完全一致するエントリがあるか
+        bool findExactMatch(const StringRef word) {
+            for (const auto& dic : dics) {
+                if (dic->findExactMatch(word)) return true;
+            }
+            return false;
+        }
 
     private:
         void showResultNodes(const Vector<NodePtr>& nodes) {
@@ -292,6 +299,15 @@ namespace analyzer {
     // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
     void Tokenizer::resetTempDict(StringRef entries) {
         pImpl->resetTempDict(entries);
+    }
+
+    // 与えられた文字列に完全一致するエントリがあるか
+    // entries は "|" 区切りの複数エントリであってもよい。どれか一つでも完全一致するエントリがあれば true を返す
+    bool Tokenizer::findExactMatch(const StringRef entries) {
+        for (const auto& entry : utils::split(entries, L'|')) {
+            if (pImpl->findExactMatch(entry)) return true;
+        }
+        return false;
     }
 
 } // namespace analyzer

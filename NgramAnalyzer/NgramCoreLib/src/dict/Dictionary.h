@@ -57,9 +57,14 @@ namespace dict {
         std::vector<std::tuple<std::vector<SafePtr<analyzer::Token>>, size_t>> commonPrefixSearch(const String& key, bool allowNonTerminal = false);
 
         /**
-         *  与えられた文字列にマッチするエントリを検索する
+         *  与えられた文字列に完全一致するエントリを検索する
          */
         std::vector<SafePtr<analyzer::Token>> exactMatchSearch(const String& key);
+
+        /**
+         *  与えられた文字列に完全一致するエントリがあるか
+         */
+        bool findExactMatch(const String& key);
 
         // デバッグ用検索
         Vector<String> debugSearch(StringRef key);

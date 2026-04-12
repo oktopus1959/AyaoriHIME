@@ -221,7 +221,7 @@ namespace NgramCoreLib {
      * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
      */
     int NgramAnalyze(const wchar_t* sentence, const wchar_t* tempEntries, wchar_t* wakati_buf, size_t bufsize, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz) {
-        LOG_INFOH(L"ENTER: sentence={}", sentence ? sentence : L"null");
+        LOG_INFOH(L"ENTER: sentence={}, tempEntries={}", sentence ? sentence : L"null", tempEntries ? tempEntries : L"null");
         ERROR_HANDLER->Clear();
 
         try {
@@ -231,7 +231,7 @@ namespace NgramCoreLib {
             if (sentence) {
                 if (wakati_buf) wakati_buf[0] = L'\0';
                 Vector<String> results;
-                cost = viterbi->parseNBest(sentence, tempEntriesStr, results, nBest, wakati_buf != nullptr);
+                cost = viterbi->parseNBest(sentence, tempEntriesStr, L"", results, nBest, wakati_buf != nullptr);
                 bool bFirst = true;
                 for (const auto& result : results) {
                     if (wakati_buf) {
@@ -253,7 +253,7 @@ namespace NgramCoreLib {
                     if (eof || (line == L"." && filePath == L"-")) break;
                     //if (line.empty()) continue;
                     Vector<String> results;
-                    viterbi->parseNBest(line, tempEntriesStr, results, nBest, true);
+                    viterbi->parseNBest(line, tempEntriesStr, L"", results, nBest, true);
                     for (const auto& result : results) {
                         std::cout << "----------------" << std::endl;
                         std::cout << utils::utf8_encode(result) << std::endl;
@@ -283,18 +283,19 @@ namespace NgramCoreLib {
     /**
      * Ngram解析の実行(コストを返す)
      * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
+     * @param penaltyEntries ペナルティを与えるべき形態素列 ("|" 区切り)
      * @param mazePenalty 交ぜ書きエントリに対するペナルティ(0 ならデフォルト値を使う)
      * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
      */
-    int NgramAnalyze(StringRef sentence, StringRef tempEntries, std::vector<String>& ngrams, String& errMsg, bool needResults) {
-        LOG_INFOH(L"\nENTER: sentence={}, tempEntries={}", sentence, tempEntries);
+    int NgramAnalyze(StringRef sentence, StringRef tempEntries, StringRef penaltyEntries, std::vector<String>& ngrams, String& errMsg, bool needResults) {
+        LOG_INFOH(L"\nENTER: sentence={}, tempEntries={}, penaltyEntries={}", sentence, tempEntries, penaltyEntries);
         ERROR_HANDLER->Clear();
 
         try {
             int cost = 0;
             int nBest = opts->getInt(L"nbest", 1);
             ngrams.clear();
-            cost = viterbi->parseNBest(sentence, tempEntries, ngrams, nBest, needResults);
+            cost = viterbi->parseNBest(sentence, tempEntries, penaltyEntries, ngrams, nBest, needResults);
             if (ERROR_HANDLER->HasError()) {
                 LOG_INFOH(L"LEAVE: ERROR");
                 return ERROR_HANDLER->GetErrorInfo(errMsg);
