@@ -13,7 +13,7 @@ if [ "$1" ]; then
         SRC_FILES=
     else
         while [ "$1" ]; do
-            SRC_FILES="$SRC_FILES $SRC_DIR/$1"
+            SRC_FILES="$SRC_FILES $SRC_DIR/$(basename $1)"
             shift
         done
     fi
@@ -28,8 +28,8 @@ mkdir -p $TGT_DIR/bin
 #rm -f $TGT_DIR/Maze.csv
 if [ "$SRC_FILES" ]; then
     for x in $SRC_FILES; do
-        if [ "$(basename $x)" != "matrix.def.csv" ]; then
-            BASENAME=$(basename $x)
+        BASENAME=$(basename $x)
+        if [ "$BASENAME" != "matrix.def.csv" ]; then
             RUN_CMD -m "$EXPANDER $x > $TGT_DIR/$BASENAME"
         fi
     done
