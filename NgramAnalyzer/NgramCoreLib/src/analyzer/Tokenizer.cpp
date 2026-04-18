@@ -106,6 +106,20 @@ namespace analyzer {
                 result_nodes.push_back(node);
             };
 
+            // 先頭がカタカナなら、連続するカタカナ列全体をコスト 0 の1ノードとして扱い、
+            // 辞書Ngram/Realtime Ngram の対象から外す。
+            if (begin2 < end && utils::is_katakana(rngStrPtr->charAt(begin2))) {
+                size_t end2 = begin2 + 1;
+                while (end2 < end && utils::is_katakana(rngStrPtr->charAt(end2))) {
+                    ++end2;
+                }
+                __addNewNode(0, end2);
+                LOG_DEBUGH(L"  katakana block added: {}", rngStrPtr->toString(begin2, end2));
+                if (NgramCoreLib::Logger::IsDebugEnabled()) showResultNodes(result_nodes);
+                LOG_DEBUGH(L"LEAVE: result_nodes.size={}", result_nodes.size());
+                return result_nodes;
+            }
+
             // realtime Ngramを検索しておく
             auto bonusList = RealtimeDict::commonPrefixSearch(lattice.sentence->toString(), begin2, hiraganaBigramEnabled, hiraganaQuadgramEnabled);
             LOG_DEBUGH(L"  realtime bonus list=[{}]", utils::join(bonusList, L", "));

@@ -1020,6 +1020,15 @@ namespace lattice2 {
             return result;
         }
 
+        bool isKatakanaConversionSatisfied(const MString& candStr, bool bKatakanaConversion) {
+            bool result = !bKatakanaConversion ||
+                (!candStr.empty() && std::all_of(candStr.begin(), candStr.end(), [](mchar_t ch) { return utils::is_katakana(ch); }));
+            if (!result) {
+                _LOG_DETAIL(L"KatakanaConversion filter not satisfied: candStr=\"{}\"", to_wstr(candStr));
+            }
+            return result;
+        }
+
     public:
         virtual FollowingPreferenceType getFollowingPreferenceType() const override {
             if (_candidates.empty()) {
@@ -1105,6 +1114,7 @@ namespace lattice2 {
                     int numBS;
                     std::tie(s, numBS) = cand.applyAutoBushu(piece, strokeCount);  // 自動部首合成
                     if (!s.empty()) {
+                        if (!isKatakanaConversionSatisfied(s, bKatakanaConversion)) continue;
                         _LOG_DETAIL(_T("AutoBush FOUND"));
                         CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                         newCandStr.setPenalty(penalty);
@@ -1124,6 +1134,7 @@ namespace lattice2 {
                 std::vector<MString> ss = cand.applyPiece(piece, strokeCount, paddingLen, isStrokeBS, bKatakanaConversion);
                 int prevKanjiCandCost = INT_MIN;
                 for (MString s : ss) {
+                    if (!isKatakanaConversionSatisfied(s, bKatakanaConversion)) continue;
                     CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                     newCandStr.setPenalty(penalty);
                     newCandStr.setPaddingDerived(bPaddingDerived);
@@ -1371,6 +1382,7 @@ namespace lattice2 {
                 if (bPaddingDerived) _LOG_DETAIL(L"PADDING piece. set PADDING DERIVED");
                 std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
                 for (MString s : ss) {
+                    if (!isKatakanaConversionSatisfied(s, bKatakanaConversion)) continue;
                     CandidateString newCandStr(s, strokeCount);
                     //newCandStr.setPenalty(penalty);
                     newCandStr.setPaddingDerived(bPaddingDerived);

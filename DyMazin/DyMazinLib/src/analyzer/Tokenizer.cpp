@@ -176,8 +176,15 @@ namespace analyzer {
                     size_t primType = cinfo->primaryType();
                     if (primType < unk_tokens.size()) {
                         // 文字数に応じた未知語の追加コスト
-                        // auto addCost = UNK_INITIAL_COST + ONE_CHAR_COST_FACTOR * (end2 - begin2 - 1)
-                        auto addCost = 0;
+                        // カタカナ未知語には文字数に比例した追加コストを与える
+                        auto surf = rngstr->toString(begin2, end2);
+                        auto isKatakanaWord = !surf.empty() &&
+                            std::all_of(surf.begin(), surf.end(), [](wchar_t ch) {
+                                return utils::is_katakana(ch) || utils::is_hankaku_katakana(ch);
+                            });
+                        auto addCost = isKatakanaWord
+                            ? static_cast<int>((end2 - begin2) * ONE_CHAR_COST_FACTOR)
+                            : 0;
 
                         for (const auto token : unk_tokens[primType]) {
                             __addNewNode(unkdic, *token, end2, node::NodeType::UNKNOWN_NODE,
