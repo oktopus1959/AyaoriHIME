@@ -852,6 +852,11 @@ namespace {
             //LOG_DEBUGH(L"L:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             //bool bUseMorphAnalyzer = SETTINGS->useMorphAnalyzerAlways || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
             bool bUseMorphAnalyzer = SETTINGS->multiCandidateMode || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
+            if (!pieces.empty() && pieces.front().numBS() > 0) {
+                // Lattice外で生成された置換結果は、現在先頭に来ている候補(候補選択中なら選択候補)にだけ適用する
+                WORD_LATTICE->selectFirst();
+                WORD_LATTICE->removeOtherThanFirst();
+            }
             return WORD_LATTICE->addPieces(pieces, _followingPrefType, bUseMorphAnalyzer, _strokeBack, _isKatakanaConversionMode);
         }
 

@@ -10,6 +10,7 @@
 #include "ErrorHandler.h"
 #include "Node.h"
 #include "State.h"
+#include "StrokeMerger/Lattice.h"
 #include "OutputStack.h"
 
 #include "KatakanaOneShot.h"
@@ -40,7 +41,14 @@ namespace {
         void DoProcOnCreated() override {
             _LOG_DEBUGH(_T("ENTER: outStack={}"), OUTPUT_STACK->OutputStackBackStrForDebug(10, true));
 
-            auto outStr = OUTPUT_STACK->GetLastHiraganaStr<MString>(true);
+            bool bCandSelecting = STATE_COMMON->GetNextSelectPos() >= 0 && WORD_LATTICE && !WORD_LATTICE->isEmpty();
+            MString sourceStr = bCandSelecting ? WORD_LATTICE->getFirst() : MString();
+            if (bCandSelecting) {
+                _LOG_DEBUGH(_T("USE_LATTICE_TOP: sourceStr={}"), to_wstr(sourceStr));
+            }
+            auto outStr = bCandSelecting
+                ? utils::find_tail_hiragana_str(sourceStr, true)
+                : OUTPUT_STACK->GetLastHiraganaStr<MString>(true);
             size_t numBS = outStr.size();
             _LOG_DEBUGH(_T("H->K: outStr={}, numBS={}"), to_wstr(outStr), numBS);
             if (SETTINGS->mazeRemoveHeadSpace && numBS > 0 && outStr[0] == ' ') {
@@ -53,7 +61,9 @@ namespace {
                 resultStr.setResult(utils::convert_hiragana_to_katakana(outStr), (int)(numBS));
                 OUTPUT_STACK->setHistBlockerAt(outStr.size());
             } else {
-                outStr = OUTPUT_STACK->GetLastKatakanaStr<MString>();
+                outStr = bCandSelecting
+                    ? utils::find_tail_katakana_str(sourceStr)
+                    : OUTPUT_STACK->GetLastKatakanaStr<MString>();
                 numBS = outStr.size();
                 _LOG_DEBUGH(_T("K->H: outStr={}, numBS={}"), to_wstr(outStr), numBS);
                 if (!outStr.empty()) {
@@ -107,4 +117,3 @@ DEFINE_CLASS_LOGGER(KatakanaOneShotNodeBuilder);
 Node* KatakanaOneShotNodeBuilder::CreateNode() {
     return new KatakanaOneShotNode();
 }
-
