@@ -962,6 +962,36 @@ namespace KanchokuWS.Handler
             if (Settings.LoggingDecKeyInfo)logger.Info("LEAVE");
         }
 
+        public void SendSpecificShiftModifiedVKeys(uint shiftVkey, IEnumerable<uint> vkeys)
+        {
+            var keyList = vkeys._toList();
+            if (keyList._isEmpty()) return;
+
+            if (Settings.LoggingDecKeyInfo) logger.Info(() =>
+                $"ENTER: shiftVkey={shiftVkey:x}H, vkeys={string.Join(",", keyList.Select(x => x.ToString("x")))}");
+
+            var info = new InputInfo(keyList.Count * 2 + 2);
+            if (shiftVkey == FuncVKeys.RSHIFT) {
+                setRightShiftInput(ref info.Inputs[info.Index++], KEYEVENTF_KEYDOWN);
+            } else {
+                setLeftShiftInput(ref info.Inputs[info.Index++], KEYEVENTF_KEYDOWN);
+            }
+
+            foreach (var vkey in keyList) {
+                setVkeyInputs((ushort)vkey, info);
+            }
+
+            if (shiftVkey == FuncVKeys.RSHIFT) {
+                setRightShiftInput(ref info.Inputs[info.Index++], KEYEVENTF_KEYUP);
+            } else {
+                setLeftShiftInput(ref info.Inputs[info.Index++], KEYEVENTF_KEYUP);
+            }
+
+            sendInput(info);
+            updateLastOutputDt();
+            if (Settings.LoggingDecKeyInfo) logger.Info("LEAVE");
+        }
+
         /// <summary>
         /// 文字列を送出する (str は \0 終端文字)<br/>
         /// 文字送出前に numBSだけBackspaceを送る<br/>

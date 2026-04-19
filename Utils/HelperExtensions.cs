@@ -2206,6 +2206,15 @@ namespace Utils
         }
 
         /// <summary>
+        /// Listを作成して返す
+        /// </summary>
+        /// <returns></returns>
+        public static List<T> _toList<T>(this IEnumerable<T> list)
+        {
+            return list._notEmpty() ? list.ToList() : new List<T>();
+        }
+
+        /// <summary>
         /// keys と values から辞書を作成して返す。どちらかが empty なら空辞書を返す。
         /// </summary>
         public static Dictionary<TKey, TValue> _makeDict<TKey, TValue>(this IEnumerable<TKey> keys, IEnumerable<TValue> values)

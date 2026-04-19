@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using KanchokuWS.Domain;
 using Utils;
 using KanchokuWS.CombinationKeyStroke;
+using KanchokuWS.CombinationKeyStroke.DeterminerLib;
 using System.Threading;
 
 namespace KanchokuWS.Handler
@@ -111,6 +112,9 @@ namespace KanchokuWS.Handler
         public void Reinitialize()
         {
             keyInfoManager.Reinitialize();
+            leftShiftState.Reset();
+            rightShiftState.Reset();
+            activeNonShiftVkeys.Clear();
         }
 
         /// <summary>
@@ -178,10 +182,8 @@ namespace KanchokuWS.Handler
                 (Settings.IgnoreOtherHooker ? (flags & LLKHF_INJECTED) == 0 : extraInfo != SendInputHandler.MyMagicNumber) &&
                 scanCode != 0 && scanCode != YamabukiRscanCode &&
                 ((vkey > 0 && vkey < 0xa0) ||
-                 // RSHIFT の場合は、Ctrlキーが押されておらず、それが漢直トグルキーになっているか、または漢直モードでシフト単打が有効か、または拡張シフト面が定義されているとき
-                 //(vkey == FuncVKeys.RSHIFT && !ctrl && (Settings.ActiveKey == vkey || (isDecoderActivated() && isSingleShiftHitEffeciveOrShiftPlaneAssigned(vkey, KeyModifiers.MOD_RSHIFT, true)))) ||
-                 // RSHIFT の場合は、Ctrlキーが押されていないとき
-                 (vkey == FuncVKeys.RSHIFT && (!ctrl || Settings.ActiveKeyWithCtrl == vkey || Settings.ActiveKeyWithCtrl2 == vkey || Settings.SelectedTableActivatedWithCtrl == vkey || Settings.DeactiveKeyWithCtrl == vkey)) ||
+                 ((vkey == FuncVKeys.LSHIFT || vkey == FuncVKeys.RSHIFT) &&
+                  (!ctrl || Settings.ActiveKeyWithCtrl == vkey || Settings.ActiveKeyWithCtrl2 == vkey || Settings.SelectedTableActivatedWithCtrl == vkey || Settings.DeactiveKeyWithCtrl == vkey)) ||
                  //(vkey >= 0xa6 && vkey < 0xf3) ||
                  //(vkey >= 0xf5 && vkey < vkeyNum));
                  (vkey >= 0xa6 && vkey < vkeyNum));
@@ -210,13 +212,12 @@ namespace KanchokuWS.Handler
 
         private bool shiftKeyPressed(uint vkey)
         {
-            // RSHIFTが押されている時はシフト状態とは判定しない
-            return (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0 || (vkey != FuncVKeys.RSHIFT && (GetAsyncKeyState(FuncVKeys.RSHIFT) & 0x8000) != 0);
+            return effectiveShiftPressed();
         }
 
         private bool isLshiftKeyPressed()
         {
-            return (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0;
+            return ((GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0 && !leftShiftState.IsPendingNormalKey);
         }
 
         private bool isSandSEnabled()
@@ -725,6 +726,194 @@ namespace KanchokuWS.Handler
             SendInputHandler.Singleton?.SendVKeyCombo(0, vkey, 1);
         }
 
+        class ShiftKeyRuntimeState
+        {
+            public uint Vkey;
+            public int Deckey;
+            public uint ModFlag;
+            public DateTime PressedAt = DateTime.MinValue;
+            public bool IsPendingNormalKey;
+            public bool IsCombined;
+            public bool HasOverlap;
+            public bool ShouldFallbackToSystemShift;
+            public bool DispatchedToDeterminer;
+            public List<uint> FallbackVkeys = new List<uint>();
+
+            public void Reset()
+            {
+                PressedAt = DateTime.MinValue;
+                IsPendingNormalKey = false;
+                IsCombined = false;
+                HasOverlap = false;
+                ShouldFallbackToSystemShift = false;
+                DispatchedToDeterminer = false;
+                FallbackVkeys.Clear();
+            }
+        }
+
+        private readonly ShiftKeyRuntimeState leftShiftState = new ShiftKeyRuntimeState() {
+            Vkey = FuncVKeys.LSHIFT,
+            Deckey = DecoderKeys.LEFT_SHIFT_DECKEY,
+            ModFlag = KeyModifiers.MOD_LSHIFT,
+        };
+
+        private readonly ShiftKeyRuntimeState rightShiftState = new ShiftKeyRuntimeState() {
+            Vkey = FuncVKeys.RSHIFT,
+            Deckey = DecoderKeys.RIGHT_SHIFT_DECKEY,
+            ModFlag = KeyModifiers.MOD_RSHIFT,
+        };
+
+        private readonly HashSet<uint> activeNonShiftVkeys = new HashSet<uint>();
+
+        private ShiftKeyRuntimeState getShiftState(uint vkey)
+        {
+            return vkey == FuncVKeys.LSHIFT ? leftShiftState :
+                vkey == FuncVKeys.RSHIFT ? rightShiftState : null;
+        }
+
+        private bool isShiftVkey(uint vkey)
+        {
+            return vkey == FuncVKeys.LSHIFT || vkey == FuncVKeys.RSHIFT;
+        }
+
+        private bool isMyInjectedEvent(int extraInfo)
+        {
+            return extraInfo == SendInputHandler.MyMagicNumber;
+        }
+
+        private bool isShiftSingleHitEffective(uint vkey, bool bCtrl)
+        {
+            int deckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+            return (Settings.ActiveKey == vkey && (!bCtrl || Settings.ActiveKeyWithCtrl != vkey)) ||
+                ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(deckey);
+        }
+
+        private bool isShiftPlaneAssigned(uint modFlag, bool bDecoderOn)
+        {
+            return Settings.ExtraModifiersEnabled && ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(modFlag, bDecoderOn);
+        }
+
+        private bool isShiftPendingAsNormal(uint vkey)
+        {
+            return getShiftState(vkey)?.IsPendingNormalKey == true;
+        }
+
+        private bool effectiveShiftPressed()
+        {
+            bool leftPressed = (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0 && !leftShiftState.IsPendingNormalKey;
+            bool rightPressed = (GetAsyncKeyState(FuncVKeys.RSHIFT) & 0x8000) != 0 && !rightShiftState.IsPendingNormalKey;
+            return leftPressed || rightPressed;
+        }
+
+        private bool hasShiftComboDefinition(int shiftDeckey, int deckey, bool bDecoderOn)
+        {
+            var dt = HRDateTime.Now;
+            var shiftStroke = new Stroke(shiftDeckey, bDecoderOn, dt);
+            var stroke = new Stroke(deckey, bDecoderOn, dt);
+            return KeyCombinationPool._GetEntry(new[] { shiftStroke, stroke }) != null ||
+                KeyCombinationPool._GetEntry(new[] { stroke, shiftStroke }) != null;
+        }
+
+        private void dispatchPendingShiftToDeterminer(ShiftKeyRuntimeState shiftState, bool bDecoderOn)
+        {
+            if (shiftState == null || shiftState.DispatchedToDeterminer) return;
+            if (!KeyCombinationPool._Enabled || KeyCombinationPool._GetEntry(shiftState.Deckey) == null) return;
+
+            ++keyDownCount;
+            CombinationKeyStroke.Determiner.Singleton.KeyDown(
+                shiftState.Deckey,
+                bDecoderOn,
+                keyDownCount,
+                (decKeys) => handleComboKeyRepeat(shiftState.Vkey, decKeys));
+            shiftState.DispatchedToDeterminer = true;
+        }
+
+        private bool handleShiftDownAsNormalCandidate(uint vkey, bool bCtrl)
+        {
+            var shiftState = getShiftState(vkey);
+            if (shiftState == null) return false;
+
+            bool bDecoderOn = isDecoderActivated();
+            bool comboPossible = KeyCombinationPool._Enabled && KeyCombinationPool._GetEntry(shiftState.Deckey) != null;
+            bool singlePossible = isShiftSingleHitEffective(vkey, bCtrl);
+            if (!comboPossible && !singlePossible) return false;
+
+            var activeDeckeys = activeNonShiftVkeys
+                .Select(x => DecoderKeyVsVKey.GetDecKeyFromVKey(x))
+                .Where(x => x >= 0)
+                .ToList();
+            bool hasActiveOverlap = activeDeckeys.Any();
+            bool hasComboWithActiveKey = hasActiveOverlap &&
+                activeDeckeys.Any(x => hasShiftComboDefinition(shiftState.Deckey, x, bDecoderOn));
+
+            // 他キーが先に押されていて同時打鍵定義が無い場合は、
+            // Shift を通常の修飾キーとしてシステム側に処理させる。
+            if (hasActiveOverlap && !hasComboWithActiveKey) return false;
+
+            shiftState.Reset();
+            shiftState.IsPendingNormalKey = true;
+            shiftState.PressedAt = HRDateTime.Now;
+            shiftState.HasOverlap = hasActiveOverlap;
+            if (hasActiveOverlap) {
+                shiftState.IsCombined = hasComboWithActiveKey;
+                if (shiftState.IsCombined) dispatchPendingShiftToDeterminer(shiftState, bDecoderOn);
+            }
+            return true;
+        }
+
+        private bool shouldSuppressForPendingShiftFallback(uint vkey)
+        {
+            return leftShiftState.IsPendingNormalKey && leftShiftState.ShouldFallbackToSystemShift && leftShiftState.FallbackVkeys.Contains(vkey) ||
+                rightShiftState.IsPendingNormalKey && rightShiftState.ShouldFallbackToSystemShift && rightShiftState.FallbackVkeys.Contains(vkey);
+        }
+
+        private bool handlePendingShiftBeforeNormalKey(uint vkey)
+        {
+            bool bDecoderOn = isDecoderActivated();
+            int deckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+            if (deckey < 0) return false;
+
+            bool suppress = false;
+            foreach (var shiftState in new[] { leftShiftState, rightShiftState }.Where(x => x.IsPendingNormalKey)) {
+                if (shiftState.IsCombined) continue;
+                shiftState.HasOverlap = true;
+                if (hasShiftComboDefinition(shiftState.Deckey, deckey, bDecoderOn)) {
+                    shiftState.IsCombined = true;
+                    dispatchPendingShiftToDeterminer(shiftState, bDecoderOn);
+                } else {
+                    shiftState.ShouldFallbackToSystemShift = true;
+                    if (!shiftState.FallbackVkeys.Contains(vkey)) shiftState.FallbackVkeys.Add(vkey);
+                    suppress = true;
+                }
+            }
+            return suppress;
+        }
+
+        private void replayPendingShiftFallback(ShiftKeyRuntimeState shiftState, bool leftCtrl, bool rightCtrl)
+        {
+            if (shiftState?.FallbackVkeys._isEmpty() != false) return;
+            if (isDecoderActivated()) {
+                foreach (var fallbackVkey in shiftState.FallbackVkeys) {
+                    keyboardDownHandler(fallbackVkey, leftCtrl, rightCtrl, true);
+                    keyboardUpHandler(true, fallbackVkey, leftCtrl, rightCtrl, 0);
+                }
+            } else {
+                SendInputHandler.Singleton?.SendSpecificShiftModifiedVKeys(shiftState.Vkey, shiftState.FallbackVkeys);
+            }
+        }
+
+        private bool invokeSingleShiftTap(uint vkey, bool leftCtrl, bool rightCtrl)
+        {
+            int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+            if (normalDecKey < 0) return false;
+
+            int kanchokuCode = KeyComboRepository.GetDecKeyFromCombo(0, normalDecKey);
+            if (kanchokuCode >= 0) {
+                return invokeHandler(kanchokuCode, normalDecKey, 0, false);
+            }
+            return false;
+        }
+
         /// <summary> extraInfo=0 の時のキー押下時のリザルトフラグ </summary>
         //private bool normalInfoKeyDownResult = false;
 
@@ -773,7 +962,6 @@ namespace KanchokuWS.Handler
 
         bool bLCtrlShifted = false;
         bool bRCtrlShifted = false;
-        bool bLShiftShifted = false;
 
         bool bWinKeyOn = false ;
 
@@ -830,17 +1018,22 @@ namespace KanchokuWS.Handler
             // キー入力を破棄する場合は true を返す。flase を返すとシステム側でキー入力処理が行われる
             bool handleKeyDown()
             {
+                if (isMyInjectedEvent(extraInfo)) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Ignore self injected key down: vkey={vkey:x}H");
+                    return false;
+                }
+
                 bool leftShift = (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0;
                 bool leftCtrl = (GetAsyncKeyState(FuncVKeys.LCONTROL) & 0x8000) != 0;
                 bool rightCtrl = (GetAsyncKeyState(FuncVKeys.RCONTROL) & 0x8000) != 0;
                 bool bCtrl = leftCtrl || rightCtrl;
+                bool bDecoderOn = isDecoderActivated();
 
                 // とりあえず、やっつけコード
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"vkey={vkey:x}H({vkey}), leftCtrl={leftCtrl}, rightCtrl={rightCtrl}, leftShift={leftShift}");
                 if (extraInfo == 0 && leftCtrl) bLCtrlShifted = true;    // 左ＣＴＲＬがＯＮのときに何かキーが押されたら左ＣＴＲＬをシフト状態にする
                 if (extraInfo == 0 && rightCtrl) bRCtrlShifted = true;   // 右ＣＴＲＬがＯＮのときに何かキーが押されたら右ＣＴＲＬをシフト状態にする
-                if (extraInfo == 0 && leftShift) bLShiftShifted = true;  // 左SHIFTがＯＮのときに何かキーが押されたら左SHIFTをシフト状態にする
-                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"bLCtrlShifted={bLCtrlShifted}, bRCtrlShifted={bRCtrlShifted}, bLShiftShifted={bLShiftShifted}");
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"bLCtrlShifted={bLCtrlShifted}, bRCtrlShifted={bRCtrlShifted}");
 
                 if (!isEffectiveVkey(vkey, scanCode, flags, extraInfo, bCtrl)) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"not EffectiveVkey{(extraInfo == 0 ? " and clear StrokeList" : "")}");
@@ -848,10 +1041,28 @@ namespace KanchokuWS.Handler
                     return false;
                 }
 
+                if (isShiftVkey(vkey) && extraInfo == 0) {
+                    if (handleShiftDownAsNormalCandidate(vkey, bCtrl)) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Shift pending as normal key: vkey={vkey:x}H");
+                        return true;
+                    }
+                    if (vkey == FuncVKeys.LSHIFT) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LSHIFT pass-through");
+                        return false;
+                    }
+                }
+
+                if (!isShiftVkey(vkey)) {
+                    activeNonShiftVkeys.Add(vkey);
+                    if (handlePendingShiftBeforeNormalKey(vkey)) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Pending shift fallback queued: vkey={vkey:x}H");
+                        return true;
+                    }
+                }
+
                 bool bShift = shiftKeyPressed(vkey);
                 bool bAlt = isAltKeyPressed();
                 bool bWin = isWinKeyPressed();
-                bool bDecoderOn = isDecoderActivated();
                 uint modFlag = ExModiferKeyInfoManager.getModFlagForExModVkey(vkey);
                 uint modPressedOrShifted = keyInfoManager.getPressedOrShiftedExModFlag();
 
@@ -1056,7 +1267,7 @@ namespace KanchokuWS.Handler
                 if (Settings.LoggingDecKeyInfo) {
                     logger.Info(() => $"CALL: keyboardDownHandler({vkey}, {leftCtrl}, {rightCtrl})\n" + keyInfoManager.modifiersStateStr());
                 }
-                return keyboardDownHandler(vkey, leftCtrl, rightCtrl);
+                return keyboardDownHandler(vkey, leftCtrl, rightCtrl, bShift);
             }
 
             bool result = handleKeyDown();
@@ -1091,14 +1302,13 @@ namespace KanchokuWS.Handler
         /// <summary>キーボード押下時のハンドラ</summary>
         /// <param name="vkey"></param>
         /// <returns>キー入力を破棄する場合は true を返す。flase を返すとシステム側でキー入力処理が行われる</returns>
-        private bool keyboardDownHandler(uint vkey, bool leftCtrl, bool rightCtrl)
+        private bool keyboardDownHandler(uint vkey, bool leftCtrl, bool rightCtrl, bool shift)
         {
             //if (vkey == FuncVKeys.HENKAN) logger.WarnH($"ENTER: vkey=HENKAN");
             //bool leftCtrl = (GetAsyncKeyState(FuncVKeys.LCONTROL) & 0x8000) != 0;
             //bool rightCtrl = (GetAsyncKeyState(FuncVKeys.RCONTROL) & 0x8000) != 0;
             bool bDecoderOn = isDecoderActivated();
             bool ctrl = leftCtrl || rightCtrl;
-            bool shift = shiftKeyPressed(vkey);
             bool alt = isAltKeyPressed();
             uint mod = KeyModifiers.MakeModifier(alt, ctrl, shift);
             uint modEx = keyInfoManager.getShiftedExModKey();
@@ -1256,12 +1466,59 @@ namespace KanchokuWS.Handler
             uint prevVkey = prevUpVkey;
             prevUpVkey = vkey;
 
+            if (isMyInjectedEvent(extraInfo)) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Ignore self injected key up: vkey={vkey:x}H");
+                return false;
+            }
+
             bool leftShift = (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0;
             bool leftCtrl = (GetAsyncKeyState(FuncVKeys.LCONTROL) & 0x8000) != 0;
             bool rightCtrl = (GetAsyncKeyState(FuncVKeys.RCONTROL) & 0x8000) != 0;
             bool bCtrl = leftCtrl || rightCtrl;
 
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"vkey={vkey:x}H({vkey}), leftCtrl={leftCtrl}, rightCtrl={rightCtrl}, leftShift={leftShift}");
+
+            if (!isShiftVkey(vkey)) {
+                activeNonShiftVkeys.Remove(vkey);
+                if (shouldSuppressForPendingShiftFallback(vkey)) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Suppress key up for pending shift fallback: vkey={vkey:x}H");
+                    return true;
+                }
+            }
+
+            var shiftState = getShiftState(vkey);
+            if (shiftState != null && shiftState.IsPendingNormalKey) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() =>
+                    $"Pending shift up: vkey={vkey:x}H, overlap={shiftState.HasOverlap}, combined={shiftState.IsCombined}, fallback={shiftState.ShouldFallbackToSystemShift}");
+
+                if (shiftState.DispatchedToDeterminer) {
+                    keyboardUpHandler(isDecoderActivated(), vkey, leftCtrl, rightCtrl, 0);
+                }
+
+                if (shiftState.ShouldFallbackToSystemShift && shiftState.FallbackVkeys._notEmpty()) {
+                    replayPendingShiftFallback(shiftState, leftCtrl, rightCtrl);
+                    shiftState.Reset();
+                    return true;
+                }
+
+                if (!shiftState.HasOverlap) {
+                    bool result = invokeSingleShiftTap(vkey, leftCtrl, rightCtrl);
+                    if (!result) {
+                        sendOriginalVkey(vkey);
+                        result = true;
+                    }
+                    shiftState.Reset();
+                    return result;
+                }
+
+                shiftState.Reset();
+                return true;
+            }
+
+            if (vkey == FuncVKeys.LSHIFT) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LSHIFT up pass-through");
+                return false;
+            }
 
             if (extraInfo == 0) {
                 // とりあえず、やっつけコード
@@ -1284,10 +1541,6 @@ namespace KanchokuWS.Handler
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"RCONTROL up");
                     checkAndInvoke(bRCtrlShifted);
                     bRCtrlShifted = false;
-                } else if (vkey == FuncVKeys.LSHIFT) {
-                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LSHIFT up");
-                    checkAndInvoke(bLShiftShifted);
-                    bLShiftShifted = false;
                 }
             }
 
@@ -1341,12 +1594,12 @@ namespace KanchokuWS.Handler
                                 return true;
                             }
                             // Spaceキーを送出
-                            keyboardDownHandler(vkey, leftCtrl, rightCtrl);
+                            keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
                             keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
                         } else if (bPrevPressedOneshot) {
                             // ShiftedOneshot の後 Spaceキーが1回押されただけの状態
                             // Spaceキーを送出
-                            keyboardDownHandler(vkey, leftCtrl, rightCtrl);
+                            keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
                             keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
                         }
                     } else {
@@ -1363,7 +1616,7 @@ namespace KanchokuWS.Handler
                     updateStrokeHelpHoldShiftPlane(bDecoderOn);
                     if (bPrevPressed || bPrevPressedOneshot) {
                         if (bDecoderOn) {
-                            keyboardDownHandler(vkey, leftCtrl, rightCtrl);
+                            keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
                             keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
                         } else {
                             sendOriginalVkey(vkey);
@@ -1382,7 +1635,7 @@ namespace KanchokuWS.Handler
                         // 拡張シフト面が割り当ての有無にかかわらず、単打系ありの場合
                         if (bPrevPressed) {
                             // PRESSED状態だったら、ハンドラを呼び出す
-                            keyboardDownHandler(vkey, leftCtrl, rightCtrl);
+                            keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
                             keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
                         }
                     }
@@ -1392,7 +1645,7 @@ namespace KanchokuWS.Handler
                     // Space/RSHIFT 以外
                     if (bPrevPressed && keyInfo.IsShiftPlaneAssigned(bDecoderOn) && keyInfo.IsSingleShiftHitEffecive(bCtrl)) {
                         // 拡張シフト面が割り当てられ、かつ単打系がある拡張修飾キーで、それが押下状態の場合
-                        keyboardDownHandler(vkey, leftCtrl, rightCtrl);
+                        keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
                     }
                     keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
                     return false;
