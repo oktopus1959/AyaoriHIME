@@ -21,11 +21,11 @@ namespace KanchokuWS.Domain
             normalDecKey = dc;
         }
 
-        public uint SerialValue => CalcSerialValue(modifier, normalDecKey);
+        public ulong SerialValue => CalcSerialValue(modifier, normalDecKey);
 
-        public static uint CalcSerialValue(uint mod, int deckey)
+        public static ulong CalcSerialValue(uint mod, int deckey)
         {
-            return ((mod & 0xffff) << 16) + ((uint)deckey & 0xffff);
+            return ((ulong)mod << 32) | (uint)deckey;
         }
 
     }
@@ -44,19 +44,19 @@ namespace KanchokuWS.Domain
         /// <summary>
         /// 仮想キーコンビネーションのSerial値からDECKEY を得るための辞書
         /// </summary>
-        private static Dictionary<uint, int> DecKeyFromKeyCombo;
+        private static Dictionary<ulong, int> DecKeyFromKeyCombo;
 
         /// <summary>
         /// 仮想キーコンビネーションのSerial値からModキーによるシフト変換されたDECKEY を得るための辞書
         /// </summary>
-        private static Dictionary<uint, int> ModConvertedDecKeyFromKeyCombo;
+        private static Dictionary<ulong, int> ModConvertedDecKeyFromKeyCombo;
 
         public static void Initialize()
         {
             logger.Info("ENTER");
             KeyComboFromDecKey = new KeyCombo?[DecoderKeys.GLOBAL_DECKEY_ID_END];
-            DecKeyFromKeyCombo = new Dictionary<uint, int>();
-            ModConvertedDecKeyFromKeyCombo = new Dictionary<uint, int>();
+            DecKeyFromKeyCombo = new Dictionary<ulong, int>();
+            ModConvertedDecKeyFromKeyCombo = new Dictionary<ulong, int>();
             logger.Info("LEAVE");
         }
 

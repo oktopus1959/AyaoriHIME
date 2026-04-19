@@ -207,7 +207,11 @@ namespace KanchokuWS
         public const int RIGHT_CONTROL_DECKEY = LEFT_CONTROL_DECKEY + 1;
         public const int LEFT_SHIFT_DECKEY = RIGHT_CONTROL_DECKEY + 1;
         public const int RIGHT_SHIFT_DECKEY = LEFT_SHIFT_DECKEY + 1;
-        public const int F1_DECKEY = RIGHT_SHIFT_DECKEY + 1;
+        public const int LEFT_ALT_DECKEY = RIGHT_SHIFT_DECKEY + 1;
+        public const int RIGHT_ALT_DECKEY = LEFT_ALT_DECKEY + 1;
+        public const int LEFT_WIN_DECKEY = RIGHT_ALT_DECKEY + 1;
+        public const int RIGHT_WIN_DECKEY = LEFT_WIN_DECKEY + 1;
+        public const int F1_DECKEY = RIGHT_WIN_DECKEY + 1;
         public const int F2_DECKEY = F1_DECKEY + 1;
         public const int F3_DECKEY = F2_DECKEY + 1;
         public const int F4_DECKEY = F3_DECKEY + 1;
@@ -223,15 +227,16 @@ namespace KanchokuWS
         public const int F14_DECKEY = F13_DECKEY + 1;
         public const int F15_DECKEY = F14_DECKEY + 1;
         public const int F16_DECKEY = F15_DECKEY + 1;
-        public const int F17_DECKEY = F16_DECKEY + 1;
-        public const int F18_DECKEY = F17_DECKEY + 1;
-        public const int F19_DECKEY = F18_DECKEY + 1;
-        public const int F20_DECKEY = F19_DECKEY + 1;
+        //public const int F17_DECKEY = F16_DECKEY + 1;
+        //public const int F18_DECKEY = F17_DECKEY + 1;
+        //public const int F19_DECKEY = F18_DECKEY + 1;
+        //public const int F20_DECKEY = F19_DECKEY + 1;
         //public const int F21_DECKEY = F20_DECKEY + 1;
         //public const int F22_DECKEY = F21_DECKEY + 1;
         //public const int F23_DECKEY = F22_DECKEY + 1;
         //public const int F24_DECKEY = F23_DECKEY + 1;
-        public const int SHIFT_TAB_DECKEY = F20_DECKEY + 1;     // これは末尾である必要あり
+        public const int F_END_DECKEY = F16_DECKEY;
+        public const int SHIFT_TAB_DECKEY = F16_DECKEY + 1;     // これは末尾である必要あり
         // これでもう満杯である
 
         public const int CTRL_ESC_DECKEY = ESC_DECKEY + CTRL_FUNC_DECKEY_START - FUNC_DECKEY_START;

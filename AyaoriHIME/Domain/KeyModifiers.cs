@@ -35,20 +35,32 @@ namespace KanchokuWS.Domain
         // VKEY に対する modifier XFER
         public const uint MOD_XFER = 0x1000;
 
+        // VKEY に対する modifier LSHIFT
+        public const uint MOD_LSHIFT = 0x2000;
+
         // VKEY に対する modifier RSHIFT
-        public const uint MOD_RSHIFT = 0x2000;
+        public const uint MOD_RSHIFT = 0x4000;
 
         // VKEY に対する modifier LCTRL
-        public const uint MOD_LCTRL = 0x4000;
+        public const uint MOD_LCTRL = 0x8000;
 
         // VKEY に対する modifier RCTRL
-        public const uint MOD_RCTRL = 0x8000;
+        public const uint MOD_RCTRL = 0x10000;
+
+        // VKEY に対する modifier LALT
+        public const uint MOD_LALT  = 0x20000;
+
+        // VKEY に対する modifier RALT
+        public const uint MOD_RALT  = 0x40000;
+
+        // VKEY に対する modifier LWIN
+        public const uint MOD_LWIN  = 0x80000;
+
+        // VKEY に対する modifier RWIN
+        public const uint MOD_RWIN  = 0x100000;
 
         // 単打用キー
-        public const uint MOD_SINGLE = 0x10000;
-
-        // VKEY に対する modifier LSHIFT
-        public const uint MOD_LSHIFT = 0x20000;
+        public const uint MOD_SINGLE = 0x200000;
 
         public static uint MakeModifier(bool alt, bool ctrl, bool shift)
         {
@@ -67,11 +79,15 @@ namespace KanchokuWS.Domain
             if ((modifier & MOD_ALNUM) != 0) list.Add("ALNUM");
             if ((modifier & MOD_NFER) != 0) list.Add("NFER");
             if ((modifier & MOD_XFER) != 0) list.Add("XFER");
-            if ((modifier & MOD_RSHIFT) != 0) list.Add("RSHIFT");
             if ((modifier & MOD_LCTRL) != 0) list.Add("LCTRL");
             if ((modifier & MOD_RCTRL) != 0) list.Add("RCTRL");
-            if ((modifier & MOD_SINGLE) != 0) list.Add("SINGLE");
             if ((modifier & MOD_LSHIFT) != 0) list.Add("LSHIFT");
+            if ((modifier & MOD_RSHIFT) != 0) list.Add("RSHIFT");
+            if ((modifier & MOD_LALT) != 0) list.Add("LALT");
+            if ((modifier & MOD_RALT) != 0) list.Add("RALT");
+            if ((modifier & MOD_LWIN) != 0) list.Add("LWIN");
+            if ((modifier & MOD_RWIN) != 0) list.Add("RWIN");
+            if ((modifier & MOD_SINGLE) != 0) list.Add("SINGLE");
             return $"{modifier:x}({string.Join("+", list)})";
         }
     }

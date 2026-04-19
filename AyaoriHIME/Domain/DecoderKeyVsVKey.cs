@@ -132,6 +132,10 @@ namespace KanchokuWS.Domain
             functionalVKeys[DecoderKeys.RIGHT_CONTROL_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.RControlKey;
             functionalVKeys[DecoderKeys.LEFT_SHIFT_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.LShiftKey;
             functionalVKeys[DecoderKeys.RIGHT_SHIFT_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.RShiftKey;
+            functionalVKeys[DecoderKeys.LEFT_ALT_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.LMenu;
+            functionalVKeys[DecoderKeys.RIGHT_ALT_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.RMenu;
+            functionalVKeys[DecoderKeys.LEFT_WIN_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.LWin;
+            functionalVKeys[DecoderKeys.RIGHT_WIN_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.RWin;
             functionalVKeys[DecoderKeys.F1_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F1;
             functionalVKeys[DecoderKeys.F2_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F2;
             functionalVKeys[DecoderKeys.F3_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F3;
@@ -148,10 +152,6 @@ namespace KanchokuWS.Domain
             functionalVKeys[DecoderKeys.F14_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F14;
             functionalVKeys[DecoderKeys.F15_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F15;
             functionalVKeys[DecoderKeys.F16_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F16;
-            functionalVKeys[DecoderKeys.F17_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F17;
-            functionalVKeys[DecoderKeys.F18_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F18;
-            functionalVKeys[DecoderKeys.F19_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F19;
-            functionalVKeys[DecoderKeys.F20_DECKEY - DecoderKeys.FUNC_DECKEY_START] = (uint)Keys.F20;
         }
 
         //// 日本語キーボードだと Shift + 0x14 で CapsLock になる
@@ -210,6 +210,10 @@ namespace KanchokuWS.Domain
                 case "rctrl": return DecoderKeys.RIGHT_CONTROL_DECKEY;
                 case "lshift": return DecoderKeys.LEFT_SHIFT_DECKEY;
                 case "rshift": return DecoderKeys.RIGHT_SHIFT_DECKEY;
+                case "lalt": return DecoderKeys.LEFT_ALT_DECKEY;
+                case "ralt": return DecoderKeys.RIGHT_ALT_DECKEY;
+                case "lwin": return DecoderKeys.LEFT_WIN_DECKEY;
+                case "rwin": return DecoderKeys.RIGHT_WIN_DECKEY;
                 case "scrlock": return DecoderKeys.SCR_LOCK_DECKEY;
                 case "pause": return DecoderKeys.PAUSE_DECKEY;
                 case "imeon": return DecoderKeys.IME_ON_DECKEY;
@@ -230,10 +234,10 @@ namespace KanchokuWS.Domain
                 case "f14": return DecoderKeys.F14_DECKEY;
                 case "f15": return DecoderKeys.F15_DECKEY;
                 case "f16": return DecoderKeys.F16_DECKEY;
-                case "f17": return DecoderKeys.F17_DECKEY;
-                case "f18": return DecoderKeys.F18_DECKEY;
-                case "f19": return DecoderKeys.F19_DECKEY;
-                case "f20": return DecoderKeys.F20_DECKEY;
+                //case "f17": return DecoderKeys.F17_DECKEY;
+                //case "f18": return DecoderKeys.F18_DECKEY;
+                //case "f19": return DecoderKeys.F19_DECKEY;
+                //case "f20": return DecoderKeys.F20_DECKEY;
                 //case "f21": return DecoderKeys.F21_DECKEY;
                 //case "f22": return DecoderKeys.F22_DECKEY;
                 //case "f23": return DecoderKeys.F23_DECKEY;

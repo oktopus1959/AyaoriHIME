@@ -46,10 +46,10 @@ namespace KanchokuWS.Gui
             this.radioButton_shiftPlane = new System.Windows.Forms.RadioButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.label1 = new System.Windows.Forms.Label();
+            this.button_openFAQ = new System.Windows.Forms.Button();
             this.groupBox_help = new System.Windows.Forms.GroupBox();
             this.panel_shiftPlaneHint = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
-            this.button_openFAQ = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_extModifier)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_singleHit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_shiftPlane)).BeginInit();
@@ -276,6 +276,18 @@ namespace KanchokuWS.Gui
             this.label1.Text = "  説明  ";
             this.toolTip1.SetToolTip(this.label1, resources.GetString("label1.ToolTip"));
             // 
+            // button_openFAQ
+            // 
+            this.button_openFAQ.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_openFAQ.Location = new System.Drawing.Point(422, 415);
+            this.button_openFAQ.Name = "button_openFAQ";
+            this.button_openFAQ.Size = new System.Drawing.Size(56, 23);
+            this.button_openFAQ.TabIndex = 18;
+            this.button_openFAQ.Text = "FAQ(&F)";
+            this.toolTip1.SetToolTip(this.button_openFAQ, "「FAQ キーアサイン編」を開きます。\r\n");
+            this.button_openFAQ.UseVisualStyleBackColor = true;
+            this.button_openFAQ.Click += new System.EventHandler(this.button_openFAQ_Click);
+            // 
             // groupBox_help
             // 
             this.groupBox_help.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -289,7 +301,7 @@ namespace KanchokuWS.Gui
             // panel_shiftPlaneHint
             // 
             this.panel_shiftPlaneHint.Controls.Add(this.label3);
-            this.panel_shiftPlaneHint.Location = new System.Drawing.Point(40, 270);
+            this.panel_shiftPlaneHint.Location = new System.Drawing.Point(19, 347);
             this.panel_shiftPlaneHint.Name = "panel_shiftPlaneHint";
             this.panel_shiftPlaneHint.Size = new System.Drawing.Size(222, 58);
             this.panel_shiftPlaneHint.TabIndex = 17;
@@ -297,23 +309,11 @@ namespace KanchokuWS.Gui
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(7, 12);
+            this.label3.Location = new System.Drawing.Point(8, 11);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(207, 36);
             this.label3.TabIndex = 1;
             this.label3.Text = "キー名の末尾に (＊) が付いているものは、\r\n何らかの被修飾キーが定義されていることを\r\n示しています。";
-            // 
-            // button_openFAQ
-            // 
-            this.button_openFAQ.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openFAQ.Location = new System.Drawing.Point(422, 415);
-            this.button_openFAQ.Name = "button_openFAQ";
-            this.button_openFAQ.Size = new System.Drawing.Size(56, 23);
-            this.button_openFAQ.TabIndex = 18;
-            this.button_openFAQ.Text = "FAQ(&F)";
-            this.toolTip1.SetToolTip(this.button_openFAQ, "「FAQ キーアサイン編」を開きます。\r\n");
-            this.button_openFAQ.UseVisualStyleBackColor = true;
-            this.button_openFAQ.Click += new System.EventHandler(this.button_openFAQ_Click);
             // 
             // DlgModConversion
             // 
