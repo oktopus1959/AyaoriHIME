@@ -16,4 +16,4 @@ This repository is a trusted workspace.
 - sed -n '1,200p'
 - rg
 - git status / diff / log
-- `C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe`
+- `E:\Programs\Microsoft\VisualStudio2022\MSBuild\Current\Bin\MSBuild.exe`
