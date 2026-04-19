@@ -93,7 +93,7 @@ private:
         auto editTail = editBuf.substr(editBuf.size() > outTail.size() ? editBuf.size() - outTail.size() : 0);
         bool needSync = editTail != outTail;
         if (needSync) {
-            LOG_WARNH(_T("needSync=TRUE: editTail='{}', outTail='{}'"), to_wstr(editTail), to_wstr(outTail));
+            LOG_INFOH(_T("needSync=TRUE: editTail='{}', outTail='{}'"), to_wstr(editTail), to_wstr(outTail));
         }
         LOG_INFO(_T("LEAVE: needSync={}: editBuf='{}', outTail='{}'"), needSync, to_wstr(editBuf), to_wstr(outTail));
         return needSync;
@@ -288,6 +288,13 @@ public:
         LOG_INFOH(_T("LEAVE"));
     }
 
+    void setLogLevel(int logLevel) {
+        LOG_WARNH(_T("CALLED: logLevel={}"), logLevel);
+        Reporting::Logger::SetLogLevel(logLevel);
+        MorphBridge::morphSetLogLevel(logLevel);
+        NgramBridge::ngramSetLogLevel(logLevel);
+    }
+
     // settings のロード
     void loadSettings(const String & settings) {
         LOG_INFOH(_T("ENTER: settings={}"), settings);
@@ -303,9 +310,7 @@ public:
         }
 
         int logLevel = utils::strToInt(utils::safe_get(key_vals, String(_T("logLevel"))));
-        Reporting::Logger::SetLogLevel(logLevel);
-        MorphBridge::morphSetLogLevel(logLevel);
-        NgramBridge::ngramSetLogLevel(logLevel);
+        setLogLevel(logLevel);
 
         SETTINGS->SetValues(key_vals);
 
@@ -416,6 +421,13 @@ public:
                 //if (items.size() > 1 && !items[1].empty()) reloadSettings(items[1]);
                 reloadSettings();
                 MorphBridge::morphReopenUserDics();
+            } else if (cmd == _T("setLogLevel")) {
+                // ログレベルの設定 (引数: logLevel)
+                int logLevel = Reporting::Logger::LogLevelWarnH;
+                if (items.size() >= 2) {
+                    logLevel = utils::strToInt(items[1]);
+                }
+                setLogLevel(logLevel);
             } else if (cmd == _T("compileAndLoadUserDic")) {
                 // ユーザー交ぜ書き辞書のコンパイルと読み込み (引数: dicDir, ソースファイル名)
                 if (items.size() > 2) {
@@ -662,16 +674,20 @@ public:
         LOG_INFOH(_T("\nENTER: keyId={:x}H({}={}), guideTargetChar={}, decodeKeyboardChar={}, upperRomanGuideMode={}, editBuffer={}"),
             keyId, keyId, DECKEY_TO_CHARS->GetDeckeyNameFromId(keyId), to_wstr(guideTargetChar), keyFaceDirectMode, upperRomanDirectMode, deckeyParams->editBufferData);
 
+        bool isMazegakiConversion = keyId == MAZE_CONVERSION_DECKEY;
+
         // 編集バッファの内容を取得しておく
         STATE_COMMON->SetEditBufferString(deckeyParams->editBufferData);
         if (!keyFaceDirectMode && !upperRomanDirectMode) {
             const auto& editBuf = STATE_COMMON->GetEditBufferString();
             bool needsSync = needSyncEditBuffer(editBuf);
-            LOG_INFO(_T("EditBuffer sync check: needsSync={}, editLen={}, outLen={}"),
-                needsSync, editBuf.size(), OUTPUT_STACK ? OUTPUT_STACK->size() : 0);
+            LOG_INFO(_T("EditBuffer sync check: needsSync={}, isMazegakiConversion={}, editLen={}, outLen={}"),
+                needsSync, isMazegakiConversion, editBuf.size(), OUTPUT_STACK ? OUTPUT_STACK->size() : 0);
             if (needsSync) {
-                if (WORD_LATTICE) {
+                if (WORD_LATTICE && !isMazegakiConversion) {
                     WORD_LATTICE->syncBaseString(editBuf);
+                } else if (WORD_LATTICE) {
+                    LOG_INFO(_T("Skip Lattice sync for MazeConversion to preserve KBest first candidate."));
                 }
                 if (OUTPUT_STACK) {
                     OUTPUT_STACK->clear();
