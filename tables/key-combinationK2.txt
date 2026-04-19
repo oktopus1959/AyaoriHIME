@@ -1,0 +1,101 @@
+0=0 HasString=False Terminal=True Combo=None
+1=1 HasString=False Terminal=False Combo=None
+2=2 HasString=False Terminal=False Combo=None
+3=3 HasString=False Terminal=False Combo=None
+4=4 HasString=False Terminal=False Combo=None
+5=5 HasString=False Terminal=True Combo=None
+6=6 HasString=False Terminal=False Combo=None
+7=7 HasString=False Terminal=False Combo=None
+8=8 HasString=False Terminal=False Combo=None
+9=9 HasString=False Terminal=False Combo=None
+10=10 HasString=False Terminal=True Combo=None
+11=11 HasString=False Terminal=True Combo=None
+12=12 HasString=False Terminal=True Combo=None
+13=13 HasString=False Terminal=True Combo=None
+14=14 HasString=False Terminal=True Combo=None
+15=15 HasString=False Terminal=True Combo=None
+16=16 HasString=False Terminal=True Combo=None
+17=17 HasString=False Terminal=True Combo=None
+18=18 HasString=False Terminal=True Combo=None
+19=19 HasString=False Terminal=True Combo=None
+20=20 HasString=False Terminal=True Combo=None
+21=21 HasString=False Terminal=True Combo=None
+22=22 HasString=False Terminal=True Combo=None
+23=23 HasString=False Terminal=True Combo=None
+24=24 HasString=False Terminal=True Combo=None
+25=25 HasString=False Terminal=True Combo=None
+26=26 HasString=False Terminal=True Combo=None
+27=27 HasString=False Terminal=True Combo=None
+28=28 HasString=False Terminal=True Combo=None
+29=29 HasString=False Terminal=True Combo=None
+30=30 HasString=False Terminal=True Combo=None
+31=31 HasString=False Terminal=True Combo=None
+32=32 HasString=False Terminal=True Combo=None
+33=33 HasString=False Terminal=True Combo=None
+34=34 HasString=False Terminal=True Combo=None
+35=35 HasString=False Terminal=True Combo=None
+36=36 HasString=False Terminal=True Combo=None
+37=37 HasString=False Terminal=True Combo=None
+38=38 HasString=False Terminal=True Combo=None
+39=39 HasString=False Terminal=True Combo=None
+40=40 HasString=False Terminal=False Combo=None
+41=41 HasString=False Terminal=True Combo=None
+42=42 HasString=False Terminal=True Combo=None
+43=43 HasString=False Terminal=True Combo=None
+44=44 HasString=False Terminal=True Combo=None
+45=45 HasString=False Terminal=True Combo=None
+46=46 HasString=False Terminal=True Combo=None
+47=47 HasString=False Terminal=True Combo=None
+48=48 HasString=False Terminal=True Combo=None
+3:40=840:3 HasString=True Terminal=True Combo=MutualOneshot
+1:40=840:1 HasString=True Terminal=True Combo=MutualOneshot
+2:40=840:2 HasString=True Terminal=True Combo=MutualOneshot
+4:40=840:4 HasString=True Terminal=True Combo=MutualOneshot
+6:40=840:6 HasString=True Terminal=True Combo=MutualOneshot
+7:40=840:7 HasString=True Terminal=True Combo=MutualOneshot
+8:40=840:8 HasString=True Terminal=True Combo=MutualOneshot
+9:40=840:9 HasString=True Terminal=True Combo=MutualOneshot
+ShiftKey: 0=SequentialShift
+ShiftKey: 1=SequentialShift
+ShiftKey: 2=SequentialShift
+ShiftKey: 3=SequentialShift
+ShiftKey: 4=SequentialShift
+ShiftKey: 5=SequentialShift
+ShiftKey: 6=SequentialShift
+ShiftKey: 7=SequentialShift
+ShiftKey: 8=SequentialShift
+ShiftKey: 9=SequentialShift
+ShiftKey: 10=SequentialShift
+ShiftKey: 11=SequentialShift
+ShiftKey: 12=SequentialShift
+ShiftKey: 13=SequentialShift
+ShiftKey: 14=SequentialShift
+ShiftKey: 15=SequentialShift
+ShiftKey: 16=SequentialShift
+ShiftKey: 17=SequentialShift
+ShiftKey: 18=SequentialShift
+ShiftKey: 19=SequentialShift
+ShiftKey: 20=SequentialShift
+ShiftKey: 21=SequentialShift
+ShiftKey: 22=SequentialShift
+ShiftKey: 23=SequentialShift
+ShiftKey: 24=SequentialShift
+ShiftKey: 25=SequentialShift
+ShiftKey: 26=SequentialShift
+ShiftKey: 27=SequentialShift
+ShiftKey: 28=SequentialShift
+ShiftKey: 29=SequentialShift
+ShiftKey: 30=SequentialShift
+ShiftKey: 31=SequentialShift
+ShiftKey: 32=SequentialShift
+ShiftKey: 33=SequentialShift
+ShiftKey: 34=SequentialShift
+ShiftKey: 35=SequentialShift
+ShiftKey: 36=SequentialShift
+ShiftKey: 37=SequentialShift
+ShiftKey: 38=SequentialShift
+ShiftKey: 39=SequentialShift
+ShiftKey: 87=SequentialShift
+ShiftKey: 55=SequentialShift
+ShiftKey: 40=UnorderedOneshotShift
+RepeatableKeys=empty
