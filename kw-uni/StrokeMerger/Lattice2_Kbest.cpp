@@ -1003,17 +1003,34 @@ namespace lattice2 {
         }
 
     private:
-        // 漢字xorひらがなを優先すべき状況で、条件を満たしているか
-        bool isKanjiOrHiraganaPreferenceSatisfied(const CandidateString& cand, const WordPiece& piece) {
-            _LOG_DETAIL(L"cand.string()=\"{}\", piece={}", to_wstr(cand.string()), piece.debugString());
+        std::optional<mchar_t> extractPreferredFollowChar(const MString& before, const MString& after) {
+            size_t commonLen = 0;
+            while (commonLen < before.size() && commonLen < after.size() && before[commonLen] == after[commonLen]) {
+                ++commonLen;
+            }
+            if (commonLen < after.size()) {
+                return after[commonLen];
+            }
+            return std::nullopt;
+        }
+
+        // 漢字xorひらがなを優先すべき状況で、生成後候補が条件を満たしているか
+        bool isKanjiOrHiraganaPreferenceSatisfied(const CandidateString& cand, const MString& generatedStr, const WordPiece& piece) {
+            _LOG_DETAIL(L"cand.string()=\"{}\", generatedStr=\"{}\", piece={}", to_wstr(cand.string()), to_wstr(generatedStr), piece.debugString());
             bool result = true;
             if (!cand.isAnyFollowed() && !piece.isAnyPadding()) {
-                const MString& pieceStr = piece.getString();
-                if (piece.numBS() <= 0 && !pieceStr.empty()
-                    && ((cand.isHiraganaFollowed() && !utils::is_hiragana(pieceStr[0])) || (cand.isKanjiFollowed() && !utils::is_kanji(pieceStr[0])))) {
-                    // 漢字xorひらがな優先条件を満たさなかった
-                    _LOG_DETAIL(_T("{} preference not satisfied"), cand.isKanjiFollowed() ? L"Kanji" : L"Hiragana");
-                    result = false;
+                auto followedChar = extractPreferredFollowChar(cand.string(), generatedStr);
+                if (followedChar.has_value()) {
+                    bool satisfied =
+                        cand.isHiraganaFollowed() ? utils::is_hiragana(*followedChar) :
+                        cand.isKanjiFollowed() ? utils::is_kanji(*followedChar) :
+                        true;
+                    if (!satisfied) {
+                        _LOG_DETAIL(_T("{} preference not satisfied: followedChar={}"), cand.isKanjiFollowed() ? L"Kanji" : L"Hiragana", to_wstr(*followedChar));
+                        result = false;
+                    }
+                } else {
+                    _LOG_DETAIL(_T("No new followed char extracted. keep candidate."));
                 }
             }
             _LOG_DETAIL(_T("LEAVE: result={}"), result);
@@ -1105,9 +1122,6 @@ namespace lattice2 {
                     _LOG_DETAIL(L"Non rollover multi stroke penalty, total penalty={}", penalty);
                 }
 
-                // 漢字 xor ひらがな優先条件を満たしていなければスキップ
-                if (!isKanjiOrHiraganaPreferenceSatisfied(cand, piece)) continue;
-
                 bool representativeMarked = false;
                 if (!bAutoBushuFound && !bPaddingDerived) {
                     MString s;
@@ -1115,10 +1129,12 @@ namespace lattice2 {
                     std::tie(s, numBS) = cand.applyAutoBushu(piece, strokeCount);  // 自動部首合成
                     if (!s.empty()) {
                         if (!isKatakanaConversionSatisfied(s, bKatakanaConversion)) continue;
+                        if (!isKanjiOrHiraganaPreferenceSatisfied(cand, s, piece)) continue;
                         _LOG_DETAIL(_T("AutoBush FOUND"));
                         CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                         newCandStr.setPenalty(penalty);
                         newCandStr.setPaddingDerived(bPaddingDerived);
+                        newCandStr.setFollowingPreferenceType(prefType);
                         // ここで形態素解析やNgram解析をしてコストを計算し、末尾に追加する
                         // 素片が追加されたことになるので、強制的に形態素解析を行う
                         useMorphAnalyzer = true;
@@ -1135,6 +1151,7 @@ namespace lattice2 {
                 int prevKanjiCandCost = INT_MIN;
                 for (MString s : ss) {
                     if (!isKatakanaConversionSatisfied(s, bKatakanaConversion)) continue;
+                    if (!isKanjiOrHiraganaPreferenceSatisfied(cand, s, piece)) continue;
                     CandidateString newCandStr(s, strokeCount, cand.mazeFeat());
                     newCandStr.setPenalty(penalty);
                     newCandStr.setPaddingDerived(bPaddingDerived);
@@ -1376,20 +1393,18 @@ namespace lattice2 {
             _LOG_DETAIL(_T("ENTER: dummyCand={}, piece={}, prefType={}, strokeCount={}, paddingLen={}"),
                 dummyCand.debugString(), piece.debugString(), to_string(prefType), strokeCount, paddingLen);
             std::vector<CandidateString> newCandidates;
-            if (isKanjiOrHiraganaPreferenceSatisfied(dummyCand, piece)) {
-                // 漢字 xor ひらがな優先条件を満たしている
-                bool bPaddingDerived = piece.isExStrokePadding();
-                if (bPaddingDerived) _LOG_DETAIL(L"PADDING piece. set PADDING DERIVED");
-                std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
-                for (MString s : ss) {
-                    if (!isKatakanaConversionSatisfied(s, bKatakanaConversion)) continue;
-                    CandidateString newCandStr(s, strokeCount);
-                    //newCandStr.setPenalty(penalty);
-                    newCandStr.setPaddingDerived(bPaddingDerived);
-                    newCandStr.setFollowingPreferenceType(prefType);
-                    _LOG_DETAIL(L"Add initial cand={}", newCandStr.debugString());
-                    newCandidates.emplace_back(newCandStr);
-                }
+            bool bPaddingDerived = piece.isExStrokePadding();
+            if (bPaddingDerived) _LOG_DETAIL(L"PADDING piece. set PADDING DERIVED");
+            std::vector<MString> ss = dummyCand.applyPiece(piece, strokeCount, paddingLen, false, bKatakanaConversion);
+            for (MString s : ss) {
+                if (!isKatakanaConversionSatisfied(s, bKatakanaConversion)) continue;
+                if (!isKanjiOrHiraganaPreferenceSatisfied(dummyCand, s, piece)) continue;
+                CandidateString newCandStr(s, strokeCount);
+                //newCandStr.setPenalty(penalty);
+                newCandStr.setPaddingDerived(bPaddingDerived);
+                newCandStr.setFollowingPreferenceType(prefType);
+                _LOG_DETAIL(L"Add initial cand={}", newCandStr.debugString());
+                newCandidates.emplace_back(newCandStr);
             }
             newCandidates.push_back(dummyCand);
             _LOG_DETAIL(_T("LEAVE: newCandidates.size()={}"), newCandidates.size());
