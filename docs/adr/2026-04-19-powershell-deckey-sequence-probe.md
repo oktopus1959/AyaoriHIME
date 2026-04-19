@@ -9,6 +9,7 @@
 - `OutputStack` と `numBackSpaces` の反映結果を、最終変換を挟まずにその場で確認できる入口が必要
 
 ## 決定
+- 文字列から `deckey` 列を逆引きする入口として `[tools/find_deckey_sequence.ps1](/F:/Dev/CSharp/AyaoriHIME/src/tools/find_deckey_sequence.ps1)` を使う
 - `deckey` 列の逐次観測専用の入口として `[tools/deckey_sequence_probe.ps1](/F:/Dev/CSharp/AyaoriHIME/src/tools/deckey_sequence_probe.ps1)` を使う
 - 本スクリプトは `MazeDeckey` を送らず、`DeckeySequence` のみを `HandleDeckeyDecoder()` に順次渡す
 - 各入力ごとに `edit`、`out`、`numBS`、更新後 `buffer` を標準出力へ出す
@@ -37,6 +38,12 @@
 - 全ステップ終了後に `FINAL buffer='...'` を出力する
 - 実行後に `saveTraceLog` を呼び、`TRACE_LOG=` として `[src/kw-uni.log](/F:/Dev/CSharp/AyaoriHIME/src/kw-uni.log)` を表示する
 
+## `find_deckey_sequence.ps1` の役割
+- `[src/tables/dump-table1.txt](/F:/Dev/CSharp/AyaoriHIME/src/tables/dump-table1.txt)` と `[src/tables/dump-table2.txt](/F:/Dev/CSharp/AyaoriHIME/src/tables/dump-table2.txt)` を読んで、対象文字列に一致する候補を探す
+- 一致した候補について、`path` と probe 用の `DeckeySequence` を `@( ... )` 形式で出力する
+- `-RunProbe` を指定した場合は、得られた `DeckeySequence` をそのまま `deckey_sequence_probe.ps1` に渡して確認する
+- 後置書き換え行については `prev` / `out` / `next` を出力し、文脈付き候補として扱う
+
 ## 引数
 - `DeckeySequence`: 逐次投入する `deckey` 列
 - `InitialEdit`: 初期の edit buffer 文字列。未指定時は空文字
@@ -64,6 +71,26 @@
   -InitialEdit "きみ" `
   -DeckeySequence 21,27,28,23
 ```
+
+## 逆引きの実行
+- 文字列から `deckey` 列を探したい場合は以下
+
+```powershell
+& "C:\Program Files\PowerShell\7\pwsh.exe" `
+  -File "F:\Dev\CSharp\AyaoriHIME\src\tools\find_deckey_sequence.ps1" `
+  -Target "たとえば"
+```
+
+- 候補が見つかったら、そのまま probe まで実行したい場合は以下
+
+```powershell
+& "C:\Program Files\PowerShell\7\pwsh.exe" `
+  -File "F:\Dev\CSharp\AyaoriHIME\src\tools\find_deckey_sequence.ps1" `
+  -Target "たとえば" `
+  -RunProbe
+```
+
+- `たとえば` の例では、`dump-table1.txt` から `1011:29` が見つかり、probe 用には `@(1011,29)` が得られる
 
 ## 出力例
 - 既定の `DeckeySequence=21,27,28,23` では以下のように出力される
