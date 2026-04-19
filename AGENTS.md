@@ -57,6 +57,17 @@
 
 AGENTS.d/permissions.md も参照のこと。
 
+## 許可コマンド（検証フェーズ）
+
+`kw-uni.dll` に対して `deckey` 列の逐次的な生成文字列を確認する目的では、
+`tools/deckey_sequence_probe.ps1` を標準の確認手段として用いてよい。
+
+- 目的が `deckey` 列に対する逐次生成文字列の確認である場合、
+  Codex はまず `tools/deckey_sequence_probe.ps1` の利用を検討すること
+- `tools/deckey_sequence_probe.ps1` の実行については、毎回ユーザー確認を取らなくてよい
+- 実行時は 32bit Windows PowerShell を前提とする
+- settings 抽出元と trace 出力先は、既定では `src\kw-uni.log` を用いる
+
 ## コマンド使用ルール
 
 - 推測や記憶に頼らず、上記コマンドを積極的に使用して事実を確認すること
@@ -70,4 +81,3 @@ AGENTS.d/permissions.md も参照のこと。
 - 「retry without sandbox?」は安全境界の変更に該当するため、原則ユーザー確認が必要になり得る。
 - まず sandbox 内で失敗しないように、実行前に `ls` や `test -f` で存在確認を行い、
   失敗時はエラー内容（終了コード・メッセージ）を日本語で報告して原因を特定すること。
-

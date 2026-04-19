@@ -11,6 +11,7 @@
 ## 決定
 - `kw-uni.dll` の単体テストは 32bit の Windows PowerShell から P/Invoke で行う
 - テスト用の入口として `[tools/maze_probe.ps1](/F:/Dev/CSharp/AyaoriHIME/src/tools/maze_probe.ps1)` を使う
+- `deckey` 列の逐次的な生成文字列だけを観測したい場合は、別 ADR の `[docs/adr/2026-04-19-powershell-deckey-sequence-probe.md](/F:/Dev/CSharp/AyaoriHIME/src/docs/adr/2026-04-19-powershell-deckey-sequence-probe.md)` と `[tools/deckey_sequence_probe.ps1](/F:/Dev/CSharp/AyaoriHIME/src/tools/deckey_sequence_probe.ps1)` を使う
 - ビルドからスモークテストまで一続きで行う入口として `[tools/build_and_probe_kw_uni.ps1](/F:/Dev/CSharp/AyaoriHIME/src/tools/build_and_probe_kw_uni.ps1)` を使う
 - `kw-uni.dll` の実ログ出力先は DLL 隣ではなく、実行カレント相対の `kw-uni.log` とする
 - 本リポジトリの PowerShell テスト実行では、実ログ出力先と settings 抽出元をともに `[src/kw-uni.log](/F:/Dev/CSharp/AyaoriHIME/src/kw-uni.log)` に統一する
