@@ -174,6 +174,10 @@ namespace KanchokuWS.Handler
         /// <summary>他のアプリからキーコードがINJECTされた </summary>
         private const uint LLKHF_INJECTED = 0x10;
 
+        private const uint VKEY_EISU = 0xf0;
+        private const uint VKEY_HANZEN = 0xf3;
+        private const uint VKEY_KANJI = 0xf4;
+
         /// <summary> 漢直として有効なキーか</summary>
         private bool isEffectiveVkey(uint vkey, int scanCode, uint flags, int extraInfo, bool ctrl)
         {
@@ -207,7 +211,7 @@ namespace KanchokuWS.Handler
 
         //private bool shiftKeyPressed(bool bWithOutCtrl)
         //{
-        //    return (!bWithOutCtrl && spaceKeyState == ExModKeyState.SHIFTED) || (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0 || (GetAsyncKeyState(FuncVKeys.RSHIFT) & 0x8000) != 0;
+        //    return (!bWithOutCtrl && spaceHoldShiftState == ExModKeyState.SHIFTED) || (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0 || (GetAsyncKeyState(FuncVKeys.RSHIFT) & 0x8000) != 0;
         //}
 
         private bool shiftKeyPressed(uint vkey)
@@ -215,15 +219,9 @@ namespace KanchokuWS.Handler
             return effectiveShiftPressed();
         }
 
-        private bool isLshiftKeyPressed()
+        private int getSpaceHoldShiftRepeatMillisec()
         {
-            return ((GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0 && !leftShiftState.IsPendingNormalKey);
-        }
-
-        private bool isSandSEnabled()
-        {
-            bool decoderActivated = isDecoderActivated();
-            return (Settings.SandSEnabledCurrently && decoderActivated) || (Settings.SandSEnabledWhenOffMode && !decoderActivated);
+            return Settings.SandSEnableSpaceOrRepeatMillisec;
         }
 
         private void updateStrokeHelpHoldShiftPlane(bool bDecoderOn)
@@ -231,7 +229,7 @@ namespace KanchokuWS.Handler
             var effectiveInfo = keyInfoManager?.getEffectiveHoldShiftKeyInfoForDisplay(bDecoderOn);
             var setting = effectiveInfo != null && effectiveInfo.IsGenericHoldShift ? Settings.GetHoldShiftKeySetting(effectiveInfo.Deckey) : null;
             bool forceShow = setting?.ShowStrokeHelp == true;
-            int shiftPlane = forceShow ? setting.ShiftPlane : keyInfoManager?.getShiftPlane(bDecoderOn, false) ?? ShiftPlane.ShiftPlane_NONE;
+            int shiftPlane = forceShow ? setting.ShiftPlane : keyInfoManager?.getShiftPlane(bDecoderOn) ?? ShiftPlane.ShiftPlane_NONE;
             frmKanchoku?.SetStrokeHelpShiftPlane(shiftPlane, forceShow);
         }
 
@@ -240,7 +238,6 @@ namespace KanchokuWS.Handler
             public enum ExModKeyBehavior
             {
                 Default,
-                LegacySandS,
                 GenericHoldShift,
             }
 
@@ -248,12 +245,9 @@ namespace KanchokuWS.Handler
             public enum ExModKeyState
             {
                 RELEASED,
-                RELEASED_ONESHOT,   // SandS のみ使用
                 PRESSED,
-                PRESSED_ONESHOT,    // SandS のみ使用
                 SHIFTED,
-                SHIFTED_ONESHOT,    // SandS のみ使用
-                REPEATED,           // SandS のみ使用
+                REPEATED,
             }
 
             public uint Vkey = 0;
@@ -268,53 +262,31 @@ namespace KanchokuWS.Handler
             public string Name = "";
 
             public bool Released { get { return KeyState == ExModKeyState.RELEASED; } }
-            public bool ReleasedOneshot { get { return KeyState == ExModKeyState.RELEASED_ONESHOT; } }
             public bool Pressed { get { return KeyState == ExModKeyState.PRESSED; } }
-            public bool PressedOneshot { get { return KeyState == ExModKeyState.PRESSED_ONESHOT; } }
             public bool Shifted { get { return KeyState == ExModKeyState.SHIFTED; } }
-            public bool ShiftedOneshot { get { return KeyState == ExModKeyState.SHIFTED_ONESHOT; } }
-            public bool ShiftedOrOneshot { get { return KeyState == ExModKeyState.SHIFTED || KeyState == ExModKeyState.SHIFTED_ONESHOT; } }
             public bool Repeated { get { return KeyState == ExModKeyState.REPEATED; } }
-            public bool IsLegacySandS { get { return Behavior == ExModKeyBehavior.LegacySandS; } }
             public bool IsGenericHoldShift { get { return Behavior == ExModKeyBehavior.GenericHoldShift; } }
-            public bool IsHoldShift { get { return IsLegacySandS || IsGenericHoldShift; } }
+            public bool IsHoldShift { get { return IsGenericHoldShift; } }
 
             private static long shiftedSerialSeed = 0;
 
             public static bool IsReleased(ExModKeyState state) { return state == ExModKeyState.RELEASED; }
-            public static bool IsReleasedOneshot(ExModKeyState state) { return state == ExModKeyState.RELEASED_ONESHOT; }
             public static bool IsPressed(ExModKeyState state) { return state == ExModKeyState.PRESSED; }
-            public static bool IsPressedOneshot(ExModKeyState state) { return state == ExModKeyState.PRESSED_ONESHOT; }
             public static bool IsShifted(ExModKeyState state) { return state == ExModKeyState.SHIFTED; }
-            public static bool IsShiftedOneshot(ExModKeyState state) { return state == ExModKeyState.SHIFTED_ONESHOT; }
             public static bool IsRepeated(ExModKeyState state) { return state == ExModKeyState.REPEATED; }
 
             public void SetReleased() {
                 if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set RELEASED");
                 KeyState = ExModKeyState.RELEASED;
             }
-            public void SetReleasedOneshot() {
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set RELEASED_ONESHOT");
-                KeyState = ExModKeyState.RELEASED_ONESHOT;
-            }
             public void SetPressed() {
                 if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set PRESSED");
                 KeyState = ExModKeyState.PRESSED;
                 PressedSerial = Interlocked.Increment(ref shiftedSerialSeed);
             }
-            public void SetPressedOneshot() {
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set PRESSED_ONESHOT");
-                KeyState = ExModKeyState.PRESSED_ONESHOT;
-                PressedSerial = Interlocked.Increment(ref shiftedSerialSeed);
-            }
             public void SetShifted() {
                 if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set SHIFTED");
                 KeyState = ExModKeyState.SHIFTED;
-                ShiftedSerial = Interlocked.Increment(ref shiftedSerialSeed);
-            }
-            public void SetShiftedOneshot() {
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set SHIFTED_ONESHOT");
-                KeyState = ExModKeyState.SHIFTED_ONESHOT;
                 ShiftedSerial = Interlocked.Increment(ref shiftedSerialSeed);
             }
             public void SetRepeated() {
@@ -375,9 +347,6 @@ namespace KanchokuWS.Handler
         /// <summary> 特殊キーの押下状態の管理クラス</summary>
         class ExModiferKeyInfoManager
         {
-            /// <summary> スペースキーの押下状態</summary>
-            private ExModiferKeyInfo spaceKeyInfo = new ExModiferKeyInfo() { Vkey = FuncVKeys.SPACE, Deckey = DecoderKeys.STROKE_SPACE_DECKEY, ModFlag = KeyModifiers.MOD_SPACE, Name = "SandS", Behavior = ExModiferKeyInfo.ExModKeyBehavior.LegacySandS };
-
             /// <summary> CapsLockキーの押下状態</summary>
             private ExModiferKeyInfo capsKeyInfo = new ExModiferKeyInfo() { Vkey = FuncVKeys.CAPSLOCK, Deckey = DecoderKeys.CAPS_DECKEY, ModFlag = KeyModifiers.MOD_CAPS, Name = "CapsLock" };
 
@@ -390,23 +359,21 @@ namespace KanchokuWS.Handler
             /// <summary> 変換キーの押下状態</summary>
             private ExModiferKeyInfo xferKeyInfo = new ExModiferKeyInfo() { Vkey = FuncVKeys.HENKAN, Deckey = DecoderKeys.XFER_DECKEY, ModFlag = KeyModifiers.MOD_XFER, Name = "Xfer" };
 
-            /// <summary> RShiftキーの押下状態</summary>
-            private ExModiferKeyInfo rshiftKeyInfo = new ExModiferKeyInfo() { Vkey = FuncVKeys.RSHIFT, Deckey = DecoderKeys.RIGHT_SHIFT_DECKEY, ModFlag = KeyModifiers.MOD_RSHIFT, Name = "RShift" };
-
             /// <summary> その他キーの押下状態</summary>
             private ExModiferKeyInfo otherKeyState = new ExModiferKeyInfo() { Name = "Other" };
 
+            /// <summary>
+            /// ホールドシフトキーの押下状態の辞書。キーはVKEY。DecoderKeys.STROKE_SPACE_DECKEYやDecoderKeys.FUNC_DECKEY_START以上のDeckeyに対応するVKEYが入る。
+            /// </summary>
             private Dictionary<uint, ExModiferKeyInfo> holdShiftKeyInfos = new Dictionary<uint, ExModiferKeyInfo>();
 
             public void Reinitialize()
             {
                 logger.Info($"ENTER");
-                spaceKeyInfo.Reinitialize(FuncVKeys.SPACE);
                 capsKeyInfo.Reinitialize(FuncVKeys.CAPSLOCK);
                 alnumKeyInfo.Reinitialize(FuncVKeys.EISU);
                 nferKeyInfo.Reinitialize(FuncVKeys.MUHENKAN);
                 xferKeyInfo.Reinitialize(FuncVKeys.HENKAN);
-                rshiftKeyInfo.Reinitialize(FuncVKeys.RSHIFT);
                 otherKeyState.Reinitialize(0);
                 holdShiftKeyInfos = new Dictionary<uint, ExModiferKeyInfo>();
             }
@@ -416,8 +383,8 @@ namespace KanchokuWS.Handler
                 var newInfos = new Dictionary<uint, ExModiferKeyInfo>();
                 foreach (var pair in Settings.HoldShiftKeySettings) {
                     int deckey = pair.Key;
-                    if (deckey == DecoderKeys.STROKE_SPACE_DECKEY) continue;
-                    if (deckey < DecoderKeys.FUNC_DECKEY_START || deckey >= DecoderKeys.FUNC_DECKEY_END) continue;
+                    if (deckey != DecoderKeys.STROKE_SPACE_DECKEY &&
+                        (deckey < DecoderKeys.FUNC_DECKEY_START || deckey >= DecoderKeys.FUNC_DECKEY_END)) continue;
                     if (deckey == DecoderKeys.CAPS_DECKEY || deckey == DecoderKeys.ALNUM_DECKEY ||
                         deckey == DecoderKeys.NFER_DECKEY || deckey == DecoderKeys.XFER_DECKEY ||
                         deckey == DecoderKeys.RIGHT_SHIFT_DECKEY) {
@@ -432,7 +399,7 @@ namespace KanchokuWS.Handler
                         info = new ExModiferKeyInfo() {
                             Vkey = vkey,
                             Deckey = deckey,
-                            Name = $"HoldShift({deckey})",
+                            Name = deckey == DecoderKeys.STROKE_SPACE_DECKEY ? "Space" : $"HoldShift({deckey})",
                             Behavior = ExModiferKeyInfo.ExModKeyBehavior.GenericHoldShift
                         };
                     } else {
@@ -455,8 +422,6 @@ namespace KanchokuWS.Handler
                 if (vkey == alnumKeyInfo.Vkey) return alnumKeyInfo;
                 if (vkey == nferKeyInfo.Vkey) return nferKeyInfo;
                 if (vkey == xferKeyInfo.Vkey) return xferKeyInfo;
-                if (vkey == rshiftKeyInfo.Vkey) return rshiftKeyInfo;
-                if (vkey == spaceKeyInfo.Vkey) return spaceKeyInfo;
                 var holdShiftInfo = holdShiftKeyInfos._safeGet(vkey);
                 if (holdShiftInfo != null) return holdShiftInfo;
 
@@ -465,7 +430,7 @@ namespace KanchokuWS.Handler
             }
 
             /// <summary> 拡張修飾キーの修飾フラグを得る</summary>
-            public static uint getModFlagForExModVkey(uint vkey)
+            public uint getModFlagForExModVkey(uint vkey)
             {
                 if (Settings.LoggingDecKeyInfo) { logger.Info($"CALLED: vkey={vkey}, MUHENKAN={FuncVKeys.MUHENKAN}, HENKAN={FuncVKeys.HENKAN}"); }
 
@@ -473,8 +438,6 @@ namespace KanchokuWS.Handler
                 if (vkey == FuncVKeys.EISU) return KeyModifiers.MOD_ALNUM;
                 if (vkey == FuncVKeys.MUHENKAN) return KeyModifiers.MOD_NFER;
                 if (vkey == FuncVKeys.HENKAN) return KeyModifiers.MOD_XFER;
-                if (vkey == FuncVKeys.RSHIFT) return KeyModifiers.MOD_RSHIFT;
-                if (vkey == FuncVKeys.SPACE) return KeyModifiers.MOD_SPACE;
                 return 0;
             }
 
@@ -485,8 +448,6 @@ namespace KanchokuWS.Handler
                 if (modFlag == KeyModifiers.MOD_ALNUM) return alnumKeyInfo;
                 if (modFlag == KeyModifiers.MOD_NFER) return nferKeyInfo;
                 if (modFlag == KeyModifiers.MOD_XFER) return xferKeyInfo;
-                if (modFlag == KeyModifiers.MOD_RSHIFT) return rshiftKeyInfo;
-                if (modFlag == KeyModifiers.MOD_SPACE) return spaceKeyInfo;
                 return otherKeyState;
             }
 
@@ -498,11 +459,6 @@ namespace KanchokuWS.Handler
                 if (alnumKeyInfo.Shifted) return KeyModifiers.MOD_ALNUM;
                 if (nferKeyInfo.Shifted) return KeyModifiers.MOD_NFER;
                 if (xferKeyInfo.Shifted) return KeyModifiers.MOD_XFER;
-                if (rshiftKeyInfo.Shifted) return KeyModifiers.MOD_RSHIFT;
-                if (spaceKeyInfo.Shifted) {
-                    if (Settings.SandSSuperiorToShift) return KeyModifiers.MOD_SPACE;
-                    if (!rshiftKeyInfo.Shifted) return KeyModifiers.MOD_SPACE;
-                }
                 return 0;
             }
 
@@ -514,11 +470,6 @@ namespace KanchokuWS.Handler
                 if (alnumKeyInfo.Pressed || alnumKeyInfo.Shifted) return KeyModifiers.MOD_ALNUM;
                 if (nferKeyInfo.Pressed || nferKeyInfo.Shifted) return KeyModifiers.MOD_NFER;
                 if (xferKeyInfo.Pressed || xferKeyInfo.Shifted) return KeyModifiers.MOD_XFER;
-                if (rshiftKeyInfo.Pressed || rshiftKeyInfo.Shifted) return KeyModifiers.MOD_RSHIFT;
-                if (spaceKeyInfo.Pressed || spaceKeyInfo.Shifted) {
-                    if (Settings.SandSSuperiorToShift) return KeyModifiers.MOD_SPACE;
-                    if (!rshiftKeyInfo.Pressed && !rshiftKeyInfo.Shifted) return KeyModifiers.MOD_SPACE;
-                }
                 return 0;
             }
 
@@ -526,33 +477,27 @@ namespace KanchokuWS.Handler
             public void makeExModKeyShifted(bool bDecoderOn)
             {
                 refreshHoldShiftKeyInfos();
-                if (spaceKeyInfo.Pressed || spaceKeyInfo.PressedOneshot) spaceKeyInfo.SetShifted();
                 if (capsKeyInfo.Pressed && capsKeyInfo.IsShiftPlaneAssigned(bDecoderOn)) capsKeyInfo.SetShifted();
                 if (alnumKeyInfo.Pressed && alnumKeyInfo.IsShiftPlaneAssigned(bDecoderOn)) alnumKeyInfo.SetShifted();
                 if (nferKeyInfo.Pressed && nferKeyInfo.IsShiftPlaneAssigned(bDecoderOn)) nferKeyInfo.SetShifted();
                 if (xferKeyInfo.Pressed && xferKeyInfo.IsShiftPlaneAssigned(bDecoderOn)) xferKeyInfo.SetShifted();
-                if (rshiftKeyInfo.Pressed) rshiftKeyInfo.SetShifted();
                 foreach (var info in holdShiftKeyInfos.Values.Where(x => x.Pressed).OrderBy(x => x.PressedSerial)) {
                     info.SetShifted();
                 }
             }
 
-            public int getShiftPlane(bool bDecoderOn, bool bSandSEnabled)
+            public int getShiftPlane(bool bDecoderOn)
             {
                 refreshHoldShiftKeyInfos();
                 var holdShiftInfo = getEffectiveHoldShiftKeyInfo(bDecoderOn);
                 if (holdShiftInfo != null) {
                     int holdShiftPlane = ShiftPlane.GetHoldShiftPlane(holdShiftInfo.Deckey, bDecoderOn);
-                    if (holdShiftInfo.IsLegacySandS && holdShiftPlane == ShiftPlane.ShiftPlane_NONE && bSandSEnabled) {
-                        holdShiftPlane = ShiftPlane.ShiftPlane_SHIFT;
-                    }
                     if (holdShiftPlane != ShiftPlane.ShiftPlane_NONE) return holdShiftPlane;
                 }
                 if (capsKeyInfo.Shifted) return ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_CAPS, bDecoderOn);
                 if (alnumKeyInfo.Shifted) return ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_ALNUM, bDecoderOn);
                 if (nferKeyInfo.Shifted) return ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_NFER, bDecoderOn);
                 if (xferKeyInfo.Shifted) return ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_XFER, bDecoderOn);
-                if (rshiftKeyInfo.Shifted) return ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_RSHIFT, bDecoderOn);
                 return ShiftPlane.ShiftPlane_NONE;
             }
 
@@ -579,14 +524,6 @@ namespace KanchokuWS.Handler
                         }
                     }
                 }
-
-                bool sandsAvailable = (spaceKeyInfo.Shifted || spaceKeyInfo.ShiftedOneshot) &&
-                    (Settings.SandSSuperiorToShift || !rshiftKeyInfo.Shifted);
-                if (sandsAvailable) {
-                    if (effectiveInfo == null || Settings.SandSSuperiorToShift || spaceKeyInfo.ShiftedSerial >= effectiveInfo.ShiftedSerial) {
-                        effectiveInfo = spaceKeyInfo;
-                    }
-                }
                 return effectiveInfo;
             }
 
@@ -602,48 +539,16 @@ namespace KanchokuWS.Handler
                         }
                     }
                 }
-
-                bool sandsAvailable = (spaceKeyInfo.Shifted || spaceKeyInfo.ShiftedOneshot) &&
-                    (Settings.SandSSuperiorToShift || !rshiftKeyInfo.Shifted);
-                if (sandsAvailable) {
-                    if (effectiveInfo == null || Settings.SandSSuperiorToShift || spaceKeyInfo.ShiftedSerial >= effectiveInfo.ShiftedSerial) {
-                        effectiveInfo = spaceKeyInfo;
-                    }
-                }
                 return effectiveInfo;
-            }
-
-            public ExModiferKeyInfo.ExModKeyState getSandSKeyState()
-            {
-                return spaceKeyInfo.KeyState;
-            }
-
-            public bool isSandSShifted()
-            {
-                return spaceKeyInfo.Shifted;
-            }
-
-            public bool isSandSShiftedOneshot()
-            {
-                return spaceKeyInfo.ShiftedOneshot;
-            }
-
-            public bool resetSandSShiftedOneshot()
-            {
-                bool bPrevShiftedOneshot = spaceKeyInfo.ShiftedOneshot;
-                if (bPrevShiftedOneshot) spaceKeyInfo.SetReleased();
-                return bPrevShiftedOneshot;
             }
 
             public string modifiersStateStr()
             {
                 return Logger.IsInfoEnabled
-                    ? $"spaceKeyState={spaceKeyInfo.KeyState}"
-                    + $"\ncapsKeyState={capsKeyInfo.KeyState}"
+                    ? $"capsKeyState={capsKeyInfo.KeyState}"
                     + $"\nalnumKeyState={alnumKeyInfo.KeyState}"
                     + $"\nnferKeyState={nferKeyInfo.KeyState}"
                     + $"\nxferKeyState={xferKeyInfo.KeyState}"
-                    + $"\nrshiftKeyState={rshiftKeyInfo.KeyState}"
                     + $"\nholdShiftKeys={holdShiftKeyInfos.Values.Select(x => $"{x.Name}:{x.KeyState}")._join(",")}\n"
                     : "";
             }
@@ -652,73 +557,6 @@ namespace KanchokuWS.Handler
 
         /// <summary> 拡張修飾キーの押下状態の管理オブジェクト</summary>
         ExModiferKeyInfoManager keyInfoManager = null;
-
-        /// <summary>
-        /// SandS と同じシフト面を使う拡張シフトキーか
-        /// </summary>
-        /// <returns></returns>
-        private bool isSameShiftKeyAsSandS(uint fkey, bool bDecoderOn)
-        {
-            if (Settings.LoggingDecKeyInfo) logger.Info($"fkey={fkey:x}H");
-            var plane_sands = ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_SPACE, bDecoderOn);
-            if (fkey != 0) {
-                var plane_fkey = ShiftPlane.GetShiftPlaneFromShiftModFlag(fkey, bDecoderOn);
-                if (Settings.LoggingDecKeyInfo) logger.Info($"plane_fkey={plane_fkey}, plane_sands={plane_sands}");
-                return plane_fkey == plane_sands;
-            }
-            if (isLshiftKeyPressed()) {
-                // 左シフトキーが押されている場合は、SandSが通常シフト面か否かをチェック
-                if (Settings.LoggingDecKeyInfo) logger.Info($"plane_Lshift={ShiftPlane.ShiftPlane_SHIFT}, plane_sands={plane_sands}");
-                return plane_sands == ShiftPlane.ShiftPlane_SHIFT;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// SandS と同じシフト面を使う拡張シフトキーが押されているかシフト状態か
-        /// </summary>
-        /// <returns></returns>
-        private bool isSameShiftKeyAsSandSPressedOrShifted(bool bDecoderOn)
-        {
-            return isSameShiftKeyAsSandS(keyInfoManager.getPressedOrShiftedExModFlag(), bDecoderOn);
-        }
-
-        /// <summary>
-        /// SandS と同じシフト面を使う拡張シフトキーがシフト状態か
-        /// </summary>
-        /// <returns></returns>
-        private bool isSameShiftKeyAsSandSShifted(bool bDecoderOn)
-        {
-            return isSameShiftKeyAsSandS(keyInfoManager.getShiftedExModKey(), bDecoderOn);;
-        }
-
-        private int getShiftPlaneDeckeyForSandS(bool bDecoderOn)
-        {
-            switch (ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_SPACE, bDecoderOn)) {
-                case ShiftPlane.ShiftPlane_SHIFT:
-                    return DecoderKeys.POST_NORMAL_SHIFT_DECKEY;
-                case ShiftPlane.ShiftPlane_A:
-                    return DecoderKeys.POST_PLANE_A_SHIFT_DECKEY;
-                case ShiftPlane.ShiftPlane_B:
-                    return DecoderKeys.POST_PLANE_B_SHIFT_DECKEY;
-                case ShiftPlane.ShiftPlane_C:
-                    return DecoderKeys.POST_PLANE_C_SHIFT_DECKEY;
-                case ShiftPlane.ShiftPlane_D:
-                    return DecoderKeys.POST_PLANE_D_SHIFT_DECKEY;
-                case ShiftPlane.ShiftPlane_E:
-                    return DecoderKeys.POST_PLANE_E_SHIFT_DECKEY;
-                case ShiftPlane.ShiftPlane_F:
-                    return DecoderKeys.POST_PLANE_F_SHIFT_DECKEY;
-                default:
-                    return 0;
-            }
-        }
-
-        private void invokeHandlerForPostSandSKey()
-        {
-            int deckey = getShiftPlaneDeckeyForSandS(true);
-            if (deckey > 0) invokeHandler(deckey, -1, 0, false);
-        }
 
         private void sendOriginalVkey(uint vkey)
         {
@@ -917,9 +755,6 @@ namespace KanchokuWS.Handler
         /// <summary> extraInfo=0 の時のキー押下時のリザルトフラグ </summary>
         //private bool normalInfoKeyDownResult = false;
 
-        /// <summary> 前回のSpace打鍵UP時刻 </summary>
-        private DateTime prevSpaceUpDt = DateTime.MinValue;
-
         private const int KEY_REPEAT_INTERVAL = 500;
 
         /// <summary> 同時打鍵キーのリピート中か(仮想鍵盤に表示する打鍵ガイドを切り替えるのに使う) </summary>
@@ -987,7 +822,7 @@ namespace KanchokuWS.Handler
                     keyInfoManager.modifiersStateStr());
             }
 
-            if (vkey == 0x5b || vkey == 0x5c) {
+            if (vkey == (uint)Keys.LWin || vkey == (uint)Keys.RWin) {
                 // LWIN or RWIN
                 bWinKeyOn = true;
                 if (Settings.LoggingDecKeyInfo) logger.Info("WinKey On");
@@ -1003,16 +838,16 @@ namespace KanchokuWS.Handler
             if (DecoderKeyVsVKey.IsUSonJPmode || DecoderKeyVsVKey.IsEisuDisabled) {
                 // EISU disabled
                 // 英数キーはCapsに変換
-                if (vkey == 0xf0) vkey = 0x14;
+                if (vkey == VKEY_EISU) vkey = (uint)Keys.Capital;
             }
             if (DecoderKeyVsVKey.IsUSonJPmode) {
                 // US-on-JP Mode
-                // 半/全キーは 0xf3 に寄せる
-                if (vkey == 0xf4) vkey = 0xf3;
+                // 漢字キー(0xf4)は 半/全(0xf3) に寄せる
+                if (vkey == VKEY_KANJI) vkey = VKEY_HANZEN;
             } else {
                 // JP or US Mode
                 // 半/全キーは、false(システム側による処理) を返す
-                if (vkey == 0xf3 || vkey == 0xf4) return false;
+                if (vkey == VKEY_HANZEN || vkey == VKEY_KANJI) return false;
             }
 
             // キー入力を破棄する場合は true を返す。flase を返すとシステム側でキー入力処理が行われる
@@ -1063,7 +898,7 @@ namespace KanchokuWS.Handler
                 bool bShift = shiftKeyPressed(vkey);
                 bool bAlt = isAltKeyPressed();
                 bool bWin = isWinKeyPressed();
-                uint modFlag = ExModiferKeyInfoManager.getModFlagForExModVkey(vkey);
+                uint modFlag = keyInfoManager.getModFlagForExModVkey(vkey);
                 uint modPressedOrShifted = keyInfoManager.getPressedOrShiftedExModFlag();
 
                 // この処理は、keyboardDownHandler() 内でやるようにした
@@ -1075,90 +910,9 @@ namespace KanchokuWS.Handler
 
                 var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
                 if (keyInfo != null) {
-                    // CapsLock/英数/RShift/Nfer/Xfer/Space
+                    // CapsLock/英数/Nfer/Xfer/Space
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"{keyInfo.Name}Key Pressed: ctrl={bCtrl}, shift={bShift}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, modPressedOrShifted={modPressedOrShifted:x}");
-                    if (vkey == FuncVKeys.SPACE) {
-                        // Space
-                        if (isSandSEnabled()) {
-                            void setShifted()
-                            {
-                                if (!keyInfo.Shifted) {
-                                    frmKanchoku?.SetStrokeHelpShiftPlane(ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_SPACE, true));   // SanS用のストロークヘルプ指定
-                                }
-                                keyInfo.SetShifted();
-                            }
-
-                            // SandSと同じシフト面を使う左Shiftまたは拡張修飾キーがシフト状態か(何か(拡張)シフトキーが Pressed だったら、Spaceキーが押されたことで Shifted に移行しているはず)
-                            bool bShiftOnSamePlane = isSameShiftKeyAsSandSShifted(bDecoderOn);
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SandS Enabled: ShiftOnSamePlane={bShiftOnSamePlane}, SandSEnablePostShiftCurrently={Settings.SandSEnablePostShiftCurrently}");
-                            if (bShiftOnSamePlane) {
-                                // SandSと同じシフト面を使う拡張修飾キーがシフト状態なら、シフト状態に遷移する
-                                setShifted();
-                                logger.Warn("Space Ignored A");
-                                return true; // keyboardDownHandler() をスキップ、システム側の本来のDOWN処理もスキップ
-                            }
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SandS: IgnoreSpaceUpOnSandS={Settings.OneshotSandSEnabledCurrently}, ctrl={bCtrl}");
-                            if (Settings.OneshotSandSEnabledCurrently && bCtrl) {
-                                // SandS時に1回目のSpace単打を無視する設定の場合は、Ctrl+Space が打鍵されたらそれをシフト状態に遷移させる
-                                setShifted();
-                                logger.Warn("Space Ignored B");
-                                return true; // keyboardDownHandler() をスキップ、システム側の本来のDOWN処理もスキップ
-                            }
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SandS: keyInfo.Shifted={keyInfo.Shifted}");
-                            if (keyInfo.Shifted) {
-                                // SHIFT状態なら何もしない
-                                logger.Warn("Space Ignored C");
-                                return true; // keyboardDownHandler() をスキップ、システム側の本来のDOWN処理もスキップ
-                            }
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SandS: keyInfo.PressedOneshot={keyInfo.PressedOneshot}");
-                            if (keyInfo.PressedOneshot) {
-                                // PRESSED_ONESHOT⇒REPEATED
-                                keyInfo.SetRepeated();
-                            }
-                            if (!keyInfo.Repeated) {
-                                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SandS: keyInfo.ShiftedOneshot={keyInfo.ShiftedOneshot}");
-                                if (keyInfo.ShiftedOneshot) {
-                                    // SHIFTED_ONESHOT⇒PRESSED_ONESHOT
-                                    keyInfo.SetPressedOneshot();
-                                    logger.Warn("Space Ignored D");
-                                    return true; // keyboardDownHandler() をスキップ、システム側の本来のDOWN処理もスキップ
-                                }
-                                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SandS: keyInfo.Pressed={keyInfo.Pressed}");
-                                if (keyInfo.Pressed) {
-                                    // すでにスペースキーが押下されている(キーリピート)
-                                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"prevSpaceUpDt={prevSpaceUpDt}.{prevSpaceUpDt:fff}");
-                                    if (Settings.SandSEnableSpaceOrRepeatMillisec <= 0 ||
-                                        HRDateTime.Now > prevSpaceUpDt.AddMilliseconds(Settings.SandSEnableSpaceOrRepeatMillisec + KEY_REPEAT_INTERVAL)) {
-                                        // キーリピートに移行しない閾値時間が設定されている or 前回のSpaceキー離放時から閾値時間を超過していた
-                                        setShifted();
-                                        // 後置シフトキーを送出する
-                                        if (Settings.SandSEnablePostShiftCurrently && bDecoderOn) {
-                                            logger.DebugH(() => $"CALL-1: invokeHandlerForPostSandSKey");
-                                            invokeHandlerForPostSandSKey();
-                                        }
-                                        logger.Warn("Space Ignored E");
-                                        return true; // keyboardDownHandler() をスキップ、システム側の本来のDOWN処理もスキップ
-                                    }
-                                    // リピート状態に移行
-                                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SandS: SetRepeated");
-                                    keyInfo.SetRepeated();
-                                }
-                                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SandS: keyState={keyInfo.KeyState}");
-                                if (!keyInfo.Repeated) {
-                                    // RELEASEDのはず
-                                    if ((!bCtrl && !bShift && modPressedOrShifted == 0) || (Settings.HandleShiftSpaceAsSandS && (bShift || modPressedOrShifted == KeyModifiers.MOD_RSHIFT))) {
-                                        // 1回目の押下で Ctrl も Shift も他のmodiferも押されてない場合、またはShiftが押されていてもSandSがShiftより劣位の場合は、PRESSED に移行
-                                        keyInfo.SetPressed();
-                                        logger.Warn("Space Ignored F");
-                                        return true; // keyboardDownHandler() をスキップ、システム側の本来のDOWN処理もスキップ
-                                    }
-                                }
-                            }
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SandS: LEAVE");
-                        }
-                        // 上記以外はスペース入力として扱う。すでに押下状態にある拡張修飾キーをSHIFT状態に遷移させる
-                        keyInfoManager.makeExModKeyShifted(bDecoderOn);
-                    } else if (keyInfo.IsGenericHoldShift) {
+                    if (keyInfo.IsHoldShift) {
                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: keyState={keyInfo.KeyState}, ctrl={bCtrl}, shift={bShift}, alt={bAlt}, win={bWin}, modPressedOrShifted={modPressedOrShifted:x}");
                         if (bCtrl || bShift || bAlt || bWin) {
                             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: modifier shortcut pass-through");
@@ -1171,7 +925,7 @@ namespace KanchokuWS.Handler
                             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: repeated -> pass through");
                         } else if (keyInfo.Pressed) {
                             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: prevUpDt={keyInfo.PrevUpDt}.{keyInfo.PrevUpDt:fff}");
-                            if (HRDateTime.Now > keyInfo.PrevUpDt.AddMilliseconds(Settings.SandSEnableSpaceOrRepeatMillisec)) {
+                            if (HRDateTime.Now > keyInfo.PrevUpDt.AddMilliseconds(getSpaceHoldShiftRepeatMillisec())) {
                                 keyInfo.SetShifted();
                                 updateStrokeHelpHoldShiftPlane(bDecoderOn);
                                 return true;
@@ -1181,44 +935,15 @@ namespace KanchokuWS.Handler
                         } else if (keyInfo.Released) {
                             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: released prevUpDt={keyInfo.PrevUpDt}.{keyInfo.PrevUpDt:fff}");
                             if (keyInfo.PrevUpDt > DateTime.MinValue &&
-                                HRDateTime.Now <= keyInfo.PrevUpDt.AddMilliseconds(Settings.SandSEnableSpaceOrRepeatMillisec)) {
+                                HRDateTime.Now <= keyInfo.PrevUpDt.AddMilliseconds(getSpaceHoldShiftRepeatMillisec())) {
                                 keyInfo.SetRepeated();
                             } else {
                                 keyInfo.SetPressed();
                                 return true;
                             }
                         }
-                    } else if (vkey == FuncVKeys.RSHIFT) {
-                        // RSHIFT
-                        if (keyInfo.IsShiftPlaneAssigned(bDecoderOn)) {
-                            // 拡張シフト面が割り当てられている場合
-                            if (keyInfo.Pressed || modPressedOrShifted != 0) {
-                                // 当拡張修飾キーが押下されている、またはその他の拡張修飾キーが押下orシフト状態なら、その他の拡張修飾キーを含めてシフト状態に遷移する
-                                keyInfo.SetShifted();
-                                keyInfoManager.makeExModKeyShifted(bDecoderOn);
-                            } else if (keyInfo.Released) {
-                                // 最初の押下
-                                keyInfo.SetPressed();
-                                //} else if (keyInfo.Shifted) {
-                                //    // SHIFT状態なら何もしない
-                            }
-                            //return true; // keyboardDownHandler() をスキップ、システム側の本来のSHIFT処理もスキップ
-                            return false; // keyboardDownHandler() をスキップ、システム側の本来のSHIFT処理もスキップ
-                        }
-                        if (keyInfo.IsSingleShiftHitEffecive(bCtrl)) {
-                            // 拡張シフト面が割り当てはないが、単打系ありの場合
-                            if (keyInfo.Pressed) {
-                                // 当拡張修飾キーが押下されているなら、シフト状態に遷移する
-                                keyInfo.SetShifted();
-                                keyInfoManager.makeExModKeyShifted(bDecoderOn);
-                            } else if (keyInfo.Released) {
-                                // 最初の押下
-                                keyInfo.SetPressed();
-                            }
-                        }
-                        return false; // keyboardDownHandler() をスキップ、システム側で本来のSHIFT処理を実行
                     } else {
-                        // Space/RSHIFT 以外 (Caps/英数/Nfer/Xfer)
+                        // HoldShift 以外 (Caps/英数/Nfer/Xfer)
                         if (keyInfo.IsShiftPlaneAssigned(bDecoderOn)) {
                             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"ShiftPlaneAssigned: {keyInfo.Name}");
                             // 拡張シフト面が割り当てられている拡張修飾キーの場合
@@ -1255,13 +980,8 @@ namespace KanchokuWS.Handler
                         }
                     }
                 } else {
-                    // 通常キーの場合は、すでに押下状態にあれば拡張修飾キーをSHIFT状態に遷移させる
+                    // 通常キーの場合は、すでに押下状態にある拡張修飾キーをSHIFT状態に遷移させる
                     keyInfoManager.makeExModKeyShifted(bDecoderOn);
-                    if (keyInfoManager.isSandSShifted() && bDecoderOn && Settings.SandSEnablePostShiftCurrently) {
-                        // SandS が SHIFTED に遷移していれば後置シフトキーも送出する
-                        logger.DebugH(() => $"CALL-2: invokeHandlerForPostSandSKey");
-                        invokeHandlerForPostSandSKey();
-                    }
                 }
                 // keyboardDownHandler()の呼び出し
                 if (Settings.LoggingDecKeyInfo) {
@@ -1312,8 +1032,7 @@ namespace KanchokuWS.Handler
             bool alt = isAltKeyPressed();
             uint mod = KeyModifiers.MakeModifier(alt, ctrl, shift);
             uint modEx = keyInfoManager.getShiftedExModKey();
-            if (modEx == 0 && keyInfoManager.isSandSShiftedOneshot()) modEx = KeyModifiers.MOD_SPACE;
-            int holdShiftPlane = keyInfoManager.getShiftPlane(bDecoderOn, isSandSEnabled());
+            int holdShiftPlane = keyInfoManager.getShiftPlane(bDecoderOn);
 
             //int normalDecKey = VKeyComboRepository.GetDecKeyFromVKey(vkey);
             int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
@@ -1328,12 +1047,12 @@ namespace KanchokuWS.Handler
 
             if (kanchokuCode < 0 && (modEx != 0 || holdShiftPlane != ShiftPlane.ShiftPlane_NONE) && !ctrl && !shift) {
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-B: IN: kanchokuCode={kanchokuCode}, modEx={modEx:x}, ctrl={ctrl}, shift={shift}");
-                // 拡張シフトが有効なのは、Ctrlキーが押されておらず、Shiftも押されていないか、Shift+SpaceをSandSとして扱わない場合とする
+                // 拡張シフトが有効なのは、Ctrlキーと物理Shiftが押されていない場合とする
                 kanchokuCode = modEx != 0 ? KeyComboRepository.GetModConvertedDecKeyFromCombo(modEx, normalDecKey) : -1;
                 if (kanchokuCode < 0) {
                     // 拡張シフト面のコードを得る
                     kanchokuCode = normalDecKey;
-                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-A: shiftPlane={holdShiftPlane}, kanchokuCode={kanchokuCode}, isSandSEnabled={isSandSEnabled()}");
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-A: shiftPlane={holdShiftPlane}, kanchokuCode={kanchokuCode}");
                     if (holdShiftPlane != ShiftPlane.ShiftPlane_NONE && kanchokuCode >= 0 && kanchokuCode < DecoderKeys.NORMAL_DECKEY_NUM) {
                         kanchokuCode += holdShiftPlane * DecoderKeys.PLANE_DECKEY_NUM;
                     }
@@ -1375,9 +1094,6 @@ namespace KanchokuWS.Handler
                 }
             }
 
-            // SandS の一時シフト状態をリセットする
-            keyInfoManager.resetSandSShiftedOneshot();
-
             if (!bDecoderOn && (kanchokuCode < 0 || normalDecKey < 0 || (kanchokuCode == normalDecKey && normalDecKey >= DecoderKeys.FUNC_DECKEY_START))) {
                 // デコーダーがOFFで、どの DecoderKey にもヒモ付けられていないか、または通常キーでもないキーが押されたら、そのままシステムに処理させる
                 // ⇒ Astah など、なぜか自身で キーボード入力を監視していると思われるソフトがあるため
@@ -1413,7 +1129,6 @@ namespace KanchokuWS.Handler
                     result = true;
                 } else {
                     // 直接ハンドラを呼び出す
-                    if (bDecoderOn && vkey == FuncVKeys.SPACE) logger.Warn($"invokeHandler Space: comboPoolEnabled={comboPoolEnabled}, mod={mod:x}H, kanchokuCode={kanchokuCode}");
                     //if (bDecoderOn && vkey == FuncVKeys.HENKAN) logger.WarnH($"invokeHandler HENKAN: comboPoolEnabled={comboPoolEnabled}, mod={mod:x}H, kanchokuCode={kanchokuCode}");
                     result = invokeHandler(kanchokuCode, normalDecKey, mod, false, forceDecoderByHoldShift);
                     //if (bDecoderOn && vkey == FuncVKeys.HENKAN) logger.WarnH($"invokeHandler HENKAN: result={result}");
@@ -1461,7 +1176,7 @@ namespace KanchokuWS.Handler
             }
 
             // 半/全キーは、US-on-JP モードなら true(入力破棄; つまり無視) JPモードなら false (システム処理; つまりIMEのON/OFF)を返す
-            if (vkey == 0xf3 || vkey == 0xf4) return DecoderKeyVsVKey.IsUSonJPmode;
+            if (vkey == VKEY_HANZEN || vkey == VKEY_KANJI) return DecoderKeyVsVKey.IsUSonJPmode;
 
             uint prevVkey = prevUpVkey;
             prevUpVkey = vkey;
@@ -1544,10 +1259,6 @@ namespace KanchokuWS.Handler
                 }
             }
 
-            var keyState = keyInfoManager.getSandSKeyState();
-            // spaceKey の shiftedOneshot 状態を解除しておく
-            keyInfoManager.resetSandSShiftedOneshot();
-
             // 同時打鍵キーのオートリピートが終了したら打鍵ガイドを元に戻す
             handleComboKeyRepeatStop(vkey);
 
@@ -1560,61 +1271,22 @@ namespace KanchokuWS.Handler
             bool bAlt = isAltKeyPressed();
             bool bWin = isWinKeyPressed();
 
-            uint modFlag = ExModiferKeyInfoManager.getModFlagForExModVkey(vkey);
+            uint modFlag = keyInfoManager.getModFlagForExModVkey(vkey);
             var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
             //bool result = false;
             if (keyInfo != null) {
                 bool bPrevPressed = keyInfo.Pressed;
-                bool bPrevPressedOneshot = keyInfo.PressedOneshot;
                 keyInfo.SetReleased();
                 if (Settings.LoggingDecKeyInfo) logger.DebugH(() =>
-                    $"{keyInfo.Name}Key up: prevPressed={bPrevPressed}, prevPressedOneshot={bPrevPressedOneshot}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, newKeyState={keyInfo.KeyState}");
-                if (vkey == FuncVKeys.SPACE) {
-                    // Space離放
-                    if (isSandSEnabled()) {
-                        frmKanchoku?.SetStrokeHelpShiftPlane(0);
-                        var dtLimit = prevSpaceUpDt.AddMilliseconds(Settings.SandSEnableSpaceOrRepeatMillisec._geZeroOr(0));
-                        var dtNow = HRDateTime.Now;
-                        if (bPrevPressed || bPrevPressedOneshot) prevSpaceUpDt = dtNow;
-                        if (Settings.LoggingDecKeyInfo) {
-                            logger.DebugH(() => $"SandS UP: IgnoreSpaceUpOnSandS={Settings.OneshotSandSEnabledCurrently}, " +
-                                $"dtLimit={dtLimit}, dtNow={dtNow}, ShiftedExModKey={keyInfoManager.getShiftedExModKey()}");
-                        }
-                        if (keyInfoManager.getShiftedExModKey() != 0) {
-                            // 何か拡張シフト状態だったら、Spaceキーは無視
-                            if (Settings.LoggingDecKeyInfo) logger.DebugH(() => $"SandS UP: Ignore Space");
-                            return true;
-                        } else if (bPrevPressed) {
-                            // Spaceキーが1回押されただけの状態
-                            if (Settings.OneshotSandSEnabledCurrently && (prevVkey != vkey || dtNow > dtLimit) && isDecoderWaitingFirstStroke() == true) {
-                                // SandS時のSpaceUpを一時シフト状態にする設定で、前回のキーがSPACEでないか前回のSpace打鍵から指定のms以上経過しており、今回が第1打鍵である
-                                if (Settings.LoggingDecKeyInfo) logger.DebugH(() => $"SandS UP: SetShiftedOneshot");
-                                keyInfo.SetShiftedOneshot();
-                                frmKanchoku?.SetSandSShiftedOneshot();
-                                return true;
-                            }
-                            // Spaceキーを送出
-                            keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
-                            keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
-                        } else if (bPrevPressedOneshot) {
-                            // ShiftedOneshot の後 Spaceキーが1回押されただけの状態
-                            // Spaceキーを送出
-                            keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
-                            keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
-                        }
-                    } else {
-                        // Spaceキーの解放を通知
-                        keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
-                    }
-                    return false;
-                } else if (keyInfo.IsGenericHoldShift) {
+                    $"{keyInfo.Name}Key up: prevPressed={bPrevPressed}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, newKeyState={keyInfo.KeyState}");
+                if (keyInfo.IsHoldShift) {
                     if (bCtrl || leftShift || bAlt || bWin) {
                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift UP: modifier shortcut pass-through");
                         return false;
                     }
                     if (bPrevPressed || keyInfo.Repeated || keyInfo.Shifted) keyInfo.PrevUpDt = HRDateTime.Now;
                     updateStrokeHelpHoldShiftPlane(bDecoderOn);
-                    if (bPrevPressed || bPrevPressedOneshot) {
+                    if (bPrevPressed) {
                         if (bDecoderOn) {
                             keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
                             keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
@@ -1623,26 +1295,7 @@ namespace KanchokuWS.Handler
                         }
                     }
                     return true;
-                } else if (vkey == FuncVKeys.RSHIFT) {
-                    // RSHIFT
-                    //if (keyInfo.IsShiftPlaneAssigned(bDecoderOn)) {
-                    //    // 拡張シフト面が割り当てられている場合
-                    //    if (bPrevPressed) {
-                    //        keyboardDownHandler(vkey, leftCtrl, rightCtrl);
-                    //    }
-                    //}
-                    if (keyInfo.IsSingleShiftHitEffecive(bCtrl)) {
-                        // 拡張シフト面が割り当ての有無にかかわらず、単打系ありの場合
-                        if (bPrevPressed) {
-                            // PRESSED状態だったら、ハンドラを呼び出す
-                            keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
-                            keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
-                        }
-                    }
-                    // システムに RSHIFT UP 処理をまかせる
-                    return false;
                 } else {
-                    // Space/RSHIFT 以外
                     if (bPrevPressed && keyInfo.IsShiftPlaneAssigned(bDecoderOn) && keyInfo.IsSingleShiftHitEffecive(bCtrl)) {
                         // 拡張シフト面が割り当てられ、かつ単打系がある拡張修飾キーで、それが押下状態の場合
                         keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);

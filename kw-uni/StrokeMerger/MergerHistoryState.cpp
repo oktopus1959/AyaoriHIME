@@ -372,7 +372,7 @@ namespace {
 
         // とりあえず、無変換、変換、IME ON/OFFキー, F1～F20は単独打鍵扱いにする
         inline static bool isSingleHitKey(int deckey) {
-            return deckey == NFER_DECKEY || deckey == XFER_DECKEY || deckey == IME_OFF_DECKEY || deckey == IME_ON_DECKEY || (deckey >= F1_DECKEY && deckey <= F_END_DECKEY);
+            return deckey == NFER_DECKEY || deckey == XFER_DECKEY || deckey == IME_OFF_DECKEY || deckey == IME_ON_DECKEY || (deckey >= F1_DECKEY && deckey <= F16_DECKEY);
         }
 
     public:

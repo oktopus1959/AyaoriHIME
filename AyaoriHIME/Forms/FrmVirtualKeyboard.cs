@@ -788,8 +788,8 @@ namespace KanchokuWS
                         } else if (cmd == "extracharsposition") {
                             makeVkbStrokeTable1("makeExtraCharsStrokePositionTable", null);
                         } else if (cmd == "sands") {
-                            makeVkbStrokeTable1("makeShiftPlaneStrokePosition1", ShiftPlane.GetSandSPlane().ToString(), false, false, true);
-                            makeVkbStrokeTable2("makeShiftPlaneStrokePosition2", ShiftPlane.GetSandSPlane().ToString(), false, false, true);
+                            makeVkbStrokeTable1("makeShiftPlaneStrokePosition1", ShiftPlane.GetSpaceHoldShiftPlane().ToString(), false, false, true);
+                            makeVkbStrokeTable2("makeShiftPlaneStrokePosition2", ShiftPlane.GetSpaceHoldShiftPlane().ToString(), false, false, true);
                         } else if (cmd == "keycharsposition") {
                             // 主テーブルの単打用
                             makeVkbStrokeTable1($"makeStrokePosition", null);
@@ -1689,7 +1689,7 @@ namespace KanchokuWS
                     var color = Color.FromName(name);
                     if (!color.IsEmpty) return color;
                 }
-                return decoderOutput.IsCurrentStrokeTablePrimary() && !frmMain.IsSandSShiftedOneshot ? SystemColors.Window
+                return decoderOutput.IsCurrentStrokeTablePrimary() ? SystemColors.Window
                     : Settings.BgColorForSecondaryTable._notEmpty() ? Color.FromName(Settings.BgColorForSecondaryTable) : SystemColors.Window;
             }
 

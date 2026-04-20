@@ -243,23 +243,36 @@ namespace KanchokuWS.Domain
             return true;    // OK
         }
 
-        /// <summary>テーブルファイルor設定ダイアログで割り当てたSandSシフト面を優先する</summary>
-        public static void AssignSandSPlane(int shiftPlane = 0)
+        /// <summary>Space hold-shift のシフト面を割り当てる</summary>
+        public static void AssignSpaceHoldShiftPlane(int shiftPlane = 0)
         {
-            logger.Info(() => $"CALLED: SandSEnabled={Settings.SandSEnabledCurrently}, SandSEnabledWhenOffMode={Settings.SandSEnabledWhenOffMode}, SandSAssignedPlane={Settings.SandSAssignedPlane}");
+            logger.Info(() => $"CALLED: SpaceHoldShiftEnabled={Settings.SandSEnabledCurrently}, SpaceHoldShiftEnabledWhenOffMode={Settings.SandSEnabledWhenOffMode}, SpaceHoldShiftAssignedPlane={Settings.SandSAssignedPlane}");
             if (Settings.SandSEnabledCurrently) {
                 if (shiftPlane <= 0) shiftPlane = Settings.SandSAssignedPlane;
                 if (shiftPlane > 0 && shiftPlane < ShiftPlane_NUM) {
-                    logger.Info(() => $"ShiftPlaneForShiftModKey.Add(SandS)");
+                    logger.Info(() => $"ShiftPlaneForShiftModKey.Add(SpaceHoldShift)");
                     ShiftPlaneForShiftModKey.Add(KeyModifiers.MOD_SPACE, shiftPlane);
                     AssignHoldShiftPlane(DecoderKeys.STROKE_SPACE_DECKEY, shiftPlane, Settings.SandSEnabledWhenOffMode ? shiftPlane : ShiftPlane_NONE);
                 }
             }
         }
 
-        public static int GetSandSPlane()
+        /// <summary>Space hold-shift のシフト面を得る</summary>
+        public static int GetSpaceHoldShiftPlane()
         {
             return ShiftPlaneForHoldShiftKey.GetPlane((uint)DecoderKeys.STROKE_SPACE_DECKEY)._gtZeroOr(() => ShiftPlaneForShiftModKey.GetPlane(KeyModifiers.MOD_SPACE));
+        }
+
+        /// <summary>互換用: 旧SandS API</summary>
+        public static void AssignSandSPlane(int shiftPlane = 0)
+        {
+            AssignSpaceHoldShiftPlane(shiftPlane);
+        }
+
+        /// <summary>互換用: 旧SandS API</summary>
+        public static int GetSandSPlane()
+        {
+            return GetSpaceHoldShiftPlane();
         }
 
     }

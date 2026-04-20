@@ -332,7 +332,7 @@ namespace KanchokuWS.TableParser
                             //    break;
                         }
                     } else if (lcStr == "sands") {
-                        // #SandS: SandS の有効化、無効化、面の割り当て
+                        // #SandS: 互換用。現在は Space hold-shift の有効化、無効化、面の割り当てとして扱う
                         handleSandSState();
                     } else if (lcStr == "holdshift") {
                         // #HoldShift: HoldShift キーの有効化、無効化、面の割り当て
@@ -530,13 +530,13 @@ namespace KanchokuWS.TableParser
             ReadWord();
             var word = CurrentStr._toLower();
             if (word._isEmpty()) {
-                if (Settings.LoggingTableFileInfo) logger.Info("SandS");
+                if (Settings.LoggingTableFileInfo) logger.Info("SandS(Space hold-shift)");
                 //Settings.SandSEnabledCurrently = true;
                 setSandSEnabled(true);
-                shiftPlane = ShiftPlane.GetSandSPlane();
+                shiftPlane = ShiftPlane.GetSpaceHoldShiftPlane();
                 if (shiftPlane <= 0) {
                     shiftPlane = 2;
-                    ShiftPlane.AssignSandSPlane(shiftPlane);
+                    ShiftPlane.AssignSpaceHoldShiftPlane(shiftPlane);
                     Settings.SetHoldShiftKeySetting(DecoderKeys.STROKE_SPACE_DECKEY, shiftPlane, Settings.SandSEnabledWhenOffMode);
                 }
             } else if (word._startsWith("enable")) {
@@ -553,14 +553,14 @@ namespace KanchokuWS.TableParser
                 //Settings.SandSEnabledCurrently = true;
                 setSandSEnabled(true);
                 shiftPlane = 1;
-                ShiftPlane.AssignSandSPlane(shiftPlane);
+                ShiftPlane.AssignSpaceHoldShiftPlane(shiftPlane);
                 Settings.SetInternalValue(Settings.SandSAssignedPlane_PropName, $"{shiftPlane}");
                 Settings.SetHoldShiftKeySetting(DecoderKeys.STROKE_SPACE_DECKEY, shiftPlane, Settings.SandSEnabledWhenOffMode);
             } else if (word.Length == 1 && word[0] >= 'a' && word[0] <= 'f') {
                 //Settings.SandSEnabledCurrently = true;
                 setSandSEnabled(true);
                 shiftPlane = word[0] - 'a' + 2;
-                ShiftPlane.AssignSandSPlane(shiftPlane);
+                ShiftPlane.AssignSpaceHoldShiftPlane(shiftPlane);
                 Settings.SetInternalValue(Settings.SandSAssignedPlane_PropName, $"{shiftPlane}");
                 Settings.SetHoldShiftKeySetting(DecoderKeys.STROKE_SPACE_DECKEY, shiftPlane, Settings.SandSEnabledWhenOffMode);
             } else if (word._startsWith("enabeoneshot")) {
@@ -657,7 +657,7 @@ namespace KanchokuWS.TableParser
                 logger.InfoH($"SandS Enabled");
                 setSandSEnabled(true);
                 setSandSEnabledWhenOffMode(holdShiftEnabledWhenOff);
-                ShiftPlane.AssignSandSPlane(holdShiftPlane);
+                ShiftPlane.AssignSpaceHoldShiftPlane(holdShiftPlane);
                 Settings.SetInternalValue(Settings.SandSAssignedPlane_PropName, $"{holdShiftPlane}");
             }
             logger.InfoH($"LEAVE: key='{word}', plane='{planeWord}', option='{optionText}', keyDeckey={keyDeckey}, shiftPlane={shiftPlane}, enabledWhenOff={holdShiftEnabledWhenOff}, showStrokeHelp={showStrokeHelp}");

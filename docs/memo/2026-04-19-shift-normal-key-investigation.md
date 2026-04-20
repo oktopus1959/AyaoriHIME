@@ -47,13 +47,40 @@
 - `Shift` 後押しで、すでに押されている通常キーとの間に同時打鍵定義が無い場合は、
   Shift を保留せずシステム側へ流す分岐を追加
 - `LShift` は、同時打鍵候補として保留した場合を除き、Down/Up ともシステムへ素通しする分岐を追加
+- 2026-04-20 時点で、`ExModiferKeyInfoManager` から `RShift` の管理を外し始めた
+  - `rshiftKeyInfo` を削除
+  - `getModiferKeyInfoByVkey()` / `getShiftedExModKey()` / `getShiftPlane()` などの `RShift` 依存を除去
+  - `onKeyboardDownHandler()` / `onKeyboardUpHandler()` の旧 `RShift` 専用分岐を削除
+  - これにより Shift は `ShiftKeyRuntimeState` 側に責務を寄せる方向へ寄せた
+- 同じタイミングで、`SandS` と Shift の結合も一部除去した
+  - `isSameShiftKeyAsSandS*()` を削除
+  - `invokeHandlerForPostSandSKey()` と後置 SandS キー送出を削除
+  - Space押下時に「Shift と同じシフト面か」を見る判定を削除
+- さらに `Space` 自体も `LegacySandS` ではなく `GenericHoldShift` として扱う方向へ寄せた
+  - `spaceKeyInfo.Behavior` を `GenericHoldShift` に変更
+  - `Space` の Down/Up を generic hold-shift 分岐へ統合
+  - `PRESSED_ONESHOT` / `SHIFTED_ONESHOT` 前提の処理を `KeyboardEventHandler` から外した
+  - `FrmKanchoku.IsSandSShiftedOneshot` は `false` 固定にした
+- 内部命名も `SandS` 前提から `Space hold-shift` 前提へ寄せ始めた
+  - `isSandSEnabled()` を `isSpaceHoldShiftEnabled()` に変更
+  - `modifiersStateStr()` の `spaceKeyState` を `spaceHoldShiftState` に変更
+  - まだ `Settings.SandS*` など外部設定名はそのまま残している
+- Space を特別扱いする SandS 実装もさらに削った
+  - `Settings.SandSSuperiorToShift` 依存の優先順位分岐を除去
+  - 仮想鍵盤の `IsSandSShiftedOneshot` 依存を除去
+  - `FrmKanchoku.IsSandSShiftedOneshot` を削除
+- `SandS` 名の互換 API は残しつつ、内部参照先は `Space hold-shift` へ切り替え始めた
+  - `ShiftPlane.AssignSpaceHoldShiftPlane()` / `GetSpaceHoldShiftPlane()` を追加
+  - 旧 `AssignSandSPlane()` / `GetSandSPlane()` は互換ラッパー化
+  - `TableParserTokenizer` / `FrmVirtualKeyboard` の内部参照は新 API に切り替えた
+  - `ShiftPlane` の内部ログも `SpaceHoldShift` 表記へ変更
 - ただし、この状態は未完成・未検証。
 
 ## 現時点の問題点
 - 実装は途中段階で、挙動保証できる状態ではない。
 - 特に危ない点:
-  - `RShift` 既存経路との二重管理
-  - `modEx` / `holdShiftPlane` / SandS との競合
+  - `LShift/RShift` は `ShiftKeyRuntimeState` に寄せ始めたが、`modEx` / `holdShiftPlane` の旧構造自体はまだ残っている
+  - `Space` は generic hold-shift に寄せたが、設定名やログ文言はまだ `SandS` を含むものが残っている
   - `keyboardUpHandler()` と `Determiner.KeyUp()` の責務分離が曖昧
   - Shift 不成立時の通常 Shift フォールバックが、現状は主に `Shift -> 通常キー` の順でしか成立していない
   - `Space -> Shift` で定義なしの場合は「Shift を通常修飾としてそのまま通す」挙動に寄せたが、他キーで期待通りかは未確認

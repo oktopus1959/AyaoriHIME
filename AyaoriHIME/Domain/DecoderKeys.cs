@@ -235,7 +235,6 @@ namespace KanchokuWS
         //public const int F22_DECKEY = F21_DECKEY + 1;
         //public const int F23_DECKEY = F22_DECKEY + 1;
         //public const int F24_DECKEY = F23_DECKEY + 1;
-        public const int F_END_DECKEY = F16_DECKEY;
         public const int SHIFT_TAB_DECKEY = F16_DECKEY + 1;     // これは末尾である必要あり
         // これでもう満杯である
 

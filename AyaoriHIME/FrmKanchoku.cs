@@ -1475,21 +1475,6 @@ namespace KanchokuWS
             CombinationKeyStroke.DeterminerLib.KeyCombinationPool.ChangeCurrentPoolBySelectedTable(decoderOutput.strokeTableNum, true);  // KeyCombinationPoolの入れ替え
         }
 
-        /// <summary>SandS状態が一時的なシフト状態か</summary>
-        public bool IsSandSShiftedOneshot { get; private set; } = false;
-
-        /// <summary>SandS状態を一時的なシフト状態にする</summary>
-        public void SetSandSShiftedOneshot()
-        {
-            logger.Info("CALLED");
-            if (IsDecoderActive) {
-                // 中央鍵盤色を、第2テーブル選択状態の色にする
-                IsSandSShiftedOneshot = true;
-                frmVkb.DrawVirtualKeyboardChars();
-                IsSandSShiftedOneshot = false;
-            }
-        }
-
         /// <summary>
         /// 打鍵ヘルプのローテーション<br/>
         /// ローテーションを行わない場合は false を返す
