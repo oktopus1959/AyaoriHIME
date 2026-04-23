@@ -271,6 +271,20 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             return ComboListCount == 0 && (GetKeyCombo()?.IsTerminal ?? false);
         }
 
+        public bool HasCombinationWithCurrentStrokes(int decKey, bool bDecoderOn)
+        {
+            if (decKey < 0 || IsEmpty()) return false;
+
+            var strokes = new List<Stroke>();
+            strokes.AddRange(comboList);
+            strokes.AddRange(unprocList);
+            strokes.Add(new Stroke(decKey, bDecoderOn, HRDateTime.Now));
+
+            var keyCombo = KeyCombinationPool._GetEntry(strokes);
+            logger.InfoH(() => $"HasCombinationWithCurrentStrokes: decKey={decKey}, combo={(keyCombo == null ? "null" : keyCombo.DebugString())}, strokes={strokes._toString()}");
+            return keyCombo != null;
+        }
+
         public Stroke FindSameStroke(int decKey)
         {
             int idx = FindSameIndex(decKey);

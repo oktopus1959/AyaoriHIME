@@ -386,8 +386,7 @@ namespace KanchokuWS.Handler
                     if (deckey != DecoderKeys.STROKE_SPACE_DECKEY &&
                         (deckey < DecoderKeys.FUNC_DECKEY_START || deckey >= DecoderKeys.FUNC_DECKEY_END)) continue;
                     if (deckey == DecoderKeys.CAPS_DECKEY || deckey == DecoderKeys.ALNUM_DECKEY ||
-                        deckey == DecoderKeys.NFER_DECKEY || deckey == DecoderKeys.XFER_DECKEY ||
-                        deckey == DecoderKeys.RIGHT_SHIFT_DECKEY) {
+                        deckey == DecoderKeys.NFER_DECKEY || deckey == DecoderKeys.XFER_DECKEY) {
                         continue;
                     }
 
@@ -527,6 +526,20 @@ namespace KanchokuWS.Handler
                 return effectiveInfo;
             }
 
+            public ExModiferKeyInfo getEffectiveCommonTableHoldShiftKeyInfo(bool bDecoderOn)
+            {
+                refreshHoldShiftKeyInfos();
+                ExModiferKeyInfo effectiveInfo = getEffectiveHoldShiftKeyInfo(bDecoderOn);
+                foreach (var info in new[] { capsKeyInfo, alnumKeyInfo, nferKeyInfo, xferKeyInfo }) {
+                    var setting = Settings.GetHoldShiftKeySetting(info.Deckey);
+                    if (setting == null || !info.Shifted || !ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn)) continue;
+                    if (effectiveInfo == null || info.ShiftedSerial > effectiveInfo.ShiftedSerial) {
+                        effectiveInfo = info;
+                    }
+                }
+                return effectiveInfo;
+            }
+
             public ExModiferKeyInfo getEffectiveHoldShiftKeyInfoForDisplay(bool bDecoderOn)
             {
                 refreshHoldShiftKeyInfos();
@@ -601,12 +614,228 @@ namespace KanchokuWS.Handler
             ModFlag = KeyModifiers.MOD_RSHIFT,
         };
 
+        class PendingCommonSingleHitState
+        {
+            public int Deckey;
+            public bool Consumed;
+            public bool DispatchedToDeterminer;
+            public bool SwallowedKeyDown;
+        }
+
         private readonly HashSet<uint> activeNonShiftVkeys = new HashSet<uint>();
+        private readonly HashSet<uint> consumedHoldShiftTargetVkeys = new HashSet<uint>();
+        private readonly Dictionary<uint, int> holdShiftTargetDeterminerDeckeys = new Dictionary<uint, int>();
+        private readonly Dictionary<uint, PendingCommonSingleHitState> pendingCommonSingleHitStates = new Dictionary<uint, PendingCommonSingleHitState>();
 
         private ShiftKeyRuntimeState getShiftState(uint vkey)
         {
             return vkey == FuncVKeys.LSHIFT ? leftShiftState :
                 vkey == FuncVKeys.RSHIFT ? rightShiftState : null;
+        }
+
+        private bool isSystemModifierDeckey(int deckey)
+        {
+            return deckey == DecoderKeys.LEFT_CONTROL_DECKEY ||
+                deckey == DecoderKeys.RIGHT_CONTROL_DECKEY ||
+                deckey == DecoderKeys.LEFT_SHIFT_DECKEY ||
+                deckey == DecoderKeys.RIGHT_SHIFT_DECKEY ||
+                deckey == DecoderKeys.LEFT_ALT_DECKEY ||
+                deckey == DecoderKeys.RIGHT_ALT_DECKEY ||
+                deckey == DecoderKeys.LEFT_WIN_DECKEY ||
+                deckey == DecoderKeys.RIGHT_WIN_DECKEY;
+        }
+
+        private bool isSystemModifierVkey(uint vkey)
+        {
+            int deckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+            return isSystemModifierDeckey(deckey);
+        }
+
+        private bool isSystemShiftDeckey(int deckey)
+        {
+            return deckey == DecoderKeys.LEFT_SHIFT_DECKEY || deckey == DecoderKeys.RIGHT_SHIFT_DECKEY;
+        }
+
+        private void consumePendingCommonSingleHits(uint currentVkey)
+        {
+            foreach (var pair in pendingCommonSingleHitStates.Where(x => x.Key != currentVkey)) {
+                pair.Value.Consumed = true;
+            }
+        }
+
+        private void setPendingCommonSingleHit(uint vkey, int deckey)
+        {
+            pendingCommonSingleHitStates[vkey] = new PendingCommonSingleHitState() {
+                Deckey = deckey,
+                Consumed = false,
+                DispatchedToDeterminer = false,
+                SwallowedKeyDown = false,
+            };
+        }
+
+        private PendingCommonSingleHitState popPendingCommonSingleHit(uint vkey)
+        {
+            var state = pendingCommonSingleHitStates._safeGet(vkey);
+            if (state != null) pendingCommonSingleHitStates.Remove(vkey);
+            return state;
+        }
+
+        private bool invokeCommonTableAction(CommonTableAction action, int origDecKey, bool bDecoderOn)
+        {
+            if (action == null) return false;
+            return invokeHandler(action.Deckey, origDecKey, 0, false, !bDecoderOn && action.RequiresDecoder);
+        }
+
+        private bool tryInvokeCommonSingleHitByDeckey(int deckey, bool bDecoderOn)
+        {
+            return CommonTableRuntime.TryGetSingleHitAction(deckey, out var action) && invokeCommonTableAction(action, deckey, bDecoderOn);
+        }
+
+        private bool tryBeginPendingCommonSingleHit(uint vkey, int deckey, ExModiferKeyInfo keyInfo, bool bCtrl, bool bShift, bool bAlt, bool bWin, bool bDecoderOn)
+        {
+            if (!CommonTableRuntime.TryGetSingleHitAction(deckey, out _)) return false;
+            if (bCtrl || bShift || bAlt || bWin) return false;
+            if (pendingCommonSingleHitStates.ContainsKey(vkey)) return true;
+            if (keyInfo != null && (keyInfo.IsHoldShift || keyInfo.IsShiftPlaneAssigned(bDecoderOn))) return false;
+
+            setPendingCommonSingleHit(vkey, deckey);
+            return true;
+        }
+
+        private KeyCombination getComboForCommonHoldShift(int holdShiftDeckey, int targetDeckey, bool bDecoderOn)
+        {
+            var dt = HRDateTime.Now;
+            var strokes = new[] {
+                new Stroke(holdShiftDeckey, bDecoderOn, dt),
+                new Stroke(targetDeckey, bDecoderOn, dt)
+            };
+            return KeyCombinationPool._GetEntry(strokes);
+        }
+
+        private void markPendingCommonSingleHitConsumed(uint vkey)
+        {
+            var pendingState = pendingCommonSingleHitStates._safeGet(vkey);
+            if (pendingState != null) pendingState.Consumed = true;
+        }
+
+        private bool dispatchSystemModifierToDeterminer(uint vkey, int deckey, bool bDecoderOn)
+        {
+            ++keyDownCount;
+            CombinationKeyStroke.Determiner.Singleton.KeyDown(
+                deckey,
+                bDecoderOn,
+                keyDownCount,
+                (decKeys) => handleComboKeyRepeat(vkey, decKeys));
+
+            var pendingState = pendingCommonSingleHitStates._safeGet(vkey);
+            if (pendingState != null) {
+                pendingState.Consumed = true;
+                pendingState.DispatchedToDeterminer = true;
+                pendingState.SwallowedKeyDown = true;
+            }
+            return true;
+        }
+
+        private bool handleSystemModifierDown(uint vkey, bool bDecoderOn)
+        {
+            int deckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+            if (!isSystemModifierDeckey(deckey)) return false;
+
+            setPendingCommonSingleHit(vkey, deckey);
+
+            var determiner = CombinationKeyStroke.Determiner.Singleton;
+            if (CombinationKeyStroke.DeterminerLib.KeyCombinationPool._Enabled &&
+                determiner.HasCombinationWithCurrentStrokes(deckey, bDecoderOn)) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SystemModifier combo dispatch: vkey={vkey:x}H, deckey={deckey}");
+                return dispatchSystemModifierToDeterminer(vkey, deckey, bDecoderOn);
+            }
+
+            if (CombinationKeyStroke.DeterminerLib.KeyCombinationPool.IsSpaceOrFuncComboShift(deckey)) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SystemModifier space/func combo shift dispatch: vkey={vkey:x}H, deckey={deckey}");
+                return dispatchSystemModifierToDeterminer(vkey, deckey, bDecoderOn);
+            }
+
+            var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
+            if (keyInfo != null) {
+                keyInfo.SetShifted();
+                updateStrokeHelpHoldShiftPlane(bDecoderOn);
+            }
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SystemModifier HoldShift ON and pass-through: vkey={vkey:x}H, deckey={deckey}");
+            return false;
+        }
+
+        private bool handleSystemModifierUp(uint vkey, bool bDecoderOn, bool leftCtrl, bool rightCtrl)
+        {
+            int deckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+            if (!isSystemModifierDeckey(deckey)) return false;
+
+            var pendingState = popPendingCommonSingleHit(vkey);
+            var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
+            bool wasActiveHoldShift = keyInfo != null && (keyInfo.Pressed || keyInfo.Shifted || keyInfo.Repeated);
+            if (keyInfo != null) {
+                keyInfo.SetReleased();
+                if (wasActiveHoldShift) keyInfo.PrevUpDt = HRDateTime.Now;
+                updateStrokeHelpHoldShiftPlane(bDecoderOn);
+            }
+
+            if (vkey == FuncVKeys.LCONTROL) bLCtrlShifted = false;
+            if (vkey == FuncVKeys.RCONTROL) bRCtrlShifted = false;
+
+            if (pendingState?.DispatchedToDeterminer == true) {
+                keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
+                return true;
+            }
+
+            if (pendingState != null && !pendingState.Consumed) {
+                bool invoked = tryInvokeCommonSingleHitByDeckey(pendingState.Deckey, bDecoderOn);
+                if (pendingState.SwallowedKeyDown) return invoked;
+            }
+
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SystemModifier up pass-through: vkey={vkey:x}H, deckey={deckey}, consumed={pendingState?.Consumed}");
+            return false;
+        }
+
+        private bool? handleActiveHoldShiftBeforeNormalKey(uint vkey, bool bDecoderOn)
+        {
+            if (isSystemModifierVkey(vkey)) return null;
+
+            int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+            if (normalDecKey < 0) return null;
+
+            var activeHoldShiftInfo = keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
+            if (activeHoldShiftInfo == null) return null;
+
+            var combo = getComboForCommonHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn);
+            if (combo != null && combo.IsTerminal && !combo.IsSubKey && combo.DecKeyList._notEmpty()) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift combo action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, combo={combo.DecKeysDebugString()}");
+                markPendingCommonSingleHitConsumed(activeHoldShiftInfo.Vkey);
+                consumedHoldShiftTargetVkeys.Add(vkey);
+                return invokeHandlerForKeyList(combo.DecKeyList._toSingleHitResultKeyStrokeList(), false);
+            }
+
+            if ((combo == null || combo.IsTerminal) && CommonTableRuntime.TryGetHoldShiftAction(activeHoldShiftInfo.Deckey, normalDecKey, out var commonAction)) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, action={commonAction.Deckey}");
+                markPendingCommonSingleHitConsumed(activeHoldShiftInfo.Vkey);
+                consumedHoldShiftTargetVkeys.Add(vkey);
+                return invokeCommonTableAction(commonAction, normalDecKey, bDecoderOn);
+            }
+
+            if (isSystemShiftDeckey(activeHoldShiftInfo.Deckey) && normalDecKey >= 0 && normalDecKey < DecoderKeys.NORMAL_DECKEY_NUM) {
+                int shiftedDeckey = normalDecKey + ShiftPlane.ShiftPlane_SHIFT * DecoderKeys.PLANE_DECKEY_NUM;
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"System Shift HoldShift fallback to shifted deckey: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, shifted={shiftedDeckey}");
+                markPendingCommonSingleHitConsumed(activeHoldShiftInfo.Vkey);
+                holdShiftTargetDeterminerDeckeys[vkey] = shiftedDeckey;
+                ++keyDownCount;
+                CombinationKeyStroke.Determiner.Singleton.KeyDown(
+                    shiftedDeckey,
+                    bDecoderOn,
+                    keyDownCount,
+                    (decKeys) => handleComboKeyRepeat(vkey, decKeys));
+                return true;
+            }
+
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift undefined combo pass-through: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}");
+            return false;
         }
 
         private bool isShiftVkey(uint vkey)
@@ -826,13 +1055,10 @@ namespace KanchokuWS.Handler
                 // LWIN or RWIN
                 bWinKeyOn = true;
                 if (Settings.LoggingDecKeyInfo) logger.Info("WinKey On");
-                return false;
             }
 
             if (bWinKeyOn) {
-                // LWIN or RWIN が押されているときは、他のキー入力を無視する
-                if (Settings.LoggingDecKeyInfo) logger.Info($"WinKey On: thru {vkey:x}");
-                return false;
+                if (Settings.LoggingDecKeyInfo) logger.Info($"WinKey On: continue SystemModifier/HoldShift path for {vkey:x}");
             }
 
             if (DecoderKeyVsVKey.IsUSonJPmode || DecoderKeyVsVKey.IsEisuDisabled) {
@@ -876,6 +1102,15 @@ namespace KanchokuWS.Handler
                     return false;
                 }
 
+                if (extraInfo == 0 && isSystemModifierVkey(vkey)) {
+                    return handleSystemModifierDown(vkey, bDecoderOn);
+                }
+
+                var holdShiftResult = extraInfo == 0 ? handleActiveHoldShiftBeforeNormalKey(vkey, bDecoderOn) : null;
+                if (holdShiftResult != null) {
+                    return holdShiftResult.Value;
+                }
+
                 if (isShiftVkey(vkey) && extraInfo == 0) {
                     if (handleShiftDownAsNormalCandidate(vkey, bCtrl)) {
                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Shift pending as normal key: vkey={vkey:x}H");
@@ -889,6 +1124,7 @@ namespace KanchokuWS.Handler
 
                 if (!isShiftVkey(vkey)) {
                     activeNonShiftVkeys.Add(vkey);
+                    consumePendingCommonSingleHits(vkey);
                     if (handlePendingShiftBeforeNormalKey(vkey)) {
                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Pending shift fallback queued: vkey={vkey:x}H");
                         return true;
@@ -909,6 +1145,11 @@ namespace KanchokuWS.Handler
                 //}
 
                 var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
+                int currentDeckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+                if (currentDeckey >= 0 && tryBeginPendingCommonSingleHit(vkey, currentDeckey, keyInfo, bCtrl, bShift, bAlt, bWin, bDecoderOn)) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable singleHit pending: vkey={vkey:x}H, deckey={currentDeckey}");
+                    return true;
+                }
                 if (keyInfo != null) {
                     // CapsLock/英数/Nfer/Xfer/Space
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"{keyInfo.Name}Key Pressed: ctrl={bCtrl}, shift={bShift}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, modPressedOrShifted={modPressedOrShifted:x}");
@@ -1045,6 +1286,23 @@ namespace KanchokuWS.Handler
             // 漢直トグルでなく、VirtualKeyboard のミニバッファがActiveの場合は、システムに返す
             if (kanchokuCode < 0 && isVkbTopTextFocused()) return false;
 
+            var activeHoldShiftInfo = keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
+            if (kanchokuCode < 0 && activeHoldShiftInfo != null && !ctrl && !shift && normalDecKey >= 0) {
+                var combo = getComboForCommonHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn);
+                if (combo != null && combo.IsTerminal && !combo.IsSubKey && combo.DecKeyList._notEmpty()) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift prioritized by combo: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, combo={combo.DecKeysDebugString()}");
+                    var pendingState = pendingCommonSingleHitStates._safeGet(activeHoldShiftInfo.Vkey);
+                    if (pendingState != null) pendingState.Consumed = true;
+                    return invokeHandlerForKeyList(combo.DecKeyList._toSingleHitResultKeyStrokeList(), false);
+                }
+                if ((combo == null || combo.IsTerminal) && CommonTableRuntime.TryGetHoldShiftAction(activeHoldShiftInfo.Deckey, normalDecKey, out var commonAction)) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, action={commonAction.Deckey}");
+                    var pendingState = pendingCommonSingleHitStates._safeGet(activeHoldShiftInfo.Vkey);
+                    if (pendingState != null) pendingState.Consumed = true;
+                    return invokeCommonTableAction(commonAction, normalDecKey, bDecoderOn);
+                }
+            }
+
             if (kanchokuCode < 0 && (modEx != 0 || holdShiftPlane != ShiftPlane.ShiftPlane_NONE) && !ctrl && !shift) {
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-B: IN: kanchokuCode={kanchokuCode}, modEx={modEx:x}, ctrl={ctrl}, shift={shift}");
                 // 拡張シフトが有効なのは、Ctrlキーと物理Shiftが押されていない場合とする
@@ -1166,13 +1424,10 @@ namespace KanchokuWS.Handler
                 // LWIN or RWIN
                 bWinKeyOn = false;
                 if (Settings.LoggingDecKeyInfo) logger.Info("WinKey Off");
-                return false;
             }
 
             if (bWinKeyOn) {
-                // LWIN or RWIN が押されているときは、他のキー入力を無視する
-                if (Settings.LoggingDecKeyInfo) logger.Info($"WinKey On: thru {vkey:x}");
-                return false;
+                if (Settings.LoggingDecKeyInfo) logger.Info($"WinKey On: continue SystemModifier/HoldShift up path for {vkey:x}");
             }
 
             // 半/全キーは、US-on-JP モードなら true(入力破棄; つまり無視) JPモードなら false (システム処理; つまりIMEのON/OFF)を返す
@@ -1192,6 +1447,23 @@ namespace KanchokuWS.Handler
             bool bCtrl = leftCtrl || rightCtrl;
 
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"vkey={vkey:x}H({vkey}), leftCtrl={leftCtrl}, rightCtrl={rightCtrl}, leftShift={leftShift}");
+
+            int holdShiftDeterminerDeckey = holdShiftTargetDeterminerDeckeys._safeGet(vkey, -1);
+            if (holdShiftDeterminerDeckey >= 0) {
+                holdShiftTargetDeterminerDeckeys.Remove(vkey);
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift target key up for Determiner: vkey={vkey:x}H, deckey={holdShiftDeterminerDeckey}");
+                CombinationKeyStroke.Determiner.Singleton.KeyUp(holdShiftDeterminerDeckey, isDecoderActivated());
+                return true;
+            }
+
+            if (consumedHoldShiftTargetVkeys.Remove(vkey)) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Suppress key up for consumed HoldShift target: vkey={vkey:x}H");
+                return true;
+            }
+
+            if (extraInfo == 0 && isSystemModifierVkey(vkey)) {
+                return handleSystemModifierUp(vkey, isDecoderActivated(), leftCtrl, rightCtrl);
+            }
 
             if (!isShiftVkey(vkey)) {
                 activeNonShiftVkeys.Remove(vkey);
@@ -1217,6 +1489,10 @@ namespace KanchokuWS.Handler
                 }
 
                 if (!shiftState.HasOverlap) {
+                    if (tryInvokeCommonSingleHitByDeckey(shiftState.Deckey, isDecoderActivated())) {
+                        shiftState.Reset();
+                        return true;
+                    }
                     bool result = invokeSingleShiftTap(vkey, leftCtrl, rightCtrl);
                     if (!result) {
                         sendOriginalVkey(vkey);
@@ -1287,6 +1563,13 @@ namespace KanchokuWS.Handler
                     if (bPrevPressed || keyInfo.Repeated || keyInfo.Shifted) keyInfo.PrevUpDt = HRDateTime.Now;
                     updateStrokeHelpHoldShiftPlane(bDecoderOn);
                     if (bPrevPressed) {
+                        var pendingState = popPendingCommonSingleHit(vkey);
+                        if (pendingState != null && !pendingState.Consumed && tryInvokeCommonSingleHitByDeckey(pendingState.Deckey, bDecoderOn)) {
+                            return true;
+                        }
+                        if (CommonTableRuntime.TryGetSingleHitAction(keyInfo.Deckey, out var commonAction) && invokeCommonTableAction(commonAction, keyInfo.Deckey, bDecoderOn)) {
+                            return true;
+                        }
                         if (bDecoderOn) {
                             keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
                             keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
@@ -1307,6 +1590,14 @@ namespace KanchokuWS.Handler
 
             // VirtualKeyboard のミニバッファがActiveの場合は、システムに返す
             if (isVkbTopTextFocused()) return false;
+
+            var commonSingleHit = popPendingCommonSingleHit(vkey);
+            if (commonSingleHit != null) {
+                if (!commonSingleHit.Consumed && tryInvokeCommonSingleHitByDeckey(commonSingleHit.Deckey, bDecoderOn)) {
+                    return true;
+                }
+                return true;
+            }
 
             keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, modFlag);
             return false;

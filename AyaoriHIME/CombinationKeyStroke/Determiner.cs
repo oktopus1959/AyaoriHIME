@@ -313,6 +313,11 @@ namespace KanchokuWS.CombinationKeyStroke
             strokeList.ClearUnprocList();
         }
 
+        public bool HasCombinationWithCurrentStrokes(int decKey, bool bDecoderOn)
+        {
+            return strokeList.HasCombinationWithCurrentStrokes(decKey, bDecoderOn);
+        }
+
         private Queue<Func<KeyHandlerResult>> procQueue = new Queue<Func<KeyHandlerResult>>();
 
         private bool bHandling = false;

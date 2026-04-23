@@ -900,6 +900,9 @@ namespace KanchokuWS
         /// <summary> 修飾キー定義ファイル</summary>
         public static string ModConversionFile { get; private set; }
 
+        /// <summary> commonTable 定義ファイル</summary>
+        public static string CommonTableFile { get; private set; }
+
         /// <summary> 拡張修飾キー設定ダイアログの幅</summary>
         public static int DlgModConversionWidth { get; set; }
 
@@ -1700,6 +1703,7 @@ namespace KanchokuWS
             // その他変換・機能
             ConvertShiftedHiraganaToKatakana = GetString("convertShiftedHiraganaToKatakana", "shiftKana", "")._parseBool(false);  // 平仮名をカタカナに変換する
             ModConversionFile = GetString("modConversionFile");
+            CommonTableFile = GetString("commonTableFile", "commonTable.txt");
             bool isModConversionFileEmpty = ModConversionFile._isEmpty();
             if (isModConversionFileEmpty) { ModConversionFile = "mod-conversion.txt"; }
             DlgModConversionWidth = GetString("dlgModConversionWidth")._parseInt(0);

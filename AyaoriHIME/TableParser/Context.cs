@@ -13,7 +13,7 @@ namespace KanchokuWS.TableParser
     using ShiftKeyKind = ComboShiftKeyPool.ComboKind;
 
     // プレースホルダー
-    class PlaceHolders
+    public class PlaceHolders
     {
         Dictionary<string, int> placeHolders = new Dictionary<string, int>();
 

@@ -542,6 +542,10 @@ namespace KanchokuWS
             if (Settings.ExtraModifiersEnabled && Settings.ModConversionFile._notEmpty()) {
                 complexCommandStr = ExtraModifiers.ReadExtraModConversionFile(Settings.ModConversionFile);
             }
+            var commonTable = new CommonTableParser().Parse(Settings.CommonTableFile);
+            if (commonTable.GeneratedComplexCommandString._notEmpty()) {
+                complexCommandStr = complexCommandStr._orElse("") + commonTable.GeneratedComplexCommandString;
+            }
             // 追加の修飾キーの単打鍵定義を登録
             ExtraModifiers.AddExtModfierAsSingleHitKey();
 
@@ -565,6 +569,7 @@ namespace KanchokuWS
                 }
             }
             hasKanchokuTable = CombinationKeyStroke.Determiner.Singleton.Initialize(tableFile1, tableFile2, Settings.TableFile3);
+            CommonTableRuntime.Initialize(commonTable);
 
             // 設定ファイルの再読み込み
             Settings.ReadIniFile(false);
