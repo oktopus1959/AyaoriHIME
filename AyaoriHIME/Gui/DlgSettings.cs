@@ -80,7 +80,7 @@ namespace KanchokuWS.Gui
             CancelButton = button_basicClose;
 
             button_showPaddingsDesc.Enabled = frmVkb != null;
-            button_setModConversion.Enabled = checkBox_extraModifiersEnabled.Checked;
+            //button_setModConversion.Enabled = checkBox_extraModifiersEnabled.Checked;
 
             tabControl1.SelectedIndex = SelectedTabIndex;
             changeGlobalCtrlKeysCheckBoxState();
@@ -1485,8 +1485,8 @@ namespace KanchokuWS.Gui
             comboBox_selectCtrlKeyItem(comboBox_dateStringKey, $"{Settings.CtrlKeyConvertedToDateString.Replace("#", "")}");
             textBox_dateStringFormat.Text = Settings.DateStringFormat._reReplace(@"\|", "\r\n");
 
-            checkBox_extraModifiersEnabled.Checked = Settings.ExtraModifiersEnabled;
-            textBox_modConversionFile.Text = Settings.ModConversionFile;
+            //checkBox_extraModifiersEnabled.Checked = Settings.ExtraModifiersEnabled;
+            textBox_commonTableFile.Text = Settings.CommonTableFile;
         }
 
         private void setCtrlKeysStatusChecker()
@@ -1539,8 +1539,8 @@ namespace KanchokuWS.Gui
             checkerCtrlKeys.Add(comboBox_fullEscapeKey);
             checkerCtrlKeys.Add(comboBox_strokeHelpRotationKey);
 
-            checkerCtrlKeys.Add(checkBox_extraModifiersEnabled);
-            checkerCtrlKeys.Add(textBox_modConversionFile);
+            //checkerCtrlKeys.Add(checkBox_extraModifiersEnabled);
+            checkerCtrlKeys.Add(textBox_commonTableFile);
 
             checkerAll.Add(checkerCtrlKeys);
         }
@@ -1589,8 +1589,8 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("fullEscapeKey", comboBox_fullEscapeKey._getSelectedItemSplittedFirst("G"));
             Settings.SetUserIni("strokeHelpRotationKey", comboBox_strokeHelpRotationKey._getSelectedItemSplittedFirst("T"));
 
-            Settings.SetUserIni("extraModifiersEnabled", checkBox_extraModifiersEnabled.Checked);
-            Settings.SetUserIni("modConversionFile", textBox_modConversionFile.Text);
+            //Settings.SetUserIni("extraModifiersEnabled", checkBox_extraModifiersEnabled.Checked);
+            Settings.SetUserIni("commonTableFile", textBox_commonTableFile.Text);
 
             Settings.ReadIniFile(false);
             // 各種定義ファイルの再読み込み
@@ -1618,7 +1618,7 @@ namespace KanchokuWS.Gui
 
         private void checkBox_extraModifiersEnabled_CheckedChanged(object sender, EventArgs e)
         {
-            button_setModConversion.Enabled = checkBox_extraModifiersEnabled.Checked;
+            //button_setModConversion.Enabled = checkBox_extraModifiersEnabled.Checked;
         }
 
         private void button_openModConversionFile_Click(object sender, EventArgs e)
@@ -1629,7 +1629,7 @@ namespace KanchokuWS.Gui
             //        System.Diagnostics.Process.Start(TableFileDir._joinPath(Settings.ModConversionFile));
             //    }
             //} catch { }
-            openFileInUserFolder(textBox_modConversionFile.Text);
+            openFileInUserFolder(textBox_commonTableFile.Text);
         }
 
         private void button_ctrlReload_Click(object sender, EventArgs e)
@@ -3138,12 +3138,12 @@ namespace KanchokuWS.Gui
         // 拡張修飾キー設定をファイルに書き出す
         private void writeModConversionSettings()
         {
-            var path = KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.UserFilesFolder, textBox_modConversionFile.Text);
+            var path = KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.UserFilesFolder, Settings.CommonTableFile);
             logger.Info($"ENTER: path={path}");
             try {
                 using (var fs = new System.IO.FileStream(path, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.ReadWrite)) {
                     using (var sw = new System.IO.StreamWriter(fs, Encoding.UTF8)) {
-                        sw.Write(ExtraModifiers.MakeModConversionContents());
+                        sw.Write(CommonTableRuntime.MakeCommonTableContents());
                     }
                 }
             } catch (Exception e) {

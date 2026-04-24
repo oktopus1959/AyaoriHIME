@@ -895,10 +895,7 @@ namespace KanchokuWS
         public static int EisuExitSpaceNum { get; set; }
 
         /// <summary> 拡張修飾キーを有効にするか</summary>
-        public static bool ExtraModifiersEnabled { get; set; }
-
-        /// <summary> 修飾キー定義ファイル</summary>
-        public static string ModConversionFile { get; private set; }
+        //public static bool ExtraModifiersEnabled { get; set; }
 
         /// <summary> commonTable 定義ファイル</summary>
         public static string CommonTableFile { get; private set; }
@@ -1709,17 +1706,17 @@ namespace KanchokuWS
             //-------------------------------------------------------------------------------------
             // その他変換・機能
             ConvertShiftedHiraganaToKatakana = GetString("convertShiftedHiraganaToKatakana", "shiftKana", "")._parseBool(false);  // 平仮名をカタカナに変換する
-            ModConversionFile = GetString("modConversionFile");
             CommonTableFile = GetString("commonTableFile", "commonTable.txt");
-            bool isModConversionFileEmpty = ModConversionFile._isEmpty();
-            if (isModConversionFileEmpty) { ModConversionFile = "mod-conversion.txt"; }
             DlgModConversionWidth = GetString("dlgModConversionWidth")._parseInt(0);
             DlgModConversionHeight = GetString("dlgModConversionHeight")._parseInt(0);
             DlgKeywordSelectorWidth = GetString("dlgKeywordSelectorWidth")._parseInt(0);
             DlgKeywordSelectorHeight = GetString("dlgKeywordSelectorHeight")._parseInt(0);
             AssignedKeyOrFuncNameColWidth = GetString("assignedKeyOrFuncNameColWidth")._parseInt(180);
             AssignedKeyOrFuncDescColWidth = GetString("assignedKeyOrFuncDescColWidth")._parseInt(290);
-            ExtraModifiersEnabled = GetString("extraModifiersEnabled")._parseBool(!isModConversionFileEmpty);   // 拡張修飾キーを有効にするか
+            //bool isModConversionFileEmpty = CommonTableFile._isEmpty();
+            //if (isModConversionFileEmpty) { CommonTableFile = "mod-conversion.txt"; }
+
+            //ExtraModifiersEnabled = GetString("extraModifiersEnabled")._parseBool(!isModConversionFileEmpty);   // 拡張修飾キーを有効にするか
             UpperRomanStrokeGuide = GetString("upperRomanStrokeGuide")._parseBool(false);       // ローマ字読みによるストロークガイドを有効にするか
             ShowLastStrokeByDiffBackColor = GetString("showLastStrokeByDiffBackColor")._parseBool(false); // 前打鍵位置の背景色を変えて表示するか
 

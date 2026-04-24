@@ -322,7 +322,7 @@ namespace KanchokuWS.Gui
             this.button_ctrlReload = new System.Windows.Forms.Button();
             this.groupBox36 = new System.Windows.Forms.GroupBox();
             this.button_setModConversion = new System.Windows.Forms.Button();
-            this.textBox_modConversionFile = new System.Windows.Forms.TextBox();
+            this.textBox_commonTableFile = new System.Windows.Forms.TextBox();
             this.checkBox_extraModifiersEnabled = new System.Windows.Forms.CheckBox();
             this.label93 = new System.Windows.Forms.Label();
             this.button_openModConversionFile = new System.Windows.Forms.Button();
@@ -4137,6 +4137,7 @@ namespace KanchokuWS.Gui
             // 
             this.tabPage_ctrlKeys.Controls.Add(this.label_ctrlReload);
             this.tabPage_ctrlKeys.Controls.Add(this.button_ctrlReload);
+            this.tabPage_ctrlKeys.Controls.Add(this.checkBox_extraModifiersEnabled);
             this.tabPage_ctrlKeys.Controls.Add(this.groupBox36);
             this.tabPage_ctrlKeys.Controls.Add(this.groupBox18);
             this.tabPage_ctrlKeys.Controls.Add(this.groupBox22);
@@ -4182,8 +4183,7 @@ namespace KanchokuWS.Gui
             // groupBox36
             // 
             this.groupBox36.Controls.Add(this.button_setModConversion);
-            this.groupBox36.Controls.Add(this.textBox_modConversionFile);
-            this.groupBox36.Controls.Add(this.checkBox_extraModifiersEnabled);
+            this.groupBox36.Controls.Add(this.textBox_commonTableFile);
             this.groupBox36.Controls.Add(this.label93);
             this.groupBox36.Controls.Add(this.button_openModConversionFile);
             this.groupBox36.Location = new System.Drawing.Point(295, 258);
@@ -4191,7 +4191,7 @@ namespace KanchokuWS.Gui
             this.groupBox36.Size = new System.Drawing.Size(305, 54);
             this.groupBox36.TabIndex = 4;
             this.groupBox36.TabStop = false;
-            this.groupBox36.Text = "拡張修飾キー　　 　 　";
+            this.groupBox36.Text = "拡張修飾キー";
             // 
             // button_setModConversion
             // 
@@ -4206,29 +4206,30 @@ namespace KanchokuWS.Gui
             this.button_setModConversion.UseVisualStyleBackColor = true;
             this.button_setModConversion.Click += new System.EventHandler(this.button_setModConversion_Click);
             // 
-            // textBox_modConversionFile
+            // textBox_commonTableFile
             // 
-            this.textBox_modConversionFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_commonTableFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_modConversionFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_modConversionFile.Location = new System.Drawing.Point(75, 22);
-            this.textBox_modConversionFile.Name = "textBox_modConversionFile";
-            this.textBox_modConversionFile.Size = new System.Drawing.Size(149, 19);
-            this.textBox_modConversionFile.TabIndex = 1;
-            this.toolTip1.SetToolTip(this.textBox_modConversionFile, "修飾キー変換定義ファイルの設定\r\n\r\nSandS、CapsLock、英数、無変換、変換、および右シフトキーを\r\n修飾キーとして使用する際のキー変換定義ファイルを指" +
+            this.textBox_commonTableFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textBox_commonTableFile.Location = new System.Drawing.Point(75, 22);
+            this.textBox_commonTableFile.Name = "textBox_commonTableFile";
+            this.textBox_commonTableFile.Size = new System.Drawing.Size(149, 19);
+            this.textBox_commonTableFile.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.textBox_commonTableFile, "修飾キー変換定義ファイルの設定\r\n\r\nSandS、CapsLock、英数、無変換、変換、および右シフトキーを\r\n修飾キーとして使用する際のキー変換定義ファイルを指" +
         "定します。\r\n\r\n定義ファイルの例として、 mod-conversion.txt というファイルを\r\n用意してあります。記述方法は同ファイルを参照してください。" +
         "\r\n\r\n定義ファイルを修正した場合は、「再読込」をクリックしてください。");
             // 
             // checkBox_extraModifiersEnabled
             // 
             this.checkBox_extraModifiersEnabled.AutoSize = true;
-            this.checkBox_extraModifiersEnabled.Location = new System.Drawing.Point(85, 0);
+            this.checkBox_extraModifiersEnabled.Location = new System.Drawing.Point(644, 270);
             this.checkBox_extraModifiersEnabled.Name = "checkBox_extraModifiersEnabled";
             this.checkBox_extraModifiersEnabled.Size = new System.Drawing.Size(50, 19);
             this.checkBox_extraModifiersEnabled.TabIndex = 0;
             this.checkBox_extraModifiersEnabled.Text = "有効";
             this.toolTip1.SetToolTip(this.checkBox_extraModifiersEnabled, resources.GetString("checkBox_extraModifiersEnabled.ToolTip"));
             this.checkBox_extraModifiersEnabled.UseVisualStyleBackColor = true;
+            this.checkBox_extraModifiersEnabled.Visible = false;
             this.checkBox_extraModifiersEnabled.CheckedChanged += new System.EventHandler(this.checkBox_extraModifiersEnabled_CheckedChanged);
             // 
             // label93
@@ -8492,7 +8493,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label140;
         private System.Windows.Forms.GroupBox groupBox36;
         private System.Windows.Forms.Button button_setModConversion;
-        private System.Windows.Forms.TextBox textBox_modConversionFile;
+        private System.Windows.Forms.TextBox textBox_commonTableFile;
         private System.Windows.Forms.CheckBox checkBox_extraModifiersEnabled;
         private System.Windows.Forms.Label label93;
         private System.Windows.Forms.Button button_openModConversionFile;

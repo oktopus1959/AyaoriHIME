@@ -117,24 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <data name="comboBox_editBufferCaretChar.ToolTip" xml:space="preserve">
-    <value>Ctrlキーの修飾なしで漢直(かな)モードと英字モードを切り替えるためのキーの指定
+  <data name="checkBox_extraModifiersEnabled.ToolTip" xml:space="preserve">
+    <value>拡張修飾キーを有効にします。
 
-使用するキーの仮想キーコードを16進数で指定します。
-仮想キーコードについては「windows 仮想キーコード 一覧」でググると見つかります。
-主なキーについては候補を用意してあるので、それを選択してください。
+拡張修飾キーには以下のものがあります。
+  - Space (SandS有効時)
+  - CapsLock
+  - 英数
+  - 無変換
+  - 変換
+  - 右シフト
 
-「Ctrlキー修飾なしOFF」が設定された場合は、このキーは「漢直モードON」のための
-キーとなります。
+当機能をONにすると、拡張修飾キーに対してシフト面を割り当てたり、
+拡張修飾キーを押しながら何かキーを押したときのキー割り当てや
+機能割り当てが有効になります。
 
-キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
+詳細については mod-conversion.sample.txt ファイルを参照してください。</value>
   </data>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
@@ -599,23 +601,6 @@ Shift+Space=S40
 無変換=nfer(muhenkan), 変換=xfer(henkan), ひらがな=kana,
 右シフト=rshift, Insert=ins</value>
   </data>
-  <data name="checkBox_extraModifiersEnabled.ToolTip" xml:space="preserve">
-    <value>拡張修飾キーを有効にします。
-
-拡張修飾キーには以下のものがあります。
-  - Space (SandS有効時)
-  - CapsLock
-  - 英数
-  - 無変換
-  - 変換
-  - 右シフト
-
-当機能をONにすると、拡張修飾キーに対してシフト面を割り当てたり、
-拡張修飾キーを押しながら何かキーを押したときのキー割り当てや
-機能割り当てが有効になります。
-
-詳細については mod-conversion.sample.txt ファイルを参照してください。</value>
-  </data>
   <data name="comboBox_dateStringKey.ToolTip" xml:space="preserve">
     <value>現在の日時を出力する Ctrlキーの設定
 
@@ -686,9 +671,6 @@ Ctrl-Shift修飾されたキーで、ブロッカーの解除となります。
 ウィンドウのClassNameは、漢直モードに入り、仮想鍵盤を表示して、
 対象となるウィンドウをアクティブにすると、仮想鍵盤の上部に表示されます。</value>
   </data>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
   <data name="comboBox_histNumDeckeyId.ToolTip" xml:space="preserve">
     <value>履歴検索の縦列鍵盤表示時に、候補を文字数で絞るモードに
 移行するキーの漢直コードを設定します。
@@ -1019,6 +1001,18 @@ IMEを利用していて、Spaceでフラッシュと同時にかな漢字変換
 
 この設定をONにすると、入力候補列の先頭のものだけを残して、
 その末尾文字を削除するとという、本来のBSの動作に戻ります。</value>
+  </data>
+  <data name="comboBox_editBufferCaretChar.ToolTip" xml:space="preserve">
+    <value>Ctrlキーの修飾なしで漢直(かな)モードと英字モードを切り替えるためのキーの指定
+
+使用するキーの仮想キーコードを16進数で指定します。
+仮想キーコードについては「windows 仮想キーコード 一覧」でググると見つかります。
+主なキーについては候補を用意してあるので、それを選択してください。
+
+「Ctrlキー修飾なしOFF」が設定された場合は、このキーは「漢直モードON」のための
+キーとなります。
+
+キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
   </data>
   <data name="textBox_autoBushuComp.ToolTip" xml:space="preserve">
     <value>自動部首合成の登録を行います。

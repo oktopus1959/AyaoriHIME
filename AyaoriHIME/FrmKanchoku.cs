@@ -539,16 +539,10 @@ namespace KanchokuWS
             //// 文字定義ファイルの読み込み
             //DecoderKeyVsChar.ReadCharsDefFile();
 
-            // 追加の修飾キー定義ファイルの読み込み
-            if (Settings.ExtraModifiersEnabled && Settings.ModConversionFile._notEmpty()) {
-                complexCommandStr = ExtraModifiers.ReadExtraModConversionFile(Settings.ModConversionFile);
-            }
             var commonTable = new CommonTableParser().Parse(Settings.CommonTableFile);
             if (commonTable.GeneratedComplexCommandString._notEmpty()) {
                 complexCommandStr = complexCommandStr._orElse("") + commonTable.GeneratedComplexCommandString;
             }
-            // 追加の修飾キーの単打鍵定義を登録
-            ExtraModifiers.AddExtModfierAsSingleHitKey();
 
             // 漢字読みファイルの読み込み
             if (Settings.KanjiYomiFile._notEmpty()) {

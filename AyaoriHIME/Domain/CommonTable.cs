@@ -67,6 +67,43 @@ namespace KanchokuWS.Domain
             DecoderKeys.LEFT_WIN_DECKEY,
             DecoderKeys.RIGHT_WIN_DECKEY,
         };
+        private static CommonTableDefinition currentDefinition = new CommonTableDefinition();
+
+        private static CommonTableDefinition cloneDefinition(CommonTableDefinition definition)
+        {
+            var cloned = new CommonTableDefinition();
+            if (definition == null) return cloned;
+
+            foreach (var pair in definition.SingleHitActions) {
+                cloned.SingleHitActions[pair.Key] = new CommonTableAction() {
+                    Deckey = pair.Value.Deckey,
+                    RequiresDecoder = pair.Value.RequiresDecoder,
+                    RawTarget = pair.Value.RawTarget,
+                };
+            }
+            foreach (var pair in definition.HoldShiftDefinitions) {
+                var holdShift = new CommonTableHoldShiftDefinition() {
+                    HoldShiftDeckey = pair.Value.HoldShiftDeckey,
+                    ShiftPlane = pair.Value.ShiftPlane,
+                    EnabledWhenDecoderOff = pair.Value.EnabledWhenDecoderOff,
+                };
+                foreach (var actionPair in pair.Value.Actions) {
+                    holdShift.Actions[actionPair.Key] = new CommonTableAction() {
+                        Deckey = actionPair.Value.Deckey,
+                        RequiresDecoder = actionPair.Value.RequiresDecoder,
+                        RawTarget = actionPair.Value.RawTarget,
+                    };
+                }
+                cloned.HoldShiftDefinitions[pair.Key] = holdShift;
+            }
+            cloned.GeneratedComplexCommandString = definition.GeneratedComplexCommandString;
+            return cloned;
+        }
+
+        private static string makeKeyName(int deckey)
+        {
+            return SpecialKeysAndFunctions.GetKeyNameByDeckey(deckey)._notEmpty() ? SpecialKeysAndFunctions.GetKeyNameByDeckey(deckey) : deckey.ToString();
+        }
 
         /// <summary>
         /// commonTable 由来の runtime 定義だけをクリアする。
@@ -76,6 +113,11 @@ namespace KanchokuWS.Domain
             InputActionResolver.ClearCommonTableActions();
         }
 
+        public static void SetCurrentDefinition(CommonTableDefinition definition)
+        {
+            currentDefinition = cloneDefinition(definition);
+        }
+
         /// <summary>
         /// 解析済み commonTable を runtime へ登録する。
         /// singleHit/HoldShift の action 登録に加え、SystemModifier も HoldShift 扱いにする。
@@ -83,6 +125,7 @@ namespace KanchokuWS.Domain
         public static void Initialize(CommonTableDefinition definition)
         {
             Clear();
+            SetCurrentDefinition(definition);
             if (definition == null) return;
 
             foreach (var pair in definition.SingleHitActions) {
@@ -126,6 +169,111 @@ namespace KanchokuWS.Domain
         public static bool HasCommonTable()
         {
             return true;
+        }
+
+        public static string GetSingleHitRawTarget(int deckey)
+        {
+            return currentDefinition.SingleHitActions._safeGet(deckey)?.RawTarget;
+        }
+
+        public static string GetHoldShiftRawTarget(int holdShiftDeckey, int targetDeckey)
+        {
+            return currentDefinition.HoldShiftDefinitions._safeGet(holdShiftDeckey)?.Actions._safeGet(targetDeckey)?.RawTarget;
+        }
+
+        public static CommonTableHoldShiftDefinition GetHoldShiftDefinition(int holdShiftDeckey)
+        {
+            return currentDefinition.HoldShiftDefinitions._safeGet(holdShiftDeckey);
+        }
+
+        public static void UpdateSingleHit(int deckey, string rawTarget)
+        {
+            rawTarget = rawTarget._strip();
+            if (rawTarget._isEmpty()) {
+                if (currentDefinition.SingleHitActions.ContainsKey(deckey)) currentDefinition.SingleHitActions.Remove(deckey);
+                return;
+            }
+            currentDefinition.SingleHitActions[deckey] = new CommonTableAction() {
+                Deckey = SpecialKeysAndFunctions.GetDeckeyByName(rawTarget._startsWith("!{") && rawTarget._endsWith("}") ? rawTarget._safeSubstring(2, rawTarget.Length - 3) : ""),
+                RequiresDecoder = !rawTarget._startsWith("!{"),
+                RawTarget = rawTarget,
+            };
+        }
+
+        public static void UpdateHoldShiftHeader(int holdShiftDeckey, int shiftPlane, bool enabledWhenDecoderOff)
+        {
+            if (shiftPlane <= 0) {
+                if (currentDefinition.HoldShiftDefinitions.ContainsKey(holdShiftDeckey)) {
+                    currentDefinition.HoldShiftDefinitions.Remove(holdShiftDeckey);
+                }
+                return;
+            }
+            var definition = currentDefinition.HoldShiftDefinitions._safeGet(holdShiftDeckey);
+            if (definition == null) {
+                definition = new CommonTableHoldShiftDefinition() {
+                    HoldShiftDeckey = holdShiftDeckey,
+                };
+                currentDefinition.HoldShiftDefinitions[holdShiftDeckey] = definition;
+            }
+            definition.ShiftPlane = shiftPlane;
+            definition.EnabledWhenDecoderOff = enabledWhenDecoderOff;
+        }
+
+        public static void UpdateHoldShiftTarget(int holdShiftDeckey, int targetDeckey, string rawTarget)
+        {
+            rawTarget = rawTarget._strip();
+            var definition = currentDefinition.HoldShiftDefinitions._safeGet(holdShiftDeckey);
+            if (rawTarget._isEmpty()) {
+                if (definition != null && definition.Actions.ContainsKey(targetDeckey)) {
+                    definition.Actions.Remove(targetDeckey);
+                }
+                return;
+            }
+            if (definition == null) {
+                definition = new CommonTableHoldShiftDefinition() {
+                    HoldShiftDeckey = holdShiftDeckey,
+                    ShiftPlane = ShiftPlane.ShiftPlane_SHIFT,
+                };
+                currentDefinition.HoldShiftDefinitions[holdShiftDeckey] = definition;
+            }
+            definition.Actions[targetDeckey] = new CommonTableAction() {
+                Deckey = SpecialKeysAndFunctions.GetDeckeyByName(rawTarget._startsWith("!{") && rawTarget._endsWith("}") ? rawTarget._safeSubstring(2, rawTarget.Length - 3) : ""),
+                RequiresDecoder = !rawTarget._startsWith("!{"),
+                RawTarget = rawTarget,
+            };
+        }
+
+        public static string MakeCommonTableContents()
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine("#singleHit");
+            foreach (var pair in currentDefinition.SingleHitActions.OrderBy(x => x.Key)) {
+                if (pair.Value?.RawTarget._notEmpty() == true) {
+                    sb.AppendLine($"-{makeKeyName(pair.Key)}>{pair.Value.RawTarget}");
+                }
+            }
+            sb.AppendLine("#end singleHit");
+            sb.AppendLine();
+
+            foreach (var pair in currentDefinition.HoldShiftDefinitions.OrderBy(x => x.Key)) {
+                var definition = pair.Value;
+                if (definition == null || definition.ShiftPlane <= 0) continue;
+                var planeName = ShiftPlane.GetShiftPlaneName(definition.ShiftPlane)._orElse("shift")._toLower();
+                var enabledOff = definition.EnabledWhenDecoderOff ? " both" : "";
+                sb.AppendLine($"#holdShift {makeKeyName(definition.HoldShiftDeckey)} {planeName}{enabledOff}");
+                sb.AppendLine("{");
+                foreach (var actionPair in definition.Actions.OrderBy(x => x.Key)) {
+                    if (actionPair.Value?.RawTarget._notEmpty() == true) {
+                        sb.AppendLine($"   -{makeKeyName(actionPair.Key)}>{actionPair.Value.RawTarget}");
+                    }
+                }
+                sb.AppendLine("}");
+                sb.AppendLine("#end HoldShift");
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
         }
     }
 

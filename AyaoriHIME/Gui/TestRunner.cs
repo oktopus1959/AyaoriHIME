@@ -119,7 +119,7 @@ namespace KanchokuWS.Gui
                         Settings.UseCombinationKeyTimer2 = false;
                         Settings.ThreeKeysComboUnconditional = false;
                         Settings.UseComboExtModKeyAsSingleHit = false;
-                        Settings.ExtraModifiersEnabled = false;
+                        //Settings.ExtraModifiersEnabled = false;
                         Settings.OnlyCharKeysComboShouldBeCoveringCombo = false;
                         Settings.CombinationKeyMaxAllowedLeadTimeMs = 100;
                         Settings.ComboKeyMaxAllowedPostfixTimeMs = 100;

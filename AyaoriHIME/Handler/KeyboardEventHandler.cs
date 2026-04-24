@@ -179,18 +179,24 @@ namespace KanchokuWS.Handler
         private const uint VKEY_KANJI = 0xf4;
 
         /// <summary> 漢直として有効なキーか</summary>
+        //private bool isEffectiveVkey(uint vkey, int scanCode, uint flags, int extraInfo, bool ctrl)
+        //{
+        //    // 0xa0 = LSHIFT, 0xa1 = RSHIFT, 0xa2=LCTRL, 0xa3=RCTRL, 0xa4=LALT, 0xa5 = RALT, 0xf3 = Zenkaku, 0xf4 = Kanji
+        //    return
+        //        (Settings.IgnoreOtherHooker ? (flags & LLKHF_INJECTED) == 0 : extraInfo != SendInputHandler.MyMagicNumber) &&
+        //        scanCode != 0 && scanCode != YamabukiRscanCode &&
+        //        ((vkey > 0 && vkey < 0xa0) ||
+        //         ((vkey == FuncVKeys.LSHIFT || vkey == FuncVKeys.RSHIFT) &&
+        //          (!ctrl || Settings.ActiveKeyWithCtrl == vkey || Settings.ActiveKeyWithCtrl2 == vkey || Settings.SelectedTableActivatedWithCtrl == vkey || Settings.DeactiveKeyWithCtrl == vkey)) ||
+        //         //(vkey >= 0xa6 && vkey < 0xf3) ||
+        //         //(vkey >= 0xf5 && vkey < vkeyNum));
+        //         (vkey >= 0xa6 && vkey < vkeyNum));
+        //}
         private bool isEffectiveVkey(uint vkey, int scanCode, uint flags, int extraInfo, bool ctrl)
         {
-            // 0xa0 = LSHIFT, 0xa1 = RSHIFT, 0xa2=LCTRL, 0xa3=RCTRL, 0xa4=LALT, 0xa5 = RALT, 0xf3 = Zenkaku, 0xf4 = Kanji
             return
                 (Settings.IgnoreOtherHooker ? (flags & LLKHF_INJECTED) == 0 : extraInfo != SendInputHandler.MyMagicNumber) &&
-                scanCode != 0 && scanCode != YamabukiRscanCode &&
-                ((vkey > 0 && vkey < 0xa0) ||
-                 ((vkey == FuncVKeys.LSHIFT || vkey == FuncVKeys.RSHIFT) &&
-                  (!ctrl || Settings.ActiveKeyWithCtrl == vkey || Settings.ActiveKeyWithCtrl2 == vkey || Settings.SelectedTableActivatedWithCtrl == vkey || Settings.DeactiveKeyWithCtrl == vkey)) ||
-                 //(vkey >= 0xa6 && vkey < 0xf3) ||
-                 //(vkey >= 0xf5 && vkey < vkeyNum));
-                 (vkey >= 0xa6 && vkey < vkeyNum));
+                scanCode != 0 && scanCode != YamabukiRscanCode;
         }
 
         private static bool isAltKeyPressed()
@@ -315,7 +321,7 @@ namespace KanchokuWS.Handler
             private bool isShiftPlaneAssignedOn()
             {
                 if (bShiftPlaneAssignedOn == null) {
-                    bShiftPlaneAssignedOn = Settings.ExtraModifiersEnabled && ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(ModFlag, true);
+                    bShiftPlaneAssignedOn = ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(ModFlag, true);
                 }
                 if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:decoderOn=True: IsShiftPlaneAssigned={bShiftPlaneAssignedOn}");
                 return bShiftPlaneAssignedOn.Value;
@@ -324,7 +330,7 @@ namespace KanchokuWS.Handler
             private bool isShiftPlaneAssignedOff()
             {
                 if (bShiftPlaneAssignedOff == null) {
-                    bShiftPlaneAssignedOff = Settings.ExtraModifiersEnabled && ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(ModFlag, false);
+                    bShiftPlaneAssignedOff = ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(ModFlag, false);
                 }
                 if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:decoderOn=False: IsShiftPlaneAssigned={bShiftPlaneAssignedOff}");
                 return bShiftPlaneAssignedOff.Value;
@@ -374,12 +380,26 @@ namespace KanchokuWS.Handler
                 alnumKeyInfo.Reinitialize(FuncVKeys.EISU);
                 nferKeyInfo.Reinitialize(FuncVKeys.MUHENKAN);
                 xferKeyInfo.Reinitialize(FuncVKeys.HENKAN);
+                capsKeyInfo.Behavior = ExModiferKeyInfo.ExModKeyBehavior.Default;
+                alnumKeyInfo.Behavior = ExModiferKeyInfo.ExModKeyBehavior.Default;
+                nferKeyInfo.Behavior = ExModiferKeyInfo.ExModKeyBehavior.Default;
+                xferKeyInfo.Behavior = ExModiferKeyInfo.ExModKeyBehavior.Default;
                 otherKeyState.Reinitialize(0);
                 holdShiftKeyInfos = new Dictionary<uint, ExModiferKeyInfo>();
             }
 
+            private void refreshSpecialCommonTableHoldShiftBehavior()
+            {
+                foreach (var info in new[] { capsKeyInfo, alnumKeyInfo, nferKeyInfo, xferKeyInfo }) {
+                    info.Behavior = Settings.GetHoldShiftKeySetting(info.Deckey) != null
+                        ? ExModiferKeyInfo.ExModKeyBehavior.GenericHoldShift
+                        : ExModiferKeyInfo.ExModKeyBehavior.Default;
+                }
+            }
+
             private void refreshHoldShiftKeyInfos()
             {
+                refreshSpecialCommonTableHoldShiftBehavior();
                 var newInfos = new Dictionary<uint, ExModiferKeyInfo>();
                 foreach (var pair in Settings.HoldShiftKeySettings) {
                     int deckey = pair.Key;
@@ -476,10 +496,15 @@ namespace KanchokuWS.Handler
             public void makeExModKeyShifted(bool bDecoderOn)
             {
                 refreshHoldShiftKeyInfos();
-                if (capsKeyInfo.Pressed && capsKeyInfo.IsShiftPlaneAssigned(bDecoderOn)) capsKeyInfo.SetShifted();
-                if (alnumKeyInfo.Pressed && alnumKeyInfo.IsShiftPlaneAssigned(bDecoderOn)) alnumKeyInfo.SetShifted();
-                if (nferKeyInfo.Pressed && nferKeyInfo.IsShiftPlaneAssigned(bDecoderOn)) nferKeyInfo.SetShifted();
-                if (xferKeyInfo.Pressed && xferKeyInfo.IsShiftPlaneAssigned(bDecoderOn)) xferKeyInfo.SetShifted();
+                bool shouldShiftForCommonHoldShift(ExModiferKeyInfo info)
+                {
+                    return info.IsGenericHoldShift && ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn);
+                }
+
+                if (capsKeyInfo.Pressed && (capsKeyInfo.IsShiftPlaneAssigned(bDecoderOn) || shouldShiftForCommonHoldShift(capsKeyInfo))) capsKeyInfo.SetShifted();
+                if (alnumKeyInfo.Pressed && (alnumKeyInfo.IsShiftPlaneAssigned(bDecoderOn) || shouldShiftForCommonHoldShift(alnumKeyInfo))) alnumKeyInfo.SetShifted();
+                if (nferKeyInfo.Pressed && (nferKeyInfo.IsShiftPlaneAssigned(bDecoderOn) || shouldShiftForCommonHoldShift(nferKeyInfo))) nferKeyInfo.SetShifted();
+                if (xferKeyInfo.Pressed && (xferKeyInfo.IsShiftPlaneAssigned(bDecoderOn) || shouldShiftForCommonHoldShift(xferKeyInfo))) xferKeyInfo.SetShifted();
                 foreach (var info in holdShiftKeyInfos.Values.Where(x => x.Pressed).OrderBy(x => x.PressedSerial)) {
                     info.SetShifted();
                 }
@@ -692,10 +717,11 @@ namespace KanchokuWS.Handler
             return InputActionResolver.TryResolveSingleHit(deckey, bDecoderOn, out var action) && invokeResolvedAction(action, deckey, bDecoderOn);
         }
 
-        private bool tryBeginPendingCommonSingleHit(uint vkey, int deckey, ExModiferKeyInfo keyInfo, bool bCtrl, bool bShift, bool bAlt, bool bWin, bool bDecoderOn)
+        private bool tryBeginPendingCommonSingleHit(uint vkey, int deckey, ExModiferKeyInfo keyInfo, bool bCtrl, bool bShift, bool bAlt, bool bWin, uint modPressedOrShifted, bool bDecoderOn)
         {
             if (!InputActionResolver.HasSingleHitAction(deckey)) return false;
             if (bCtrl || bShift || bAlt || bWin) return false;
+            if (modPressedOrShifted != 0 || keyInfoManager.isGenericHoldShiftPressedOrShifted()) return false;
             if (pendingCommonSingleHitStates.ContainsKey(vkey)) return true;
             if (keyInfo != null && (keyInfo.IsHoldShift || keyInfo.IsShiftPlaneAssigned(bDecoderOn))) return false;
 
@@ -838,7 +864,8 @@ namespace KanchokuWS.Handler
             }
 
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift undefined combo pass-through: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}");
-            return false;
+            markPendingCommonSingleHitConsumed(activeHoldShiftInfo.Vkey);
+            return isSystemModifierDeckey(activeHoldShiftInfo.Deckey) ? (bool?)null : false;
         }
 
         private bool isShiftVkey(uint vkey)
@@ -860,7 +887,7 @@ namespace KanchokuWS.Handler
 
         private bool isShiftPlaneAssigned(uint modFlag, bool bDecoderOn)
         {
-            return Settings.ExtraModifiersEnabled && ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(modFlag, bDecoderOn);
+            return ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(modFlag, bDecoderOn);
         }
 
         private bool isShiftPendingAsNormal(uint vkey)
@@ -1098,14 +1125,14 @@ namespace KanchokuWS.Handler
                 if (extraInfo == 0 && rightCtrl) bRCtrlShifted = true;   // 右ＣＴＲＬがＯＮのときに何かキーが押されたら右ＣＴＲＬをシフト状態にする
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"bLCtrlShifted={bLCtrlShifted}, bRCtrlShifted={bRCtrlShifted}");
 
+                if (extraInfo == 0 && isSystemModifierVkey(vkey)) {
+                    return handleSystemModifierDown(vkey, bDecoderOn);
+                }
+
                 if (!isEffectiveVkey(vkey, scanCode, flags, extraInfo, bCtrl)) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"not EffectiveVkey{(extraInfo == 0 ? " and clear StrokeList" : "")}");
                     if (extraInfo == 0) CombinationKeyStroke.Determiner.Singleton.ClearUnprocList();     // 未処理の同時打鍵キューのクリア
                     return false;
-                }
-
-                if (extraInfo == 0 && isSystemModifierVkey(vkey)) {
-                    return handleSystemModifierDown(vkey, bDecoderOn);
                 }
 
                 var holdShiftResult = extraInfo == 0 ? handleActiveHoldShiftBeforeNormalKey(vkey, bDecoderOn) : null;
@@ -1148,7 +1175,7 @@ namespace KanchokuWS.Handler
 
                 var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
                 int currentDeckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
-                if (currentDeckey >= 0 && tryBeginPendingCommonSingleHit(vkey, currentDeckey, keyInfo, bCtrl, bShift, bAlt, bWin, bDecoderOn)) {
+                if (currentDeckey >= 0 && tryBeginPendingCommonSingleHit(vkey, currentDeckey, keyInfo, bCtrl, bShift, bAlt, bWin, modPressedOrShifted, bDecoderOn)) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable singleHit pending: vkey={vkey:x}H, deckey={currentDeckey}");
                     return true;
                 }

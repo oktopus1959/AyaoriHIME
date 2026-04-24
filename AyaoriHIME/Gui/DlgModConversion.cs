@@ -51,9 +51,8 @@ namespace KanchokuWS.Gui
         /// <summary>コンストラクタ</summary>
         public DlgModConversion()
         {
-            //readCharsDefFile();
-            modifierKeys = SpecialKeysAndFunctions.GetModifierKeys(name => !ExtraModifiers.IsDisabledExtKey(name._toLower()));
-            PLANE_ASIGNABLE_MOD_KEYS_NUM = modifierKeys.Where(x => x.IsExtModifier).Count();
+            modifierKeys = SpecialKeysAndFunctions.GetModifierKeys(_ => true).Where(x => x.DecKey >= 0).ToArray();
+            PLANE_ASIGNABLE_MOD_KEYS_NUM = modifierKeys.Length;
             extModifiees = SpecialKeysAndFunctions.GetModifieeKeys();
             singleHitKeys = SpecialKeysAndFunctions.GetSingleHitKeys();
 
@@ -98,9 +97,31 @@ namespace KanchokuWS.Gui
             setDataGridViewForSingleHit();
             setDataGridViewForExtModifier();
 
-            defaultModkeyIndex = modifierKeys._findIndex(x => x.ModKey == ExtraModifiers.DefaultExtModifierKey)._lowLimit(0);
+            defaultModkeyIndex = modifierKeys._findIndex(x => CommonTableRuntime.GetHoldShiftDefinition(x.DecKey) != null)._lowLimit(0);
             comboBox_modKeys.SelectedIndex = (SelectedModKeysIndex >= 0 ? SelectedModKeysIndex : defaultModkeyIndex)._highLimit(comboBox_modKeys.Items.Count - 1);
             radioButton_modKeys.Checked = true;
+        }
+
+        private string normalizeTarget(string target)
+        {
+            target = target._strip();
+            if (target._isEmpty()) return "";
+            if (target._startsWith("!{") || target._startsWith("@")) return target;
+            var canonicalName = SpecialKeysAndFunctions.GetCanonicalName(target, false);
+            return canonicalName._notEmpty() ? $"!{{{canonicalName}}}" : target;
+        }
+
+        private string displayTarget(string rawTarget)
+        {
+            rawTarget = rawTarget._strip();
+            if (rawTarget._startsWith("!{") && rawTarget._endsWith("}")) {
+                var inner = rawTarget._safeSubstring(2, rawTarget.Length - 3)._strip();
+                return SpecialKeysAndFunctions.GetCanonicalName(inner, false)._orElse(inner);
+            }
+            if (rawTarget._startsWith("\"") && rawTarget._endsWith("\"")) {
+                return rawTarget._safeSubstring(1, rawTarget.Length - 2);
+            }
+            return rawTarget;
         }
 
         private string getModifiedDescription(KeyOrFunction modDef)
@@ -108,13 +129,13 @@ namespace KanchokuWS.Gui
             if (modDef == null) return "";
 
             string marker = "";
-            var dict = ExtraModifiers.ExtModifierKeyDefs._safeGet(modDef.ModKey);
-            if (dict != null) {
+            var definition = CommonTableRuntime.GetHoldShiftDefinition(modDef.DecKey);
+            if (definition != null) {
                 int normalKeysNum = DecoderKeyVsChar.NormalKeyNames._safeCount();
                 int num = normalKeysNum  + extModifiees.Length;
                 for (int i = 0; i < num; ++i) {
                     int deckey = i < normalKeysNum ? i : extModifiees[i - normalKeysNum].DecKey;
-                    if (dict._safeGet(deckey)._notEmpty()) {
+                    if (definition.Actions._safeGet(deckey)?.RawTarget._notEmpty() == true) {
                         marker = " (＊)";
                         break;
                     }
@@ -156,17 +177,9 @@ namespace KanchokuWS.Gui
             for (int i = 0; i < num; ++i) {
                 dgv.Rows[i].Cells[0].Value = i;
                 dgv.Rows[i].Cells[1].Value = getModifiedDescription(modifierKeys[i]);
-                if (i < PLANE_ASIGNABLE_MOD_KEYS_NUM) {
-                    uint modKey = modifierKeys[i].ModKey;
-                    dgv.Rows[i].Cells[2].Value = shiftPlaneNames._getNth((int)ShiftPlane.ShiftPlaneForShiftModKey.GetPlane(modKey)) ?? "";
-                    dgv.Rows[i].Cells[3].Value = shiftPlaneNames._getNth((int)ShiftPlane.ShiftPlaneForShiftModKeyWhenDecoderOff.GetPlane(modKey)) ?? "";
-                } else if (modifierKeys._getNth(i)?.ModKey == KeyModifiers.MOD_SHIFT) {
-                    dgv.Rows[i].Cells[2].Value = "通常シフト";
-                    dgv.Rows[i].Cells[3].Value = "通常シフト";
-                } else {
-                    dgv.Rows[i].Cells[2].Value = "なし（割り当て不可）";
-                    dgv.Rows[i].Cells[3].Value = "なし（割り当て不可）";
-                }
+                var definition = CommonTableRuntime.GetHoldShiftDefinition(modifierKeys[i].DecKey);
+                dgv.Rows[i].Cells[2].Value = shiftPlaneNames._getNth(definition?.ShiftPlane ?? 0) ?? "";
+                dgv.Rows[i].Cells[3].Value = shiftPlaneNames._getNth(definition?.EnabledWhenDecoderOff == true ? definition.ShiftPlane : 0) ?? "";
             }
             //dgv3Locked = false;
         }
@@ -210,9 +223,9 @@ namespace KanchokuWS.Gui
                 dgv.Rows[i].Cells[1].Value = kof.ModName._orElse(kof.Name);
                 string assigned = "";
                 string desc = "";
-                var target = ExtraModifiers.SingleHitDefs._safeGet(kof.DecKey);
+                var target = CommonTableRuntime.GetSingleHitRawTarget(kof.DecKey);
                 if (target._notEmpty()) {
-                    kof = SpecialKeysAndFunctions.GetKeyOrFuncByName(target);
+                    kof = SpecialKeysAndFunctions.GetKeyOrFuncByName(displayTarget(target));
                     assigned = kof != null ? kof.Name : target;
                     desc = kof != null ? kof.Description : "";
                 }
@@ -253,11 +266,10 @@ namespace KanchokuWS.Gui
             if (modKeyDef == null) return;
 
             dgv2Locked = true;
-            uint modKey = modKeyDef.ModKey;
             var dgv = dataGridView_extModifier;
             int num = dgv.Rows.Count;
             int normalKeysNum = DecoderKeyVsChar.NormalKeyNames._safeCount();
-            var dict = ExtraModifiers.ExtModifierKeyDefs._safeGet(modKey);
+            var definition = CommonTableRuntime.GetHoldShiftDefinition(modKeyDef.DecKey);
             for (int i = 0; i < num; ++i) {
                 dgv.Rows[i].Cells[0].Value = i;
                 if (i < normalKeysNum) {
@@ -268,16 +280,17 @@ namespace KanchokuWS.Gui
                 string assigned = "";
                 string desc = "";
                 KeyOrFunction kof = null;
-                if (dict != null) {
+                if (definition != null) {
                     int deckey = i < normalKeysNum ? i : extModifiees[i - normalKeysNum].DecKey;
-                    var target = dict._safeGet(deckey);
+                    var target = definition.Actions._safeGet(deckey)?.RawTarget;
                     if (target._notEmpty()) {
-                        kof = SpecialKeysAndFunctions.GetKeyOrFuncByName(target);
+                        var displayed = displayTarget(target);
+                        kof = SpecialKeysAndFunctions.GetKeyOrFuncByName(displayed);
                         if (kof != null) {
                             assigned = kof.Name;
                             desc = kof.Description;
                         } else {
-                            assigned = target;
+                            assigned = displayed;
                         }
                     }
                 }
@@ -292,11 +305,12 @@ namespace KanchokuWS.Gui
             try {
                 int idx = SelectedModKeysIndex = comboBox_modKeys.SelectedIndex;
                 var modKeyDef = modifierKeys._getNth(idx);
-                uint modKey = modKeyDef?.ModKey ?? 0;
+                int holdShiftDeckey = modKeyDef?.DecKey ?? -1;
                 bool bAssignable = idx >= 0 && idx < PLANE_ASIGNABLE_MOD_KEYS_NUM;
                 if (bAssignable) {
-                    comboBox_shiftPlaneOn.SelectedIndex = (int)ShiftPlane.ShiftPlaneForShiftModKey.GetPlane(modKey);
-                    comboBox_shiftPlaneOff.SelectedIndex = (int)ShiftPlane.ShiftPlaneForShiftModKeyWhenDecoderOff.GetPlane(modKey);
+                    var definition = CommonTableRuntime.GetHoldShiftDefinition(holdShiftDeckey);
+                    comboBox_shiftPlaneOn.SelectedIndex = definition?.ShiftPlane ?? 0;
+                    comboBox_shiftPlaneOff.SelectedIndex = definition?.EnabledWhenDecoderOff == true ? definition.ShiftPlane : 0;
                 }
 
                 bool shiftPlaneVisible = !radioButton_singleHit.Checked && bAssignable;
@@ -398,20 +412,14 @@ namespace KanchokuWS.Gui
                 if (modKeyDef == null) return;
 
                 if (idx < ShiftPlane.ShiftPlane_NUM) {
-                    uint modKey = modKeyDef.ModKey;
-                    if (!ExtraModifiers.IsDisabledExtKey(modKeyDef.Name)) {
-                        if (bOn) {
-                            logger.Info(() => $"ShiftPlaneForShiftModKey.Add({modKeyDef.Name})");
-                            ShiftPlane.ShiftPlaneForShiftModKey.Add(modKey, idx);
-                            if (modKey == KeyModifiers.MOD_SPACE) Settings.SandSAssignedPlane = idx;
-                        } else {
-                            logger.Info(() => $"ShiftPlaneForShiftModKeyWhenDecoderOff.Add({modKeyDef.Name})");
-                            ShiftPlane.ShiftPlaneForShiftModKeyWhenDecoderOff.Add(modKey, idx);
-                        }
-                    }
+                    int plane = bOn ? idx : comboBox_shiftPlaneOn.SelectedIndex;
+                    if (plane <= 0 && idx > 0) plane = idx;
+                    bool enabledWhenOff = (bOn ? comboBox_shiftPlaneOff.SelectedIndex : idx) > 0;
+                    CommonTableRuntime.UpdateHoldShiftHeader(modKeyDef.DecKey, plane, enabledWhenOff);
                 }
 
                 renewShiftPlaneDgv();
+                renewExtModifierDgv();
             } catch (Exception ex) {
                 logger.Error(ex._getErrorMsg());
             }
@@ -446,17 +454,10 @@ namespace KanchokuWS.Gui
             if (modKeyDef == null) return;
 
             try {
-                uint modKey = modKeyDef.ModKey;
-                var dict = ExtraModifiers.ExtModifierKeyDefs._safeGetOrNewInsert(modKey);
-
                 int normalKeysNum = DecoderKeyVsChar.NormalKeyNames._safeCount();
                 int deckey = row < normalKeysNum ? row : extModifiees[row - normalKeysNum].DecKey;
-                var target = dgv.Rows[row].Cells[TARGET_COL].Value?.ToString() ?? "";
-                if (target._notEmpty()) {
-                    dict[deckey] = target;
-                } else {
-                    if (dict.ContainsKey(deckey)) dict.Remove(deckey);
-                }
+                var target = normalizeTarget(dgv.Rows[row].Cells[TARGET_COL].Value?.ToString() ?? "");
+                CommonTableRuntime.UpdateHoldShiftTarget(modKeyDef.DecKey, deckey, target);
                 renewExtModifierDgv();
 
             } catch (Exception ex) {
@@ -484,12 +485,8 @@ namespace KanchokuWS.Gui
             if (deckey < 0) return;
 
             try {
-                var target = dgv.Rows[row].Cells[TARGET_COL].Value?.ToString() ?? "";
-                if (target._notEmpty()) {
-                    ExtraModifiers.SingleHitDefs[deckey] = target;
-                } else {
-                    if (ExtraModifiers.SingleHitDefs.ContainsKey(deckey)) ExtraModifiers.SingleHitDefs.Remove(deckey);
-                }
+                var target = normalizeTarget(dgv.Rows[row].Cells[TARGET_COL].Value?.ToString() ?? "");
+                CommonTableRuntime.UpdateSingleHit(deckey, target);
                 renewSingleHitDgv();
 
             } catch (Exception ex) {
