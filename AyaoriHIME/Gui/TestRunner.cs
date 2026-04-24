@@ -103,7 +103,8 @@ namespace KanchokuWS.Gui
                     case "loadTable":
                         //Settings.TableFile2 = arg;
                         // SecondaryTableを使う
-                        KanchokuWS.Domain.KeyComboRepository.Initialize();
+                        KanchokuWS.Domain.DeckeyComboMap.Initialize();
+                        KanchokuWS.Domain.InputActionResolver.Initialize();
                         KanchokuWS.Domain.ExtraModifiers.Initialize();
                         DlgModConversion.Initialize();
                         KanchokuWS.Domain.ShiftPlane.InitializeShiftPlane();

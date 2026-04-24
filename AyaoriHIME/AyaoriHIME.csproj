@@ -92,10 +92,11 @@
   <ItemGroup>
     <Compile Include="Domain\CharVsVKey.cs" />
     <Compile Include="Domain\CommonTable.cs" />
+    <Compile Include="Domain\DeckeyComboMap.cs" />
     <Compile Include="Domain\DecoderKeysMap.cs" />
     <Compile Include="Domain\ExtraModifiers.cs" />
+    <Compile Include="Domain\InputActionResolver.cs" />
     <Compile Include="Domain\ShiftPlane.cs" />
-    <Compile Include="Domain\KeyComboRepository.cs" />
     <Compile Include="Domain\KeyModifiers.cs" />
     <Compile Include="Domain\DecoderKeyVsVKey.cs" />
     <Compile Include="Forms\FontInfo.cs" />

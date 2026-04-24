@@ -7,34 +7,56 @@ using Utils;
 
 namespace KanchokuWS.Domain
 {
+    /// <summary>
+    /// commonTable の 1 エントリ分の実行内容。
+    /// deckey 解決済みの出力先と、decoder ON 前提かどうかを持つ。
+    /// </summary>
     public class CommonTableAction
     {
+        /// <summary>実行先 deckey。</summary>
         public int Deckey { get; set; }
+        /// <summary>複合コマンド化されたため decoder ON が必要かどうか。</summary>
         public bool RequiresDecoder { get; set; }
+        /// <summary>commonTable 上の元の target 表記。</summary>
         public string RawTarget { get; set; }
     }
 
+    /// <summary>
+    /// commonTable の 1 つの HoldShift ブロックを表す。
+    /// </summary>
     public class CommonTableHoldShiftDefinition
     {
+        /// <summary>HoldShift キー側の deckey。</summary>
         public int HoldShiftDeckey { get; set; }
+        /// <summary>この HoldShift に割り当てる shift plane。</summary>
         public int ShiftPlane { get; set; }
+        /// <summary>decoder OFF 中も有効にするかどうか。</summary>
         public bool EnabledWhenDecoderOff { get; set; }
+        /// <summary>被修飾キー deckey から実行内容への対応表。</summary>
         public Dictionary<int, CommonTableAction> Actions { get; } = new Dictionary<int, CommonTableAction>();
     }
 
+    /// <summary>
+    /// commonTable 全体の解析結果。
+    /// singleHit、HoldShift、必要なら複合コマンド文字列を保持する。
+    /// </summary>
     public class CommonTableDefinition
     {
+        /// <summary>単打 deckey 定義。</summary>
         public Dictionary<int, CommonTableAction> SingleHitActions { get; } = new Dictionary<int, CommonTableAction>();
+        /// <summary>HoldShift キーごとの定義。</summary>
         public Dictionary<int, CommonTableHoldShiftDefinition> HoldShiftDefinitions { get; } = new Dictionary<int, CommonTableHoldShiftDefinition>();
+        /// <summary>複合コマンドとして既存テーブルパーサへ渡す追加定義文字列。</summary>
         public string GeneratedComplexCommandString { get; set; }
     }
 
+    /// <summary>
+    /// commonTable の解析結果を実行時設定へ反映する。
+    /// InputActionResolver への登録と HoldShift 設定反映を担当する。
+    /// </summary>
     static class CommonTableRuntime
     {
         private static readonly Logger logger = Logger.GetLogger();
-
-        private static Dictionary<int, CommonTableAction> singleHitActions = new Dictionary<int, CommonTableAction>();
-        private static Dictionary<int, CommonTableHoldShiftDefinition> holdShiftDefinitions = new Dictionary<int, CommonTableHoldShiftDefinition>();
         private static readonly int[] systemModifierDeckeys = new[] {
             DecoderKeys.LEFT_CONTROL_DECKEY,
             DecoderKeys.RIGHT_CONTROL_DECKEY,
@@ -46,30 +68,41 @@ namespace KanchokuWS.Domain
             DecoderKeys.RIGHT_WIN_DECKEY,
         };
 
+        /// <summary>
+        /// commonTable 由来の runtime 定義だけをクリアする。
+        /// </summary>
         public static void Clear()
         {
-            singleHitActions.Clear();
-            holdShiftDefinitions.Clear();
+            InputActionResolver.ClearCommonTableActions();
         }
 
+        /// <summary>
+        /// 解析済み commonTable を runtime へ登録する。
+        /// singleHit/HoldShift の action 登録に加え、SystemModifier も HoldShift 扱いにする。
+        /// </summary>
         public static void Initialize(CommonTableDefinition definition)
         {
             Clear();
             if (definition == null) return;
 
             foreach (var pair in definition.SingleHitActions) {
-                singleHitActions[pair.Key] = pair.Value;
+                InputActionResolver.RegisterSingleHitAction(pair.Key, pair.Value);
             }
             foreach (var pair in definition.HoldShiftDefinitions) {
-                holdShiftDefinitions[pair.Key] = pair.Value;
                 Settings.SetHoldShiftKeySetting(pair.Key, pair.Value.ShiftPlane, pair.Value.EnabledWhenDecoderOff);
                 ShiftPlane.AssignHoldShiftPlane(pair.Key, pair.Value.ShiftPlane, pair.Value.EnabledWhenDecoderOff ? pair.Value.ShiftPlane : ShiftPlane.ShiftPlane_NONE);
                 logger.Info(() => $"CommonTable HoldShift registered: deckey={pair.Key}, plane={pair.Value.ShiftPlane}, off={pair.Value.EnabledWhenDecoderOff}");
+                foreach (var actionPair in pair.Value.Actions) {
+                    InputActionResolver.RegisterHoldShiftAction(pair.Key, actionPair.Key, actionPair.Value);
+                }
             }
 
             RegisterSystemModifiersAsHoldShift();
         }
 
+        /// <summary>
+        /// L/R Ctrl, Shift, Alt, Win を常設 HoldShift として登録する。
+        /// </summary>
         private static void RegisterSystemModifiersAsHoldShift()
         {
             foreach (int deckey in systemModifierDeckeys) {
@@ -79,34 +112,34 @@ namespace KanchokuWS.Domain
             }
         }
 
-        public static bool TryGetSingleHitAction(int deckey, out CommonTableAction action)
-        {
-            action = singleHitActions._safeGet(deckey);
-            return action != null;
-        }
-
-        public static bool TryGetHoldShiftAction(int holdShiftDeckey, int targetDeckey, out CommonTableAction action)
-        {
-            action = holdShiftDefinitions._safeGet(holdShiftDeckey)?.Actions._safeGet(targetDeckey);
-            return action != null;
-        }
-
+        /// <summary>
+        /// 指定 deckey が commonTable で HoldShift キーとして定義されているかを返す。
+        /// </summary>
         public static bool HasHoldShiftDefinition(int holdShiftDeckey)
         {
-            return holdShiftDefinitions.ContainsKey(holdShiftDeckey);
+            return InputActionResolver.HasCommonTableHoldShiftDefinition(holdShiftDeckey);
         }
 
+        /// <summary>
+        /// commonTable 機能が組み込まれていることを返す互換メソッド。
+        /// </summary>
         public static bool HasCommonTable()
         {
-            return singleHitActions._notEmpty() || holdShiftDefinitions._notEmpty();
+            return true;
         }
     }
 
+    /// <summary>
+    /// userFiles/commonTable.txt を解析して CommonTableDefinition を構築する。
+    /// </summary>
     class CommonTableParser
     {
         private readonly Logger logger = Logger.GetLogger();
         private readonly PlaceHolders placeHolders = new PlaceHolders();
 
+        /// <summary>
+        /// commonTable ファイルを読み込み、singleHit/HoldShift 定義と複合コマンド定義を抽出する。
+        /// </summary>
         public CommonTableDefinition Parse(string filename)
         {
             var definition = new CommonTableDefinition();
@@ -166,6 +199,9 @@ namespace KanchokuWS.Domain
             return definition;
         }
 
+        /// <summary>
+        /// `#holdShift` ヘッダを解析して HoldShift ブロック定義を生成する。
+        /// </summary>
         private CommonTableHoldShiftDefinition parseHoldShiftHeader(int lineNo, string line)
         {
             var items = line._reReplace(@"[ \t]{2,}", " ")._split(' ').Where(x => x._notEmpty()).ToArray();
@@ -189,6 +225,9 @@ namespace KanchokuWS.Domain
             };
         }
 
+        /// <summary>
+        /// `#singleHit` ブロックの 1 行を解析する。
+        /// </summary>
         private void parseSingleHitLine(CommonTableDefinition definition, List<string> complexLines, int lineNo, string line)
         {
             splitArrowLine(line, out string lhs, out string rhs);
@@ -209,6 +248,9 @@ namespace KanchokuWS.Domain
             }
         }
 
+        /// <summary>
+        /// HoldShift ブロック内の 1 行を解析する。
+        /// </summary>
         private void parseHoldShiftLine(CommonTableHoldShiftDefinition holdShift, List<string> complexLines, int lineNo, string line)
         {
             splitArrowLine(line, out string lhs, out string rhs);
@@ -229,6 +271,9 @@ namespace KanchokuWS.Domain
             }
         }
 
+        /// <summary>
+        /// target を直接 deckey として解決するか、複合コマンド定義へ展開するかを判定して action 化する。
+        /// </summary>
         private CommonTableAction createAction(int sourceDeckey, int shiftPlane, string rawTarget, List<string> complexLines)
         {
             string stripped = rawTarget._strip();

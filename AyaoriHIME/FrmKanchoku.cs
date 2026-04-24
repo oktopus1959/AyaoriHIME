@@ -421,7 +421,8 @@ namespace KanchokuWS
             SendInputHandler.CreateSingleton();
 
             // 初期化
-            KeyComboRepository.Initialize();
+            DeckeyComboMap.Initialize();
+            InputActionResolver.Initialize();
             ExtraModifiers.Initialize();
             DlgModConversion.Initialize();
             ShiftPlane.InitializeShiftPlane();
@@ -2043,7 +2044,7 @@ namespace KanchokuWS
                 }
 
                 // Ctrl-J と Ctrl-M
-                if ((Settings.UseCtrlJasEnter && KeyComboRepository.GetCtrlDecKeyOf("J") == deckey) /*|| (Settings.UseCtrlMasEnter && VKeyComboRepository.GetCtrlDecKeyOf("M") == deckey)*/) {
+                if ((Settings.UseCtrlJasEnter && InputActionResolver.GetCtrlDecKeyOf("J") == deckey) /*|| (Settings.UseCtrlMasEnter && VKeyComboRepository.GetCtrlDecKeyOf("M") == deckey)*/) {
                     deckey = DecoderKeys.ENTER_DECKEY;
                 }
 
@@ -2522,20 +2523,19 @@ namespace KanchokuWS
                         }
                     }
                 }
-                var combo = KeyComboRepository.GetKeyComboFromDecKey(deckey);
-                if (combo != null) {
+                if (DeckeyComboMap.TryGet(deckey, out var combo)) {
                     if (Settings.LoggingDecKeyInfo) {
-                        logger.Info($"SEND2: combo.modifier={combo.Value.modifier:x}H({combo.Value.modifier}), "
-                            + $"combo.normalDecKey={combo.Value.normalDecKey:x}H({combo.Value.normalDecKey}), "
-                            + $"ctrl={(combo.Value.modifier & KeyModifiers.MOD_CONTROL) != 0}, "
+                        logger.Info($"SEND2: combo.modifier={combo.modifier:x}H({combo.modifier}), "
+                            + $"combo.normalDecKey={combo.normalDecKey:x}H({combo.normalDecKey}), "
+                            + $"ctrl={(combo.modifier & KeyModifiers.MOD_CONTROL) != 0}, "
                             + $"mod={mod:x}H({mod})");
                     }
                     uint _mod =
-                        combo.Value.modifier != 0 ? combo.Value.modifier :
+                        combo.modifier != 0 ? combo.modifier :
                         deckey >= DecoderKeys.SHIFT_DECKEY_START || mod != 0 ? mod :
                         origDeckey >= DecoderKeys.FUNC_DECKEY_START ? SendInputHandler.GetCurrentKeyModifiers() :   // orig が FUNC_DECKEY なら Alt,Ctrl,Shiftキー修飾を有効にする
                         0;
-                    int normDeckey = combo.Value.normalDecKey;
+                    int normDeckey = combo.normalDecKey;
                     uint vk = 0;
                     if (bShortcutConversion) {
                         // ショートカットキーの変換をやる
@@ -2806,7 +2806,8 @@ namespace KanchokuWS
 
             // 初期化
             //KanchokuIni.Singleton.IsUserIniAbsent = false;
-            KeyComboRepository.Initialize();
+            DeckeyComboMap.Initialize();
+            InputActionResolver.Initialize();
             ExtraModifiers.Initialize();
             DlgModConversion.Initialize();
             ShiftPlane.InitializeShiftPlane();

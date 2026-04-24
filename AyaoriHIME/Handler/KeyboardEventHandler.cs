@@ -680,20 +680,21 @@ namespace KanchokuWS.Handler
             return state;
         }
 
-        private bool invokeCommonTableAction(CommonTableAction action, int origDecKey, bool bDecoderOn)
+        private bool invokeResolvedAction(InputActionResolution action, int origDecKey, bool bDecoderOn)
         {
             if (action == null) return false;
-            return invokeHandler(action.Deckey, origDecKey, 0, false, !bDecoderOn && action.RequiresDecoder);
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Invoke resolved action: source={action.SourceKind}, kind={action.ActionKind}, deckey={action.ResolvedDeckey}, requiresDecoder={action.RequiresDecoder}");
+            return invokeHandler(action.ResolvedDeckey, origDecKey, 0, false, !bDecoderOn && action.RequiresDecoder);
         }
 
         private bool tryInvokeCommonSingleHitByDeckey(int deckey, bool bDecoderOn)
         {
-            return CommonTableRuntime.TryGetSingleHitAction(deckey, out var action) && invokeCommonTableAction(action, deckey, bDecoderOn);
+            return InputActionResolver.TryResolveSingleHit(deckey, bDecoderOn, out var action) && invokeResolvedAction(action, deckey, bDecoderOn);
         }
 
         private bool tryBeginPendingCommonSingleHit(uint vkey, int deckey, ExModiferKeyInfo keyInfo, bool bCtrl, bool bShift, bool bAlt, bool bWin, bool bDecoderOn)
         {
-            if (!CommonTableRuntime.TryGetSingleHitAction(deckey, out _)) return false;
+            if (!InputActionResolver.HasSingleHitAction(deckey)) return false;
             if (bCtrl || bShift || bAlt || bWin) return false;
             if (pendingCommonSingleHitStates.ContainsKey(vkey)) return true;
             if (keyInfo != null && (keyInfo.IsHoldShift || keyInfo.IsShiftPlaneAssigned(bDecoderOn))) return false;
@@ -802,7 +803,7 @@ namespace KanchokuWS.Handler
             var activeHoldShiftInfo = keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
             if (activeHoldShiftInfo == null) return null;
             if (activeHoldShiftInfo.Vkey == vkey) return null;
-            if (!CommonTableRuntime.HasHoldShiftDefinition(activeHoldShiftInfo.Deckey)) return null;
+            if (!InputActionResolver.HasCommonTableHoldShiftDefinition(activeHoldShiftInfo.Deckey)) return null;
 
             int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
             if (normalDecKey < 0) return null;
@@ -815,11 +816,11 @@ namespace KanchokuWS.Handler
                 return invokeHandlerForKeyList(combo.DecKeyList._toSingleHitResultKeyStrokeList(), false);
             }
 
-            if ((combo == null || combo.IsTerminal) && CommonTableRuntime.TryGetHoldShiftAction(activeHoldShiftInfo.Deckey, normalDecKey, out var commonAction)) {
-                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, action={commonAction.Deckey}");
+            if ((combo == null || combo.IsTerminal) && InputActionResolver.TryResolveHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn, out var commonAction)) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, action={commonAction.ResolvedDeckey}, source={commonAction.SourceKind}");
                 markPendingCommonSingleHitConsumed(activeHoldShiftInfo.Vkey);
                 consumedHoldShiftTargetVkeys.Add(vkey);
-                return invokeCommonTableAction(commonAction, normalDecKey, bDecoderOn);
+                return invokeResolvedAction(commonAction, normalDecKey, bDecoderOn);
             }
 
             if (isSystemShiftDeckey(activeHoldShiftInfo.Deckey) && normalDecKey >= 0 && normalDecKey < DecoderKeys.NORMAL_DECKEY_NUM) {
@@ -976,9 +977,8 @@ namespace KanchokuWS.Handler
             int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
             if (normalDecKey < 0) return false;
 
-            int kanchokuCode = KeyComboRepository.GetDecKeyFromCombo(0, normalDecKey);
-            if (kanchokuCode >= 0) {
-                return invokeHandler(kanchokuCode, normalDecKey, 0, false);
+            if (InputActionResolver.TryResolveComboKey(0, normalDecKey, out var action)) {
+                return invokeResolvedAction(action, normalDecKey, isDecoderActivated());
             }
             return false;
         }
@@ -1279,7 +1279,7 @@ namespace KanchokuWS.Handler
 
             //int normalDecKey = VKeyComboRepository.GetDecKeyFromVKey(vkey);
             int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
-            int kanchokuCode = KeyComboRepository.GetKanchokuToggleDecKey(mod, normalDecKey); // 漢直モードのトグルをやるキーか
+            int kanchokuCode = InputActionResolver.TryResolveToggleAction(mod, normalDecKey, out var toggleAction) ? toggleAction.ResolvedDeckey : -1; // 漢直モードのトグルをやるキーか
 
             if (Settings.LoggingDecKeyInfo) {
                 logger.Info(() => $"ENTER: kanchokuCode={kanchokuCode}, normalDecKey={normalDecKey}, mod={mod:x}H({mod}), modEx={modEx:x}H({modEx}), vkey={vkey:x}H({vkey}), ctrl={ctrl}, shift={shift}");
@@ -1291,7 +1291,7 @@ namespace KanchokuWS.Handler
             var activeHoldShiftInfo = keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
             if (kanchokuCode < 0 &&
                 activeHoldShiftInfo != null &&
-                CommonTableRuntime.HasHoldShiftDefinition(activeHoldShiftInfo.Deckey) &&
+                InputActionResolver.HasCommonTableHoldShiftDefinition(activeHoldShiftInfo.Deckey) &&
                 activeHoldShiftInfo.Vkey != vkey &&
                 !ctrl && !shift && normalDecKey >= 0) {
                 var combo = getComboForCommonHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn);
@@ -1301,18 +1301,18 @@ namespace KanchokuWS.Handler
                     if (pendingState != null) pendingState.Consumed = true;
                     return invokeHandlerForKeyList(combo.DecKeyList._toSingleHitResultKeyStrokeList(), false);
                 }
-                if ((combo == null || combo.IsTerminal) && CommonTableRuntime.TryGetHoldShiftAction(activeHoldShiftInfo.Deckey, normalDecKey, out var commonAction)) {
-                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, action={commonAction.Deckey}");
+                if ((combo == null || combo.IsTerminal) && InputActionResolver.TryResolveHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn, out var commonAction)) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, action={commonAction.ResolvedDeckey}, source={commonAction.SourceKind}");
                     var pendingState = pendingCommonSingleHitStates._safeGet(activeHoldShiftInfo.Vkey);
                     if (pendingState != null) pendingState.Consumed = true;
-                    return invokeCommonTableAction(commonAction, normalDecKey, bDecoderOn);
+                    return invokeResolvedAction(commonAction, normalDecKey, bDecoderOn);
                 }
             }
 
             if (kanchokuCode < 0 && (modEx != 0 || holdShiftPlane != ShiftPlane.ShiftPlane_NONE) && !ctrl && !shift) {
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-B: IN: kanchokuCode={kanchokuCode}, modEx={modEx:x}, ctrl={ctrl}, shift={shift}");
                 // 拡張シフトが有効なのは、Ctrlキーと物理Shiftが押されていない場合とする
-                kanchokuCode = modEx != 0 ? KeyComboRepository.GetModConvertedDecKeyFromCombo(modEx, normalDecKey) : -1;
+                kanchokuCode = modEx != 0 && InputActionResolver.TryResolveModifiedKey(modEx, normalDecKey, bDecoderOn, out var modExAction) ? modExAction.ResolvedDeckey : -1;
                 if (kanchokuCode < 0) {
                     // 拡張シフト面のコードを得る
                     kanchokuCode = normalDecKey;
@@ -1328,17 +1328,17 @@ namespace KanchokuWS.Handler
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-C: IN: kanchokuCode={kanchokuCode}, ctrl={ctrl}, shift={shift}");
                 if (leftCtrl) {
                     // mod-conversion.txt で lctrl に定義されているものを検索
-                    kanchokuCode = KeyComboRepository.GetModConvertedDecKeyFromCombo(KeyModifiers.MOD_LCTRL, normalDecKey);
+                    kanchokuCode = InputActionResolver.TryResolveModifiedKey(KeyModifiers.MOD_LCTRL, normalDecKey, bDecoderOn, out var lctrlAction) ? lctrlAction.ResolvedDeckey : -1;
                 }
                 if (kanchokuCode < 0 && rightCtrl) {
                     // mod-conversion.txt で rctrl に定義されているものを検索
-                    kanchokuCode = KeyComboRepository.GetModConvertedDecKeyFromCombo(KeyModifiers.MOD_RCTRL, normalDecKey);
+                    kanchokuCode = InputActionResolver.TryResolveModifiedKey(KeyModifiers.MOD_RCTRL, normalDecKey, bDecoderOn, out var rctrlAction) ? rctrlAction.ResolvedDeckey : -1;
                 }
                 if (kanchokuCode < 0) {
-                    kanchokuCode = (Settings.GlobalCtrlKeysEnabled && ((Settings.UseLeftControlToConversion && leftCtrl) || (Settings.UseRightControlToConversion && rightCtrl))) || shift
-                        ? KeyComboRepository.GetModConvertedDecKeyFromCombo(mod, normalDecKey)
-                        // : vkey == (int)Keys.Space ? DecoderKeys.STROKE_SPACE_DECKEY     // キーDown時のスペースは、いったんそのまま扱う(Up時に変換する)
-                        : KeyComboRepository.GetDecKeyFromCombo(mod, normalDecKey);
+                    bool preferModified = (Settings.GlobalCtrlKeysEnabled && ((Settings.UseLeftControlToConversion && leftCtrl) || (Settings.UseRightControlToConversion && rightCtrl))) || shift;
+                    kanchokuCode = preferModified
+                        ? (InputActionResolver.TryResolveModifiedKey(mod, normalDecKey, bDecoderOn, out var modAction) ? modAction.ResolvedDeckey : -1)
+                        : (InputActionResolver.TryResolveComboKey(mod, normalDecKey, out var comboAction) ? comboAction.ResolvedDeckey : -1);
                 }
                 if (kanchokuCode >= 0) mod = 0;     // 何かのコードに変換されたら、 Ctrl や Shift の修飾は無かったことにしておく
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-C: OUT: kanchokuCode={kanchokuCode:x}H({kanchokuCode}), ctrl={ctrl}, shift={shift}");
@@ -1523,9 +1523,8 @@ namespace KanchokuWS.Handler
                 {
                     int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
                     if (!bShifted && /*bDecoderOn &&*/ ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(normalDecKey)) {
-                        int kanchokuCode = KeyComboRepository.GetDecKeyFromCombo(0, normalDecKey);
-                        if (kanchokuCode >= 0) {
-                            invokeHandler(kanchokuCode, -1, 0, false);
+                        if (InputActionResolver.TryResolveComboKey(0, normalDecKey, out var action)) {
+                            invokeResolvedAction(action, -1, isDecoderActivated());
                         }
                     }
                 }
@@ -1573,7 +1572,7 @@ namespace KanchokuWS.Handler
                         if (pendingState != null && !pendingState.Consumed && tryInvokeCommonSingleHitByDeckey(pendingState.Deckey, bDecoderOn)) {
                             return true;
                         }
-                        if (CommonTableRuntime.TryGetSingleHitAction(keyInfo.Deckey, out var commonAction) && invokeCommonTableAction(commonAction, keyInfo.Deckey, bDecoderOn)) {
+                        if (InputActionResolver.TryResolveSingleHit(keyInfo.Deckey, bDecoderOn, out var commonAction) && invokeResolvedAction(commonAction, keyInfo.Deckey, bDecoderOn)) {
                             return true;
                         }
                         if (bDecoderOn) {

@@ -384,7 +384,7 @@ namespace KanchokuWS.Domain
                                             targetDeckey += DecoderKeys.CTRL_FUNC_DECKEY_START - DecoderKeys.FUNC_DECKEY_START;
                                         }
                                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"targetDeckey={targetDeckey:x}H({targetDeckey}), ctrl={ctrl}, decVkey={decVkey:x}H({decVkey})");
-                                        if (targetDeckey > 0) KeyComboRepository.AddModifiedDeckey(targetDeckey, KeyModifiers.MOD_CONTROL, decVkey);
+                                        if (targetDeckey > 0) DeckeyComboMap.RegisterModifiedDeckey(targetDeckey, KeyModifiers.MOD_CONTROL, decVkey);
                                     }
 
                                     if (targetDeckey == 0) {
@@ -400,7 +400,7 @@ namespace KanchokuWS.Domain
                                     } else if (!ctrl) {
                                         // Ctrl修飾なしの特殊キーだったので、漢直コードから変換テーブルに登録しておく
                                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"AddSpecialDeckey: name={name}, targetDeckey={targetDeckey:x}H({targetDeckey})");
-                                        KeyComboRepository.AddSpecialDeckey(name, targetDeckey);
+                                        DeckeyComboMap.RegisterSpecialDeckey(name, targetDeckey);
                                     }
                                 }
 
@@ -410,7 +410,8 @@ namespace KanchokuWS.Domain
                                     if (modKey == 0) {
                                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Single Hit: modDeckey={modDeckey}, target={target}, targetDeckey={targetDeckey}, modifieeDeckey={modifieeDeckey}");
                                         // キー単打の場合は、キーの登録だけで、拡張シフトB面の割り当てはやらない
-                                        KeyComboRepository.AddDecKeyAndCombo(targetDeckey, 0, modifieeDeckey, true);  // targetDeckey から modifieeDeckey(拡張修飾キー)への逆マップは不要
+                                        DeckeyComboMap.Register(targetDeckey, 0, modifieeDeckey, true);  // targetDeckey から modifieeDeckey(拡張修飾キー)への逆マップは不要
+                                        InputActionResolver.RegisterComboAction(0, modifieeDeckey, targetDeckey, InputActionSourceKind.LegacyCombo);
                                         AddExModVkeyAssignedForDecoderFuncByVkey(modifieeDeckey);
                                         SingleHitDefs[modDeckey] = target;
                                     } else {
@@ -418,7 +419,7 @@ namespace KanchokuWS.Domain
                                         // 拡張修飾キー設定
                                         modCount[modKey] = modCount._safeGet(modKey) + 1;
                                         ExtModifierKeyDefs._safeGetOrNewInsert(modKey)[modifieeDeckey] = target;
-                                        KeyComboRepository.AddModConvertedDecKeyFromCombo(targetDeckey, modKey, modifieeDeckey);
+                                        InputActionResolver.RegisterModifiedComboAction(modKey, modifieeDeckey, targetDeckey, InputActionSourceKind.LegacyModConversion);
                                     }
                                     continue;
                                 }
@@ -448,7 +449,8 @@ namespace KanchokuWS.Domain
                 int dk = DecoderKeyVsVKey.GetFuncDecKeyByName(keyName);
                 if (dk >= 0) {
                     logger.Info(() => $"Single Hit: modDeckey={dk}, target={keyName}, targetDeckey={dk}, modifieeDeckey={dk}");
-                    KeyComboRepository.AddDecKeyAndCombo(dk, 0, dk, true);  // targetDeckey から modifieeDeckey(拡張修飾キー)への逆マップは不要
+                    DeckeyComboMap.Register(dk, 0, dk, true);  // targetDeckey から modifieeDeckey(拡張修飾キー)への逆マップは不要
+                    InputActionResolver.RegisterComboAction(0, dk, dk, InputActionSourceKind.LegacyCombo);
                     AddExModVkeyAssignedForDecoderFuncByVkey(dk);
                 }
             }

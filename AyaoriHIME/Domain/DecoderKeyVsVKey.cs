@@ -476,19 +476,23 @@ namespace KanchokuWS.Domain
             // 通常文字ストロークキー
             for (int id = 0; id < DecoderKeys.NORMAL_DECKEY_NUM; ++id) {
                 // Normal
-                KeyComboRepository.AddDecKeyAndCombo(id, 0, id);
+                DeckeyComboMap.Register(id, 0, id);
+                InputActionResolver.RegisterComboAction(0, id, id, InputActionSourceKind.LegacyCombo);
                 // Shifted
-                KeyComboRepository.AddDecKeyAndCombo(DecoderKeys.SHIFT_DECKEY_START + id, KeyModifiers.MOD_SHIFT, id);
+                DeckeyComboMap.Register(DecoderKeys.SHIFT_DECKEY_START + id, KeyModifiers.MOD_SHIFT, id);
+                InputActionResolver.RegisterComboAction(KeyModifiers.MOD_SHIFT, id, DecoderKeys.SHIFT_DECKEY_START + id, InputActionSourceKind.LegacyCombo);
             }
 
             // 機能キー
             for (int id = DecoderKeys.FUNC_DECKEY_START; id < DecoderKeys.FUNC_DECKEY_END; ++id) {
                 // Normal
-                KeyComboRepository.AddDecKeyAndCombo(id, 0, id);
+                DeckeyComboMap.Register(id, 0, id);
+                InputActionResolver.RegisterComboAction(0, id, id, InputActionSourceKind.LegacyCombo);
             }
 
             // Shift+Tab
-            KeyComboRepository.AddDecKeyAndCombo(DecoderKeys.SHIFT_TAB_DECKEY, KeyModifiers.MOD_SHIFT, DecoderKeys.TAB_DECKEY);
+            DeckeyComboMap.Register(DecoderKeys.SHIFT_TAB_DECKEY, KeyModifiers.MOD_SHIFT, DecoderKeys.TAB_DECKEY);
+            InputActionResolver.RegisterComboAction(KeyModifiers.MOD_SHIFT, DecoderKeys.TAB_DECKEY, DecoderKeys.SHIFT_TAB_DECKEY, InputActionSourceKind.LegacyCombo);
             logger.Info($"LEAVE");
         }
 
