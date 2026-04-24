@@ -799,11 +799,13 @@ namespace KanchokuWS.Handler
         {
             if (isSystemModifierVkey(vkey)) return null;
 
-            int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
-            if (normalDecKey < 0) return null;
-
             var activeHoldShiftInfo = keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
             if (activeHoldShiftInfo == null) return null;
+            if (activeHoldShiftInfo.Vkey == vkey) return null;
+            if (!CommonTableRuntime.HasHoldShiftDefinition(activeHoldShiftInfo.Deckey)) return null;
+
+            int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+            if (normalDecKey < 0) return null;
 
             var combo = getComboForCommonHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn);
             if (combo != null && combo.IsTerminal && !combo.IsSubKey && combo.DecKeyList._notEmpty()) {
@@ -1287,7 +1289,11 @@ namespace KanchokuWS.Handler
             if (kanchokuCode < 0 && isVkbTopTextFocused()) return false;
 
             var activeHoldShiftInfo = keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
-            if (kanchokuCode < 0 && activeHoldShiftInfo != null && !ctrl && !shift && normalDecKey >= 0) {
+            if (kanchokuCode < 0 &&
+                activeHoldShiftInfo != null &&
+                CommonTableRuntime.HasHoldShiftDefinition(activeHoldShiftInfo.Deckey) &&
+                activeHoldShiftInfo.Vkey != vkey &&
+                !ctrl && !shift && normalDecKey >= 0) {
                 var combo = getComboForCommonHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn);
                 if (combo != null && combo.IsTerminal && !combo.IsSubKey && combo.DecKeyList._notEmpty()) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift prioritized by combo: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, combo={combo.DecKeysDebugString()}");

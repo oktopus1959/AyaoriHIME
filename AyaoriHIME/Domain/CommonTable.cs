@@ -91,6 +91,11 @@ namespace KanchokuWS.Domain
             return action != null;
         }
 
+        public static bool HasHoldShiftDefinition(int holdShiftDeckey)
+        {
+            return holdShiftDefinitions.ContainsKey(holdShiftDeckey);
+        }
+
         public static bool HasCommonTable()
         {
             return singleHitActions._notEmpty() || holdShiftDefinitions._notEmpty();
