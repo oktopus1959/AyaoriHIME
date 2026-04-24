@@ -54,6 +54,10 @@ public:
         return _rewriteNode;
     }
 
+    bool emptyString() const {
+        return !_rewriteNode || _pieceStr.empty();
+    }
+
     MString getString() const {
         return _rewriteNode ? _rewriteNode->getString() : _pieceStr;
     }
