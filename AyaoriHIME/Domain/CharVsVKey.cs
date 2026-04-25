@@ -428,6 +428,20 @@ namespace KanchokuWS.Domain
             { (uint)Keys.Oem102, '＼' },        // e1
             { (uint)Keys.IMEConvert, '変' },        // 1c
             { (uint)Keys.IMENonconvert, '無' },        // 1d
+            { (uint)Keys.Escape, '脱' },
+            { (uint)Keys.CapsLock, '大' },
+            { (uint)Keys.Back, '退' },
+            { (uint)Keys.Enter, '入' },
+            { (uint)Keys.Insert, '挿' },
+            { (uint)Keys.Delete, '削' },
+            { (uint)Keys.Home, '頭' },
+            { (uint)Keys.End, '末' },
+            { (uint)Keys.PageUp, '昇' },
+            { (uint)Keys.PageDown, '降' },
+            { (uint)Keys.Left, '←' },
+            { (uint)Keys.Up, '↑' },
+            { (uint)Keys.Right, '→' },
+            { (uint)Keys.Down, '↓' },
         }; // vkeyToCharJP
 
         private static Dictionary<uint, char> vkeyToCharUS = new Dictionary<uint, char>() {
@@ -482,6 +496,20 @@ namespace KanchokuWS.Domain
             { (uint)Keys.Oem102, '＼' },    // e1
             { (uint)Keys.IMEConvert, '変' },        // 1c
             { (uint)Keys.IMENonconvert, '無' },        // 1d
+            { (uint)Keys.Escape, '脱' },
+            { (uint)Keys.CapsLock, '大' },
+            { (uint)Keys.Back, '退' },
+            { (uint)Keys.Enter, '入' },
+            { (uint)Keys.Insert, '挿' },
+            { (uint)Keys.Delete, '削' },
+            { (uint)Keys.Home, '頭' },
+            { (uint)Keys.End, '末' },
+            { (uint)Keys.PageUp, '昇' },
+            { (uint)Keys.PageDown, '降' },
+            { (uint)Keys.Left, '←' },
+            { (uint)Keys.Up, '↑' },
+            { (uint)Keys.Right, '→' },
+            { (uint)Keys.Down, '↓' },
         }; // vkeyToCharUS
 
         private static Dictionary<uint, string> vkeyToModifier = new Dictionary<uint, string>() {
@@ -497,10 +525,6 @@ namespace KanchokuWS.Domain
             { FuncVKeys.L_WIN, "L_WIN" },
             { FuncVKeys.R_WIN, "R_WIN" },
             { FuncVKeys.SPACE, "SPACE" },
-            { (uint)Keys.Escape, "ESC" },
-            { (uint)Keys.CapsLock, "Caps" },
-            { (uint)Keys.Back, "BS" },
-            { (uint)Keys.Enter, "Enter" },
         };
 
         /// <summary>キー文字から、その仮想キーコードを得る</summary>

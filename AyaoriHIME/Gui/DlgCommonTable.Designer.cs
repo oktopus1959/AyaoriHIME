@@ -104,8 +104,7 @@ namespace KanchokuWS.Gui
             this.comboBox_modKeys.Name = "comboBox_modKeys";
             this.comboBox_modKeys.Size = new System.Drawing.Size(114, 20);
             this.comboBox_modKeys.TabIndex = 0;
-            this.toolTip1.SetToolTip(this.comboBox_modKeys, "表示または変更対象となる拡張修飾キーを選択します。\r\n\r\nキー名の末尾に (＊) が付いているものは、\r\n何らかの被修飾キーが定義されていることを\r\n示しています" +
-        "。");
+            this.toolTip1.SetToolTip(this.comboBox_modKeys, "表示または変更対象となる拡張修飾キーを選択します。\r\n\r\nキー名の末尾に ＊ が付いているものは、何らかの被修飾キーが\r\n定義されていることを示しています。");
             this.comboBox_modKeys.SelectedIndexChanged += new System.EventHandler(this.comboBox_modKeys_SelectedIndexChanged);
             // 
             // dataGridView_extModifier
@@ -168,7 +167,6 @@ namespace KanchokuWS.Gui
             // 
             // checkBox_enabledWhenOff
             // 
-            this.checkBox_enabledWhenOff.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.checkBox_enabledWhenOff.AutoSize = true;
             this.checkBox_enabledWhenOff.Location = new System.Drawing.Point(565, 7);
             this.checkBox_enabledWhenOff.Name = "checkBox_enabledWhenOff";

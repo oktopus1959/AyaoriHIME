@@ -37,15 +37,9 @@ namespace KanchokuWS.Gui
         private static KeyOrFunction[] singleHitKeys;
 
         private static KeyOrFunction[] extModifiees;
-        private static readonly int[] baseModifierDeckeys = new[] {
-            DecoderKeys.LEFT_CONTROL_DECKEY,
-            DecoderKeys.RIGHT_CONTROL_DECKEY,
-            DecoderKeys.LEFT_SHIFT_DECKEY,
-            DecoderKeys.RIGHT_SHIFT_DECKEY,
-            DecoderKeys.LEFT_ALT_DECKEY,
-            DecoderKeys.RIGHT_ALT_DECKEY,
-        };
+
         private bool holdShiftHeaderLocked = true;
+
         private bool addModKeyLocked = true;
 
         //public int AssignedKeyOrFuncNameColWidth {
@@ -139,7 +133,7 @@ namespace KanchokuWS.Gui
                 for (int i = 0; i < num; ++i) {
                     int deckey = i < normalKeysNum ? i : extModifiees[i - normalKeysNum].DecKey;
                     if (definition.Actions._safeGet(deckey)?.RawTarget._notEmpty() == true) {
-                        marker = " (＊)";
+                        marker = " *";
                         break;
                     }
                 }
@@ -537,7 +531,8 @@ namespace KanchokuWS.Gui
 
         private void refreshModifierKeyComboBoxes(int selectedDeckey = -1)
         {
-            var baseKeys = baseModifierDeckeys
+            var systemModifierDeckeys = CommonTableRuntime.SystemModifierDeckeys();
+            var baseKeys = systemModifierDeckeys
                 .Select(deckey => SpecialKeysAndFunctions.GetKeyOrFuncByDeckey(deckey))
                 .Where(x => x != null)
                 .ToList();
@@ -545,7 +540,7 @@ namespace KanchokuWS.Gui
                 .Where(x => x.DecKey >= 0)
                 .GroupBy(x => x.DecKey)
                 .Select(x => x.First())
-                .Where(x => !baseModifierDeckeys.Contains(x.DecKey))
+                .Where(x => !systemModifierDeckeys.Contains(x.DecKey))
                 .Where(x => CommonTableRuntime.GetHoldShiftDefinition(x.DecKey) != null)
                 .OrderBy(x => x.DecKey);
             visibleModifierKeys = baseKeys.Concat(holdShiftDefinedKeys).ToArray();

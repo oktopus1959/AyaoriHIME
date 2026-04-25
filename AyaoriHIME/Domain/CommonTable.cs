@@ -116,14 +116,17 @@ namespace KanchokuWS.Domain
     static class CommonTableRuntime
     {
         private static readonly Logger logger = Logger.GetLogger();
-        private static readonly int[] systemModifierDeckeys = new[] {
-            DecoderKeys.LEFT_CONTROL_DECKEY,
-            DecoderKeys.RIGHT_CONTROL_DECKEY,
-            DecoderKeys.LEFT_SHIFT_DECKEY,
-            DecoderKeys.RIGHT_SHIFT_DECKEY,
-            DecoderKeys.LEFT_ALT_DECKEY,
-            DecoderKeys.RIGHT_ALT_DECKEY,
-        };
+        private static readonly int[] systemModifierDeckeys = new int[0];
+        //private static readonly int[] systemModifierDeckeys = new[] {
+        //    DecoderKeys.LEFT_CONTROL_DECKEY,
+        //    DecoderKeys.RIGHT_CONTROL_DECKEY,
+        //    DecoderKeys.LEFT_SHIFT_DECKEY,
+        //    DecoderKeys.RIGHT_SHIFT_DECKEY,
+        //    DecoderKeys.LEFT_ALT_DECKEY,
+        //    DecoderKeys.RIGHT_ALT_DECKEY,
+        //    DecoderKeys.LEFT_WIN_DECKEY,
+        //    DecoderKeys.RIGHT_WIN_DECKEY,
+        //};
         private static CommonTableDefinition currentDefinition = new CommonTableDefinition();
 
         private static CommonTableDefinition cloneDefinition(CommonTableDefinition definition)
@@ -212,6 +215,11 @@ namespace KanchokuWS.Domain
             }
 
             RegisterSystemModifiersAsHoldShift();
+        }
+
+        public static int[] SystemModifierDeckeys()
+        {
+            return systemModifierDeckeys;
         }
 
         /// <summary>
