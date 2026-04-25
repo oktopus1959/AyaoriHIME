@@ -605,6 +605,14 @@ namespace KanchokuWS.Domain
                 };
             }
 
+            // HoldShift の複合コマンドは、デコーダ側では holdShiftDeckey 自体を識別に使わず、
+            // 「shiftPlane + sourceDeckey」だけで syntheticDeckey を作る。
+            // そのため、異なる HoldShift キーでも同じ PLANE かつ同じ sourceDeckey なら
+            // デコーダ側では同一入力として扱われる。
+            // 例:
+            // - lctrl + X と rshift + X が同じ PLANE なら、同じ syntheticDeckey になり区別されない
+            // - ただし sourceDeckey が異なれば、同じ PLANE でも syntheticDeckey は別になり衝突しない
+            // - また direct deckey 解決される target はこの syntheticDeckey を使わない
             int syntheticDeckey = shiftPlane > 0 ? sourceDeckey + shiftPlane * DecoderKeys.PLANE_DECKEY_NUM : sourceDeckey;
             string strokeCode = (shiftPlane > 0 ? ShiftPlane.GetShiftPlanePrefix(shiftPlane) : "") + sourceDeckey.ToString();
             string decoderTarget = normalizeComplexTarget(stripped);

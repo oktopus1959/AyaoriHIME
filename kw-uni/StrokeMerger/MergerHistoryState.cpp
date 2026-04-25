@@ -25,6 +25,10 @@ namespace {
         return utils::join(utils::select<String>(pieces, [](WordPiece p){return p.debugString();}), _T(" | "));
     }
 
+    bool containsKBestTransformFunc(const String& s) {
+        return s.find(L"!{MazeConversion}") < s.size() || s.find(L"!{BushuComp}") < s.size();
+    }
+
     // -------------------------------------------------------------------
     // 
     class StrokeStream : public State {
@@ -434,8 +438,15 @@ namespace {
                 bool bHasAnyStroke = !_streamList1.Empty() || !_streamList2.Empty();
                 _LOG_DETAIL(_T("\nuseEditWindow={}, bDualTableMode={}, bHasAnyStroke={}"), SETTINGS->useEditWindow, bDualTableMode, bHasAnyStroke);
 
-                if (/*deckey != CLEAR_STROKE_DECKEY && */
-                    ((deckey >= FUNC_DECKEY_START && deckey < F1_DECKEY && !isSingleHitKey(deckey)) || deckey >= CTRL_DECKEY_START)) {
+                bool shouldHandleAsFunctionalDeckey =
+                    ((deckey >= FUNC_DECKEY_START && deckey < FUNC_DECKEY_END && !isSingleHitKey(deckey)) || deckey >= CTRL_DECKEY_START);
+                if (bHasAnyStroke && State::isStrokableFuncKey(deckey)) {
+                    // 進行中のストロークがある間は、RIGHT_SHIFT などのストローク構成要素になり得る機能キーを
+                    // 機能キーとして先食いせず、stream 側の続き打鍵として扱わせる。
+                    shouldHandleAsFunctionalDeckey = false;
+                }
+
+                if (/*deckey != CLEAR_STROKE_DECKEY && */ shouldHandleAsFunctionalDeckey) {
                     _LOG_DETAIL(L"Functional Deckey: Clear streamLists");
                     clearStreamLists();
                     _strokeBack = false;
@@ -843,8 +854,11 @@ namespace {
                 if (s.size() >= 4) {
                     size_t pos = s.find(L'!');
                     if (pos <= s.size() - 3 && s[pos + 1] == L'{' && s.find(L'}', pos + 2) < s.size()) {
-                        // !{..} が含まれていたら、
-                        WORD_LATTICE->clearAll();
+                        // !{..} が含まれていたら KBest をクリアする。
+                        // ただし、交ぜ書き変換と部首合成は直後に KBest を入力として使うので保持する。
+                        if (!containsKBestTransformFunc(to_wstr(s))) {
+                            WORD_LATTICE->clearAll();
+                        }
                         return LatticeResult(s, 0);
                     }
                 }

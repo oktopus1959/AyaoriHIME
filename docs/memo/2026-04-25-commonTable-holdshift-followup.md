@@ -33,6 +33,15 @@
 - `Ctrl/Shift/Alt/Win` の SystemModifier 判定を `isEffectiveVkey()` より前に移し、`RCtrl` などが HoldShift 経路に入るようにした
 - 未定義の SystemModifier HoldShift 組合せは、singleHit を消費済みにしたうえで通常の `keyboardDownHandler()` へ戻すようにした
 
+### 5. HoldShift の PLANE 衝突条件
+- `commonTable` の HoldShift 複合コマンドは、デコーダ側では `holdShiftDeckey` 自体を識別に使わない
+- 複合コマンド化される場合の synthetic deckey は `shiftPlane + sourceDeckey` だけで決まる
+- そのため、異なる HoldShift キーでも「同じ PLANE」かつ「同じ sourceDeckey」なら、デコーダ側では同一入力として扱われる
+- 例:
+- `lctrl + X` と `rshift + X` が同じ PLANE で、どちらも文字列定義へ展開される場合、デコーダ側では区別されない
+- 一方、同じ PLANE でも `sourceDeckey` が違えば synthetic deckey は別になるので衝突しない
+- なお、右辺が direct deckey 解決される target は synthetic deckey を使わないので、この衝突条件とは別扱い
+
 主な修正ファイル:
 - `AyaoriHIME/Handler/KeyboardEventHandler.cs`
 
