@@ -74,6 +74,15 @@ namespace KanchokuWS.Domain
     {
         private static readonly Logger logger = Logger.GetLogger();
 
+        public class ResolverState
+        {
+            public Dictionary<ulong, InputActionResolution> ComboActions { get; set; }
+            public Dictionary<ulong, InputActionResolution> ModifiedComboActions { get; set; }
+            public Dictionary<int, InputActionResolution> SingleHitActions { get; set; }
+            public Dictionary<ulong, InputActionResolution> HoldShiftActions { get; set; }
+            public HashSet<int> CommonTableHoldShiftDeckeys { get; set; }
+        }
+
         private static Dictionary<ulong, InputActionResolution> comboActions = new Dictionary<ulong, InputActionResolution>();
         private static Dictionary<ulong, InputActionResolution> modifiedComboActions = new Dictionary<ulong, InputActionResolution>();
         private static Dictionary<int, InputActionResolution> singleHitActions = new Dictionary<int, InputActionResolution>();
@@ -108,6 +117,26 @@ namespace KanchokuWS.Domain
             holdShiftActions = new Dictionary<ulong, InputActionResolution>();
             commonTableHoldShiftDeckeys = new HashSet<int>();
             logger.Info("LEAVE");
+        }
+
+        public static ResolverState Snapshot()
+        {
+            return new ResolverState() {
+                ComboActions = new Dictionary<ulong, InputActionResolution>(comboActions),
+                ModifiedComboActions = new Dictionary<ulong, InputActionResolution>(modifiedComboActions),
+                SingleHitActions = new Dictionary<int, InputActionResolution>(singleHitActions),
+                HoldShiftActions = new Dictionary<ulong, InputActionResolution>(holdShiftActions),
+                CommonTableHoldShiftDeckeys = new HashSet<int>(commonTableHoldShiftDeckeys),
+            };
+        }
+
+        public static void Restore(ResolverState state)
+        {
+            comboActions = state?.ComboActions != null ? new Dictionary<ulong, InputActionResolution>(state.ComboActions) : new Dictionary<ulong, InputActionResolution>();
+            modifiedComboActions = state?.ModifiedComboActions != null ? new Dictionary<ulong, InputActionResolution>(state.ModifiedComboActions) : new Dictionary<ulong, InputActionResolution>();
+            singleHitActions = state?.SingleHitActions != null ? new Dictionary<int, InputActionResolution>(state.SingleHitActions) : new Dictionary<int, InputActionResolution>();
+            holdShiftActions = state?.HoldShiftActions != null ? new Dictionary<ulong, InputActionResolution>(state.HoldShiftActions) : new Dictionary<ulong, InputActionResolution>();
+            commonTableHoldShiftDeckeys = state?.CommonTableHoldShiftDeckeys != null ? new HashSet<int>(state.CommonTableHoldShiftDeckeys) : new HashSet<int>();
         }
 
         /// <summary>

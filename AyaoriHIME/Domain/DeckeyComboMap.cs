@@ -33,6 +33,16 @@ namespace KanchokuWS.Domain
             logger.Info("LEAVE");
         }
 
+        public static KeyCombo?[] Snapshot()
+        {
+            return keyComboFromDecKey == null ? null : (KeyCombo?[])keyComboFromDecKey.Clone();
+        }
+
+        public static void Restore(KeyCombo?[] snapshot)
+        {
+            keyComboFromDecKey = snapshot == null ? new KeyCombo?[DecoderKeys.GLOBAL_DECKEY_ID_END] : (KeyCombo?[])snapshot.Clone();
+        }
+
         /// <summary>
         /// xfer, nfer など特殊キーに割り当てられている DecoderKey を登録
         /// </summary>

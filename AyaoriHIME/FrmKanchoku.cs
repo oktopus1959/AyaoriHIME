@@ -522,6 +522,8 @@ namespace KanchokuWS
         {
             logger.InfoH("ENTER");
 
+            CommonTableMigrator.EnsureCommonTableExists();
+
             logConstant();
 
             // シフト面設定の初期化

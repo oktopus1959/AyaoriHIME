@@ -225,7 +225,7 @@ namespace KanchokuWS.Domain
                 case "f5": case "f05": return DecoderKeys.F5_DECKEY;
                 case "f6": case "f06": return DecoderKeys.F6_DECKEY;
                 case "f7": case "f07": return DecoderKeys.F7_DECKEY;
-                case "f8": case "f08": return DecoderKeys.F1_DECKEY;
+                case "f8": case "f08": return DecoderKeys.F8_DECKEY;
                 case "f9": case "f09": return DecoderKeys.F9_DECKEY;
                 case "f10": return DecoderKeys.F10_DECKEY;
                 case "f11": return DecoderKeys.F11_DECKEY;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using KanchokuWS.TableParser;
@@ -48,6 +49,64 @@ namespace KanchokuWS.Domain
         public Dictionary<int, CommonTableHoldShiftDefinition> HoldShiftDefinitions { get; } = new Dictionary<int, CommonTableHoldShiftDefinition>();
         /// <summary>複合コマンドとして既存テーブルパーサへ渡す追加定義文字列。</summary>
         public string GeneratedComplexCommandString { get; set; }
+    }
+
+    static class CommonTableDirectTargetHelper
+    {
+        public static int TryParseExpression(string target)
+        {
+            var stripped = target._strip();
+            if (stripped._isEmpty()) return -1;
+
+            int deckey = parseShiftPlaneDeckey(stripped);
+            if (deckey >= 0) return deckey;
+
+            var lower = stripped._toLower();
+            if (lower._startsWith("^")) {
+                var name = lower._safeSubstring(1);
+                if (name._safeLength() == 1 && name._ge("a") && name._le("z")) {
+                    return DecoderKeys.DECKEY_CTRL_A + name[0] - 'a';
+                }
+
+                deckey = SpecialKeysAndFunctions.GetDeckeyByName(name);
+                if (deckey >= DecoderKeys.FUNC_DECKEY_START && deckey < DecoderKeys.FUNC_DECKEY_END) {
+                    return deckey + DecoderKeys.CTRL_FUNC_DECKEY_START - DecoderKeys.FUNC_DECKEY_START;
+                }
+                return -1;
+            }
+
+            return SpecialKeysAndFunctions.GetDeckeyByName(lower);
+        }
+
+        public static string NormalizeLegacyTarget(string target)
+        {
+            var stripped = target._strip();
+            return TryParseExpression(stripped) >= 0 ? $"!{{{stripped}}}" : stripped;
+        }
+
+        private static int parseShiftPlaneDeckey(string str)
+        {
+            if (str._isEmpty()) return -1;
+            var s = str._toUpper();
+            int offset = calcShiftOffset(s[0]);
+            int deckey = offset > 0 ? s._safeSubstring(1)._parseInt(-1) : s._parseInt(-1);
+            if (deckey < 0 || deckey >= DecoderKeys.STROKE_DECKEY_END) return -1;
+            return deckey + offset;
+        }
+
+        private static int calcShiftOffset(char ch)
+        {
+            switch (char.ToUpperInvariant(ch)) {
+                case 'S': return ShiftPlane.ShiftPlane_SHIFT * DecoderKeys.PLANE_DECKEY_NUM;
+                case 'A': return ShiftPlane.ShiftPlane_A * DecoderKeys.PLANE_DECKEY_NUM;
+                case 'B': return ShiftPlane.ShiftPlane_B * DecoderKeys.PLANE_DECKEY_NUM;
+                case 'C': return ShiftPlane.ShiftPlane_C * DecoderKeys.PLANE_DECKEY_NUM;
+                case 'D': return ShiftPlane.ShiftPlane_D * DecoderKeys.PLANE_DECKEY_NUM;
+                case 'E': return ShiftPlane.ShiftPlane_E * DecoderKeys.PLANE_DECKEY_NUM;
+                case 'F': return ShiftPlane.ShiftPlane_F * DecoderKeys.PLANE_DECKEY_NUM;
+                default: return 0;
+            }
+        }
     }
 
     /// <summary>
@@ -103,6 +162,20 @@ namespace KanchokuWS.Domain
         private static string makeKeyName(int deckey)
         {
             return SpecialKeysAndFunctions.GetKeyNameByDeckey(deckey)._notEmpty() ? SpecialKeysAndFunctions.GetKeyNameByDeckey(deckey) : deckey.ToString();
+        }
+
+        private static string makePlaneName(int shiftPlane)
+        {
+            switch (shiftPlane) {
+                case ShiftPlane.ShiftPlane_SHIFT: return "shift";
+                case ShiftPlane.ShiftPlane_A: return "A";
+                case ShiftPlane.ShiftPlane_B: return "B";
+                case ShiftPlane.ShiftPlane_C: return "C";
+                case ShiftPlane.ShiftPlane_D: return "D";
+                case ShiftPlane.ShiftPlane_E: return "E";
+                case ShiftPlane.ShiftPlane_F: return "F";
+                default: return "shift";
+            }
         }
 
         /// <summary>
@@ -245,10 +318,15 @@ namespace KanchokuWS.Domain
 
         public static string MakeCommonTableContents()
         {
+            return MakeCommonTableContents(currentDefinition);
+        }
+
+        public static string MakeCommonTableContents(CommonTableDefinition sourceDefinition)
+        {
             var sb = new StringBuilder();
 
             sb.AppendLine("#singleHit");
-            foreach (var pair in currentDefinition.SingleHitActions.OrderBy(x => x.Key)) {
+            foreach (var pair in sourceDefinition.SingleHitActions.OrderBy(x => x.Key)) {
                 if (pair.Value?.RawTarget._notEmpty() == true) {
                     sb.AppendLine($"-{makeKeyName(pair.Key)}>{pair.Value.RawTarget}");
                 }
@@ -256,14 +334,14 @@ namespace KanchokuWS.Domain
             sb.AppendLine("#end singleHit");
             sb.AppendLine();
 
-            foreach (var pair in currentDefinition.HoldShiftDefinitions.OrderBy(x => x.Key)) {
-                var definition = pair.Value;
-                if (definition == null || definition.ShiftPlane <= 0) continue;
-                var planeName = ShiftPlane.GetShiftPlaneName(definition.ShiftPlane)._orElse("shift")._toLower();
-                var enabledOff = definition.EnabledWhenDecoderOff ? " both" : "";
-                sb.AppendLine($"#holdShift {makeKeyName(definition.HoldShiftDeckey)} {planeName}{enabledOff}");
+            foreach (var pair in sourceDefinition.HoldShiftDefinitions.OrderBy(x => x.Key)) {
+                var holdShiftDefinition = pair.Value;
+                if (holdShiftDefinition == null || holdShiftDefinition.ShiftPlane <= 0) continue;
+                var planeName = makePlaneName(holdShiftDefinition.ShiftPlane);
+                var enabledOff = holdShiftDefinition.EnabledWhenDecoderOff ? " both" : "";
+                sb.AppendLine($"#holdShift {makeKeyName(holdShiftDefinition.HoldShiftDeckey)} {planeName}{enabledOff}");
                 sb.AppendLine("{");
-                foreach (var actionPair in definition.Actions.OrderBy(x => x.Key)) {
+                foreach (var actionPair in holdShiftDefinition.Actions.OrderBy(x => x.Key)) {
                     if (actionPair.Value?.RawTarget._notEmpty() == true) {
                         sb.AppendLine($"   -{makeKeyName(actionPair.Key)}>{actionPair.Value.RawTarget}");
                     }
@@ -274,6 +352,99 @@ namespace KanchokuWS.Domain
             }
 
             return sb.ToString();
+        }
+    }
+
+    /// <summary>
+    /// 初回起動時に commonTable.txt が存在しない場合、legacy の mod-conversion.txt から生成する。
+    /// 生成時に legacy パーサを一時利用するが、副作用は直後に初期化し直して消す。
+    /// </summary>
+    static class CommonTableMigrator
+    {
+        private static readonly Logger logger = Logger.GetLogger();
+        private const string LegacyModConversionFile = "mod-conversion.txt";
+
+        public static void EnsureCommonTableExists()
+        {
+            if (Settings.CommonTableFile._isEmpty()) return;
+
+            var rootDir = KanchokuIni.Singleton.KanchokuDir;
+            var commonTablePath = rootDir._joinPath(Settings.UserFilesFolder, Settings.CommonTableFile);
+            if (Helper.FileExists(commonTablePath)) return;
+
+            var legacyPath = rootDir._joinPath(Settings.UserFilesFolder, LegacyModConversionFile);
+            if (!Helper.FileExists(legacyPath)) return;
+
+            logger.Info(() => $"commonTable not found. Generate from legacy mod-conversion: {legacyPath} -> {commonTablePath}");
+            var definition = convertFromLegacyModConversion();
+            var contents = CommonTableRuntime.MakeCommonTableContents(definition);
+            File.WriteAllText(commonTablePath, contents, new UTF8Encoding(false));
+            logger.Info(() => $"Generated commonTable: singleHit={definition.SingleHitActions.Count}, holdShift={definition.HoldShiftDefinitions.Count}");
+        }
+
+        private static CommonTableDefinition convertFromLegacyModConversion()
+        {
+            var deckeyComboSnapshot = DeckeyComboMap.Snapshot();
+            var resolverSnapshot = InputActionResolver.Snapshot();
+            var shiftPlaneSnapshot = ShiftPlane.Snapshot();
+
+            try {
+                resetTemporaryLegacyState();
+                ExtraModifiers.ReadExtraModConversionFile(LegacyModConversionFile);
+
+                var definition = new CommonTableDefinition();
+
+                foreach (var pair in ExtraModifiers.SingleHitDefs) {
+                    definition.SingleHitActions[pair.Key] = new CommonTableAction() {
+                        RawTarget = CommonTableDirectTargetHelper.NormalizeLegacyTarget(pair.Value),
+                    };
+                }
+
+                foreach (var pair in ExtraModifiers.ExtModifierKeyDefs) {
+                    var modifierName = ExtraModifiers.GetModifierNameByKey(pair.Key);
+                    if (modifierName._isEmpty()) continue;
+
+                    int holdShiftDeckey = SpecialKeysAndFunctions.GetDeckeyByName(modifierName);
+                    if (holdShiftDeckey < 0) continue;
+
+                    int shiftPlane = ShiftPlane.ShiftPlaneForShiftModKey.GetPlane(pair.Key);
+                    int shiftPlaneWhenOff = ShiftPlane.ShiftPlaneForShiftModKeyWhenDecoderOff.GetPlane(pair.Key);
+                    if (shiftPlane <= 0) shiftPlane = ShiftPlane.ShiftPlane_SHIFT;
+                    bool enabledWhenDecoderOff = shiftPlaneWhenOff > 0;
+                    if (enabledWhenDecoderOff && shiftPlaneWhenOff != shiftPlane) {
+                        logger.Warn($"legacy mod-conversion has different decoder-off plane. use decoder-on plane: mod={modifierName}, on={shiftPlane}, off={shiftPlaneWhenOff}");
+                    }
+
+                    var holdShift = new CommonTableHoldShiftDefinition() {
+                        HoldShiftDeckey = holdShiftDeckey,
+                        ShiftPlane = shiftPlane,
+                        EnabledWhenDecoderOff = enabledWhenDecoderOff && shiftPlaneWhenOff == shiftPlane,
+                    };
+
+                    foreach (var actionPair in pair.Value) {
+                        holdShift.Actions[actionPair.Key] = new CommonTableAction() {
+                            RawTarget = CommonTableDirectTargetHelper.NormalizeLegacyTarget(actionPair.Value),
+                        };
+                    }
+
+                    definition.HoldShiftDefinitions[holdShiftDeckey] = holdShift;
+                }
+
+                return definition;
+            } finally {
+                DeckeyComboMap.Restore(deckeyComboSnapshot);
+                InputActionResolver.Restore(resolverSnapshot);
+                ShiftPlane.Restore(shiftPlaneSnapshot);
+                ExtraModifiers.Initialize();
+            }
+        }
+
+        private static void resetTemporaryLegacyState()
+        {
+            DeckeyComboMap.Initialize();
+            InputActionResolver.Initialize();
+            ExtraModifiers.Initialize();
+            ShiftPlane.InitializeShiftPlaneForShiftModKey();
         }
     }
 
@@ -450,8 +621,8 @@ namespace KanchokuWS.Domain
 
             string inner = target._safeSubstring(2, target.Length - 3)._strip();
             if (inner._isEmpty()) return -1;
-            if (inner.Contains("!") || inner.Contains("{") || inner.Contains("}") || inner.Contains("^") || inner.Contains("+")) return -1;
-            return SpecialKeysAndFunctions.GetDeckeyByName(inner);
+            if (inner.Contains("!") || inner.Contains("{") || inner.Contains("}") || inner.Contains("+")) return -1;
+            return CommonTableDirectTargetHelper.TryParseExpression(inner);
         }
 
         private string normalizeComplexTarget(string target)

@@ -50,6 +50,14 @@ namespace KanchokuWS.Domain
     {
         private static Logger logger = Logger.GetLogger();
 
+        public class ShiftPlaneState
+        {
+            public List<KeyValuePair<uint, int>> ShiftModPairs { get; set; }
+            public List<KeyValuePair<uint, int>> ShiftModOffPairs { get; set; }
+            public List<KeyValuePair<uint, int>> HoldShiftPairs { get; set; }
+            public List<KeyValuePair<uint, int>> HoldShiftOffPairs { get; set; }
+        }
+
         public const int ShiftPlane_NONE = 0;
         public const int ShiftPlane_SHIFT = 1;
         public const int ShiftPlane_A = 2;
@@ -118,6 +126,34 @@ namespace KanchokuWS.Domain
             ShiftPlaneForShiftModKeyWhenDecoderOff.Clear();
             ShiftPlaneForHoldShiftKey.Clear();
             ShiftPlaneForHoldShiftKeyWhenDecoderOff.Clear();
+        }
+
+        public static ShiftPlaneState Snapshot()
+        {
+            return new ShiftPlaneState() {
+                ShiftModPairs = ShiftPlaneForShiftModKey.GetPairs(),
+                ShiftModOffPairs = ShiftPlaneForShiftModKeyWhenDecoderOff.GetPairs(),
+                HoldShiftPairs = ShiftPlaneForHoldShiftKey.GetPairs(),
+                HoldShiftOffPairs = ShiftPlaneForHoldShiftKeyWhenDecoderOff.GetPairs(),
+            };
+        }
+
+        public static void Restore(ShiftPlaneState state)
+        {
+            InitializeShiftPlane();
+            if (state == null) return;
+            restorePairs(ShiftPlaneForShiftModKey, state.ShiftModPairs);
+            restorePairs(ShiftPlaneForShiftModKeyWhenDecoderOff, state.ShiftModOffPairs);
+            restorePairs(ShiftPlaneForHoldShiftKey, state.HoldShiftPairs);
+            restorePairs(ShiftPlaneForHoldShiftKeyWhenDecoderOff, state.HoldShiftOffPairs);
+        }
+
+        private static void restorePairs(ShiftPlaneMapper mapper, List<KeyValuePair<uint, int>> pairs)
+        {
+            if (pairs == null) return;
+            foreach (var pair in pairs) {
+                mapper.Add(pair.Key, pair.Value);
+            }
         }
 
         public static void InitializeShiftPlaneForShiftModKey()
