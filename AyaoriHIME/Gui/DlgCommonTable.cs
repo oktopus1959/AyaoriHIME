@@ -18,10 +18,10 @@ namespace KanchokuWS.Gui
         private static Logger logger = Logger.GetLogger();
 
         private static KeyOrFunction[] modifierKeys;
+        private static KeyOrFunction[] visibleModifierKeys;
+        private static KeyOrFunction[] addableModifierKeys;
 
         private static int SelectedModKeysIndex = -1;
-
-        private int PLANE_ASIGNABLE_MOD_KEYS_NUM;
 
         private static string[] shiftPlaneNames = new string[] {
             "なし",
@@ -37,6 +37,16 @@ namespace KanchokuWS.Gui
         private static KeyOrFunction[] singleHitKeys;
 
         private static KeyOrFunction[] extModifiees;
+        private static readonly int[] baseModifierDeckeys = new[] {
+            DecoderKeys.LEFT_CONTROL_DECKEY,
+            DecoderKeys.RIGHT_CONTROL_DECKEY,
+            DecoderKeys.LEFT_SHIFT_DECKEY,
+            DecoderKeys.RIGHT_SHIFT_DECKEY,
+            DecoderKeys.LEFT_ALT_DECKEY,
+            DecoderKeys.RIGHT_ALT_DECKEY,
+        };
+        private bool holdShiftHeaderLocked = true;
+        private bool addModKeyLocked = true;
 
         //public int AssignedKeyOrFuncNameColWidth {
         //    get { return dataGridView_extModifier.Columns != null && dataGridView_extModifier.Columns.Count > 2 ? dataGridView_extModifier.Columns[2].Width : 0; }
@@ -52,7 +62,6 @@ namespace KanchokuWS.Gui
         public DlgCommonTable()
         {
             modifierKeys = SpecialKeysAndFunctions.GetModifierKeys(_ => true).Where(x => x.DecKey >= 0).ToArray();
-            PLANE_ASIGNABLE_MOD_KEYS_NUM = modifierKeys.Length;
             extModifiees = SpecialKeysAndFunctions.GetModifieeKeys();
             singleHitKeys = SpecialKeysAndFunctions.GetSingleHitKeys();
 
@@ -78,26 +87,20 @@ namespace KanchokuWS.Gui
 
         private void DlgCommonTable_Load(object sender, EventArgs e)
         {
-            panel_shiftPlaneHint.Visible = false;
             comboBox_modKeys.Visible = true;
-            comboBox_shiftPlaneOn.Visible = false;
-            comboBox_shiftPlaneOff.Visible = false;
-            comboBox_modKeys._setItems(modifierKeys.Select(x => getModifiedDescription(x)));
-            comboBox_shiftPlaneOn._setItems(shiftPlaneNames);
-            comboBox_shiftPlaneOff._setItems(shiftPlaneNames);
+            comboBox_shiftPlane._setItems(shiftPlaneNames.Skip(1));
 
             dataGridView_singleHit.Visible = false;
             dataGridView_extModifier.Visible = true;
-            dataGridView_shiftPlane.Visible = false;
 
             //AssignedKeyOrFuncNameColWidth = Settings.AssignedKeyOrFuncNameColWidth._gtZeroOr(180);
             //AssignedKeyOrFuncDescColWidth = Settings.AssignedKeyOrFuncDescColWidth._gtZeroOr(290);
 
-            setDataGridViewForShiftPlane();
             setDataGridViewForSingleHit();
             setDataGridViewForExtModifier();
 
-            defaultModkeyIndex = modifierKeys._findIndex(x => CommonTableRuntime.GetHoldShiftDefinition(x.DecKey) != null)._lowLimit(0);
+            refreshModifierKeyComboBoxes();
+            defaultModkeyIndex = visibleModifierKeys._findIndex(x => CommonTableRuntime.GetHoldShiftDefinition(x.DecKey) != null)._lowLimit(0);
             comboBox_modKeys.SelectedIndex = (SelectedModKeysIndex >= 0 ? SelectedModKeysIndex : defaultModkeyIndex)._highLimit(comboBox_modKeys.Items.Count - 1);
             radioButton_modKeys.Checked = true;
         }
@@ -141,47 +144,7 @@ namespace KanchokuWS.Gui
                     }
                 }
             }
-            return modDef.ModName + marker;
-        }
-
-        // 拡張シフト面割り当て用DGV(dataGridView_shiftPlane)の設定
-        private void setDataGridViewForShiftPlane()
-        {
-            double dpiRate = ScreenInfo.Singleton.PrimaryScreenDpiRate._lowLimit(1.0);
-            int rowHeight = (int)(20 * dpiRate);
-
-            var dgv = dataGridView_shiftPlane;
-            dgv._defaultSetup(rowHeight, rowHeight);
-            dgv._setDefaultFont(DgvHelpers.FontYUG9);
-            dgv._setSelectionColorReadOnly();
-            int keyCodeWidth = (int)(30 * dpiRate);
-            int keyNameWidth = (int)(100 * dpiRate);
-            int planeNameOnWidth = (int)(200 * dpiRate);
-            int planeNameOffWidth = (int)(dgv.Width - keyCodeWidth - keyNameWidth - planeNameOnWidth - 4 * dpiRate);
-            dgv.Columns.Add(dgv._makeTextBoxColumn_ReadOnly_Centered("keyCode", "No", keyCodeWidth));
-            dgv.Columns.Add(dgv._makeTextBoxColumn_ReadOnly("keyName", "拡張修飾キー", keyNameWidth));
-            dgv.Columns.Add(dgv._makeTextBoxColumn_ReadOnly("planeNameOn", "漢直ON時シフト面", planeNameOnWidth));
-            dgv.Columns.Add(dgv._makeTextBoxColumn_ReadOnly("planeNameOff", "漢直OFF時シフト面", planeNameOffWidth));
-
-            dgv.Rows.Add(modifierKeys.Length);
-
-            renewShiftPlaneDgv();
-        }
-
-        private void renewShiftPlaneDgv()
-        {
-            //dgv3Locked = true;
-            var dgv = dataGridView_shiftPlane;
-            int num = dgv.Rows.Count._highLimit(modifierKeys.Length);
-
-            for (int i = 0; i < num; ++i) {
-                dgv.Rows[i].Cells[0].Value = i;
-                dgv.Rows[i].Cells[1].Value = getModifiedDescription(modifierKeys[i]);
-                var definition = CommonTableRuntime.GetHoldShiftDefinition(modifierKeys[i].DecKey);
-                dgv.Rows[i].Cells[2].Value = shiftPlaneNames._getNth(definition?.ShiftPlane ?? 0) ?? "";
-                dgv.Rows[i].Cells[3].Value = shiftPlaneNames._getNth(definition?.EnabledWhenDecoderOff == true ? definition.ShiftPlane : 0) ?? "";
-            }
-            //dgv3Locked = false;
+            return modDef.PrefName + marker;
         }
 
         // 単打用DGV(dataGridView_singleHit)の設定
@@ -220,7 +183,7 @@ namespace KanchokuWS.Gui
                 dgv.Rows[i].Cells[0].Value = i;
                 var kof = singleHitKeys[i];
                 int deckey = kof.DecKey;
-                dgv.Rows[i].Cells[1].Value = kof.ModName._orElse(kof.Name);
+                dgv.Rows[i].Cells[1].Value = kof.PrefName;
                 string assigned = "";
                 string desc = "";
                 var target = CommonTableRuntime.GetSingleHitRawTarget(kof.DecKey);
@@ -262,7 +225,7 @@ namespace KanchokuWS.Gui
         private void renewExtModifierDgv()
         {
             int idx = comboBox_modKeys.SelectedIndex;
-            var modKeyDef = modifierKeys._getNth(idx);
+            var modKeyDef = visibleModifierKeys._getNth(idx);
             if (modKeyDef == null) return;
 
             dgv2Locked = true;
@@ -304,20 +267,8 @@ namespace KanchokuWS.Gui
         {
             try {
                 int idx = SelectedModKeysIndex = comboBox_modKeys.SelectedIndex;
-                var modKeyDef = modifierKeys._getNth(idx);
-                int holdShiftDeckey = modKeyDef?.DecKey ?? -1;
-                bool bAssignable = idx >= 0 && idx < PLANE_ASIGNABLE_MOD_KEYS_NUM;
-                if (bAssignable) {
-                    var definition = CommonTableRuntime.GetHoldShiftDefinition(holdShiftDeckey);
-                    comboBox_shiftPlaneOn.SelectedIndex = definition?.ShiftPlane ?? 0;
-                    comboBox_shiftPlaneOff.SelectedIndex = definition?.EnabledWhenDecoderOff == true ? definition.ShiftPlane : 0;
-                }
-
-                bool shiftPlaneVisible = !radioButton_singleHit.Checked && bAssignable;
-                label_shiftPlaneOn.Visible = shiftPlaneVisible;
-                comboBox_shiftPlaneOn.Visible = shiftPlaneVisible;
-                label_shiftPlaneOff.Visible = shiftPlaneVisible;
-                comboBox_shiftPlaneOff.Visible = shiftPlaneVisible;
+                var modKeyDef = visibleModifierKeys._getNth(idx);
+                syncHoldShiftHeaderControls(modKeyDef);
 
                 renewExtModifierDgv();
             } catch (Exception ex) {
@@ -342,8 +293,6 @@ namespace KanchokuWS.Gui
             try {
                 dataGridView_singleHit.Visible = radioButton_singleHit.Checked;
                 dataGridView_extModifier.Visible = radioButton_modKeys.Checked;
-                dataGridView_shiftPlane.Visible = radioButton_shiftPlane.Checked;
-                panel_shiftPlaneHint.Visible = radioButton_shiftPlane.Checked;
 
                 if (radioButton_singleHit.Checked) {
                     if (dataGridView_singleHit.Columns.Count > 3) {
@@ -357,26 +306,15 @@ namespace KanchokuWS.Gui
                         dataGridView_extModifier.Columns[3].Width = Settings.AssignedKeyOrFuncDescColWidth;
                     }
                 }
-                if (!radioButton_singleHit.Checked) {
-                    int idx = comboBox_modKeys.SelectedIndex;
-                    int nItems = radioButton_modKeys.Checked ? modifierKeys.Length : PLANE_ASIGNABLE_MOD_KEYS_NUM;
-                    comboBox_modKeys._setItems(modifierKeys.Take(nItems).Select(x => getModifiedDescription(x)));
-                    comboBox_modKeys.SelectedIndex = idx < nItems ? idx : (defaultModkeyIndex < PLANE_ASIGNABLE_MOD_KEYS_NUM ? defaultModkeyIndex : 0);
-                }
-
                 bool bModkeysVisible = !radioButton_singleHit.Checked;
-                bool bAssignable = comboBox_modKeys.SelectedIndex >= 0 && comboBox_modKeys.SelectedIndex < PLANE_ASIGNABLE_MOD_KEYS_NUM;
-                bool bShiftPlaneVisible = bModkeysVisible && bAssignable;
-                bool bShiftPlaneEnabled = radioButton_shiftPlane.Checked;
 
                 label_modKeys.Visible = bModkeysVisible;
                 comboBox_modKeys.Visible = bModkeysVisible;
-                label_shiftPlaneOn.Visible = bShiftPlaneVisible;
-                comboBox_shiftPlaneOn.Visible = bShiftPlaneVisible;
-                comboBox_shiftPlaneOn.Enabled = bShiftPlaneEnabled;
-                label_shiftPlaneOff.Visible = bShiftPlaneVisible;
-                comboBox_shiftPlaneOff.Visible = bShiftPlaneVisible;
-                comboBox_shiftPlaneOff.Enabled = bShiftPlaneEnabled;
+                label_addModKey.Visible = bModkeysVisible;
+                comboBox_addModKey.Visible = bModkeysVisible;
+                label_shiftPlane.Visible = bModkeysVisible;
+                comboBox_shiftPlane.Visible = bModkeysVisible;
+                checkBox_enabledWhenOff.Visible = bModkeysVisible;
             } catch (Exception ex) {
                 logger.Error(ex._getErrorMsg());
             }
@@ -392,47 +330,40 @@ namespace KanchokuWS.Gui
             radioButtonCheckedChanged();
         }
 
-        private void radioButton_shiftPlane_CheckedChanged(object sender, EventArgs e)
-        {
-            radioButtonCheckedChanged();
-        }
-
         private void comboBox_modKeys_SelectedIndexChanged(object sender, EventArgs e)
         {
             selectModKey();
         }
 
-        private void selectShiftPlane(bool bOn, int idx)
+        private void comboBox_addModKey_SelectedIndexChanged(object sender, EventArgs e)
         {
             try {
-                int modkeyIdx = comboBox_modKeys.SelectedIndex;
-                if (modkeyIdx < 0 || modkeyIdx >= PLANE_ASIGNABLE_MOD_KEYS_NUM) return;
-
-                var modKeyDef = modifierKeys._getNth(modkeyIdx);
+                if (addModKeyLocked) return;
+                var modKeyDef = addableModifierKeys._getNth(comboBox_addModKey.SelectedIndex);
                 if (modKeyDef == null) return;
-
-                if (idx < ShiftPlane.ShiftPlane_NUM) {
-                    int plane = bOn ? idx : comboBox_shiftPlaneOn.SelectedIndex;
-                    if (plane <= 0 && idx > 0) plane = idx;
-                    bool enabledWhenOff = (bOn ? comboBox_shiftPlaneOff.SelectedIndex : idx) > 0;
-                    CommonTableRuntime.UpdateHoldShiftHeader(modKeyDef.DecKey, plane, enabledWhenOff);
+                if (CommonTableRuntime.GetHoldShiftDefinition(modKeyDef.DecKey) == null) {
+                    CommonTableRuntime.UpdateHoldShiftHeader(modKeyDef.DecKey, ShiftPlane.ShiftPlane_A, false);
                 }
-
-                renewShiftPlaneDgv();
+                refreshModifierKeyComboBoxes(modKeyDef.DecKey);
+                addModKeyLocked = true;
+                comboBox_addModKey.SelectedIndex = -1;
+                addModKeyLocked = false;
                 renewExtModifierDgv();
             } catch (Exception ex) {
                 logger.Error(ex._getErrorMsg());
             }
         }
 
-        private void comboBox_shiftPlaneOn_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBox_shiftPlane_SelectedIndexChanged(object sender, EventArgs e)
         {
-            selectShiftPlane(true, comboBox_shiftPlaneOn.SelectedIndex);
+            if (holdShiftHeaderLocked) return;
+            updateHoldShiftHeader();
         }
 
-        private void comboBox_shiftPlaneOff_SelectedIndexChanged(object sender, EventArgs e)
+        private void checkBox_enabledWhenOff_CheckedChanged(object sender, EventArgs e)
         {
-            selectShiftPlane(false, comboBox_shiftPlaneOff.SelectedIndex);
+            if (holdShiftHeaderLocked) return;
+            updateHoldShiftHeader();
         }
 
         private void dataGridView_extModifier_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -450,7 +381,7 @@ namespace KanchokuWS.Gui
             if (row < 0 || row >= dgv.Rows.Count) return;
 
             int idx = comboBox_modKeys.SelectedIndex;
-            var modKeyDef = modifierKeys._getNth(idx);
+            var modKeyDef = visibleModifierKeys._getNth(idx);
             if (modKeyDef == null) return;
 
             try {
@@ -583,32 +514,6 @@ namespace KanchokuWS.Gui
             dgvKeyDown(dataGridView_singleHit, e);
         }
 
-        private bool changeSelectedModKey(int idx)
-        {
-            if (idx >= 0 && idx < comboBox_modKeys.Items.Count) {
-                comboBox_modKeys.SelectedIndex = idx;
-                return true;
-            }
-            return false;
-        }
-
-        private void openComboBox(ComboBox comboBox)
-        {
-            comboBox.DroppedDown = true;
-        }
-
-        private void dataGridView_shiftPlane_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            changeSelectedModKey(e.RowIndex);
-        }
-
-        private void dataGridView_shiftPlane_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            if (changeSelectedModKey(e.RowIndex)) {
-                openComboBox(e.ColumnIndex < 3 ? comboBox_shiftPlaneOn : comboBox_shiftPlaneOff);
-            }
-        }
-
         private void dataGridView_singleHit_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
         {
             if (dataGridView_singleHit.Columns.Count > 3) {
@@ -628,6 +533,68 @@ namespace KanchokuWS.Gui
         private void button_openFAQ_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start(Settings.FaqKeyAssignUrl);
+        }
+
+        private void refreshModifierKeyComboBoxes(int selectedDeckey = -1)
+        {
+            var baseKeys = baseModifierDeckeys
+                .Select(deckey => SpecialKeysAndFunctions.GetKeyOrFuncByDeckey(deckey))
+                .Where(x => x != null)
+                .ToList();
+            var holdShiftDefinedKeys = SpecialKeysAndFunctions.GetSpecialKeyOrFunctionList()
+                .Where(x => x.DecKey >= 0)
+                .GroupBy(x => x.DecKey)
+                .Select(x => x.First())
+                .Where(x => !baseModifierDeckeys.Contains(x.DecKey))
+                .Where(x => CommonTableRuntime.GetHoldShiftDefinition(x.DecKey) != null)
+                .OrderBy(x => x.DecKey);
+            visibleModifierKeys = baseKeys.Concat(holdShiftDefinedKeys).ToArray();
+            addableModifierKeys = SpecialKeysAndFunctions.GetSpecialKeyOrFunctionList()
+                .Where(x => x.DecKey >= 0)
+                .GroupBy(x => x.DecKey)
+                .Select(x => x.First())
+                .Where(x => (x.DecKey >= DecoderKeys.ESC_DECKEY && x.DecKey <= DecoderKeys.F16_DECKEY))
+                .Where(x => !visibleModifierKeys.Any(y => y.DecKey == x.DecKey))
+                .OrderBy(x => x.DecKey)
+                .ToArray();
+
+            int currentDeckey = selectedDeckey >= 0 ? selectedDeckey : visibleModifierKeys._getNth(comboBox_modKeys.SelectedIndex)?.DecKey ?? -1;
+
+            comboBox_modKeys._setItems(visibleModifierKeys.Select(x => getModifiedDescription(x)));
+            addModKeyLocked = true;
+            comboBox_addModKey._setItems(addableModifierKeys.Select(x => x.PrefName));
+            comboBox_addModKey.SelectedIndex = -1;
+            addModKeyLocked = false;
+
+            defaultModkeyIndex = visibleModifierKeys._findIndex(x => CommonTableRuntime.GetHoldShiftDefinition(x.DecKey) != null)._lowLimit(0);
+            int selectedIndex = visibleModifierKeys._findIndex(x => x.DecKey == currentDeckey);
+            if (selectedIndex < 0) selectedIndex = defaultModkeyIndex._highLimit(visibleModifierKeys.Length - 1);
+            if (comboBox_modKeys.Items.Count > 0) {
+                comboBox_modKeys.SelectedIndex = selectedIndex._highLimit(comboBox_modKeys.Items.Count - 1);
+            }
+        }
+
+        private void syncHoldShiftHeaderControls(KeyOrFunction modKeyDef)
+        {
+            holdShiftHeaderLocked = true;
+            var definition = modKeyDef != null ? CommonTableRuntime.GetHoldShiftDefinition(modKeyDef.DecKey) : null;
+            int shiftPlane = definition?.ShiftPlane ?? ShiftPlane.ShiftPlane_A;
+            comboBox_shiftPlane.SelectedIndex = (shiftPlane - 1)._lowLimit(0)._highLimit(comboBox_shiftPlane.Items.Count - 1);
+            checkBox_enabledWhenOff.Checked = definition?.EnabledWhenDecoderOff == true;
+            holdShiftHeaderLocked = false;
+        }
+
+        private void updateHoldShiftHeader()
+        {
+            int modkeyIdx = comboBox_modKeys.SelectedIndex;
+            var modKeyDef = visibleModifierKeys._getNth(modkeyIdx);
+            if (modKeyDef == null) return;
+
+            int plane = comboBox_shiftPlane.SelectedIndex + 1;
+            if (plane <= 0) plane = ShiftPlane.ShiftPlane_SHIFT;
+            CommonTableRuntime.UpdateHoldShiftHeader(modKeyDef.DecKey, plane, checkBox_enabledWhenOff.Checked);
+            refreshModifierKeyComboBoxes(modKeyDef.DecKey);
+            renewExtModifierDgv();
         }
     }
 }

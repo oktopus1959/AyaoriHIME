@@ -18,6 +18,7 @@ namespace KanchokuWS
         public uint ModKey { get; private set; }
         public string Name { get; private set; }
         public string ModName { get; private set; }
+        public string PrefName => ModName._orElse(Name);
         public string Description { get; private set; }
         public string DetailedDesc { get; private set; }
 

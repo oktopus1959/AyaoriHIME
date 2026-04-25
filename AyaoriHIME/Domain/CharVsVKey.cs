@@ -494,7 +494,13 @@ namespace KanchokuWS.Domain
             { FuncVKeys.RCONTROL, "RCONTROL" },
             { FuncVKeys.L_ALT, "L_ALT" },
             { FuncVKeys.R_ALT, "R_ALT" },
+            { FuncVKeys.L_WIN, "L_WIN" },
+            { FuncVKeys.R_WIN, "R_WIN" },
             { FuncVKeys.SPACE, "SPACE" },
+            { (uint)Keys.Escape, "ESC" },
+            { (uint)Keys.CapsLock, "Caps" },
+            { (uint)Keys.Back, "BS" },
+            { (uint)Keys.Enter, "Enter" },
         };
 
         /// <summary>キー文字から、その仮想キーコードを得る</summary>

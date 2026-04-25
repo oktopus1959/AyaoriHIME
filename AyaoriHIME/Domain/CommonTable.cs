@@ -123,8 +123,6 @@ namespace KanchokuWS.Domain
             DecoderKeys.RIGHT_SHIFT_DECKEY,
             DecoderKeys.LEFT_ALT_DECKEY,
             DecoderKeys.RIGHT_ALT_DECKEY,
-            DecoderKeys.LEFT_WIN_DECKEY,
-            DecoderKeys.RIGHT_WIN_DECKEY,
         };
         private static CommonTableDefinition currentDefinition = new CommonTableDefinition();
 
