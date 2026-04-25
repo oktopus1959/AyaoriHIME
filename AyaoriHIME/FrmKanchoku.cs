@@ -423,8 +423,9 @@ namespace KanchokuWS
             // 初期化
             DeckeyComboMap.Initialize();
             InputActionResolver.Initialize();
+            ModifierKeyRegistry.Initialize();
             ExtraModifiers.Initialize();
-            DlgModConversion.Initialize();
+            DlgCommonTable.Initialize();
             ShiftPlane.InitializeShiftPlane();
 
             // キーボードファイルの読み込み
@@ -2804,8 +2805,9 @@ namespace KanchokuWS
             //KanchokuIni.Singleton.IsUserIniAbsent = false;
             DeckeyComboMap.Initialize();
             InputActionResolver.Initialize();
+            ModifierKeyRegistry.Initialize();
             ExtraModifiers.Initialize();
-            DlgModConversion.Initialize();
+            DlgCommonTable.Initialize();
             ShiftPlane.InitializeShiftPlane();
 
             // キーボードファイルの読み込み

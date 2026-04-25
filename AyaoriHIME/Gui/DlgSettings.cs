@@ -80,7 +80,7 @@ namespace KanchokuWS.Gui
             CancelButton = button_basicClose;
 
             button_showPaddingsDesc.Enabled = frmVkb != null;
-            //button_setModConversion.Enabled = checkBox_extraModifiersEnabled.Checked;
+            //button_setCommonTable.Enabled = checkBox_extraModifiersEnabled.Checked;
 
             tabControl1.SelectedIndex = SelectedTabIndex;
             changeGlobalCtrlKeysCheckBoxState();
@@ -1618,10 +1618,10 @@ namespace KanchokuWS.Gui
 
         private void checkBox_extraModifiersEnabled_CheckedChanged(object sender, EventArgs e)
         {
-            //button_setModConversion.Enabled = checkBox_extraModifiersEnabled.Checked;
+            //button_setCommonTable.Enabled = checkBox_extraModifiersEnabled.Checked;
         }
 
-        private void button_openModConversionFile_Click(object sender, EventArgs e)
+        private void button_openCommonTableFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
             //try {
@@ -3101,28 +3101,28 @@ namespace KanchokuWS.Gui
             openFileInUserFolder(Settings.HistoryFile._safeReplace("*", "entry"));
         }
 
-        private void button_setModConversion_Click(object sender, EventArgs e)
+        private void button_setCommonTable_Click(object sender, EventArgs e)
         {
             int nameColWidth = Settings.AssignedKeyOrFuncNameColWidth;
             int descColWidth = Settings.AssignedKeyOrFuncDescColWidth;
-            using (var dlg = new DlgModConversion()) {
+            using (var dlg = new DlgCommonTable()) {
                 if (dlg.ShowDialog() == DialogResult.OK) {
-                    // 設定内容を mod-conversion.txt に書き出す
-                    writeModConversionSettings();
+                    // 設定内容を commonTable.txt に書き出す
+                    writeCommonTableSettings();
                     // SandSのシフト面のコンボボックスを置き換える
                     comboBox_SandSAssignedPlane.SelectedIndex = Settings.SandSAssignedPlane._lowLimit(0)._highLimit(7);
                 }
                 int width = dlg.Width;
-                logger.Info(() => $"DlgModConversionWidth={width}");
-                if (Settings.DlgModConversionWidth != width) {
-                    Settings.SetUserIni("dlgModConversionWidth", width);
-                    Settings.DlgModConversionWidth = width;
+                logger.Info(() => $"DlgCommonTableWidth={width}");
+                if (Settings.DlgCommonTableWidth != width) {
+                    Settings.SetUserIni("dlgCommonTableWidth", width);
+                    Settings.DlgCommonTableWidth = width;
                 }
                 int height = dlg.Height;
-                logger.Info(() => $"DlgModConversionHeight={height}");
-                if (Settings.DlgModConversionHeight != height) {
-                    Settings.SetUserIni("dlgModConversionHeight", height);
-                    Settings.DlgModConversionHeight = height;
+                logger.Info(() => $"DlgCommonTableHeight={height}");
+                if (Settings.DlgCommonTableHeight != height) {
+                    Settings.SetUserIni("dlgCommonTableHeight", height);
+                    Settings.DlgCommonTableHeight = height;
                 }
                 logger.Info(() => $"AssignedKeyOrFuncColNameWidth={nameColWidth}");
                 if (Settings.AssignedKeyOrFuncNameColWidth != nameColWidth) {
@@ -3135,8 +3135,8 @@ namespace KanchokuWS.Gui
             }
         }
 
-        // 拡張修飾キー設定をファイルに書き出す
-        private void writeModConversionSettings()
+        // 拡張修飾キー設定を commonTable ファイルへ書き出す
+        private void writeCommonTableSettings()
         {
             var path = KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.UserFilesFolder, Settings.CommonTableFile);
             logger.Info($"ENTER: path={path}");

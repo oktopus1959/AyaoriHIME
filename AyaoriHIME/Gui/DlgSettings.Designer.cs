@@ -320,12 +320,12 @@ namespace KanchokuWS.Gui
             this.tabPage_ctrlKeys = new System.Windows.Forms.TabPage();
             this.label_ctrlReload = new System.Windows.Forms.Label();
             this.button_ctrlReload = new System.Windows.Forms.Button();
-            this.groupBox36 = new System.Windows.Forms.GroupBox();
-            this.button_setModConversion = new System.Windows.Forms.Button();
-            this.textBox_commonTableFile = new System.Windows.Forms.TextBox();
             this.checkBox_extraModifiersEnabled = new System.Windows.Forms.CheckBox();
+            this.groupBox36 = new System.Windows.Forms.GroupBox();
+            this.button_setCommonTable = new System.Windows.Forms.Button();
+            this.textBox_commonTableFile = new System.Windows.Forms.TextBox();
             this.label93 = new System.Windows.Forms.Label();
-            this.button_openModConversionFile = new System.Windows.Forms.Button();
+            this.button_openCommonTableFile = new System.Windows.Forms.Button();
             this.groupBox18 = new System.Windows.Forms.GroupBox();
             this.checkBox_dateStringKey = new System.Windows.Forms.CheckBox();
             this.comboBox_dateStringKey = new System.Windows.Forms.ComboBox();
@@ -4180,45 +4180,6 @@ namespace KanchokuWS.Gui
             this.button_ctrlReload.UseVisualStyleBackColor = true;
             this.button_ctrlReload.Click += new System.EventHandler(this.button_ctrlReload_Click);
             // 
-            // groupBox36
-            // 
-            this.groupBox36.Controls.Add(this.button_setModConversion);
-            this.groupBox36.Controls.Add(this.textBox_commonTableFile);
-            this.groupBox36.Controls.Add(this.label93);
-            this.groupBox36.Controls.Add(this.button_openModConversionFile);
-            this.groupBox36.Location = new System.Drawing.Point(295, 258);
-            this.groupBox36.Name = "groupBox36";
-            this.groupBox36.Size = new System.Drawing.Size(305, 54);
-            this.groupBox36.TabIndex = 4;
-            this.groupBox36.TabStop = false;
-            this.groupBox36.Text = "拡張修飾キー";
-            // 
-            // button_setModConversion
-            // 
-            this.button_setModConversion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_setModConversion.Location = new System.Drawing.Point(261, 20);
-            this.button_setModConversion.Name = "button_setModConversion";
-            this.button_setModConversion.Size = new System.Drawing.Size(40, 23);
-            this.button_setModConversion.TabIndex = 3;
-            this.button_setModConversion.Text = "編集";
-            this.toolTip1.SetToolTip(this.button_setModConversion, "拡張修飾キー定義ファイルを読み込み、その内容を反映した\r\n設定ダイアログを開きます。\r\n\r\n設定ダイアログで「書き出し」をクリックすると、定義ファイルに\r\n修正結" +
-        "果が書き出されます。\r\n\r\n定義ファイルを更新した場合は、「再読込」をクリックすると、\r\nその内容が読み込まれて、内部状態に反映されます。");
-            this.button_setModConversion.UseVisualStyleBackColor = true;
-            this.button_setModConversion.Click += new System.EventHandler(this.button_setModConversion_Click);
-            // 
-            // textBox_commonTableFile
-            // 
-            this.textBox_commonTableFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_commonTableFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_commonTableFile.Location = new System.Drawing.Point(75, 22);
-            this.textBox_commonTableFile.Name = "textBox_commonTableFile";
-            this.textBox_commonTableFile.Size = new System.Drawing.Size(149, 19);
-            this.textBox_commonTableFile.TabIndex = 1;
-            this.toolTip1.SetToolTip(this.textBox_commonTableFile, "修飾キー変換定義ファイルの設定\r\n\r\nSandS、CapsLock、英数、無変換、変換、および右シフトキーを\r\n修飾キーとして使用する際のキー変換定義ファイルを指" +
-        "定します。\r\n\r\n定義ファイルの例として、 mod-conversion.txt というファイルを\r\n用意してあります。記述方法は同ファイルを参照してください。" +
-        "\r\n\r\n定義ファイルを修正した場合は、「再読込」をクリックしてください。");
-            // 
             // checkBox_extraModifiersEnabled
             // 
             this.checkBox_extraModifiersEnabled.AutoSize = true;
@@ -4232,6 +4193,45 @@ namespace KanchokuWS.Gui
             this.checkBox_extraModifiersEnabled.Visible = false;
             this.checkBox_extraModifiersEnabled.CheckedChanged += new System.EventHandler(this.checkBox_extraModifiersEnabled_CheckedChanged);
             // 
+            // groupBox36
+            // 
+            this.groupBox36.Controls.Add(this.button_setCommonTable);
+            this.groupBox36.Controls.Add(this.textBox_commonTableFile);
+            this.groupBox36.Controls.Add(this.label93);
+            this.groupBox36.Controls.Add(this.button_openCommonTableFile);
+            this.groupBox36.Location = new System.Drawing.Point(295, 258);
+            this.groupBox36.Name = "groupBox36";
+            this.groupBox36.Size = new System.Drawing.Size(305, 54);
+            this.groupBox36.TabIndex = 4;
+            this.groupBox36.TabStop = false;
+            this.groupBox36.Text = "拡張修飾キー";
+            // 
+            // button_setCommonTable
+            // 
+            this.button_setCommonTable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_setCommonTable.Location = new System.Drawing.Point(261, 20);
+            this.button_setCommonTable.Name = "button_setCommonTable";
+            this.button_setCommonTable.Size = new System.Drawing.Size(40, 23);
+            this.button_setCommonTable.TabIndex = 3;
+            this.button_setCommonTable.Text = "編集";
+            this.toolTip1.SetToolTip(this.button_setCommonTable, "拡張修飾キー定義ファイルを読み込み、その内容を反映した\r\n設定ダイアログを開きます。\r\n\r\n設定ダイアログで「書き出し」をクリックすると、定義ファイルに\r\n修正結" +
+        "果が書き出されます。\r\n\r\n定義ファイルを更新した場合は、「再読込」をクリックすると、\r\nその内容が読み込まれて、内部状態に反映されます。");
+            this.button_setCommonTable.UseVisualStyleBackColor = true;
+            this.button_setCommonTable.Click += new System.EventHandler(this.button_setCommonTable_Click);
+            // 
+            // textBox_commonTableFile
+            // 
+            this.textBox_commonTableFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_commonTableFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textBox_commonTableFile.Location = new System.Drawing.Point(75, 22);
+            this.textBox_commonTableFile.Name = "textBox_commonTableFile";
+            this.textBox_commonTableFile.Size = new System.Drawing.Size(149, 19);
+            this.textBox_commonTableFile.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.textBox_commonTableFile, "拡張修飾キー定義ファイルの設定\r\n\r\n文字キー以外の機能キー(Tab, 無変換, 変換、Enterなど)、および\r\nShift, Ctrl, Alt, Win キ" +
+        "ーを独自の修飾キーとして使用する際の\r\nキー変換定義ファイルを指定します。\r\n\r\n通常は userFiles 配下の commonTable.txt を使用しま" +
+        "す。\r\n\r\n定義ファイルを修正した場合は、「再読込」をクリックしてください。");
+            // 
             // label93
             // 
             this.label93.AutoSize = true;
@@ -4241,18 +4241,18 @@ namespace KanchokuWS.Gui
             this.label93.TabIndex = 10;
             this.label93.Text = "定義ファイル";
             // 
-            // button_openModConversionFile
+            // button_openCommonTableFile
             // 
-            this.button_openModConversionFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openModConversionFile.Location = new System.Drawing.Point(226, 20);
-            this.button_openModConversionFile.Name = "button_openModConversionFile";
-            this.button_openModConversionFile.Size = new System.Drawing.Size(34, 23);
-            this.button_openModConversionFile.TabIndex = 2;
-            this.button_openModConversionFile.Text = "開く";
-            this.toolTip1.SetToolTip(this.button_openModConversionFile, "拡張修飾キー定義ファイルを開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n\r\n定義ファイルを修正した場合は、「再読込」をクリ" +
+            this.button_openCommonTableFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_openCommonTableFile.Location = new System.Drawing.Point(226, 20);
+            this.button_openCommonTableFile.Name = "button_openCommonTableFile";
+            this.button_openCommonTableFile.Size = new System.Drawing.Size(34, 23);
+            this.button_openCommonTableFile.TabIndex = 2;
+            this.button_openCommonTableFile.Text = "開く";
+            this.toolTip1.SetToolTip(this.button_openCommonTableFile, "拡張修飾キー定義ファイルを開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n\r\n定義ファイルを修正した場合は、「再読込」をクリ" +
         "ックすると、\r\nその内容が読み込まれて、内部状態が更新されます。");
-            this.button_openModConversionFile.UseVisualStyleBackColor = true;
-            this.button_openModConversionFile.Click += new System.EventHandler(this.button_openModConversionFile_Click);
+            this.button_openCommonTableFile.UseVisualStyleBackColor = true;
+            this.button_openCommonTableFile.Click += new System.EventHandler(this.button_openCommonTableFile_Click);
             // 
             // groupBox18
             // 
@@ -8492,11 +8492,11 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.TextBox textBox_comboMaxAllowedPostfixTimeMs;
         private System.Windows.Forms.Label label140;
         private System.Windows.Forms.GroupBox groupBox36;
-        private System.Windows.Forms.Button button_setModConversion;
+        private System.Windows.Forms.Button button_setCommonTable;
         private System.Windows.Forms.TextBox textBox_commonTableFile;
         private System.Windows.Forms.CheckBox checkBox_extraModifiersEnabled;
         private System.Windows.Forms.Label label93;
-        private System.Windows.Forms.Button button_openModConversionFile;
+        private System.Windows.Forms.Button button_openCommonTableFile;
         private System.Windows.Forms.Label label_ctrlReload;
         private System.Windows.Forms.Button button_ctrlReload;
         private System.Windows.Forms.ComboBox comboBox_vkbShowHideTemporaryKey;

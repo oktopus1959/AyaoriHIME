@@ -96,6 +96,8 @@
     <Compile Include="Domain\DecoderKeysMap.cs" />
     <Compile Include="Domain\ExtraModifiers.cs" />
     <Compile Include="Domain\InputActionResolver.cs" />
+    <Compile Include="Domain\LegacyModConversionReader.cs" />
+    <Compile Include="Domain\ModifierKeyRegistry.cs" />
     <Compile Include="Domain\ShiftPlane.cs" />
     <Compile Include="Domain\KeyModifiers.cs" />
     <Compile Include="Domain\DecoderKeyVsVKey.cs" />
@@ -171,11 +173,11 @@
     <Compile Include="Gui\DlgKeywordSelector.Designer.cs">
       <DependentUpon>DlgKeywordSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Gui\DlgModConversion.cs">
+    <Compile Include="Gui\DlgCommonTable.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Gui\DlgModConversion.Designer.cs">
-      <DependentUpon>DlgModConversion.cs</DependentUpon>
+    <Compile Include="Gui\DlgCommonTable.Designer.cs">
+      <DependentUpon>DlgCommonTable.cs</DependentUpon>
     </Compile>
     <Compile Include="Gui\DlgPaddingsDesc.cs">
       <SubType>Form</SubType>
@@ -281,8 +283,8 @@
     <EmbeddedResource Include="Gui\DlgKeywordSelector.resx">
       <DependentUpon>DlgKeywordSelector.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Gui\DlgModConversion.resx">
-      <DependentUpon>DlgModConversion.cs</DependentUpon>
+    <EmbeddedResource Include="Gui\DlgCommonTable.resx">
+      <DependentUpon>DlgCommonTable.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Gui\DlgPaddingsDesc.resx">
       <DependentUpon>DlgPaddingsDesc.cs</DependentUpon>

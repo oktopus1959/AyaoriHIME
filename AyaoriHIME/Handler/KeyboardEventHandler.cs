@@ -1354,11 +1354,11 @@ namespace KanchokuWS.Handler
             if (kanchokuCode < 0) {
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-C: IN: kanchokuCode={kanchokuCode}, ctrl={ctrl}, shift={shift}");
                 if (leftCtrl) {
-                    // mod-conversion.txt で lctrl に定義されているものを検索
+                    // legacy 修飾変換で lctrl に定義されているものを検索
                     kanchokuCode = InputActionResolver.TryResolveModifiedKey(KeyModifiers.MOD_LCTRL, normalDecKey, bDecoderOn, out var lctrlAction) ? lctrlAction.ResolvedDeckey : -1;
                 }
                 if (kanchokuCode < 0 && rightCtrl) {
-                    // mod-conversion.txt で rctrl に定義されているものを検索
+                    // legacy 修飾変換で rctrl に定義されているものを検索
                     kanchokuCode = InputActionResolver.TryResolveModifiedKey(KeyModifiers.MOD_RCTRL, normalDecKey, bDecoderOn, out var rctrlAction) ? rctrlAction.ResolvedDeckey : -1;
                 }
                 if (kanchokuCode < 0) {

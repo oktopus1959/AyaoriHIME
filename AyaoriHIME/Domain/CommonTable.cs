@@ -390,18 +390,18 @@ namespace KanchokuWS.Domain
 
             try {
                 resetTemporaryLegacyState();
-                ExtraModifiers.ReadExtraModConversionFile(LegacyModConversionFile);
+                var legacyDefinition = LegacyModConversionReader.Read(LegacyModConversionFile);
 
                 var definition = new CommonTableDefinition();
 
-                foreach (var pair in ExtraModifiers.SingleHitDefs) {
+                foreach (var pair in legacyDefinition.SingleHitDefs) {
                     definition.SingleHitActions[pair.Key] = new CommonTableAction() {
                         RawTarget = CommonTableDirectTargetHelper.NormalizeLegacyTarget(pair.Value),
                     };
                 }
 
-                foreach (var pair in ExtraModifiers.ExtModifierKeyDefs) {
-                    var modifierName = ExtraModifiers.GetModifierNameByKey(pair.Key);
+                foreach (var pair in legacyDefinition.ExtModifierKeyDefs) {
+                    var modifierName = ModifierKeyRegistry.GetModifierNameByKey(pair.Key);
                     if (modifierName._isEmpty()) continue;
 
                     int holdShiftDeckey = SpecialKeysAndFunctions.GetDeckeyByName(modifierName);
@@ -443,6 +443,7 @@ namespace KanchokuWS.Domain
         {
             DeckeyComboMap.Initialize();
             InputActionResolver.Initialize();
+            ModifierKeyRegistry.Initialize();
             ExtraModifiers.Initialize();
             ShiftPlane.InitializeShiftPlaneForShiftModKey();
         }

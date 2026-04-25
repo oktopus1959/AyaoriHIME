@@ -13,7 +13,7 @@ using Utils;
 
 namespace KanchokuWS.Gui
 {
-    public partial class DlgModConversion : Form
+    public partial class DlgCommonTable : Form
     {
         private static Logger logger = Logger.GetLogger();
 
@@ -49,7 +49,7 @@ namespace KanchokuWS.Gui
         //public int AssignedKeyOrFuncDescColWidth { get; private set; }
 
         /// <summary>コンストラクタ</summary>
-        public DlgModConversion()
+        public DlgCommonTable()
         {
             modifierKeys = SpecialKeysAndFunctions.GetModifierKeys(_ => true).Where(x => x.DecKey >= 0).ToArray();
             PLANE_ASIGNABLE_MOD_KEYS_NUM = modifierKeys.Length;
@@ -58,8 +58,8 @@ namespace KanchokuWS.Gui
 
             InitializeComponent();
 
-            if (Settings.DlgModConversionHeight > 0) Height = Settings.DlgModConversionHeight;
-            if (Settings.DlgModConversionWidth > 0) Width = Settings.DlgModConversionWidth;
+            if (Settings.DlgCommonTableHeight > 0) Height = Settings.DlgCommonTableHeight;
+            if (Settings.DlgCommonTableWidth > 0) Width = Settings.DlgCommonTableWidth;
 
             CancelButton = buttonCancel;
             DialogResult = DialogResult.None;
@@ -76,7 +76,7 @@ namespace KanchokuWS.Gui
         private bool dgv2Locked = true;
         //private bool dgv3Locked = true;
 
-        private void DlgModConversion_Load(object sender, EventArgs e)
+        private void DlgCommonTable_Load(object sender, EventArgs e)
         {
             panel_shiftPlaneHint.Visible = false;
             comboBox_modKeys.Visible = true;

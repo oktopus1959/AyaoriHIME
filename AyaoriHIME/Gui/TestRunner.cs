@@ -105,8 +105,9 @@ namespace KanchokuWS.Gui
                         // SecondaryTableを使う
                         KanchokuWS.Domain.DeckeyComboMap.Initialize();
                         KanchokuWS.Domain.InputActionResolver.Initialize();
+                        KanchokuWS.Domain.ModifierKeyRegistry.Initialize();
                         KanchokuWS.Domain.ExtraModifiers.Initialize();
-                        DlgModConversion.Initialize();
+                        DlgCommonTable.Initialize();
                         KanchokuWS.Domain.ShiftPlane.InitializeShiftPlane();
                         CombinationKeyStroke.Determiner.Singleton.Initialize(null, arg, null, true);
                         frmMain.ExecCmdDecoder("createStrokeTrees", "2"); // ストローク木の再構築(table2 だけを使う)

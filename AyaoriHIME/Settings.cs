@@ -900,11 +900,11 @@ namespace KanchokuWS
         /// <summary> commonTable 定義ファイル</summary>
         public static string CommonTableFile { get; private set; }
 
-        /// <summary> 拡張修飾キー設定ダイアログの幅</summary>
-        public static int DlgModConversionWidth { get; set; }
+        /// <summary> commonTable 設定ダイアログの幅</summary>
+        public static int DlgCommonTableWidth { get; set; }
 
-        /// <summary> 拡張修飾キー設定ダイアログの高さ</summary>
-        public static int DlgModConversionHeight { get; set; }
+        /// <summary> commonTable 設定ダイアログの高さ</summary>
+        public static int DlgCommonTableHeight { get; set; }
 
         /// <summary> 割り当てキー／機能名カラムの幅</summary>
         public static int AssignedKeyOrFuncNameColWidth { get; set; }
@@ -1707,8 +1707,8 @@ namespace KanchokuWS
             // その他変換・機能
             ConvertShiftedHiraganaToKatakana = GetString("convertShiftedHiraganaToKatakana", "shiftKana", "")._parseBool(false);  // 平仮名をカタカナに変換する
             CommonTableFile = GetString("commonTableFile", "commonTable.txt");
-            DlgModConversionWidth = GetString("dlgModConversionWidth")._parseInt(0);
-            DlgModConversionHeight = GetString("dlgModConversionHeight")._parseInt(0);
+            DlgCommonTableWidth = GetString("dlgCommonTableWidth")._parseInt(GetString("dlgModConversionWidth")._parseInt(0));
+            DlgCommonTableHeight = GetString("dlgCommonTableHeight")._parseInt(GetString("dlgModConversionHeight")._parseInt(0));
             DlgKeywordSelectorWidth = GetString("dlgKeywordSelectorWidth")._parseInt(0);
             DlgKeywordSelectorHeight = GetString("dlgKeywordSelectorHeight")._parseInt(0);
             AssignedKeyOrFuncNameColWidth = GetString("assignedKeyOrFuncNameColWidth")._parseInt(180);

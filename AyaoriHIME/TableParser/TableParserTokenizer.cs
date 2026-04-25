@@ -348,7 +348,7 @@ namespace KanchokuWS.TableParser
                         ReadWord();
                         if (CurrentStr._notEmpty()) {
                             var keyName = definedNames._safeGet(CurrentStr, CurrentStr._toLower());
-                            ExtraModifiers.AddDisabledExtKey(keyName);
+                            ModifierKeyRegistry.AddDisabledExtKey(keyName);
                             if (keyName._equalsTo("space")) setSandSEnabled(false);
                             disableHoldShiftKey(keyName);
                         }
@@ -546,7 +546,7 @@ namespace KanchokuWS.TableParser
             } else if (word._startsWith("disable")) {
                 //Settings.SandSEnabledCurrently = false;
                 setSandSEnabled(false);
-                ExtraModifiers.AddDisabledExtKey("space");
+                ModifierKeyRegistry.AddDisabledExtKey("space");
                 disableHoldShiftKey("space");
                 if (Settings.LoggingTableFileInfo) logger.Info("SandS disabled");
             } else if (word == "s") {
@@ -861,7 +861,7 @@ namespace KanchokuWS.TableParser
                                 if (c == 'N' || c == 'n') {
                                     shiftOffset = 0;
                                 } else if (c == 'S' || c == 's' || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
-                                    shiftOffset = ExtraModifiers.CalcShiftOffset(c);
+                                    shiftOffset = ModifierKeyRegistry.CalcShiftOffset(c);
                                 } else if (c == 'X' || c == 'x') {
                                     shiftOffset = 0;
                                     funckeyOffset = DecoderKeys.FUNC_DECKEY_START;

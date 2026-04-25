@@ -1,7 +1,7 @@
 ﻿
 namespace KanchokuWS.Gui
 {
-    partial class DlgModConversion
+    partial class DlgCommonTable
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@ namespace KanchokuWS.Gui
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DlgModConversion));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DlgCommonTable));
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.label_modKeys = new System.Windows.Forms.Label();
@@ -315,7 +315,7 @@ namespace KanchokuWS.Gui
             this.label3.TabIndex = 1;
             this.label3.Text = "キー名の末尾に (＊) が付いているものは、\r\n何らかの被修飾キーが定義されていることを\r\n示しています。";
             // 
-            // DlgModConversion
+            // DlgCommonTable
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -340,10 +340,10 @@ namespace KanchokuWS.Gui
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(640, 400);
-            this.Name = "DlgModConversion";
+            this.Name = "DlgCommonTable";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "拡張修飾キー設定";
-            this.Load += new System.EventHandler(this.DlgModConversion_Load);
+            this.Load += new System.EventHandler(this.DlgCommonTable_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_extModifier)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_singleHit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_shiftPlane)).EndInit();

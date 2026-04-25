@@ -234,12 +234,12 @@ namespace KanchokuWS.Domain
             var items = line._toLower()._split('=');
             if (items._length() != 2) return false;
 
-            if (ExtraModifiers.IsDisabledExtKey(items[0])) {
-                ExtraModifiers.AddDisabledExtKeyLine(rawLine._orElse(line));
+            if (ModifierKeyRegistry.IsDisabledExtKey(items[0])) {
+                ModifierKeyRegistry.AddDisabledExtKeyLine(rawLine._orElse(line));
                 return true;
             }
 
-            uint modKey = ExtraModifiers.GetModifierKeyByName(items[0]);
+            uint modKey = ModifierKeyRegistry.GetModifierKeyByName(items[0]);
             var planes = items[1]._split('|');
             int shiftPlane = ShiftPlane_NONE;
             switch (planes._getNth(0)) {
