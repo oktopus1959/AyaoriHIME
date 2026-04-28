@@ -234,7 +234,7 @@ namespace KanchokuWS.Handler
         {
             if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: bDecoderOn={bDecoderOn}");
             var effectiveInfo = keyInfoManager?.getEffectiveHoldShiftKeyInfoForDisplay(bDecoderOn);
-            if (effectiveInfo == null || !effectiveInfo.IsSystemModifier) {
+            if (effectiveInfo == null || !effectiveInfo.IsNoHelpModifier) {
                 var setting = effectiveInfo != null && effectiveInfo.IsGenericHoldShift ? Settings.GetHoldShiftKeySetting(effectiveInfo.Deckey) : null;
                 bool forceShow = setting?.ShowStrokeHelp == true;
                 int shiftPlane = forceShow ? setting.ShiftPlane : keyInfoManager?.getShiftPlane(bDecoderOn) ?? ShiftPlane.ShiftPlane_NONE;
@@ -267,7 +267,7 @@ namespace KanchokuWS.Handler
             public long PressedSerial = 0;
             public long ShiftedSerial = 0;
             public DateTime PrevUpDt = DateTime.MinValue;
-            public bool IsSystemModifier = false;
+            public bool IsNoHelpModifier = false;
 
             public string Name = "";
 
@@ -430,7 +430,7 @@ namespace KanchokuWS.Handler
                     }
                     info.Deckey = deckey;
                     info.Behavior = ExModiferKeyInfo.ExModKeyBehavior.GenericHoldShift;
-                    info.IsSystemModifier = CommonTableRuntime.IsSystemModifierDeckey(deckey);
+                    info.IsNoHelpModifier = CommonTableRuntime.IsNoHelpModifierDeckey(deckey);
                     newInfos[vkey] = info;
                 }
                 holdShiftKeyInfos = newInfos;

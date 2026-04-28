@@ -531,8 +531,8 @@ namespace KanchokuWS.Gui
 
         private void refreshModifierKeyComboBoxes(int selectedDeckey = -1)
         {
-            var defaultModifierDeckeys = CommonTableRuntime.DefaultModifierDeckeys();
-            var baseKeys = defaultModifierDeckeys
+            var presetHoldShiftDeckeys = CommonTableRuntime.PresetHoldShiftDeckeys();
+            var baseKeys = presetHoldShiftDeckeys
                 .Select(deckey => SpecialKeysAndFunctions.GetKeyOrFuncByDeckey(deckey))
                 .Where(x => x != null)
                 .ToList();
@@ -540,7 +540,7 @@ namespace KanchokuWS.Gui
                 .Where(x => x.DecKey >= 0)
                 .GroupBy(x => x.DecKey)
                 .Select(x => x.First())
-                .Where(x => !defaultModifierDeckeys.Contains(x.DecKey))
+                .Where(x => !presetHoldShiftDeckeys.Contains(x.DecKey))
                 .Where(x => CommonTableRuntime.GetHoldShiftDefinition(x.DecKey) != null)
                 .OrderBy(x => x.DecKey);
             visibleModifierKeys = baseKeys.Concat(holdShiftDefinedKeys).ToArray();
