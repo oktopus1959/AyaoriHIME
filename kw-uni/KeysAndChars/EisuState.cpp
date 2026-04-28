@@ -230,11 +230,6 @@ namespace {
             handleBS();
         }
 
-        // その他の特殊キー (常駐の履歴機能があればそれを呼び出す)
-        void handleSpecialKeys(int deckey) {
-            MERGER_HISTORY_RESIDENT_STATE->dispatchDeckey(deckey);
-        }
-
         // EisuModeのトグル - 処理のキャンセル
         void handleEisuMode() override {
             _LOG_DEBUGH(_T("CALLED: {}"), Name);
@@ -304,6 +299,11 @@ namespace {
         void handleMultiStreamCommit() override {
             _LOG_DEBUGH(_T("CALLED: {}"), Name);
             cancelMe();
+        }
+
+        // その他の特殊キーは無視する
+        void handleSpecialKeys(int /*deckey*/) {
+            _LOG_DEBUGH(_T("CALLED: {}: IGNORE"), Name,);
         }
 
         // モード標識文字を返す
