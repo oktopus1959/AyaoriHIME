@@ -566,6 +566,19 @@ namespace KanchokuWS.Handler
                 return effectiveInfo;
             }
 
+            public bool hasMultipleCommonTableHoldShiftsShifted(bool bDecoderOn)
+            {
+                refreshHoldShiftKeyInfos();
+                int count = holdShiftKeyInfos.Values.Count(x => x.Shifted && ShiftPlane.IsHoldShiftPlaneAssigned(x.Deckey, bDecoderOn));
+                foreach (var info in new[] { capsKeyInfo, alnumKeyInfo, nferKeyInfo, xferKeyInfo }) {
+                    var setting = Settings.GetHoldShiftKeySetting(info.Deckey);
+                    if (setting != null && info.Shifted && ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn)) {
+                        ++count;
+                    }
+                }
+                return count >= 2;
+            }
+
             public ExModiferKeyInfo getEffectiveHoldShiftKeyInfoForDisplay(bool bDecoderOn)
             {
                 refreshHoldShiftKeyInfos();
@@ -841,6 +854,10 @@ namespace KanchokuWS.Handler
         private bool? handleActiveHoldShiftBeforeNormalKey(uint vkey, bool bDecoderOn)
         {
             if (isSystemModifierVkey(vkey)) return null;
+            if (keyInfoManager.hasMultipleCommonTableHoldShiftsShifted(bDecoderOn)) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Multiple HoldShift shifted: ignore HoldShift precedence for vkey={vkey:x}H");
+                return null;
+            }
 
             var activeHoldShiftInfo = keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
             if (activeHoldShiftInfo == null) return null;
@@ -1148,8 +1165,8 @@ namespace KanchokuWS.Handler
 
                 // とりあえず、やっつけコード
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"vkey={vkey:x}H({vkey}), leftCtrl={leftCtrl}, rightCtrl={rightCtrl}, leftShift={leftShift}");
-                if (extraInfo == 0 && leftCtrl) bLCtrlShifted = true;    // 左ＣＴＲＬがＯＮのときに何かキーが押されたら左ＣＴＲＬをシフト状態にする
-                if (extraInfo == 0 && rightCtrl) bRCtrlShifted = true;   // 右ＣＴＲＬがＯＮのときに何かキーが押されたら右ＣＴＲＬをシフト状態にする
+                if (extraInfo == 0 && leftCtrl) bLCtrlShifted = true;    // 左CtrlがONのときに何かキーが押されたら左Ctrlをシフト状態にする
+                if (extraInfo == 0 && rightCtrl) bRCtrlShifted = true;   // 右CtrlがONのときに何かキーが押されたら右Ctrlをシフト状態にする
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"bLCtrlShifted={bLCtrlShifted}, bRCtrlShifted={bRCtrlShifted}");
 
                 if (extraInfo == 0 && isSystemModifierVkey(vkey)) {
@@ -1329,7 +1346,8 @@ namespace KanchokuWS.Handler
             bool alt = isAltKeyPressed();
             uint mod = KeyModifiers.MakeModifier(alt, ctrl, shift);
             uint modEx = keyInfoManager.getShiftedExModKey();
-            int holdShiftPlane = keyInfoManager.getShiftPlane(bDecoderOn);
+            bool suppressHoldShift = keyInfoManager.hasMultipleCommonTableHoldShiftsShifted(bDecoderOn) && !isSystemModifierVkey(vkey);
+            int holdShiftPlane = suppressHoldShift ? ShiftPlane.ShiftPlane_NONE : keyInfoManager.getShiftPlane(bDecoderOn);
 
             //int normalDecKey = VKeyComboRepository.GetDecKeyFromVKey(vkey);
             int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
@@ -1342,7 +1360,7 @@ namespace KanchokuWS.Handler
             // 漢直トグルでなく、VirtualKeyboard のミニバッファがActiveの場合は、システムに返す
             if (kanchokuCode < 0 && isVkbTopTextFocused()) return false;
 
-            var activeHoldShiftInfo = keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
+            var activeHoldShiftInfo = suppressHoldShift ? null : keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
             if (kanchokuCode < 0 &&
                 activeHoldShiftInfo != null &&
                 InputActionResolver.HasCommonTableHoldShiftDefinition(activeHoldShiftInfo.Deckey) &&

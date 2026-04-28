@@ -116,17 +116,17 @@ namespace KanchokuWS.Domain
     static class CommonTableRuntime
     {
         private static readonly Logger logger = Logger.GetLogger();
-        private static readonly int[] systemModifierDeckeys = new int[0];
-        //private static readonly int[] systemModifierDeckeys = new[] {
-        //    DecoderKeys.LEFT_CONTROL_DECKEY,
-        //    DecoderKeys.RIGHT_CONTROL_DECKEY,
-        //    DecoderKeys.LEFT_SHIFT_DECKEY,
-        //    DecoderKeys.RIGHT_SHIFT_DECKEY,
-        //    DecoderKeys.LEFT_ALT_DECKEY,
-        //    DecoderKeys.RIGHT_ALT_DECKEY,
-        //    DecoderKeys.LEFT_WIN_DECKEY,
-        //    DecoderKeys.RIGHT_WIN_DECKEY,
-        //};
+        private static readonly int[] systemModifierDeckeys = new[] {
+            DecoderKeys.LEFT_CONTROL_DECKEY,
+            DecoderKeys.RIGHT_CONTROL_DECKEY,
+            DecoderKeys.LEFT_SHIFT_DECKEY,
+            DecoderKeys.RIGHT_SHIFT_DECKEY,
+            DecoderKeys.LEFT_ALT_DECKEY,
+            DecoderKeys.RIGHT_ALT_DECKEY,
+            DecoderKeys.LEFT_WIN_DECKEY,
+            DecoderKeys.RIGHT_WIN_DECKEY,
+        };
+        private static readonly int[] defaultModifierDeckeys = new int[0];
         private static CommonTableDefinition currentDefinition = new CommonTableDefinition();
 
         private static CommonTableDefinition cloneDefinition(CommonTableDefinition definition)
@@ -214,7 +214,7 @@ namespace KanchokuWS.Domain
                 }
             }
 
-            RegisterSystemModifiersAsHoldShift();
+            RegisterDefaultModifiersAsHoldShift();
         }
 
         public static int[] SystemModifierDeckeys()
@@ -222,12 +222,17 @@ namespace KanchokuWS.Domain
             return systemModifierDeckeys;
         }
 
-        /// <summary>
-        /// L/R Ctrl, Shift, Alt, Win を常設 HoldShift として登録する。
-        /// </summary>
-        private static void RegisterSystemModifiersAsHoldShift()
+        public static int[] DefaultModifierDeckeys()
         {
-            foreach (int deckey in systemModifierDeckeys) {
+            return defaultModifierDeckeys;
+        }
+
+        /// <summary>
+        /// デフォルト modifier を常設 HoldShift として登録する。
+        /// </summary>
+        private static void RegisterDefaultModifiersAsHoldShift()
+        {
+            foreach (int deckey in defaultModifierDeckeys) {
                 Settings.SetHoldShiftKeySetting(deckey, ShiftPlane.ShiftPlane_SHIFT, true);
                 ShiftPlane.AssignHoldShiftPlane(deckey, ShiftPlane.ShiftPlane_SHIFT, ShiftPlane.ShiftPlane_SHIFT);
                 logger.Info(() => $"SystemModifier HoldShift registered: deckey={deckey}");
