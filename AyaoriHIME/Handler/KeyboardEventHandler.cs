@@ -234,10 +234,12 @@ namespace KanchokuWS.Handler
         {
             if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: bDecoderOn={bDecoderOn}");
             var effectiveInfo = keyInfoManager?.getEffectiveHoldShiftKeyInfoForDisplay(bDecoderOn);
-            var setting = effectiveInfo != null && effectiveInfo.IsGenericHoldShift ? Settings.GetHoldShiftKeySetting(effectiveInfo.Deckey) : null;
-            bool forceShow = setting?.ShowStrokeHelp == true;
-            int shiftPlane = forceShow ? setting.ShiftPlane : keyInfoManager?.getShiftPlane(bDecoderOn) ?? ShiftPlane.ShiftPlane_NONE;
-            frmKanchoku?.SetStrokeHelpShiftPlane(shiftPlane, forceShow);
+            if (effectiveInfo == null || !effectiveInfo.IsSystemModifier) {
+                var setting = effectiveInfo != null && effectiveInfo.IsGenericHoldShift ? Settings.GetHoldShiftKeySetting(effectiveInfo.Deckey) : null;
+                bool forceShow = setting?.ShowStrokeHelp == true;
+                int shiftPlane = forceShow ? setting.ShiftPlane : keyInfoManager?.getShiftPlane(bDecoderOn) ?? ShiftPlane.ShiftPlane_NONE;
+                frmKanchoku?.SetStrokeHelpShiftPlane(shiftPlane, forceShow);
+            }
         }
 
         /// <summary> 特殊キーの押下状態</summary>
@@ -265,6 +267,7 @@ namespace KanchokuWS.Handler
             public long PressedSerial = 0;
             public long ShiftedSerial = 0;
             public DateTime PrevUpDt = DateTime.MinValue;
+            public bool IsSystemModifier = false;
 
             public string Name = "";
 
@@ -427,6 +430,7 @@ namespace KanchokuWS.Handler
                     }
                     info.Deckey = deckey;
                     info.Behavior = ExModiferKeyInfo.ExModKeyBehavior.GenericHoldShift;
+                    info.IsSystemModifier = CommonTableRuntime.IsSystemModifierDeckey(deckey);
                     newInfos[vkey] = info;
                 }
                 holdShiftKeyInfos = newInfos;
@@ -674,14 +678,7 @@ namespace KanchokuWS.Handler
 
         private bool isSystemModifierDeckey(int deckey)
         {
-            return deckey == DecoderKeys.LEFT_CONTROL_DECKEY ||
-                deckey == DecoderKeys.RIGHT_CONTROL_DECKEY ||
-                deckey == DecoderKeys.LEFT_SHIFT_DECKEY ||
-                deckey == DecoderKeys.RIGHT_SHIFT_DECKEY ||
-                deckey == DecoderKeys.LEFT_ALT_DECKEY ||
-                deckey == DecoderKeys.RIGHT_ALT_DECKEY ||
-                deckey == DecoderKeys.LEFT_WIN_DECKEY ||
-                deckey == DecoderKeys.RIGHT_WIN_DECKEY;
+            return CommonTableRuntime.IsSystemModifierDeckey(deckey);
         }
 
         private bool isSystemModifierVkey(uint vkey)

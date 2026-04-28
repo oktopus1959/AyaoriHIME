@@ -222,6 +222,11 @@ namespace KanchokuWS.Domain
             return systemModifierDeckeys;
         }
 
+        public static bool IsSystemModifierDeckey(int deckey)
+        {
+            return systemModifierDeckeys.Contains(deckey);
+        }
+
         public static int[] DefaultModifierDeckeys()
         {
             return defaultModifierDeckeys;
