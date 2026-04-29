@@ -52,7 +52,8 @@ namespace KanchokuWS
             return internalSetValues._safeGet(key._toLower());
         }
 
-        public static IReadOnlyDictionary<int, HoldShiftKeySetting> HoldShiftKeySettings => holdShiftKeySettings;
+        /// <summary> テーブルファイルで定義された HoldShift キー設定 </summary>
+        public static IReadOnlyDictionary<int, HoldShiftKeySetting> TableDefinedHoldShiftKeySettings => holdShiftKeySettings;
 
         public static void ClearHoldShiftKeySettings()
         {

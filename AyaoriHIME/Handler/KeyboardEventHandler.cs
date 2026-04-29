@@ -403,10 +403,12 @@ namespace KanchokuWS.Handler
 
             private void refreshHoldShiftKeyInfos()
             {
+                logger.Info($"ENTER");
                 refreshSpecialCommonTableHoldShiftBehavior();
                 var newInfos = new Dictionary<uint, ExModiferKeyInfo>();
-                foreach (var pair in Settings.HoldShiftKeySettings) {
-                    int deckey = pair.Key;
+                var definedHoldShiftKeys = InputActionResolver.CopyCommonTableHoldShiftDeckeys();
+                definedHoldShiftKeys.UnionWith(Settings.TableDefinedHoldShiftKeySettings.Keys);;
+                foreach (var deckey in definedHoldShiftKeys) {
                     if (deckey != DecoderKeys.STROKE_SPACE_DECKEY &&
                         (deckey < DecoderKeys.FUNC_DECKEY_START || deckey >= DecoderKeys.FUNC_DECKEY_END)) continue;
                     if (deckey == DecoderKeys.CAPS_DECKEY || deckey == DecoderKeys.ALNUM_DECKEY ||
@@ -434,6 +436,7 @@ namespace KanchokuWS.Handler
                     newInfos[vkey] = info;
                 }
                 holdShiftKeyInfos = newInfos;
+                logger.Info($"LEAVE");
             }
 
             /// <summary> 拡張修飾キーからキー状態を得る</summary>

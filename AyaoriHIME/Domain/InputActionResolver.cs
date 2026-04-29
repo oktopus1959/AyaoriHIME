@@ -139,6 +139,11 @@ namespace KanchokuWS.Domain
             commonTableHoldShiftDeckeys = state?.CommonTableHoldShiftDeckeys != null ? new HashSet<int>(state.CommonTableHoldShiftDeckeys) : new HashSet<int>();
         }
 
+        public static HashSet<int> CopyCommonTableHoldShiftDeckeys()
+        {
+            return new HashSet<int>(commonTableHoldShiftDeckeys);
+        }
+
         /// <summary>
         /// commonTable 由来の単打/HoldShift 定義だけをクリアする。
         /// legacy 設定は残す。
