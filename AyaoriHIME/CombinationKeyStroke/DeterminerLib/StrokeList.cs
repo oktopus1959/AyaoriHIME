@@ -321,11 +321,13 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             var s = unprocList._getLast();
             if (s != null) {
                 if (s.IsSameKey(decKey)) {
+                    s.IsRepeatedHold = true;
                     return true;
                 }
             } else {
                 s = comboList._getLast();
                 if (s != null && s.IsSameKey(decKey)) {
+                    s.IsRepeatedHold = true;
                     return true;
                 }
             }
@@ -582,7 +584,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
             try {
                 bool bTempComboDisabled = IsTemporaryComboDisabled;
 
-                if (comboList._isEmpty() && unprocList.Count > 2 && unprocList[0].IsUpKey && unprocList[1].IsSpaceOrFuncComboShift) {
+                if (comboList._isEmpty() && unprocList.Count > 2 && unprocList[0].IsUpKey && !unprocList[0].IsRepeatedHold && unprocList[1].IsSpaceOrFuncComboShift) {
                     // "S SPC s X spc" または "S SPC s X x" のような状況。S を単打として出力する。
                     logger.InfoH(() => $"Output first Character stroke: {unprocList[0].OrigDecoderKey}");
                     result.Add(unprocList[0].HoldDecoderKey());
@@ -689,7 +691,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
                                 //if (unprocList[i].IsUpKey || !unprocList[i].IsSuccessiveShift)
                                 var s = unprocList[i];
                                 // 強制出力か文字を持つか単打可能か順次シフトキーの場合だけ、出力する
-                                if (bForceOutput || s.HasDecKeyList || s.HasStringOrSingleHittable || s.IsSequentialShift) {
+                                if (bForceOutput || (!s.IsRepeatedHold && (s.HasDecKeyList || s.HasStringOrSingleHittable || s.IsSequentialShift))) {
                                     result.Add(s.HoldDecoderKey());
                                     logger.InfoH(() => $"ADD: result={result._keyString()}");
                                 }

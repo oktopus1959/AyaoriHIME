@@ -234,7 +234,7 @@ namespace KanchokuWS.Handler
         {
             if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: bDecoderOn={bDecoderOn}");
             var effectiveInfo = keyInfoManager?.getEffectiveHoldShiftKeyInfoForDisplay(bDecoderOn);
-            if (effectiveInfo == null || !effectiveInfo.IsNoHelpModifier) {
+            if (effectiveInfo == null || !effectiveInfo.IsSystemModifier) {
                 var setting = effectiveInfo != null && effectiveInfo.IsGenericHoldShift ? Settings.GetHoldShiftKeySetting(effectiveInfo.Deckey) : null;
                 bool forceShow = setting?.ShowStrokeHelp == true;
                 int shiftPlane = forceShow ? setting.ShiftPlane : keyInfoManager?.getShiftPlane(bDecoderOn) ?? ShiftPlane.ShiftPlane_NONE;
@@ -267,7 +267,7 @@ namespace KanchokuWS.Handler
             public long PressedSerial = 0;
             public long ShiftedSerial = 0;
             public DateTime PrevUpDt = DateTime.MinValue;
-            public bool IsNoHelpModifier = false;
+            public bool IsSystemModifier = false;
 
             public string Name = "";
 
@@ -430,7 +430,7 @@ namespace KanchokuWS.Handler
                     }
                     info.Deckey = deckey;
                     info.Behavior = ExModiferKeyInfo.ExModKeyBehavior.GenericHoldShift;
-                    info.IsNoHelpModifier = CommonTableRuntime.IsNoHelpModifierDeckey(deckey);
+                    info.IsSystemModifier = CommonTableRuntime.IsSystemModifierDeckey(deckey);
                     newInfos[vkey] = info;
                 }
                 holdShiftKeyInfos = newInfos;
@@ -1046,7 +1046,7 @@ namespace KanchokuWS.Handler
         private const int KEY_REPEAT_INTERVAL = 500;
 
         /// <summary> 同時打鍵キーのリピート中か(仮想鍵盤に表示する打鍵ガイドを切り替えるのに使う) </summary>
-        private bool bComboKeyRepeat = false;
+        private bool bComboKeyRepeated = false;
         private uint prevComboVkey = 0;
 
         /// <summary>
@@ -1057,17 +1057,18 @@ namespace KanchokuWS.Handler
         void handleComboKeyRepeat(uint vkey, List<int> decKeys)
         {
             if (Settings.LoggingDecKeyInfo) {
-                logger.Info(() => $"CALLED: vkey={vkey}, prevComboVkey={prevComboVkey}, bComboKeyRepeat={bComboKeyRepeat}");
+                logger.Info(() => $"CALLED: vkey={vkey}, prevComboVkey={prevComboVkey}, bComboKeyRepeated={bComboKeyRepeated}");
             }
             if (prevComboVkey == vkey) {
                 // KeyRepeat
-                if (!bComboKeyRepeat) {
+                if (!bComboKeyRepeated) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SetNextStrokeHelpDecKey({decKeys._keyString()})");
                     frmKanchoku?.SetNextStrokeHelpDecKey(decKeys);
-                    bComboKeyRepeat = true;
+                    bComboKeyRepeated = true;
                 }
             } else {
                 prevComboVkey = vkey;
+                bComboKeyRepeated = false;
             }
         }
 
@@ -1079,17 +1080,17 @@ namespace KanchokuWS.Handler
         bool handleComboKeyRepeatStop(uint vkey)
         {
             if (Settings.LoggingDecKeyInfo) {
-                logger.Info(() => $"CALLED: vkey={vkey}, prevComboVkey={prevComboVkey}, bComboKeyRepeat={bComboKeyRepeat}");
+                logger.Info(() => $"CALLED: vkey={vkey}, prevComboVkey={prevComboVkey}, bComboKeyRepeated={bComboKeyRepeated}");
             }
             bool result = false;
             if (prevComboVkey == vkey) {
-                if (bComboKeyRepeat) {
+                if (bComboKeyRepeated) {
                     result = true;
-                    bComboKeyRepeat = false;
                     if (Settings.LoggingDecKeyInfo) logger.Info("SetNextStrokeHelpDecKey(null");
                     frmKanchoku?.SetNextStrokeHelpDecKey(null);
                 }
                 prevComboVkey = 0;
+                bComboKeyRepeated = false;
             }
             return result;
         }
@@ -1516,6 +1517,7 @@ namespace KanchokuWS.Handler
                 return false;
             }
 
+            bool bDecoderOn = isDecoderActivated();
             bool leftShift = (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0;
             bool leftCtrl = (GetAsyncKeyState(FuncVKeys.LCONTROL) & 0x8000) != 0;
             bool rightCtrl = (GetAsyncKeyState(FuncVKeys.RCONTROL) & 0x8000) != 0;
@@ -1534,6 +1536,14 @@ namespace KanchokuWS.Handler
 
             if (consumedHoldShiftTargetVkeys.Remove(vkey)) {
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: true; Suppress key up for consumed HoldShift target: vkey={vkey:x}H");
+                return true;
+            }
+
+            // 同時打鍵キーのオートリピートが終了したら打鍵ガイドを元に戻す
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CALL handleComboKeyRepeatStop");
+            if (handleComboKeyRepeatStop(vkey)) {
+                keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: true; handleComboKeyRepeatStop handled combo key repeat stop");
                 return true;
             }
 
@@ -1612,19 +1622,11 @@ namespace KanchokuWS.Handler
                 }
             }
 
-            // 同時打鍵キーのオートリピートが終了したら打鍵ガイドを元に戻す
-            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CALL handleComboKeyRepeatStop");
-            if (handleComboKeyRepeatStop(vkey)) {
-                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: true; handleComboKeyRepeatStop handled combo key repeat stop");
-                return true;
-            }
-
             if (!isEffectiveVkey(vkey, scanCode, flags, extraInfo, leftCtrl || rightCtrl)) {
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: result=False, not EffectiveVkey");
                 return false;
             }
 
-            bool bDecoderOn = isDecoderActivated();
             bool bAlt = isAltKeyPressed();
             bool bWin = isWinKeyPressed();
 

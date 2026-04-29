@@ -53,6 +53,9 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
         /// <summary>Tap Dnace によってシフト状態が移行済みか</summary>
         private bool isHoldByTapDance = false;
 
+        /// <summary>AutoRepeat によってホールド状態になったか</summary>
+        public bool IsRepeatedHold { get; set; }
+
         /// <summary>スペースキーまたは機能キーか</summary>
         public bool IsSpaceOrFunc => DecoderKeys.IsSpaceOrFuncKey(OrigDecoderKey);
 
