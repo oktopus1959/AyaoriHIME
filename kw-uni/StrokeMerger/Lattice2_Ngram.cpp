@@ -158,7 +158,7 @@ namespace lattice2 {
             LOG_INFOH(_T("DONE"));
         }
 
-        void saveSelectedNgramFile(StringRef ngramFile) {
+        void saveSelectedNgramFile(StringRef ngramFile, int genNum) {
             if (bUpdated) {
                 LOG_INFOH(_T("Selected Ngram updated. Saving to file..."));
                 auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
@@ -176,7 +176,7 @@ namespace lattice2 {
                     LOG_INFOH(_T("DONE"));
                 }
                 // pathTmp ファイルのサイズが pathTmp ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
-                utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, SETTINGS->backFileRotationGeneration);
+                utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, genNum);
             }
         }
 
@@ -605,7 +605,7 @@ namespace lattice2 {
         auto realtimeNgramPath = utils::joinPath(SETTINGS->rootDir, REALTIME_NGRAM_FILE);
         int backupGeneration = SETTINGS->useTmpRealtimeNgramFile ? 0 : SETTINGS->backFileRotationGeneration;
         NgramBridge::saveRealtimeDict(realtimeNgramPath, backupGeneration);
-        selectedNgramInstance.saveSelectedNgramFile(SELECTED_NGRAM_FILE);
+        selectedNgramInstance.saveSelectedNgramFile(SELECTED_NGRAM_FILE, backupGeneration);
 #endif
         LOG_SAVE_DICT(L"LEAVE: file={}", REALTIME_NGRAM_FILE);
     }
