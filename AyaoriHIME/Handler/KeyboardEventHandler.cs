@@ -100,7 +100,7 @@ namespace KanchokuWS.Handler
 
             setInvokeHandlerToDeterminer();
 
-            keyInfoManager = new ExModiferKeyInfoManager();
+            holdShiftStateManager = new FunctionKeyRuntimeStateManager();
 
             // キーボードイベントのディスパッチ開始
             installKeyboardHook();
@@ -111,7 +111,7 @@ namespace KanchokuWS.Handler
         /// <summary> 内部状態の再初期化</summary>
         public void Reinitialize()
         {
-            keyInfoManager.Reinitialize();
+            holdShiftStateManager.Reinitialize();
             leftShiftState.Reset();
             rightShiftState.Reset();
             activeNonShiftVkeys.Clear();
@@ -233,90 +233,74 @@ namespace KanchokuWS.Handler
         private void updateStrokeHelpHoldShiftPlane(bool bDecoderOn)
         {
             if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: bDecoderOn={bDecoderOn}");
-            var effectiveInfo = keyInfoManager?.getEffectiveHoldShiftKeyInfoForDisplay(bDecoderOn);
+            var effectiveInfo = holdShiftStateManager?.GetEffectiveHoldShiftStateForDisplay(bDecoderOn);
             if (effectiveInfo == null || !effectiveInfo.IsSystemModifier) {
-                var setting = effectiveInfo != null && effectiveInfo.IsGenericHoldShift ? Settings.GetHoldShiftKeySetting(effectiveInfo.Deckey) : null;
+                var setting = effectiveInfo != null ? Settings.GetHoldShiftKeySetting(effectiveInfo.Deckey) : null;
                 bool forceShow = setting?.ShowStrokeHelp == true;
-                int shiftPlane = forceShow ? setting.ShiftPlane : keyInfoManager?.getShiftPlane(bDecoderOn) ?? ShiftPlane.ShiftPlane_NONE;
+                int shiftPlane = forceShow ? setting.ShiftPlane : holdShiftStateManager?.GetShiftPlane(bDecoderOn) ?? ShiftPlane.ShiftPlane_NONE;
                 frmKanchoku?.SetStrokeHelpShiftPlane(shiftPlane, forceShow);
             }
         }
 
-        /// <summary> 特殊キーの押下状態</summary>
-        class ExModiferKeyInfo {
-            public enum ExModKeyBehavior
-            {
-                Default,
-                GenericHoldShift,
-            }
+        enum RuntimeKeyState
+        {
+            RELEASED,
+            PRESSED,
+            SHIFTED,
+            REPEATED,
+        }
 
-            /// <summary> 特殊キーの押下状態</summary>
-            public enum ExModKeyState
-            {
-                RELEASED,
-                PRESSED,
-                SHIFTED,
-                REPEATED,
-            }
-
-            public uint Vkey = 0;
-            public int Deckey = 0;
-            public uint ModFlag = 0;
-            public ExModKeyState KeyState = ExModKeyState.RELEASED;
-            public ExModKeyBehavior Behavior = ExModKeyBehavior.Default;
-            public long PressedSerial = 0;
-            public long ShiftedSerial = 0;
+        // function deckey に対応するキーの統合ランタイム状態。
+        // 旧来の拡張修飾キーと HoldShift を同じ型で扱い、役割は設定から都度判定する。
+        class FunctionKeyRuntimeState
+        {
+            public uint Vkey;
+            public int Deckey;
+            public uint ModFlag;
+            public RuntimeKeyState KeyState = RuntimeKeyState.RELEASED;
+            public long PressedSerial;
+            public long ShiftedSerial;
             public DateTime PrevUpDt = DateTime.MinValue;
-            public bool IsSystemModifier = false;
-
             public string Name = "";
+            public bool IsSystemModifier;
+            public bool IsHoldShiftKey;
 
-            public bool Released { get { return KeyState == ExModKeyState.RELEASED; } }
-            public bool Pressed { get { return KeyState == ExModKeyState.PRESSED; } }
-            public bool Shifted { get { return KeyState == ExModKeyState.SHIFTED; } }
-            public bool Repeated { get { return KeyState == ExModKeyState.REPEATED; } }
-            public bool IsGenericHoldShift { get { return Behavior == ExModKeyBehavior.GenericHoldShift; } }
-            public bool IsHoldShift { get { return IsGenericHoldShift; } }
+            private bool? bShiftPlaneAssignedOn;
+            private bool? bShiftPlaneAssignedOff;
+            private static long serialSeed;
 
-            private static long shiftedSerialSeed = 0;
+            public bool Released { get { return KeyState == RuntimeKeyState.RELEASED; } }
+            public bool Pressed { get { return KeyState == RuntimeKeyState.PRESSED; } }
+            public bool Shifted { get { return KeyState == RuntimeKeyState.SHIFTED; } }
+            public bool Repeated { get { return KeyState == RuntimeKeyState.REPEATED; } }
+            public bool HasModifierRole { get { return ModFlag != 0; } }
 
-            public static bool IsReleased(ExModKeyState state) { return state == ExModKeyState.RELEASED; }
-            public static bool IsPressed(ExModKeyState state) { return state == ExModKeyState.PRESSED; }
-            public static bool IsShifted(ExModKeyState state) { return state == ExModKeyState.SHIFTED; }
-            public static bool IsRepeated(ExModKeyState state) { return state == ExModKeyState.REPEATED; }
-
-            public void SetReleased() {
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set RELEASED");
-                KeyState = ExModKeyState.RELEASED;
-            }
-            public void SetPressed() {
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set PRESSED");
-                KeyState = ExModKeyState.PRESSED;
-                PressedSerial = Interlocked.Increment(ref shiftedSerialSeed);
-            }
-            public void SetShifted() {
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set SHIFTED");
-                KeyState = ExModKeyState.SHIFTED;
-                ShiftedSerial = Interlocked.Increment(ref shiftedSerialSeed);
-            }
-            public void SetRepeated() {
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set REPEATED");
-                KeyState = ExModKeyState.REPEATED;
-            }
-
-            /// <summary> シフト単打が有効か</summary>
-            public bool IsSingleShiftHitEffecive(bool bCtrl)
+            public void SetReleased()
             {
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Vkey={Vkey}, Deckey={Deckey}, bCtrl={bCtrl}, ActiveKey={Settings.ActiveKey}, ActiveKeyWithCtrl={Settings.ActiveKeyWithCtrl}, IsExModKeyIndexAssignedForDecoderFunc={ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(Deckey)}");
-                bool bEffective = (Settings.ActiveKey == Vkey && (!bCtrl || Settings.ActiveKeyWithCtrl != Vkey)) || ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(Deckey);
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:IsSingleShiftHitEffecive={bEffective}");
-                return bEffective;
+                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set RELEASED");
+                KeyState = RuntimeKeyState.RELEASED;
             }
 
-            private bool? bShiftPlaneAssignedOn = null;
-            private bool? bShiftPlaneAssignedOff = null;
+            public void SetPressed()
+            {
+                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set PRESSED");
+                KeyState = RuntimeKeyState.PRESSED;
+                PressedSerial = Interlocked.Increment(ref serialSeed);
+            }
 
-            /// <summary> 拡張シフト面が定義されているか</summary>
+            public void SetShifted()
+            {
+                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set SHIFTED");
+                KeyState = RuntimeKeyState.SHIFTED;
+                ShiftedSerial = Interlocked.Increment(ref serialSeed);
+            }
+
+            public void SetRepeated()
+            {
+                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set REPEATED");
+                KeyState = RuntimeKeyState.REPEATED;
+            }
+
             public bool IsShiftPlaneAssigned(bool bDecoderOn)
             {
                 return bDecoderOn ? isShiftPlaneAssignedOn() : isShiftPlaneAssignedOff();
@@ -324,28 +308,22 @@ namespace KanchokuWS.Handler
 
             private bool isShiftPlaneAssignedOn()
             {
-                if (bShiftPlaneAssignedOn == null) {
-                    bShiftPlaneAssignedOn = ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(ModFlag, true);
-                }
+                if (bShiftPlaneAssignedOn == null) bShiftPlaneAssignedOn = ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(ModFlag, true);
                 if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:decoderOn=True: IsShiftPlaneAssigned={bShiftPlaneAssignedOn}");
                 return bShiftPlaneAssignedOn.Value;
             }
 
             private bool isShiftPlaneAssignedOff()
             {
-                if (bShiftPlaneAssignedOff == null) {
-                    bShiftPlaneAssignedOff = ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(ModFlag, false);
-                }
+                if (bShiftPlaneAssignedOff == null) bShiftPlaneAssignedOff = ShiftPlane.IsShiftPlaneAssignedForShiftModFlag(ModFlag, false);
                 if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:decoderOn=False: IsShiftPlaneAssigned={bShiftPlaneAssignedOff}");
                 return bShiftPlaneAssignedOff.Value;
             }
 
-            /// <summary> 内部状態の再初期化</summary>
-            public void Reinitialize(uint vkey)
+            public void Reinitialize()
             {
-                logger.Info(() => $"ENTER: {Name}, vkey={vkey}");
-                Vkey = vkey;
-                KeyState = ExModKeyState.RELEASED;
+                logger.Info(() => $"ENTER: {Name}, vkey={Vkey}");
+                KeyState = RuntimeKeyState.RELEASED;
                 PressedSerial = 0;
                 ShiftedSerial = 0;
                 PrevUpDt = DateTime.MinValue;
@@ -354,203 +332,154 @@ namespace KanchokuWS.Handler
             }
         }
 
-        /// <summary> 特殊キーの押下状態の管理クラス</summary>
-        class ExModiferKeyInfoManager
+        /// <summary>
+        /// HoldShift 定義は設定再読込や commonTable 更新で変わるため、
+        /// 参照のたびに現行設定から対象一覧を引き直す。
+        /// </summary>
+        class FunctionKeyRuntimeStateManager
         {
-            /// <summary> CapsLockキーの押下状態</summary>
-            private ExModiferKeyInfo capsKeyInfo = new ExModiferKeyInfo() { Vkey = FuncVKeys.CAPSLOCK, Deckey = DecoderKeys.CAPS_DECKEY, ModFlag = KeyModifiers.MOD_CAPS, Name = "CapsLock" };
+            private static readonly (uint vkey, int deckey, uint modFlag, string name)[] modifierKeyDefs = new[] {
+                (FuncVKeys.CAPSLOCK, DecoderKeys.CAPS_DECKEY, KeyModifiers.MOD_CAPS, "CapsLock"),
+                (FuncVKeys.EISU, DecoderKeys.ALNUM_DECKEY, KeyModifiers.MOD_ALNUM, "AlpahNum"),
+                (FuncVKeys.MUHENKAN, DecoderKeys.NFER_DECKEY, KeyModifiers.MOD_NFER, "Nfer"),
+                (FuncVKeys.HENKAN, DecoderKeys.XFER_DECKEY, KeyModifiers.MOD_XFER, "Xfer"),
+            };
 
-            /// <summary> 英数キーの押下状態</summary>
-            private ExModiferKeyInfo alnumKeyInfo = new ExModiferKeyInfo() { Vkey = FuncVKeys.EISU, Deckey = DecoderKeys.ALNUM_DECKEY, ModFlag = KeyModifiers.MOD_ALNUM, Name = "AlpahNum" };
-
-            /// <summary> 無変換キーの押下状態</summary>
-            private ExModiferKeyInfo nferKeyInfo = new ExModiferKeyInfo() { Vkey = FuncVKeys.MUHENKAN, Deckey = DecoderKeys.NFER_DECKEY, ModFlag = KeyModifiers.MOD_NFER, Name = "Nfer" };
-
-            /// <summary> 変換キーの押下状態</summary>
-            private ExModiferKeyInfo xferKeyInfo = new ExModiferKeyInfo() { Vkey = FuncVKeys.HENKAN, Deckey = DecoderKeys.XFER_DECKEY, ModFlag = KeyModifiers.MOD_XFER, Name = "Xfer" };
-
-            /// <summary> その他キーの押下状態</summary>
-            private ExModiferKeyInfo otherKeyState = new ExModiferKeyInfo() { Name = "Other" };
-
-            /// <summary>
-            /// ホールドシフトキーの押下状態の辞書。キーはVKEY。DecoderKeys.STROKE_SPACE_DECKEYやDecoderKeys.FUNC_DECKEY_START以上のDeckeyに対応するVKEYが入る。
-            /// </summary>
-            private Dictionary<uint, ExModiferKeyInfo> holdShiftKeyInfos = new Dictionary<uint, ExModiferKeyInfo>();
+            private Dictionary<uint, FunctionKeyRuntimeState> functionKeyStates = new Dictionary<uint, FunctionKeyRuntimeState>();
 
             public void Reinitialize()
             {
                 logger.Info($"ENTER");
-                capsKeyInfo.Reinitialize(FuncVKeys.CAPSLOCK);
-                alnumKeyInfo.Reinitialize(FuncVKeys.EISU);
-                nferKeyInfo.Reinitialize(FuncVKeys.MUHENKAN);
-                xferKeyInfo.Reinitialize(FuncVKeys.HENKAN);
-                capsKeyInfo.Behavior = ExModiferKeyInfo.ExModKeyBehavior.Default;
-                alnumKeyInfo.Behavior = ExModiferKeyInfo.ExModKeyBehavior.Default;
-                nferKeyInfo.Behavior = ExModiferKeyInfo.ExModKeyBehavior.Default;
-                xferKeyInfo.Behavior = ExModiferKeyInfo.ExModKeyBehavior.Default;
-                otherKeyState.Reinitialize(0);
-                holdShiftKeyInfos = new Dictionary<uint, ExModiferKeyInfo>();
+                functionKeyStates = new Dictionary<uint, FunctionKeyRuntimeState>();
             }
 
-            private void refreshSpecialCommonTableHoldShiftBehavior()
-            {
-                foreach (var info in new[] { capsKeyInfo, alnumKeyInfo, nferKeyInfo, xferKeyInfo }) {
-                    info.Behavior = Settings.GetHoldShiftKeySetting(info.Deckey) != null
-                        ? ExModiferKeyInfo.ExModKeyBehavior.GenericHoldShift
-                        : ExModiferKeyInfo.ExModKeyBehavior.Default;
-                }
-            }
-
-            private void refreshHoldShiftKeyInfos()
+            private void RefreshFunctionKeyStates()
             {
                 logger.Info($"ENTER");
-                refreshSpecialCommonTableHoldShiftBehavior();
-                var newInfos = new Dictionary<uint, ExModiferKeyInfo>();
-                var definedHoldShiftKeys = InputActionResolver.CopyCommonTableHoldShiftDeckeys();
-                definedHoldShiftKeys.UnionWith(Settings.TableDefinedHoldShiftKeySettings.Keys);;
-                foreach (var deckey in definedHoldShiftKeys) {
-                    if (deckey != DecoderKeys.STROKE_SPACE_DECKEY &&
-                        (deckey < DecoderKeys.FUNC_DECKEY_START || deckey >= DecoderKeys.FUNC_DECKEY_END)) continue;
-                    if (deckey == DecoderKeys.CAPS_DECKEY || deckey == DecoderKeys.ALNUM_DECKEY ||
-                        deckey == DecoderKeys.NFER_DECKEY || deckey == DecoderKeys.XFER_DECKEY) {
-                        continue;
-                    }
-
-                    uint vkey = DecoderKeyVsVKey.GetVKeyFromDecKey(deckey);
-                    if (vkey == 0) continue;
-
-                    ExModiferKeyInfo info = holdShiftKeyInfos._safeGet(vkey);
-                    if (info == null) {
-                        info = new ExModiferKeyInfo() {
-                            Vkey = vkey,
-                            Deckey = deckey,
-                            Name = deckey == DecoderKeys.STROKE_SPACE_DECKEY ? "Space" : $"HoldShift({deckey})",
-                            Behavior = ExModiferKeyInfo.ExModKeyBehavior.GenericHoldShift
-                        };
-                    } else {
-                        info.Vkey = vkey;
-                    }
-                    info.Deckey = deckey;
-                    info.Behavior = ExModiferKeyInfo.ExModKeyBehavior.GenericHoldShift;
-                    info.IsSystemModifier = CommonTableRuntime.IsSystemModifierDeckey(deckey);
-                    newInfos[vkey] = info;
+                var newInfos = new Dictionary<uint, FunctionKeyRuntimeState>();
+                foreach (var def in modifierKeyDefs) {
+                    var info = functionKeyStates._safeGet(def.vkey) ?? new FunctionKeyRuntimeState() {
+                        Vkey = def.vkey,
+                        Deckey = def.deckey,
+                        ModFlag = def.modFlag,
+                        Name = def.name,
+                    };
+                    info.Vkey = def.vkey;
+                    info.Deckey = def.deckey;
+                    info.ModFlag = def.modFlag;
+                    info.Name = def.name;
+                    info.IsSystemModifier = false;
+                    info.IsHoldShiftKey = false;
+                    newInfos[def.vkey] = info;
                 }
-                holdShiftKeyInfos = newInfos;
+
+                var definedHoldShiftKeys = InputActionResolver.CopyCommonTableHoldShiftDeckeys();
+                definedHoldShiftKeys.UnionWith(Settings.TableDefinedHoldShiftKeySettings.Keys);
+                foreach (var deckey in definedHoldShiftKeys) {
+                    if (deckey == DecoderKeys.STROKE_SPACE_DECKEY ||
+                        (deckey >= DecoderKeys.FUNC_DECKEY_START && deckey < DecoderKeys.FUNC_DECKEY_END)) {
+
+                        uint vkey = DecoderKeyVsVKey.GetVKeyFromDecKey(deckey);
+                        if (vkey != 0) {
+                            FunctionKeyRuntimeState info = newInfos._safeGet(vkey) ?? functionKeyStates._safeGet(vkey);
+                            if (info == null) {
+                                info = new FunctionKeyRuntimeState() {
+                                    Vkey = vkey,
+                                    Deckey = deckey,
+                                    ModFlag = 0,
+                                    Name = deckey == DecoderKeys.STROKE_SPACE_DECKEY ? "Space" : $"HoldShift({deckey}={DecoderKeys.GetDeckeyNameFromId(deckey)})",
+                                };
+                            }
+                            info.Vkey = vkey;
+                            info.Deckey = deckey;
+                            info.IsSystemModifier = CommonTableRuntime.IsSystemModifierDeckey(deckey);
+                            info.IsHoldShiftKey = true;
+                            newInfos[vkey] = info;
+                        }
+                    }
+                }
+                functionKeyStates = newInfos;
                 logger.Info($"LEAVE");
             }
 
-            /// <summary> 拡張修飾キーからキー状態を得る</summary>
-            public ExModiferKeyInfo getModiferKeyInfoByVkey(uint vkey)
+            public FunctionKeyRuntimeState GetStateByVkey(uint vkey)
             {
-                if (Settings.LoggingDecKeyInfo) { logger.Info($"CALLED: vkey={vkey}, nfer.Vkey={nferKeyInfo.Vkey}, xfer.Vkey={xferKeyInfo.Vkey}"); }
-                refreshHoldShiftKeyInfos();
-
-                if (vkey == capsKeyInfo.Vkey) return capsKeyInfo;
-                if (vkey == alnumKeyInfo.Vkey) return alnumKeyInfo;
-                if (vkey == nferKeyInfo.Vkey) return nferKeyInfo;
-                if (vkey == xferKeyInfo.Vkey) return xferKeyInfo;
-                var holdShiftInfo = holdShiftKeyInfos._safeGet(vkey);
-                if (holdShiftInfo != null) return holdShiftInfo;
-
-                if (Settings.LoggingDecKeyInfo) { logger.Info($"LEAVE: no result"); }
+                RefreshFunctionKeyStates();
+                var keyInfo = functionKeyStates._safeGet(vkey);
+                if (keyInfo != null) return keyInfo;
+                if (Settings.LoggingDecKeyInfo) logger.Info($"LEAVE: no result");
                 return null;
             }
 
-            /// <summary> 拡張修飾キーの修飾フラグを得る</summary>
-            public uint getModFlagForExModVkey(uint vkey)
+            public uint GetModFlagForVkey(uint vkey)
             {
-                if (Settings.LoggingDecKeyInfo) { logger.Info($"CALLED: vkey={vkey}, MUHENKAN={FuncVKeys.MUHENKAN}, HENKAN={FuncVKeys.HENKAN}"); }
-
-                if (vkey == FuncVKeys.CAPSLOCK) return KeyModifiers.MOD_CAPS;
-                if (vkey == FuncVKeys.EISU) return KeyModifiers.MOD_ALNUM;
-                if (vkey == FuncVKeys.MUHENKAN) return KeyModifiers.MOD_NFER;
-                if (vkey == FuncVKeys.HENKAN) return KeyModifiers.MOD_XFER;
-                return 0;
+                return GetStateByVkey(vkey)?.ModFlag ?? 0;
             }
 
-            /// <summary> 拡張修飾キーの修飾フラグからキー状態を得る</summary>
-            public ExModiferKeyInfo getModiferKeyInfoByModFlag(uint modFlag)
+            public uint GetShiftedModifierFlag()
             {
-                if (modFlag == KeyModifiers.MOD_CAPS) return capsKeyInfo;
-                if (modFlag == KeyModifiers.MOD_ALNUM) return alnumKeyInfo;
-                if (modFlag == KeyModifiers.MOD_NFER) return nferKeyInfo;
-                if (modFlag == KeyModifiers.MOD_XFER) return xferKeyInfo;
-                return otherKeyState;
-            }
-
-            /// <summary> SHIFT状態にある拡張修飾キーの修飾フラグを得る</summary>
-            public uint getShiftedExModKey()
-            {
-                refreshHoldShiftKeyInfos();
-                if (capsKeyInfo.Shifted) return KeyModifiers.MOD_CAPS;
-                if (alnumKeyInfo.Shifted) return KeyModifiers.MOD_ALNUM;
-                if (nferKeyInfo.Shifted) return KeyModifiers.MOD_NFER;
-                if (xferKeyInfo.Shifted) return KeyModifiers.MOD_XFER;
-                return 0;
-            }
-
-            /// <summary> 拡張修飾キーの押下またシフト状態を得る</summary>
-            public uint getPressedOrShiftedExModFlag()
-            {
-                refreshHoldShiftKeyInfos();
-                if (capsKeyInfo.Pressed || capsKeyInfo.Shifted) return KeyModifiers.MOD_CAPS;
-                if (alnumKeyInfo.Pressed || alnumKeyInfo.Shifted) return KeyModifiers.MOD_ALNUM;
-                if (nferKeyInfo.Pressed || nferKeyInfo.Shifted) return KeyModifiers.MOD_NFER;
-                if (xferKeyInfo.Pressed || xferKeyInfo.Shifted) return KeyModifiers.MOD_XFER;
-                return 0;
-            }
-
-            /// <summary>すでに押下状態にある拡張修飾キーをSHIFT状態に遷移させる</summary>
-            public void makeExModKeyShifted(bool bDecoderOn)
-            {
-                refreshHoldShiftKeyInfos();
-                bool shouldShiftForCommonHoldShift(ExModiferKeyInfo info)
-                {
-                    return info.IsGenericHoldShift && ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn);
+                RefreshFunctionKeyStates();
+                foreach (var info in functionKeyStates.Values.Where(x => x.HasModifierRole && x.Shifted).OrderBy(x => x.ShiftedSerial)) {
+                    return info.ModFlag;
                 }
+                return 0;
+            }
 
-                if (capsKeyInfo.Pressed && (capsKeyInfo.IsShiftPlaneAssigned(bDecoderOn) || shouldShiftForCommonHoldShift(capsKeyInfo))) capsKeyInfo.SetShifted();
-                if (alnumKeyInfo.Pressed && (alnumKeyInfo.IsShiftPlaneAssigned(bDecoderOn) || shouldShiftForCommonHoldShift(alnumKeyInfo))) alnumKeyInfo.SetShifted();
-                if (nferKeyInfo.Pressed && (nferKeyInfo.IsShiftPlaneAssigned(bDecoderOn) || shouldShiftForCommonHoldShift(nferKeyInfo))) nferKeyInfo.SetShifted();
-                if (xferKeyInfo.Pressed && (xferKeyInfo.IsShiftPlaneAssigned(bDecoderOn) || shouldShiftForCommonHoldShift(xferKeyInfo))) xferKeyInfo.SetShifted();
-                foreach (var info in holdShiftKeyInfos.Values.Where(x => x.Pressed).OrderBy(x => x.PressedSerial)) {
-                    info.SetShifted();
+            public uint GetPressedOrShiftedModifierFlag()
+            {
+                RefreshFunctionKeyStates();
+                foreach (var info in functionKeyStates.Values.Where(x => x.HasModifierRole && (x.Pressed || x.Shifted)).OrderBy(x => x.PressedSerial)) {
+                    return info.ModFlag;
+                }
+                return 0;
+            }
+
+            public bool IsSingleShiftHitEffective(FunctionKeyRuntimeState info, bool bCtrl)
+            {
+                if (info == null || !info.HasModifierRole) return false;
+                if (Settings.LoggingDecKeyInfo) logger.Info($"{info.Name}:Vkey={info.Vkey}, Deckey={info.Deckey}, bCtrl={bCtrl}, ActiveKey={Settings.ActiveKey}, ActiveKeyWithCtrl={Settings.ActiveKeyWithCtrl}, IsExModKeyIndexAssignedForDecoderFunc={ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(info.Deckey)}");
+                bool bEffective = (Settings.ActiveKey == info.Vkey && (!bCtrl || Settings.ActiveKeyWithCtrl != info.Vkey)) || ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(info.Deckey);
+                if (Settings.LoggingDecKeyInfo) logger.Info($"{info.Name}:IsSingleShiftHitEffecive={bEffective}");
+                return bEffective;
+            }
+
+            public void MakeModifierAndHoldShiftShifted(bool bDecoderOn)
+            {
+                RefreshFunctionKeyStates();
+                foreach (var info in functionKeyStates.Values.Where(x => x.Pressed).OrderBy(x => x.PressedSerial)) {
+                    if (info.IsHoldShiftKey || (info.HasModifierRole && info.IsShiftPlaneAssigned(bDecoderOn))) {
+                        info.SetShifted();
+                    }
                 }
             }
 
-            public int getShiftPlane(bool bDecoderOn)
+            public int GetShiftPlane(bool bDecoderOn)
             {
-                refreshHoldShiftKeyInfos();
-                var holdShiftInfo = getEffectiveHoldShiftKeyInfo(bDecoderOn);
+                RefreshFunctionKeyStates();
+                var holdShiftInfo = GetEffectiveHoldShiftState(bDecoderOn);
                 if (holdShiftInfo != null) {
                     int holdShiftPlane = ShiftPlane.GetHoldShiftPlane(holdShiftInfo.Deckey, bDecoderOn);
                     if (holdShiftPlane != ShiftPlane.ShiftPlane_NONE) return holdShiftPlane;
                 }
-                if (capsKeyInfo.Shifted) return ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_CAPS, bDecoderOn);
-                if (alnumKeyInfo.Shifted) return ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_ALNUM, bDecoderOn);
-                if (nferKeyInfo.Shifted) return ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_NFER, bDecoderOn);
-                if (xferKeyInfo.Shifted) return ShiftPlane.GetShiftPlaneFromShiftModFlag(KeyModifiers.MOD_XFER, bDecoderOn);
+                foreach (var info in functionKeyStates.Values.Where(x => x.HasModifierRole && x.Shifted).OrderByDescending(x => x.ShiftedSerial)) {
+                    int shiftPlane = ShiftPlane.GetShiftPlaneFromShiftModFlag(info.ModFlag, bDecoderOn);
+                    if (shiftPlane != ShiftPlane.ShiftPlane_NONE) return shiftPlane;
+                }
                 return ShiftPlane.ShiftPlane_NONE;
             }
 
-            public bool isGenericHoldShiftShifted()
+            public bool IsHoldShiftPressedOrShifted()
             {
-                refreshHoldShiftKeyInfos();
-                return holdShiftKeyInfos.Values.Any(x => x.Shifted);
+                RefreshFunctionKeyStates();
+                return functionKeyStates.Values.Any(x => x.IsHoldShiftKey && (x.Pressed || x.Shifted));
             }
 
-            public bool isGenericHoldShiftPressedOrShifted()
+            public FunctionKeyRuntimeState GetEffectiveHoldShiftState(bool bDecoderOn)
             {
-                refreshHoldShiftKeyInfos();
-                return holdShiftKeyInfos.Values.Any(x => x.Pressed || x.Shifted);
-            }
-
-            public ExModiferKeyInfo getEffectiveHoldShiftKeyInfo(bool bDecoderOn)
-            {
-                refreshHoldShiftKeyInfos();
-                ExModiferKeyInfo effectiveInfo = null;
-                foreach (var info in holdShiftKeyInfos.Values) {
-                    if (info.Shifted && ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn)) {
+                RefreshFunctionKeyStates();
+                FunctionKeyRuntimeState effectiveInfo = null;
+                foreach (var info in functionKeyStates.Values) {
+                    if (info.IsHoldShiftKey && info.Shifted && ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn)) {
                         if (effectiveInfo == null || info.ShiftedSerial > effectiveInfo.ShiftedSerial) {
                             effectiveInfo = info;
                         }
@@ -559,40 +488,26 @@ namespace KanchokuWS.Handler
                 return effectiveInfo;
             }
 
-            public ExModiferKeyInfo getEffectiveCommonTableHoldShiftKeyInfo(bool bDecoderOn)
+            public FunctionKeyRuntimeState GetEffectiveCommonTableHoldShiftState(bool bDecoderOn)
             {
-                refreshHoldShiftKeyInfos();
-                ExModiferKeyInfo effectiveInfo = getEffectiveHoldShiftKeyInfo(bDecoderOn);
-                foreach (var info in new[] { capsKeyInfo, alnumKeyInfo, nferKeyInfo, xferKeyInfo }) {
-                    var setting = Settings.GetHoldShiftKeySetting(info.Deckey);
-                    if (setting == null || !info.Shifted || !ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn)) continue;
-                    if (effectiveInfo == null || info.ShiftedSerial > effectiveInfo.ShiftedSerial) {
-                        effectiveInfo = info;
-                    }
-                }
-                return effectiveInfo;
+                RefreshFunctionKeyStates();
+                var effectiveInfo = GetEffectiveHoldShiftState(bDecoderOn);
+                return effectiveInfo != null && InputActionResolver.HasCommonTableHoldShiftDefinition(effectiveInfo.Deckey) ? effectiveInfo : null;
             }
 
-            public bool hasMultipleCommonTableHoldShiftsShifted(bool bDecoderOn)
+            public bool HasMultipleCommonTableHoldShiftsShifted(bool bDecoderOn)
             {
-                refreshHoldShiftKeyInfos();
-                int count = holdShiftKeyInfos.Values.Count(x => x.Shifted && ShiftPlane.IsHoldShiftPlaneAssigned(x.Deckey, bDecoderOn));
-                foreach (var info in new[] { capsKeyInfo, alnumKeyInfo, nferKeyInfo, xferKeyInfo }) {
-                    var setting = Settings.GetHoldShiftKeySetting(info.Deckey);
-                    if (setting != null && info.Shifted && ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn)) {
-                        ++count;
-                    }
-                }
-                return count >= 2;
+                RefreshFunctionKeyStates();
+                return functionKeyStates.Values.Count(x => x.IsHoldShiftKey && x.Shifted && ShiftPlane.IsHoldShiftPlaneAssigned(x.Deckey, bDecoderOn)) >= 2;
             }
 
-            public ExModiferKeyInfo getEffectiveHoldShiftKeyInfoForDisplay(bool bDecoderOn)
+            public FunctionKeyRuntimeState GetEffectiveHoldShiftStateForDisplay(bool bDecoderOn)
             {
-                refreshHoldShiftKeyInfos();
-                ExModiferKeyInfo effectiveInfo = null;
-                foreach (var info in holdShiftKeyInfos.Values) {
+                RefreshFunctionKeyStates();
+                FunctionKeyRuntimeState effectiveInfo = null;
+                foreach (var info in functionKeyStates.Values) {
                     var setting = Settings.GetHoldShiftKeySetting(info.Deckey);
-                    if (info.Shifted && (ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn) || setting?.ShowStrokeHelp == true)) {
+                    if (info.IsHoldShiftKey && info.Shifted && (ShiftPlane.IsHoldShiftPlaneAssigned(info.Deckey, bDecoderOn) || setting?.ShowStrokeHelp == true)) {
                         if (effectiveInfo == null || info.ShiftedSerial > effectiveInfo.ShiftedSerial) {
                             effectiveInfo = info;
                         }
@@ -604,18 +519,17 @@ namespace KanchokuWS.Handler
             public string modifiersStateStr()
             {
                 return Logger.IsInfoEnabled
-                    ? $"capsKeyState={capsKeyInfo.KeyState}"
-                    + $"\nalnumKeyState={alnumKeyInfo.KeyState}"
-                    + $"\nnferKeyState={nferKeyInfo.KeyState}"
-                    + $"\nxferKeyState={xferKeyInfo.KeyState}"
-                    + $"\nholdShiftKeys={holdShiftKeyInfos.Values.Select(x => $"{x.Name}:{x.KeyState}")._join(",")}\n"
+                    ? $"functionKeys={functionKeyStates.Values.Select(x => $"{x.Name}:{x.KeyState}")._join(", ")}\n"
                     : "";
             }
-
         }
 
-        /// <summary> 拡張修飾キーの押下状態の管理オブジェクト</summary>
-        ExModiferKeyInfoManager keyInfoManager = null;
+        FunctionKeyRuntimeStateManager holdShiftStateManager = null;
+
+        private string modifierAndHoldShiftStateStr()
+        {
+            return holdShiftStateManager?.modifiersStateStr() ?? "";
+        }
 
         private void sendOriginalVkey(uint vkey)
         {
@@ -731,13 +645,14 @@ namespace KanchokuWS.Handler
             return InputActionResolver.TryResolveSingleHit(deckey, bDecoderOn, out var action) && invokeResolvedAction(action, deckey, bDecoderOn);
         }
 
-        private bool tryBeginPendingCommonSingleHit(uint vkey, int deckey, ExModiferKeyInfo keyInfo, bool bCtrl, bool bShift, bool bAlt, bool bWin, uint modPressedOrShifted, bool bDecoderOn)
+        private bool tryBeginPendingCommonSingleHit(uint vkey, int deckey, FunctionKeyRuntimeState keyState, bool bCtrl, bool bShift, bool bAlt, bool bWin,
+            uint modPressedOrShifted, bool bDecoderOn)
         {
             if (!InputActionResolver.HasSingleHitAction(deckey)) return false;
             if (bCtrl || bShift || bAlt || bWin) return false;
-            if (modPressedOrShifted != 0 || keyInfoManager.isGenericHoldShiftPressedOrShifted()) return false;
+            if (modPressedOrShifted != 0 || holdShiftStateManager.IsHoldShiftPressedOrShifted()) return false;
             if (pendingCommonSingleHitStates.ContainsKey(vkey)) return true;
-            if (keyInfo != null && (keyInfo.IsHoldShift || keyInfo.IsShiftPlaneAssigned(bDecoderOn))) return false;
+            if (keyState != null && (keyState.IsHoldShiftKey || keyState.IsShiftPlaneAssigned(bDecoderOn))) return false;
 
             setPendingCommonSingleHit(vkey, deckey);
             return true;
@@ -801,10 +716,10 @@ namespace KanchokuWS.Handler
                 return dispatchSystemModifierToDeterminer(vkey, deckey, bDecoderOn);
             }
 
-            var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
-            if (keyInfo != null) {
-                bool wasShifted = keyInfo.Shifted;
-                keyInfo.SetShifted();
+            var holdShiftState = holdShiftStateManager.GetStateByVkey(vkey);
+            if (holdShiftState != null) {
+                bool wasShifted = holdShiftState.Shifted;
+                holdShiftState.SetShifted();
                 if (wasShifted) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CALL updateStrokeHelpHoldShiftPlane(bDecoderOn={bDecoderOn})");
                     updateStrokeHelpHoldShiftPlane(bDecoderOn);
@@ -825,11 +740,11 @@ namespace KanchokuWS.Handler
             }
 
             var pendingState = popPendingCommonSingleHit(vkey);
-            var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
-            bool wasActiveHoldShift = keyInfo != null && (keyInfo.Pressed || keyInfo.Shifted || keyInfo.Repeated);
-            if (keyInfo != null) {
-                keyInfo.SetReleased();
-                if (wasActiveHoldShift) keyInfo.PrevUpDt = HRDateTime.Now;
+            var holdShiftState = holdShiftStateManager.GetStateByVkey(vkey);
+            bool wasActiveHoldShift = holdShiftState != null && (holdShiftState.Pressed || holdShiftState.Shifted || holdShiftState.Repeated);
+            if (holdShiftState != null) {
+                holdShiftState.SetReleased();
+                if (wasActiveHoldShift) holdShiftState.PrevUpDt = HRDateTime.Now;
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CALL updateStrokeHelpHoldShiftPlane(bDecoderOn={bDecoderOn})");
                 updateStrokeHelpHoldShiftPlane(bDecoderOn);
             }
@@ -854,12 +769,12 @@ namespace KanchokuWS.Handler
         private bool? handleActiveHoldShiftBeforeNormalKey(uint vkey, bool bDecoderOn)
         {
             if (isSystemModifierVkey(vkey)) return null;
-            if (keyInfoManager.hasMultipleCommonTableHoldShiftsShifted(bDecoderOn)) {
+            if (holdShiftStateManager.HasMultipleCommonTableHoldShiftsShifted(bDecoderOn)) {
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Multiple HoldShift shifted: ignore HoldShift precedence for vkey={vkey:x}H");
                 return null;
             }
 
-            var activeHoldShiftInfo = keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
+            var activeHoldShiftInfo = holdShiftStateManager.GetEffectiveCommonTableHoldShiftState(bDecoderOn);
             if (activeHoldShiftInfo == null) return null;
             if (activeHoldShiftInfo.Vkey == vkey) return null;
             if (!InputActionResolver.HasCommonTableHoldShiftDefinition(activeHoldShiftInfo.Deckey)) return null;
@@ -1122,7 +1037,7 @@ namespace KanchokuWS.Handler
             if (Settings.LoggingDecKeyInfo) {
                 logger.Info(() =>
                     $"\nENTER: IsVkbTopTextFocused={isVkbTopTextFocused()}, vkey={vkey:x}H({vkey}), scanCode={scanCode:x}H, extraInfo={extraInfo}\n" +
-                    keyInfoManager.modifiersStateStr());
+                    modifierAndHoldShiftStateStr());
             }
 
             if (vkey == (uint)Keys.LWin || vkey == (uint)Keys.RWin) {
@@ -1208,8 +1123,8 @@ namespace KanchokuWS.Handler
                 bool bShift = shiftKeyPressed(vkey);
                 bool bAlt = isAltKeyPressed();
                 bool bWin = isWinKeyPressed();
-                uint modFlag = keyInfoManager.getModFlagForExModVkey(vkey);
-                uint modPressedOrShifted = keyInfoManager.getPressedOrShiftedExModFlag();
+                uint modFlag = holdShiftStateManager.GetModFlagForVkey(vkey);
+                uint modPressedOrShifted = holdShiftStateManager.GetPressedOrShiftedModifierFlag();
 
                 // この処理は、keyboardDownHandler() 内でやるようにした
                 //if (!bDecoderOn && !bCtrl && modPressedOrShifted == 0 && vkey >= (int)Keys.Left && vkey <= (int)Keys.Down) {
@@ -1218,96 +1133,73 @@ namespace KanchokuWS.Handler
                 //    return false;
                 //}
 
-                var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
+                var keyState = holdShiftStateManager.GetStateByVkey(vkey);
                 int currentDeckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
-                if (currentDeckey >= 0 && tryBeginPendingCommonSingleHit(vkey, currentDeckey, keyInfo, bCtrl, bShift, bAlt, bWin, modPressedOrShifted, bDecoderOn)) {
+                if (currentDeckey >= 0 && tryBeginPendingCommonSingleHit(vkey, currentDeckey, keyState, bCtrl, bShift, bAlt, bWin, modPressedOrShifted, bDecoderOn)) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable singleHit pending: vkey={vkey:x}H, deckey={currentDeckey}");
                     return true;
                 }
-                if (keyInfo != null) {
-                    // CapsLock/英数/Nfer/Xfer/Space
-                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"{keyInfo.Name}Key Pressed: ctrl={bCtrl}, shift={bShift}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, modPressedOrShifted={modPressedOrShifted:x}");
-                    if (keyInfo.IsHoldShift) {
-                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: keyState={keyInfo.KeyState}, ctrl={bCtrl}, shift={bShift}, alt={bAlt}, win={bWin}, modPressedOrShifted={modPressedOrShifted:x}");
-                        if (bCtrl || bShift || bAlt || bWin) {
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: modifier shortcut pass-through");
-                            return false;
+                if (keyState != null && keyState.IsHoldShiftKey) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"{keyState.Name}Key Pressed: ctrl={bCtrl}, shift={bShift}, decoderOn={bDecoderOn}");
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift: keyState={keyState.KeyState}, ctrl={bCtrl}, shift={bShift}, alt={bAlt}, win={bWin}");
+                    if (bCtrl || bShift || bAlt || bWin) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift: modifier shortcut pass-through");
+                        return false;
+                    }
+                    if (keyState.Shifted) return true;
+                    if (keyState.Repeated) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift: repeated -> pass through");
+                    } else if (keyState.Pressed) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift: prevUpDt={keyState.PrevUpDt}.{keyState.PrevUpDt:fff}");
+                        if (HRDateTime.Now > keyState.PrevUpDt.AddMilliseconds(getSpaceHoldShiftRepeatMillisec())) {
+                            keyState.SetShifted();
+                            updateStrokeHelpHoldShiftPlane(bDecoderOn);
+                            return true;
+                        } else {
+                            keyState.SetRepeated();
                         }
-                        if (keyInfo.Shifted) {
+                    } else if (keyState.Released) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift: released prevUpDt={keyState.PrevUpDt}.{keyState.PrevUpDt:fff}");
+                        if (keyState.PrevUpDt > DateTime.MinValue &&
+                            HRDateTime.Now <= keyState.PrevUpDt.AddMilliseconds(getSpaceHoldShiftRepeatMillisec())) {
+                            keyState.SetRepeated();
+                        } else {
+                            keyState.SetPressed();
                             return true;
                         }
-                        if (keyInfo.Repeated) {
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: repeated -> pass through");
-                        } else if (keyInfo.Pressed) {
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: prevUpDt={keyInfo.PrevUpDt}.{keyInfo.PrevUpDt:fff}");
-                            if (HRDateTime.Now > keyInfo.PrevUpDt.AddMilliseconds(getSpaceHoldShiftRepeatMillisec())) {
-                                keyInfo.SetShifted();
-                                updateStrokeHelpHoldShiftPlane(bDecoderOn);
-                                return true;
-                            } else {
-                                keyInfo.SetRepeated();
-                            }
-                        } else if (keyInfo.Released) {
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift: released prevUpDt={keyInfo.PrevUpDt}.{keyInfo.PrevUpDt:fff}");
-                            if (keyInfo.PrevUpDt > DateTime.MinValue &&
-                                HRDateTime.Now <= keyInfo.PrevUpDt.AddMilliseconds(getSpaceHoldShiftRepeatMillisec())) {
-                                keyInfo.SetRepeated();
-                            } else {
-                                keyInfo.SetPressed();
-                                return true;
-                            }
+                    }
+                } else if (keyState != null && keyState.HasModifierRole) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"{keyState.Name}Key Pressed: ctrl={bCtrl}, shift={bShift}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, modPressedOrShifted={modPressedOrShifted:x}");
+                    if (keyState.IsShiftPlaneAssigned(bDecoderOn)) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"ShiftPlaneAssigned: {keyState.Name}");
+                        if (keyState.Pressed || modPressedOrShifted != 0) {
+                            keyState.SetShifted();
+                            holdShiftStateManager.MakeModifierAndHoldShiftShifted(bDecoderOn);
+                        } else if (keyState.Released) {
+                            keyState.SetPressed();
+                        }
+                        return true;
+                    } else if (holdShiftStateManager.IsSingleShiftHitEffective(keyState, bCtrl)) {
+                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SingleShiftHitEffecive(ctrl={bCtrl}): {keyState.Name}");
+                        if (keyState.Pressed) {
+                            keyState.SetShifted();
+                            holdShiftStateManager.MakeModifierAndHoldShiftShifted(bDecoderOn);
                         }
                     } else {
-                        // HoldShift 以外 (Caps/英数/Nfer/Xfer)
-                        if (keyInfo.IsShiftPlaneAssigned(bDecoderOn)) {
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"ShiftPlaneAssigned: {keyInfo.Name}");
-                            // 拡張シフト面が割り当てられている拡張修飾キーの場合
-                            if (keyInfo.Pressed || modPressedOrShifted != 0) {
-                                // 当拡張修飾キーが押下されている、またはその他の拡張修飾キーが押下orシフト状態なら、その他の拡張修飾キーを含めてシフト状態に遷移する
-                                keyInfo.SetShifted();
-                                keyInfoManager.makeExModKeyShifted(bDecoderOn);
-                            } else if (keyInfo.Released) {
-                                // 最初の押下
-                                keyInfo.SetPressed();
-                                //} else if (keyInfo.Shifted) {
-                                //    // SHIFT状態なら何もしない
-                            }
-                            return true; // keyboardDownHandler() をスキップ、システム側の本来のSHIFT処理もスキップ
-                        } else if (keyInfo.IsSingleShiftHitEffecive(bCtrl)) {
-                            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"SingleShiftHitEffecive(ctrl={bCtrl}): {keyInfo.Name}");
-                            // 拡張シフト面が割り当てはないが、単打系ありの場合
-                            if (keyInfo.Released) {
-                                //if (bCtrl || bShift || modPressedOrShifted != 0) {
-                                //    if (Settings.LoggingDecKeyInfo) logger.DebugH(() => $"RELEASED -> PRESSED");
-                                //    keyInfo.SetPressed();
-                                //    return true; // keyboardDownHandler() をスキップ、システム側の本来のSHIFT処理もスキップ
-                                //}
-                                // 最初の押下で他のCtrlやShiftや拡張修飾が押されていない場合は、keyboardDownHandler() を呼び出す
-                            } else if (keyInfo.Pressed) {
-                                keyInfo.SetShifted();
-                                keyInfoManager.makeExModKeyShifted(bDecoderOn);
-                            }
-                        } else {
-                            // 拡張シフト面が割り当てられておらず単打系でもない拡張修飾キー
-                            // すでに押下状態にあれば拡張修飾キーをSHIFT状態に遷移させる
-                            keyInfoManager.makeExModKeyShifted(bDecoderOn);
-                            // 拡張修飾キーがテーブルファイルに記述されている可能性もあるので keyboardDownHandler() を呼び出す
-                        }
+                        holdShiftStateManager.MakeModifierAndHoldShiftShifted(bDecoderOn);
                     }
                 } else {
-                    // 通常キーの場合は、すでに押下状態にある拡張修飾キーをSHIFT状態に遷移させる
-                    keyInfoManager.makeExModKeyShifted(bDecoderOn);
+                    holdShiftStateManager.MakeModifierAndHoldShiftShifted(bDecoderOn);
                 }
-                // keyboardDownHandler()の呼び出し
                 if (Settings.LoggingDecKeyInfo) {
-                    logger.Info(() => $"CALL: keyboardDownHandler({vkey}, {leftCtrl}, {rightCtrl})\n" + keyInfoManager.modifiersStateStr());
+                    logger.Info(() => $"CALL: keyboardDownHandler({vkey}, {leftCtrl}, {rightCtrl})\n" + modifierAndHoldShiftStateStr());
                 }
                 return keyboardDownHandler(vkey, leftCtrl, rightCtrl, bShift);
             }
 
             bool result = handleKeyDown();
             if (Settings.LoggingDecKeyInfo) {
-                logger.Info(() => $"LEAVE: result={result}, vkey={vkey:x}H({vkey}), extraInfo={extraInfo}\n" + keyInfoManager.modifiersStateStr());
+                logger.Info(() => $"LEAVE: result={result}, vkey={vkey:x}H({vkey}), extraInfo={extraInfo}\n" + modifierAndHoldShiftStateStr());
             }
             return result;
         }
@@ -1346,22 +1238,22 @@ namespace KanchokuWS.Handler
             bool ctrl = leftCtrl || rightCtrl;
             bool alt = isAltKeyPressed();
             uint mod = KeyModifiers.MakeModifier(alt, ctrl, shift);
-            uint modEx = keyInfoManager.getShiftedExModKey();
-            bool suppressHoldShift = keyInfoManager.hasMultipleCommonTableHoldShiftsShifted(bDecoderOn) && !isSystemModifierVkey(vkey);
-            int holdShiftPlane = suppressHoldShift ? ShiftPlane.ShiftPlane_NONE : keyInfoManager.getShiftPlane(bDecoderOn);
+            uint modEx = holdShiftStateManager.GetShiftedModifierFlag();
+            bool suppressHoldShift = holdShiftStateManager.HasMultipleCommonTableHoldShiftsShifted(bDecoderOn) && !isSystemModifierVkey(vkey);
+            int holdShiftPlane = suppressHoldShift ? ShiftPlane.ShiftPlane_NONE : holdShiftStateManager.GetShiftPlane(bDecoderOn);
 
             //int normalDecKey = VKeyComboRepository.GetDecKeyFromVKey(vkey);
             int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
             int kanchokuCode = InputActionResolver.TryResolveToggleAction(mod, normalDecKey, out var toggleAction) ? toggleAction.ResolvedDeckey : -1; // 漢直モードのトグルをやるキーか
 
             if (Settings.LoggingDecKeyInfo) {
-                logger.Info(() => $"ENTER: kanchokuCode={kanchokuCode}, normalDecKey={normalDecKey}, mod={mod:x}H({mod}), modEx={modEx:x}H({modEx}), vkey={vkey:x}H({vkey}), ctrl={ctrl}, shift={shift}");
+                logger.Info(() => $"ENTER: kanchokuCode={kanchokuCode}, normalDecKey={normalDecKey}, mod={mod:x}H({mod}), vkey={vkey:x}H({vkey}), ctrl={ctrl}, shift={shift}");
             }
 
             // 漢直トグルでなく、VirtualKeyboard のミニバッファがActiveの場合は、システムに返す
             if (kanchokuCode < 0 && isVkbTopTextFocused()) return false;
 
-            var activeHoldShiftInfo = suppressHoldShift ? null : keyInfoManager.getEffectiveCommonTableHoldShiftKeyInfo(bDecoderOn);
+            var activeHoldShiftInfo = suppressHoldShift ? null : holdShiftStateManager.GetEffectiveCommonTableHoldShiftState(bDecoderOn);
             if (kanchokuCode < 0 &&
                 activeHoldShiftInfo != null &&
                 InputActionResolver.HasCommonTableHoldShiftDefinition(activeHoldShiftInfo.Deckey) &&
@@ -1383,7 +1275,7 @@ namespace KanchokuWS.Handler
             }
 
             if (kanchokuCode < 0 && (modEx != 0 || holdShiftPlane != ShiftPlane.ShiftPlane_NONE) && !ctrl && !shift) {
-                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-B: IN: kanchokuCode={kanchokuCode}, modEx={modEx:x}, ctrl={ctrl}, shift={shift}");
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"PATH-B: IN: kanchokuCode={kanchokuCode}, ctrl={ctrl}, shift={shift}");
                 // 拡張シフトが有効なのは、Ctrlキーと物理Shiftが押されていない場合とする
                 kanchokuCode = modEx != 0 && InputActionResolver.TryResolveModifiedKey(modEx, normalDecKey, bDecoderOn, out var modExAction) ? modExAction.ResolvedDeckey : -1;
                 if (kanchokuCode < 0) {
@@ -1633,45 +1525,47 @@ namespace KanchokuWS.Handler
             bool bAlt = isAltKeyPressed();
             bool bWin = isWinKeyPressed();
 
-            uint modFlag = keyInfoManager.getModFlagForExModVkey(vkey);
-            var keyInfo = keyInfoManager.getModiferKeyInfoByVkey(vkey);
-            //bool result = false;
-            if (keyInfo != null) {
-                bool bPrevPressed = keyInfo.Pressed;
-                keyInfo.SetReleased();
+            uint modFlag = holdShiftStateManager.GetModFlagForVkey(vkey);
+            var keyState = holdShiftStateManager.GetStateByVkey(vkey);
+            if (keyState != null && keyState.IsHoldShiftKey) {
+                bool bPrevPressed = keyState.Pressed;
+                keyState.SetReleased();
                 if (Settings.LoggingDecKeyInfo) logger.DebugH(() =>
-                    $"{keyInfo.Name}Key up: prevPressed={bPrevPressed}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, newKeyState={keyInfo.KeyState}");
-                if (keyInfo.IsHoldShift) {
-                    if (bCtrl || leftShift || bAlt || bWin) {
-                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"GenericHoldShift UP: modifier shortcut pass-through");
-                        return false;
-                    }
-                    if (bPrevPressed || keyInfo.Repeated || keyInfo.Shifted) keyInfo.PrevUpDt = HRDateTime.Now;
-                    updateStrokeHelpHoldShiftPlane(bDecoderOn);
-                    if (bPrevPressed) {
-                        var pendingState = popPendingCommonSingleHit(vkey);
-                        if (pendingState != null && !pendingState.Consumed && tryInvokeCommonSingleHitByDeckey(pendingState.Deckey, bDecoderOn)) {
-                            return true;
-                        }
-                        if (InputActionResolver.TryResolveSingleHit(keyInfo.Deckey, bDecoderOn, out var commonAction) && invokeResolvedAction(commonAction, keyInfo.Deckey, bDecoderOn)) {
-                            return true;
-                        }
-                        if (bDecoderOn) {
-                            keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
-                            keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
-                        } else {
-                            sendOriginalVkey(vkey);
-                        }
-                    }
-                    return true;
-                } else {
-                    if (bPrevPressed && keyInfo.IsShiftPlaneAssigned(bDecoderOn) && keyInfo.IsSingleShiftHitEffecive(bCtrl)) {
-                        // 拡張シフト面が割り当てられ、かつ単打系がある拡張修飾キーで、それが押下状態の場合
-                        keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
-                    }
-                    keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
+                    $"{keyState.Name}Key up: prevPressed={bPrevPressed}, decoderOn={bDecoderOn}, newKeyState={keyState.KeyState}");
+                if (bCtrl || leftShift || bAlt || bWin) {
+                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift UP: modifier shortcut pass-through");
                     return false;
                 }
+                if (bPrevPressed || keyState.Repeated || keyState.Shifted) keyState.PrevUpDt = HRDateTime.Now;
+                updateStrokeHelpHoldShiftPlane(bDecoderOn);
+                if (bPrevPressed) {
+                    var pendingState = popPendingCommonSingleHit(vkey);
+                    if (pendingState != null && !pendingState.Consumed && tryInvokeCommonSingleHitByDeckey(pendingState.Deckey, bDecoderOn)) {
+                        return true;
+                    }
+                    if (InputActionResolver.TryResolveSingleHit(keyState.Deckey, bDecoderOn, out var commonAction) && invokeResolvedAction(commonAction, keyState.Deckey, bDecoderOn)) {
+                        return true;
+                    }
+                    if (bDecoderOn) {
+                        keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
+                        keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
+                    } else {
+                        sendOriginalVkey(vkey);
+                    }
+                }
+                return true;
+            }
+
+            if (keyState != null && keyState.HasModifierRole) {
+                bool bPrevPressed = keyState.Pressed;
+                keyState.SetReleased();
+                if (Settings.LoggingDecKeyInfo) logger.DebugH(() =>
+                    $"{keyState.Name}Key up: prevPressed={bPrevPressed}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, newKeyState={keyState.KeyState}");
+                if (bPrevPressed && keyState.IsShiftPlaneAssigned(bDecoderOn) && holdShiftStateManager.IsSingleShiftHitEffective(keyState, bCtrl)) {
+                    keyboardDownHandler(vkey, leftCtrl, rightCtrl, false);
+                }
+                keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
+                return false;
             }
 
             // VirtualKeyboard のミニバッファがActiveの場合は、システムに返す
@@ -1690,7 +1584,7 @@ namespace KanchokuWS.Handler
             }
 
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CALL keyboardUpHandler");
-            keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, modFlag);
+            keyboardUpHandler(bDecoderOn, vkey, leftCtrl, rightCtrl, 0);
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"LEAVE: false");
             return false;
         }
