@@ -11,7 +11,11 @@ namespace KanchokuWS
     {
         private IniFileAccessor m_ini;
 
-        protected KanchokuIniBase(string filename)
+        protected KanchokuIniBase()
+        {
+        }
+
+        protected void _initialize(string filename)
         {
             m_ini = new IniFileAccessor(SystemHelper.MakeAbsPathUnderKanchokuRootDir(filename));
         }
@@ -88,8 +92,13 @@ namespace KanchokuWS
         }
 
         private KanchokuIni()
-            : base("ayaorihime.ini")
         {
+            var iniFilename = "ayaorihime.ini";
+            var exeDirBase = SystemHelper.GetExeDirectory()._getFileName().ToUpper();
+            if (exeDirBase == "DEBUG" || exeDirBase == "RELEASE") {
+                iniFilename = "ayaorihime.dev.ini";
+            }
+            _initialize(iniFilename);
         }
 
         public static string MakeFullPath(string filename)
