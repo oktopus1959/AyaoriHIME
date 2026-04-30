@@ -1298,8 +1298,8 @@ namespace KanchokuWS.Gui
             this.checkBox_suspendByPauseKey.Size = new System.Drawing.Size(181, 19);
             this.checkBox_suspendByPauseKey.TabIndex = 2;
             this.checkBox_suspendByPauseKey.Text = "Pauseキーで一時停止・再開する";
-            this.toolTip1.SetToolTip(this.checkBox_suspendByPauseKey, "Pauseキーで漢織媛の動作を一時的に停止する場合は\r\nここをチェックしてください。\r\n\r\nなお、タスクトレイアイコンの右クリックメニューからも\r\n一時停止・再開" +
-        "を行うことができます。");
+            this.toolTip1.SetToolTip(this.checkBox_suspendByPauseKey, "Pauseキーで漢織媛の動作を一時的に停止する場合は\r\nここをチェックしてください。\r\n\r\nなお、Shiftキーを押しながらタスクトレイアイコンを左クリックする\r" +
+        "\nことでも一時停止・再開を行うことができます。");
             this.checkBox_suspendByPauseKey.UseVisualStyleBackColor = true;
             // 
             // checkBox_confirmOnClose

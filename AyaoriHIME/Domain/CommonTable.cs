@@ -465,7 +465,7 @@ namespace KanchokuWS.Domain
                 DeckeyComboMap.Restore(deckeyComboSnapshot);
                 InputActionResolver.Restore(resolverSnapshot);
                 ShiftPlane.Restore(shiftPlaneSnapshot);
-                ExtraModifiers.Initialize();
+                DecoderFuncTriggerKeys.Initialize();
             }
         }
 
@@ -474,7 +474,7 @@ namespace KanchokuWS.Domain
             DeckeyComboMap.Initialize();
             InputActionResolver.Initialize();
             ModifierKeyRegistry.Initialize();
-            ExtraModifiers.Initialize();
+            DecoderFuncTriggerKeys.Initialize();
             ShiftPlane.InitializeShiftPlaneForShiftModKey();
         }
     }

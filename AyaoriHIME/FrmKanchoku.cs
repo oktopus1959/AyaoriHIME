@@ -424,7 +424,7 @@ namespace KanchokuWS
             DeckeyComboMap.Initialize();
             InputActionResolver.Initialize();
             ModifierKeyRegistry.Initialize();
-            ExtraModifiers.Initialize();
+            DecoderFuncTriggerKeys.Initialize();
             DlgCommonTable.Initialize();
             ShiftPlane.InitializeShiftPlane();
 
@@ -2614,7 +2614,13 @@ namespace KanchokuWS
             logger.DebugH("CALLED");
             if (((MouseEventArgs)e).Button == MouseButtons.Left) {
                 if (isShiftKeyPressed()) {
+                    // Shiftキーが押されているときは、デコーダの一時停止/再開を切り替える
+                    logger.Info("Shift key pressed. Pause or Resume.");
                     DecoderSuspendToggle();
+                } else if (isAltKeyPressed()) {
+                    // Altキーが押されているときは、プログラムを終了する
+                    logger.Info("Alt key pressed. Terminate.");
+                    Terminate();
                 } else {
                     bool bCtrl = isCtrlKeyPressed();
                     bool bDlg = Settings.OpenSettingsDlgWhenIconClicked;
@@ -2806,7 +2812,7 @@ namespace KanchokuWS
             DeckeyComboMap.Initialize();
             InputActionResolver.Initialize();
             ModifierKeyRegistry.Initialize();
-            ExtraModifiers.Initialize();
+            DecoderFuncTriggerKeys.Initialize();
             DlgCommonTable.Initialize();
             ShiftPlane.InitializeShiftPlane();
 

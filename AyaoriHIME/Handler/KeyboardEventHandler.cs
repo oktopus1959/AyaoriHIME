@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -338,13 +338,6 @@ namespace KanchokuWS.Handler
         /// </summary>
         class FunctionKeyRuntimeStateManager
         {
-            private static readonly (uint vkey, int deckey, uint modFlag, string name)[] modifierKeyDefs = new[] {
-                (FuncVKeys.CAPSLOCK, DecoderKeys.CAPS_DECKEY, KeyModifiers.MOD_CAPS, "CapsLock"),
-                (FuncVKeys.EISU, DecoderKeys.ALNUM_DECKEY, KeyModifiers.MOD_ALNUM, "AlpahNum"),
-                (FuncVKeys.MUHENKAN, DecoderKeys.NFER_DECKEY, KeyModifiers.MOD_NFER, "Nfer"),
-                (FuncVKeys.HENKAN, DecoderKeys.XFER_DECKEY, KeyModifiers.MOD_XFER, "Xfer"),
-            };
-
             private Dictionary<uint, FunctionKeyRuntimeState> functionKeyStates = new Dictionary<uint, FunctionKeyRuntimeState>();
 
             public void Reinitialize()
@@ -357,22 +350,6 @@ namespace KanchokuWS.Handler
             {
                 logger.Info($"ENTER");
                 var newInfos = new Dictionary<uint, FunctionKeyRuntimeState>();
-                foreach (var def in modifierKeyDefs) {
-                    var info = functionKeyStates._safeGet(def.vkey) ?? new FunctionKeyRuntimeState() {
-                        Vkey = def.vkey,
-                        Deckey = def.deckey,
-                        ModFlag = def.modFlag,
-                        Name = def.name,
-                    };
-                    info.Vkey = def.vkey;
-                    info.Deckey = def.deckey;
-                    info.ModFlag = def.modFlag;
-                    info.Name = def.name;
-                    info.IsSystemModifier = false;
-                    info.IsHoldShiftKey = false;
-                    newInfos[def.vkey] = info;
-                }
-
                 var definedHoldShiftKeys = InputActionResolver.CopyCommonTableHoldShiftDeckeys();
                 definedHoldShiftKeys.UnionWith(Settings.TableDefinedHoldShiftKeySettings.Keys);
                 foreach (var deckey in definedHoldShiftKeys) {
@@ -437,8 +414,8 @@ namespace KanchokuWS.Handler
             public bool IsSingleShiftHitEffective(FunctionKeyRuntimeState info, bool bCtrl)
             {
                 if (info == null || !info.HasModifierRole) return false;
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{info.Name}:Vkey={info.Vkey}, Deckey={info.Deckey}, bCtrl={bCtrl}, ActiveKey={Settings.ActiveKey}, ActiveKeyWithCtrl={Settings.ActiveKeyWithCtrl}, IsExModKeyIndexAssignedForDecoderFunc={ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(info.Deckey)}");
-                bool bEffective = (Settings.ActiveKey == info.Vkey && (!bCtrl || Settings.ActiveKeyWithCtrl != info.Vkey)) || ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(info.Deckey);
+                if (Settings.LoggingDecKeyInfo) logger.Info($"{info.Name}:Vkey={info.Vkey}, Deckey={info.Deckey}, bCtrl={bCtrl}, ActiveKey={Settings.ActiveKey}, ActiveKeyWithCtrl={Settings.ActiveKeyWithCtrl}, IsDecoderFuncTriggerKey={DecoderFuncTriggerKeys.IsDecoderFuncTriggerKey(info.Deckey)}");
+                bool bEffective = (Settings.ActiveKey == info.Vkey && (!bCtrl || Settings.ActiveKeyWithCtrl != info.Vkey)) || DecoderFuncTriggerKeys.IsDecoderFuncTriggerKey(info.Deckey);
                 if (Settings.LoggingDecKeyInfo) logger.Info($"{info.Name}:IsSingleShiftHitEffecive={bEffective}");
                 return bEffective;
             }
@@ -830,7 +807,7 @@ namespace KanchokuWS.Handler
         {
             int deckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
             return (Settings.ActiveKey == vkey && (!bCtrl || Settings.ActiveKeyWithCtrl != vkey)) ||
-                ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(deckey);
+                DecoderFuncTriggerKeys.IsDecoderFuncTriggerKey(deckey);
         }
 
         private bool isShiftPlaneAssigned(uint modFlag, bool bDecoderOn)
@@ -1499,7 +1476,7 @@ namespace KanchokuWS.Handler
                 void checkAndInvoke(bool bShifted)
                 {
                     int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
-                    if (!bShifted && /*bDecoderOn &&*/ ExtraModifiers.IsExModKeyIndexAssignedForDecoderFunc(normalDecKey)) {
+                    if (!bShifted && /*bDecoderOn &&*/ DecoderFuncTriggerKeys.IsDecoderFuncTriggerKey(normalDecKey)) {
                         if (InputActionResolver.TryResolveComboKey(0, normalDecKey, out var action)) {
                             invokeResolvedAction(action, -1, isDecoderActivated());
                         }

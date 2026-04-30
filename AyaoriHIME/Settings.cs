@@ -1294,7 +1294,7 @@ namespace KanchokuWS
             setDecoderSetting(attr, keyseq);
             if (keyseq._safeLength() > 1 && (keyseq[0] == 'X' || keyseq[0] == 'x')) {
                 int ix = keyseq._safeSubstring(1)._parseInt(-1);
-                if (ix >= 0) ExtraModifiers.AddExModVkeyAssignedForDecoderFuncByIndex(ix);
+                if (ix >= 0) DecoderFuncTriggerKeys.AddDecoderFuncTriggerKeyByIndex(ix);
             }
             return origKeySeq;
         }

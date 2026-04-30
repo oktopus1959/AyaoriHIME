@@ -94,7 +94,7 @@
     <Compile Include="Domain\CommonTable.cs" />
     <Compile Include="Domain\DeckeyComboMap.cs" />
     <Compile Include="Domain\DecoderKeysMap.cs" />
-    <Compile Include="Domain\ExtraModifiers.cs" />
+    <Compile Include="Domain\DecoderFuncTriggerKeys.cs" />
     <Compile Include="Domain\InputActionResolver.cs" />
     <Compile Include="Domain\LegacyModConversionReader.cs" />
     <Compile Include="Domain\ModifierKeyRegistry.cs" />

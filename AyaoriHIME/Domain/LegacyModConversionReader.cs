@@ -261,7 +261,7 @@ namespace KanchokuWS.Domain
                                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Single Hit: modDeckey={modDeckey}, target={target}, targetDeckey={targetDeckey}, modifieeDeckey={modifieeDeckey}");
                                         DeckeyComboMap.Register(targetDeckey, 0, modifieeDeckey, true);
                                         InputActionResolver.RegisterComboAction(0, modifieeDeckey, targetDeckey, InputActionSourceKind.LegacyCombo);
-                                        ExtraModifiers.AddExModVkeyAssignedForDecoderFuncByVkey(modifieeDeckey);
+                                        DecoderFuncTriggerKeys.AddDecoderFuncTriggerKey(modifieeDeckey);
                                         definition.SingleHitDefs[modDeckey] = target;
                                     } else {
                                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Extra Modifier");

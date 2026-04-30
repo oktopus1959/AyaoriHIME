@@ -106,7 +106,7 @@ namespace KanchokuWS.Gui
                         KanchokuWS.Domain.DeckeyComboMap.Initialize();
                         KanchokuWS.Domain.InputActionResolver.Initialize();
                         KanchokuWS.Domain.ModifierKeyRegistry.Initialize();
-                        KanchokuWS.Domain.ExtraModifiers.Initialize();
+                        KanchokuWS.Domain.DecoderFuncTriggerKeys.Initialize();
                         DlgCommonTable.Initialize();
                         KanchokuWS.Domain.ShiftPlane.InitializeShiftPlane();
                         CombinationKeyStroke.Determiner.Singleton.Initialize(null, arg, null, true);
