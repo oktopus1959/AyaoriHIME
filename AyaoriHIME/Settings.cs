@@ -1008,14 +1008,17 @@ namespace KanchokuWS
         public static int ComboDisableIntervalTimeMs { get; set; }
         public static string ComboDisableIntervalTimeMs_PropName = "comboDisableIntervalTimeMs";
 
+        // いずれ廃止
         /// <summary>同時打鍵よりも順次打鍵のほうを優先させる文字列の並び</summary>
         public static string SequentialPriorityWords { get; set; }
         public static string SequentialPriorityWords_PropName = "sequentialPriorityWords";
 
+        // いずれ廃止
         /// <summary>優先される順次打鍵以外の3キー同時打鍵なら無条件に判定</summary>
         public static bool ThreeKeysComboUnconditional { get; set; }
         public static string ThreeKeysComboUnconditional_PropName = "threeKeysComboUnconditional";
 
+        // いずれ廃止
         /// <summary>同時打鍵よりも順次打鍵のほうを優先させる文字列の集合</summary>
         public static HashSet<string> SequentialPriorityWordSet { get; } = new HashSet<string>();
 
