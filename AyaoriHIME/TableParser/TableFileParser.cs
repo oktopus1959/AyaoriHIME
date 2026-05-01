@@ -1351,11 +1351,6 @@ namespace KanchokuWS.TableParser
                 keyComboPool?.DebugPrint();
             }
 
-            if (Context.bRewriteEnabled) {
-                // 書き換えノードがあったら、SandSの疑似同時打鍵サポートをOFFにしておく
-                Settings.SandSEnablePostShiftCurrently = false;
-            }
-
             // 優先する順次打鍵列
             if (keyComboPool?.ContainsUnorderedShiftKey ?? false) {
                 foreach (var seq in Settings.SequentialPriorityWordSet) {
@@ -1393,6 +1388,7 @@ namespace KanchokuWS.TableParser
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"LEAVE: KeyCombinationPool.Count={keyComboPool?.Count}");
         }
 
+        /// <summary>テーブル定義を読んでディレクティブだけを解析する</summary>
         public void ParseDirectives()
         {
             readNextToken(false, true);

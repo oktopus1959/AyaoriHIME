@@ -294,15 +294,6 @@ namespace KanchokuWS.TableParser
                         if (CurrentStr._toLower() == "stacklike" || CurrentStr._toLower() == "covering") {
                             isStackLikeCombo = true;
                         }
-                    //} else if (lcStr == "enablecomboonboth" || lcStr == "enablealways" || lcStr == "enabledalways") {
-                    //    // #enableAlways: デコーダOFFでも有効
-                    //    //bComboEffectiveAlways = true;
-                    //    bComboEffectiveOnKanchokuMode = true;
-                    //    bComboEffectiveOnEisuMode = true;
-                    //} else if (lcStr == "enablecombooneisu") {
-                    //    // #enableComboOnEisu: 英数モード時のみ有効
-                    //    bComboEffectiveOnKanchokuMode = false;
-                    //    bComboEffectiveOnEisuMode = true;
                     } else if (lcStr == "end") {
                         // #end: 各種ディレクティブの終了
                         ReadWord();
@@ -322,36 +313,19 @@ namespace KanchokuWS.TableParser
                                 if (Settings.LoggingTableFileInfo) logger.Info(() => $"END INCLUDE/LOAD: lineNumber={LineNumber}");
                                 EndInclude();
                                 break;
-                            //case "enabl":
-                            //    if (strLower._endsWith("onboth") || strLower._endsWith("oneisu") || strLower._endsWith("always")) {
-                            //        //bComboEffectiveAlways = false;
-                            //        bComboEffectiveOnKanchokuMode = true;
-                            //        bComboEffectiveOnEisuMode = false;
-                            //        //if (keyComboPoolK != null) keyComboPoolK.HasComboEffectiveAlways = true;
-                            //    }
-                            //    break;
                         }
                     } else if (lcStr == "sands") {
-                        // #SandS: 互換用。現在は Space hold-shift の有効化、無効化、面の割り当てとして扱う
+                        // #SandS: 互換用。使用する拡張シフト面は A面固定
                         handleSandSState();
                     } else if (lcStr == "holdshift") {
                         // #HoldShift: HoldShift キーの有効化、無効化、面の割り当て
                         handleHoldShiftState();
                     } else if (lcStr == "assignplane") {
-                        // #assignPlane: 拡張シフトキーに対するシフト面の割り当て
-                        assignShiftPlane();
+                        // #assignPlane: 廃止。#holdShift で代替する。
+                        ParseError("#assignPlane is obsolete. Use #holdShift instead.");
                     } else if (lcStr == "set") {
                         // Settings 変数の値の変更
                         handleSettings();
-                    } else if (lcStr == "disableextkey") {
-                        // 拡張修飾キーの無効化
-                        ReadWord();
-                        if (CurrentStr._notEmpty()) {
-                            var keyName = definedNames._safeGet(CurrentStr, CurrentStr._toLower());
-                            ModifierKeyRegistry.AddDisabledExtKey(keyName);
-                            if (keyName._equalsTo("space")) setSandSEnabled(false);
-                            disableHoldShiftKey(keyName);
-                        }
                     } else if (lcStr == "ignorewarning" || lcStr == "enablewarning") {
                         // 各種警告の無効化/有効化
                         bool flag = lcStr.StartsWith("ignore");
@@ -525,79 +499,14 @@ namespace KanchokuWS.TableParser
             }
         }
 
-        void handleSandSState()
+        private void handleSandSState()
         {
-            ReadWord();
-            var word = CurrentStr._toLower();
-            if (word._isEmpty()) {
-                if (Settings.LoggingTableFileInfo) logger.Info("SandS(Space hold-shift)");
-                //Settings.SandSEnabledCurrently = true;
-                setSandSEnabled(true);
-                shiftPlane = ShiftPlane.GetSpaceHoldShiftPlane();
-                if (shiftPlane <= 0) {
-                    shiftPlane = 2;
-                    ShiftPlane.AssignSpaceHoldShiftPlane(shiftPlane);
-                    Settings.SetHoldShiftKeySetting(DecoderKeys.STROKE_SPACE_DECKEY, shiftPlane, Settings.SandSEnabledWhenOffMode);
-                }
-            } else if (word._startsWith("enable")) {
-                //Settings.SandSEnabledCurrently = true;
-                setSandSEnabled(true);
-                if (Settings.LoggingTableFileInfo) logger.Info("SandS enabled");
-            } else if (word._startsWith("disable")) {
-                //Settings.SandSEnabledCurrently = false;
-                setSandSEnabled(false);
-                ModifierKeyRegistry.AddDisabledExtKey("space");
-                disableHoldShiftKey("space");
-                if (Settings.LoggingTableFileInfo) logger.Info("SandS disabled");
-            } else if (word == "s") {
-                //Settings.SandSEnabledCurrently = true;
-                setSandSEnabled(true);
-                shiftPlane = 1;
-                ShiftPlane.AssignSpaceHoldShiftPlane(shiftPlane);
-                Settings.SetInternalValue(Settings.SandSAssignedPlane_PropName, $"{shiftPlane}");
-                Settings.SetHoldShiftKeySetting(DecoderKeys.STROKE_SPACE_DECKEY, shiftPlane, Settings.SandSEnabledWhenOffMode);
-            } else if (word.Length == 1 && word[0] >= 'a' && word[0] <= 'f') {
-                //Settings.SandSEnabledCurrently = true;
-                setSandSEnabled(true);
-                shiftPlane = word[0] - 'a' + 2;
-                ShiftPlane.AssignSpaceHoldShiftPlane(shiftPlane);
-                Settings.SetInternalValue(Settings.SandSAssignedPlane_PropName, $"{shiftPlane}");
-                Settings.SetHoldShiftKeySetting(DecoderKeys.STROKE_SPACE_DECKEY, shiftPlane, Settings.SandSEnabledWhenOffMode);
-            } else if (word._startsWith("enabeoneshot")) {
-                //Settings.OneshotSandSEnabledCurrently = true;
-                setOneshotSandSEnabled(true);
-            } else if (word._startsWith("disabeoneshot")) {
-                //Settings.OneshotSandSEnabledCurrently = false;
-                setOneshotSandSEnabled(false);
-            } else if (word._startsWith("enabepostshift")) {
-                //Settings.SandSEnablePostShiftCurrently = true;
-                setSandSEnablePostShift(true);
-            } else if (word._startsWith("disabepostshift")) {
-                //Settings.SandSEnablePostShiftCurrently = false;
-                setSandSEnablePostShift(false);
-            }
-        }
-
-        private void setSandSEnabled(bool enabled)
-        {
-            Settings.SandSEnabledCurrently = enabled;
-            Settings.SetInternalValue("sandsEnabled", $"{enabled}");
-        }
-
-        private void setSandSEnabledWhenOffMode(bool enabled)
-        {
-            Settings.SandSEnabledWhenOffMode = enabled;
-            Settings.SetInternalValue("sandsEnabledWhenOffMode", $"{enabled}");
-        }
-
-        private void setOneshotSandSEnabled(bool enabled)
-        {
-            Settings.SetInternalValue("oneshotSandSEnabled", $"{enabled}");
-        }
-
-        private void setSandSEnablePostShift(bool enabled)
-        {
-            Settings.SetInternalValue("sandsEnablePostShift", $"{enabled}");
+            logger.InfoH($"ENTER");
+            var keyDeckey = getHoldShiftDeckey("space");
+            shiftPlane = getHoldShiftPlane("a");
+            Settings.SetHoldShiftKeySetting(keyDeckey, shiftPlane, false, false);
+            ShiftPlane.AssignHoldShiftPlane(keyDeckey, shiftPlane, ShiftPlane.ShiftPlane_NONE);
+            logger.InfoH($"LEAVE");
         }
 
         void handleHoldShiftState()
@@ -612,9 +521,6 @@ namespace KanchokuWS.TableParser
             if (word == "clear") {
                 Settings.ClearHoldShiftKeySettings();
                 ShiftPlane.ClearHoldShiftPlanes();
-                setSandSEnabled(false);
-                setSandSEnabledWhenOffMode(false);
-                Settings.SetInternalValue(Settings.SandSAssignedPlane_PropName, "0");
                 return;
             }
             if (word._startsWith("disable")) {
@@ -653,13 +559,6 @@ namespace KanchokuWS.TableParser
             shiftPlane = holdShiftPlane;
             Settings.SetHoldShiftKeySetting(keyDeckey, holdShiftPlane, holdShiftEnabledWhenOff, showStrokeHelp);
             ShiftPlane.AssignHoldShiftPlane(keyDeckey, holdShiftPlane, holdShiftEnabledWhenOff ? holdShiftPlane : ShiftPlane.ShiftPlane_NONE);
-            if (keyDeckey == DecoderKeys.STROKE_SPACE_DECKEY) {
-                logger.InfoH($"SandS Enabled");
-                setSandSEnabled(true);
-                setSandSEnabledWhenOffMode(holdShiftEnabledWhenOff);
-                ShiftPlane.AssignSpaceHoldShiftPlane(holdShiftPlane);
-                Settings.SetInternalValue(Settings.SandSAssignedPlane_PropName, $"{holdShiftPlane}");
-            }
             logger.InfoH($"LEAVE: key='{word}', plane='{planeWord}', option='{optionText}', keyDeckey={keyDeckey}, shiftPlane={shiftPlane}, enabledWhenOff={holdShiftEnabledWhenOff}, showStrokeHelp={showStrokeHelp}");
         }
 
@@ -670,11 +569,6 @@ namespace KanchokuWS.TableParser
 
             Settings.RemoveHoldShiftKeySetting(keyDeckey);
             ShiftPlane.RemoveHoldShiftPlane(keyDeckey);
-            if (keyDeckey == DecoderKeys.STROKE_SPACE_DECKEY) {
-                setSandSEnabled(false);
-                setSandSEnabledWhenOffMode(false);
-                Settings.SetInternalValue(Settings.SandSAssignedPlane_PropName, "0");
-            }
         }
 
         private int getHoldShiftDeckey(string keyName)
@@ -748,23 +642,6 @@ namespace KanchokuWS.TableParser
                     default:
                         optionRecognized = false;
                         return;
-                }
-            }
-        }
-
-        //void changeSandSState(bool bEnabled)
-        //{
-        //    Settings.SandSEnabledCurrently = bEnabled;
-        //}
-
-        // 拡張シフトキーに対するシフト面の割り当て
-        void assignShiftPlane()
-        {
-            ReadWord();
-            if (CurrentStr._notEmpty()) {
-                bool resultOK = ShiftPlane.AssignShiftPlane(CurrentStr);
-                if (!resultOK) {
-                    ParseError("assignShiftPlane");
                 }
             }
         }

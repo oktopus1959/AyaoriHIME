@@ -787,9 +787,6 @@ namespace KanchokuWS
                             });
                         } else if (cmd == "extracharsposition") {
                             makeVkbStrokeTable1("makeExtraCharsStrokePositionTable", null);
-                        } else if (cmd == "sands") {
-                            makeVkbStrokeTable1("makeShiftPlaneStrokePosition1", ShiftPlane.GetSpaceHoldShiftPlane().ToString(), false, false, true);
-                            makeVkbStrokeTable2("makeShiftPlaneStrokePosition2", ShiftPlane.GetSpaceHoldShiftPlane().ToString(), false, false, true);
                         } else if (cmd == "keycharsposition") {
                             // 主テーブルの単打用
                             makeVkbStrokeTable1($"makeStrokePosition", null);

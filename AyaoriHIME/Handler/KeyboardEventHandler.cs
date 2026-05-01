@@ -225,9 +225,10 @@ namespace KanchokuWS.Handler
             return effectiveShiftPressed();
         }
 
+        // これはいずれ廃止する
         private int getSpaceHoldShiftRepeatMillisec()
         {
-            return Settings.SandSEnableSpaceOrRepeatMillisec;
+            return 0;
         }
 
         private void updateStrokeHelpHoldShiftPlane(bool bDecoderOn)

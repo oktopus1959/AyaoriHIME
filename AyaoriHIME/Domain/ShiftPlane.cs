@@ -222,8 +222,9 @@ namespace KanchokuWS.Domain
         }
 
         /// <summary>
-        /// 拡張シフトキーに対するシフト面の割り当て<br/>
-        ///   EXT_MOD_NAME=plane[|plane]
+        /// 旧mod-conversion における拡張シフトキーに対するシフト面の割り当て<br/>
+        ///   EXT_MOD_NAME=plane[|plane]<br/>
+        ///   mod-conversion が廃止されたら、この機能も廃止する予定
         /// </summary>
         /// <param name="line"></param>
         /// <param name="rawLine"></param>
@@ -277,38 +278,6 @@ namespace KanchokuWS.Domain
                 ShiftPlaneForShiftModKeyWhenDecoderOff.Add(modKey, shiftPlaneWhenOff);
             }
             return true;    // OK
-        }
-
-        /// <summary>Space hold-shift のシフト面を割り当てる</summary>
-        public static void AssignSpaceHoldShiftPlane(int shiftPlane = 0)
-        {
-            logger.Info(() => $"CALLED: SpaceHoldShiftEnabled={Settings.SandSEnabledCurrently}, SpaceHoldShiftEnabledWhenOffMode={Settings.SandSEnabledWhenOffMode}, SpaceHoldShiftAssignedPlane={Settings.SandSAssignedPlane}");
-            if (Settings.SandSEnabledCurrently) {
-                if (shiftPlane <= 0) shiftPlane = Settings.SandSAssignedPlane;
-                if (shiftPlane > 0 && shiftPlane < ShiftPlane_NUM) {
-                    logger.Info(() => $"ShiftPlaneForShiftModKey.Add(SpaceHoldShift)");
-                    ShiftPlaneForShiftModKey.Add(KeyModifiers.MOD_SPACE, shiftPlane);
-                    AssignHoldShiftPlane(DecoderKeys.STROKE_SPACE_DECKEY, shiftPlane, Settings.SandSEnabledWhenOffMode ? shiftPlane : ShiftPlane_NONE);
-                }
-            }
-        }
-
-        /// <summary>Space hold-shift のシフト面を得る</summary>
-        public static int GetSpaceHoldShiftPlane()
-        {
-            return ShiftPlaneForHoldShiftKey.GetPlane((uint)DecoderKeys.STROKE_SPACE_DECKEY)._gtZeroOr(() => ShiftPlaneForShiftModKey.GetPlane(KeyModifiers.MOD_SPACE));
-        }
-
-        /// <summary>互換用: 旧SandS API</summary>
-        public static void AssignSandSPlane(int shiftPlane = 0)
-        {
-            AssignSpaceHoldShiftPlane(shiftPlane);
-        }
-
-        /// <summary>互換用: 旧SandS API</summary>
-        public static int GetSandSPlane()
-        {
-            return GetSpaceHoldShiftPlane();
         }
 
     }

@@ -957,25 +957,6 @@ namespace KanchokuWS.Gui
         //-----------------------------------------------------------------------------------
         void readSettings_tabImeCombo()
         {
-            // SandS
-            checkBox_SandSEnabled.Checked = Settings.SandSEnabled;
-            setEnabled(checkBox_SandSEnabled, Settings.SandSEnabled_PropName);
-            checkBox_SandSEnabledWhenOffMode.Checked = Settings.SandSEnabledWhenOffMode;
-            setEnabled(checkBox_SandSEnabledWhenOffMode, Settings.SandSEnabledWhenOffMode_PropName);
-            setEnabled(checkBox_SandSEnabledWhenOffMode, Settings.SandSEnabled_PropName);
-            comboBox_SandSAssignedPlane.SelectedIndex = Settings.SandSAssignedPlane._lowLimit(0)._highLimit(7);
-            setEnabled(comboBox_SandSAssignedPlane, Settings.SandSAssignedPlane_PropName);
-            setEnabled(comboBox_SandSAssignedPlane, Settings.SandSEnabled_PropName);
-            checkBox_OneshotSandSEnabled.Checked = Settings.OneshotSandSEnabled;
-            setEnabled(checkBox_OneshotSandSEnabled, Settings.OneshotSandSEnabled_PropName);
-            setEnabled(checkBox_OneshotSandSEnabled, Settings.SandSEnabled_PropName);
-            textBox_SandSEnableSpaceOrRepeatMillisec.Text = $"{Settings.SandSEnableSpaceOrRepeatMillisec}";
-            setEnabled(textBox_SandSEnableSpaceOrRepeatMillisec, Settings.SandSEnableSpaceOrRepeatMillisec_PropName);
-            setEnabled(textBox_SandSEnableSpaceOrRepeatMillisec, Settings.SandSEnabled_PropName);
-            checkBox_SandSEnablePostShift.Checked = Settings.SandSEnablePostShift;
-            setEnabled(checkBox_SandSEnablePostShift, Settings.SandSEnablePostShift_PropName);
-            setEnabled(checkBox_SandSEnablePostShift, Settings.SandSEnabled_PropName);
-
             // 同時打鍵
             textBox_combinationMaxAllowedLeadTimeMs.Text = $"{Settings.CombinationKeyMaxAllowedLeadTimeMs}";
             setEnabled(textBox_combinationMaxAllowedLeadTimeMs, Settings.CombinationKeyMaxAllowedLeadTimeMs_PropName);
@@ -1025,14 +1006,6 @@ namespace KanchokuWS.Gui
             checkerImeCombo.CtlToBeEnabled = button_imeComboEnter;
             checkerImeCombo.ControlEnabler = tabImeComboStatusChanged;
 
-            // SandS
-            checkerImeCombo.Add(checkBox_SandSEnabled);
-            checkerImeCombo.Add(checkBox_SandSEnabledWhenOffMode);
-            checkerImeCombo.Add(comboBox_SandSAssignedPlane);
-            checkerImeCombo.Add(checkBox_OneshotSandSEnabled);
-            checkerImeCombo.Add(textBox_SandSEnableSpaceOrRepeatMillisec);
-            checkerImeCombo.Add(checkBox_SandSEnablePostShift);
-
             // 同時打鍵
             checkerImeCombo.Add(textBox_combinationMaxAllowedLeadTimeMs);
             checkerImeCombo.Add(textBox_comboMaxAllowedPostfixTimeMs);
@@ -1069,14 +1042,6 @@ namespace KanchokuWS.Gui
         {
             logger.Info("ENTER");
             frmMain?.DeactivateDecoderWithModifiersOff();
-
-            // SandS
-            Settings.SetUserIni(Settings.SandSEnabled_PropName, checkBox_SandSEnabled.Checked);
-            Settings.SetUserIni(Settings.SandSEnabledWhenOffMode_PropName, checkBox_SandSEnabledWhenOffMode.Checked);
-            Settings.SetUserIni(Settings.SandSAssignedPlane_PropName, comboBox_SandSAssignedPlane.SelectedIndex);
-            Settings.SetUserIni(Settings.OneshotSandSEnabled_PropName, checkBox_OneshotSandSEnabled.Checked);
-            Settings.SetUserIni(Settings.SandSEnableSpaceOrRepeatMillisec_PropName, textBox_SandSEnableSpaceOrRepeatMillisec.Text);
-            Settings.SetUserIni(Settings.SandSEnablePostShift_PropName, checkBox_SandSEnablePostShift.Checked);
 
             // 同時打鍵
             Settings.SetUserIni(Settings.CombinationKeyMaxAllowedLeadTimeMs_PropName, textBox_combinationMaxAllowedLeadTimeMs.Text.Trim());
@@ -3109,8 +3074,6 @@ namespace KanchokuWS.Gui
                 if (dlg.ShowDialog() == DialogResult.OK) {
                     // 設定内容を commonTable.txt に書き出す
                     writeCommonTableSettings();
-                    // SandSのシフト面のコンボボックスを置き換える
-                    comboBox_SandSAssignedPlane.SelectedIndex = Settings.SandSAssignedPlane._lowLimit(0)._highLimit(7);
                 }
                 int width = dlg.Width;
                 logger.Info(() => $"DlgCommonTableWidth={width}");

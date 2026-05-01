@@ -944,40 +944,6 @@ namespace KanchokuWS
         public static string RomanSecPlanePrefix { get; set; }
 
         //------------------------------------------------------------------------------
-        // SandS
-        //------------------------------------------------------------------------------
-        /// <summary>SandS を有効にするか</summary>
-        public static bool SandSEnabled { get; set; }
-        public static string SandSEnabled_PropName = "sandsEnabled";
-        public static bool SandSEnabledCurrently { get; set; }
-        public static bool SandSEnabledWhenOffMode { get; set; }
-        public static string SandSEnabledWhenOffMode_PropName = "sandsEnabledWhenOffMode";
-
-        /// <summary>SandS に割り当てるシフト面</summary>
-        public static int SandSAssignedPlane { get; set; }
-        public static string SandSAssignedPlane_PropName = "sandsAssignedPlane";
-
-        /// <summary>SandS 時の Space KeyUP を無視するか (Space単打による空白入力をやらない)</summary>
-        public static bool OneshotSandSEnabled { get; set; }
-        public static string OneshotSandSEnabled_PropName = "oneshotSandSEnabled";
-        public static bool OneshotSandSEnabledCurrently { get; set; }
-
-        /// <summary>SandS 時の空白入力またはリピート入力までの時間</summary>
-        public static int SandSEnableSpaceOrRepeatMillisec { get; set; }
-        public static string SandSEnableSpaceOrRepeatMillisec_PropName = "sandsEnableSpaceOrRepeatMillisec";
-
-        /// <summary>SandS 時の後置シフト出力(疑似同時打鍵サポート)</summary>
-        public static bool SandSEnablePostShift { get; set; }
-        public static string SandSEnablePostShift_PropName = "sandsEnablePostShift";
-        public static bool SandSEnablePostShiftCurrently { get; set; }
-
-        /// <summary>SandS は通常シフトよりも優位か</summary>
-        public static bool SandSSuperiorToShift { get; set; }
-
-        /// <summary>Shift+SpaceをSandS として扱う</summary>
-        public static bool HandleShiftSpaceAsSandS { get; set; }
-
-        //------------------------------------------------------------------------------
         // 同時打鍵判定
         //------------------------------------------------------------------------------
         /// <summary>同時打鍵判定を行う際の、第１打鍵に許容する最大のリード時間(ミリ秒)<br/>第２打鍵までにこの時間より長くかかったら、第1打鍵は同時とみなさない</summary>
@@ -1727,19 +1693,6 @@ namespace KanchokuWS
             // 辞書保存時間
             SaveDictsIntervalTime = GetString("saveDictsIntervalTime")._parseInt(-60);     // 辞書保存インターバルタイム(分)
             SaveDictsCalmTime = GetString("saveDictsCalmTime")._parseInt(1);                 // 辞書保存に適した平穏な時間(分)
-
-            //-------------------------------------------------------------------------------------
-            // SandS
-            SandSEnabled = GetString(SandSEnabled_PropName)._parseBool(false);                         // SandS を有効にするか
-            SandSEnabledCurrently = SandSEnabled;
-            SandSEnabledWhenOffMode = GetString(SandSEnabledWhenOffMode_PropName)._parseBool(false);   // 漢直OFFの時もSandS を有効にするか
-            SandSAssignedPlane = GetString(SandSAssignedPlane_PropName)._parseInt(2, 0)._highLimit(7); // SandS に割り当てるシフト面
-            ShiftPlane.AssignSandSPlane();
-            OneshotSandSEnabled= GetString(OneshotSandSEnabled_PropName, "ignoreSpaceUpOnSandS", "")._parseBool(false);    // SandSのワンショットシフトを有効にするか
-            OneshotSandSEnabledCurrently = OneshotSandSEnabled;
-            SandSEnableSpaceOrRepeatMillisec = GetString(SandSEnableSpaceOrRepeatMillisec_PropName)._parseInt(500);        // SandS 時の空白入力またはリピート入力までの時間
-            SandSEnablePostShift = GetString(SandSEnablePostShift_PropName)._parseBool(false);         // SandS 時の後置シフト出力(疑似同時打鍵サポート)
-            SandSEnablePostShiftCurrently = SandSEnablePostShift;
 
             //-------------------------------------------------------------------------------------
             // 同時打鍵
