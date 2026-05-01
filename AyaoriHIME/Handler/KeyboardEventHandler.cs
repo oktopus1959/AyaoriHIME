@@ -755,6 +755,10 @@ namespace KanchokuWS.Handler
             if (activeHoldShiftInfo == null) return null;
             if (activeHoldShiftInfo.Vkey == vkey) return null;
             if (!InputActionResolver.HasCommonTableHoldShiftDefinition(activeHoldShiftInfo.Deckey)) return null;
+            if (isSystemModifierDeckey(activeHoldShiftInfo.Deckey) && hasOtherPressedSystemModifier(activeHoldShiftInfo.Vkey)) {
+                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Other system modifier pressed with HoldShift: ignore HoldShift precedence for vkey={vkey:x}H, holdVkey={activeHoldShiftInfo.Vkey:x}H");
+                return null;
+            }
 
             int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
             if (normalDecKey < 0) return null;
@@ -791,6 +795,24 @@ namespace KanchokuWS.Handler
             if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift undefined combo pass-through: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}");
             markPendingCommonSingleHitConsumed(activeHoldShiftInfo.Vkey);
             return isSystemModifierDeckey(activeHoldShiftInfo.Deckey) ? (bool?)null : false;
+        }
+
+        private bool hasOtherPressedSystemModifier(uint holdShiftVkey)
+        {
+            bool isPressed(uint candidateVkey)
+            {
+                return candidateVkey != holdShiftVkey && (GetAsyncKeyState(candidateVkey) & 0x8000) != 0;
+            }
+
+            return
+                isPressed(FuncVKeys.LCONTROL) ||
+                isPressed(FuncVKeys.RCONTROL) ||
+                isPressed(FuncVKeys.LSHIFT) ||
+                isPressed(FuncVKeys.RSHIFT) ||
+                isPressed(FuncVKeys.L_ALT) ||
+                isPressed(FuncVKeys.L_ALT) ||
+                isPressed(FuncVKeys.L_WIN) ||
+                isPressed(FuncVKeys.R_WIN);
         }
 
         private bool isShiftVkey(uint vkey)
