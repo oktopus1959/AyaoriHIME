@@ -60,7 +60,7 @@ namespace KanchokuWS.Gui
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 10;
             this.buttonOK.Text = "書き出し(&W)";
-            this.toolTip1.SetToolTip(this.buttonOK, "設定内容をファイルに書き出して、ダイアログを閉じます。\r\n\r\n変更した設定内容を漢直WSに反映させるには、元の設定画面で\r\n「再読込」を実行してください。");
+            this.toolTip1.SetToolTip(this.buttonOK, "設定内容をファイルに書き出して、ダイアログを閉じます。\r\n\r\n変更した設定内容を漢織媛に反映させるには、元の設定画面で\r\n「再読込」を実行してください。");
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 

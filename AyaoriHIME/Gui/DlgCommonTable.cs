@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using KanchokuWS.Domain;
+using KanchokuWS.Handler;
 using Utils;
 
 namespace KanchokuWS.Gui
@@ -34,10 +35,6 @@ namespace KanchokuWS.Gui
             "拡張シフトF",
         };
 
-        private static KeyOrFunction[] singleHitKeys;
-
-        private static KeyOrFunction[] extModifiees;
-
         private bool holdShiftHeaderLocked = true;
 
         private bool addModKeyLocked = true;
@@ -56,9 +53,6 @@ namespace KanchokuWS.Gui
         public DlgCommonTable()
         {
             //modifierKeys = SpecialKeysAndFunctions.GetModifierKeys(_ => true).Where(x => x.DecKey >= 0).ToArray();
-            extModifiees = SpecialKeysAndFunctions.GetModifieeKeys();
-            singleHitKeys = SpecialKeysAndFunctions.GetSingleHitKeys();
-
             InitializeComponent();
 
             if (Settings.DlgCommonTableHeight > 0) Height = Settings.DlgCommonTableHeight;
@@ -68,6 +62,7 @@ namespace KanchokuWS.Gui
             DialogResult = DialogResult.None;
         }
 
+        // ダイアログ用の静的初期化ポイント
         public static void Initialize()
         {
             //normalKeyNames = null;
@@ -79,6 +74,7 @@ namespace KanchokuWS.Gui
         private bool dgv2Locked = true;
         //private bool dgv3Locked = true;
 
+        // ダイアログ表示時に各コントロールを初期化する
         private void DlgCommonTable_Load(object sender, EventArgs e)
         {
             comboBox_modKeys.Visible = true;
@@ -99,28 +95,128 @@ namespace KanchokuWS.Gui
             radioButton_modKeys.Checked = true;
         }
 
+        private (string modifiers, string name) splitTarget(string target)
+        {
+            var items = target._reScan(@"^([!+^]+)(\w+)$");
+            if (items._length() == 3) {
+                logger.Warn($"target={target}, mod={items[1]}, name={items[2]}");
+                return (items[1], items[2]);
+            } else {
+                logger.Warn($"target={target}, mod='', name={target}");
+                return ("", target);
+            }
+        }
+
+        private string modifiersDesc(string modifiers)
+        {
+            if (modifiers._isEmpty()) return "";
+
+            var desc = new StringBuilder();
+            foreach (var modifier in modifiers) {
+                if (modifier == '^') {
+                    desc.Append("Ctrl");
+                } else if (modifier == '+') {
+                    desc.Append("Shift");
+                } else if (modifier == '!') {
+                    desc.Append("Alt");
+                } else {
+                    desc.Append(modifier);
+                }
+                desc.Append('-');
+            }
+            return desc.ToString();
+        }
+
+        private bool isAlphabet(string str)
+        {
+            return str._reMatch("^[A-Za-z]$");
+        }
+
+        private bool isNumber(string str)
+        {
+            return str._reMatch("^[0-9]+$");
+        }
+
+        // 入力された割り当て文字列を内部保存用の表記に正規化する
         private string normalizeTarget(string target)
         {
             target = target._strip();
             if (target._isEmpty()) return "";
             if (target._startsWith("!{") || target._startsWith("@")) return target;
-            var canonicalName = SpecialKeysAndFunctions.GetCanonicalName(target, false);
-            return canonicalName._notEmpty() ? $"!{{{canonicalName}}}" : target;
+            var (modifiers, name) = splitTarget(target);
+            var canonicalName = SpecialKeysAndFunctions.GetCanonicalName(name, false);
+            if (canonicalName._notEmpty()) {
+                // ^Left や MazeConversion など
+                return $"!{{{modifiers}{canonicalName}}}";
+            }
+            if (modifiers._notEmpty() && isAlphabet(name)) {
+                // ^X など
+                return $"!{{{modifiers}{name}}}";
+            }
+            if (isNumber(target)) {
+                // 配列コード
+                return $"!{{{target}}}";
+            }
+            if (target._startsWith("\"")) {
+                return target;
+            }
+            // 通常文字列
+            return $"\"{target}\"";
         }
 
-        private string displayTarget(string rawTarget)
+        // 内部保存用の割り当て文字列を表示用の表記に戻す
+        private (string modifiers, string name) displayTarget(string rawTarget)
         {
             rawTarget = rawTarget._strip();
-            if (rawTarget._startsWith("!{") && rawTarget._endsWith("}")) {
+            if (rawTarget._startsWith("!{") && rawTarget._endsWith("}") && !rawTarget.Substring(1).Contains("!{")) {
                 var inner = rawTarget._safeSubstring(2, rawTarget.Length - 3)._strip();
-                return SpecialKeysAndFunctions.GetCanonicalName(inner, false)._orElse(inner);
+                var (modifiers, name) = splitTarget(inner);
+                var cannon = SpecialKeysAndFunctions.GetCanonicalName(name, false);
+                if (cannon._notEmpty()) {
+                    return (modifiers, cannon);
+                }
+                if (isAlphabet(name)) {
+                    return (modifiers, name);
+                }
+                return ("", inner);
             }
-            if (rawTarget._startsWith("\"") && rawTarget._endsWith("\"")) {
-                return rawTarget._safeSubstring(1, rawTarget.Length - 2);
+            if (rawTarget._startsWith("\"") && rawTarget._endsWith("\"") && rawTarget._reMatch("[^0-9]")) {
+                // ダブルクォートで囲まれていて、数字以外を含む
+                return ("", rawTarget._safeSubstring(1, rawTarget.Length - 2));
             }
-            return rawTarget;
+            return ("", rawTarget);
         }
 
+        // 表示用の表記と説明文を返す
+        private (string disp, string desc) getDisplayTargetAndDescription(string rawTarget)
+        {
+            var displayed = "";
+            var description = "";
+            if (rawTarget._notEmpty()) {
+                var (modifiers, name) = displayTarget(rawTarget);
+                logger.Warn(() => $"ENTER: rawTarget={rawTarget}, modifiers={modifiers}, name={name}");
+                displayed = modifiers + name;
+                var kof = SpecialKeysAndFunctions.GetKeyOrFuncByName(name);
+                if (kof != null) {
+                    displayed = modifiers + kof.Name;
+                    description = modifiersDesc(modifiers) + kof.Description;
+                } else if (rawTarget._startsWith("!{")) {
+                    if (isNumber(displayed)) {
+                        description = "配列コード";
+                    } else if (isAlphabet(name)) {
+                        description = modifiersDesc(modifiers) + name;
+                    }
+                } else if (TernaryOperatorParser.IsTernaryOperator(rawTarget)) {
+                    description = "三項演算子";
+                } else {
+                    description = "文字列";
+                }
+                logger.Warn($"LEAVE: rawTarget={rawTarget}, disp={displayed}, desc={description}");
+            }
+            return (displayed, description);
+        }
+
+        // 修飾キー名に割り当て済みマーカーを付けて返す
         private string getModifiedDescription(KeyOrFunction modDef)
         {
             if (modDef == null) return "";
@@ -128,10 +224,7 @@ namespace KanchokuWS.Gui
             string marker = "";
             var definition = CommonTableRuntime.GetHoldShiftDefinition(modDef.DecKey);
             if (definition != null) {
-                int normalKeysNum = DecoderKeyVsChar.NormalKeyNames._safeCount();
-                int num = normalKeysNum  + extModifiees.Length;
-                for (int i = 0; i < num; ++i) {
-                    int deckey = i < normalKeysNum ? i : extModifiees[i - normalKeysNum].DecKey;
+                for (int deckey = 0; deckey < DecoderKeys.PLANE_DECKEY_NUM; ++deckey) {
                     if (definition.Actions._safeGet(deckey)?.RawTarget._notEmpty() == true) {
                         marker = " *";
                         break;
@@ -139,6 +232,15 @@ namespace KanchokuWS.Gui
                 }
             }
             return modDef.PrefName + marker;
+        }
+
+        // 被修飾キーの表示名を deckey から取得する
+        private string getModifieeKeyName(int deckey)
+        {
+            if (deckey >= 0 && deckey < DecoderKeyVsChar.NormalKeyNames._safeCount()) {
+                return DecoderKeyVsChar.NormalKeyNames[deckey];
+            }
+            return SpecialKeysAndFunctions.GetKeyOrFuncByDeckey(deckey)?.PrefName ?? "N/A";
         }
 
         // 単打用DGV(dataGridView_singleHit)の設定
@@ -162,11 +264,12 @@ namespace KanchokuWS.Gui
             dgv.Columns.Add(dgv._makeTextBoxColumn_Sortable("funcName", "割り当てキー/機能名", funcNameWidth, DgvHelpers.HIGHLIGHT_SELECTION_COLOR));
             dgv.Columns.Add(dgv._makeTextBoxColumn_ReadOnly_Sortable("funcDesc", "機能説明", funcDescWidth, DgvHelpers.READONLY_SELECTION_COLOR));
 
-            dgv.Rows.Add(singleHitKeys.Length);
+            dgv.Rows.Add(DecoderKeys.FUNC_DECKEY_NUM);
 
             renewSingleHitDgv();
         }
 
+        // 単打キー一覧の表示内容を現在設定で更新する
         private void renewSingleHitDgv()
         {
             dgv1Locked = true;
@@ -174,19 +277,12 @@ namespace KanchokuWS.Gui
             int num = dgv.Rows.Count;
 
             for (int i = 0; i < num; ++i) {
-                dgv.Rows[i].Cells[0].Value = i;
-                var kof = singleHitKeys[i];
-                int deckey = kof.DecKey;
-                dgv.Rows[i].Cells[1].Value = kof.PrefName;
-                string assigned = "";
-                string desc = "";
-                var target = CommonTableRuntime.GetSingleHitRawTarget(kof.DecKey);
-                if (target._notEmpty()) {
-                    kof = SpecialKeysAndFunctions.GetKeyOrFuncByName(displayTarget(target));
-                    assigned = kof != null ? kof.Name : target;
-                    desc = kof != null ? kof.Description : "";
-                }
-                dgv.Rows[i].Cells[2].Value = assigned;
+                int deckey = DecoderKeys.FUNC_DECKEY_START + i;
+                dgv.Rows[i].Cells[0].Value = deckey;
+                dgv.Rows[i].Cells[1].Value = getModifieeKeyName(deckey);
+                var target = CommonTableRuntime.GetSingleHitRawTarget(deckey);
+                var (disp, desc) = getDisplayTargetAndDescription(target);
+                dgv.Rows[i].Cells[2].Value = disp;
                 dgv.Rows[i].Cells[3].Value = desc;
             }
             dgv1Locked = false;
@@ -211,11 +307,12 @@ namespace KanchokuWS.Gui
             dgv.Columns.Add(dgv._makeTextBoxColumn_Sortable("funcName", "割り当てキー/機能名", funcNameWidth, DgvHelpers.HIGHLIGHT_SELECTION_COLOR));
             dgv.Columns.Add(dgv._makeTextBoxColumn_ReadOnly_Sortable("funcDesc", "機能説明", funcDescWidth));
 
-            dgv.Rows.Add(DecoderKeyVsChar.NormalKeyNames._safeCount() + extModifiees.Length);
+            dgv.Rows.Add(DecoderKeys.PLANE_DECKEY_NUM);
 
             renewExtModifierDgv();
         }
 
+        // 修飾キー一覧の表示内容を現在選択中の定義で更新する
         private void renewExtModifierDgv()
         {
             int idx = comboBox_modKeys.SelectedIndex;
@@ -225,38 +322,19 @@ namespace KanchokuWS.Gui
             dgv2Locked = true;
             var dgv = dataGridView_extModifier;
             int num = dgv.Rows.Count;
-            int normalKeysNum = DecoderKeyVsChar.NormalKeyNames._safeCount();
             var definition = CommonTableRuntime.GetHoldShiftDefinition(modKeyDef.DecKey);
             for (int i = 0; i < num; ++i) {
                 dgv.Rows[i].Cells[0].Value = i;
-                if (i < normalKeysNum) {
-                    dgv.Rows[i].Cells[1].Value = DecoderKeyVsChar.NormalKeyNames[i];
-                } else {
-                    dgv.Rows[i].Cells[1].Value = extModifiees[i - normalKeysNum].Name;
-                }
-                string assigned = "";
-                string desc = "";
-                KeyOrFunction kof = null;
-                if (definition != null) {
-                    int deckey = i < normalKeysNum ? i : extModifiees[i - normalKeysNum].DecKey;
-                    var target = definition.Actions._safeGet(deckey)?.RawTarget;
-                    if (target._notEmpty()) {
-                        var displayed = displayTarget(target);
-                        kof = SpecialKeysAndFunctions.GetKeyOrFuncByName(displayed);
-                        if (kof != null) {
-                            assigned = kof.Name;
-                            desc = kof.Description;
-                        } else {
-                            assigned = displayed;
-                        }
-                    }
-                }
-                dgv.Rows[i].Cells[2].Value = assigned;
+                dgv.Rows[i].Cells[1].Value = getModifieeKeyName(i);
+                var target = definition?.Actions._safeGet(i)?.RawTarget;
+                var (disp, desc) = getDisplayTargetAndDescription(target);
+                dgv.Rows[i].Cells[2].Value = disp;
                 dgv.Rows[i].Cells[3].Value = desc;
             }
             dgv2Locked = false;
         }
 
+        // 選択された修飾キーに応じてヘッダと一覧を切り替える
         private void selectModKey()
         {
             try {
@@ -270,18 +348,21 @@ namespace KanchokuWS.Gui
             }
         }
 
+        // OK ボタンでダイアログを確定して閉じる
         private void buttonOK_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
             Close();
         }
 
+        // Cancel ボタンで変更を破棄して閉じる
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             Close();
         }
 
+        // 表示モード切り替えに合わせて表示中のグリッドを更新する
         private void radioButtonCheckedChanged()
         {
             try {
@@ -314,21 +395,25 @@ namespace KanchokuWS.Gui
             }
         }
 
+        // 修飾キー表示への切り替えを共通処理に委譲する
         private void radioButton_modKeys_CheckedChanged(object sender, EventArgs e)
         {
             radioButtonCheckedChanged();
         }
 
+        // 単打キー表示への切り替えを共通処理に委譲する
         private void radioButton_singleHit_CheckedChanged(object sender, EventArgs e)
         {
             radioButtonCheckedChanged();
         }
 
+        // 修飾キー選択変更時に対象定義を切り替える
         private void comboBox_modKeys_SelectedIndexChanged(object sender, EventArgs e)
         {
             selectModKey();
         }
 
+        // 追加対象の修飾キーを定義一覧に取り込む
         private void comboBox_addModKey_SelectedIndexChanged(object sender, EventArgs e)
         {
             try {
@@ -348,18 +433,21 @@ namespace KanchokuWS.Gui
             }
         }
 
+        // シフト面選択変更を修飾キー定義へ反映する
         private void comboBox_shiftPlane_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (holdShiftHeaderLocked) return;
             updateHoldShiftHeader();
         }
 
+        // デコーダOFF時有効フラグ変更を修飾キー定義へ反映する
         private void checkBox_enabledWhenOff_CheckedChanged(object sender, EventArgs e)
         {
             if (holdShiftHeaderLocked) return;
             updateHoldShiftHeader();
         }
 
+        // 修飾キー一覧の編集結果を共通テーブルへ保存する
         private void dataGridView_extModifier_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (dgv2Locked) return;
@@ -379,10 +467,8 @@ namespace KanchokuWS.Gui
             if (modKeyDef == null) return;
 
             try {
-                int normalKeysNum = DecoderKeyVsChar.NormalKeyNames._safeCount();
-                int deckey = row < normalKeysNum ? row : extModifiees[row - normalKeysNum].DecKey;
                 var target = normalizeTarget(dgv.Rows[row].Cells[TARGET_COL].Value?.ToString() ?? "");
-                CommonTableRuntime.UpdateHoldShiftTarget(modKeyDef.DecKey, deckey, target);
+                CommonTableRuntime.UpdateHoldShiftTarget(modKeyDef.DecKey, row, target);
                 renewExtModifierDgv();
 
             } catch (Exception ex) {
@@ -392,6 +478,7 @@ namespace KanchokuWS.Gui
             logger.DebugH(() => $"LEAVE");
         }
 
+        // 単打キー一覧の編集結果を共通テーブルへ保存する
         private void dataGridView_singleHit_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (dgv1Locked) return;
@@ -406,7 +493,7 @@ namespace KanchokuWS.Gui
             int row = e.RowIndex;
             if (row < 0 || row >= dgv.Rows.Count) return;
 
-            int deckey = singleHitKeys._getNth(row)?.DecKey ?? -1;
+            int deckey = DecoderKeys.FUNC_DECKEY_START + row;
             if (deckey < 0) return;
 
             try {
@@ -421,6 +508,7 @@ namespace KanchokuWS.Gui
             logger.DebugH(() => $"LEAVE");
         }
 
+        // キーワード選択ダイアログから割り当て先を選ばせる
         private void selectKeyOrFuncName(DataGridView dgv, int ridx)
         {
             int no = dgv.Rows[ridx].Cells[0].Value.ToString()._parseInt(0);     // 元の順の番号を取得しておく
@@ -450,6 +538,7 @@ namespace KanchokuWS.Gui
             }
         }
 
+        // 右クリック時に割り当て選択ダイアログを開く
         private void dgvCellMouseClick(DataGridView dgv, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
@@ -459,6 +548,7 @@ namespace KanchokuWS.Gui
             selectKeyOrFuncName(dgv, ridx);
         }
 
+        // ダブルクリック時に割り当て選択ダイアログを開く
         private void dgvCellMouseDoubleClick(DataGridView dgv, DataGridViewCellMouseEventArgs e)
         {
             int ridx = e.RowIndex;
@@ -467,6 +557,7 @@ namespace KanchokuWS.Gui
             selectKeyOrFuncName(dgv, ridx);
         }
 
+        // 割り当て列で Delete/Backspace によるクリアを扱う
         private void dgvKeyDown(DataGridView dgv, KeyEventArgs e)
         {
             if (!dgv.IsCurrentCellInEditMode) {
@@ -478,36 +569,43 @@ namespace KanchokuWS.Gui
             }
         }
 
+        // 修飾キー一覧の右クリックを共通処理へ渡す
         private void dataGridView_extModifier_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             dgvCellMouseClick(dataGridView_extModifier, e);
         }
 
+        // 修飾キー一覧のダブルクリックを共通処理へ渡す
         private void dataGridView_extModifier_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             dgvCellMouseDoubleClick(dataGridView_extModifier, e);
         }
 
+        // 修飾キー一覧のキー操作を共通処理へ渡す
         private void dataGridView_extModifier_KeyDown(object sender, KeyEventArgs e)
         {
             dgvKeyDown(dataGridView_extModifier, e);
         }
 
+        // 単打キー一覧の右クリックを共通処理へ渡す
         private void dataGridView_singleHit_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             dgvCellMouseClick(dataGridView_singleHit, e);
         }
 
+        // 単打キー一覧のダブルクリックを共通処理へ渡す
         private void dataGridView_singleHit_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             dgvCellMouseDoubleClick(dataGridView_singleHit, e);
         }
 
+        // 単打キー一覧のキー操作を共通処理へ渡す
         private void dataGridView_singleHit_KeyDown(object sender, KeyEventArgs e)
         {
             dgvKeyDown(dataGridView_singleHit, e);
         }
 
+        // 単打キー一覧の列幅変更を設定へ保存する
         private void dataGridView_singleHit_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
         {
             if (dataGridView_singleHit.Columns.Count > 3) {
@@ -516,6 +614,7 @@ namespace KanchokuWS.Gui
             }
         }
 
+        // 修飾キー一覧の列幅変更を設定へ保存する
         private void dataGridView_extModifier_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
         {
             if (dataGridView_extModifier.Columns.Count > 3) {
@@ -524,11 +623,13 @@ namespace KanchokuWS.Gui
             }
         }
 
+        // FAQ のキー割り当て説明ページを開く
         private void button_openFAQ_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start(Settings.FaqKeyAssignUrl);
         }
 
+        // 修飾キー選択用コンボボックスの内容を再構築する
         private void refreshModifierKeyComboBoxes(int selectedDeckey = -1)
         {
             var presetHoldShiftDeckeys = CommonTableRuntime.PresetHoldShiftDeckeys();
@@ -537,7 +638,7 @@ namespace KanchokuWS.Gui
                 .Where(x => x != null)
                 .ToList();
             var holdShiftDefinedKeys = SpecialKeysAndFunctions.GetSpecialKeyOrFunctionList()
-                .Where(x => x.DecKey >= 0)
+                .Where(x => x.DecKey >= 0 && x.DecKey < DecoderKeys.FUNC_DECKEY_END)
                 .GroupBy(x => x.DecKey)
                 .Select(x => x.First())
                 .Where(x => !presetHoldShiftDeckeys.Contains(x.DecKey))
@@ -545,10 +646,9 @@ namespace KanchokuWS.Gui
                 .OrderBy(x => x.DecKey);
             visibleModifierKeys = baseKeys.Concat(holdShiftDefinedKeys).ToArray();
             addableModifierKeys = SpecialKeysAndFunctions.GetSpecialKeyOrFunctionList()
-                .Where(x => x.DecKey >= 0)
+                .Where(x => x.DecKey >= 0 && x.DecKey < DecoderKeys.FUNC_DECKEY_END)
                 .GroupBy(x => x.DecKey)
                 .Select(x => x.First())
-                .Where(x => (x.DecKey >= DecoderKeys.ESC_DECKEY && x.DecKey <= DecoderKeys.F16_DECKEY))
                 .Where(x => !visibleModifierKeys.Any(y => y.DecKey == x.DecKey))
                 .OrderBy(x => x.DecKey)
                 .ToArray();
@@ -569,6 +669,7 @@ namespace KanchokuWS.Gui
             }
         }
 
+        // 修飾キー定義のヘッダ情報を上部コントロールへ反映する
         private void syncHoldShiftHeaderControls(KeyOrFunction modKeyDef)
         {
             holdShiftHeaderLocked = true;
@@ -579,6 +680,7 @@ namespace KanchokuWS.Gui
             holdShiftHeaderLocked = false;
         }
 
+        // 上部コントロールの内容を修飾キー定義のヘッダへ反映する
         private void updateHoldShiftHeader()
         {
             int modkeyIdx = comboBox_modKeys.SelectedIndex;
