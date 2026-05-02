@@ -976,8 +976,8 @@ namespace KanchokuWS.Gui
             setEnabled(checkBox_useCombinationKeyTimer2, Settings.UseCombinationKeyTimer2_PropName);
             checkBox_onlyCharKeysComboShouldBeCoveringCombo.Checked = Settings.OnlyCharKeysComboShouldBeCoveringCombo;
             setEnabled(checkBox_onlyCharKeysComboShouldBeCoveringCombo, Settings.OnlyCharKeysComboShouldBeCoveringCombo_PropName);
-            checkBox_useComboExtModKeyAsSingleHit.Checked = Settings.UseComboExtModKeyAsSingleHit;
-            setEnabled(checkBox_useComboExtModKeyAsSingleHit, Settings.UseComboExtModKeyAsSingleHit_PropName);
+            checkBox_useComboImeKeyAsSingleHit.Checked = Settings.UseComboImeKeyAsSingleHit;
+            setEnabled(checkBox_useComboImeKeyAsSingleHit, Settings.UseComboImeKeyAsSingleHit_PropName);
             textBox_charKeyComboMinOverlappingTime.Text = $"{Settings.CharKeyComboMinOverlappingTime}";
             setEnabled(textBox_charKeyComboMinOverlappingTime, Settings.CharKeyComboMinOverlappingTime_PropName);
 
@@ -1012,7 +1012,7 @@ namespace KanchokuWS.Gui
             checkerImeCombo.Add(checkBox_useCombinationKeyTimer1);
             checkerImeCombo.Add(checkBox_useCombinationKeyTimer2);
             checkerImeCombo.Add(checkBox_onlyCharKeysComboShouldBeCoveringCombo);
-            checkerImeCombo.Add(checkBox_useComboExtModKeyAsSingleHit);
+            checkerImeCombo.Add(checkBox_useComboImeKeyAsSingleHit);
             checkerImeCombo.Add(textBox_charKeyComboMinOverlappingTime);
 
             // IME連携
@@ -1047,7 +1047,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni(Settings.UseCombinationKeyTimer1_PropName, checkBox_useCombinationKeyTimer1.Checked);
             Settings.SetUserIni(Settings.UseCombinationKeyTimer2_PropName, checkBox_useCombinationKeyTimer2.Checked);
             Settings.SetUserIni(Settings.OnlyCharKeysComboShouldBeCoveringCombo_PropName, checkBox_onlyCharKeysComboShouldBeCoveringCombo.Checked);
-            Settings.SetUserIni(Settings.UseComboExtModKeyAsSingleHit_PropName, checkBox_useComboExtModKeyAsSingleHit.Checked);
+            Settings.SetUserIni(Settings.UseComboImeKeyAsSingleHit_PropName, checkBox_useComboImeKeyAsSingleHit.Checked);
             Settings.SetUserIni(Settings.CharKeyComboMinOverlappingTime_PropName, textBox_charKeyComboMinOverlappingTime.Text.Trim());
 
             // IME連携

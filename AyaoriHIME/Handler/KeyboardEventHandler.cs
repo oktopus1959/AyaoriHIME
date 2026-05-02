@@ -178,20 +178,7 @@ namespace KanchokuWS.Handler
         private const uint VKEY_HANZEN = 0xf3;
         private const uint VKEY_KANJI = 0xf4;
 
-        /// <summary> 漢直として有効なキーか</summary>
-        //private bool isEffectiveVkey(uint vkey, int scanCode, uint flags, int extraInfo, bool ctrl)
-        //{
-        //    // 0xa0 = LSHIFT, 0xa1 = RSHIFT, 0xa2=LCTRL, 0xa3=RCTRL, 0xa4=LALT, 0xa5 = RALT, 0xf3 = Zenkaku, 0xf4 = Kanji
-        //    return
-        //        (Settings.IgnoreOtherHooker ? (flags & LLKHF_INJECTED) == 0 : extraInfo != SendInputHandler.MyMagicNumber) &&
-        //        scanCode != 0 && scanCode != YamabukiRscanCode &&
-        //        ((vkey > 0 && vkey < 0xa0) ||
-        //         ((vkey == FuncVKeys.LSHIFT || vkey == FuncVKeys.RSHIFT) &&
-        //          (!ctrl || Settings.ActiveKeyWithCtrl == vkey || Settings.ActiveKeyWithCtrl2 == vkey || Settings.SelectedTableActivatedWithCtrl == vkey || Settings.DeactiveKeyWithCtrl == vkey)) ||
-        //         //(vkey >= 0xa6 && vkey < 0xf3) ||
-        //         //(vkey >= 0xf5 && vkey < vkeyNum));
-        //         (vkey >= 0xa6 && vkey < vkeyNum));
-        //}
+        /// <summary> 処理対象キーか</summary>
         private bool isEffectiveVkey(uint vkey, int scanCode, uint flags, int extraInfo, bool ctrl)
         {
             return
@@ -214,11 +201,6 @@ namespace KanchokuWS.Handler
             return (Settings.UseLeftControlToConversion && (GetAsyncKeyState(FuncVKeys.LCONTROL) & 0x8000) != 0)
                 || (Settings.UseRightControlToConversion && (GetAsyncKeyState(FuncVKeys.RCONTROL) & 0x8000) != 0);
         }
-
-        //private bool shiftKeyPressed(bool bWithOutCtrl)
-        //{
-        //    return (!bWithOutCtrl && spaceHoldShiftState == ExModKeyState.SHIFTED) || (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0 || (GetAsyncKeyState(FuncVKeys.RSHIFT) & 0x8000) != 0;
-        //}
 
         private bool shiftKeyPressed(uint vkey)
         {

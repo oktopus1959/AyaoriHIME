@@ -17,7 +17,7 @@ namespace KanchokuWS.Gui
     {
         private static Logger logger = Logger.GetLogger();
 
-        private static KeyOrFunction[] modifierKeys;
+        //private static KeyOrFunction[] modifierKeys;
         private static KeyOrFunction[] visibleModifierKeys;
         private static KeyOrFunction[] addableModifierKeys;
 
@@ -55,7 +55,7 @@ namespace KanchokuWS.Gui
         /// <summary>コンストラクタ</summary>
         public DlgCommonTable()
         {
-            modifierKeys = SpecialKeysAndFunctions.GetModifierKeys(_ => true).Where(x => x.DecKey >= 0).ToArray();
+            //modifierKeys = SpecialKeysAndFunctions.GetModifierKeys(_ => true).Where(x => x.DecKey >= 0).ToArray();
             extModifiees = SpecialKeysAndFunctions.GetModifieeKeys();
             singleHitKeys = SpecialKeysAndFunctions.GetSingleHitKeys();
 

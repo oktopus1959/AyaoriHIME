@@ -36,7 +36,7 @@ namespace KanchokuWS
 
         public const uint ATTR_EXTMOD = ATTR_MODIFIER | ATTR_EXTENTED;
         public const uint ATTR_EXTSINGLE = ATTR_EXTMOD | ATTR_SINGLE;
-        public const uint ATTR_SANDS = ATTR_EXTMOD | ATTR_SPACE;
+        //public const uint ATTR_SANDS = ATTR_EXTMOD | ATTR_SPACE;
 
         public KeyOrFunction(uint flag, int deckey, uint modKey, string name, string modName, string desc, string name1 = null, string name2 = null, string detail = null)
         {
@@ -89,7 +89,7 @@ namespace KanchokuWS
 
         private static KeyOrFunction[] specialKeysAndFunctions = new KeyOrFunction[] {
             //new KeyOrFunction(KeyOrFunction.ATTR_MODIFIEE, DecoderKeys.STROKE_SPACE_DECKEY, 0, "Space", "", "Space キー", "spc"),
-            new KeyOrFunction(KeyOrFunction.ATTR_SANDS, DecoderKeys.STROKE_SPACE_DECKEY, KeyModifiers.MOD_SPACE, "Space", "SandS", "Space キー", "spc"),
+            new KeyOrFunction(KeyOrFunction.ATTR_SPACE, DecoderKeys.STROKE_SPACE_DECKEY, KeyModifiers.MOD_SPACE, "Space", "", "Space キー", "spc"),
             new KeyOrFunction(KeyOrFunction.ATTR_MODIFIEE, DecoderKeys.ESC_DECKEY, 0, "Esc", "", "Escape キー", "escape", "fn1"),
             new KeyOrFunction(KeyOrFunction.ATTR_SINGLE | KeyOrFunction.ATTR_ASSIGNABLE, DecoderKeys.HANZEN_DECKEY, 0, "zenkaku", "半角/全角", "半角/全角 キー", "hanzen"),
             new KeyOrFunction(KeyOrFunction.ATTR_MODIFIEE, DecoderKeys.TAB_DECKEY, 0, "Tab", "", "Tab キー"),

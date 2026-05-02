@@ -430,6 +430,7 @@ namespace KanchokuWS.Domain
                     };
                 }
 
+                // 旧仕様の mod-conversion.txt による拡張修飾キーの定義を HoldShift 定義に変換して登録する
                 foreach (var pair in legacyDefinition.ExtModifierKeyDefs) {
                     var modifierName = ModifierKeyRegistry.GetModifierNameByKey(pair.Key);
                     if (modifierName._isEmpty()) continue;

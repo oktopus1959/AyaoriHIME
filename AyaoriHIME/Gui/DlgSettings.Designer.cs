@@ -153,7 +153,7 @@ namespace KanchokuWS.Gui
             this.button_imeFAQ = new System.Windows.Forms.Button();
             this.button_imeComboReload = new System.Windows.Forms.Button();
             this.groupBox50 = new System.Windows.Forms.GroupBox();
-            this.checkBox_useComboExtModKeyAsSingleHit = new System.Windows.Forms.CheckBox();
+            this.checkBox_useComboImeKeyAsSingleHit = new System.Windows.Forms.CheckBox();
             this.groupBox47 = new System.Windows.Forms.GroupBox();
             this.checkBox_imeKatakanaToHiragana = new System.Windows.Forms.CheckBox();
             this.radioButton_imeSendInputInUnicode = new System.Windows.Forms.RadioButton();
@@ -2265,7 +2265,7 @@ namespace KanchokuWS.Gui
             // 
             // groupBox50
             // 
-            this.groupBox50.Controls.Add(this.checkBox_useComboExtModKeyAsSingleHit);
+            this.groupBox50.Controls.Add(this.checkBox_useComboImeKeyAsSingleHit);
             this.groupBox50.Location = new System.Drawing.Point(374, 164);
             this.groupBox50.Name = "groupBox50";
             this.groupBox50.Size = new System.Drawing.Size(297, 48);
@@ -2273,16 +2273,16 @@ namespace KanchokuWS.Gui
             this.groupBox50.TabStop = false;
             this.groupBox50.Text = "「変換」「無変換」「ImeOn」「ImeOff」キー";
             // 
-            // checkBox_useComboExtModKeyAsSingleHit
+            // checkBox_useComboImeKeyAsSingleHit
             // 
-            this.checkBox_useComboExtModKeyAsSingleHit.AutoSize = true;
-            this.checkBox_useComboExtModKeyAsSingleHit.Location = new System.Drawing.Point(14, 18);
-            this.checkBox_useComboExtModKeyAsSingleHit.Name = "checkBox_useComboExtModKeyAsSingleHit";
-            this.checkBox_useComboExtModKeyAsSingleHit.Size = new System.Drawing.Size(214, 19);
-            this.checkBox_useComboExtModKeyAsSingleHit.TabIndex = 0;
-            this.checkBox_useComboExtModKeyAsSingleHit.Text = "単打の場合は本来のキーとして機能する";
-            this.toolTip1.SetToolTip(this.checkBox_useComboExtModKeyAsSingleHit, resources.GetString("checkBox_useComboExtModKeyAsSingleHit.ToolTip"));
-            this.checkBox_useComboExtModKeyAsSingleHit.UseVisualStyleBackColor = true;
+            this.checkBox_useComboImeKeyAsSingleHit.AutoSize = true;
+            this.checkBox_useComboImeKeyAsSingleHit.Location = new System.Drawing.Point(14, 18);
+            this.checkBox_useComboImeKeyAsSingleHit.Name = "checkBox_useComboImeKeyAsSingleHit";
+            this.checkBox_useComboImeKeyAsSingleHit.Size = new System.Drawing.Size(214, 19);
+            this.checkBox_useComboImeKeyAsSingleHit.TabIndex = 0;
+            this.checkBox_useComboImeKeyAsSingleHit.Text = "単打の場合は本来のキーとして機能する";
+            this.toolTip1.SetToolTip(this.checkBox_useComboImeKeyAsSingleHit, resources.GetString("checkBox_useComboImeKeyAsSingleHit.ToolTip"));
+            this.checkBox_useComboImeKeyAsSingleHit.UseVisualStyleBackColor = true;
             // 
             // groupBox47
             // 
@@ -8284,7 +8284,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Button button_showDlgStrokeLog;
         private System.Windows.Forms.Label label_testCount;
         private System.Windows.Forms.GroupBox groupBox50;
-        private System.Windows.Forms.CheckBox checkBox_useComboExtModKeyAsSingleHit;
+        private System.Windows.Forms.CheckBox checkBox_useComboImeKeyAsSingleHit;
         private System.Windows.Forms.Button button_developReload;
         private System.Windows.Forms.GroupBox groupBox48;
         private System.Windows.Forms.Label label123;

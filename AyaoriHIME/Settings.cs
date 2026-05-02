@@ -999,9 +999,12 @@ namespace KanchokuWS
         ///// <summary>同時打鍵とみなす重複率<br/>第１打鍵と第２打鍵の重複時間が第２打鍵の時間に対してここで設定したパーセンテージを超えたら、同時打鍵とみなす</summary>
         //public static int CombinationKeyTimeRate { get; set; }
 
-        /// <summary>同時打鍵キーとして使う「無変換」や「変換」を単打キーとしても使えるようにする</summary>
-        public static bool UseComboExtModKeyAsSingleHit { get; set; }
-        public static string UseComboExtModKeyAsSingleHit_PropName = "useComboExtModKeyAsSingleHit";
+        /// <summary>
+        /// 同時打鍵キーとして使うIME関連キーの Muhenkan, Henkan, ImeOn, ImeOff を単打キーとしても使えるようにする。<br/>
+        /// この時、これらのキーが打鍵されると編集バッファをフラッシュして、Systemに送信される。
+        /// </summary>
+        public static bool UseComboImeKeyAsSingleHit { get; set; }
+        public static string UseComboImeKeyAsSingleHit_PropName = "useComboExtModKeyAsSingleHit";
 
         /// <summary>同時打鍵シフトキーがUPされた後、後置シフトを無効にする時間(ミリ秒)。<br/>
         /// つまり、この時間帯に打鍵された文字キーは、その後どんな短い間隔でシフトキーが押されても単打扱いとなる</summary>
@@ -1711,7 +1714,7 @@ namespace KanchokuWS
             CombinationKeyMinOverlappingTimeForSecond = GetString(CombinationKeyMinOverlappingTimeForSecond_PropName)._parseInt(0)._lowLimit(CombinationKeyMinOverlappingTimeMs); // ２文字目以降の同時打鍵の重複時間
             UseCombinationKeyTimer1 = GetString(UseCombinationKeyTimer1_PropName)._parseBool(false);                // 同時打鍵判定用タイマーを使用する
             UseCombinationKeyTimer2 = GetString(UseCombinationKeyTimer2_PropName)._parseBool(false);                // 同時打鍵判定用タイマーを使用する
-            UseComboExtModKeyAsSingleHit = GetString(UseComboExtModKeyAsSingleHit_PropName)._parseBool(true);       // 同時打鍵キーとして使う「無変換」や「変換」を単打キーとしても使えるようにする
+            UseComboImeKeyAsSingleHit = GetString(UseComboImeKeyAsSingleHit_PropName)._parseBool(true);       // 同時打鍵キーとして使う「無変換」や「変換」を単打キーとしても使えるようにする
 
             ThreeKeysComboUnconditional = GetString(ThreeKeysComboUnconditional_PropName)._parseBool(false);        // 優先される順次打鍵以外の3キー同時打鍵なら無条件に判定
             SequentialPriorityWords = GetString(SequentialPriorityWords_PropName, "てない").Trim();                 // 同時打鍵よりも順次打鍵のほうを優先させる文字列の並び

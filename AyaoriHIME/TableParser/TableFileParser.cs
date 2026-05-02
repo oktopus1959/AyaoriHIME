@@ -1335,7 +1335,7 @@ namespace KanchokuWS.TableParser
             }
 
             // 拡張修飾キーが同時打鍵キーとして使われた場合は、そのキーの単打設定として本来のキー出力を追加する
-            addExtModfierAsSingleHitKey();
+            addImeRelatedKeysAsSingleHitKey();
 
             ////順次打鍵列の先頭キーを単打として追加する → 先にRootTableを '@^' で埋めたので、これは不要になった
             //if (isKanchokuModeParser) {
@@ -1399,9 +1399,9 @@ namespace KanchokuWS.TableParser
         }
 
         /// <summary>拡張修飾キーが同時打鍵キーとして使われた場合は、そのキーの単打設定として本来のキー出力を追加する</summary>
-        void addExtModfierAsSingleHitKey()
+        void addImeRelatedKeysAsSingleHitKey()
         {
-            void addExtModAsSingleKey(string keyName)
+            void addAsSingleHitKey(string keyName)
             {
                 int dk = DecoderKeyVsVKey.GetFuncDecKeyByName(keyName);
                 if (dk >= 0) {
@@ -1414,12 +1414,12 @@ namespace KanchokuWS.TableParser
                 }
             }
 
-            if (Settings.UseComboExtModKeyAsSingleHit) {
+            if (Settings.UseComboImeKeyAsSingleHit) {
                 // とりあえず nfer/xfer/imeon/imeoff だけ対応
-                addExtModAsSingleKey("nfer");
-                addExtModAsSingleKey("xfer");
-                addExtModAsSingleKey("imeon");
-                addExtModAsSingleKey("imeoff");
+                addAsSingleHitKey("nfer");
+                addAsSingleHitKey("xfer");
+                addAsSingleHitKey("imeon");
+                addAsSingleHitKey("imeoff");
             }
         }
 

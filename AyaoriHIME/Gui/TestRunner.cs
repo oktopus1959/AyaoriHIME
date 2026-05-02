@@ -45,7 +45,7 @@ namespace KanchokuWS.Gui
             Settings.UseCombinationKeyTimer1 = false;
             Settings.UseCombinationKeyTimer2 = false;
             Settings.ThreeKeysComboUnconditional = false;
-            Settings.UseComboExtModKeyAsSingleHit = false;
+            Settings.UseComboImeKeyAsSingleHit = false;
             Settings.OnlyCharKeysComboShouldBeCoveringCombo = false;
             Settings.MultiStreamMode = false;
 #else
@@ -119,7 +119,7 @@ namespace KanchokuWS.Gui
                         Settings.UseCombinationKeyTimer1 = false;
                         Settings.UseCombinationKeyTimer2 = false;
                         Settings.ThreeKeysComboUnconditional = false;
-                        Settings.UseComboExtModKeyAsSingleHit = false;
+                        Settings.UseComboImeKeyAsSingleHit = false;
                         //Settings.ExtraModifiersEnabled = false;
                         Settings.OnlyCharKeysComboShouldBeCoveringCombo = false;
                         Settings.CombinationKeyMaxAllowedLeadTimeMs = 100;
@@ -229,7 +229,7 @@ namespace KanchokuWS.Gui
                         break;
 
                     case "useComboExtModKeyAsSingleHit":
-                        Settings.UseComboExtModKeyAsSingleHit = arg._parseBool(true);
+                        Settings.UseComboImeKeyAsSingleHit = arg._parseBool(true);
                         break;
 
                     case "onlyCharKeysComboShouldBeCoveringCombo":
