@@ -521,42 +521,49 @@ namespace KanchokuWS.TableParser
         {
             if (chunk._isEmpty() || chunk[0] == '"') return chunk;
 
-            // 先頭が引用符でなく、かつ '{' を含む場合、'{...}' 部分を '!{...}' に書き換える
+            // 非 quoted セル中の {..}, ^{..}, ^X を !{..} 形式へ正規化する
             StringBuilder sb = new StringBuilder();
             sb.Append('"');
-            int prevPos = 0;
-            while (prevPos < chunk.Length) {
-                int lbracePos = chunk._safeIndexOf('{', prevPos);
-                if (lbracePos == prevPos) {
-                    sb.Append("!{");
-                } else if (lbracePos > prevPos) {
-                    char prefix = chunk[lbracePos - 1];
-                    if (prefix == '^' || prefix == '+' || prefix == '!') {
-                        sb.Append(chunk._safeSubstring(prevPos, lbracePos - 1 - prevPos)).Append("!{").Append(prefix);
-                    } else {
-                        sb.Append(chunk._safeSubstring(prevPos, lbracePos - prevPos)).Append("!{");
+            int pos = 0;
+            while (pos < chunk.Length) {
+                if (pos < chunk.Length - 2 && chunk[pos] == '!' && chunk[pos + 1] == '{') {
+                    int rbracePos = chunk._safeIndexOf('}', pos + 2);
+                    if (rbracePos > pos + 1) {
+                        sb.Append(chunk._safeSubstring(pos, rbracePos - pos + 1));
+                        pos = rbracePos + 1;
+                        continue;
                     }
-                } else {
-                    int hatPos = chunk._safeIndexOf('^', prevPos);
-                    while (hatPos >= 0 && hatPos < chunk.Length - 1) {
-                        int charPos = hatPos + 1;
-                        char ch = chunk[charPos];
-                        if (ch._isAlphabet()) {
-                            int nextCharPos = charPos + 1;
-                            if (nextCharPos >= chunk.Length || !chunk[nextCharPos]._isAlphabet()) {
-                                // Ctrl+<char> 形式
-                                sb.Append(chunk._safeSubstring(prevPos, hatPos - prevPos)).Append("!{^").Append(ch).Append('}');
-                                prevPos = nextCharPos;
-                                hatPos = chunk._safeIndexOf('^', prevPos);
-                                continue;
-                            }
-                        }
-                        break;
-                    }
-                    sb.Append(chunk._safeSubstring(prevPos));
-                    break;
                 }
-                prevPos = lbracePos + 1;
+
+                if (chunk[pos] == '{') {
+                    int rbracePos = chunk._safeIndexOf('}', pos + 1);
+                    if (rbracePos > pos) {
+                        sb.Append("!{").Append(chunk._safeSubstring(pos + 1, rbracePos - pos - 1)).Append('}');
+                        pos = rbracePos + 1;
+                        continue;
+                    }
+                }
+
+                if (pos < chunk.Length - 2 && (chunk[pos] == '^' || chunk[pos] == '+' || chunk[pos] == '!') && chunk[pos + 1] == '{') {
+                    int rbracePos = chunk._safeIndexOf('}', pos + 2);
+                    if (rbracePos > pos + 1) {
+                        sb.Append("!{").Append(chunk[pos]).Append(chunk._safeSubstring(pos + 2, rbracePos - pos - 2)).Append('}');
+                        pos = rbracePos + 1;
+                        continue;
+                    }
+                }
+
+                if (pos < chunk.Length - 1 && chunk[pos] == '^' && chunk[pos + 1]._isAlphabet()) {
+                    int nextPos = pos + 2;
+                    if (nextPos >= chunk.Length || !chunk[nextPos]._isAlphabet()) {
+                        sb.Append("!{^").Append(chunk[pos + 1]).Append('}');
+                        pos = nextPos;
+                        continue;
+                    }
+                }
+
+                sb.Append(chunk[pos]);
+                ++pos;
             }
             sb.Append('"');
             return sb.ToString();
