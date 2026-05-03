@@ -268,16 +268,19 @@ namespace lattice2 {
                 kanji = utils::is_kanji(str[i]);
                 if (i == 0) {
                     // 先頭文字の場合は、str と一致する〓付きも調べる (例: 〓池 vs 〓での)
-                    //for (size_t len = 1; len <= MAX_SELECTED_NGRAM_LEN && i + len <= str.size(); ++len) {
-                    //    _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(i, len));
-                    //}
-                    _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str));
-                    bool found = _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str);
-                    if (!found && str.size() > 2) {
-                        // 先頭全体の〓付きパターンが見つからなかった場合は、短い長さのパターンも調べる
-                        for (size_t len = 3; len <= MAX_SELECTED_NGRAM_LEN && len < str.size(); ++len) {
-                            _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str.substr(0, len)));
-                            _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(0, len));
+                    // ただし、ひらがな1文字のケースを除く
+                    if (str.size() > 1 || !utils::is_hiragana(str.front())) {
+                        //for (size_t len = 1; len <= MAX_SELECTED_NGRAM_LEN && i + len <= str.size(); ++len) {
+                        //    _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(i, len));
+                        //}
+                        _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str));
+                        bool found = _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str);
+                        if (!found && str.size() > 2) {
+                            // 先頭全体の〓付きパターンが見つからなかった場合は、短い長さのパターンも調べる
+                            for (size_t len = 3; len <= MAX_SELECTED_NGRAM_LEN && len < str.size(); ++len) {
+                                _LOG_DETAIL(L"Pattern: {}", to_wstr(MSTR_GETA + str.substr(0, len)));
+                                _gatherSelectedNgramPairBonus(resultSet, MSTR_GETA + str.substr(0, len));
+                            }
                         }
                     }
                 } else if (i + 1 < str.size()) {

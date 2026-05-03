@@ -730,6 +730,22 @@ namespace lattice2 {
             return s.size() > 1 && s.find('|') != MString::npos;
         }
 
+        bool isMultiChoiceSingleHiraganaPiece(const MString& s) {
+            if (!isMultiChoicePiece(s)) return false;
+            const auto items = utils::split(s, '|');
+            return !items.empty() &&
+                std::all_of(items.begin(), items.end(), [](const MString& item) {
+                    return item.size() == 1 && utils::is_hiragana(item[0]);
+                });
+        }
+
+        bool areAllCandidateStringsEmpty(const std::vector<CandidateString>& candidates) {
+            return !candidates.empty() &&
+                std::all_of(candidates.begin(), candidates.end(), [](const CandidateString& cand) {
+                    return cand.string().empty();
+                });
+        }
+
         // reorder 後の先頭候補と比べて、末尾側でどれだけ違うかを測る
         size_t calcTailDifferenceLen(const MString& a, const MString& b) {
             size_t commonSuffixLen = 0;
@@ -1350,6 +1366,9 @@ namespace lattice2 {
             _LOG_DETAIL(_T("A: newCandidates.size={}"), newCandidates.size());
             // 適用する素片が複数ある場合、形態素解析を行う
             useMorphAnalyzer = useMorphAnalyzer || pieces.size() > 1;
+            bool keepInputOrder = pieces.size() == 1 &&
+                isMultiChoiceSingleHiraganaPiece(pieces.front().getString()) &&
+                areAllCandidateStringsEmpty(_candidates);
             // BS でないか、以前の候補が無くなっていた
             for (const auto& piece : pieces) {
                 // 素片のストロークと適合する候補だけを追加
@@ -1357,8 +1376,12 @@ namespace lattice2 {
             }
             if (!isPaddingPiece) {
                 // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
-                reorderCandidates(newCandidates, promotedFlags);
-                promoteRepresentativeCandidates(newCandidates, promotedFlags);
+                if (keepInputOrder) {
+                    _LOG_DETAIL(_T("skip reorder/promote for single hiragana multi-choice on empty candidates"));
+                } else {
+                    reorderCandidates(newCandidates, promotedFlags);
+                    promoteRepresentativeCandidates(newCandidates, promotedFlags);
+                }
                 _LOG_DETAIL(_T("B: newCandidates.size={}"), newCandidates.size());
 
                 //rotateSameTailCandidates(newCandidates);

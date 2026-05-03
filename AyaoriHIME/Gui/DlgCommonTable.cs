@@ -99,10 +99,10 @@ namespace KanchokuWS.Gui
         {
             var items = target._reScan(@"^([!+^]+)(\w+)$");
             if (items._length() == 3) {
-                logger.Warn($"target={target}, mod={items[1]}, name={items[2]}");
+                logger.Info(() => $"target={target}, mod={items[1]}, name={items[2]}");
                 return (items[1], items[2]);
             } else {
-                logger.Warn($"target={target}, mod='', name={target}");
+                logger.Info(() => $"target={target}, mod='', name={target}");
                 return ("", target);
             }
         }
@@ -194,7 +194,7 @@ namespace KanchokuWS.Gui
             var description = "";
             if (rawTarget._notEmpty()) {
                 var (modifiers, name) = displayTarget(rawTarget);
-                logger.Warn(() => $"ENTER: rawTarget={rawTarget}, modifiers={modifiers}, name={name}");
+                logger.Info(() => $"ENTER: rawTarget={rawTarget}, modifiers={modifiers}, name={name}");
                 displayed = modifiers + name;
                 var kof = SpecialKeysAndFunctions.GetKeyOrFuncByName(name);
                 if (kof != null) {
@@ -211,7 +211,7 @@ namespace KanchokuWS.Gui
                 } else {
                     description = "文字列";
                 }
-                logger.Warn($"LEAVE: rawTarget={rawTarget}, disp={displayed}, desc={description}");
+                logger.Info(() => $"LEAVE: rawTarget={rawTarget}, disp={displayed}, desc={description}");
             }
             return (displayed, description);
         }
@@ -475,7 +475,7 @@ namespace KanchokuWS.Gui
                 logger.Error(ex._getErrorMsg());
             }
 
-            logger.DebugH(() => $"LEAVE");
+            logger.DebugH("LEAVE");
         }
 
         // 単打キー一覧の編集結果を共通テーブルへ保存する
@@ -505,7 +505,7 @@ namespace KanchokuWS.Gui
                 logger.Error(ex._getErrorMsg());
             }
 
-            logger.DebugH(() => $"LEAVE");
+            logger.DebugH("LEAVE");
         }
 
         // キーワード選択ダイアログから割り当て先を選ばせる
