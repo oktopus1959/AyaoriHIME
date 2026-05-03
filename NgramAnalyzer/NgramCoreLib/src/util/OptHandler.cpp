@@ -7,7 +7,7 @@
 #include "Logger.h"
 #include "reporting/ErrorHandler.h"
 
-using NgramCoreLib::Logger;
+using Reporting::Logger;
 using sx = utils::StringUtil;
 
 template<class T>

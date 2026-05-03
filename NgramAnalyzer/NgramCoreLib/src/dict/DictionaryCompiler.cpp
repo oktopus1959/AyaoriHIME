@@ -16,7 +16,7 @@
 
 using namespace util;
 using namespace analyzer;
-using NgramCoreLib::Logger;
+using Reporting::Logger;
 
 namespace {
 #if false

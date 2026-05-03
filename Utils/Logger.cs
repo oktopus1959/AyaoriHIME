@@ -57,9 +57,7 @@ namespace Utils
             get { return m_logLevel; }
             set {
                 m_logLevel = value;
-                if (m_logLevel <= LogLevelWarn) {
-                    Close();
-                }
+                Close();
             }
         }
 
@@ -286,56 +284,46 @@ namespace Utils
 
         public void SaveLog()
         {
-            var sw = getWriter();
-            if (sw != null) {
-                try {
-                    sw.WriteLine(traceLogQueue._join("\n") + "\n");
-                    sw.Flush();
-                    if (LogLevel <= LogLevelWarn) Close();
-                } catch { }
-            }
+            appendLogToFile(traceLogQueue._join("\n"));
+            //var sw = getWriter();
+            //if (sw != null) {
+            //    try {
+            //        sw.WriteLine(traceLogQueue._join("\n") + "\n");
+            //        sw.Flush();
+            //        Close();
+            //    } catch {
+            //    }
+            //}
         }
 
-        private void writeLog(string level, string caller, int line, string msg, Action<String, bool> appender)
+        private void writeLog(string level, string caller, int line, string msg, Action<String> appender)
         {
-            //var sw = getWriter();
-            //if (sw != null && msg._notEmpty()) {
-            //    int nlCnt = 0;
-            //    while (nlCnt < msg.Length && msg[nlCnt] == '\n') ++nlCnt;
-            //    if (nlCnt > 0) {
-            //        sw.Write(msg._safeSubstring(0, nlCnt));
-            //        msg = msg._safeSubstring(nlCnt);
-            //    }
-            //    try {
-            //        sw.WriteLine($"{HRDateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff")} {level} [{caller}({line})] {msg}");
-            //        sw.Flush();
-            //        if (LogLevel <= LogLevelWarn) Close();
-            //    } catch { }
-            //}
             int nlCnt = 0;
             while (nlCnt < msg.Length && msg[nlCnt] == '\n') ++nlCnt;
             if (nlCnt > 0) {
-                appender.Invoke(msg._safeSubstring(0, nlCnt), false);
+                appender.Invoke(msg._safeSubstring(0, nlCnt));
                 msg = msg._safeSubstring(nlCnt);
             }
             try {
-                appender.Invoke($"{HRDateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff")} {level} [{caller}({line})] {msg}", true);
+                appender.Invoke($"{HRDateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff")} {level} [{caller}({line})] {msg}");
             } catch { }
         }
 
-        private void appendLogToFile(String msg, bool mayFlush)
+        private void appendLogToFile(String msg)
         {
             var sw = getWriter();
             if (sw != null) {
-                sw.Write(msg);
-                if (mayFlush) {
+                try {
+                    sw.Write(msg);
                     sw.Write("\n");
                     sw.Flush();
+                    Close();
+                } catch {
                 }
             }
         }
 
-        private void appendLogToQueue(String msg, bool mayFlush)
+        private void appendLogToQueue(String msg)
         {
             if (traceLogQueue.Count > QUEUE_SIZE + QUEUE_EXTRA_SIZE) {
                 while (traceLogQueue.Count > QUEUE_SIZE) {

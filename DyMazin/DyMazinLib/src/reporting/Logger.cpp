@@ -129,7 +129,7 @@ namespace Reporting {
 		fw.WriteLog(formatMessage(level, className, method, line, msg));
 	}
 
-	static const int QUEUE_SIZE = 10000;
+	static const int QUEUE_SIZE = 30000;
 	static const int QUEUE_EXTRA_SIZE = 1000;
 
 	void appendLog(Deque<std::string>& queue, const std::string& msg) {
@@ -165,6 +165,7 @@ namespace Reporting {
 				_traceLogQueue.pop_front();
 			}
 			fileWriterPtr->flushLog();
+			Close();
 		}
 	}
 
@@ -199,7 +200,7 @@ namespace Reporting {
 			} else {
 				_write_log(*fileWriterPtr, level, _className, method, line, msg);
 			}
-			if (LogLevel() <= LogLevelWarn) Close();
+			Close();
 		}
 	}
 

@@ -3,6 +3,8 @@
 
 #include "NgramDebugLog.h"
 
+using Logger = Reporting::Logger;
+
 namespace analyzer {
     DEFINE_NAMESPACE_LOGGER(analyzer);
     DEFINE_CLASS_LOGGER(Lattice);
@@ -169,7 +171,7 @@ namespace analyzer {
         //}
 #if _LOG_DEBUGH_FLAG
         // BOSからEOSまでのノード列とコスト(接続コストも含む)をログに出力する
-        if (NgramCoreLib::Logger::IsInfoHEnabled()) {
+        if (Logger::IsInfoHEnabled()) {
             Vector<const Node*> bestPath;
             for (auto node = eosNode(); node != nullptr; node = node->prev()) {
                 bestPath.push_back(node);

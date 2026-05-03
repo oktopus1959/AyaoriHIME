@@ -10,6 +10,8 @@
 
 #include "NgramDebugLog.h"
 
+using Reporting::Logger;
+
 namespace analyzer {
     DECLARE_LOGGER;
 
@@ -249,7 +251,7 @@ namespace analyzer {
             glueNgramMaxLens[pos] = rnodeMaxLen;
 
 #if _LOG_DEBUGH_FLAG
-            if (NgramCoreLib::Logger::IsInfoHEnabled()) showConnectionResult(rightNodes);
+            if (Logger::IsInfoHEnabled()) showConnectionResult(rightNodes);
 #endif
             LOG_DEBUGH(L"LEAVE");
         }

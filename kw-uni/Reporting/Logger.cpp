@@ -165,6 +165,7 @@ namespace Reporting {
 				_traceLogQueue.pop_front();
 			}
 			fileWriterPtr->flushLog();
+			Close();
 		}
 	}
 
@@ -199,7 +200,7 @@ namespace Reporting {
 			} else {
 				_write_log(*fileWriterPtr, level, _className, method, line, msg);
 			}
-			if (LogLevel() <= LogLevelWarn) Close();
+			Close();
 		}
 	}
 

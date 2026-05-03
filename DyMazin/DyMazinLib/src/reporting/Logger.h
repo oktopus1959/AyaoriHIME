@@ -24,8 +24,8 @@
 //   - LOG_TRACE(...)
 // -------------------------------------------------------------------
 
-#include "util/std_utils.h"
-#include "util/string_utils.h"
+#include "std_utils.h"
+#include "string_utils.h"
 
 namespace Reporting {
     class FileWriter;
@@ -171,10 +171,12 @@ namespace Reporting {
 
         inline void WarnH(const String& msg, const std::string& method, const std::string& file, int line) {
             writeLogToFile("WARNH", method, file, line, msg);
+            writeLogToQueue("WARNH", method, file, line, msg);
         }
 
         inline void Error(const String& msg, const std::string& method, const std::string& file, int line) {
             writeLogToFile("ERROR", method, file, line, msg);
+            writeLogToQueue("ERROR", method, file, line, msg);
         }
 
     };
@@ -192,8 +194,11 @@ namespace Reporting {
 #define DEFINE_LOCAL_LOGGER(name)       DEFINE_LOGGER_STR("LOCAL." #name)
 #define DEFINE_NAMESPACE_LOGGER(name)   DEFINE_LOGGER_STR("NAMESPACE." #name)
 
+#define IS_LOG_WARN_ENABLED     (Reporting::Logger::IsWarnEnabled()) 
+#define IS_LOG_INFOH_ENABLED    (Reporting::Logger::IsInfoHEnabled()) 
+#define IS_LOG_INFO_ENABLED     (Reporting::Logger::IsInfoEnabled()) 
 #define IS_LOG_DEBUGH_ENABLED   (Reporting::Logger::IsDebugHEnabled()) 
-#define IS_LOG_DEBUG_ENABLED    (Reporting::Logger::IsDebugEnabled()) 
+#define IS_LOG_DEBUG_ENABLED    (Reporting::Logger::IsDebugEnabled())
 
 #define _SAFE_CHAR(ch) (ch > 0 ? ch : ' ')
 
@@ -229,6 +234,8 @@ namespace Reporting {
 #define LOG_INFOH_COND(flag, fmt, ...) if (flag) LOG_REPORT_COND(InfoH, fmt, __VA_ARGS__)
 #define LOG_INFO_COND(flag, fmt, ...)  if (flag) LOG_REPORT_COND(InfoH, fmt, __VA_ARGS__)
 #define LOG_INFO_UC(fmt, ...) if (!Reporting::Logger::IsAnyLogDisabled()) LOG_REPORT(InfoFile, fmt, __VA_ARGS__)
+#define LOG_INFO_FILE(fmt, ...) LOG_REPORT(InfoFile, fmt, __VA_ARGS__)
+#define LOG_INFO_QUEUE(fmt, ...) LOG_REPORT(Info, fmt, __VA_ARGS__)
 #define LOG_WARN(fmt, ...)  LOG_REPORT_COND(Warn, fmt, __VA_ARGS__)
 #define LOG_WARNH(fmt, ...)  LOG_REPORT(WarnH, fmt, __VA_ARGS__)
 #define LOG_ERROR(fmt, ...) LOG_REPORT(Error, fmt, __VA_ARGS__)

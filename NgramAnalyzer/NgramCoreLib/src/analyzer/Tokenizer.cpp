@@ -12,6 +12,8 @@
 
 #include "NgramDebugLog.h"
 
+using Reporting::Logger;
+
 namespace analyzer {
 
     int UNKNOWN_OTHER_COST = 10000;
@@ -115,7 +117,7 @@ namespace analyzer {
                 }
                 __addNewNode(0, end2);
                 LOG_DEBUGH(L"  katakana block added: {}", rngStrPtr->toString(begin2, end2));
-                if (NgramCoreLib::Logger::IsDebugEnabled()) showResultNodes(result_nodes);
+                if (Logger::IsDebugEnabled()) showResultNodes(result_nodes);
                 LOG_DEBUGH(L"LEAVE: result_nodes.size={}", result_nodes.size());
                 return result_nodes;
             }
@@ -198,7 +200,7 @@ namespace analyzer {
                 LOG_DEBUG(L"  END: unk");
             }
 
-            if (NgramCoreLib::Logger::IsDebugEnabled()) showResultNodes(result_nodes);
+            if (Logger::IsDebugEnabled()) showResultNodes(result_nodes);
 
             LOG_DEBUGH(L"LEAVE: result_nodes.size={}", result_nodes.size());
 
