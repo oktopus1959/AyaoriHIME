@@ -1377,10 +1377,11 @@ namespace KanchokuWS
                             if (mod == 0 &&
                                 (deckey == DecoderKeys.STROKE_SPACE_DECKEY && Settings.IsSpaceFlushAndDirectInput) ||
                                 (deckey == DecoderKeys.ENTER_DECKEY && Settings.IsEnterFlushAndDirectInput) ||
-                                (Settings.UseComboImeKeyAsSingleHit && 
+                                (/*Settings.UseComboImeKeyAsSingleHit && */
                                 (deckey == DecoderKeys.NFER_DECKEY || deckey == DecoderKeys.XFER_DECKEY ||
                                  deckey == DecoderKeys.IME_OFF_DECKEY || deckey == DecoderKeys.IME_ON_DECKEY))) {
                                 // Enter/Spaceが FlushAndDirectInput あるいは単打扱いの NFER/XFER/IME_OFF/IME_ON なら、編集バッファをフラッシュして、それらを直接送信する
+                                logger.Info(() => $"CommitMultStream and FlushBuffer: deckey={deckey}, {origDeckey}, mod={mod}");
                                 CommitMultStream();
                                 frmEditBuf.FlushBuffer(true);
                                 logger.Info(() => $"CALL sendVkeyFromDeckey(deckey={deckey}, {origDeckey}, mod={mod})");
