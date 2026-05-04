@@ -59,7 +59,8 @@ public:
     }
 
     bool isJapanaseChar() const {
-        return utils::is_japanese_char_except_nakaguro(_rewriteNode ? _rewriteNode->getFirst() : !_pieceStr.empty() ? _pieceStr.front() : 0);
+        auto ch = _rewriteNode ? _rewriteNode->getFirst() : !_pieceStr.empty() ? _pieceStr.front() : 0;
+        return ch > 0 && ((ch >= 0x30 && ch <= 0x39) || (ch >= 0xff10 && ch <= 0xff19) || utils::is_japanese_char_except_nakaguro(ch));
     }
 
     MString getString() const {
