@@ -348,7 +348,66 @@ namespace KanchokuWS.TableParser
             blockInfoStack.Push(KanchokuIni.Singleton.KanchokuDir, "", 0);
         }
 
-        private List<string> readAllLines(string filename, bool bInclude)
+        private struct ModeBlockState
+        {
+            public bool InKanchokuMode;
+            public bool InEisuMode;
+            public bool IsRootDefaultScope;
+        }
+
+        private static string normalizeDirectiveLine(string line, bool allowCommentedDirective)
+        {
+            var normalizedLine = line._strip();
+            if (allowCommentedDirective && normalizedLine._startsWith(";;;;")) {
+                normalizedLine = normalizedLine.TrimStart(';')._strip();
+            }
+            return normalizedLine._toLower();
+        }
+
+        private static bool tryApplyModeDirective(string line, ref ModeBlockState state, bool allowCommentedDirective = false)
+        {
+            var normalizedLine = normalizeDirectiveLine(line, allowCommentedDirective);
+            if (normalizedLine._isEmpty() || normalizedLine[0] != '#') return false;
+
+            var items = normalizedLine._reReplace(@"[ \t]{2,}", " ")._split(' ');
+            if (items._isEmpty()) return false;
+
+            if (items[0] == "#enablecomboonboth" || items[0] == "#enablealways" || items[0] == "#enabledalways") {
+                state.InKanchokuMode = true;
+                state.InEisuMode = true;
+                state.IsRootDefaultScope = false;
+                return true;
+            }
+
+            if (items[0] == "#enablecombooneisu") {
+                state.InKanchokuMode = false;
+                state.InEisuMode = true;
+                state.IsRootDefaultScope = false;
+                return true;
+            }
+
+            if (items[0] == "#end" && items.Length >= 2 &&
+                (items[1] == "enablecomboonboth" || items[1] == "enablealways" || items[1] == "enabledalways" || items[1] == "enablecombooneisu")) {
+                state.InKanchokuMode = true;
+                state.InEisuMode = false;
+                state.IsRootDefaultScope = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        private ModeBlockState getCurrentModeBlockState()
+        {
+            var state = new ModeBlockState() { InKanchokuMode = true, InEisuMode = false, IsRootDefaultScope = true };
+            int lastIdx = lineNumber._min(tableLines.Count - 1);
+            for (int idx = 0; idx <= lastIdx; ++idx) {
+                tryApplyModeDirective(tableLines[idx], ref state, true);
+            }
+            return state;
+        }
+
+        private List<string> readAllLines(string filename, bool bInclude, ModeBlockState initialState)
         {
             List<string> lines = new List<string>();
             if (filename._notEmpty()) {
@@ -357,7 +416,7 @@ namespace KanchokuWS.TableParser
                 var contents = Helper.GetFileContent(includeFilePath, (e) => logger.Error(e._getErrorMsg()));
                 if (contents._notEmpty()) {
                     lines.AddRange(contents._safeReplace("\r", "")._split('\n'));
-                    rewriteKanchokuOrEisuModeBlock(lines);
+                    rewriteKanchokuOrEisuModeBlock(lines, initialState);
                     int nextLineNum = lineNumber;
                     if (bInclude) {
                         lines.Add("#end __include__");
@@ -371,45 +430,28 @@ namespace KanchokuWS.TableParser
             return lines;
         }
 
+        private List<string> readAllLines(string filename, bool bInclude)
+        {
+            return readAllLines(filename, bInclude, new ModeBlockState() { InKanchokuMode = true, InEisuMode = false, IsRootDefaultScope = true });
+        }
+
         /// <summary>漢直モード/英数モードに対して、モード外となるブロックをコメントアウトする<br/>
         ///  - bBlockForKanchokuMode : true: 漢直モード用(英数モードのみのブロックをコメントアウト)<br/>
         ///  - bBlockForEisu : true: 英数モード用(漢直モードのみのブロックをコメントアウト)
         /// </summary>
-        private void rewriteKanchokuOrEisuModeBlock(List<string> lines)
+        private void rewriteKanchokuOrEisuModeBlock(List<string> lines, ModeBlockState initialState)
         {
-            bool bInKanchokuMode = true;
-            bool bInEisuMode = false;
+            var state = initialState;
             for (int idx = 0; idx < lines.Count; ++idx) {
                 var line = lines[idx];
                 var strippedLowerLine = line._strip()._toLower();
-                if (strippedLowerLine._notEmpty() && strippedLowerLine[0] == '#') {
-                    var items = strippedLowerLine._reReplace(@"[ \t]{2,}", " ")._split(' ');
-                    if (items._notEmpty()) {
-                        if (items[0] == "#enablecomboonboth" || items[0] == "#enablealways" || items[0] == "#enabledalways") {
-                            // #enableComboOnBoth, enableAlways: デコーダOFFでも有効
-                            bInKanchokuMode = true;
-                            bInEisuMode = true;
-                            lines[idx] = ";;;; " + line;
-                            continue;
-                        } else if (items[0] == "#enablecombooneisu") {
-                            // #enableComboOnEisu: 英数モード時のみ有効
-                            bInKanchokuMode = false;
-                            bInEisuMode = true;
-                            lines[idx] = ";;;; " + line;
-                            continue;
-                        } else if (items[0] == "#end") {
-                            if (items.Length >= 2 &&
-                                (items[1] == "enablecomboonboth" || items[1] == "enablealways" || items[1] == "enabledalways" || items[1] == "enablecombooneisu")) {
-                                bInKanchokuMode = true;
-                                bInEisuMode = false;
-                                lines[idx] = ";;;; " + line;
-                                continue;
-                            }
-                        }
-                    }
+                if (tryApplyModeDirective(line, ref state)) {
+                    lines[idx] = ";;;; " + line;
+                    continue;
                 }
-                if ((IsForKanchoku && !bInKanchokuMode) || (IsForEisu && !bInEisuMode)) {
+                if ((IsForKanchoku && !state.InKanchokuMode) || (IsForEisu && !state.InEisuMode)) {
                     if (strippedLowerLine._notEmpty() &&
+                        !(state.IsRootDefaultScope && strippedLowerLine._startsWith("#include")) &&
                         (strippedLowerLine[0] != '#' ||
                         (!strippedLowerLine._safeContains("sands") && !strippedLowerLine._safeContains("combination") &&
                          !strippedLowerLine._startsWith("#define") && !strippedLowerLine._startsWith("#if") &&
@@ -594,7 +636,7 @@ namespace KanchokuWS.TableParser
             var filename = CurrentStr;
             if (Settings.LoggingTableFileInfo) logger.Info(() => $"INCLUDE: lineNum={LineNumber}, {filename}");
             if (filename._notEmpty()) {
-                var lines = readAllLines(filename, true);
+                var lines = readAllLines(filename, true, getCurrentModeBlockState());
                 if (lines._isEmpty()) {
                     logger.Error($"Can't open: {filename}");
                     FileOpenError(filename);
