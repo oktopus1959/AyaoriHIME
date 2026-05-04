@@ -369,8 +369,17 @@ namespace lattice2 {
         void removeOtherThanFirst() override {
             _LOG_DETAIL(L"ENTER");
             if (_candidates.size() > 0) {
-                _candidates.erase(_candidates.begin() + 1, _candidates.end());
-                _candidates.front().clean();
+                std::vector<CandidateString> filtered;
+                filtered.reserve(_candidates.size());
+                int prevStrokeLen = INT_MIN;
+                for (auto cand : _candidates) {
+                    if (cand.strokeLen() != prevStrokeLen) {
+                        cand.clean();
+                        filtered.push_back(cand);
+                        prevStrokeLen = cand.strokeLen();
+                    }
+                }
+                _candidates = std::move(filtered);
             }
             _LOG_DETAIL(L"LEAVE");
         }

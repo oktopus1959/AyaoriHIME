@@ -66,6 +66,10 @@ public:
 
     MString getString() const override { return myRewriteInfo.rewriteStr; }
 
+    bool isEmpty() const { return myRewriteInfo.rewriteStr.empty(); }
+
+    mchar_t getFirst() const { return isEmpty() ? (mchar_t)0 : myRewriteInfo.rewriteStr.front(); }
+
     String getNodeName() const { return _T("PostRewriteOneShotNode"); }
 
     size_t getRewritableLen() const override { return myRewriteInfo.rewritableLen; }
@@ -140,4 +144,3 @@ public:
     // これの呼び出しを FunctionNodeBuilderList.h に記述する
     Node* CreateNode();
 };
-

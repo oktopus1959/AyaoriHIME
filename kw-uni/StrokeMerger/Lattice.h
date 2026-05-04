@@ -54,8 +54,12 @@ public:
         return _rewriteNode;
     }
 
-    bool emptyString() const {
-        return !_rewriteNode || _pieceStr.empty();
+    bool isEmpty() const {
+        return (!_rewriteNode || _rewriteNode->isEmpty()) && _pieceStr.empty();
+    }
+
+    bool isJapanaseChar() const {
+        return utils::is_japanese_char_except_nakaguro(_rewriteNode ? _rewriteNode->getFirst() : !_pieceStr.empty() ? _pieceStr.front() : 0);
     }
 
     MString getString() const {

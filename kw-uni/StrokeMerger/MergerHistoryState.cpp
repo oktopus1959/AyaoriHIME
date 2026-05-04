@@ -866,10 +866,14 @@ namespace {
             //LOG_DEBUGH(L"L:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
             //bool bUseMorphAnalyzer = SETTINGS->useMorphAnalyzerAlways || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
             bool bUseMorphAnalyzer = SETTINGS->multiCandidateMode || StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
-            if (!pieces.empty() && pieces.front().numBS() > 0 && !pieces.front().emptyString()) {
-                // Lattice外で生成された置換結果は、現在先頭に来ている候補(候補選択中なら選択候補)にだけ適用する
-                WORD_LATTICE->selectFirst();
-                WORD_LATTICE->removeOtherThanFirst();
+            if (!pieces.empty() && !pieces.front().isEmpty()) {
+                if (pieces.front().numBS() > 0 || !pieces.front().isJapanaseChar()) {
+                    // Lattice外で生成された置換結果は、現在先頭に来ている候補(候補選択中なら選択候補)にだけ適用する
+                    // ひらがな、カタカナ、漢字以外だったら、先頭候補で確定する
+                    LOG_DEBUGH(_T("Generated other than Lattice or NOT japanese char={}"), to_wstr(pieces.front().getString()));
+                    WORD_LATTICE->selectFirst();
+                    WORD_LATTICE->removeOtherThanFirst();
+                }
             }
             return WORD_LATTICE->addPieces(pieces, _followingPrefType, bUseMorphAnalyzer, _strokeBack, _isKatakanaConversionMode);
         }
