@@ -986,6 +986,17 @@ namespace KanchokuWS
             }
         }
 
+        private string[] getShiftPlaneStrokeTableForCurrentTable(int tableNum)
+        {
+            if (StrokeHelpShiftPlane <= 0) return null;
+
+            if ((tableNum < 1 || tableNum > 3) && StrokeTables1._notEmpty()) tableNum = 1;
+            if (tableNum == 1) return shiftPlaneStrokeTables1._getNth(StrokeHelpShiftPlane);
+            if (tableNum == 2) return shiftPlaneStrokeTables2._getNth(StrokeHelpShiftPlane);
+            if (tableNum == 3) return shiftPlaneStrokeTables3._getNth(StrokeHelpShiftPlane);
+            return null;
+        }
+
         public void DrawEisuVkb()
         {
             drawNormalVkb(eisuVkbChars, false);
@@ -1159,12 +1170,16 @@ namespace KanchokuWS
                 // 2打鍵目以降の通常配列
                 if (frmMain.IsVkbShown) {
                     resetVkbControls(topText, VkbNormalWidth, VkbPictureBoxHeight_Normal, VkbCenterBoxHeight_Normal);
+                    string[] shiftPlaneTbl = getShiftPlaneStrokeTableForCurrentTable(decoderOutput.strokeTableNum);
                     using (PictureBoxDrawer drawer = new PictureBoxDrawer(pictureBox_Main)) {
                         topTextBox.Show();
                         SetTopText(topText, true);
                         drawNormalVkbFrame(drawer.Gfx, decoderOutput.nextStrokeDeckey._geZeroOr(lastDeckey));
                         drawCenterCharsWithColor(drawer.Gfx, decoderOutput);
-                        drawNormalVkbStrings(drawer.Gfx, i => makeMultiCharStr(decoderOutput.faceStrings, i * 2), false);
+                        if (Settings.LoggingVirtualKeyboardInfo && shiftPlaneTbl != null) {
+                            logger.Info(() => $"Use shiftPlaneStrokeTables[{StrokeHelpShiftPlane}] for normal layout: {shiftPlaneTbl._join(":")}");
+                        }
+                        drawNormalVkbStrings(drawer.Gfx, i => shiftPlaneTbl != null ? shiftPlaneTbl[i] : makeMultiCharStr(decoderOutput.faceStrings, i * 2), false);
                     }
                     changeFormHeight(pictureBox_Main.Top + pictureBox_Main.Height + 1);
                     ShowNonActive();

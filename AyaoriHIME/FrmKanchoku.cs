@@ -1056,7 +1056,11 @@ namespace KanchokuWS
             if (shiftPlane >= 0 && shiftPlane < ShiftPlane.ShiftPlane_NUM) {
                 frmVkb.StrokeHelpShiftPlane = shiftPlane;
                 if (IsDecoderActive) {
-                    if (frmVkb.IsCurrentNormalVkb || forceShow || shiftPlane == 0) frmVkb.DrawInitialVkb(-1, forceShow);
+                    if (frmVkb.IsCurrentNormalVkb || forceShow || shiftPlane == 0) {
+                        frmVkb.DrawInitialVkb(-1, forceShow);
+                    } else {
+                        frmVkb.DrawVirtualKeyboardChars();
+                    }
                 } else if (shiftPlane == 0) {
                     ShowEisuVkbIfNeeded();
                 } else if (forceShow || Settings.ShowEisuVkb) {
