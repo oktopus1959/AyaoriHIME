@@ -482,7 +482,9 @@ void StrokeTableNode::CopyChildrenFace(mchar_t* faces, size_t facesSize) {
     for (size_t n = 0; n < facesSize; ++n) {
         const Node* child = getNth(n);
         const auto& s = child ? child->getString() : MString();
-        faces[n] = s.empty() ? 0 : is_ascii_pair(s) ? make_mchar((wchar_t)s[0], (wchar_t)s[1]) : s[0];  // "12" のような半角文字のペアも扱う
+        wchar_t facePair[2] = { 0, 0 };
+        VkbTableMaker::SetVkbFaceString(to_wstr(s), facePair);
+        faces[n] = facePair[0] == 0 ? 0 : make_mchar(facePair[0], facePair[1]);
     }
     LOG_DEBUGH(_T("LEAVE: faces=\"{}\""), to_debug_wstr(faces, 50));
 }
@@ -697,4 +699,3 @@ Node* StrokeTreeTraverser::getNext() {
     }
     return 0;
 }
-

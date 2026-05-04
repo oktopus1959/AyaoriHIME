@@ -38,7 +38,7 @@ namespace VkbTableMaker {
         *faces = p.second;
     }
 
-    inline void set_facestr(StringRef s, wchar_t* faces) {
+    void SetVkbFaceString(StringRef s, wchar_t* faces) {
         faces[0] = 0;
         faces[1] = 0;
         if (s.empty()) return;
@@ -50,6 +50,10 @@ namespace VkbTableMaker {
             faces[0] = s[pos];
             if (pos + 1 < s.size() && s[pos + 1] != '!' && s[pos + 1] != '{' && s[pos + 1] != '}' && s[pos + 1] != '|') faces[1] = s[pos + 1];
         }
+    }
+
+    inline void set_facestr(StringRef s, wchar_t* faces) {
+        SetVkbFaceString(s, faces);
     }
 
     //----------------------------------------------------------------------------
@@ -602,4 +606,3 @@ namespace VkbTableMaker {
     }
 
 }
-

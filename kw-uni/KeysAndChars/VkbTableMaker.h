@@ -9,6 +9,9 @@ namespace VkbTableMaker {
     const size_t OUT_TABLE_SIZE = 200;
     const size_t VKB_TABLE_SIZE = 50;
 
+    // 仮想鍵盤表示用に、ノード文字列を2文字分の face 配列へ変換する
+    void SetVkbFaceString(StringRef s, wchar_t* faces);
+
     // ひらがな50音図配列を作成する (あかさたなはまやらわ、ぁがざだばぱゃ)
     void MakeVkbHiraganaTable(wchar_t* table);
 
@@ -73,4 +76,3 @@ namespace VkbTableMaker {
     // デバッグ用テーブルを作成してファイルに書き出す
     void SaveDumpTable();
 }
-
