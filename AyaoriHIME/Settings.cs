@@ -114,7 +114,7 @@ namespace KanchokuWS
         public static bool ShortcutKeyConversionEnabled { get; set; } = true;
 
         //-------------------------------------------------------------------------------------
-        // ログ出力設定
+        // ログ出力/開発者用設定
         //-------------------------------------------------------------------------------------
         /// <summary>漢直ログレベル</summary> 
         public static int KanchokuLogLevel { get; private set; } = 0;
@@ -162,6 +162,9 @@ namespace KanchokuWS
             KanchokuLogLevel > Logger.LogLevelWarn ||
             LoggingDecKeyInfo || LoggingActiveWindowInfo || LoggingVirtualKeyboardInfo || LoggingTableFileInfo ||
             BushuDicLogEnabled || MultiStreamDetailLog;
+
+        /// <summary>開発者用の設定を有効にする</summary>
+        public static bool DeveloperSettingsEnabled { get; private set; }
 
         //-------------------------------------------------------------------------------------
         // 基本設定
@@ -1374,6 +1377,7 @@ namespace KanchokuWS
             OutputDebugTableFiles = GetString("outputDebugTableFiles")._parseBool();
             ShowHiddleFolder = GetString("showHiddleFolder")._parseBool();
             MultiStreamDetailLog = GetString("multiStreamDetailLog")._parseBool();
+            DeveloperSettingsEnabled = addDecoderSetting("developerSettingsEnabled", false);
         }
 
         //------------------------------------------------------------------------------

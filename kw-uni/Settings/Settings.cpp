@@ -210,4 +210,5 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(debughKatakana);
     SET_BOOL_VALUE(debughMyPrevChar);
     SET_BOOL_VALUE(bushuDicLogEnabled);
+    SET_BOOL_VALUE(developerSettingsEnabled);
 }

@@ -163,6 +163,7 @@ struct Settings {
     bool debughKatakana = false;            // Katakana モジュールで DebugH を有効にする
     bool debughMyPrevChar = false;          // MyChar/PrevChar モジュールで DebugH を有効にする
     bool bushuDicLogEnabled = false;        // bushuDic で InfoH を有効にする
+    bool developerSettingsEnabled = false;  // 開発者用設定を有効にする
 
 public:
     void SetValues(const std::map<String, String>&);

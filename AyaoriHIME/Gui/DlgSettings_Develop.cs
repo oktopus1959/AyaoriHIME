@@ -31,6 +31,8 @@ namespace KanchokuWS.Gui
             checkBox_multiStreamDetailLog.Checked = Settings.MultiStreamDetailLog;
             checkBox_keyLoggingEnabled.Checked = Settings.KeyLoggingEnabled;
             button_displayKeyInfos.Visible = checkBox_keyLoggingEnabled.Checked;
+            checkBox_developerSettingsEnabled.Checked = Settings.DeveloperSettingsEnabled;
+            checkBox_developerSettingsEnabled.Visible = Settings.DeveloperSettingsEnabled;
             textBox_warnThresholdKeyQueueCount.Text = Settings.WarnThresholdKeyQueueCount.ToString();
         }
 
@@ -52,6 +54,7 @@ namespace KanchokuWS.Gui
             checkerDevelop.Add(checkBox_multiAppEnabled);
             checkerDevelop.Add(checkBox_multiStreamDetailLog);
             checkerDevelop.Add(checkBox_keyLoggingEnabled);
+            checkerDevelop.Add(checkBox_developerSettingsEnabled);
             checkerDevelop.Add(textBox_warnThresholdKeyQueueCount);
 
             checkerAll.Add(checkerDevelop);
@@ -76,6 +79,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("multiAppEnabled", checkBox_multiAppEnabled.Checked);
             Settings.SetUserIni("multiStreamDetailLog", checkBox_multiStreamDetailLog.Checked);
             Settings.SetUserIni("keyLoggingEnabled", checkBox_keyLoggingEnabled.Checked);
+            Settings.SetUserIni("developerSettingsEnabled", checkBox_developerSettingsEnabled.Checked);
             Settings.SetUserIni("warnThresholdKeyQueueCount", textBox_warnThresholdKeyQueueCount.Text);
 
             //Settings.ReadIniFile();
