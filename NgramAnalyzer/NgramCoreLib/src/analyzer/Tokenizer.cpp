@@ -208,9 +208,15 @@ namespace analyzer {
 
         // 与えられた文字列に完全一致するエントリがあるか
         bool findExactMatch(const StringRef word) {
+            if (RealtimeDict::findExactMatch(word)) return true;
+
             for (const auto& dic : dics) {
-                if (dic->findExactMatch(word)) return true;
+                if (dic->findExactMatch(word)) {
+                    LOG_DEBUGH(L"FOUND: {} in {}", word, dic->filename());
+                    return true;
+                }
             }
+
             return false;
         }
 

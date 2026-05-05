@@ -245,5 +245,24 @@ namespace analyzer {
             LOG_DEBUGH(L"LEAVE: result.size()={}", result.size());
             return result;
         }
+
+        /**
+         * 与えられた文字列に完全一致するエントリがあるか
+         */
+        bool findExactMatch(const String& key) {
+            auto iter1 = userDict.find(key);
+            if (iter1 != userDict.end()) {
+                LOG_DEBUGH(L"FOUND: {} in userDict", key);
+                return true;
+            }
+
+            auto iter2 = realtimeDict.find(key);
+            if (iter2 != realtimeDict.end()) {
+                LOG_DEBUGH(L"FOUND: {} in realtimeDict", key);
+                return true;
+            }
+            return false;
+        }
+
     } // namespace RealtimeDict
 } // namespace analyze

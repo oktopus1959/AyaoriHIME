@@ -672,6 +672,10 @@ namespace lattice2 {
                 // ひらがなが4文字以上連続している場合は、4gramを更新する
                 _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 3, 4));
             }
+            if (SETTINGS->developerSettingsEnabled && hiraLen >= 5 && pos >= 4) {
+                // ひらがなが4文字以上連続している場合は、4gramを更新する
+                _updateRealtimeNgramCountByWord(bIncrease, str.substr(pos - 4, 5));
+            }
         }
         LOG_DEBUGH(L"LEAVE: str={}", to_wstr(str));
     }

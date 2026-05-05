@@ -34,5 +34,10 @@ namespace analyzer {
         // @param pos 検索開始位置
         // @return マッチしたエントリのリスト。各エントリは、(Ngram長, ボーナス) のタプルで表される
         std::vector<int> commonPrefixSearch(const String& str, size_t pos, bool hiraganaBigramEnabled, bool hiraganaQuadgramEnabled);
+
+        /**
+         * 与えられた文字列に完全一致するエントリがあるか
+         */
+        bool findExactMatch(const String& key);
     }
 }
