@@ -391,6 +391,9 @@ namespace KanchokuWS
         //public static string HistoryNgramFile {get; private set; }
         //public static string MazegakiFile { get; private set; }
 
+        // 使用したテーブルファイルの履歴(最大10個)
+        public static string TableFileHistory { get; private set; }
+
         public static string KanaRomanFile { get; private set; } = "kana-roman.def.txt";
 
         //-------------------------------------------------------------------------------------
@@ -1810,6 +1813,8 @@ namespace KanchokuWS
 #else
             TableFile3 = addDecoderSetting("tableFile3", "");
 #endif
+            TableFileHistory = addDecoderSetting("tableFileHistory", "");
+
             //MultiStreamMode = addDecoderSetting("multiStreamMode", true);
             MultiStreamMode = setDecoderSetting("multiStreamMode", TableFile._notEmpty() && TableFile2._notEmpty());
             //MultiCandidateMode = MultiStreamMode ? addDecoderSetting("multiCandidateMode", true) : setDecoderSetting("multiCandidateMode", false);

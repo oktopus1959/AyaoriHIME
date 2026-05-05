@@ -42,7 +42,7 @@ namespace NgramBridge {
     void ngramInitialize() {
         int unkMax = 3;
         auto dicdir = utils::joinPath(SETTINGS->rootDir, NGRAM_DICDIR);
-        LOG_INFOH(_T("ENTER: dicdir={}, unMax={}"), dicdir, unkMax);
+        _LOG_TEMPH(_T("ENTER: dicdir={}, unMax={}"), dicdir, unkMax);
         int ret = _ngramInitialize(dicdir, unkMax);
         initializeSucceeded = (ret != ErrorHandler::LEVEL_ERROR);
         if (!initializeSucceeded) {
@@ -51,7 +51,7 @@ namespace NgramBridge {
             ERROR_HANDLER->Clear();
             ERROR_HANDLER->Error(L"Ngram解析器の初期化に失敗しました。\r\n詳細: " + detailedMsg);
         }
-        LOG_INFOH(L"LEAVE");
+        _LOG_TEMPH(L"LEAVE");
     }
 
     void ngramFinalize() {
@@ -185,7 +185,10 @@ namespace NgramBridge {
 
     // リアルタイムNgram辞書のロード
     int loadRealtimeDict(StringRef ngramFilePath) {
-        return NgramCoreLib::LoadRealtimeDict(ngramFilePath.c_str());
+        _LOG_TEMPH(L"ENTER");
+        int result = NgramCoreLib::LoadRealtimeDict(ngramFilePath.c_str());
+        _LOG_TEMPH(L"LEAVE: result={}", result);
+        return result;
     }
 
     // ユーザーNgram辞書のロード

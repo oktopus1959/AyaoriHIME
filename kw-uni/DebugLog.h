@@ -9,6 +9,7 @@
 #undef _DEBUG_SENT
 #undef LOG_SAVE_DICT
 
+#define _LOG_TEMPH LOG_WARNH
 #define LOG_DEBUGH LOG_INFOH
 #define LOG_DEBUG LOG_INFO
 #define _LOG_DEBUGH LOG_INFOH
@@ -16,5 +17,6 @@
 #define LOG_SAVE_DICT LOG_INFOH
 #define _LOG_DEBUG_ENABLED true
 #else
+#define _LOG_TEMPH LOG_INFOH
 #define _LOG_DEBUG_ENABLED false
 #endif

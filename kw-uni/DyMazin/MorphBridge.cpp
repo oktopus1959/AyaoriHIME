@@ -7,6 +7,7 @@
 #include "Reporting/ErrorHandler.h"
 
 #include "MorphBridge.h"
+#include "DebugLog.h"
 
 #define USE_MORPHER 1
 #define USE_DYMAZIN 1
@@ -21,6 +22,7 @@ namespace MorphBridge {
 
     void morphInitialize() {
 #if USE_MORPHER
+        _LOG_TEMPH(L"ENTER");
         int unkMax = 3;
         auto rcfile = utils::joinPath(SETTINGS->rootDir, DYMAZIN_MORPHRC);
         auto dicdir = utils::joinPath(SETTINGS->rootDir, DYMAZIN_DICDIR);
@@ -32,6 +34,7 @@ namespace MorphBridge {
             ERROR_HANDLER->Clear();
             ERROR_HANDLER->Error(L"形態素解析器の初期化に失敗しました。\r\n詳細: " + detailedMsg);
         }
+        _LOG_TEMPH(L"LEAVE");
 #endif //USE_MORPHER
     }
 

@@ -139,7 +139,7 @@ public:
 
     // 初期化
     void initializeDecoder() {
-        LOG_INFOH(_T("ENTER"));
+        _LOG_TEMPH(_T("ENTER"));
 
         // 状態の共有情報生成
         StateCommonInfo::CreateSingleton();
@@ -213,7 +213,7 @@ public:
         // 部首合成の部品について、ストローク可能文字か否かを設定しておく
         if (BUSHU_DIC) BUSHU_DIC->MakeStrokableMap();
 
-        LOG_INFOH(_T("LEAVE"));
+        _LOG_TEMPH(_T("LEAVE"));
     }
 
     // 終了
