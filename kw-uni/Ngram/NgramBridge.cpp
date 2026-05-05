@@ -143,6 +143,8 @@ namespace NgramBridge {
         return to_wstr(mainMorphs);
     }
 
+#define MIN_PENALTY_HIRAGANA_MORPH_NUM 5
+
     // 形態素解析の結果から、ペナルティとなる形態素を抽出する。具体的には、単一ひらがなの4gram
     String pickPenaltyMorphs(const std::vector<MString>& morphs) {
         MString penaltyMorphs;
@@ -158,12 +160,12 @@ namespace NgramBridge {
                 if (surf.size() <= 2 && utils::is_hiragana(surf.front()) && (surf.size() == 1 || utils::is_hiragana(surf[1]))) {
                     hiraganaStr.append(surf);
                     ++hiraganaCount;
-                    if (hiraganaStr.size() >= 4 && hiraganaCount >= 4) {
-                        // 1~2文字ひらがなが4つ以上続く場合は、ペナルティ対象とする
-                        while (startPos + 4 <= hiraganaStr.size()) {
+                    if (hiraganaStr.size() >= MIN_PENALTY_HIRAGANA_MORPH_NUM && hiraganaCount >= MIN_PENALTY_HIRAGANA_MORPH_NUM) {
+                        // 1~2文字ひらがながM個以上続く場合は、ペナルティ対象とする
+                        while (startPos + MIN_PENALTY_HIRAGANA_MORPH_NUM <= hiraganaStr.size()) {
                             if (!first) penaltyMorphs.append(MSTR_VERT_BAR);
                             first = false;
-                            penaltyMorphs.append(hiraganaStr.substr(startPos, 4));
+                            penaltyMorphs.append(hiraganaStr.substr(startPos, MIN_PENALTY_HIRAGANA_MORPH_NUM));
                             ++startPos;
                         }
                     }

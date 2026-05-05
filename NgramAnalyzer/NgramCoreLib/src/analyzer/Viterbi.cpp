@@ -10,8 +10,6 @@
 
 #include "NgramDebugLog.h"
 
-using Reporting::Logger;
-
 namespace analyzer {
     DECLARE_LOGGER;
 
@@ -21,7 +19,7 @@ namespace analyzer {
     static const int kShortHiraganaPenalty = 2000;
     static const int MaxAccumBonus = 10000;
 
-    static const int MorphPenaltyEntryFound = 10000;
+    static const int MorphPenaltyEntryFound = 7000;
 
     static const double kDefaultTheta = 0.75;
 
