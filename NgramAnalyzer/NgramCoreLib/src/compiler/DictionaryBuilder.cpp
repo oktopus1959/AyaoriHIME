@@ -12,7 +12,7 @@
 #include "DictionaryBuilder.h"
 
 using sx = utils::StringUtil;
-using Reporting::Logger;
+using NgramReporting::Logger;
 
 namespace compiler {
     DEFINE_CLASS_LOGGER(DictionaryBuilder);

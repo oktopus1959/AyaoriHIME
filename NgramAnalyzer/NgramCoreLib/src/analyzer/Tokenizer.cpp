@@ -12,8 +12,6 @@
 
 #include "NgramDebugLog.h"
 
-using Reporting::Logger;
-
 namespace analyzer {
 
     int UNKNOWN_OTHER_COST = 10000;

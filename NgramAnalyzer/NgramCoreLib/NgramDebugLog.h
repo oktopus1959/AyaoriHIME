@@ -13,3 +13,5 @@
 #else
 #define _LOG_DEBUGH_FLAG false
 #endif
+
+using Logger = NgramReporting::Logger;

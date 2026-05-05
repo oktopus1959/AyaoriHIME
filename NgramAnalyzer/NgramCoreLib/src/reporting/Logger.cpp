@@ -3,7 +3,7 @@
 
 #include "Logger.h"
 
-namespace Reporting {
+namespace NgramReporting {
 	//-----------------------------------------------------------------------------
 	// ファイルへの書き込みを行うクラス.
 	class FileWriter

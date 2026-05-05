@@ -3,8 +3,6 @@
 
 #include "NgramDebugLog.h"
 
-using Logger = Reporting::Logger;
-
 namespace analyzer {
     DEFINE_NAMESPACE_LOGGER(analyzer);
     DEFINE_CLASS_LOGGER(Lattice);

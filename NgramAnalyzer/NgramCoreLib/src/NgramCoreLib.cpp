@@ -17,7 +17,6 @@
 
 using namespace analyzer;
 using namespace compiler;
-using Logger = Reporting::Logger;
 
 namespace {
     DEFINE_LOCAL_LOGGER(NgramCoreLib);
