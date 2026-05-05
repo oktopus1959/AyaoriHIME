@@ -96,8 +96,17 @@ namespace analyzer {
                                 count = std::stoi(sCount);
                             }
                         }
-                        userDict[items[0]] = count;
-                        userDict[L"〓" + items[0]] = count;
+                        StringRef word = items[0];
+                        userDict[word] = count;
+                        userDict[L"〓" + word] = count;
+                        if (word.size() >= 6) {
+                            // 6gram以上なら、5gramに分割して登録する
+                            size_t len = 5;
+                            for (size_t pos = 0; pos + len <= word.size(); ++pos) {
+                                LOG_DEBUGH(_T("register SUB 5gram: sub 5gram={}, count={}"), word.substr(pos, len), count);
+                                userDict[word.substr(pos, len)] = count;
+                            }
+                        }
                         ++nEntries;
                     }
                 }
