@@ -111,7 +111,7 @@ namespace lattice2 {
         return result;
     }
 
-    const size_t MAX_SELECTED_NGRAM_LEN = 5;
+    const size_t MAX_SELECTED_NGRAM_LEN = 8;
 
     // ユーザー選択によるポジティブ|ネガティブNgram対を扱うクラス
     class SelectedNgram {
@@ -255,7 +255,7 @@ namespace lattice2 {
 
     public:
         // 指定された文字列に対して、そこに含まれるNgramに対応する選択Ngramペアボーナスを取得
-        // Ngramは、1~5文字
+        // Ngramは、1~M文字
         const std::set<SelectedNgramPairBonus> findNgramPairBonus(const MString& str) {
             //LOG_DEBUGH(L"ENTER: str={}", to_wstr(str));
             std::set<SelectedNgramPairBonus> resultSet;
@@ -314,7 +314,7 @@ namespace lattice2 {
 
     SelectedNgram selectedNgramInstance;
 
-    // 指定された文字列に対して、そこに含まれるNgramに対応する選択Ngramペアボーナスを取得 (Ngramは、2~5文字)
+    // 指定された文字列に対して、そこに含まれるNgramに対応する選択Ngramペアボーナスを取得 (Ngramは、2~M文字)
     const std::set<SelectedNgramPairBonus> findNgramPairBonus(const MString& str) {
         return selectedNgramInstance.findNgramPairBonus(str);
     }
@@ -561,7 +561,7 @@ namespace lattice2 {
                     }
                 }
             } else if (len1 <= MAX_SELECTED_NGRAM_LEN && len2 <= MAX_SELECTED_NGRAM_LEN) {
-                // 3~5文字の差分または両者とも漢字のみの差分の場合は、そのまま更新する
+                // 3~M文字の差分または両者とも漢字のみの差分の場合は、そのまま更新する
                 LOG_INFOH(L"long diff");
                 selectedNgramInstance.updateSelectedNgram(
                     newCand.substr(startPos, len2),
