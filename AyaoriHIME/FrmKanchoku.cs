@@ -22,6 +22,13 @@ namespace KanchokuWS
     {
         private static Logger logger = Logger.GetLogger(true);
 
+        private static bool shouldDirectSendImeRelatedDeckey(int deckey)
+        {
+            return (deckey == DecoderKeys.NFER_DECKEY || deckey == DecoderKeys.XFER_DECKEY ||
+                    deckey == DecoderKeys.IME_OFF_DECKEY || deckey == DecoderKeys.IME_ON_DECKEY) &&
+                   !RootStrokeDeckeyUsage.IsUsedAsRootStroke(deckey);
+        }
+
         //------------------------------------------------------------------
         [DllImport("user32.dll")]
         private static extern void ShowWindow(IntPtr hWnd, int nCmdShow);
@@ -1378,12 +1385,10 @@ namespace KanchokuWS
                                     break;
                             }
                             bPrevDtUpdate = true;
-                            if (mod == 0 &&
+                            if (mod == 0 && (
                                 (deckey == DecoderKeys.STROKE_SPACE_DECKEY && Settings.IsSpaceFlushAndDirectInput) ||
                                 (deckey == DecoderKeys.ENTER_DECKEY && Settings.IsEnterFlushAndDirectInput) ||
-                                (/*Settings.UseComboImeKeyAsSingleHit && */
-                                (deckey == DecoderKeys.NFER_DECKEY || deckey == DecoderKeys.XFER_DECKEY ||
-                                 deckey == DecoderKeys.IME_OFF_DECKEY || deckey == DecoderKeys.IME_ON_DECKEY))) {
+                                shouldDirectSendImeRelatedDeckey(deckey))) {
                                 // Enter/Spaceが FlushAndDirectInput あるいは単打扱いの NFER/XFER/IME_OFF/IME_ON なら、編集バッファをフラッシュして、それらを直接送信する
                                 logger.Info(() => $"CommitMultStream and FlushBuffer: deckey={deckey}, {origDeckey}, mod={mod}");
                                 CommitMultStream();

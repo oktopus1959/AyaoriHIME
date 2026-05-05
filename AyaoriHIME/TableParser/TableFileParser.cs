@@ -1465,6 +1465,45 @@ namespace KanchokuWS.TableParser
 
     }
 
+    static class RootStrokeDeckeyUsage
+    {
+        private static HashSet<int> rootStrokeDeckeys = new HashSet<int>();
+
+        public static void Clear()
+        {
+            rootStrokeDeckeys.Clear();
+        }
+
+        public static void Capture(Node rootTableNode)
+        {
+            if (rootTableNode == null) return;
+
+            for (int deckey = 0; deckey < DecoderKeys.STROKE_DECKEY_END; ++deckey) {
+                if (rootTableNode.GetNthSubNode(deckey) != null) {
+                    rootStrokeDeckeys.Add(deckey);
+                }
+            }
+
+            foreach (int comboStart in new[] {
+                DecoderKeys.COMBO_DECKEY_START,
+                DecoderKeys.ORDERED_COMBO_DECKEY_START,
+                DecoderKeys.STACKLIKE_COMBO_DECKEY_START,
+                DecoderKeys.EISU_COMBO_DECKEY_START
+            }) {
+                for (int deckey = 0; deckey < DecoderKeys.PLANE_DECKEY_NUM; ++deckey) {
+                    if (rootTableNode.GetNthSubNode(deckey + comboStart) != null) {
+                        rootStrokeDeckeys.Add(deckey);
+                    }
+                }
+            }
+        }
+
+        public static bool IsUsedAsRootStroke(int deckey)
+        {
+            return rootStrokeDeckeys.Contains(deckey);
+        }
+    }
+
     /// <summary>
     /// テーブルファイル解析器
     /// </summary>
@@ -1491,6 +1530,7 @@ namespace KanchokuWS.TableParser
             logger.InfoH(() => $"ENTER: filename={filename}, tableNo={tableNo}, bDualTable={bDualTable}");
 
             List<string> outputLines = new List<string>();
+            RootStrokeDeckeyUsage.Clear();
 
             // テーブルに漢字が300個以上含まれているかどうか
             bool isKanchokuTable()
@@ -1525,6 +1565,7 @@ namespace KanchokuWS.TableParser
                 ParserContext.CreateSingleton(tblLines, pool, DecoderKeys.GetComboDeckeyStart(bKanchoku), bDualTable);
                 var parser = new RootTableParser(bKanchoku);
                 parser.ParseRootTable();
+                RootStrokeDeckeyUsage.Capture(ParserContext.Singleton.rootTableNode);
                 //writeAllLines(outFilename, ParserContext.Singleton.OutputLines);
                 outputLines.AddRange(ParserContext.Singleton.OutputLines);
                 writeAllLines($"tmp/parsedTableFile{(bKanchoku ? 'K' : 'A')}{tableNo}.txt", ParserContext.Singleton.tableLines.GetLines());
