@@ -97,7 +97,7 @@ namespace KanchokuWS.Gui
 
         private (string modifiers, string name) splitTarget(string target)
         {
-            var items = target._reScan(@"^([!+^]+)(\w+)$");
+            var items = target._reScan(@"^([<>!+^]+)(\w+)$");
             if (items._length() == 3) {
                 logger.Info(() => $"target={target}, mod={items[1]}, name={items[2]}");
                 return (items[1], items[2]);
@@ -119,6 +119,12 @@ namespace KanchokuWS.Gui
                     desc.Append("Shift");
                 } else if (modifier == '!') {
                     desc.Append("Alt");
+                } else if (modifier == '<') {
+                    desc.Append("左");
+                    continue;
+                } else if (modifier == '>') {
+                    desc.Append("右");
+                    continue;
                 } else {
                     desc.Append(modifier);
                 }
@@ -132,9 +138,9 @@ namespace KanchokuWS.Gui
             return str._reMatch("^[A-Za-z]$");
         }
 
-        private bool isNumber(string str)
+        private bool isDeckeyCode(string str)
         {
-            return str._reMatch("^[0-9]+$");
+            return str._reMatch("^[A-Fa-f]?[0-9]+$");
         }
 
         // 入力された割り当て文字列を内部保存用の表記に正規化する
@@ -153,7 +159,7 @@ namespace KanchokuWS.Gui
                 // ^X など
                 return $"!{{{modifiers}{name}}}";
             }
-            if (isNumber(target)) {
+            if (isDeckeyCode(target)) {
                 // 配列コード
                 return $"!{{{target}}}";
             }
@@ -201,7 +207,7 @@ namespace KanchokuWS.Gui
                     displayed = modifiers + kof.Name;
                     description = modifiersDesc(modifiers) + kof.Description;
                 } else if (rawTarget._startsWith("!{")) {
-                    if (isNumber(displayed)) {
+                    if (isDeckeyCode(displayed)) {
                         description = "配列コード";
                     } else if (isAlphabet(name)) {
                         description = modifiersDesc(modifiers) + name;
