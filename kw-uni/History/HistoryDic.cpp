@@ -1288,7 +1288,11 @@ namespace {
 // ファイルに名は * を含むこと(例: xxxx.*.yyy)。
 // * の部分を {entry,recent,exclude,ngram} に置換したファイルが読み込まれる
 // エラーがあったら例外を投げる
-int HistoryDic::CreateHistoryDic(StringRef histFile, StringRef sysRomanFile) {
+int HistoryDic::CreateHistoryDic(StringRef histFile, StringRef 
+#ifndef _DEBUG
+    sysRomanFile
+#endif
+) {
     LOG_INFOH(_T("ENTER: histFile={}"), histFile);
 
     if (Singleton != 0) {

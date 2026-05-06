@@ -511,16 +511,16 @@ namespace KanchokuWS.Gui
         // キーワード選択ダイアログから割り当て先を選ばせる
         private void selectKeyOrFuncName(DataGridView dgv, int ridx)
         {
-            int no = dgv.Rows[ridx].Cells[0].Value.ToString()._parseInt(0);     // 元の順の番号を取得しておく
             using (var dlg = new DlgKeywordSelector()) {
                 try {
                     if (dlg.ShowDialog() == DialogResult.OK) {
                         var keyword = dlg.SelectedWord;
                         if (keyword._notEmpty()) {
                             dgv.EndEdit();                              // 編集中だったセルの場合に、いったんそれをコミットする必要がある
-                            dgv.Rows[no].Cells[2].Value = keyword;      // セルの値を変更しようとすると、元の順に並びが戻るので注意
-                            if (no != ridx) {
-                                dgv.Rows[no].Cells[2].Selected = true;
+                            if (ridx >= 0 && ridx < dgv.Rows.Count) {
+                                dgv.CurrentCell = dgv.Rows[ridx].Cells[2];
+                                dgv.Rows[ridx].Cells[2].Value = keyword;
+                                dgv.Rows[ridx].Cells[2].Selected = true;
                             }
                         }
                     }

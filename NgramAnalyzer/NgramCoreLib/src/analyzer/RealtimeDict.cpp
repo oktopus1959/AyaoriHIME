@@ -90,7 +90,7 @@ namespace analyzer {
                     auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
                     if (items.size() >= 1 && !items[0].empty() && items[0][0] != L'#') {
                         int count = ngramInflexBonusPoint;  // ユーザー定義のN-gramは、デフォルトで最大ボーナスポイントを与える
-                        if (!items[1].empty()) {
+                        if (items.size() > 1 && !items[1].empty()) {
                             String sCount = items[1];
                             if (isDecimalString(sCount)) {
                                 count = std::stoi(sCount);

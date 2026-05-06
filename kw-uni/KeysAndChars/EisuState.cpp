@@ -303,7 +303,7 @@ namespace {
 
         // その他の特殊キーは無視する
         void handleSpecialKeys(int /*deckey*/) {
-            _LOG_DEBUGH(_T("CALLED: {}: IGNORE"), Name,);
+            _LOG_DEBUGH(_T("CALLED: {}: IGNORE"), Name);
         }
 
         // モード標識文字を返す
