@@ -1116,11 +1116,19 @@ namespace lattice2 {
         }
 
     public:
-        virtual FollowingPreferenceType getFollowingPreferenceType() const override {
+        FollowingPreferenceType getFollowingPreferenceType() const override {
             if (_candidates.empty()) {
                 return FollowingPreferenceType::Any;
             }
             return _candidates.front().followingPreferenceType();
+        }
+
+        void resetFollowingPreferenceType() override {
+            if (!_candidates.empty()) {
+                for (auto& cand : _candidates) {
+                    cand.resetFollowingPreferenceType();
+                }
+            }
         }
 
     private:

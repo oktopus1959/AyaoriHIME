@@ -159,6 +159,10 @@ namespace lattice2 {
             return _prefType;
         }
 
+        inline void resetFollowingPreferenceType() {
+            _prefType = FollowingPreferenceType::Any;
+        }
+
         inline void setFollowingPreferenceType(FollowingPreferenceType prefType) {
             _prefType = prefType;
         }

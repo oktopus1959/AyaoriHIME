@@ -157,6 +157,8 @@ public:
 
     virtual FollowingPreferenceType getFollowingPreferenceType() const = 0;
 
+    virtual void resetFollowingPreferenceType() = 0;
+
     //virtual void setKanjiPreferredNext() = 0;
 
     //virtual bool isKanjiPreferredNext() const = 0;

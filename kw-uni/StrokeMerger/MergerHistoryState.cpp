@@ -416,7 +416,8 @@ namespace {
             myChar = '\0';
 
             bDualTableMode = StrokeTableNode::RootStrokeNode1 != nullptr && StrokeTableNode::RootStrokeNode2 != nullptr ;
-            _followingPrefType = FollowingPreferenceType::Any;
+            _followingPrefType = WORD_LATTICE->getFollowingPreferenceType();
+            if (_followingPrefType != FollowingPreferenceType::Hiragana) _followingPrefType = FollowingPreferenceType::Any;     // Hiraganaは続ける
             _throughDeckey = 0;
 
             LOG_DEBUGH(_T("NextState={}"), STATE_NAME(NextState()));
@@ -427,6 +428,7 @@ namespace {
             }
             if (NextState()) {
                 LOG_DEBUGH(_T("NextState: FOUND"));
+                _followingPrefType = FollowingPreferenceType::Any;
                 // kBest があると、BSなどの場合にそちらを優先してしまうので、ここでクリアしておく
                 WORD_LATTICE->clearAll();
                 // 後続状態があれば、そちらを呼び出す
@@ -448,6 +450,7 @@ namespace {
 
                 if (/*deckey != CLEAR_STROKE_DECKEY && */ shouldHandleAsFunctionalDeckey) {
                     _LOG_DETAIL(L"Functional Deckey: Clear streamLists");
+                    _followingPrefType = FollowingPreferenceType::Any;
                     clearStreamLists();
                     _strokeBack = false;
                     bool doDefault = false;
@@ -581,16 +584,16 @@ namespace {
                         //}
                         break;
                     case MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY:
-                        // 次の打鍵を漢字のみ通す
+                        // 次の打鍵を漢字のみ通す (トグル)
                         LOG_DEBUGH(_T("MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY"));
-                        _followingPrefType = FollowingPreferenceType::Kanji;
+                        _followingPrefType = WORD_LATTICE->getFollowingPreferenceType() == FollowingPreferenceType::Kanji ? FollowingPreferenceType::Any : FollowingPreferenceType::Kanji;
                         WORD_LATTICE->removeOtherThanFirst();
                         //WORD_LATTICE->removeOtherThanLongestStrokeCandidate();
                         break;
                     case MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY:
-                        // 次の打鍵をひらがなのみ通す
+                        // 次の打鍵をひらがなのみ通す (トグル)
                         LOG_DEBUGH(_T("MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY"));
-                        _followingPrefType = FollowingPreferenceType::Hiragana;
+                        _followingPrefType = WORD_LATTICE->getFollowingPreferenceType() == FollowingPreferenceType::Hiragana ? FollowingPreferenceType::Any : FollowingPreferenceType::Hiragana;
                         WORD_LATTICE->removeOtherThanFirst();
                         //WORD_LATTICE->removeOtherThanLongestStrokeCandidate();
                         break;
@@ -616,6 +619,8 @@ namespace {
                     }
                 } else {
                     _LOG_DETAIL(L"Non Functional Deckey");
+                    _followingPrefType = WORD_LATTICE->getFollowingPreferenceType();
+                    if (_followingPrefType != FollowingPreferenceType::Hiragana) _followingPrefType = FollowingPreferenceType::Any;     // Hiraganaは続ける
                     if (deckey == SETTINGS->exclusivePrefixCode) {
                         if (!_bExclusivePrefix) {
                             _LOG_DETAIL(L"ExclusivePrefix: {:x}H({})", deckey, deckey);
@@ -823,11 +828,13 @@ namespace {
             LOG_DEBUGH(_T("CHECKPOINT-10"));
 
             // 次の打鍵で漢字優先またはかな優先モードにする
-            FollowingPreferenceType prefType = WORD_LATTICE->getFollowingPreferenceType();
-            if (prefType == FollowingPreferenceType::Kanji) {
+            switch (WORD_LATTICE->getFollowingPreferenceType()) {
+            case FollowingPreferenceType::Kanji:
                 STATE_COMMON->SetCenterString(L"漢字");
-            } else if (prefType == FollowingPreferenceType::Hiragana) {
+                break;
+            case FollowingPreferenceType::Hiragana:
                 STATE_COMMON->SetCenterString(L"かな");
+                break;
             }
             _followingPrefType = FollowingPreferenceType::Any;
 
@@ -873,6 +880,8 @@ namespace {
                     LOG_DEBUGH(_T("Generated other than Lattice or NOT japanese char={}"), to_wstr(pieces.front().getString()));
                     WORD_LATTICE->selectFirst();
                     WORD_LATTICE->removeOtherThanFirst();
+                    WORD_LATTICE->resetFollowingPreferenceType();
+                    _followingPrefType = FollowingPreferenceType::Any;
                 }
             }
             return WORD_LATTICE->addPieces(pieces, _followingPrefType, bUseMorphAnalyzer, _strokeBack, _isKatakanaConversionMode);

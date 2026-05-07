@@ -119,6 +119,11 @@ namespace lattice2 {
             return _kBestList->getFollowingPreferenceType();
         }
 
+        void resetFollowingPreferenceType() override {
+            _LOG_DETAIL(_T("CALLED"));
+            _kBestList->resetFollowingPreferenceType();
+        }
+
         //void setKanjiPreferredNext() override {
         //    _LOG_DETAIL(_T("ENTER"));
         //    _kBestList->setKanjiPreferredNext();

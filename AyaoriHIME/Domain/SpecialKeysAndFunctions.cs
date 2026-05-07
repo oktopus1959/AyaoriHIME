@@ -162,7 +162,7 @@ namespace KanchokuWS
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_PREV_CAND_DECKEY, 0, "MultiStreamPrev", "", "配列融合時の前候補選択"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_SELECT_FIRST_DECKEY, 0, "MultiStreamSelectFirst", "", "配列融合時に、候補リストに先頭候補だけを残す"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_COMMIT_DECKEY, 0, "MultiStreamCommit", "", "配列融合時に、先頭候補を選択した後、候補リストを空にする"),
-            new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY, 0, "MultiStreamHiraganaPreferredNext", "", "配列融合時に、次の打鍵ではひらがなのみを通す"),
+            new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY, 0, "MultiStreamHiraganaPreferredNext", "", "配列融合時に、以降の打鍵ではひらがなのみを通す"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY, 0, "MultiStreamKanjiPreferredNext", "", "配列融合時に、次の打鍵では漢字のみを通す"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.STROKE_BACK_DECKEY, 0, "StrokeBack", "", "配列融合時に、ストロークを1つ前の状態に戻す"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.EDIT_WINDOW_TOGGLE_DECKEY, 0, "ToggleEditWindow", "", "編集ウィンドウの有効・無効を切り替える"),
