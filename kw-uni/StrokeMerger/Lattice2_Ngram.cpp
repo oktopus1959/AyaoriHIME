@@ -125,12 +125,13 @@ namespace lattice2 {
         // ユーザー選択によるポジティブ|ネガティブNgram対の読み込み
         // 形式: <Positive Ngram>|<Negative Ngram> <TAB> <ボーナスポイント>
         void loadSelectedNgramFile(StringRef ngramFile) {
+            selectedNgrams.clear();
             selectedNgramMap.clear();
             auto path = utils::joinPath(SETTINGS->rootDir, ngramFile);
             LOG_INFOH(_T("LOAD SELECTED: {}"), path.c_str());
             utils::IfstreamReader reader(path);
+            size_t count = 0;
             if (reader.success()) {
-                size_t count = 0;
                 for (const auto& line : reader.getAllLines()) {
                     auto items = utils::split(utils::replace_all(utils::strip(line), L" +", L"\t"), '\t');
                     if (items.size() == 2 &&
@@ -145,17 +146,20 @@ namespace lattice2 {
                                 selectedNgrams[pair] = point;
                                 selectedNgramMap[words[0]].insert(SelectedNgramPairBonus{ pair, point });      // positive ngram
                                 selectedNgramMap[words[1]].insert(SelectedNgramPairBonus{ pair, -point });     // negative ngram
-                                if (count++ < 100) {
-                                    _LOG_DETAIL(L"Selected Ngram Pair: {} => point={}", to_wstr(pair), point);
+                                if (IS_LOG_INFO_ENABLED) {
+                                    if (count < 1000) {
+                                        _LOG_DETAIL(L"Read selected Ngram Pair: {} => point={}", to_wstr(pair), point);
+                                    }
                                 }
                             } else {
                                 _LOG_DETAIL(L"Skipped fixed ngram entry in selected ngram pair: {}", to_wstr(pair));
                             }
                         }
                     }
+                    ++count;
                 }
             }
-            LOG_INFOH(_T("DONE"));
+            LOG_INFOH(_T("DONE: {} entries loaded, original lines={}"), selectedNgrams.size(), count);
         }
 
         void saveSelectedNgramFile(StringRef ngramFile, int genNum) {
@@ -167,13 +171,20 @@ namespace lattice2 {
                 LOG_INFOH(_T("SAVE SELECTED: {}"), pathTmp.c_str());
                 {
                     utils::OfstreamWriter writer(pathTmp);
+                    size_t count = 0;
                     if (writer.success()) {
                         for (const auto& entry : selectedNgrams) {
+                            if (IS_LOG_INFO_ENABLED) {
+                                if (count < 1000) {
+                                    _LOG_DETAIL(L"Write selected Ngram Pair: {} => point={}", to_wstr(entry.first), entry.second);
+                                }
+                            }
                             writer.writeLine(std::format(L"{}\t{}", to_wstr(entry.first), entry.second));
+                            ++count;
                         }
                         bUpdated = false;
                     }
-                    LOG_INFOH(_T("DONE"));
+                    LOG_INFOH(_T("DONE: {} entries"), count);
                 }
                 // pathTmp ファイルのサイズが pathTmp ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
                 utils::compareAndMoveFileToBackDirWithRotation(pathTmp, path, genNum);
@@ -455,20 +466,25 @@ namespace lattice2 {
             size_t len1 = endPos1 - startPos;
             size_t len2 = endPos2 - startPos;
 
-            // 共に1文字の差分、またはどちらかが2文字以下でひらがなを含む差分の場合は、短い差分として扱う
+            //// 共に1文字の差分、またはどちらかが2文字以下でひらがなを含む差分の場合は、短い差分として扱う
+            //auto checkShortDiff = [&]() -> bool {
+            //    if (len1 == 1 || len2 == 1) {
+            //        return true;
+            //    }
+            //    if (len1 == 2 && (utils::is_hiragana(oldCand[startPos]) || utils::is_hiragana(oldCand[startPos + 1]))) {
+            //        // oldCandの2文字のうちどちらかがひらがななら、短い差分としてみなす
+            //        return true;
+            //    }
+            //    if (len2 == 2 && (utils::is_hiragana(newCand[startPos]) || utils::is_hiragana(newCand[startPos + 1]))) {
+            //        // newCandの2文字のうちどちらかがひらがななら、短い差分としてみなす
+            //        return true;
+            //    }
+            //    return false;
+            //};
+
+            // どちらかが2文字以下の差分の場合は、短い差分として扱う
             auto checkShortDiff = [&]() -> bool {
-                if (len1 == 1 || len2 == 1) {
-                    return true;
-                }
-                if (len1 == 2 && (utils::is_hiragana(oldCand[startPos]) || utils::is_hiragana(oldCand[startPos + 1]))) {
-                    // oldCandの2文字のうちどちらかがひらがななら、短い差分としてみなす
-                    return true;
-                }
-                if (len2 == 2 && (utils::is_hiragana(newCand[startPos]) || utils::is_hiragana(newCand[startPos + 1]))) {
-                    // newCandの2文字のうちどちらかがひらがななら、短い差分としてみなす
-                    return true;
-                }
-                return false;
+                return len1 <= 2 || len2 <= 2;
             };
 
             auto addShortPairWithGeta = [&](size_t xlen1, size_t xlen2) -> void {
@@ -523,7 +539,7 @@ namespace lattice2 {
                         //    oldCand.substr(startPos, 1));
                     } else {
                         if (startPos == 1) {
-                            // 1文字目だったら、〓と先頭文字を前に追加して処理する
+                            // 2文字目だったら、〓と先頭文字を前に追加して処理する
                             if (startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
                                 LOG_INFOH(L"append GETA and prefix and postfix chars: startPos=0, len1={}, len2={}", len1 + 2, len2 + 2);
                                 addShortPairWithGeta(len1 + 2, len2 + 2);
@@ -532,16 +548,19 @@ namespace lattice2 {
                                 addShortPairWithGeta(len1 + 1, len2 + 1);
                             }
                         } else {
-                            // 2文字目以降の場合
+                            // 3文字目以降の場合
                             // 前後の文字も含めて処理する
                             if (startPos + len1 + 1 <= baseSize && startPos + len2 + 1 <= diffSize) {
                                 // 後続文字がある
                                 if (len1 == 1 || len2 == 1) {
-                                    // どちらも1文字の差分の場合は、前後の1文字を含めて3文字で処理する
+                                    // どちらかが1文字の差分の場合は、前後の1文字を含めて3文字で処理する
                                     LOG_INFOH(L"append prefix and postfix char: startPos={}, len1={}, len2={}", startPos - 1, len1 + 2, len2 + 2);
                                     addPair(startPos - 1, len1 + 2, len2 + 2);
                                 } else {
-                                    // どちらかが2文字以上の差分の場合は、後続の1文字も含めて処理する
+                                    // 両者とも2文字以上の差分の場合は、前の1文字を含めて処理する
+                                    LOG_INFOH(L"append prefix char: startPos={}, len1={}, len2={}", startPos - 1, len1 + 1, len2 + 1);
+                                    addPair(startPos - 1, len1 + 1, len2 + 1);
+                                    // 両者とも2文字以上の差分の場合は、後続の1文字も含めて処理する
                                     LOG_INFOH(L"append postfix char: startPos={}, len1={}, len2={}", startPos, len1 + 1, len2 + 1);
                                     addPair(startPos, len1 + 1, len2 + 1);
                                 }
