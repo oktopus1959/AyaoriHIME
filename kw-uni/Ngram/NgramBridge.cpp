@@ -217,6 +217,7 @@ namespace NgramBridge {
     int ngramCalcCost(const MString& str, const std::vector<MString>& tempDictEntries, std::vector<MString>& ngrams, bool needNgrams) {
         if (!initializeSucceeded) return 0;
 
+        //_LOG_TEMPW(L"ENTER");
         _LOG_DEBUGH(_T("ENTER: str={}, tempDic=<{}>"), to_wstr(str), to_wstr(utils::join(tempDictEntries, '|')));
         std::vector<String> results;
         String  errMsg;
@@ -232,6 +233,7 @@ namespace NgramBridge {
             }
         }
         _LOG_DEBUGH(_T("LEAVE: str={}, ngramCost={}, ngrams={}"), to_wstr(str), cost, to_wstr(utils::join(ngrams, ' ')));
+        //_LOG_TEMPW(L"LEAVE");
         return cost;
     }
 }

@@ -16,7 +16,6 @@
 #include "Lattice.h"
 
 #define _LOG_INFOH LOG_INFO
-#define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE
 #include "DebugLog.h"
 
 namespace {

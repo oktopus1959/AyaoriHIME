@@ -6,10 +6,7 @@
 
 #include "path_utils.h"
 
-#if 0
-#undef _LOG_DEBUGH
-#define _LOG_DEBUGH LOG_INFOH
-#endif
+#include "DebugLog.h"
 
 namespace DymazinBridge {
     DEFINE_LOCAL_LOGGER(DymazinBridge);
@@ -101,6 +98,7 @@ namespace DymazinBridge {
     // mazePenalty: 交ぜ書きペナルティ、mazeConnPenalty: 交ぜ書き接続ペナルティ(mazePenalty < 0 の場合はボーナスとなり、他の交ぜ書き候補を含めた解を返す)
     // allowNonTerminal: 非終端形態素を許可するか
     int dymazinCalcCost(const MString& str, std::vector<MString>& morphs, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal) {
+        //_LOG_TEMPW(L"ENTER");
         _LOG_DEBUGH(_T("ENTER: str={}"), to_wstr(str));
         const size_t BUFSIZE = 10000;
         std::vector<wchar_t> wchbuf(BUFSIZE, L'\0');
@@ -112,6 +110,7 @@ namespace DymazinBridge {
             morphs.push_back(to_mstr(s));
         }
         _LOG_DEBUGH(_T("LEAVE: dymazinCost={}, morphs={}"), cost, to_wstr(utils::join(morphs, ' ')));
+        //_LOG_TEMPW(L"LEAVE");
         return cost;
     }
 

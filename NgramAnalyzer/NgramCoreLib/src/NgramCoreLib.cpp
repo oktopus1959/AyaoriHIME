@@ -299,7 +299,7 @@ namespace NgramCoreLib {
                 LOG_INFOH(L"LEAVE: ERROR");
                 return ERROR_HANDLER->GetErrorInfo(errMsg);
             }
-            LOG_INFOH(L"LEAVE: cost={}\n", cost);
+            LOG_INFOH(L"LEAVE: sentence={}, cost={}\n", sentence, cost);
             return cost;
         } catch (RuntimeException ex) {
             ERROR_HANDLER->Error(ex.getMessage());
