@@ -53,6 +53,7 @@ namespace KanchokuWS
                 "MS Mincho");
             label_explanation.Text = $"{KanchokuWS.ProductVersion.ProductExplanation}";
             label_explanation2.Text = $"{KanchokuWS.ProductVersion.ProductExplanation2}";
+            label_initializing.Text = "初期化中...";
 
             float clientWidth = this.ClientSize.Width * scale;
             float clientHeight = this.ClientSize.Height * scale;
@@ -100,12 +101,14 @@ namespace KanchokuWS
         {
             timer1.Interval = timerInterval;
             timer1.Start();
-            logger.Info("Timer Started");
+            logger.InfoH("Timer Started");
         }
 
-        public bool IsKanchokuReady { get; set; } = false;
+        private bool IsGuiInitialized { get; set; } = false;
 
-        public bool IsKanchokuTerminated { get; set; } = false;
+        private bool IsKanchokuReady { get; set; } = false;
+
+        private bool IsKanchokuTerminated { get; set; } = false;
 
         public delegate void DelegateSplashClosedListener();
 
@@ -115,15 +118,40 @@ namespace KanchokuWS
         {
             TopMost = false;
             Hide();
+            IsGuiInitialized = true;
             IsKanchokuReady = true;
+        }
+
+        public void SetGuiInitialized()
+        {
+            IsGuiInitialized = true;
+            label_initializing.Text = "各種ファイルを読み込み中...";
+            Helper.WaitMilliSeconds(20);
+        }
+
+        public void SetKanchokuReady()
+        {
+            IsKanchokuReady = true;
+            label_initializing.Hide();
+            buttonOK.Show();
+            buttonSettings.Show();
+            Helper.WaitMilliSeconds(20);
+        }
+
+        public void SetKanchokuTerminated()
+        {
+            IsKanchokuTerminated = true;
         }
 
         private void checkKanchokuReady()
         {
-            if (IsKanchokuReady) {
-                label_initializing.Hide();
-                buttonOK.Show();
-                buttonSettings.Show();
+            if (IsGuiInitialized) {
+                label_initializing.Text = "各種ファイルを読み込み中...";
+                if (IsKanchokuReady) {
+                    label_initializing.Hide();
+                    buttonOK.Show();
+                    buttonSettings.Show();
+                }
             }
         }
 

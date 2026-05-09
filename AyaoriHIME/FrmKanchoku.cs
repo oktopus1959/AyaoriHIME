@@ -398,16 +398,19 @@ namespace KanchokuWS
             copySystemDefaultFilesToUserFolder();
 
             // 仮想鍵盤フォームの作成
+            logger.InfoH("CALL: new FrmVirtualKeyboard");
             frmVkb = new FrmVirtualKeyboard(this);
             frmVkb.Opacity = 0;     // Show() を呼ぶ必要があるので、最初は完全透明にして目に見えないようにする
             frmVkb.Show();          // Show() を呼んでLoadを実行することで、ウィンドウの状態(サイズなど)が初期化される
 
             // 漢直モード表示フォームの作成
+            logger.InfoH("CALL: new FrmModeMarker");
             frmMode = new FrmModeMarker(this, frmVkb);
             frmMode.Show();         // Show() を呼んでLoadを実行することで、ウィンドウの状態(サイズなど)が初期化される
             frmMode.Hide();
 
             // 表示・編集バッファフォームの作成
+            logger.InfoH("CALL: new FrmEditBuffer");
             frmEditBuf = new FrmEditBuffer(this);
             //frmEditBuf.ShowNonActive();      // Show() を呼んでLoadを実行することで、ウィンドウの状態(サイズなど)が初期化される
             frmEditBuf.Show();      // Show() を呼んでLoadを実行することで、ウィンドウの状態(サイズなど)が初期化される
@@ -415,6 +418,7 @@ namespace KanchokuWS
             frmEditBuf.Hide();
             logger.InfoH($"EditBuf.Width={frmEditBuf.Width}, Height={frmEditBuf.Height}");
 
+            logger.InfoH("CALL: new FrmCandidateSelector");
             frmCands = new FrmCandidateSelector(this, frmEditBuf);
             //frmCands.ShowNonActive();      // Show() を呼んでLoadを実行することで、ウィンドウの状態(サイズなど)が初期化される
             frmCands.Show();      // Show() を呼んでLoadを実行することで、ウィンドウの状態(サイズなど)が初期化される
@@ -422,12 +426,15 @@ namespace KanchokuWS
             frmCands.Hide();
 
             // アクティブなウィンドウのハンドラ作成
+            logger.InfoH("CALL: ActiveWindowHandler.CreateSingleton");
             ActiveWindowHandler.CreateSingleton();
 
             // SendInputハンドラの作成
+            logger.InfoH("CALL: SendInputHandler.CreateSingleton");
             SendInputHandler.CreateSingleton();
 
             // 初期化
+            logger.InfoH("CALL: Initialize...");
             DeckeyComboMap.Initialize();
             InputActionResolver.Initialize();
             ModifierKeyRegistry.Initialize();
@@ -435,13 +442,18 @@ namespace KanchokuWS
             DlgCommonTable.Initialize();
             ShiftPlane.InitializeShiftPlane();
 
+            logger.InfoH("CALL: frmSplash.SetGuiInitialized()");
+            if (frmSplash != null) frmSplash.SetGuiInitialized();
+
             // キーボードファイルの読み込み
+            logger.InfoH("CALL: readKeyboardFileAndCharsDefFile");
             bool resultOK = readKeyboardFileAndCharsDefFile();
 
             //// 文字定義ファイルの読み込み
             //DecoderKeyVsChar.ReadCharsDefFile();
 
             // 設定ファイルの読み込み
+            logger.InfoH("CALL: ReadIniFile");
             Settings.ReadIniFile(true);
 
             Logger.Close();
@@ -449,12 +461,15 @@ namespace KanchokuWS
             if (!resultOK) return;
 
             // 各種定義ファイルの読み込み
+            logger.InfoH("CALL: ReadDefFiles");
             ReadDefFiles();
 
             // 漢直初期化処理
+            logger.InfoH("CALL: await initializeKanchoku");
             await initializeKanchoku();
 
             // デバッグ用テーブルファイルの出力
+            logger.InfoH("CALL: dumpDebugTableFiles");
             if (Settings.OutputDebugTableFiles) dumpDebugTableFiles();
 
             //Text = Settings.ProductKanjiName;
@@ -463,7 +478,8 @@ namespace KanchokuWS
             if (!Settings.ShowEisuVkb || Settings.SplashWindowShowDuration > 0) frmVkb.Hide();
             frmVkb.Opacity = 100;
 
-            if (frmSplash != null) frmSplash.IsKanchokuReady = true;
+            logger.InfoH("CALL: frmSplash.SetKanchokuReady()");
+            if (frmSplash != null) frmSplash.SetKanchokuReady();
 
             // 辞書保存チャレンジ開始時刻の設定
             reinitializeSaveDictsChallengeDt();
@@ -474,8 +490,10 @@ namespace KanchokuWS
             logger.Info("Timer Started");
 
             // キーボードイベントハンドラの初期化(フックの開始など)
+            logger.InfoH("CALL: keHandler.Initialize");
             keHandler.Initialize(this, frmVkb);
 
+            logger.InfoH("LEAVE");
         }
 
         // 各種システムデフォルトファイルをユーザーフォルダにコピー(もし無ければ)
@@ -777,7 +795,7 @@ namespace KanchokuWS
                 if (syncSplash.BusyCheck()) return;
                 using (syncSplash) {
                     if (frmSplash != null) {
-                        frmSplash.IsKanchokuTerminated = true;
+                        frmSplash.SetKanchokuTerminated();
                         logger.Info("CLOSED");
                     }
                     frmSplash = null;
