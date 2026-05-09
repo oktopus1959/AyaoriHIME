@@ -13,6 +13,8 @@ using mchar_t = char32_t;
 
 using MString = std::basic_string<mchar_t>;
 
+typedef const MString& MStringRef;
+
 struct MojiPair {
     wchar_t first;
     wchar_t second;
