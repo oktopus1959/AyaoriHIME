@@ -765,53 +765,27 @@ namespace lattice2 {
             return std::max(a.size() - commonSuffixLen, b.size() - commonSuffixLen);
         }
 
-        MString getCandidateSideNgram(const SelectedNgramPairBonus& bonus) {
-            auto pos = bonus.ngramPair.find('|');
-            if (pos == MString::npos) return MString();
-            return bonus.bonusPoint > 0
-                ? utils::safe_substr(bonus.ngramPair, 0, pos)
-                : utils::safe_substr(bonus.ngramPair, pos + 1);
+        // SelectedNgramPairBonus の "positive|negative" 形式を分解する
+        std::pair<MString, MString> splitSelectedNgramPair(const MString& ngramPair) {
+            auto pos = ngramPair.find('|');
+            if (pos == MString::npos) return {};
+            return {
+                utils::safe_substr(ngramPair, 0, pos),
+                utils::safe_substr(ngramPair, pos + 1)
+            };
         }
 
-        std::vector<SelectedNgramPairBonus> filterContainedSelectedNgramPairBonuses(const MString& candStr) {
-            struct MatchedBonus {
-                SelectedNgramPairBonus bonus;
-                MString matchedNgram;
-            };
-
-            std::vector<MatchedBonus> matchedBonuses;
-            for (const auto& current : findNgramPairBonus(candStr)) {
-                if (!current.isValid(SETTINGS->hiraganaBigramEnabled)) continue;
-                matchedBonuses.push_back({ current, getCandidateSideNgram(current) });
+        // 正負の両側が包含されているときだけ、短い pair を包含対象とみなす
+        bool isContainedSelectedNgramPair(
+            const std::pair<MString, MString>& current,
+            const std::pair<MString, MString>& other) {
+            if (current.first.empty() || current.second.empty() || other.first.empty() || other.second.empty()) {
+                return false;
             }
-
-            std::vector<bool> suppressed(matchedBonuses.size(), false);
-            for (size_t i = 0; i < matchedBonuses.size(); ++i) {
-                const auto& current = matchedBonuses[i];
-                if (current.matchedNgram.empty()) continue;
-                for (size_t j = 0; j < matchedBonuses.size(); ++j) {
-                    if (i == j) continue;
-                    const auto& other = matchedBonuses[j];
-                    if (other.matchedNgram.empty() || current.matchedNgram.size() >= other.matchedNgram.size()) continue;
-                    if (other.matchedNgram.find(current.matchedNgram) != MString::npos) {
-                        suppressed[i] = true;
-                        _LOG_DETAIL(_T("candStr={} suppress contained selected Ngram: excluded={}, covering={}"),
-                            to_wstr(candStr), current.bonus.debugString(), other.bonus.debugString());
-                        break;
-                    }
-                }
+            if (other.first.find(current.first) == MString::npos || other.second.find(current.second) == MString::npos) {
+                return false;
             }
-
-            std::vector<SelectedNgramPairBonus> result;
-            result.reserve(matchedBonuses.size());
-            for (size_t i = 0; i < matchedBonuses.size(); ++i) {
-                if (!suppressed[i]) {
-                    _LOG_DETAIL(_T("candStr={} adopt selected Ngram: {}"),
-                        to_wstr(candStr), matchedBonuses[i].bonus.debugString());
-                    result.push_back(matchedBonuses[i].bonus);
-                }
-            }
-            return result;
+            return current.first != other.first || current.second != other.second;
         }
 
         // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
@@ -819,39 +793,72 @@ namespace lattice2 {
             // CandidateString::totalCost() の昇順にソート
             _LOG_DETAIL(_T("ENTER: newCandidates:\n{}"), debugString(newCandidates));
             // ユーザー選択Ngramペアを探して、totalCostを調整
-            std::map<MString, std::tuple<int, std::set<size_t>, std::set<size_t>>> foundNgram;   // <Ngram, <bonusPoint, positiveCandidateIndexes, negativeCandidateIndexes>>
+            struct FoundNgramInfo {
+                int bonusPoint = 0;
+                std::set<size_t> positiveCandidateIndexes;
+                std::set<size_t> negativeCandidateIndexes;
+                MString positiveNgram;
+                MString negativeNgram;
+            };
+
+            std::map<MString, FoundNgramInfo> foundNgram;   // <Ngram, <bonusPoint, positiveCandidateIndexes, negativeCandidateIndexes, positiveNgram, negativeNgram>>
             for (size_t i = 0; i < newCandidates.size(); ++i) {
                 _LOG_DETAIL(_T("cand[{}]={}"), i, newCandidates[i].debugString());
                 const MString& candStr = newCandidates[i].string();
-                for (const auto& current : filterContainedSelectedNgramPairBonuses(candStr)) {
-                    auto iter = foundNgram.find(current.ngramPair);
-                    if (iter != foundNgram.end()) {
-                        // 既に見つかっている場合
-                        if (current.bonusPoint > 0) {
-                            // 今回の候補は正のボーナスポイント
-                            _LOG_DETAIL(_T("positive bonus info: [{}] {}"), i, current.debugString());
-                            std::get<1>(iter->second).insert(i);   // positiveCandidateIndexes に今回の候補位置を追加
-                        } else if (current.bonusPoint < 0) {
-                            // 今回の候補は負のボーナスポイント
-                            _LOG_DETAIL(_T("negative bonus info: [{}] {}"), i, current.debugString());
-                            std::get<2>(iter->second).insert(i);   // negativeCandidateIndexes に今回の候補位置を追加
-                        }
-                    } else {
-                        if (current.bonusPoint > 0) {
-                            foundNgram[current.ngramPair] = { current.bonusPoint, {i}, {} };
-                        } else if (current.bonusPoint < 0) {
-                            foundNgram[current.ngramPair] = { -current.bonusPoint, {}, {i} };
-                        }
+                for (const auto& current : findNgramPairBonus(candStr)) {
+                    if (!current.isValid(SETTINGS->hiraganaBigramEnabled)) continue;
+
+                    auto [positiveNgram, negativeNgram] = splitSelectedNgramPair(current.ngramPair);
+                    if (positiveNgram.empty() || negativeNgram.empty()) continue;
+
+                    auto& info = foundNgram[current.ngramPair];
+                    if (info.positiveNgram.empty() && info.negativeNgram.empty()) {
+                        info.bonusPoint = current.bonusPoint > 0 ? current.bonusPoint : -current.bonusPoint;
+                        info.positiveNgram = positiveNgram;
+                        info.negativeNgram = negativeNgram;
+                    }
+
+                    if (current.bonusPoint > 0) {
+                        _LOG_DETAIL(_T("positive bonus info: [{}] {}"), i, current.debugString());
+                        info.positiveCandidateIndexes.insert(i);
+                    } else if (current.bonusPoint < 0) {
+                        _LOG_DETAIL(_T("negative bonus info: [{}] {}"), i, current.debugString());
+                        info.negativeCandidateIndexes.insert(i);
                     }
                 }
             }
 
             // totalCost を再計算
+            std::set<MString> suppressedNgramPairs;
             for (const auto& entry : foundNgram) {
+                const auto& currentInfo = entry.second;
+                // pair の片側だけが見つかった段階では仮採用のまま保持し、両側が揃ったものだけを suppress 判定対象にする
+                if (currentInfo.positiveCandidateIndexes.empty() || currentInfo.negativeCandidateIndexes.empty()) continue;
+
+                for (const auto& otherEntry : foundNgram) {
+                    if (entry.first == otherEntry.first) continue;
+                    const auto& otherInfo = otherEntry.second;
+                    if (otherInfo.positiveCandidateIndexes.empty() || otherInfo.negativeCandidateIndexes.empty()) continue;
+                    if (isContainedSelectedNgramPair(
+                        { currentInfo.positiveNgram, currentInfo.negativeNgram },
+                        { otherInfo.positiveNgram, otherInfo.negativeNgram })) {
+                        suppressedNgramPairs.insert(entry.first);
+                        _LOG_DETAIL(_T("suppress contained selected NgramPair: excluded={}, covering={}"),
+                            SelectedNgramPairBonus{ entry.first, currentInfo.bonusPoint }.debugString(),
+                            SelectedNgramPairBonus{ otherEntry.first, otherInfo.bonusPoint }.debugString());
+                        break;
+                    }
+                }
+            }
+
+            for (const auto& entry : foundNgram) {
+                // 集約後に正式採用された pair だけに bonus を反映する
+                if (suppressedNgramPairs.contains(entry.first)) continue;
+
                 const auto& bonusInfo = entry.second;
-                int bonus = calcNgramBonus(std::get<0>(bonusInfo));
-                const auto& posiCandIndex = std::get<1>(bonusInfo);
-                const auto& negaCandIndex = std::get<2>(bonusInfo);
+                int bonus = calcNgramBonus(bonusInfo.bonusPoint);
+                const auto& posiCandIndex = bonusInfo.positiveCandidateIndexes;
+                const auto& negaCandIndex = bonusInfo.negativeCandidateIndexes;
                 if (bonus > 0 && !posiCandIndex.empty() && !negaCandIndex.empty()) {
                     for (const auto& ci : posiCandIndex) {
                         newCandidates[ci].addNgramCost(-bonus);
