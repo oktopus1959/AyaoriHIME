@@ -133,6 +133,7 @@ namespace KanchokuWS.TableParser
         protected void NodeDuplicateWarning() { tableLines.NodeDuplicateWarning(); }
         protected void UnexpectedLeftBraceAtColumn0Warning() { tableLines.UnexpectedLeftBraceAtColumn0Warning(); }
         protected void UnexpectedRightBraceAtColumn0Warning() { tableLines.UnexpectedRightBraceAtColumn0Warning(); }
+        protected void RecordSpaceSingleHitOrSequentialWarning() { tableLines.RecordSpaceSingleHitOrSequentialWarning(); }
         //protected void showErrorMessage() { tableLines.showErrorMessage(); }
         //protected void Error(string msg) { tableLines.Error(msg); }
         //protected void Warn(string msg) { tableLines.Warn(msg); }

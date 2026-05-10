@@ -1112,6 +1112,16 @@ namespace KanchokuWS.TableParser
                 blockOrFile(), blockInfoStack.CurrentBlockName, calcErrorLineNumber(), parsedFileAndLinenum(), CurrentLine._safeSubstring(0, 50)));
         }
 
+        public void RecordSpaceSingleHitOrSequentialWarning()
+        {
+            spaceSingleHitOrSequentialWarningLocations.Add($"{blockOrFile()} {blockInfoStack.CurrentBlockName} の {calcErrorLineNumber()}行目");
+        }
+
+        public IEnumerable<string> GetSpaceSingleHitOrSequentialWarningLocations()
+        {
+            return spaceSingleHitOrSequentialWarningLocations;
+        }
+
         // エラー処理
         void handleError(string msg) {
             logger.Error(msg);
@@ -1171,6 +1181,8 @@ namespace KanchokuWS.TableParser
         public void Warn(string msg) {
             setErrorInfo(Logger.LogLevelWarn, msg);
         }
+
+        private SortedSet<string> spaceSingleHitOrSequentialWarningLocations = new SortedSet<string>();
 
     }
 

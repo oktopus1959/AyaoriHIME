@@ -640,7 +640,8 @@ namespace KanchokuWS.TableParser
         {
             if (!strkList.IsEmpty) {
                 int strk = 0;
-                int shiftOffset = calcShiftOffset(strkList.At(0));
+                int firstStroke = strkList.At(0);
+                int shiftOffset = calcShiftOffset(firstStroke);
 
                 if (Settings.LoggingTableFileInfo)
                     logger.Info($"CALLED: strkList={strkList?.StrokePathString(":")}, hasStr={hasStr}, hasFunc={hasFunc}, shiftOffset={shiftOffset}, ShiftPlane={ShiftPlane}");
@@ -656,7 +657,7 @@ namespace KanchokuWS.TableParser
                 var comboList = new List<int>();
 
                 // 先頭キーはシフト化
-                strk = strkList.At(0);
+                strk = firstStroke;
                 if (strkList.ComboFlagAt(0)) {
                     strk = makeComboDecKey(strk);
                 } else if (strk < DecoderKeys.PLANE_DECKEY_NUM) {
@@ -665,9 +666,15 @@ namespace KanchokuWS.TableParser
 
                 if (strkList.Count == 1 || strkList.ComboFlagAt(0)) {
                     // 長さが1の場合は、単打として登録する
+                    if (Settings.IsSpaceFlushAndDirectInput && strkList.Count == 1 && !strkList.ComboFlagAt(0) && firstStroke == DecoderKeys.STROKE_SPACE_DECKEY) {
+                        RecordSpaceSingleHitOrSequentialWarning();
+                    }
                     comboList.Add(strk);
                 } else {
                     // 長さが2以上で、同時打鍵でない
+                    if (Settings.IsSpaceFlushAndDirectInput && firstStroke == DecoderKeys.STROKE_SPACE_DECKEY) {
+                        RecordSpaceSingleHitOrSequentialWarning();
+                    }
                     addSeqShiftKey();
                 }
 
@@ -1530,6 +1537,7 @@ namespace KanchokuWS.TableParser
             logger.InfoH(() => $"ENTER: filename={filename}, tableNo={tableNo}, bDualTable={bDualTable}");
 
             List<string> outputLines = new List<string>();
+            var spaceSingleHitOrSequentialWarningLocations = new SortedSet<string>();
             RootStrokeDeckeyUsage.Clear();
 
             // テーブルに漢字が300個以上含まれているかどうか
@@ -1565,6 +1573,7 @@ namespace KanchokuWS.TableParser
                 ParserContext.CreateSingleton(tblLines, pool, DecoderKeys.GetComboDeckeyStart(bKanchoku), bDualTable);
                 var parser = new RootTableParser(bKanchoku);
                 parser.ParseRootTable();
+                spaceSingleHitOrSequentialWarningLocations.UnionWith(ParserContext.Singleton.tableLines.GetSpaceSingleHitOrSequentialWarningLocations());
                 RootStrokeDeckeyUsage.Capture(ParserContext.Singleton.rootTableNode);
                 //writeAllLines(outFilename, ParserContext.Singleton.OutputLines);
                 outputLines.AddRange(ParserContext.Singleton.OutputLines);
@@ -1600,6 +1609,23 @@ namespace KanchokuWS.TableParser
                 if (Settings.LoggingTableFileInfo) logger.Info("LEAVE");
             } else {
                 tableLines.Error($"テーブルファイル({filename})が開けないか、内容が空でした。");
+            }
+
+            if (Settings.IsSpaceFlushAndDirectInput && spaceSingleHitOrSequentialWarningLocations.Count > 0) {
+                var displayedLocations = spaceSingleHitOrSequentialWarningLocations.Take(3).ToList();
+                if (spaceSingleHitOrSequentialWarningLocations.Count > displayedLocations.Count) {
+                    displayedLocations.Add("...");
+                }
+                string locations = displayedLocations._join("\r\n");
+                string msg =
+                    "Space(40) が単打または順次打鍵として定義されていますが、" +
+                    "配列融合設定の「Spaceで編集バッファをフラッシュし、対象アプリにも送出する」が有効なため、" +
+                    "Space はデコーダに渡らず対象アプリへ直接送出されます。\r\n" +
+                    "このため、これらの定義は期待どおりに動作しません。\r\n\r\n" +
+                    "該当箇所:\r\n" + locations;
+                logger.Warn(msg);
+                if (errorMsg._notEmpty()) errorMsg += "\r\n\r\n";
+                errorMsg += msg;
             }
 
             if (!bTest && errorMsg._notEmpty()) {
