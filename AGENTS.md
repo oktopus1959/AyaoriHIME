@@ -65,6 +65,8 @@ AGENTS.d/permissions.md も参照のこと。
 
 ## 許可コマンド（検証フェーズ）
 
+プログラムのビルドには `E:\Programs\Microsoft\VisualStudio2022\MSBuild\` 配下のツールを使用する。
+
 `kw-uni.dll` に対して `deckey` 列の逐次的な生成文字列を確認する目的では、
 `tools/deckey_sequence_probe.ps1` を標準の確認手段として用いてよい。
 

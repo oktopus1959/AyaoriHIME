@@ -114,6 +114,15 @@ namespace lattice2 {
             return userDefinedNgramPairs.find(word) != userDefinedNgramPairs.end();
         }
 
+        inline bool _includedInUserDefinedPair(MStringRef word) const {
+            for (size_t pos = 0; pos < word.size(); ++pos) {
+                for (size_t len = 1; len <= MAX_SELECTED_NGRAM_LEN && pos + len <= word.size(); ++len) {
+                    if (_isUserDefinedWord(word.substr(pos, len))) return true;
+                }
+            }
+            return false;
+        }
+
         // ユーザー選択によるポジティブ|ネガティブNgram対の読み込み
         // 形式: <Positive Ngram>|<Negative Ngram> <TAB> <ボーナスポイント>
         void _loadSelectedNgramFile(StringRef ngramFile, bool userDefined) {
@@ -165,6 +174,19 @@ namespace lattice2 {
             selectedNgramMap[nega].insert(SelectedNgramPairBonus{ key, -bonusPoint });      // negative ngram
         }
 
+        bool _gatherSelectedNgramPairBonus(std::set<SelectedNgramPairBonus>& resultSet, const MString& ngram, bool onlyUserDefined = false) const {
+            _LOG_DETAIL(L"CALLED: ngram={}, userDefined={}", to_wstr(ngram), onlyUserDefined);
+            if (!onlyUserDefined || _isUserDefinedWord(ngram)) {
+                auto iter = selectedNgramMap.find(ngram);
+                if (iter != selectedNgramMap.end()) {
+                    resultSet.insert(iter->second.begin(), iter->second.end());
+                    _LOG_DETAIL(L"FOUND: ngram={}, set<SelectedNgramPairBonus>: {}", to_wstr(ngram), debugStringOfSelectedNgramPairBonusSet(resultSet));
+                    return true;
+                }
+            }
+            return false;
+        }
+
     public:
         // ユーザー選択によるポジティブ|ネガティブNgram対の読み込み
         // 形式: <Positive Ngram>|<Negative Ngram> <TAB> <ボーナスポイント>
@@ -209,7 +231,7 @@ namespace lattice2 {
 
         // Ngram差分の更新
         void updateSelectedNgram(const MString& posi, const MString& nega) {
-            if (_isUserDefinedPair(posi, nega)) {
+            if (_includedInUserDefinedPair(posi) && _includedInUserDefinedPair(nega)) {
                 // Ngram差分が固定Ngramエントリに含まれている場合は、差分登録を行わない
                 _LOG_DETAIL(L"{} and {} are BOTH FIXED ngram entries", to_wstr(posi), to_wstr(nega));
                 return;
@@ -245,19 +267,6 @@ namespace lattice2 {
         }
 
     private:
-        bool _gatherSelectedNgramPairBonus(std::set<SelectedNgramPairBonus>& resultSet, const MString& ngram, bool onlyUserDefined = false) const {
-            _LOG_DETAIL(L"CALLED: ngram={}, userDefined={}", to_wstr(ngram), onlyUserDefined);
-            if (!onlyUserDefined || _isUserDefinedWord(ngram)) {
-                auto iter = selectedNgramMap.find(ngram);
-                if (iter != selectedNgramMap.end()) {
-                    resultSet.insert(iter->second.begin(), iter->second.end());
-                    _LOG_DETAIL(L"FOUND: ngram={}, set<SelectedNgramPairBonus>: {}", to_wstr(ngram), debugStringOfSelectedNgramPairBonusSet(resultSet));
-                    return true;
-                }
-            }
-            return false;
-        }
-
         String _joinSelectedNgramPairBonusSet(const std::set<SelectedNgramPairBonus>& s) const {
             String result;
             for (const auto& item : s) {
