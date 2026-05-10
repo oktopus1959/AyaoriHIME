@@ -1341,26 +1341,31 @@ namespace lattice2 {
             _LOG_DETAIL(L"LEAVE: {} candidates", newCandidates.size());
         }
 
-        // 末尾文字を削除して残った文字列と同じ候補があれば、そのストローク長まで候候を削除する
+        // 末尾文字を削除して残った文字列と同じ候補があれば、そのストローク長まで候補を削除する
         void removeLastCharCandidate(std::vector<CandidateString>& newCandidates, int strokeCount) {
             if (!_candidates.empty()) {
                 int removeLen = 0;
                 const auto& firstCand = _candidates.front();
-                // str: 末尾文字を削除した文字列
-                const MString str = utils::safe_substr(firstCand.string(), 0, -1);
-                _LOG_DETAIL(L"_candidates.size={}, targetStr={}, origCand: {}", _candidates.size(), to_wstr(str), firstCand.infoString());
-                for (const auto& cand : _candidates) {
-                    _LOG_DETAIL(L"cand: {}", cand.infoString());
-                    if (str == cand.string()) {
-                        _LOG_DETAIL(L"FOUND same candidate: {}", cand.debugString());
-                        removeLen = firstCand.strokeLen() - cand.strokeLen();
-                        break;
+                const MString& firstStr = firstCand.string();
+                for (size_t trimLen = 1; trimLen <= firstStr.size() && removeLen == 0; ++trimLen) {
+                    // targetStr: 末尾から trimLen 文字削除した文字列
+                    MString targetStr = utils::safe_substr(firstStr, 0, (int)(firstStr.size() - trimLen));
+                    _LOG_DETAIL(L"_candidates.size={}, trimLen={}, targetStr={}, origCand: {}", _candidates.size(), trimLen, to_wstr(targetStr), firstCand.infoString());
+                    for (const auto& cand : _candidates) {
+                        _LOG_DETAIL(L"cand: {}", cand.infoString());
+                        if (targetStr == cand.string()) {
+                            _LOG_DETAIL(L"FOUND same candidate: trimLen={}, {}", trimLen, cand.debugString());
+                            removeLen = firstCand.strokeLen() - cand.strokeLen();
+                            break;
+                        }
                     }
                 }
                 if (removeLen > 0) {
                     // 末尾文字を削除したものと同じ候補が見つかったら、そのストローク長まで候補を削除する
                     // (英字⇒カタカナ変換などで、末尾文字を削除したものと同じ候補が見つからない場合は、何もしない→通常のBS動作となる)
                     removeCurrentStrokeCandidates(newCandidates, strokeCount, removeLen);
+                } else {
+                    _LOG_DETAIL(L"NO same candidate found by trimming tail chars: origCand={}", firstCand.infoString());
                 }
             }
         }
