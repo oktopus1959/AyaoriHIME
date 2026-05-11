@@ -196,6 +196,26 @@ namespace analyzer {
             return utils::is_kanji(ch) || ch == L'〓';
         }
 
+        // ユーザー定義の Ngram で負のカウントが記述されているものについて、それが str に含まれていれば、それをペナルティとして算出する。
+        // 複数の ngram が該当する場合は、それらを合算したものを返す。
+        int getUserNgramPenalty(StringRef str) {
+            LOG_DEBUGH(L"ENTER: str={}", str);
+            int penalty = 0;
+            if (!str.empty()) {
+                for (const auto& entry : userDict) {
+                    const String& key = entry.first;
+                    int count = entry.second;
+                    if (count < 0 && !key.empty() && utils::contains(str, key)) {
+                        int delta = calcUserBonus(-count);
+                        penalty += delta;
+                        LOG_DEBUG(L"user penalty FOUND: key={}, count={}, delta={}, penalty={}", key, count, delta, penalty);
+                    }
+                }
+            }
+            LOG_DEBUGH(L"LEAVE: penalty={}", penalty);
+            return penalty;
+        }
+
         // 与えられた文字列の先頭部分にマッチするエントリ（複数可）を検索する
         // @param str 検索対象の文字列
         // @param pos 検索開始位置

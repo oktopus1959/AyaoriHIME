@@ -4,6 +4,7 @@
 #include "Connector.h"
 #include "Tokenizer.h"
 #include "Viterbi.h"
+#include "RealtimeDict.h"
 
 #include "util/xsv_parser.h"
 #include "featureDef.h"
@@ -321,11 +322,16 @@ namespace analyzer {
      */
     int Viterbi::parseNBest(StringRef sentence, StringRef tempEntries, StringRef penaltyEntries, Vector<String>& results, size_t nBest, bool needResults) {
         //warnings.clear();
-        LOG_INFO(L"CALLED: sentence={}, penaltyEntries={}, nBest={}", sentence, penaltyEntries, nBest);
+        LOG_INFO(L"ENTER: sentence={}, penaltyEntries={}, nBest={}", sentence, penaltyEntries, nBest);
 
         auto lattice = Lattice::CreateLattice(sentence, L"", nBest);
         analyze(lattice, tempEntries, penaltyEntries);
-        return lattice->getSolutions(results, needResults) + pImpl->getMorphPenalty(penaltyEntries);
+        int baseCost = lattice->getSolutions(results, needResults);
+        int morphPenalty = pImpl->getMorphPenalty(penaltyEntries);
+        int userNgramPenalty = RealtimeDict::getUserNgramPenalty(sentence);
+        int totalCost = baseCost + morphPenalty + userNgramPenalty;
+        LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}", totalCost, baseCost, morphPenalty, userNgramPenalty);
+        return totalCost;
     }
 
     /**

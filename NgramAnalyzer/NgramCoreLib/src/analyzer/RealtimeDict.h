@@ -35,6 +35,10 @@ namespace analyzer {
         // @return マッチしたエントリのリスト。各エントリは、(Ngram長, ボーナス) のタプルで表される
         std::vector<int> commonPrefixSearch(const String& str, size_t pos, bool hiraganaBigramEnabled, bool hiraganaQuadgramEnabled);
 
+        // ユーザー定義の Ngram で負のカウントが記述されているものについて、それが str に含まれていれば、それをペナルティとして算出する。
+        // 複数の ngram が該当する場合は、それらを合算したものを返す。
+        int getUserNgramPenalty(StringRef str);
+
         /**
          * 与えられた文字列に完全一致するエントリがあるか
          */
