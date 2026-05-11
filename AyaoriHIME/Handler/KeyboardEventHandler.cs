@@ -207,12 +207,6 @@ namespace KanchokuWS.Handler
             return effectiveShiftPressed();
         }
 
-        // これはいずれ廃止する
-        private int getSpaceHoldShiftRepeatMillisec()
-        {
-            return 0;
-        }
-
         private void updateStrokeHelpHoldShiftPlane(bool bDecoderOn)
         {
             if (Settings.LoggingDecKeyInfo) logger.Info($"CALLED: bDecoderOn={bDecoderOn}");
@@ -230,7 +224,6 @@ namespace KanchokuWS.Handler
             RELEASED,
             PRESSED,
             SHIFTED,
-            REPEATED,
         }
 
         // function deckey に対応するキーの統合ランタイム状態。
@@ -255,7 +248,6 @@ namespace KanchokuWS.Handler
             public bool Released { get { return KeyState == RuntimeKeyState.RELEASED; } }
             public bool Pressed { get { return KeyState == RuntimeKeyState.PRESSED; } }
             public bool Shifted { get { return KeyState == RuntimeKeyState.SHIFTED; } }
-            public bool Repeated { get { return KeyState == RuntimeKeyState.REPEATED; } }
             public bool HasModifierRole { get { return ModFlag != 0; } }
 
             public void SetReleased()
@@ -276,12 +268,6 @@ namespace KanchokuWS.Handler
                 if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set SHIFTED");
                 KeyState = RuntimeKeyState.SHIFTED;
                 ShiftedSerial = Interlocked.Increment(ref serialSeed);
-            }
-
-            public void SetRepeated()
-            {
-                if (Settings.LoggingDecKeyInfo) logger.Info($"{Name}:Set REPEATED");
-                KeyState = RuntimeKeyState.REPEATED;
             }
 
             public bool IsShiftPlaneAssigned(bool bDecoderOn)
@@ -708,7 +694,7 @@ namespace KanchokuWS.Handler
 
             var pendingState = popPendingCommonSingleHit(vkey);
             var holdShiftState = holdShiftStateManager.GetStateByVkey(vkey);
-            bool wasActiveHoldShift = holdShiftState != null && (holdShiftState.Pressed || holdShiftState.Shifted || holdShiftState.Repeated);
+            bool wasActiveHoldShift = holdShiftState != null && (holdShiftState.Pressed || holdShiftState.Shifted);
             if (holdShiftState != null) {
                 holdShiftState.SetReleased();
                 if (wasActiveHoldShift) holdShiftState.PrevUpDt = HRDateTime.Now;
@@ -1134,27 +1120,19 @@ namespace KanchokuWS.Handler
                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift: modifier shortcut pass-through");
                         return false;
                     }
+                    // 旧仕様では HoldShift の短時間再押下を特別扱いしていたが、その仕様は廃止した。
+                    // HoldShiftキーを単打してから Holdシフトを行いたい場合に、リピート状態になってしまうのを避けるためでもある。
+                    // 現在は HoldShift 自体の Down では Released -> Pressed、押下中に別キーが来たら Pressed -> Shifted の単純遷移で扱う。
                     if (keyState.Shifted) return true;
-                    if (keyState.Repeated) {
-                        if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift: repeated -> pass through");
-                    } else if (keyState.Pressed) {
+                    if (keyState.Pressed) {
                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift: prevUpDt={keyState.PrevUpDt}.{keyState.PrevUpDt:fff}");
-                        if (HRDateTime.Now > keyState.PrevUpDt.AddMilliseconds(getSpaceHoldShiftRepeatMillisec())) {
-                            keyState.SetShifted();
-                            updateStrokeHelpHoldShiftPlane(bDecoderOn);
-                            return true;
-                        } else {
-                            keyState.SetRepeated();
-                        }
+                        keyState.SetShifted();
+                        updateStrokeHelpHoldShiftPlane(bDecoderOn);
+                        return true;
                     } else if (keyState.Released) {
                         if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift: released prevUpDt={keyState.PrevUpDt}.{keyState.PrevUpDt:fff}");
-                        if (keyState.PrevUpDt > DateTime.MinValue &&
-                            HRDateTime.Now <= keyState.PrevUpDt.AddMilliseconds(getSpaceHoldShiftRepeatMillisec())) {
-                            keyState.SetRepeated();
-                        } else {
-                            keyState.SetPressed();
-                            return true;
-                        }
+                        keyState.SetPressed();
+                        return true;
                     }
                 } else if (keyState != null && keyState.HasModifierRole) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"{keyState.Name}Key Pressed: ctrl={bCtrl}, shift={bShift}, decoderOn={bDecoderOn}, modFlag={modFlag:x}, modPressedOrShifted={modPressedOrShifted:x}");
@@ -1523,7 +1501,7 @@ namespace KanchokuWS.Handler
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift UP: modifier shortcut pass-through");
                     return false;
                 }
-                if (bPrevPressed || keyState.Repeated || keyState.Shifted) keyState.PrevUpDt = HRDateTime.Now;
+                if (bPrevPressed || keyState.Shifted) keyState.PrevUpDt = HRDateTime.Now;
                 updateStrokeHelpHoldShiftPlane(bDecoderOn);
                 if (bPrevPressed) {
                     var pendingState = popPendingCommonSingleHit(vkey);
