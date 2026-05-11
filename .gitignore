@@ -30,5 +30,6 @@ _tables/
 *.lock
 *.xlsx
 *.swp
+__tmp_*.txt
 
 !DyMazin/work/
