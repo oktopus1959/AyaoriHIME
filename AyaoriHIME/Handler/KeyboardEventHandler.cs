@@ -628,6 +628,13 @@ namespace KanchokuWS.Handler
             return KeyCombinationPool._GetEntry(strokes);
         }
 
+        private bool tryInvokeCommonHoldShiftAction(int holdShiftDeckey, int normalDecKey, bool bDecoderOn)
+        {
+            if (!InputActionResolver.TryResolveHoldShift(holdShiftDeckey, normalDecKey, bDecoderOn, out var commonAction)) return false;
+            if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift action: hold={holdShiftDeckey}, key={normalDecKey}, action={commonAction.ResolvedDeckey}, source={commonAction.SourceKind}");
+            return invokeResolvedAction(commonAction, normalDecKey, bDecoderOn);
+        }
+
         private void markPendingCommonSingleHitConsumed(uint vkey)
         {
             var pendingState = pendingCommonSingleHitStates._safeGet(vkey);
@@ -746,19 +753,18 @@ namespace KanchokuWS.Handler
             int normalDecKey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
             if (normalDecKey < 0) return null;
 
+            if (tryInvokeCommonHoldShiftAction(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn)) {
+                markPendingCommonSingleHitConsumed(activeHoldShiftInfo.Vkey);
+                consumedHoldShiftTargetVkeys.Add(vkey);
+                return true;
+            }
+
             var combo = getComboForCommonHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn);
             if (combo != null && combo.IsTerminal && !combo.IsSubKey && combo.DecKeyList._notEmpty()) {
                 if (Settings.LoggingDecKeyInfo) logger.Info(() => $"HoldShift combo action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, combo={combo.DecKeysDebugString()}");
                 markPendingCommonSingleHitConsumed(activeHoldShiftInfo.Vkey);
                 consumedHoldShiftTargetVkeys.Add(vkey);
                 return invokeHandlerForKeyList(combo.DecKeyList._toSingleHitResultKeyStrokeList(), false);
-            }
-
-            if ((combo == null || combo.IsTerminal) && InputActionResolver.TryResolveHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn, out var commonAction)) {
-                if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, action={commonAction.ResolvedDeckey}, source={commonAction.SourceKind}");
-                markPendingCommonSingleHitConsumed(activeHoldShiftInfo.Vkey);
-                consumedHoldShiftTargetVkeys.Add(vkey);
-                return invokeResolvedAction(commonAction, normalDecKey, bDecoderOn);
             }
 
             if (isSystemShiftDeckey(activeHoldShiftInfo.Deckey) && normalDecKey >= 0 && normalDecKey < DecoderKeys.NORMAL_DECKEY_NUM) {
@@ -1241,18 +1247,17 @@ namespace KanchokuWS.Handler
                 InputActionResolver.HasCommonTableHoldShiftDefinition(activeHoldShiftInfo.Deckey) &&
                 activeHoldShiftInfo.Vkey != vkey &&
                 !ctrl && !shift && normalDecKey >= 0) {
+                if (tryInvokeCommonHoldShiftAction(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn)) {
+                    var pendingState = pendingCommonSingleHitStates._safeGet(activeHoldShiftInfo.Vkey);
+                    if (pendingState != null) pendingState.Consumed = true;
+                    return true;
+                }
                 var combo = getComboForCommonHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn);
                 if (combo != null && combo.IsTerminal && !combo.IsSubKey && combo.DecKeyList._notEmpty()) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift prioritized by combo: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, combo={combo.DecKeysDebugString()}");
                     var pendingState = pendingCommonSingleHitStates._safeGet(activeHoldShiftInfo.Vkey);
                     if (pendingState != null) pendingState.Consumed = true;
                     return invokeHandlerForKeyList(combo.DecKeyList._toSingleHitResultKeyStrokeList(), false);
-                }
-                if ((combo == null || combo.IsTerminal) && InputActionResolver.TryResolveHoldShift(activeHoldShiftInfo.Deckey, normalDecKey, bDecoderOn, out var commonAction)) {
-                    if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CommonTable HoldShift action: hold={activeHoldShiftInfo.Deckey}, key={normalDecKey}, action={commonAction.ResolvedDeckey}, source={commonAction.SourceKind}");
-                    var pendingState = pendingCommonSingleHitStates._safeGet(activeHoldShiftInfo.Vkey);
-                    if (pendingState != null) pendingState.Consumed = true;
-                    return invokeResolvedAction(commonAction, normalDecKey, bDecoderOn);
                 }
             }
 
