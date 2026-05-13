@@ -25,6 +25,10 @@ namespace KanchokuWS.Forms
 
         private const int LongVkeyCharSize = 20;
 
+        private const int EditBufferWidthUnitChars = 3;
+
+        private int reservedEditBufferTextWidth = 0;
+
         //------------------------------------------------------------------------------------
         /// <summary>編集バッファの文字列を返す</summary>
         public string EditText => editTextBox.Text;
@@ -481,6 +485,7 @@ namespace KanchokuWS.Forms
         {
             if (editTextBox.Text._isEmpty()) return false;
 
+            resetReservedEditBufferTextWidth();
             editTextBox.Text = "";
             editTextBox.SelectionStart = 0;
             this.Hide();
@@ -488,14 +493,27 @@ namespace KanchokuWS.Forms
             return true;
         }
 
+        private void resetReservedEditBufferTextWidth()
+        {
+            reservedEditBufferTextWidth = 0;
+        }
+
         private void resetFormSize()
         {
             // テキストの幅と高さを取得
-            int textWidth = TextRenderer.MeasureText(editTextBox.Text, editTextBox.Font).Width;
-            int textHeight = TextRenderer.MeasureText("亜", editTextBox.Font).Height;
+            var charSize = TextRenderer.MeasureText("亜", editTextBox.Font);
+            int textWidth = editTextBox.Text._isEmpty() ? 0 : TextRenderer.MeasureText(editTextBox.Text, editTextBox.Font).Width;
+            int textHeight = charSize.Height;
+
+            if (textWidth <= 0) {
+                resetReservedEditBufferTextWidth();
+            } else if (textWidth > reservedEditBufferTextWidth) {
+                int unitWidth = Math.Max(1, charSize.Width * EditBufferWidthUnitChars);
+                reservedEditBufferTextWidth = ((textWidth + unitWidth - 1) / unitWidth) * unitWidth;
+            }
 
             // 余裕を持たせて TextBox の幅を設定(上下左右にアンカーしているので、外側のフォームのサイズを変えればよい)
-            this.Width = textWidth + 8;
+            this.Width = reservedEditBufferTextWidth + 8;
             this.Height = textHeight + 7;
 
             if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"Text=<{editTextBox.Text}>, Width={Size.Width}, Height={this.Size.Height}");
@@ -548,6 +566,7 @@ namespace KanchokuWS.Forms
 
             Func<float, float> mulRate = (float x) => (int)(x * rate);
 
+            resetReservedEditBufferTextWidth();
             resetFormSize();
 
             if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"LEAVE: this.Width={this.Width}");
@@ -561,6 +580,7 @@ namespace KanchokuWS.Forms
         {
             if (renewFontInfo(editBufFontInfo, Settings.EditBufferFontSpec)) {
                 editTextBox.Font = editBufFontInfo.MyFont;
+                resetReservedEditBufferTextWidth();
             }
         }
 
