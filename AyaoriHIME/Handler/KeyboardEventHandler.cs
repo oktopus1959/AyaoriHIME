@@ -594,6 +594,7 @@ namespace KanchokuWS.Handler
         private bool tryBeginPendingCommonSingleHit(uint vkey, int deckey, FunctionKeyRuntimeState keyState, bool bCtrl, bool bShift, bool bAlt, bool bWin,
             uint modPressedOrShifted, bool bDecoderOn)
         {
+            if (!bDecoderOn) return false;
             if (!InputActionResolver.HasSingleHitAction(deckey)) return false;
             if (bCtrl || bShift || bAlt || bWin) return false;
             if (modPressedOrShifted != 0 || holdShiftStateManager.IsHoldShiftPressedOrShifted()) return false;

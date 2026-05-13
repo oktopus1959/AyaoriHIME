@@ -268,6 +268,10 @@ namespace KanchokuWS.Domain
         /// </summary>
         public static bool TryResolveSingleHit(int deckey, bool bDecoderOn, out InputActionResolution action)
         {
+            if (!bDecoderOn) {
+                action = null;
+                return false;
+            }
             action = singleHitActions._safeGet(deckey);
             return action != null && action.IsResolved;
         }
