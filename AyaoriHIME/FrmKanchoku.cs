@@ -1310,7 +1310,7 @@ namespace KanchokuWS
                                     deckey = DecoderKeys.STROKE_SPACE_DECKEY;
                                     if (IsDecoderActive && decoderOutput.GetStrokeCount() >= 1) {
                                         // 第2打鍵待ちなら、スペースを出力
-                                        logger.Info($"CALL InvokeDecoder");
+                                        logger.Info("CALL InvokeDecoder");
                                         InvokeDecoder(deckey, origDeckey, 0, rollOverStroke);
                                     }
                                     logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
@@ -1327,7 +1327,7 @@ namespace KanchokuWS
                                         // 第2打鍵待ちなら、いったんBSを出力してからシフトされたコードを出力
                                         InvokeDecoder(DecoderKeys.BS_DECKEY, -1, 0, rollOverStroke);
                                         deckey = (prevDeckey % DecoderKeys.PLANE_DECKEY_NUM) + (deckey - DecoderKeys.POST_NORMAL_SHIFT_DECKEY + 1) * DecoderKeys.PLANE_DECKEY_NUM;
-                                        logger.Info($"CALL InvokeDecoder");
+                                        logger.Info("CALL InvokeDecoder");
                                         InvokeDecoder(deckey, origDeckey, 0, rollOverStroke);
                                     }
                                     logger.Info(() => $"LEAVE: true: {DecoderKeys.ToDebugString(deckey)}");
@@ -2187,7 +2187,7 @@ namespace KanchokuWS
             if (funcInfo != null && funcInfo.KeyOrFunc != null && funcInfo.KeyOrFunc.IsFunction) {
                 // "!{DECKEY_NAME}" の形式で、特殊機能キー(TOGGLE_DECKEYなど)の場合
                 deckey = funcInfo.KeyOrFunc.DecKey;
-                logger.InfoH($"RE-CALL: HandleDeckeyDecoder({deckey}:{funcInfo.Alias})");
+                logger.InfoH(() => $"RE-CALL: HandleDeckeyDecoder({deckey}:{funcInfo.Alias})");
                 // デコーダの再呼び出し
                 CallHandleDeckeyDecoder(cmdParamsPtr => {
                     HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode, rollOverStroke), ref decoderOutput);
@@ -2711,7 +2711,7 @@ namespace KanchokuWS
                 saveDictsChallengeDt = DateTime.MaxValue;
                 saveDictsPlannedDt = DateTime.MaxValue;
             }
-            logger.DebugH($"saveDictsChallengeDt={saveDictsChallengeDt}, saveDictsPlannedDt={saveDictsPlannedDt}");
+            logger.DebugH(() => $"saveDictsChallengeDt={saveDictsChallengeDt}, saveDictsPlannedDt={saveDictsPlannedDt}");
         }
 
         // 辞書保存予定時刻
@@ -2722,7 +2722,7 @@ namespace KanchokuWS
             var dtNow = HRDateTime.Now;
             if (dtNow >= saveDictsChallengeDt) {
                 saveDictsPlannedDt = dtNow.AddMinutes(Settings.SaveDictsCalmTime);
-                logger.DebugH($"saveDictsPlannedDt={saveDictsPlannedDt}");
+                logger.DebugH(() => $"saveDictsPlannedDt={saveDictsPlannedDt}");
             }
         }
 

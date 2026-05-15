@@ -123,11 +123,11 @@ namespace KanchokuWS.Forms
                 (str._safeCount() == 1 && isSpace(chars[0])) ||
                 (Settings.OutputHeadSymbol && str._safeCount() == 1 && isNonAlaphaNumericZenkakuJapanese(chars[0])) ||
                 FunctionalDescParser.IsFunctionalDescStart(str, 0) || TernaryOperatorParser.IsTernaryOperator(str))) {
-                logger.InfoH($"REDIRECT");
+                logger.InfoH("REDIRECT");
                 var funcInfo = FunctionalDescParser.Parse(str, 0);
                 if (funcInfo != null && funcInfo.KeyOrFunc != null && funcInfo.KeyOrFunc.IsFunction) {
                     // "!{DECKEY_NAME}" の形式で、特殊機能キー(TOGGLE_DECKEYなど)の場合
-                    logger.InfoH($"CALL: FuncDispatcher({funcInfo.KeyOrFunc})");
+                    logger.InfoH(() => $"CALL: FuncDispatcher({funcInfo.KeyOrFunc})");
                     frmMain.FuncDispatcher(funcInfo.KeyOrFunc.DecKey, -1, 0, false, false);
                 } else {
                     // 何もせずに、呼び出し元に任せる
@@ -135,7 +135,7 @@ namespace KanchokuWS.Forms
                     SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(chars, numBS, true);
                 }
                 frmMain.ExecCmdDecoder("clearMultiStream", "");
-                logger.InfoH($"LEAVE: REDIRECT");
+                logger.InfoH("LEAVE: REDIRECT");
                 return;
             }
 
@@ -157,63 +157,63 @@ namespace KanchokuWS.Forms
 
             void handleFunctionalKey(FunctionalKeyInfo fkey)
             {
-                logger.InfoH($"handleFunctionalKey: fkey={fkey}");
+                logger.InfoH(() => $"handleFunctionalKey: fkey={fkey}");
                 switch (fkey.KeyOrFunc?.DecKey ?? -1) {
                     case DecoderKeys.LEFT_ARROW_DECKEY:
-                        logger.InfoH($"Left");
+                        logger.InfoH("Left");
                         if (preText._notEmpty()) {
                             postText = preText._safeSubstring(-1) + postText;
                             preText = preText._safeSubstring(0, -1);
                         }
                         break;
                     case DecoderKeys.RIGHT_ARROW_DECKEY:
-                        logger.InfoH($"Right");
+                        logger.InfoH("Right");
                         if (postText._notEmpty()) {
                             preText = preText + postText._safeSubstring(0, 1);
                             postText = postText._safeSubstring(1);
                         }
                         break;
                     case DecoderKeys.HOME_DECKEY:
-                        logger.InfoH($"Home");
+                        logger.InfoH("Home");
                         postText = preText + postText;
                         preText = "";
                         break;
                     case DecoderKeys.END_DECKEY:
-                        logger.InfoH($"End");
+                        logger.InfoH("End");
                         preText = preText + postText;
                         postText = "";
                         break;
                     case DecoderKeys.BS_DECKEY:
-                        logger.InfoH($"BS");
+                        logger.InfoH("BS");
                         if (preText._notEmpty()) {
                             preText = preText._safeSubstring(0, -1);
                         }
                         break;
                     case DecoderKeys.DEL_DECKEY:
-                        logger.InfoH($"Delete");
+                        logger.InfoH("Delete");
                         if (postText._notEmpty()) {
                             postText = postText._safeSubstring(1);
                         }
                         break;
                     case DecoderKeys.ENTER_DECKEY:
-                        logger.InfoH($"Enter");
+                        logger.InfoH("Enter");
                         bFlushAll = true;
                         break;
                     default:
                         if (fkey.Alias == "Flush") {
-                            logger.InfoH($"Flush");
+                            logger.InfoH("Flush");
                             toFlush = true;
                         } else if (fkey.Alias == "Abort") {
-                            logger.InfoH($"Abort");
+                            logger.InfoH("Abort");
                             preText = "";
                             postText = "";
                             toAbort = true;
                         } else if (fkey.Alias == "U" && fkey.IsCtrl()) {
-                            logger.InfoH($"^U");
+                            logger.InfoH("^U");
                             preText = "";
                             postText = "";
                         } else if (fkey.KeyOrFunc != null && fkey.KeyOrFunc.IsFunction) {
-                            logger.InfoH($"CALL: FuncDispatcher({fkey.KeyOrFunc.DecKey}:{fkey.Alias})");
+                            logger.InfoH(() => $"CALL: FuncDispatcher({fkey.KeyOrFunc.DecKey}:{fkey.Alias})");
                             frmMain.FuncDispatcher(fkey.KeyOrFunc.DecKey, -1, 0, false, false);
                         }
                         break;
@@ -256,7 +256,7 @@ namespace KanchokuWS.Forms
                             } else {
                                 if (str[pos] == '(' && str[str.Length - 1] == ')') {
                                     var value = TernaryOperatorParser.Parse(str._safeSubstring(pos), "@");
-                                    logger.InfoH($"value={value}");
+                                    logger.InfoH(() => $"value={value}");
                                     if (value._notEmpty()) {
                                         str = value;
                                         pos = 0;
@@ -321,35 +321,35 @@ namespace KanchokuWS.Forms
             bool isEditKey = true;
             switch (vkey) {
                 case (uint)Keys.Left:
-                    logger.InfoH($"Left");
+                    logger.InfoH("Left");
                     moveCaretLeft();
                     break;
                 case (uint)Keys.Right:
-                    logger.InfoH($"Right");
+                    logger.InfoH("Right");
                     moveCaretRight();
                     break;
                 case (uint)Keys.Home:
-                    logger.InfoH($"Home");
+                    logger.InfoH("Home");
                     moveCaretHome();
                     break;
                 case (uint)Keys.End:
-                    logger.InfoH($"End");
+                    logger.InfoH("End");
                     moveCaretEnd();
                     break;
                 case (uint)Keys.Back:
-                    logger.InfoH($"Back");
+                    logger.InfoH("Back");
                     backspace(modifier, vkey);
                     break;
                 case (uint)Keys.Delete:
-                    logger.InfoH($"Delete");
+                    logger.InfoH("Delete");
                     delete();
                     break;
                 case (uint)Keys.Enter:
-                    logger.InfoH($"Enter");
+                    logger.InfoH("Enter");
                     FlushBuffer(true);
                     break;
                 case (uint)Keys.Escape:
-                    logger.InfoH($"Escape");
+                    logger.InfoH("Escape");
                     if (prevVkey == vkey) {
                         //FlushBuffer(true);
                         ClearBuffer();
@@ -448,7 +448,7 @@ namespace KanchokuWS.Forms
         /// <summary>編集バッファをフラッシュして、アプリケーションに文字列を送出する</summary>
         public void FlushBuffer(bool bFlushAll)
         {
-            logger.Info($"ENTER: FlushAll={bFlushAll}");
+            logger.Info(() => $"ENTER: FlushAll={bFlushAll}");
             string result;
             int pos = editTextBox.Text._safeIndexOf(Settings.EditBufferCaretChar);
             if (bFlushAll || pos <= 0 || pos == editTextBox.Text.Length - 1) {
@@ -560,7 +560,7 @@ namespace KanchokuWS.Forms
 
         private void resetDrawParameters(int dpi)
         {
-            if (Settings.LoggingVirtualKeyboardInfo) logger.Info($"CALLED: dpi={dpi}");
+            if (Settings.LoggingVirtualKeyboardInfo) logger.Info(() => $"CALLED: dpi={dpi}");
             //float rate = (float)ScreenInfo.Singleton.PrimaryScreenDpiRate._lowLimit(1.0);
             float rate = dpi / 96.0f;
 
@@ -610,7 +610,7 @@ namespace KanchokuWS.Forms
         {
             //if (bDiffWin) {
             //    var font = FontInfo.GetActiveWindowFont(1.0f);
-            //    logger.InfoH($"font.Name={font?.Name}, font.Size ={font.Size}");
+            //    logger.InfoH(() => $"font.Name={font?.Name}, font.Size ={font.Size}");
             //    if (font != null) editTextBox.Font = font;
             //}
 
@@ -633,7 +633,7 @@ namespace KanchokuWS.Forms
             int fY = cY + (cH - fH) / 2 + 1;      // カレットとTextBoxの中心より若干下に位置させる
             if (fY < 0) fY = cY + cH + Math.Abs(yOffset);
 
-            if (bLog) logger.InfoH($"FORM: fX={fX}, fY={fY}, fW={fW}, fH={fH}, cX={cX}, cY={cY}, cW={cW}, cH={cH}");
+            if (bLog) logger.InfoH(() => $"FORM: fX={fX}, fY={fY}, fW={fW}, fH={fH}, cX={cX}, cY={cY}, cW={cW}, cH={cH}");
 
             Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(cX, cY);
             if (rect != Rectangle.Empty) {
@@ -641,7 +641,7 @@ namespace KanchokuWS.Forms
                 int rY = rect.Y;
                 int rRight = rect.X + rect.Width;
                 int rBottom = rect.Y + rect.Height;
-                if (bLog) logger.InfoH($"SCREEN: X={rX}, Y={rY}, Right={rRight}, Bottom={rBottom}");
+                if (bLog) logger.InfoH(() => $"SCREEN: X={rX}, Y={rY}, Right={rRight}, Bottom={rBottom}");
                 //if (fRight >= rect.X + rect.Width) fX = cX - fW - Math.Abs(xOffset);
                 //if (fBottom >= rect.Y + rect.Height) fY = cY - fH - Math.Abs(yOffset);
                 // スクリーンからはみ出したとき
@@ -664,9 +664,9 @@ namespace KanchokuWS.Forms
                     bOutOfScreen = true;
                     fY = rBottom - fH - Math.Abs(yOffset);
                 }
-                if (bLog) logger.InfoH($"MOVE: fX={fX}, fY={fY}, fW={fW}, fH={fH}, fRight={fRight}, rect.Right={rect.X + rect.Width}, outOfScreen={bOutOfScreen}");
+                if (bLog) logger.InfoH(() => $"MOVE: fX={fX}, fY={fY}, fW={fW}, fH={fH}, fRight={fRight}, rect.Right={rect.X + rect.Width}, outOfScreen={bOutOfScreen}");
             } else {
-                if (bLog) logger.InfoH($"MOVE: fX={fX}, fY={fY}, fW={fW}, fH={fH}, rect.Right={rect.X + rect.Width}");
+                if (bLog) logger.InfoH(() => $"MOVE: fX={fX}, fY={fY}, fW={fW}, fH={fH}, rect.Right={rect.X + rect.Width}");
             }
             MoveWindow(this.Handle, fX, fY, fW, fH, true);
 
@@ -675,10 +675,10 @@ namespace KanchokuWS.Forms
 
         public void MoveWindow()
         {
-            //logger.InfoH($"MOVE before: X={Location.X}, Y={Location.Y}, W={Width}, H={Height}");
+            //logger.InfoH(() => $"MOVE before: X={Location.X}, Y={Location.Y}, W={Width}, H={Height}");
             resetFormSize();
             MoveWindow(this.Handle, this.Location.X, this.Location.Y, this.Width, this.Height, true);
-            //logger.InfoH($"MOVE after: X={Location.X}, Y={Location.Y}, W={Width}, H={Height}");
+            //logger.InfoH(() => $"MOVE after: X={Location.X}, Y={Location.Y}, W={Width}, H={Height}");
         }
 
         //------------------------------------------------------------------------------------
@@ -686,10 +686,10 @@ namespace KanchokuWS.Forms
         //------------------------------------------------------------------------------------
         private void editTextBox_TextChanged(object sender, EventArgs e)
         {
-            //logger.InfoH($"text={EditText}");
+            //logger.InfoH(() => $"text={EditText}");
             resetFormSize();
             //if (EditText._notEmpty()) ShowNonActive();
-            //logger.InfoH($"text={EditText}");
+            //logger.InfoH(() => $"text={EditText}");
             // フォームが画面からはみ出していたら、画面内に収める
             Rectangle rect = ScreenInfo.Singleton.GetScreenContaining(this.Location.X, this.Location.Y + this.Height / 2);
             if (rect != Rectangle.Empty) {

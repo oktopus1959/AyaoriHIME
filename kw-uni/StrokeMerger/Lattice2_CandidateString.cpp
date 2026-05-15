@@ -433,7 +433,7 @@ namespace lattice2 {
         int mazePenalty = -1;           // -SETTINGS->morphMazeEntryPenalty
         int mazeConnPenalty = 3000;     // -SETTINGS->morphMazeConnectionPenalty
         _LOG_DETAIL(L"MorphBridge::morphCalcCost(_str={}, words, mazePenalty={}, mazeConnPenalty={}, allowNonTerminal=False)", to_wstr(_str), mazePenalty, mazeConnPenalty);
-        int cost = MorphBridge::morphCalcCost(_str, words, mazePenalty, mazeConnPenalty, false);
+        _DEBUG_SENT(int cost =) MorphBridge::morphCalcCost(_str, words, mazePenalty, mazeConnPenalty, false);
         _LOG_DETAIL(L"{}: orig morph cost={}, morph={}", to_wstr(_str), cost, to_wstr(utils::join(words, to_mstr(L" ||| "))));
 
         // 形態素単位で、交ぜ書き候補を取得する

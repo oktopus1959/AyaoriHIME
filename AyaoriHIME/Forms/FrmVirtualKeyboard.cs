@@ -89,7 +89,7 @@ namespace KanchokuWS
             int cW = activeWinCaretPos.Width;
             int cH = activeWinCaretPos.Height;
             if (bLog) {
-                logger.Info($"MOVE: X={cX}, Y={cY}, W={cW}, H={cH}, OX={xOffset}, OY={yOffset}");
+                logger.Info(() => $"MOVE: X={cX}, Y={cY}, W={cW}, H={cH}, OX={xOffset}, OY={yOffset}");
                 if (Settings.LoggingActiveWindowInfo) {
                     var dpis = ScreenInfo.Singleton.ScreenDpi.Select(x => $"{x}")._join(", ");
                     this.SetTopText($"DR={dpis}, CX={cX},CY={cY},CW={cW},CH={cH},OX={xOffset},OY={yOffset}");
@@ -645,7 +645,7 @@ namespace KanchokuWS
             //this.Width = (int)(VkbNormalWidth + 2);
             //topTextBox.Width = (int)(VkbNormalWidth);
             //topTextBox.Height = (int)(VkbCellHeight + 1);
-            //logger.Info($"topTextBox.Width={topTextBox.Width}, topTextBox.Height={topTextBox.Height}");
+            //logger.Info(() => $"topTextBox.Width={topTextBox.Width}, topTextBox.Height={topTextBox.Height}");
             pictureBox_Main.Width = (int)(VkbNormalWidth);
             pictureBox_Main.BackColor = Color.White;
 
@@ -1539,7 +1539,7 @@ namespace KanchokuWS
                 return Color.GhostWhite;
             }
 
-            //logger.Info($"chars.Length={chars.Length}, rows={dgvHorizontal._rowsCount()}");
+            //logger.Info(() => $"chars.Length={chars.Length}, rows={dgvHorizontal._rowsCount()}");
             if (nth >= 0 && nth < dgvHorizontal._rowsCount()) {
                 int pos = nth * LongVkeyCharSize;
                 int len = chars._findIndex(pos, pos + LongVkeyCharSize, '\0') - pos;
@@ -1547,7 +1547,7 @@ namespace KanchokuWS
                 StringBuilder sb = new StringBuilder();
                 sb.Append((nth + 1) % 10).Append(' ').Append(chars, pos, len);
                 if (pos + len < chars.Length && chars[pos + len] != '\0') sb.Append('…');
-                //logger.Info($"drawString={drawString}, nth={nth}, pos={pos}, len={len}");
+                //logger.Info(() => $"drawString={drawString}, nth={nth}, pos={pos}, len={len}");
                 if (sb.Length > 2) {
                     dgvHorizontal.Rows[nth].Cells[0].Value = sb.ToString();
                     dgvHorizontal.Rows[nth].Cells[0].Style.BackColor = makeSpecifiedColor();
@@ -1852,7 +1852,7 @@ namespace KanchokuWS
 
         private void pictureBox_Main_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            //logger.Info($"CALLED: e.Delta={e.Delta}, scrollLines={SystemInformation.MouseWheelScrollLines}");
+            //logger.Info(() => $"CALLED: e.Delta={e.Delta}, scrollLines={SystemInformation.MouseWheelScrollLines}");
             //FrmMain.RotateStrokeTable(e.Delta * SystemInformation.MouseWheelScrollLines / 120);
             frmMain.RotateStrokeTable(-e.Delta / 120);
         }

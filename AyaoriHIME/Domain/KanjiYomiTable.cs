@@ -492,7 +492,7 @@ namespace KanchokuWS
             if (Helper.FileExists(filePath)) {
                 try {
                     var lines = System.IO.File.ReadAllLines(filePath);
-                    logger.DebugH($"All lines read");
+                    logger.DebugH("All lines read");
                     kanaRomanTbl.Clear();
                     foreach (var line in lines) {
                         var items = line.Trim()._reReplace(@"[ \t]+", " ")._split(' ');

@@ -133,7 +133,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
 
         public static void ChangeCurrentPoolByDecoderMode(bool bDecoderOn)
         {
-            logger.InfoH($"CALLED: bDecoderOn={bDecoderOn}");
+            logger.InfoH(() => $"CALLED: bDecoderOn={bDecoderOn}");
             if (bDecoderOn) {
                 CurrentPool = currentPoolK;
                 CurrentPool1 = SingletonK1;
@@ -505,7 +505,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
                     ++i;
                 }
             }
-            if (Settings.LoggingTableFileInfo) logger.DebugH($"LEAVE");
+            if (Settings.LoggingTableFileInfo) logger.DebugH("LEAVE");
         }
 
         /// <summary>

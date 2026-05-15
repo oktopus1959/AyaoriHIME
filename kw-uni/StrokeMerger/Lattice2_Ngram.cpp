@@ -655,7 +655,7 @@ namespace lattice2 {
 
     void _updateRealtimeNgramCountByWord(bool bIncrease, const MString& word) {
         int delta = bIncrease ? 1 : -1;
-        int count = NgramBridge::updateRealtimeEntry(to_wstr(word), delta);
+        _DEBUG_SENT(int count =) NgramBridge::updateRealtimeEntry(to_wstr(word), delta);
         LOG_DEBUGH(L"updateRealtimeEntry({}): resultCount={}", to_wstr(word), count);
     }
 

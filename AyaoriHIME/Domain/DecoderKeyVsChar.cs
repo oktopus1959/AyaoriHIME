@@ -122,7 +122,7 @@ namespace KanchokuWS.Domain
                             }
                         } else {
                             if (charList != null) {
-                                logger.Info($"line=|{line}|, len={line.Length}");
+                                logger.Info(() => $"line=|{line}|, len={line.Length}");
                                 foreach (var ch in line) {
                                     if (ch == '\\') {
                                         if (_yenDecKey < 0) {
@@ -131,7 +131,7 @@ namespace KanchokuWS.Domain
                                     }
                                     if (ch >= 0x20 && ch < 0x7f) charList.Add(ch);
                                 }
-                                logger.Info($"charList=|{charList.ToArray()._toString()}|, len={charList.Count}");
+                                logger.Info(() => $"charList=|{charList.ToArray()._toString()}|, len={charList.Count}");
                             }
                         }
                     }

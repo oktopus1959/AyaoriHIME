@@ -232,36 +232,36 @@ namespace KanchokuWS.TableParser
                     } else if (lcStr == "extracharsposition") {
                         handleExtraCharsPosition();
                     } else if (lcStr == "noshift" || lcStr == "normal") {
-                        logger.InfoH($"set shiftPlane=0 ({CurrentStr})");
+                        logger.InfoH(() => $"set shiftPlane=0 ({CurrentStr})");
                         shiftPlane = 0;
                     } else if (lcStr == "shift") {
                         // #shift: シフト面割り当て
-                        logger.InfoH($"set shiftPlane=1 ({CurrentStr})");
+                        logger.InfoH(() => $"set shiftPlane=1 ({CurrentStr})");
                         shiftPlane = 1;
                     } else if (lcStr == "shifta") {
                         // #shift: 拡張シフトA面割り当て
-                        logger.InfoH($"set shiftPlane=2 ({CurrentStr})");
+                        logger.InfoH(() => $"set shiftPlane=2 ({CurrentStr})");
                         shiftPlane = 2;
                         // #shift: 拡張シフトA面割り当て
                     } else if (lcStr == "shiftb") {
                         // #shift: 拡張シフトB面割り当て
-                        logger.InfoH($"set shiftPlane=3 ({CurrentStr})");
+                        logger.InfoH(() => $"set shiftPlane=3 ({CurrentStr})");
                         shiftPlane = 3;
                     } else if (lcStr == "shiftc") {
                         // #shift: 拡張シフトC面割り当て
-                        logger.InfoH($"set shiftPlane=4 ({CurrentStr})");
+                        logger.InfoH(() => $"set shiftPlane=4 ({CurrentStr})");
                         shiftPlane = 4;
                     } else if (lcStr == "shiftd") {
                         // #shift: 拡張シフトD面割り当て
-                        logger.InfoH($"set shiftPlane=5 ({CurrentStr})");
+                        logger.InfoH(() => $"set shiftPlane=5 ({CurrentStr})");
                         shiftPlane = 5;
                     } else if (lcStr == "shifte") {
                         // #shift: 拡張シフトE面割り当て
-                        logger.InfoH($"set shiftPlane=6 ({CurrentStr})");
+                        logger.InfoH(() => $"set shiftPlane=6 ({CurrentStr})");
                         shiftPlane = 6;
                     } else if (lcStr == "shiftf") {
                         // #shift: 拡張シフトF面割り当て
-                        logger.InfoH($"set shiftPlane=7 ({CurrentStr})");
+                        logger.InfoH(() => $"set shiftPlane=7 ({CurrentStr})");
                         shiftPlane = 7;
                     } else if (lcStr == "combination" || lcStr == "overlapping") {
                         // #combination: 同時打鍵設定
@@ -343,7 +343,7 @@ namespace KanchokuWS.TableParser
                     } else if (lcStr.StartsWith("appendwhen") || lcStr.StartsWith("overwritewhen")) {
                         // 既存の定義がある場合に上書きするか、追記するか
                         bAppendWhenConflict = lcStr.StartsWith("append");
-                        logger.Info($"set bAppendWhenConflict={bAppendWhenConflict} ({CurrentStr})");
+                        logger.Info(() => $"set bAppendWhenConflict={bAppendWhenConflict} ({CurrentStr})");
                     } else {
                         // 上記以外は無視(コメント扱い) 
                         if (Settings.LoggingTableFileInfo) logger.Info(() => $"#{CurrentStr}");
@@ -501,18 +501,18 @@ namespace KanchokuWS.TableParser
 
         private void handleSandSState()
         {
-            logger.InfoH($"ENTER");
+            logger.InfoH("ENTER");
             var keyDeckey = getHoldShiftDeckey("space");
             shiftPlane = getHoldShiftPlane("a");
             Settings.SetHoldShiftKeySetting(keyDeckey, shiftPlane, false, false);
             ShiftPlane.AssignHoldShiftPlane(keyDeckey, shiftPlane, ShiftPlane.ShiftPlane_NONE);
-            logger.InfoH($"LEAVE");
+            logger.InfoH("LEAVE");
         }
 
         void handleHoldShiftState()
         {
             ReadWord();
-            logger.InfoH($"ENTER: key='{CurrentStr}'");
+            logger.InfoH(() => $"ENTER: key='{CurrentStr}'");
             var word = definedNames._safeGet(CurrentStr, CurrentStr)._toLower();
             if (word._isEmpty()) {
                 ParseError("holdShift: key name required");
@@ -546,7 +546,7 @@ namespace KanchokuWS.TableParser
                 optionWords.Add(optionWord);
             }
             parseHoldShiftOptions(optionWords, out bool holdShiftEnabledWhenOff, out bool showStrokeHelp, out bool optionRecognized, out string optionText);
-            logger.InfoH($"holdShift: key='{word}', plane='{planeWord}', option='{optionText}', keyDeckey={keyDeckey}, shiftPlane={holdShiftPlane}, enabledWhenOff={holdShiftEnabledWhenOff}, showStrokeHelp={showStrokeHelp}");
+            logger.InfoH(() => $"holdShift: key='{word}', plane='{planeWord}', option='{optionText}', keyDeckey={keyDeckey}, shiftPlane={holdShiftPlane}, enabledWhenOff={holdShiftEnabledWhenOff}, showStrokeHelp={showStrokeHelp}");
             if (keyDeckey < 0 || holdShiftPlane <= 0) {
                 ParseError($"holdShift: invalid key or plane: key={word}, plane={planeWord}");
                 return;
@@ -559,7 +559,7 @@ namespace KanchokuWS.TableParser
             shiftPlane = holdShiftPlane;
             Settings.SetHoldShiftKeySetting(keyDeckey, holdShiftPlane, holdShiftEnabledWhenOff, showStrokeHelp);
             ShiftPlane.AssignHoldShiftPlane(keyDeckey, holdShiftPlane, holdShiftEnabledWhenOff ? holdShiftPlane : ShiftPlane.ShiftPlane_NONE);
-            logger.InfoH($"LEAVE: key='{word}', plane='{planeWord}', option='{optionText}', keyDeckey={keyDeckey}, shiftPlane={shiftPlane}, enabledWhenOff={holdShiftEnabledWhenOff}, showStrokeHelp={showStrokeHelp}");
+            logger.InfoH(() => $"LEAVE: key='{word}', plane='{planeWord}', option='{optionText}', keyDeckey={keyDeckey}, shiftPlane={shiftPlane}, enabledWhenOff={holdShiftEnabledWhenOff}, showStrokeHelp={showStrokeHelp}");
         }
 
         private void disableHoldShiftKey(string keyName)
@@ -765,7 +765,7 @@ namespace KanchokuWS.TableParser
             if (bShiftPlane) {
                 // プレーン指定の場合
                 shiftPlane = ArrowIndex;
-                logger.InfoH($"set shiftPlane={shiftPlane}");
+                logger.InfoH(() => $"set shiftPlane={shiftPlane}");
                 if (shiftPlane >= DecoderKeys.ALL_PLANE_NUM) ParseError($"parseArrow: shiftPlane out of range: {shiftPlane}");
                 return false;
             } else {

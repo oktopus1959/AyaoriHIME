@@ -37,7 +37,7 @@ namespace lattice2 {
     //int MAZE_PENALTY_4 = 1000;      // 見出し4文字以上
 
     // SingleHitの高頻度助詞が、マルチストロークに使われているケースのコスト
-    int SINGLE_HIT_HIGH_FREQ_JOSHI_KANJI_COST = 3000;
+    //int SINGLE_HIT_HIGH_FREQ_JOSHI_KANJI_COST = 3000;
 
     // 先頭の1文字だけの場合に、複数の候補があれば、2つ目以降には初期コストを与える
     int HEAD_SINGLE_CHAR_ORDER_COST = 5000;
@@ -52,9 +52,9 @@ namespace lattice2 {
     size_t tailDiffLenForPromotion = 8;
 
     //--------------------------------------------------------------------------------------
-    inline bool isHighFreqJoshi(mchar_t mc) {
-        return mc == L'が' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は';
-    }
+    //inline bool isHighFreqJoshi(mchar_t mc) {
+    //    return mc == L'が' || mc == L'を' || mc == L'に' || mc == L'の' || mc == L'で' || mc == L'は';
+    //}
 
     inline bool isCommitChar(mchar_t mch) {
         //return utils::is_punct_or_commit_char(mch) || utils::is_paren(mch);
@@ -189,19 +189,19 @@ namespace lattice2 {
         }
 
     private:
-        std::vector<bool> _highFreqJoshiStroke;
+        //std::vector<bool> _highFreqJoshiStroke;
         std::vector<bool> _rollOverStroke;
         std::vector<MString> _topCandidateHistory;
         MString _fixedLeaderPrefix;
 
-        void setHighFreqJoshiStroke(int count, mchar_t ch) {
-            if (count >= 0 && count < 1024) {
-                if (count >= (int)_highFreqJoshiStroke.size()) {
-                    _highFreqJoshiStroke.resize(count + 1);
-                }
-                if (isHighFreqJoshi(ch)) _highFreqJoshiStroke[count] = true;
-            }
-        }
+        //void setHighFreqJoshiStroke(int count, mchar_t ch) {
+        //    if (count >= 0 && count < 1024) {
+        //        if (count >= (int)_highFreqJoshiStroke.size()) {
+        //            _highFreqJoshiStroke.resize(count + 1);
+        //        }
+        //        if (isHighFreqJoshi(ch)) _highFreqJoshiStroke[count] = true;
+        //    }
+        //}
         void setRollOverStroke(int count, bool flag) {
             if (count >= 0 && count < 1024) {
                 if (count >= (int)_rollOverStroke.size()) {
@@ -211,9 +211,9 @@ namespace lattice2 {
             }
         }
 
-        bool isSingleHitHighFreqJoshi(int count) const {
-            return (size_t)count < _highFreqJoshiStroke.size() && (size_t)count < _rollOverStroke.size() ? _highFreqJoshiStroke[count] &&  !_rollOverStroke[count] : false;
-        }
+        //bool isSingleHitHighFreqJoshi(int count) const {
+        //    return (size_t)count < _highFreqJoshiStroke.size() && (size_t)count < _rollOverStroke.size() ? _highFreqJoshiStroke[count] &&  !_rollOverStroke[count] : false;
+        //}
 
         static size_t getMinimumCandidateLength(const std::vector<CandidateString>& candidates) {
             size_t minLen = SIZE_MAX;
@@ -347,7 +347,7 @@ namespace lattice2 {
             _LOG_DETAIL(L"ENTER: clearAll={}", clearAll);
             _candidates.clear();
             //_bestStack.clear();
-            _highFreqJoshiStroke.clear();
+            //_highFreqJoshiStroke.clear();
             _rollOverStroke.clear();
             _origFirstCand = -1;
             resetFixedLeaderPrefixState();
@@ -1147,9 +1147,9 @@ namespace lattice2 {
             const MString& pieceStr = piece.getString();
             //int topStrokeLen = -1;
 
-            if (pieceStr.size() == 1) setHighFreqJoshiStroke(strokeCount, pieceStr[0]);
+            //if (pieceStr.size() == 1) setHighFreqJoshiStroke(strokeCount, pieceStr[0]);
 
-            int singleHitHighFreqJoshiCost = piece.strokeLen() > 1 && isSingleHitHighFreqJoshi(strokeCount - (piece.strokeLen() - 1)) ? SINGLE_HIT_HIGH_FREQ_JOSHI_KANJI_COST : 0;
+            //int singleHitHighFreqJoshiCost = piece.strokeLen() > 1 && isSingleHitHighFreqJoshi(strokeCount - (piece.strokeLen() - 1)) ? SINGLE_HIT_HIGH_FREQ_JOSHI_KANJI_COST : 0;
 
             std::vector<CandidateString> targetCandidates;
             // 素片のストロークと適合する候補を抽出
@@ -1200,11 +1200,11 @@ namespace lattice2 {
                 if (bPaddingDerived) {
                     _LOG_DETAIL(L"PADDING piece({}) or derived({})", piece.isExStrokePadding(), cand.isPaddingDerived());
                 }
-                if (singleHitHighFreqJoshiCost > 0) {
-                    // 複数ストロークによる入力で、2打鍵目がロールオーバーでなかったらペナルティ
-                    penalty += singleHitHighFreqJoshiCost;
-                    _LOG_DETAIL(L"Non rollover multi stroke penalty, total penalty={}", penalty);
-                }
+                //if (singleHitHighFreqJoshiCost > 0) {
+                //    // 複数ストロークによる入力で、2打鍵目がロールオーバーでなかったらペナルティ
+                //    penalty += singleHitHighFreqJoshiCost;
+                //    _LOG_DETAIL(L"Non rollover multi stroke penalty, total penalty={}", penalty);
+                //}
 
                 bool representativeMarked = false;
                 if (!bAutoBushuFound && !bPaddingDerived) {

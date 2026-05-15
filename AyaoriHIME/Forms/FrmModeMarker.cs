@@ -150,14 +150,14 @@ namespace KanchokuWS
 
         public void SetWait2ndStrokeMode(bool flag)
         {
-            logger.Debug($"CALLED: flag={flag}");
+            logger.Debug(() => $"CALLED: flag={flag}");
             if (Settings.EffectiveKanjiModeMarkerShowIntervalSec == 0) {
                 newFaceLabel = KanchokuModeFace;
                 faceLabel = alphaModeFace;
                 iAlphaMode = 0;
                 foreColorChanged = waiting2ndStroke != flag;
                 waiting2ndStroke = flag;
-                logger.Debug($"foreColorChanged={foreColorChanged}");
+                logger.Debug(() => $"foreColorChanged={foreColorChanged}");
                 if (foreColorChanged) changeShowState();
             }
         }
@@ -165,7 +165,7 @@ namespace KanchokuWS
         // 全角モードの時は、キー入力のたびに呼ばれることを想定
         public void SetZenkakuMode()
         {
-            logger.Info($"CALLED: faceLabel={faceLabel}");
+            logger.Info(() => $"CALLED: faceLabel={faceLabel}");
             newFaceLabel = zenkakuModeFace;
             iAlphaMode = 0;
             foreColorChanged = waiting2ndStroke;
@@ -177,7 +177,7 @@ namespace KanchokuWS
         }
 
         public void ShowImmediately() {
-            logger.Info($"CALLED");
+            logger.Info("CALLED");
             faceLabel = "";
             changeShowState();
         }

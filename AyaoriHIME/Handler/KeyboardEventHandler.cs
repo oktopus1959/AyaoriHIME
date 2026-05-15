@@ -127,13 +127,13 @@ namespace KanchokuWS.Handler
         /// </summary>
         private void installKeyboardHook()
         {
-            logger.Info($"ENTER");
+            logger.Info("ENTER");
             KeyboardHook.OnKeyDownEvent = onKeyboardDownHandler;
             KeyboardHook.OnKeyUpEvent = onKeyboardUpHandler;
             KeyboardHook.OnMouseEvent = mouseButtonHandler;
             KeyboardHook.Hook();
             bHooked = true;
-            logger.Info($"LEAVE");
+            logger.Info("LEAVE");
         }
 
         /// <summary>
@@ -141,13 +141,13 @@ namespace KanchokuWS.Handler
         /// </summary>
         private void releaseKeyboardHook()
         {
-            logger.Info($"ENTER");
+            logger.Info("ENTER");
             if (bHooked) {
                 bHooked = false;
                 KeyboardHook.UnHook();
-                logger.Info($"UNHOOKED");
+                logger.Info("UNHOOKED");
             }
-            logger.Info($"LEAVE");
+            logger.Info("LEAVE");
         }
 
         public void Dispose()
@@ -311,13 +311,13 @@ namespace KanchokuWS.Handler
 
             public void Reinitialize()
             {
-                logger.Info($"ENTER");
+                logger.Info("ENTER");
                 functionKeyStates = new Dictionary<uint, FunctionKeyRuntimeState>();
             }
 
             private void RefreshFunctionKeyStates()
             {
-                logger.Info($"ENTER");
+                logger.Info("ENTER");
                 var newInfos = new Dictionary<uint, FunctionKeyRuntimeState>();
                 var definedHoldShiftKeys = InputActionResolver.CopyCommonTableHoldShiftDeckeys();
                 definedHoldShiftKeys.UnionWith(Settings.TableDefinedHoldShiftKeySettings.Keys);
@@ -345,7 +345,7 @@ namespace KanchokuWS.Handler
                     }
                 }
                 functionKeyStates = newInfos;
-                logger.Info($"LEAVE");
+                logger.Info("LEAVE");
             }
 
             public FunctionKeyRuntimeState GetStateByVkey(uint vkey)
@@ -353,7 +353,7 @@ namespace KanchokuWS.Handler
                 RefreshFunctionKeyStates();
                 var keyInfo = functionKeyStates._safeGet(vkey);
                 if (keyInfo != null) return keyInfo;
-                if (Settings.LoggingDecKeyInfo) logger.Info($"LEAVE: no result");
+                if (Settings.LoggingDecKeyInfo) logger.Info("LEAVE: no result");
                 return null;
             }
 

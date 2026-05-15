@@ -915,7 +915,7 @@ namespace KanchokuWS.TableParser
             }
 
             if (HasRootTable) {
-                logger.Info($"RBRACE: shiftPlane and placeHolders initialized");
+                logger.Info("RBRACE: shiftPlane and placeHolders initialized");
                 Context.shiftPlane = 0;
                 placeHolders.Initialize();
             }

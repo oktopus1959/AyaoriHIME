@@ -614,11 +614,11 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
                             int copyShiftLen = 1;
 
                             if (comboList._isEmpty() && unprocList.Count == 1) {
-                                logger.InfoH($"NO COMBO SHIFT and JUST 1 UNPROC KEY");
+                                logger.InfoH("NO COMBO SHIFT and JUST 1 UNPROC KEY");
                                 var s = unprocList[0];
                                 logger.InfoH(() => $"unprocList.First={s.DebugString()}");
                                 if (s.IsUpKey /*|| !s.IsComboShift*/) {
-                                    logger.InfoH($"JUST 1 UNPROC KEY is UP KEY");
+                                    logger.InfoH("JUST 1 UNPROC KEY is UP KEY");
                                     if (s.IsSingleHittable || s.IsSequentialShift) {
                                         // 単打可能または順次シフトだった
                                         logger.InfoH(() => $"IsSingleHittable={s.IsSingleHittable} or SequentialShift={s.IsSequentialShift}");
@@ -627,13 +627,13 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
                                         logger.InfoH(() => $"ABANDONED-1: IsSingleHittable={s.IsSingleHittable} and SequentialShift={s.IsSequentialShift}");
                                     }
                                 } else if (!s.IsComboShift) {
-                                    logger.InfoH($"JUST 1 UNPROC KEY is NOT UP KEY and NOT SHIFT KEY. BREAK.");
+                                    logger.InfoH("JUST 1 UNPROC KEY is NOT UP KEY and NOT SHIFT KEY. BREAK.");
                                     break;
                                 } else {
                                     // UPされていないシフトキーがある。多分、最初のループで処理されずに残ったものがRETRYで対象となった。
                                     // 次のUPのときに処理するのでこのまま残す。以前はこれをここで出力していたので、余分な出力となっていた。
                                     // 薙刀式での K→J→W で J の処理はそれ以降に任せるということ。
-                                    logger.InfoH($"JUST 1 UNPROC KEY is NOT UP KEY. Maybe RETRY and it's SHIFT KEY. BREAK.");
+                                    logger.InfoH("JUST 1 UNPROC KEY is NOT UP KEY. Maybe RETRY and it's SHIFT KEY. BREAK.");
                                     break;
                                 }
                             } else if (bTempComboDisabled) {
@@ -667,7 +667,7 @@ namespace KanchokuWS.CombinationKeyStroke.DeterminerLib
                                     discardLen = overlapLen;
                                 } else {
                                     // 見つからなかった
-                                    //logger.InfoH($"COMBO NOT FOUND");
+                                    //logger.InfoH("COMBO NOT FOUND");
                                     if (comboList._isEmpty() && unprocList.Count == 2 && upKeyIdx == 0 && unprocList[1].IsSpaceOrFuncComboShift) {
                                         // 未処理状態で、1打鍵めがUpされ、2打鍵めがSpaceなどのシフトキーだったら、ペンディングとする
                                         // "S SPC s" のような状況。 SPCが S を修飾するか否かは次の打鍵のタイミング次第。

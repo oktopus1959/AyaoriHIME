@@ -311,17 +311,19 @@ namespace {
             return maxlen;
         }
 
-        void DebugPrintStatesChain(StringRef label) {
-            if (Reporting::Logger::IsInfoHEnabled()) {
-                if (strokeStreamList.empty()) {
-                    LOG_DEBUGH(_T("{}: {}=empty"), name, label);
-                } else {
-                    forEach([label, this](const StrokeStreamUptr& pStream) {
-                        LOG_DEBUGH(_T("{}: {}={}"), name, label, pStream->JoinedName());
-                    });
+#if _LOG_DEBUG_ENABLED
+        void DebugPrintStatesChain(StringRef _DEBUG_SENT(label)) {
+                if (Reporting::Logger::IsInfoHEnabled()) {
+                    if (strokeStreamList.empty()) {
+                        LOG_DEBUGH(_T("{}: {}=empty"), name, label);
+                    } else {
+                        forEach([label, this](const StrokeStreamUptr& pStream) {
+                            LOG_DEBUGH(_T("{}: {}={}"), name, label, pStream->JoinedName());
+                            });
+                    }
                 }
-            }
         }
+#endif
     };
     DEFINE_CLASS_LOGGER(StrokeStreamList);
 
@@ -433,8 +435,10 @@ namespace {
                 // 後続状態があれば、そちらを呼び出す
                 NextState()->HandleDeckeyChain(deckey);
             } else {
+#if _LOG_DEBUG_ENABLED
                 _streamList1.DebugPrintStatesChain(_T("HandleDeckeyChain::BEGIN: streamList1"));
                 _streamList2.DebugPrintStatesChain(_T("HandleDeckeyChain::BEGIN: streamList2"));
+#endif
 
                 bool bHasAnyStroke = !_streamList1.Empty() || !_streamList2.Empty();
                 _LOG_DETAIL(_T("\nuseEditWindow={}, bDualTableMode={}, bHasAnyStroke={}"), SETTINGS->useEditWindow, bDualTableMode, bHasAnyStroke);
@@ -723,8 +727,10 @@ namespace {
             _LOG_DETAIL(_T("\nENTER: {}, resultStr={}"), Name, resultStr.debugString());
             //LOG_DEBUGH(L"A:faces={}", to_wstr(STATE_COMMON->GetFaces(), 20));
 
+#if _LOG_DEBUG_ENABLED
             _streamList1.DebugPrintStatesChain(_T("GetResultStringChain::BEGIN: streamList1"));
             _streamList2.DebugPrintStatesChain(_T("GetResultStringChain::BEGIN: streamList2"));
+#endif
 
             //STATE_COMMON->SetCurrentModeIsMultiStreamInput();
 
@@ -837,8 +843,10 @@ namespace {
             }
             _followingPrefType = FollowingPreferenceType::Any;
 
+#if _LOG_DEBUG_ENABLED
             _streamList1.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList1"));
             _streamList2.DebugPrintStatesChain(_T("GetResultStringChain::END: streamList2"));
+#endif
 
             _LOG_DETAIL(_T("LEAVE: {}: resultStr=[{}]\n"), Name, resultOut.debugString());
         }
@@ -894,8 +902,10 @@ namespace {
             LOG_DEBUGH(_T("streamList2: deleteUnnecessaryNextState"));
             _streamList2.DeleteUnnecessaryNextStates();
 
+#if _LOG_DEBUG_ENABLED
             _streamList1.DebugPrintStatesChain(_T("DeleteUnnecessary::DONE: streamList1"));
             _streamList2.DebugPrintStatesChain(_T("DeleteUnnecessary::DONE: streamList2"));
+#endif
 
             State::DeleteUnnecessarySuccessorStateChain();
 
@@ -1027,7 +1037,7 @@ namespace {
         }
 
         // 文字列を変換して出力、その後、履歴の追加
-        void SetTranslatedOutString(const MString& outStr, size_t rewritableLen, bool bBushuComp = true, int numBS = -1) override {
+        void SetTranslatedOutString(const MString& outStr, size_t rewritableLen, bool _DEBUG_SENT(bBushuComp = true), int numBS = -1) override {
             LOG_DEBUGH(_T("ENTER: {}: outStr={}, rewritableLen={}, bushuComp={}, numBS={}"), Name, to_wstr(outStr), rewritableLen, bBushuComp, numBS);
             MString xlatStr;
             if (NextState()) {

@@ -356,7 +356,7 @@ namespace KanchokuWS.Handler
 
         public void RevertCtrlKey(ModifierKeyState state)
         {
-            logger.DebugH($"CALLED");
+            logger.DebugH("CALLED");
 
             var inputs = new INPUT[2];
             var info = new InputInfo(2, state);
@@ -475,7 +475,7 @@ namespace KanchokuWS.Handler
         /// <param name="prevRightShift"></param>
         public void RevertShiftKey(ModifierKeyState state)
         {
-            logger.DebugH($"CALLED");
+            logger.DebugH("CALLED");
 
             // Shift戻し
             var info = revertShiftKey(state, false);
@@ -500,7 +500,7 @@ namespace KanchokuWS.Handler
 
             public void Dispose()
             {
-                logger.DebugH($"ShiftKeyUpDownGuard REVERT");
+                logger.DebugH("ShiftKeyUpDownGuard REVERT");
                 if (keyState != null) revertShiftKey(keyState);
             }
         }
@@ -713,7 +713,7 @@ namespace KanchokuWS.Handler
         /// </summary>
         public void UpCtrlAndShftKeys()
         {
-            logger.DebugH($"CALLED");
+            logger.DebugH("CALLED");
 
             // Ctrl上げ
             upCtrlKeyInputs();
@@ -837,17 +837,17 @@ namespace KanchokuWS.Handler
                     if (IMEHandler.ImeEnabled /* && (str[i] == ' ' || !isUnicodeSendWindow())*/) {
                         if (Settings.ImeSendInputInRoman) {
                             faceStr = hiraganaConv(str[i])._hiraganaToRoman();
-                            if (faceStr._isEmpty()) logger.DebugH($"_hiraganaToRoman empty");
+                            if (faceStr._isEmpty()) logger.DebugH("_hiraganaToRoman empty");
                         } else if (Settings.ImeSendInputInKana) {
                             faceStr = hiraganaConv(str[i])._hiraganaToKeyface();
-                            if (faceStr._isEmpty()) logger.DebugH($"_hiraganaToKeyface empty");
+                            if (faceStr._isEmpty()) logger.DebugH("_hiraganaToKeyface empty");
                         }
                         if (faceStr._notEmpty()) {
                             sendInputsRomanOrKanaUnicode(faceStr);
                             continue;
                         }
 
-                        logger.DebugH($"send asis string");
+                        logger.DebugH("send asis string");
                     } else if (Settings.KanaTrainingMode) {
                         faceStr = str[i]._hiraganaToKeyface();
                         if (faceStr._notEmpty()) {
@@ -862,12 +862,12 @@ namespace KanchokuWS.Handler
                             }
                             continue;
                         } else {
-                            logger.DebugH($"send SPACE for other than KanaMoji in KanaTrainingMode");
+                            logger.DebugH("send SPACE for other than KanaMoji in KanaTrainingMode");
                             sendInputsRomanOrKanaUnicode(" ");
                             continue;
                         }
                     }
-                    logger.DebugH($"send Unicode string");
+                    logger.DebugH("send Unicode string");
                     char uniChar = str[i];
                     // 同じ文字を続けてSendInputすると2文字めが落ちる現象に対応
                     if (uniChar >= 0x80 && uniChar == prevUniChar) Helper.WaitMilliSeconds(10);
@@ -899,11 +899,11 @@ namespace KanchokuWS.Handler
                 lock (syncPostVkey) {
                     // Ctrl上げ
                     var ctrlState = upCtrlKeyInputs();
-                    logger.DebugH($"upCtrl");
+                    logger.DebugH("upCtrl");
 
                     // Shift
                     var shiftState = upShiftKeyInputs();
-                    logger.DebugH($"upShift");
+                    logger.DebugH("upShift");
 
                     // Backspace
                     //sendInputsVkey(VK_BACK, numBS);
@@ -920,11 +920,11 @@ namespace KanchokuWS.Handler
 
                     // Shift戻し
                     RevertShiftKey(shiftState);
-                    logger.DebugH($"revertShift");
+                    logger.DebugH("revertShift");
 
                     // Ctrl戻し
                     RevertCtrlKey(ctrlState);
-                    logger.DebugH($"revertCtrl");
+                    logger.DebugH("revertCtrl");
                 }
             }
         }

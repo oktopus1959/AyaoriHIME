@@ -186,7 +186,7 @@ namespace KanchokuWS.CombinationKeyStroke
 
         private void cancelRewriteTime()
         {
-            logger.InfoH($"CALLED");
+            logger.InfoH("CALLED");
             rewriteDt = DateTime.MinValue;
             frmMain?.ExecCmdDecoder("cancelRewrite", null);
         }
@@ -204,7 +204,7 @@ namespace KanchokuWS.CombinationKeyStroke
                 if (delayTime > 0 && elapsedTime > delayTime) {
                     cancelRewriteTime();
                 } else {
-                    logger.InfoH($"DO NOTHING");
+                    logger.InfoH("DO NOTHING");
                 }
             }
         }
@@ -324,7 +324,10 @@ namespace KanchokuWS.CombinationKeyStroke
 
         public void HandleQueue()
         {
-            if (bHandling) return;
+            if (bHandling) {
+                logger.WarnH($"Queue in handling: Queue.Count={procQueue.Count}");
+                return;
+            }
 
             bHandling = true;
             try {
@@ -407,7 +410,7 @@ namespace KanchokuWS.CombinationKeyStroke
                     if (strokeList.DetectKeyRepeat(stroke)) {
                         // キーリピートが発生した場合
                         // キーリピート時は、リピートの終わりに1回だけ KeyUp が発生するので、そこで strokeListのUplistがクリアされる
-                        logger.InfoH($"key repeatable detected: strokeList={strokeList.ToDebugString()}");
+                        //logger.InfoH(() => $"key repeatable detected: strokeList={strokeList.ToDebugString()}");
                         bAutoRepeated = true;
                         if (!bDecoderOn) {
                             // DecoderがOFFのときはキーリピート扱いとする
@@ -498,7 +501,7 @@ namespace KanchokuWS.CombinationKeyStroke
                                 bool bTimer = false;
                                 result = strokeList.GetKeyCombinationWhenKeyDown(out bTimer, out bUnconditional)._toResultKeyStrokeList(bRollOverStroke);
                                 if (result._isEmpty()) {
-                                    logger.InfoH($"result is EMPTY: bTimer={bTimer}");
+                                    logger.InfoH(() => $"result is EMPTY: bTimer={bTimer}");
                                     if (bTimer || strokeList.Count == 2 /* strokeList.IsSuccessiveShift3rdOrLaterKey() /*strokeList.IsSuccessiveShift2ndOr3rdKey()*/) {
                                         logger.InfoH(() => $"UseCombinationKeyTimer2={Settings.UseCombinationKeyTimer2}, " +
                                             $"NotSpaceNorFuncKey={!DecoderKeys.IsSpaceOrFuncKey(decKey)}, IsTerminalCombo()={strokeList.IsTerminalCombo()}");

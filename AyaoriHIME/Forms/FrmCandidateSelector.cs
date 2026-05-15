@@ -86,12 +86,12 @@ namespace KanchokuWS.Forms
         /// <summary> フォームのロード </summary>
         private void FrmCandidateSelector_Load(object sender, EventArgs e)
         {
-            logger.InfoH($"ENTER");
+            logger.InfoH("ENTER");
 
             this.Width = (int)(DgvNormalWidth + 2);
             this.Height = 0;
 
-            logger.InfoH($"LEAVE");
+            logger.InfoH("LEAVE");
         }
 
         /// <summary>フォームのクローズ</summary>

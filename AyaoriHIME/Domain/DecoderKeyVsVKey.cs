@@ -474,7 +474,7 @@ namespace KanchokuWS.Domain
         /// </summary>
         private static void setupDecKeyAndComboTable()
         {
-            logger.Info($"ENTER");
+            logger.Info("ENTER");
             // 通常文字ストロークキー
             for (int id = 0; id < DecoderKeys.NORMAL_DECKEY_NUM; ++id) {
                 // Normal
@@ -495,7 +495,7 @@ namespace KanchokuWS.Domain
             // Shift+Tab
             DeckeyComboMap.Register(DecoderKeys.SHIFT_TAB_DECKEY, KeyModifiers.MOD_SHIFT, DecoderKeys.TAB_DECKEY);
             InputActionResolver.RegisterComboAction(KeyModifiers.MOD_SHIFT, DecoderKeys.TAB_DECKEY, DecoderKeys.SHIFT_TAB_DECKEY, InputActionSourceKind.LegacyCombo);
-            logger.Info($"LEAVE");
+            logger.Info("LEAVE");
         }
 
     }
