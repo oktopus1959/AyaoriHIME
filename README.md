@@ -33,7 +33,7 @@ Windows 用の漢字直接入力(漢直)ツールです。
 ## 動作環境と注意
 動作対象環境は以下のとおりです。
 
-Windows 10 および .NET Framework 4.8
+Windows 10/11 および .NET Framework 4.8
 
 ### 注意
 AyaoriHIME は、
