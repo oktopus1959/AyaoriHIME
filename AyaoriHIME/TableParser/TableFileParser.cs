@@ -642,6 +642,9 @@ namespace KanchokuWS.TableParser
                 int strk = 0;
                 int firstStroke = strkList.At(0);
                 int shiftOffset = calcShiftOffset(firstStroke);
+                bool isDefaultMyCharSpace =
+                    firstStroke == DecoderKeys.STROKE_SPACE_DECKEY &&
+                    RootTableNode.GetNthSubNode(firstStroke)?.GetOutputString()?.EqualsTo("@^") == true;
 
                 if (Settings.LoggingTableFileInfo)
                     logger.Info($"CALLED: strkList={strkList?.StrokePathString(":")}, hasStr={hasStr}, hasFunc={hasFunc}, shiftOffset={shiftOffset}, ShiftPlane={ShiftPlane}");
@@ -666,13 +669,14 @@ namespace KanchokuWS.TableParser
 
                 if (strkList.Count == 1 || strkList.ComboFlagAt(0)) {
                     // 長さが1の場合は、単打として登録する
-                    if (Settings.IsSpaceFlushAndDirectInput && strkList.Count == 1 && !strkList.ComboFlagAt(0) && firstStroke == DecoderKeys.STROKE_SPACE_DECKEY) {
+                    if (Settings.IsSpaceFlushAndDirectInput && strkList.Count == 1 && !strkList.ComboFlagAt(0) &&
+                        firstStroke == DecoderKeys.STROKE_SPACE_DECKEY && !isDefaultMyCharSpace) {
                         RecordSpaceSingleHitOrSequentialWarning();
                     }
                     comboList.Add(strk);
                 } else {
                     // 長さが2以上で、同時打鍵でない
-                    if (Settings.IsSpaceFlushAndDirectInput && firstStroke == DecoderKeys.STROKE_SPACE_DECKEY) {
+                    if (Settings.IsSpaceFlushAndDirectInput && firstStroke == DecoderKeys.STROKE_SPACE_DECKEY && !isDefaultMyCharSpace) {
                         RecordSpaceSingleHitOrSequentialWarning();
                     }
                     addSeqShiftKey();
@@ -1573,7 +1577,11 @@ namespace KanchokuWS.TableParser
                 ParserContext.CreateSingleton(tblLines, pool, DecoderKeys.GetComboDeckeyStart(bKanchoku), bDualTable);
                 var parser = new RootTableParser(bKanchoku);
                 parser.ParseRootTable();
-                spaceSingleHitOrSequentialWarningLocations.UnionWith(ParserContext.Singleton.tableLines.GetSpaceSingleHitOrSequentialWarningLocations());
+                bool suppressSpaceWarning =
+                    ParserContext.Singleton.rootTableNode.GetNthSubNode(DecoderKeys.STROKE_SPACE_DECKEY)?.GetOutputString()?.EqualsTo("@^") == true;
+                if (!suppressSpaceWarning) {
+                    spaceSingleHitOrSequentialWarningLocations.UnionWith(ParserContext.Singleton.tableLines.GetSpaceSingleHitOrSequentialWarningLocations());
+                }
                 RootStrokeDeckeyUsage.Capture(ParserContext.Singleton.rootTableNode);
                 //writeAllLines(outFilename, ParserContext.Singleton.OutputLines);
                 outputLines.AddRange(ParserContext.Singleton.OutputLines);
