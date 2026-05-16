@@ -137,72 +137,13 @@ namespace lattice2 {
     int calcMorphCost(const MString& s, std::vector<MString>& morphs) {
         int cost = 0;
         if (!s.empty()) {
+            _LOG_DETAIL(L"ENTER: {}", to_wstr(s));
             // 形態素解析器の呼び出し
             // mazePenalty = 0 なので、形態素解析器の中で、デフォルトの mazePenalty が加算される。
             // 戻りの morph の構造は、"表層形 <TAB> 変換形[| 別候補]...(or -) <TAB> 品詞:細品詞,交ぜ基本形,変換基本形,変換表層形[,MAZE]" となっている。
             cost = MorphBridge::morphCalcCost(s, morphs, SETTINGS->morphMazeEntryPenalty, 0, true);
 
-            _LOG_DETAIL(L"ENTER: {}: orig morph cost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(morphs, to_mstr(L" || "))));
-            std::vector<std::vector<MString>> wordItemsList;
-            for (auto iter = morphs.begin(); iter != morphs.end(); ++iter) {
-                wordItemsList.push_back(utils::split(*iter, '\t'));
-                //// MAZEコストの追加
-                //if (utils::endsWith(wordItemsList.back().back(), MS_MAZE)) {
-                //    size_t len = wordItemsList.back().front().size();
-                //    int penalty = len <= 2 ? MAZE_PENALTY_2 : len == 3 ? MAZE_PENALTY_3 : MAZE_PENALTY_4;
-                //    cost += penalty;
-                //    _LOG_DETAIL(L"add MAZE penalty={}, new cost={}", penalty, cost);
-                //}
-            }
-            for (auto iter = wordItemsList.begin(); iter != wordItemsList.end(); ++iter) {
-                const auto& items = *iter;
-                const MString& w = items[0];
-
-                if (SETTINGS->loweredContinuousKanjiNum > 0) {
-                    if (w.size() == 1 && utils::is_pure_kanji(w[0])) {
-                        if (SETTINGS->loweredContinuousKanjiNum == 2) {
-                            // 単漢字が2つ続くケース (「耳調量序高い」（これってけっこう高い）)
-                            if (iter + 1 != wordItemsList.end()) {
-                                auto iter1 = iter + 1;
-                                const MString& w1 = iter1->front();
-                                if (w1.size() == 1 && utils::is_pure_kanji(w1[0])) {
-                                    cost += MORPH_CONTINUOUS_ISOLATED_KANJI_COST;
-                                    _LOG_DETAIL(L"{} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}",
-                                        to_wstr(w), to_wstr(w1), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
-                                }
-                            }
-                        } else if (SETTINGS->loweredContinuousKanjiNum > 2) {
-                            // 単漢字が3つ続くケース (「耳調量序高い」（これってけっこう高い）)
-                            if (iter + 1 != wordItemsList.end() && iter + 2 != wordItemsList.end()) {
-                                auto iter1 = iter + 1;
-                                auto iter2 = iter + 2;
-                                const MString& w1 = iter1->front();
-                                const MString& w2 = iter2->front();
-                                if (w1.size() == 1 && utils::is_pure_kanji(w1[0]) && w2.size() == 1 && utils::is_pure_kanji(w2[0])) {
-                                    cost += MORPH_CONTINUOUS_ISOLATED_KANJI_COST;
-                                    _LOG_DETAIL(L"{} {} {}: ADD MORPH_CONTINUOUS_ISOLATED_KANJI_COST({}): morphCost={}",
-                                        to_wstr(w), to_wstr(w1), to_wstr(w2), MORPH_CONTINUOUS_ISOLATED_KANJI_COST, cost);
-                                }
-                            }
-                        }
-                    }
-                }
-                //if (w.size() >= 2 && std::any_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_kanji(c); })) {
-                //    cost -= MORPH_ANY_KANJI_BONUS * (int)(w.size() - 1);
-                //}
-                //if (w.size() >= 2) {
-                //    int kCnt = (int)std::count_if(w.begin(), w.end(), [](mchar_t c) { return utils::is_kanji(c); });
-                //    if (kCnt > 0) {
-                //        cost -= MORPH_ANY_KANJI_BONUS * kCnt;
-                //        _LOG_DETAIL(L"{}: SUB ANY_KANJI_BONUS({}): morphCost={}", to_wstr(w), MORPH_ANY_KANJI_BONUS * kCnt, cost);
-                //    }
-                //}
-                //if (w.size() >= 3 && !utils::endsWith(feat, MS_MAZE) && std::all_of(w.begin(), w.end(), [](mchar_t c) { return utils::is_hiragana(c); })) {
-                //    cost -= MORPH_ALL_HIRAGANA_BONUS;
-                //    _LOG_DETAIL(L"{}: SUB ALL_HIRAGANA_BONUS({}): morphCost={}", to_wstr(w), MORPH_ALL_HIRAGANA_BONUS, cost);
-                //}
-            }
-            _LOG_DETAIL(L"LEAVE: {}: total morphCost={}", to_wstr(s), cost);
+            _LOG_DETAIL(L"LEAVE: {}: morphCost={}, morph={}", to_wstr(s), cost, to_wstr(utils::join(morphs, to_mstr(L" || "))));
         }
         return cost;
     }

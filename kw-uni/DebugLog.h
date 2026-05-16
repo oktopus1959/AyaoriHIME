@@ -2,7 +2,7 @@
 
 #include "Logger.h"
 
-#if 0 || defined(_DEBUG)
+#if 1 || defined(_DEBUG)
 #undef LOG_DEBUGH
 #undef LOG_DEBUG
 #undef _LOG_DEBUGH
