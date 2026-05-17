@@ -219,6 +219,10 @@ namespace KanchokuWS.Domain
             foreach (var pair in definition.SingleHitActions) {
                 InputActionResolver.RegisterSingleHitAction(pair.Key, pair.Value);
             }
+            if (!Settings.ExtraModifiersEnabled) {
+                RegisterDefaultModifiersAsHoldShift();
+                return;
+            }
             foreach (var pair in definition.HoldShiftDefinitions) {
                 Settings.SetHoldShiftKeySetting(pair.Key, pair.Value.ShiftPlane, pair.Value.EnabledWhenDecoderOff);
                 ShiftPlane.AssignHoldShiftPlane(pair.Key, pair.Value.ShiftPlane, pair.Value.EnabledWhenDecoderOff ? pair.Value.ShiftPlane : ShiftPlane.ShiftPlane_NONE);
@@ -527,6 +531,11 @@ namespace KanchokuWS.Domain
                         continue;
                     }
                     if (lower._startsWith("#holdshift")) {
+                        if (!Settings.ExtraModifiersEnabled) {
+                            inSingleHit = false;
+                            currentHoldShift = null;
+                            continue;
+                        }
                         currentHoldShift = parseHoldShiftHeader(lineNo, line);
                         if (currentHoldShift != null) {
                             definition.HoldShiftDefinitions[currentHoldShift.HoldShiftDeckey] = currentHoldShift;
