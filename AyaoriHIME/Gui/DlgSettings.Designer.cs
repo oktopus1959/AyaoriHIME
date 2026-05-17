@@ -2436,7 +2436,7 @@ namespace KanchokuWS.Gui
             // textBox_comboMaxAllowedPostfixTimeMs
             // 
             this.textBox_comboMaxAllowedPostfixTimeMs.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_comboMaxAllowedPostfixTimeMs.Location = new System.Drawing.Point(256, 38);
+            this.textBox_comboMaxAllowedPostfixTimeMs.Location = new System.Drawing.Point(254, 59);
             this.textBox_comboMaxAllowedPostfixTimeMs.Name = "textBox_comboMaxAllowedPostfixTimeMs";
             this.textBox_comboMaxAllowedPostfixTimeMs.Size = new System.Drawing.Size(45, 19);
             this.textBox_comboMaxAllowedPostfixTimeMs.TabIndex = 1;
@@ -2447,7 +2447,7 @@ namespace KanchokuWS.Gui
             // label140
             // 
             this.label140.AutoSize = true;
-            this.label140.Location = new System.Drawing.Point(32, 40);
+            this.label140.Location = new System.Drawing.Point(30, 61);
             this.label140.Name = "label140";
             this.label140.Size = new System.Drawing.Size(222, 15);
             this.label140.TabIndex = 22;
@@ -2538,7 +2538,7 @@ namespace KanchokuWS.Gui
             // checkBox_useCombinationKeyTimer1
             // 
             this.checkBox_useCombinationKeyTimer1.AutoSize = true;
-            this.checkBox_useCombinationKeyTimer1.Location = new System.Drawing.Point(33, 59);
+            this.checkBox_useCombinationKeyTimer1.Location = new System.Drawing.Point(33, 40);
             this.checkBox_useCombinationKeyTimer1.Name = "checkBox_useCombinationKeyTimer1";
             this.checkBox_useCombinationKeyTimer1.Size = new System.Drawing.Size(249, 19);
             this.checkBox_useCombinationKeyTimer1.TabIndex = 2;
