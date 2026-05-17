@@ -66,8 +66,16 @@ namespace {
         return T();
     }
 
+    inline bool _reMatch(StringRef str, const std::wregex& pattern) {
+        return RegexUtil(pattern).match(str);
+    }
+
     inline bool _reMatch(StringRef str, StringRef pattern) {
         return RegexUtil(pattern).match(str);
+    }
+
+    inline bool _reSearch(StringRef str, const std::wregex& pattern) {
+        return utils::reSearch(str, pattern);
     }
 
     inline bool _reSearch(StringRef str, StringRef pattern) {
@@ -76,6 +84,10 @@ namespace {
 
     inline String _replaceTail(StringRef str, size_t len, StringRef tgt) {
         return utils::replace_tail(str, len, tgt);
+    }
+
+    inline VectorString _reScan(StringRef yomi, const std::wregex& pattern) {
+        return utils::reScan(yomi, pattern);
     }
 
     inline VectorString _reMatchScan(StringRef yomi, StringRef patt) {

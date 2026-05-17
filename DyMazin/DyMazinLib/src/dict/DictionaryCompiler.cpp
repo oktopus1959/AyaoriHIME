@@ -530,9 +530,10 @@ namespace dict {
         int dicType = opts->getInt(_T("type"), 0);
 
         // 左右接続属性のサイズ
-        auto attrRange = dicType == DictionaryInfo::SYSTEM_DIC
-            ? get_id_range(opts, true, utils::getParentDirPath(outputfile))
-            : get_id_range(opts);
+        //auto attrRange = dicType == DictionaryInfo::SYSTEM_DIC
+        //    ? get_id_range(opts, true, utils::getParentDirPath(outputfile))
+        //    : get_id_range(opts, true, L"bin");
+        auto attrRange = get_id_range(opts, true, utils::getParentDirPath(outputfile));
 
         // 辞書ソースを Token 列にコンパイルする (ソート済み)
         Vector<String> keys;

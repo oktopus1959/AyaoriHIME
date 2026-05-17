@@ -270,7 +270,10 @@ namespace analyzer {
                         // 辞書のロード
                         d->load(fname);
                         if (d->getType() != dict::DictionaryInfo::USER_DIC) THROW_RTE(L"Tokenizer::open: not a user dictionary: {}", fname);
-                        if (!sysdic->isCompatible(*d)) THROW_RTE(L"Tokenizer::open: incompatible dictionary: {}", fname);
+                        if (!sysdic->isCompatible(*d)) {
+                            LOG_ERROR(L"incompatible: sysdic info={}, mydic info={}", sysdic->dicInfo(), d->dicInfo());
+                            THROW_RTE(L"Tokenizer::open: incompatible dictionary: {}", fname);
+                        }
                         dics.push_back(d);
                         userdics.push_back(d);
                     }

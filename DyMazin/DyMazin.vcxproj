@@ -105,7 +105,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalOptions>/source-charset:utf-8 /wd5105 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>DyMazinLib/src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>DyMazinLib/src;DyMazinLib/src/util</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalOptions>/source-charset:utf-8 /wd5105 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>DyMazinLib/src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>DyMazinLib/src;DyMazinLib/src/util</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

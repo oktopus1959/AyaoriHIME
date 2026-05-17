@@ -19,7 +19,7 @@ namespace MazegakiPreprocessor {
     }
 
     inline String _findKatakanaYomi(wchar_t kch) {
-        String yomi(utils::katakana_to_hiragana(kch), 1);
+        String yomi(1, utils::katakana_to_hiragana(kch));
         if (kch == L'カ' || kch == L'ケ' || kch == L'ヵ' || kch == L'ヶ') {
             yomi += L"|が";
         }

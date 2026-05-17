@@ -18,9 +18,9 @@ mkdir -p $TGT_DIR/bin
 
 rm -f $TGT_CSV
 for x in $SRC_DIR/*.csv; do
-    RUN_CMD -m "$EXPANDER $x >> $TGT_CSV"
+    RUN_CMD -m "$EXPANDER $* $x >> $TGT_CSV"
 done
 
 RUN_CMD -m "cd $TGT_DIR"
 pwd
-RUN_CMD -m "$COMPILER --dicdir .. --userdic $USER_DIC -L info ./$USER_CSV"
+RUN_CMD -m "$COMPILER --dicdir .. --userdic $USER_DIC -L info $* ./$USER_CSV"

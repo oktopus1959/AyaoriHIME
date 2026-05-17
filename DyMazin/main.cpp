@@ -32,6 +32,8 @@ int main(int argc, const char** argv) {
 
     String logFile = RegexUtil(L"exe$").replace(args[0], L"log");
 
+    //std::wcerr << L"logFile=" << logFile << std::endl;
+
     size_t ac = 0;
     std::vector<const wchar_t*> av;
     for (const auto& ws : args) {

@@ -118,6 +118,10 @@ namespace dict {
             return version() == d.version() && lsize() == d.lsize() && rsize() == d.rsize();
         }
 
+        String dicInfo() const {
+            return std::format(L"version={}, lsize={}, rsize={}", version(), lsize(), rsize());
+        }
+
     };
 
 } // namespace dict

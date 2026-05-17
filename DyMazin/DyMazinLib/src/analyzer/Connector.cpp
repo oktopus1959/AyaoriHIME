@@ -257,6 +257,7 @@ namespace analyzer {
     }
 
     std::tuple<size_t, size_t> Connector::readMatrixSize(StringRef filename) {
+        LOG_INFOH(L"ENTER: filename={}", filename);
         if (!utils::isFileExistent(filename)) {
             //std::wcerr << L"no such file or directory: " << filename << std::endl;
             LOG_ERROR(L"no such file or directory: {}", filename);
@@ -265,6 +266,7 @@ namespace analyzer {
         auto line = utils::readFirstLine(filename);
         auto columns = utils::reSplit(utils::strip(line), L"[\\t ]");
         if (columns.size() != 2) THROW_RTE(L"format error: {}", line);
+        LOG_INFOH(L"LEAVE: lsize={}, rsize={}", columns[0], columns[1]);
         return { utils::strToInt(columns[0]), utils::strToInt(columns[1]) };
     }
 

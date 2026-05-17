@@ -17,6 +17,8 @@ namespace MazegakiPreprocessor {
         return L"nil";
     }
 
+    RegexUtil reKanji(L"[一-龠々\xD800-\xD869\xDC00-\xDFFF]+");
+
     /** 交ぜ書きバリエーションの作成 (!k1.empty() && !k2.empty())
     */
     VectorString makeVariation(StringRef yomi, StringRef h1, String k1, StringRef h2, String k2, StringRef h3, String k3, StringRef h4, String k4, StringRef r) {
@@ -116,9 +118,8 @@ namespace MazegakiPreprocessor {
             mazeSet.insert(h1 + k1 + h2 + y2 + r);
             mazeSet.insert(h1 + y1 + h2 + k2 + r);
         }
-        RegexUtil reKanji(L"[一-龠々]+");
         VectorString result;
-        std::copy_if(mazeSet.begin(), mazeSet.end(), std::back_inserter(result), [&reKanji](StringRef iter) {return !reKanji.match(iter);});
+        std::copy_if(mazeSet.begin(), mazeSet.end(), std::back_inserter(result), [](StringRef iter) {return !reKanji.match(iter);});
         LOG_DEBUGH(L"LEAVE");
         return result;
     }
@@ -465,6 +466,15 @@ namespace MazegakiPreprocessor {
         return mazeYomi;  // デフォルトはそのまま返す
     }
 
+    std::wregex _hiraganaChar(L"[^ぁ-ゖ]");
+    std::wregex _exceptJapaneseChar(L"[^ぁ-ゖァ-ヶー一-龠々、。〓「」『』\xD800-\xD869\xDC00-\xDFFF]");
+    std::wregex _japaneseStr(L"[ぁ-んァ-ヶー・一-龠々、。〓「」『』\xD800-\xD869\xDC00-\xDFFF]+");
+    std::wregex _mazeScanPatt(
+        L"^([ぁ-ゖ]*)([一-龠々\xD800-\xD869\xDC00-\xDFFF])([ぁ-ゖ]*)"
+        L"([一-龠々ァ-ヶ\xD800-\xD869\xDC00-\xDFFF])(?:([ぁ-ゖ]*)"
+        L"([一-龠々ァ-ヶ\xD800-\xD869\xDC00-\xDFFF])(?:([ぁ-ゖ]*)"
+        L"([一-龠々\xD800-\xD869\xDC00-\xDFFF]))?)?([ぁ-ゖ]*)$");
+
     //# main loop
     //def main(results, costs, items)
     // result: 交ぜ表層形,左文脈ID,右文脈ID,コスト,品詞:細品詞,交ぜ基本形,変換基本形,変換表層形[,MAZE]
@@ -500,7 +510,7 @@ namespace MazegakiPreprocessor {
             surf, leftId, rightId, cost, hinshi, ktype, kform, base, hiraYomi, keyRest);
 
         // 漢字・ひらがな・カタカナ・句読点以外を含むやつは除外
-        if (!_reMatch(surf, L"[ぁ-んァ-ヶー・一-龠々、。〓「」『』]+")) {
+        if (!_reMatch(surf, _japaneseStr)) {
             LOG_DEBUGH(L"LEAVE: invalid surf={}", surf);
             return false;
         }
@@ -560,7 +570,7 @@ namespace MazegakiPreprocessor {
 
         if (doMaze) {
             //const auto surfParts = _reMatchScan(surf, L"^([^一-龠々]*)([一-龠々])([^一-龠々]*)([一-龠々])(?:([^一-龠々]*)([一-龠々])(?:([^一-龠々]*)([一-龠々]))?)?([ぁ-ゖ]*)$");
-            const auto surfParts = _reMatchScan(surf, L"^([ぁ-ゖ]*)([一-龠々])([ぁ-ゖ]*)([一-龠々ァ-ヶ])(?:([ぁ-ゖ]*)([一-龠々ァ-ヶ])(?:([ぁ-ゖ]*)([一-龠々]))?)?([ぁ-ゖ]*)$");
+            const auto surfParts = _reScan(surf, _mazeScanPatt);
             if (surfParts.size() == 9 &&
                 (surfParts[3].empty() || !utils::is_katakana(surfParts[3][0]) || (!surfParts[5].empty() && !utils::is_katakana(surfParts[5][0])))) {
                 // 2つ以上の漢字を含む (カタカナは含まない)
@@ -586,7 +596,7 @@ namespace MazegakiPreprocessor {
             }
         }
         //  # 表層がひらがな以外を含み、ひらがなだけの読みがある
-        if (_reSearch(surf, L"[^ぁ-ゖ]") && !hiraYomi.empty()) {
+        if (_reSearch(surf, _hiraganaChar) && !hiraYomi.empty()) {
             //outputEntry(hiraYomi, surf, surfParts)
             // 交ぜ書きの定義を追加(元の定義を上書きする可能性あり)
             LOG_DEBUGH(L"hiraYomi={}", hiraYomi);
@@ -615,7 +625,7 @@ namespace MazegakiPreprocessor {
     // 辞書として有効な行の場合は true を返す。
     // (標準辞書の形式に従っていないものはそのまま出力)
     bool expandMazegaki(StringRef origLine, Vector<String>& errorLines, bool bUserDic) {
-        LOG_DEBUGH(L"ENTER: origLine={}", origLine);
+        LOG_DEBUGH(L"ENTER: origLine={}, bUserDic={}, userDicModeFlag={}", origLine, bUserDic, userDicModeFlag);
 
         //items = origLine.strip.split(',')
         String line = utils::reReplace(utils::strip(origLine), L"\\s*,\\s*", L",");
@@ -638,7 +648,7 @@ namespace MazegakiPreprocessor {
             }
             if (lowerLine.starts_with(L"#userdic")) {
                 userDicModeFlag = true;
-                LOG_DEBUGH(L"LEAVE: false: user Dic mode");
+                LOG_DEBUGH(L"LEAVE: false: userDicModeFlag=true");
                 return false;
             }
             LOG_DEBUGH(L"LEAVE: false: comment or ");
@@ -685,8 +695,13 @@ namespace MazegakiPreprocessor {
             return false;
         }
 
-        if (_reSearch(items[0], L"[^ぁ-ゖァ-ヶー一-龠々、。〓「」『』]")) {
+        if (_reSearch(items[0], _exceptJapaneseChar)) {
             // ひらがな・カタカナ・漢字・句読点以外を含むものは削除
+#if _LOG_DEBUGH_FLAG
+            if (items[0].size() > 1) {
+                LOG_DEBUGH(L"{:x}:{:x}", items[0][0], items[0][1]);
+            }
+#endif
             LOG_DEBUGH(L"LEAVE: false: head other than Japanese");
             return false;
         }
@@ -758,7 +773,7 @@ namespace MazegakiPreprocessor {
 
     // 交ぜ書き辞書の準備と展開
     Vector<String> preprocessMazegakiDic(StringRef mazeResrcDir, StringRef dicSrcPath, bool bUserDic) {
-        LOG_INFOH(L"ENTER: mazeResrcDir={}, dicSrcPath={}", mazeResrcDir, dicSrcPath);
+        LOG_INFOH(L"ENTER: mazeResrcDir={}, dicSrcPath={}, bUserDic={}", mazeResrcDir, dicSrcPath, bUserDic);
 
         Vector<String> resultLines;
 
