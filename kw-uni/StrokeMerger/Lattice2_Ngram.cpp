@@ -231,6 +231,10 @@ namespace lattice2 {
 
         // Ngram差分の更新
         void updateSelectedNgram(const MString& posi, const MString& nega) {
+            if (!SETTINGS->collectRealtimeNgram) {
+                LOG_DEBUGH(L"LEAVE: collectRealtimeNgram={}", collectRealtimeNgram);
+                return;
+            }
             if (_includedInUserDefinedPair(posi) && _includedInUserDefinedPair(nega)) {
                 // Ngram差分が固定Ngramエントリに含まれている場合は、差分登録を行わない
                 _LOG_DETAIL(L"{} and {} are BOTH FIXED ngram entries", to_wstr(posi), to_wstr(nega));
@@ -662,6 +666,10 @@ namespace lattice2 {
     // リアルタイムNgramの更新
     void _updateRealtimeNgram(bool bIncrease, const MString& str) {
         LOG_DEBUGH(L"ENTER: bIncrease={}, str={}", bIncrease, to_wstr(str));
+        if (!SETTINGS->collectRealtimeNgram) {
+            LOG_DEBUGH(L"LEAVE: collectRealtimeNgram={}", collectRealtimeNgram);
+            return;
+        }
         int strlen = (int)str.size();
         int hirakanLen = 0;
         int hiraLen = 0;
