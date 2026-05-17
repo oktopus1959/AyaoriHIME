@@ -1620,17 +1620,17 @@ namespace KanchokuWS.TableParser
             }
 
             if (Settings.IsSpaceFlushAndDirectInput && spaceSingleHitOrSequentialWarningLocations.Count > 0) {
-                var displayedLocations = spaceSingleHitOrSequentialWarningLocations.Take(3).ToList();
-                if (spaceSingleHitOrSequentialWarningLocations.Count > displayedLocations.Count) {
-                    displayedLocations.Add("...");
-                }
-                string locations = displayedLocations._join("\r\n");
+                //var displayedLocations = spaceSingleHitOrSequentialWarningLocations.Take(3).ToList();
+                //if (spaceSingleHitOrSequentialWarningLocations.Count > displayedLocations.Count) {
+                //    displayedLocations.Add("...");
+                //}
+                //string locations = displayedLocations._join("\r\n");
                 string msg =
                     "Space(40) が単打または順次打鍵として定義されていますが、" +
                     "配列融合設定の「Spaceで編集バッファをフラッシュし、対象アプリにも送出する」が有効なため、" +
                     "Space はデコーダに渡らず対象アプリへ直接送出されます。\r\n" +
-                    "このため、これらの定義は期待どおりに動作しません。\r\n\r\n" +
-                    "該当箇所:\r\n" + locations;
+                    "このため、これらの定義は期待どおりに動作しません。";
+                    //"該当箇所:\r\n" + locations;
                 logger.Warn(msg);
                 if (errorMsg._notEmpty()) errorMsg += "\r\n\r\n";
                 errorMsg += msg;

@@ -148,7 +148,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(useTmpRealtimeNgramFile);
     SET_BOOL_VALUE(hiraganaBigramEnabled);
     SET_BOOL_VALUE(hiraganaQuadgramEnabled);
-    //SET_BOOL_VALUE(useMorphAnalyzerAlways);
     SET_BOOL_VALUE(morphCostWithoutEOS);
     SET_KEY_VALUE(morphMazeFormat);
     SET_INT_VALUE(morphMazeEntryPenalty);

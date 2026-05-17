@@ -326,6 +326,8 @@ namespace KanchokuWS.TableParser
                     } else if (lcStr == "set") {
                         // Settings 変数の値の変更
                         handleSettings();
+                    } else if (lcStr == "disableextkey") {
+                        // 拡張修飾キーの無効化: 廃止
                     } else if (lcStr == "ignorewarning" || lcStr == "enablewarning") {
                         // 各種警告の無効化/有効化
                         bool flag = lcStr.StartsWith("ignore");

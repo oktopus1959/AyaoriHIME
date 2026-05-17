@@ -118,7 +118,6 @@ struct Settings {
     bool useTmpRealtimeNgramFile = false;   // 一時的なRealtime Ngram ファイルを使用する
     bool hiraganaBigramEnabled = false;     // ひらがな交じりのBigramを有効にする
     bool hiraganaQuadgramEnabled = false;   // ひらがな交じりの4-gramを有効にする
-    //bool useMorphAnalyzerAlways = true;     // 常に形態素解析器を使用する
     bool morphCostWithoutEOS = true;           // EOSまで含めた形態素解析コストを使用しない
     String morphMazeFormat = L"maze1";      // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
     int morphMazeEntryPenalty = 1000;       // 交ぜ書きエントリに対するペナルティ

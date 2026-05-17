@@ -519,7 +519,7 @@ namespace KanchokuWS
             copyFile("kwhist.roman.txt", true);
             copyFile("easy_chars.txt", true);
             copyFile("stroke-help.txt", true);
-            copyFile("mod-conversion.txt", true);
+            //copyFile("mod-conversion.txt", true);
             copyFile("userDic.csv", true);
         }
 

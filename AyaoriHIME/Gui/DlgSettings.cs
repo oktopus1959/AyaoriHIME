@@ -80,7 +80,7 @@ namespace KanchokuWS.Gui
             CancelButton = button_basicClose;
 
             button_showPaddingsDesc.Enabled = frmVkb != null;
-            //button_setCommonTable.Enabled = checkBox_extraModifiersEnabled.Checked;
+            button_setCommonTable.Enabled = checkBox_extraModifiersEnabled.Checked;
 
             tabControl1.SelectedIndex = SelectedTabIndex;
             changeGlobalCtrlKeysCheckBoxState();
@@ -1442,7 +1442,7 @@ namespace KanchokuWS.Gui
             comboBox_selectCtrlKeyItem(comboBox_dateStringKey, $"{Settings.CtrlKeyConvertedToDateString.Replace("#", "")}");
             textBox_dateStringFormat.Text = Settings.DateStringFormat._reReplace(@"\|", "\r\n");
 
-            //checkBox_extraModifiersEnabled.Checked = Settings.ExtraModifiersEnabled;
+            checkBox_extraModifiersEnabled.Checked = Settings.ExtraModifiersEnabled;
             textBox_commonTableFile.Text = Settings.CommonTableFile;
         }
 
@@ -1496,7 +1496,7 @@ namespace KanchokuWS.Gui
             checkerCtrlKeys.Add(comboBox_fullEscapeKey);
             checkerCtrlKeys.Add(comboBox_strokeHelpRotationKey);
 
-            //checkerCtrlKeys.Add(checkBox_extraModifiersEnabled);
+            checkerCtrlKeys.Add(checkBox_extraModifiersEnabled);
             checkerCtrlKeys.Add(textBox_commonTableFile);
 
             checkerAll.Add(checkerCtrlKeys);
@@ -1546,7 +1546,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("fullEscapeKey", comboBox_fullEscapeKey._getSelectedItemSplittedFirst("G"));
             Settings.SetUserIni("strokeHelpRotationKey", comboBox_strokeHelpRotationKey._getSelectedItemSplittedFirst("T"));
 
-            //Settings.SetUserIni("extraModifiersEnabled", checkBox_extraModifiersEnabled.Checked);
+            Settings.SetUserIni("extraModifiersEnabled", checkBox_extraModifiersEnabled.Checked);
             Settings.SetUserIni("commonTableFile", textBox_commonTableFile.Text);
 
             Settings.ReadIniFile(false);
@@ -1575,7 +1575,7 @@ namespace KanchokuWS.Gui
 
         private void checkBox_extraModifiersEnabled_CheckedChanged(object sender, EventArgs e)
         {
-            //button_setCommonTable.Enabled = checkBox_extraModifiersEnabled.Checked;
+            button_setCommonTable.Enabled = checkBox_extraModifiersEnabled.Checked;
         }
 
         private void button_openCommonTableFile_Click(object sender, EventArgs e)
@@ -1843,7 +1843,6 @@ namespace KanchokuWS.Gui
             checkBox_multiCandidateMode.Checked = Settings.MultiCandidateMode;
             checkBox_multiCandidateMode.Enabled = !Settings.MultiStreamMode;
             checkBox_collectRealtimeNgram.Checked = Settings.CollectRealtimeNgram;
-            checkBox_useMorphAndNgramAnalyzer.Checked = Settings.UseMorphAnalyzerAlways;
             checkBox_strokeBackByBS.Checked = !Settings.StrokeBackByBS;
             checkBox_useEditBuffer.Checked = Settings.UseEditWindow;
             checkBox_outputHeadSymbol.Checked = Settings.OutputHeadSymbolSub;
@@ -1896,7 +1895,6 @@ namespace KanchokuWS.Gui
 
             checkerFusion.Add(checkBox_multiCandidateMode);
             checkerFusion.Add(checkBox_collectRealtimeNgram);
-            checkerFusion.Add(checkBox_useMorphAndNgramAnalyzer);
             checkerFusion.Add(checkBox_strokeBackByBS);
             checkerFusion.Add(checkBox_useEditBuffer);
             checkerFusion.Add(checkBox_outputHeadSymbol);
@@ -1944,7 +1942,6 @@ namespace KanchokuWS.Gui
                 Settings.SetUserIni("multiCandidateMode", checkBox_multiCandidateMode.Checked);
             }
             Settings.SetUserIni("collectRealtimeNgram", checkBox_collectRealtimeNgram.Checked);
-            Settings.SetUserIni("useMorphAnalyzerAlways", checkBox_useMorphAndNgramAnalyzer.Checked);
             Settings.SetUserIni("strokeBackByBS", !checkBox_strokeBackByBS.Checked);
             Settings.SetUserIni("useEditWindow", checkBox_useEditBuffer.Checked);
             if (checkBox_useEditBuffer.Checked) {

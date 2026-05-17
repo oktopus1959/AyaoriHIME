@@ -231,9 +231,6 @@ namespace KanchokuWS
         /// <summary>一時的な Realtime Ngram ファイルを使用する</summary>
         public static bool UseTmpRealtimeNgramFile { get; set; }
 
-        /// <summary>形態素解析器を使用する</summary>
-        public static bool UseMorphAnalyzerAlways { get; set; }
-
         /// <summary>EOSまで含めた形態素解析コストを使用しない</summary>
         public static bool MorphCostWithoutEOS { get; set; }
 
@@ -902,7 +899,7 @@ namespace KanchokuWS
         public static int EisuExitSpaceNum { get; set; }
 
         /// <summary> 拡張修飾キーを有効にするか</summary>
-        //public static bool ExtraModifiersEnabled { get; set; }
+        public static bool ExtraModifiersEnabled { get; set; }
 
         /// <summary> commonTable 定義ファイル</summary>
         public static string CommonTableFile { get; private set; }
@@ -1696,7 +1693,7 @@ namespace KanchokuWS
             //bool isModConversionFileEmpty = CommonTableFile._isEmpty();
             //if (isModConversionFileEmpty) { CommonTableFile = "mod-conversion.txt"; }
 
-            //ExtraModifiersEnabled = GetString("extraModifiersEnabled")._parseBool(!isModConversionFileEmpty);   // 拡張修飾キーを有効にするか
+            ExtraModifiersEnabled = GetString("extraModifiersEnabled")._parseBool(false);       // 拡張修飾キーを有効にするか
             UpperRomanStrokeGuide = GetString("upperRomanStrokeGuide")._parseBool(false);       // ローマ字読みによるストロークガイドを有効にするか
             ShowLastStrokeByDiffBackColor = GetString("showLastStrokeByDiffBackColor")._parseBool(false); // 前打鍵位置の背景色を変えて表示するか
 
@@ -1921,9 +1918,8 @@ namespace KanchokuWS
 
             PostRewriteCompatibleWithGooble = addDecoderSetting("googleCompatible", false);     // Google日本語入力と互換な書き換システム
 
-            CollectRealtimeNgram = addDecoderSetting("collectRealtimeNgram", true);             // Realtime Ngram 情報を収集する
+            CollectRealtimeNgram = addDecoderSetting("collectRealtimeNgram", false);            // Realtime Ngram 情報を収集する
             UseTmpRealtimeNgramFile = addDecoderSetting("useTmpRealtimeNgramFile", false);      // 一時的な Realtime Ngram ファイルを使用する
-            UseMorphAnalyzerAlways = addDecoderSetting("useMorphAnalyzerAlways", true);         // 常に形態素解析器を使用する
             MorphCostWithoutEOS = addDecoderSetting("morphCostWithoutEOS", false);              // EOSまで含めた形態素解析コストを使用しない
             MorphMazeFormat = addDecoderSetting("morphMazeFormat", "maze2");                    // 形態素解析器の出力に使用する交ぜ書きフォーマット (maze1 / maze2)
             MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000, 1, 10000); // 交ぜ書きエントリに対するペナルティ
