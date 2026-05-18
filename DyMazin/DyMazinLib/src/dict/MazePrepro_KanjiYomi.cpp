@@ -22,6 +22,8 @@ namespace MazegakiPreprocessor {
         String yomi(1, utils::katakana_to_hiragana(kch));
         if (kch == L'カ' || kch == L'ケ' || kch == L'ヵ' || kch == L'ヶ') {
             yomi += L"|が";
+        } else if (kch == L'ッ') {
+            yomi += L"|つ";
         }
         return yomi;
     }
