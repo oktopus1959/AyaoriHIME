@@ -301,6 +301,12 @@ namespace {
             cancelMe();
         }
 
+        // Enter の処理 -- 処理のキャンセル
+        void handleEnter() {
+            _LOG_DEBUGH(_T("CALLED: {}: IGNORE"), Name);
+            cancelMe();
+        }
+
         // その他の特殊キーは無視する
         void handleSpecialKeys(int /*deckey*/) {
             _LOG_DEBUGH(_T("CALLED: {}: IGNORE"), Name);

@@ -744,9 +744,7 @@ void State::handleDecoderOff() { LOG_INFO(_T("CALLED")); }
 //-----------------------------------------------------------------------
 // 機能キー前処理ハンドラ
 // 一括で何かをしたい場合にオーバーライドする。その後、個々の処理を続ける場合は、 false を返すこと
-bool State::handleFunctionKeys(int
-_DEBUG_SENT(hk)
-) {
+bool State::handleFunctionKeys(int _DEBUG_SENT(hk)) {
     _LOG_DEBUGH(_T("DO NOTHING: deckey={:x}H({})"), hk, hk);
     return false;
 }
