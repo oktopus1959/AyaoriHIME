@@ -230,7 +230,7 @@ namespace NgramCoreLib {
             if (sentence) {
                 if (wakati_buf) wakati_buf[0] = L'\0';
                 Vector<String> results;
-                cost = viterbi->parseNBest(sentence, tempEntriesStr, L"", results, nBest, wakati_buf != nullptr);
+                cost = viterbi->parseNBest(sentence, L"", tempEntriesStr, L"", results, nBest, wakati_buf != nullptr);
                 bool bFirst = true;
                 for (const auto& result : results) {
                     if (wakati_buf) {
@@ -252,7 +252,7 @@ namespace NgramCoreLib {
                     if (eof || (line == L"." && filePath == L"-")) break;
                     //if (line.empty()) continue;
                     Vector<String> results;
-                    viterbi->parseNBest(line, tempEntriesStr, L"", results, nBest, true);
+                    viterbi->parseNBest(line, L"", tempEntriesStr, L"", results, nBest, true);
                     for (const auto& result : results) {
                         std::cout << "----------------" << std::endl;
                         std::cout << utils::utf8_encode(result) << std::endl;
@@ -299,6 +299,10 @@ namespace NgramCoreLib {
             if (ERROR_HANDLER->HasError()) {
                 LOG_INFOH(L"LEAVE: ERROR");
                 return ERROR_HANDLER->GetErrorInfo(errMsg);
+            }
+            if (cost < 0) {
+                LOG_INFOH(L"cost={} is negative. adjust to 0.\n", cost);
+                cost = 0;
             }
             LOG_INFOH(L"LEAVE: sentence={}, cost={}\n", sentence, cost);
             return cost;

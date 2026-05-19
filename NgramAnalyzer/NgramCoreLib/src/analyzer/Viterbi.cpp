@@ -18,6 +18,7 @@ namespace analyzer {
     int GLUE_BONUS_FACTOR = 500;
     int GLUE_BONUS_MIN_LEN = 4;
     static const int kShortHiraganaPenalty = 2000;
+    static const int kMorphBoundaryMismatchPenalty = 5000;
     static const int MaxAccumBonus = 10000;
 
     static const int MorphPenaltyEntryFound = 7000;
@@ -66,6 +67,34 @@ namespace analyzer {
     private:
         //---------------------------------------------------------------------------
         // private
+        const Vector<bool>* createMorphBoundaries(StringRef sentence, StringRef morphEntries, Vector<bool>& morphBoundaries) {
+            if (morphEntries.empty()) {
+                return nullptr;
+            }
+
+            String joined;
+            Vector<size_t> boundaryPositions;
+            size_t pos = 0;
+            for (const auto& morph : utils::split(morphEntries, L'|')) {
+                joined.append(morph);
+                pos += morph.length();
+                boundaryPositions.push_back(pos);
+            }
+
+            if (joined != sentence) {
+                LOG_WARN(L"morphEntries ignored: joined morphEntries does not match sentence. sentence={}, morphEntries={}", sentence, morphEntries);
+                return nullptr;
+            }
+
+            morphBoundaries.assign(sentence.length() + 1, false);
+            for (size_t boundaryPos : boundaryPositions) {
+                if (boundaryPos > 0 && boundaryPos < sentence.length()) {
+                    morphBoundaries[boundaryPos] = true;
+                }
+            }
+            return &morphBoundaries;
+        }
+
         /**
          * viterbi 処理 --
          * 単語の辞書引きと先行ノードとの接続処理を行って、ラティス構造を構築する。
@@ -78,7 +107,7 @@ namespace analyzer {
             auto begin = sentence->begin();
             auto end = sentence->end();
 
-            LOG_INFOH(L"ENTER: lattice->sentence={}, tempDictEntries={}", sentence->toString(), tempDictEntries);
+            LOG_INFOH(L"ENTER: lattice->sentence={}, morphEntries={}, tempDictEntries={}", sentence->toString(), morphEntries, tempDictEntries);
 
             // 処理前の番兵ノード
             auto bos_node = lattice->bosNode();
@@ -87,6 +116,8 @@ namespace analyzer {
             // 各位置における、lookupされたNgram群の最大長
             // Ngramの接続位置で、それをカバーするようなNgramがあればその長さを GLUE ボーナスの計算に使用するために記録しておく
             Vector<int>  glueNgramMaxLens(len + 1, 0);
+            Vector<bool> morphBoundaries;
+            const Vector<bool>* pMorphBoundaries = createMorphBoundaries(sentence->toString(), morphEntries, morphBoundaries);
 
             // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
             tokenizer->resetTempDict(tempDictEntries);
@@ -105,14 +136,14 @@ namespace analyzer {
                     }
 
                     // posを終点とする先行ノード群と接続させる
-                    connect(lattice, pos, glueNgramMaxLens, begin_nodes, lattice->getEndNodes(pos), lattice->isNBest());
+                    connect(lattice, pos, glueNgramMaxLens, pMorphBoundaries, begin_nodes, lattice->getEndNodes(pos), lattice->isNBest());
                 }
             }
 
             // EOSノードを、最後尾ノードに接続させる
             // 文末が空白文字で終わっているような場合は、有効な最後尾ノードの endpos は文末位置より前にある
             //auto pos = lattice->end_nodes.lastIndexWhere{ _.nonEmpty };
-            connect(lattice, len, glueNgramMaxLens, { eos_node }, lattice->getLastNonEmptyEndNodes(), lattice->isNBest());
+            connect(lattice, len, glueNgramMaxLens, pMorphBoundaries, { eos_node }, lattice->getLastNonEmptyEndNodes(), lattice->isNBest());
 
             if (IS_LOG_WARN_ENABLED) {
                 // 両番兵に変化がないか確認
@@ -145,7 +176,7 @@ namespace analyzer {
          * Nbest解については、Path によって leftNodes と rightNodes の全組み合わせを記録しておく。
          */
         template<template<typename...> typename C, typename A>
-        void connect(LatticePtr lattice, size_t pos, Vector<int>& glueNgramMaxLens, const Vector<NodePtr>& rightNodes, const C<NodePtr, A>& leftNodes, bool isNbest) {
+        void connect(LatticePtr lattice, size_t pos, Vector<int>& glueNgramMaxLens, const Vector<bool>* morphBoundaries, const Vector<NodePtr>& rightNodes, const C<NodePtr, A>& leftNodes, bool isNbest) {
             LOG_DEBUGH(L"ENTER: isNbest={}", isNbest);
             int rnodeMaxLen = 0;
             for (const NodePtr rnode : rightNodes) {
@@ -174,6 +205,12 @@ namespace analyzer {
                         }
                         LOG_DEBUG(L"      lnode: GETA, rnode: KANJI, connCost={}", connCost);
                     }
+
+                    if (morphBoundaries && pos > 0 && pos + 1 < morphBoundaries->size() && !(*morphBoundaries)[pos]) {
+                        connCost += kMorphBoundaryMismatchPenalty;
+                        LOG_DEBUG(L"      morph boundary mismatch: pos={}, penalty={}, connCost={}", pos, kMorphBoundaryMismatchPenalty, connCost);
+                    }
+
                     // GLUE ボーナスの適用
                     size_t chkPos = (int)pos <= lnode->length() ? 0 : pos - lnode->length();
                     int maxGlueLen = 0;

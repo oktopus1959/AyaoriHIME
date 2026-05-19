@@ -3,6 +3,7 @@
 #include "../NgramAnalyzer/NgramCoreLib/src/NgramCoreLib.h"
 #include "Settings/Settings.h"
 #include "Reporting/ErrorHandler.h"
+#include "Constants.h"
 
 #include "path_utils.h"
 
@@ -295,14 +296,14 @@ namespace NgramBridge {
     }
 
     int ngramCalcCost(const MString& str, const std::vector<MString>& morphEntries, std::vector<MString>& ngrams, bool needNgrams) {
-        if (!initializeSucceeded) return 0;
+        if (!initializeSucceeded || str.empty()) return 0;
 
         //_LOG_TEMPW(L"ENTER");
         _LOG_DEBUGH(_T("ENTER: str={}, morphs=<{}>"), to_wstr(str), to_wstr(utils::join(morphEntries, '|')));
         std::vector<String> results;
         String  errMsg;
         auto [allMorphs, mainMorphs, penaltyMorphs] = pickMorphs(morphEntries);
-        int cost = NgramCoreLib::NgramAnalyze(to_wstr(str), allMorphs, mainMorphs, penaltyMorphs, results, errMsg, needNgrams);
+        int cost = NgramCoreLib::NgramAnalyze(to_wstr(str), str[0] == GETA_CHAR ? GETA_STR"|" + allMorphs : allMorphs, mainMorphs, penaltyMorphs, results, errMsg, needNgrams);
         if (cost < 0) {
             LOG_WARN(_T("NgramAnalyze FAILED: result={}, errMsg={}"), cost, errMsg);
             return cost;

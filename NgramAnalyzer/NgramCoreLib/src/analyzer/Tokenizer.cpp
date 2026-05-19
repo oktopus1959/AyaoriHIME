@@ -19,6 +19,7 @@ namespace analyzer {
     int UNKNOWN_KANJI_MAX_LEN = 4;
 
     int MORPH_ENTRY_COST = 7000;
+    int HEAD_GETA_COST = 8000;
     int REALTIME_NORMALENTRY_BASE_COST = 6000;  // システムNgramに含まれない、リアルタイムNgramの通常エントリの基本コスト (NgramAnalyzer/tools/merge_realtime_ngram_cost.rb も合わせて修正すること)
     int REALTIME_GETA_ENTRY_BASE_COST = 9500;   // システムNgramに含まれない、GETAで始まるリアルタイムNgramの通常エントリの基本コスト (NgramAnalyzer/tools/merge_realtime_ngram_cost.rb も合わせて修正すること)
 
@@ -172,7 +173,7 @@ namespace analyzer {
             if (rngStrPtr->charAt(begin2) == GETA_CHAR) {
                 LOG_DEBUG(L"  BEGIN: geta");
                 // 〓を1文字の未知語として切り出す
-                __addNewNode(UNKNOWN_OTHER_COST, begin2 + 1);
+                __addNewNode(HEAD_GETA_COST, begin2 + 1);
                 LOG_DEBUG(L"  END: geta");
             }
             // -- ここまでは辞書にある単語、以下は解の候補として未知語も考慮に入れる --
