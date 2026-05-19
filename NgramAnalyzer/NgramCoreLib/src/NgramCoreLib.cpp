@@ -281,12 +281,13 @@ namespace NgramCoreLib {
 
     /**
      * Ngram解析の実行(コストを返す)
+     * @param morphEntries 形態素解析による分割結果
      * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
      * @param penaltyEntries ペナルティを与えるべき形態素列 ("|" 区切り)
      * @param mazePenalty 交ぜ書きエントリに対するペナルティ(0 ならデフォルト値を使う)
      * @return 解のコスト(非負値; 実行時エラーがある場合は負値を返す)
      */
-    int NgramAnalyze(StringRef sentence, StringRef tempEntries, StringRef penaltyEntries, std::vector<String>& ngrams, String& errMsg, bool needResults) {
+    int NgramAnalyze(StringRef sentence, StringRef morphEntries, StringRef tempEntries, StringRef penaltyEntries, std::vector<String>& ngrams, String& errMsg, bool needResults) {
         LOG_INFOH(L"\nENTER: sentence={}, tempEntries={}, penaltyEntries={}", sentence, tempEntries, penaltyEntries);
         ERROR_HANDLER->Clear();
 
@@ -294,7 +295,7 @@ namespace NgramCoreLib {
             int cost = 0;
             int nBest = opts->getInt(L"nbest", 1);
             ngrams.clear();
-            cost = viterbi->parseNBest(sentence, tempEntries, penaltyEntries, ngrams, nBest, needResults);
+            cost = viterbi->parseNBest(sentence, morphEntries, tempEntries, penaltyEntries, ngrams, nBest, needResults);
             if (ERROR_HANDLER->HasError()) {
                 LOG_INFOH(L"LEAVE: ERROR");
                 return ERROR_HANDLER->GetErrorInfo(errMsg);

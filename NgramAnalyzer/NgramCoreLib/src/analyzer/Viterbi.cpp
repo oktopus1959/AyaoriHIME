@@ -69,15 +69,16 @@ namespace analyzer {
         /**
          * viterbi 処理 --
          * 単語の辞書引きと先行ノードとの接続処理を行って、ラティス構造を構築する。
-         * @param wakatiEntries 形態素解析によって分かち書きされた形態素列 ("|" 区切り)
+         * @param morphEntries 形態素解析によって分かち書きされた形態素列 ("|" 区切り)
+         * @param tempDictEntries 一時的なユーザー辞書エントリ ("|" 区切り)
          */
-        void viterbi(LatticePtr lattice, StringRef wakatiEntries) {
+        void viterbi(LatticePtr lattice, StringRef morphEntries, StringRef tempDictEntries) {
             auto sentence = lattice->sentence;
             auto len = sentence->length();
             auto begin = sentence->begin();
             auto end = sentence->end();
 
-            LOG_INFOH(L"ENTER: lattice->sentence={}, wakatiEntries={}", sentence->toString(), wakatiEntries);
+            LOG_INFOH(L"ENTER: lattice->sentence={}, tempDictEntries={}", sentence->toString(), tempDictEntries);
 
             // 処理前の番兵ノード
             auto bos_node = lattice->bosNode();
@@ -88,7 +89,7 @@ namespace analyzer {
             Vector<int>  glueNgramMaxLens(len + 1, 0);
 
             // TemporaryDict をリセットする (ユーザー辞書のエントリを一時的に追加するためなどに使用)
-            tokenizer->resetTempDict(wakatiEntries);
+            tokenizer->resetTempDict(tempDictEntries);
 
             // 文の先頭から末尾に向かって、形態素ノードを作成し、先行ノードと接続させてラティスを作っていく
             for (size_t pos = 0; pos < len; ++pos) {
@@ -184,7 +185,7 @@ namespace analyzer {
                     int glueBonus = 0;
                     if (maxGlueLen >= GLUE_BONUS_MIN_LEN) {
                         glueBonus = (maxGlueLen - GLUE_BONUS_MIN_LEN + 1) * GLUE_BONUS_FACTOR;
-                        LOG_DEBUG(L"      glueBonus={}", glueBonus);
+                        LOG_DEBUG(L"      glueBonus={} ((maxGlueLen({}) - GLUE_BONUS_MIN_LEN({}) + 1) * GLUE_BONUS_FACTOR({}))", glueBonus, maxGlueLen, GLUE_BONUS_MIN_LEN, GLUE_BONUS_FACTOR);
                     }
 
                     int bonus = rnode->bonus();
@@ -194,12 +195,14 @@ namespace analyzer {
                         accumBonus = MaxAccumBonus;
                         glueBonus = accumBonus - lnode->accumBonus();  // lnodeの累積ボーナスと合わせて上限に達する分だけglueBonusを適用する
                         bonus = 0;      // 累積ボーナスが上限に達している場合は、rnodeのボーナスも適用しない
+                        LOG_DEBUG(L"      bonus adjusted-A: accumBonus={}, gluBonus={}, bonus={}", accumBonus, glueBonus, bonus);
                     } else {
                         accumBonus += bonus;
                         if (accumBonus >= MaxAccumBonus) {
                             LOG_DEBUG(L"      accumBonus + bonus capped: orig={}, capped={}", accumBonus, MaxAccumBonus);
                             accumBonus = MaxAccumBonus;
                             bonus = accumBonus - lnode->accumBonus() - glueBonus;
+                            LOG_DEBUG(L"      bonus adjusted-B: accumBonus={}, gluBonus={}, bonus={}", accumBonus, glueBonus, bonus);
                         }
                     }
                     connCost -= glueBonus;
@@ -313,6 +316,7 @@ namespace analyzer {
     /**
      * N-Best 解析の実行。N-Bestな解析結果が一つずつ格納されたArrayを返す。
      * @param sentence 解析対象文
+     * @param morphEntries 形態素解析による分割結果
      * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
      * @param penaltyEntries ペナルティを与えるべき形態素列 ("|" 区切り)
      * @param results N-Bestな解析結果を格納するvector
@@ -320,12 +324,12 @@ namespace analyzer {
      * @param mazePenalty 交ぜ書き候補に与えるペナルティ。これが負値ならボーナスなり、他の交ぜ書き候補を含めた解を返す
      * @return 最良解析結果のコスト
      */
-    int Viterbi::parseNBest(StringRef sentence, StringRef tempEntries, StringRef penaltyEntries, Vector<String>& results, size_t nBest, bool needResults) {
+    int Viterbi::parseNBest(StringRef sentence, StringRef morphEntries, StringRef tempEntries, StringRef penaltyEntries, Vector<String>& results, size_t nBest, bool needResults) {
         //warnings.clear();
         LOG_INFO(L"ENTER: sentence={}, penaltyEntries={}, nBest={}", sentence, penaltyEntries, nBest);
 
         auto lattice = Lattice::CreateLattice(sentence, L"", nBest);
-        analyze(lattice, tempEntries, penaltyEntries);
+        analyze(lattice, morphEntries, tempEntries);
         int baseCost = lattice->getSolutions(results, needResults);
         int morphPenalty = pImpl->getMorphPenalty(penaltyEntries);
         int userNgramPenalty = RealtimeDict::getUserNgramPenalty(sentence);
@@ -336,16 +340,16 @@ namespace analyzer {
 
     /**
      * 形態素解析処理
+     * @param morphEntries 形態素解析による分割結果
      * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)
-     * @param penaltyEntries ペナルティを与えるべき形態素列 ("|" 区切り)
      */
-    void Viterbi::analyze(LatticePtr lattice, StringRef tempDictEntries, StringRef penaltyEntries) {
+    void Viterbi::analyze(LatticePtr lattice, StringRef morphEntries, StringRef tempDictEntries) {
         LOG_INFO(L"ENTER");
         CHECK_OR_THROW(lattice && lattice->sentence,
             L"Viterbi.analyze: lattice must not be null and have non-null sentence");
 
         // viterbi 処理 (解析部本体)
-        pImpl->viterbi(lattice, tempDictEntries);
+        pImpl->viterbi(lattice, morphEntries, tempDictEntries);
         // 最良コストのPathを next で連結する
         pImpl->linkBestPath(lattice);
         LOG_INFO(L"LEAVE");

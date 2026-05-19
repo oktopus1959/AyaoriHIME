@@ -232,7 +232,7 @@ namespace lattice2 {
         // Ngram差分の更新
         void updateSelectedNgram(const MString& posi, const MString& nega) {
             if (!SETTINGS->collectRealtimeNgram) {
-                LOG_DEBUGH(L"LEAVE: collectRealtimeNgram={}", collectRealtimeNgram);
+                LOG_DEBUGH(L"LEAVE: collectRealtimeNgram={}", SETTINGS->collectRealtimeNgram);
                 return;
             }
             if (_includedInUserDefinedPair(posi) && _includedInUserDefinedPair(nega)) {
@@ -667,7 +667,7 @@ namespace lattice2 {
     void _updateRealtimeNgram(bool bIncrease, const MString& str) {
         LOG_DEBUGH(L"ENTER: bIncrease={}, str={}", bIncrease, to_wstr(str));
         if (!SETTINGS->collectRealtimeNgram) {
-            LOG_DEBUGH(L"LEAVE: collectRealtimeNgram={}", collectRealtimeNgram);
+            LOG_DEBUGH(L"LEAVE: collectRealtimeNgram={}", SETTINGS->collectRealtimeNgram);
             return;
         }
         int strlen = (int)str.size();

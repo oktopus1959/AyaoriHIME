@@ -115,71 +115,151 @@ namespace NgramBridge {
         NgramCoreLib::NgramSaveLog(errMsgBuf, ARRAY_SIZE);
     }
 
-    // Ngramの一時的な辞書エントリのために、形態素解析の結果から、未知語や交ぜ書き候補を除いた主要な形態素を抽出する
-    String pickMainMorphs(const std::vector<MString>& morphs) {
+    //// 形態素解析の結果から全形態素を抽出する
+    //String pickAllMorphs(const std::vector<MString>& morphs) {
+    //    MString allMorphs;
+    //    bool first = true;
+    //    for (const auto& morph : morphs) {
+    //        auto items = utils::split(morph, '\t');
+    //        if (items.size() > 2) {
+    //            const MString& surf = items[0];
+    //            if (!surf.empty()) {
+    //                if (!first) allMorphs.append(MSTR_VERT_BAR);
+    //                first = false;
+    //                allMorphs.append(surf);
+    //            }
+    //        }
+    //    }
+    //    _LOG_DEBUGH(_T("RESULT: allMorphs={}"), to_wstr(allMorphs));
+    //    return to_wstr(allMorphs);
+    //}
+
+    //// Ngramの一時的な辞書エントリのために、形態素解析の結果から、未知語や交ぜ書き候補を除いた主要な形態素を抽出する
+    //String pickMainMorphs(const std::vector<MString>& morphs) {
+    //    MString mainMorphs;
+    //    MString unkMarker = to_mstr(L":未知");
+    //    MString mazeMarker = to_mstr(L"MAZE");
+    //    bool first = true;
+    //    for (const auto& morph : morphs) {
+    //        auto items = utils::split(morph, '\t');
+    //        if (items.size() > 2) {
+    //            const MString& surf = items[0];
+    //            // かな配列だけの場合は、ひらがなのみの形態素や交ぜ書き候補も含める。
+    //            if (surf.size() >= 2) {
+    //                bool bHiraganaOK = surf.size() >= 4 || SETTINGS->isHiraganaTableOnly;
+    //                if (bHiraganaOK || utils::contains_kanji(surf)) {
+    //                    const MString& feat = items[2];
+    //                    if (feat.find(unkMarker) == std::string::npos && (bHiraganaOK || !utils::endsWith(feat, mazeMarker))) {
+    //                        if (!first) mainMorphs.append(MSTR_VERT_BAR);
+    //                        first = false;
+    //                        mainMorphs.append(surf);
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+    //    _LOG_DEBUGH(_T("RESULT: mainMorphs={}"), to_wstr(mainMorphs));
+    //    return to_wstr(mainMorphs);
+    //}
+
+#define MIN_PENALTY_HIRAGANA_MORPH_NUM 5
+#define MAX_PENALTY_HIRAGANA_LEN 3
+
+    //// 形態素解析の結果から、ペナルティとなる形態素を抽出する。具体的には、単一ひらがなの4gram
+    //String pickPenaltyMorphs(const std::vector<MString>& morphs) {
+    //    MString penaltyMorphs;
+    //    MString hiraganaStr;
+    //    size_t startPos = 0;
+    //    size_t hiraganaCount = 0;
+    //    bool first = true;
+    //    for (const auto& morph : morphs) {
+    //        auto items = utils::split(morph, '\t');
+    //        if (items.size() > 2) {
+    //            const MString& surf = items[0];
+    //            // かな配列だけの場合は、ひらがなのみの形態素や交ぜ書き候補も含める。
+    //            if (!surf.empty() && surf.size() <= MAX_PENALTY_HIRAGANA_LEN &&
+    //                utils::is_hiragana(surf.front()) && (surf.size() == 1 || (utils::is_hiragana(surf[1]) && (surf.size() == 2 || utils::is_hiragana(surf[2]))))) {
+    //                hiraganaStr.append(surf);
+    //                ++hiraganaCount;
+    //                if (hiraganaStr.size() >= MIN_PENALTY_HIRAGANA_MORPH_NUM && hiraganaCount >= MIN_PENALTY_HIRAGANA_MORPH_NUM) {
+    //                    // 1~L文字ひらがながN個以上続く場合は、ペナルティ対象とする
+    //                    while (startPos + MIN_PENALTY_HIRAGANA_MORPH_NUM <= hiraganaStr.size()) {
+    //                        if (!first) penaltyMorphs.append(MSTR_VERT_BAR);
+    //                        first = false;
+    //                        penaltyMorphs.append(hiraganaStr.substr(startPos, MIN_PENALTY_HIRAGANA_MORPH_NUM));
+    //                        ++startPos;
+    //                    }
+    //                }
+    //            } else {
+    //                hiraganaStr.clear();
+    //                startPos = 0;
+    //                hiraganaCount = 0;
+    //            }
+    //        }
+    //    }
+    //    _LOG_DEBUGH(_T("RESULT: penaltyMorphs={}"), to_wstr(penaltyMorphs));
+    //    return to_wstr(penaltyMorphs);
+    //}
+
+    MString unkMarker = to_mstr(L":未知");
+    MString mazeMarker = to_mstr(L"MAZE");
+
+    // 形態素解析の結果から、各種形態素を抽出する。
+    std::tuple<String, String, String> pickMorphs(const std::vector<MString>& morphs) {
+        MString allMorphs;
+
         MString mainMorphs;
-        MString unkMarker = to_mstr(L":未知");
-        MString mazeMarker = to_mstr(L"MAZE");
-        bool first = true;
+
+        MString penaltyMorphs;
+        MString hiraganaStr;
+        size_t hiraganaStartPos = 0;
+        size_t hiraganaCount = 0;
         for (const auto& morph : morphs) {
             auto items = utils::split(morph, '\t');
             if (items.size() > 2) {
                 const MString& surf = items[0];
-                // かな配列だけの場合は、ひらがなのみの形態素や交ぜ書き候補も含める。
+
+                // 全形態素を抽出する
+                if (!surf.empty()) {
+                    if (!allMorphs.empty()) allMorphs.append(MSTR_VERT_BAR);
+                    allMorphs.append(surf);
+                }
+
+                // Ngramの一時的な辞書エントリのために、形態素解析の結果から、未知語や交ぜ書き候補を除いた主要な形態素を抽出する
                 if (surf.size() >= 2) {
                     bool bHiraganaOK = surf.size() >= 4 || SETTINGS->isHiraganaTableOnly;
                     if (bHiraganaOK || utils::contains_kanji(surf)) {
                         const MString& feat = items[2];
                         if (feat.find(unkMarker) == std::string::npos && (bHiraganaOK || !utils::endsWith(feat, mazeMarker))) {
-                            if (!first) mainMorphs.append(MSTR_VERT_BAR);
-                            first = false;
+                            if (!mainMorphs.empty()) mainMorphs.append(MSTR_VERT_BAR);
                             mainMorphs.append(surf);
                         }
                     }
                 }
-            }
-        }
-        _LOG_DEBUGH(_T("RESULT: mainMorphs={}"), to_wstr(mainMorphs));
-        return to_wstr(mainMorphs);
-    }
 
-#define MIN_PENALTY_HIRAGANA_MORPH_NUM 5
-#define MAX_PENALTY_HIRAGANA_LEN 3
-
-    // 形態素解析の結果から、ペナルティとなる形態素を抽出する。具体的には、単一ひらがなの4gram
-    String pickPenaltyMorphs(const std::vector<MString>& morphs) {
-        MString penaltyMorphs;
-        MString hiraganaStr;
-        size_t startPos = 0;
-        size_t hiraganaCount = 0;
-        bool first = true;
-        for (const auto& morph : morphs) {
-            auto items = utils::split(morph, '\t');
-            if (items.size() > 2) {
-                const MString& surf = items[0];
-                // かな配列だけの場合は、ひらがなのみの形態素や交ぜ書き候補も含める。
+                // ペナルティとなる形態素を抽出する。具体的には、単一ひらがなの4gram
                 if (!surf.empty() && surf.size() <= MAX_PENALTY_HIRAGANA_LEN &&
                     utils::is_hiragana(surf.front()) && (surf.size() == 1 || (utils::is_hiragana(surf[1]) && (surf.size() == 2 || utils::is_hiragana(surf[2]))))) {
                     hiraganaStr.append(surf);
                     ++hiraganaCount;
                     if (hiraganaStr.size() >= MIN_PENALTY_HIRAGANA_MORPH_NUM && hiraganaCount >= MIN_PENALTY_HIRAGANA_MORPH_NUM) {
                         // 1~L文字ひらがながN個以上続く場合は、ペナルティ対象とする
-                        while (startPos + MIN_PENALTY_HIRAGANA_MORPH_NUM <= hiraganaStr.size()) {
-                            if (!first) penaltyMorphs.append(MSTR_VERT_BAR);
-                            first = false;
-                            penaltyMorphs.append(hiraganaStr.substr(startPos, MIN_PENALTY_HIRAGANA_MORPH_NUM));
-                            ++startPos;
+                        while (hiraganaStartPos + MIN_PENALTY_HIRAGANA_MORPH_NUM <= hiraganaStr.size()) {
+                            if (!penaltyMorphs.empty()) penaltyMorphs.append(MSTR_VERT_BAR);
+                            penaltyMorphs.append(hiraganaStr.substr(hiraganaStartPos, MIN_PENALTY_HIRAGANA_MORPH_NUM));
+                            ++hiraganaStartPos;
                         }
                     }
                 } else {
                     hiraganaStr.clear();
-                    startPos = 0;
+                    hiraganaStartPos = 0;
                     hiraganaCount = 0;
                 }
             }
         }
         _LOG_DEBUGH(_T("RESULT: penaltyMorphs={}"), to_wstr(penaltyMorphs));
-        return to_wstr(penaltyMorphs);
+        return { to_wstr(allMorphs), to_wstr(mainMorphs), to_wstr(penaltyMorphs) };
+
     }
 
     // リアルタイムNgram辞書のパラメータ設定
@@ -214,14 +294,15 @@ namespace NgramBridge {
         return NgramCoreLib::UpdateRealtimeEntry(word, delta);
     }
 
-    int ngramCalcCost(const MString& str, const std::vector<MString>& tempDictEntries, std::vector<MString>& ngrams, bool needNgrams) {
+    int ngramCalcCost(const MString& str, const std::vector<MString>& morphEntries, std::vector<MString>& ngrams, bool needNgrams) {
         if (!initializeSucceeded) return 0;
 
         //_LOG_TEMPW(L"ENTER");
-        _LOG_DEBUGH(_T("ENTER: str={}, tempDic=<{}>"), to_wstr(str), to_wstr(utils::join(tempDictEntries, '|')));
+        _LOG_DEBUGH(_T("ENTER: str={}, morphs=<{}>"), to_wstr(str), to_wstr(utils::join(morphEntries, '|')));
         std::vector<String> results;
         String  errMsg;
-        int cost = NgramCoreLib::NgramAnalyze(to_wstr(str), pickMainMorphs(tempDictEntries), pickPenaltyMorphs(tempDictEntries), results, errMsg, needNgrams);
+        auto [allMorphs, mainMorphs, penaltyMorphs] = pickMorphs(morphEntries);
+        int cost = NgramCoreLib::NgramAnalyze(to_wstr(str), allMorphs, mainMorphs, penaltyMorphs, results, errMsg, needNgrams);
         if (cost < 0) {
             LOG_WARN(_T("NgramAnalyze FAILED: result={}, errMsg={}"), cost, errMsg);
             return cost;
