@@ -211,9 +211,7 @@ namespace KanchokuWS.Gui
             this.textBox_mergerCandidateMax = new System.Windows.Forms.TextBox();
             this.textBox_mergerCandidateMin = new System.Windows.Forms.TextBox();
             this.label_fusionReload = new System.Windows.Forms.Label();
-            this.textBox_variableTailLength = new System.Windows.Forms.TextBox();
             this.button_multiStreamFAQ = new System.Windows.Forms.Button();
-            this.label161 = new System.Windows.Forms.Label();
             this.groupBox44 = new System.Windows.Forms.GroupBox();
             this.checkBox_isSpaceFlushAndDirectInput = new System.Windows.Forms.CheckBox();
             this.checkBox_isEnterFlushAndDirectInput = new System.Windows.Forms.CheckBox();
@@ -221,7 +219,6 @@ namespace KanchokuWS.Gui
             this.checkBox_outputHeadSymbol = new System.Windows.Forms.CheckBox();
             this.textBox_editBufferFlushChar = new System.Windows.Forms.TextBox();
             this.label158 = new System.Windows.Forms.Label();
-            this.textBox_analyzeMorphLen = new System.Windows.Forms.TextBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.checkBox_multiCandidateMode = new System.Windows.Forms.CheckBox();
             this.checkBox_strokeBackByBS = new System.Windows.Forms.CheckBox();
@@ -2652,11 +2649,8 @@ namespace KanchokuWS.Gui
             this.tabPage_fusion.Controls.Add(this.groupBox34);
             this.tabPage_fusion.Controls.Add(this.groupBox23);
             this.tabPage_fusion.Controls.Add(this.label_fusionReload);
-            this.tabPage_fusion.Controls.Add(this.textBox_variableTailLength);
             this.tabPage_fusion.Controls.Add(this.button_multiStreamFAQ);
-            this.tabPage_fusion.Controls.Add(this.label161);
             this.tabPage_fusion.Controls.Add(this.groupBox44);
-            this.tabPage_fusion.Controls.Add(this.textBox_analyzeMorphLen);
             this.tabPage_fusion.Controls.Add(this.groupBox8);
             this.tabPage_fusion.Controls.Add(this.textBox_maxStrokeBackCount);
             this.tabPage_fusion.Controls.Add(this.label46);
@@ -2696,7 +2690,7 @@ namespace KanchokuWS.Gui
             this.groupBox34.Controls.Add(this.label167);
             this.groupBox34.Controls.Add(this.textBox_multiStreamBeamSize);
             this.groupBox34.Controls.Add(this.label91);
-            this.groupBox34.Location = new System.Drawing.Point(364, 132);
+            this.groupBox34.Location = new System.Drawing.Point(364, 130);
             this.groupBox34.Name = "groupBox34";
             this.groupBox34.Size = new System.Drawing.Size(334, 215);
             this.groupBox34.TabIndex = 4;
@@ -2943,18 +2937,6 @@ namespace KanchokuWS.Gui
             this.label_fusionReload.Visible = false;
             this.label_fusionReload.VisibleChanged += new System.EventHandler(this.label_fusionReload_VisibleChanged);
             // 
-            // textBox_variableTailLength
-            // 
-            this.textBox_variableTailLength.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_variableTailLength.Location = new System.Drawing.Point(560, 340);
-            this.textBox_variableTailLength.Name = "textBox_variableTailLength";
-            this.textBox_variableTailLength.Size = new System.Drawing.Size(34, 19);
-            this.textBox_variableTailLength.TabIndex = 1;
-            this.textBox_variableTailLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_variableTailLength, "文字入力によって変化する末尾部分の長さ\r\n\r\n入力された文字列全体のうち、次の文字入力によって変化しうる\r\n末尾部分の長さを指定します。\r\nたとえば 10 を設定" +
-        "すると、末尾から数えて10文字を超える先頭\r\n部分が固定され、それに合致しない候補は削除されます。\r\n");
-            this.textBox_variableTailLength.Visible = false;
-            // 
             // button_multiStreamFAQ
             // 
             this.button_multiStreamFAQ.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -2967,16 +2949,6 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.button_multiStreamFAQ, "「よくある質問と回答」ページのURLをブラウザで開きます");
             this.button_multiStreamFAQ.UseVisualStyleBackColor = true;
             this.button_multiStreamFAQ.Click += new System.EventHandler(this.button_multiStreamFAQ_Click);
-            // 
-            // label161
-            // 
-            this.label161.AutoSize = true;
-            this.label161.Location = new System.Drawing.Point(408, 342);
-            this.label161.Name = "label161";
-            this.label161.Size = new System.Drawing.Size(128, 15);
-            this.label161.TabIndex = 89;
-            this.label161.Text = "変化する末尾部分の長さ";
-            this.label161.Visible = false;
             // 
             // groupBox44
             // 
@@ -3056,18 +3028,6 @@ namespace KanchokuWS.Gui
             this.label158.Size = new System.Drawing.Size(166, 15);
             this.label158.TabIndex = 53;
             this.label158.Text = "編集バッファをフラッシュさせる文字";
-            // 
-            // textBox_analyzeMorphLen
-            // 
-            this.textBox_analyzeMorphLen.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_analyzeMorphLen.Location = new System.Drawing.Point(356, 324);
-            this.textBox_analyzeMorphLen.Name = "textBox_analyzeMorphLen";
-            this.textBox_analyzeMorphLen.Size = new System.Drawing.Size(34, 19);
-            this.textBox_analyzeMorphLen.TabIndex = 1;
-            this.textBox_analyzeMorphLen.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_analyzeMorphLen, "形態素解析実行時の最大文字列長\r\n\r\n入力文字列に対してその妥当性を計るために形態素解析を実行しています。\r\nその際に、実行時間の短縮のため入力文字列全体ではなく" +
-        "、ここで設定された\r\n長さの末尾部分文字列を対象とします。\r\n");
-            this.textBox_analyzeMorphLen.Visible = false;
             // 
             // groupBox8
             // 
@@ -8463,9 +8423,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label160;
         private System.Windows.Forms.CheckBox checkBox_isSpaceFlushAndDirectInput;
         private System.Windows.Forms.CheckBox checkBox_isEnterFlushAndDirectInput;
-        private System.Windows.Forms.TextBox textBox_variableTailLength;
-        private System.Windows.Forms.Label label161;
-        private System.Windows.Forms.TextBox textBox_analyzeMorphLen;
         private System.Windows.Forms.Label label159;
         private System.Windows.Forms.GroupBox groupBox23;
         private System.Windows.Forms.CheckBox checkBox_mergerCandidateOverCaret;

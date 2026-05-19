@@ -1853,7 +1853,6 @@ namespace KanchokuWS.Gui
             textBox_multiStreamBeamSize.Text = $"{Settings.MultiStreamBeamSize}";
             textBox_remainingStrokeSize.Text = $"{Settings.RemainingStrokeSize}";
             textBox_recentConnectionKeepStrokeCount.Text = $"{Settings.RecentConnectionKeepStrokeCount}";
-            textBox_variableTailLength.Text = $"{Settings.VariableTailLength}";
             textBox_ngramManualSelectDelta.Text = $"{Settings.NgramManualSelectDelta}";
             textBox_ngramMaxBonusPoint.Text = $"{Settings.NgramMaxBonusPoint}";
             textBox_ngramBonusPointFactor.Text = $"{Settings.NgramBonusPointFactor}";
@@ -1861,7 +1860,6 @@ namespace KanchokuWS.Gui
             checkBox_hiraganaBigramEnabled.Checked = Settings.HiraganaBigramEnabled;
             checkBox_hiraganaQuadgramEnabled.Checked = Settings.HiraganaQuadgramEnabled;
             textBox_maxStrokeBackCount.Text = $"{Settings.MaxStrokeBackCount}";
-            textBox_analyzeMorphLen.Text = $"{Settings.AnalyzeMorphLen}";
             textBox_fixLeaderCharStrokeCount.Text = $"{Settings.FixLeaderCharStrokeCount}";
             comboBox_editBufferCaretChar.Text = $"{Settings.EditBufferCaretChar}";
             if (comboBox_editBufferCaretChar.Text._isEmpty() && comboBox_editBufferCaretChar.Text._isEmpty()) {
@@ -1904,7 +1902,6 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(textBox_multiStreamBeamSize);
             checkerFusion.Add(textBox_remainingStrokeSize);
             checkerFusion.Add(textBox_recentConnectionKeepStrokeCount);
-            checkerFusion.Add(textBox_variableTailLength);
             checkerFusion.Add(textBox_ngramManualSelectDelta);
             checkerFusion.Add(textBox_ngramMaxBonusPoint);
             checkerFusion.Add(textBox_ngramBonusPointFactor);
@@ -1912,7 +1909,6 @@ namespace KanchokuWS.Gui
             checkerFusion.Add(checkBox_hiraganaBigramEnabled);
             checkerFusion.Add(checkBox_hiraganaQuadgramEnabled);
             checkerFusion.Add(textBox_maxStrokeBackCount);
-            checkerFusion.Add(textBox_analyzeMorphLen);
             checkerFusion.Add(textBox_fixLeaderCharStrokeCount);
             checkerFusion.Add(comboBox_editBufferCaretChar);
             checkerFusion.Add(textBox_editBufferFlushChar);
@@ -1953,7 +1949,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("multiStreamBeamSize", textBox_multiStreamBeamSize.Text);
             Settings.SetUserIni("remainingStrokeSize", textBox_remainingStrokeSize.Text);
             Settings.SetUserIni("recentConnectionKeepStrokeCount", textBox_recentConnectionKeepStrokeCount.Text);
-            Settings.SetUserIni("variableTailLength", textBox_variableTailLength.Text);
             Settings.SetUserIni("ngramManualSelectDelta", textBox_ngramManualSelectDelta.Text);
             Settings.SetUserIni("ngramMaxBonusPoint", textBox_ngramMaxBonusPoint.Text);
             Settings.SetUserIni("ngramBonusPointFactor", textBox_ngramBonusPointFactor.Text);
@@ -1961,7 +1956,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("hiraganaBigramEnabled", checkBox_hiraganaBigramEnabled.Checked);
             Settings.SetUserIni("hiraganaQuadgramEnabled", checkBox_hiraganaQuadgramEnabled.Checked);
             Settings.SetUserIni("maxStrokeBackCount", textBox_maxStrokeBackCount.Text);
-            Settings.SetUserIni("analyzeMorphLen", textBox_analyzeMorphLen.Text);
             Settings.SetUserIni("fixLeaderCharStrokeCount", textBox_fixLeaderCharStrokeCount.Text);
             Settings.SetUserIni("editBufferCaretChar", comboBox_editBufferCaretChar.Text.Trim());
             Settings.SetUserIni("editBufferFlushChar", textBox_editBufferFlushChar.Text.Trim());
