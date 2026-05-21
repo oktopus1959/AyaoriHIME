@@ -123,7 +123,7 @@ struct Settings {
     int morphMazeEntryPenalty = 1000;       // 交ぜ書きエントリに対するペナルティ
     int morphMazeConnectionPenalty = 1000;  // 交ぜ書きエントリの接続に対するペナルティ
     int morphNonTerminalCost = 5000;        // 非終端形態素の単語コスト
-    int analyzeMorphLen = 10;               // 形態素解析を行う際の最大形態素長
+    int analyzeMorphLen = 10;               // 形態素解析を行う際の最小形態素長
     int ngramCostFactor = 1;                // 形態素コストに対するNgramコストの係数
     int ngramMaxBonusPoint = 25;            // Ngramに与えるボーナスポイントの最大値
     int ngramBonusPointFactor = 100;        // 嵩上げされたNgramに与えるボーナスの係数
@@ -137,7 +137,7 @@ struct Settings {
     double extraBeamSizeRate = 0.5;         // 余分に残しておく候補の割合
     int remainingStrokeSize = 5;            // 残しておく多ストロークの範囲 (stroke位置的に組み合せ不可だったものは、strokeCount が範囲内なら残しておく)
     int recentConnectionKeepStrokeCount = 2;    // 直近Nストローク分の接続候補を上位に保持する範囲
-    int variableTailLength = 10;            // 入力の末尾部分で、可変となる部分の長さ (TODO: 後で、形態素解析の対象となる長さに変更する)
+    //int variableTailLength = 10;            // 入力の末尾部分で、可変となる部分の長さ (形態素解析の対象となる長さを計算するのに使用される)
     int fixLeaderCharStrokeCount = 5;       // 指定されたストローク数以上、先頭部が同じ文字の場合にその部分を固定するための、ストローク長の閾値
     int challengeNumForSameLeader = 4;      // 解の先頭部分が同じならそれらだけを残すようにするための、チャレンジ打鍵数
     int kanjiNoKanjiBonus = 1500;           // 「漢字+の+漢字」のような場合に与えるボーナス

@@ -112,6 +112,38 @@ namespace lattice2 {
         return false;
     }
 
+    // 解析開始位置を語の途中から安全境界へ戻すための粗い文字種分類
+    enum class AnalysisCharClass {
+        Kanji,
+        Hiragana,
+        Katakana,
+        AlphaNum,
+        Other,
+    };
+
+    AnalysisCharClass getAnalysisCharClass(mchar_t ch) {
+        if (utils::is_kanji(ch)) return AnalysisCharClass::Kanji;
+        if (utils::is_hiragana(ch)) return AnalysisCharClass::Hiragana;
+        if (utils::is_katakana(ch) || utils::is_hankaku_katakana(ch)) return AnalysisCharClass::Katakana;
+        if (ch < 0xffff &&
+            (is_alphabet(ch) || is_numeral((wchar_t)ch) ||
+                is_wide_alphabet((wchar_t)ch) || is_wide_numeral((wchar_t)ch))) {
+            return AnalysisCharClass::AlphaNum;
+        }
+        return AnalysisCharClass::Other;
+    }
+
+    bool isAnalysisDelimiter(mchar_t ch) {
+        return utils::is_space(ch) || ch == L'　' || utils::is_punct_or_commit_char(ch);
+    }
+
+    // pos は文字と文字の間の位置。0、句読点/空白直後、文字種が切り替わる位置を安全境界とする
+    bool isSafeAnalysisBoundary(const MString& str, size_t pos) {
+        if (pos == 0 || pos >= str.size()) return true;
+        if (isAnalysisDelimiter(str[pos - 1])) return true;
+        return getAnalysisCharClass(str[pos - 1]) != getAnalysisCharClass(str[pos]);
+    }
+
     // 先頭候補以外に、非優先候補ペナルティを与える (先頭候補のペナルティは 0 にし、PaddingDerivedをfalseにする)
     void arrangePenalties(std::vector<CandidateString>& candidates, size_t nSameLen) {
         _LOG_DETAIL(_T("CALLED"));
@@ -189,6 +221,15 @@ namespace lattice2 {
         }
 
     private:
+        // 生成直後の候補を一時保持する。採点を遅延し、同一バッチ内で analysisStart を共通化する
+        struct PendingCandidate {
+            CandidateString cand;
+            bool promote = false;
+            bool useMorphAnalyzer = false;
+            bool isStrokeBS = false;
+            int isolatedKanjiGroupId = -1;
+        };
+
         //std::vector<bool> _highFreqJoshiStroke;
         std::vector<bool> _rollOverStroke;
         std::vector<MString> _topCandidateHistory;
@@ -215,14 +256,51 @@ namespace lattice2 {
         //    return (size_t)count < _highFreqJoshiStroke.size() && (size_t)count < _rollOverStroke.size() ? _highFreqJoshiStroke[count] &&  !_rollOverStroke[count] : false;
         //}
 
-        static size_t getMinimumCandidateLength(const std::vector<CandidateString>& candidates) {
-            size_t minLen = SIZE_MAX;
-            for (const auto& cand : candidates) {
-                if (cand.string().size() < minLen) {
-                    minLen = cand.string().size();
+        // 同一 updateKBestList で生成された候補群の共通 prefix 長を求める
+        size_t findCommonAnalysisPrefixLen(const std::vector<PendingCandidate>& pendingCandidates) const {
+            MString commonPrefix;
+            bool initialized = false;
+            for (const auto& pending : pendingCandidates) {
+                const MString& s = pending.cand.string();
+                if (s.empty()) continue;
+                if (!initialized) {
+                    commonPrefix = s;
+                    initialized = true;
+                } else {
+                    commonPrefix = utils::safe_substr(commonPrefix, 0, (int)utils::commonPrefixLength(commonPrefix, s));
+                }
+                if (commonPrefix.empty()) break;
+            }
+            return initialized ? commonPrefix.size() : 0;
+        }
+
+        // rawStart から左方向にだけ安全境界を探す。戻り幅が大きすぎる場合は rawStart を維持する
+        size_t adjustAnalysisStartToSafeBoundary(const MString& baseStr, size_t rawStart, int analyzeMorphLen) const {
+            if (baseStr.empty() || rawStart == 0 || rawStart >= baseStr.size()) return rawStart;
+            size_t maxBack = analyzeMorphLen > 0 ? (size_t)analyzeMorphLen / 2 : 0;
+            for (size_t pos = rawStart; pos > 0 && rawStart - pos <= maxBack; --pos) {
+                if (isSafeAnalysisBoundary(baseStr, pos)) return pos;
+            }
+            if (rawStart <= maxBack) return 0;
+            return rawStart;
+        }
+
+        // 候補ごとの長さ差ではなく、生成バッチ全体の共通 prefix と analyzeMorphLen から解析開始位置を決める
+        size_t calcBatchAnalysisStart(const std::vector<PendingCandidate>& pendingCandidates) const {
+            int analyzeMorphLen = SETTINGS->analyzeMorphLen;
+            size_t commonPrefixLen = findCommonAnalysisPrefixLen(pendingCandidates);
+            size_t rawStart = commonPrefixLen > (size_t)analyzeMorphLen ? commonPrefixLen - (size_t)analyzeMorphLen : 0;
+            MString baseStr;
+            for (const auto& pending : pendingCandidates) {
+                if (!pending.cand.string().empty()) {
+                    baseStr = pending.cand.string();
+                    break;
                 }
             }
-            return minLen == SIZE_MAX ? 0 : minLen;
+            size_t analysisStart = adjustAnalysisStartToSafeBoundary(baseStr, rawStart, analyzeMorphLen);
+            _LOG_DETAIL(_T("analysisStart={}, commonPrefixLen={}, rawStart={}, analyzeMorphLen={}, baseStr={}"),
+                analysisStart, commonPrefixLen, rawStart, analyzeMorphLen, to_wstr(baseStr));
+            return analysisStart;
         }
 
         // 先頭部固定の判定状態をリセットする
@@ -630,20 +708,16 @@ namespace lattice2 {
         }
 
         // 候補のコストを計算
-        // minLenは、形態素解析やNgram解析の際に、長い候補文字列に対して共通の先頭部分を避けるために使用する
+        // analysisStart は同一生成バッチ内で共通化し、候補ごとの切り出し差で採点が偏らないようにする
         // @returns 末尾の形態素の長さ (末尾の形態素がある場合)
-        int calcCandidateCost(CandidateString& newCandStr, size_t minLen, bool useMorphAnalyzer, bool isStrokeBS) {
+        int calcCandidateCost(CandidateString& newCandStr, size_t analysisStart, bool useMorphAnalyzer, bool isStrokeBS) {
             _LOG_DETAIL(_T("\nENTER: newCandStr={}, useMorphAnalyzer={}, isStrokeBS={}"), newCandStr.debugString(), useMorphAnalyzer, isStrokeBS);
 
             const MString& candStr = newCandStr.string();
             //MString targetStr = substringBetweenPunctuations(candStr);
             //MString targetStr = substringBetweenNonJapaneseChars(candStr);
-            //int analyzeMorphLen = SETTINGS->analyzeMorphLen;
-            int analyzeMorphLen = (SETTINGS->variableTailLength * 3) / 2;
-            if (analyzeMorphLen < SETTINGS->analyzeMorphLen) analyzeMorphLen = SETTINGS->analyzeMorphLen;
-            int headLen = minLen > (size_t)analyzeMorphLen + 1 ? (int)minLen - analyzeMorphLen : 0;
-            MString subStr = removeHeadSubstring(candStr, headLen);
-            _LOG_DETAIL(_T("candStr={}, minLen={}, headLen={}, subStr={}"), to_wstr(candStr), minLen, headLen, to_wstr(subStr));
+            MString subStr = removeHeadSubstring(candStr, analysisStart);
+            _LOG_DETAIL(_T("candStr={}, analysisStart={}, subStr={}"), to_wstr(candStr), analysisStart, to_wstr(subStr));
 
             std::vector<MString> morphs;
 
@@ -733,6 +807,39 @@ namespace lattice2 {
         void appendGeneratedCandidate(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags, const CandidateString& cand, bool promote) {
             newCandidates.push_back(cand);
             promotedFlags.push_back(promote);
+        }
+
+        // promote や BS 状態など、採点後の並べ替えに必要な情報も候補と一緒に保持する
+        void appendPendingCandidate(std::vector<PendingCandidate>& pendingCandidates, const CandidateString& cand, bool promote, bool useMorphAnalyzer, bool isStrokeBS, int isolatedKanjiGroupId = -1) {
+            pendingCandidates.push_back(PendingCandidate{ cand, promote, useMorphAnalyzer, isStrokeBS, isolatedKanjiGroupId });
+        }
+
+        // pending 候補を一括採点する。同じ analysisStart を使うことで候補間の切り出し差をなくす
+        void scorePendingCandidates(std::vector<PendingCandidate>& pendingCandidates, std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags) {
+            if (pendingCandidates.empty()) return;
+            size_t analysisStart = calcBatchAnalysisStart(pendingCandidates);
+            int currentIsolatedKanjiGroupId = -1;
+            int prevKanjiCandCost = INT_MIN;
+            for (auto& pending : pendingCandidates) {
+                int tailMorphLen = calcCandidateCost(pending.cand, analysisStart, pending.useMorphAnalyzer, pending.isStrokeBS);
+                if (pending.isolatedKanjiGroupId != currentIsolatedKanjiGroupId) {
+                    currentIsolatedKanjiGroupId = pending.isolatedKanjiGroupId;
+                    prevKanjiCandCost = INT_MIN;
+                }
+                if (pending.isolatedKanjiGroupId >= 0 && tailMorphLen == 1 && isTailIsolatedKanji(pending.cand.string())) {
+                    int cost = pending.cand.totalCost();
+                    _LOG_DETAIL(_T("ISOLATED KANJI={}, cost={}, prevCost={}"), to_wstr(pending.cand.string()), cost, prevKanjiCandCost);
+                    if (prevKanjiCandCost == INT_MIN) {
+                        prevKanjiCandCost = cost;
+                    } else if (cost > prevKanjiCandCost) {
+                        prevKanjiCandCost = cost;
+                    } else {
+                        pending.cand.addNgramCost(prevKanjiCandCost - cost + 1);
+                        _LOG_DETAIL(_T("ngramCost adjusted. pending.cand.totalCost={}"), pending.cand.totalCost());
+                    }
+                }
+                appendGeneratedCandidate(newCandidates, promotedFlags, pending.cand, pending.promote);
+            }
         }
 
         bool isMultiChoicePiece(const MString& s) {
@@ -1139,8 +1246,8 @@ namespace lattice2 {
         }
 
     private:
-        // 素片のストロークと適合する候補だけを追加
-        void addOnePiece(std::vector<CandidateString>& newCandidates, std::vector<bool>& promotedFlags, const WordPiece& piece, FollowingPreferenceType prefType, bool useMorphAnalyzer, int strokeCount, int paddingLen, bool bKatakanaConversion) {
+        // 素片のストロークと適合する候補だけを生成
+        void addOnePiece(std::vector<PendingCandidate>& pendingCandidates, const WordPiece& piece, FollowingPreferenceType prefType, bool useMorphAnalyzer, int strokeCount, int paddingLen, bool bKatakanaConversion, int& nextIsolatedKanjiGroupId) {
             _LOG_DETAIL(_T("ENTER: _candidates.size={}, piece={}, useMorphAnalyzer={}"), _candidates.size(), piece.debugString(), useMorphAnalyzer);
             bool bAutoBushuFound = false;           // 自動部首合成は一回だけ実行する
             bool isStrokeBS = piece.numBS() > 0;
@@ -1174,9 +1281,6 @@ namespace lattice2 {
                 useMorphAnalyzer = true;
             }
 
-            // 素片のストロークと適合する候補の最小ストローク長を取得
-            // minLenは、形態素解析やNgram解析の際に、長い候補文字列に対して共通の先頭部分を避けるために使用する
-            size_t minLen = getMinimumCandidateLength(targetCandidates);
             std::map<int, int> representativeStrokeCounts;
             int recentKeepStrokeCount = std::max(0, SETTINGS->recentConnectionKeepStrokeCount);
             bool multiChoicePiece = isMultiChoicePiece(pieceStr);
@@ -1219,12 +1323,11 @@ namespace lattice2 {
                         newCandStr.setPenalty(penalty);
                         newCandStr.setPaddingDerived(bPaddingDerived);
                         newCandStr.setFollowingPreferenceType(prefType);
-                        // ここで形態素解析やNgram解析をしてコストを計算し、末尾に追加する
+                        // 後段で形態素解析やNgram解析をしてコストを計算し、末尾に追加する
                         // 素片が追加されたことになるので、強制的に形態素解析を行う
                         useMorphAnalyzer = true;
-                        calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
-                        _LOG_DETAIL(_T("add newCandStr={}"), newCandStr.debugString());
-                        appendGeneratedCandidate(newCandidates, promotedFlags, newCandStr, isRepresentativeSource);
+                        _LOG_DETAIL(_T("add pendingCand={}"), newCandStr.debugString());
+                        appendPendingCandidate(pendingCandidates, newCandStr, isRepresentativeSource, useMorphAnalyzer, isStrokeBS);
                         representativeMarked = isRepresentativeSource;
                         bAutoBushuFound = true;
                         if (!SETTINGS->multiCandidateMode) break;  // 複数候補モードでなければ、自動部首合成を見つけたら終了
@@ -1232,7 +1335,7 @@ namespace lattice2 {
                 }
                 // 複数文字指定などの解析も行う
                 std::vector<MString> ss = cand.applyPiece(piece, strokeCount, paddingLen, isStrokeBS, bKatakanaConversion);
-                int prevKanjiCandCost = INT_MIN;
+                int isolatedKanjiGroupId = nextIsolatedKanjiGroupId++;
                 for (MString s : ss) {
                     if (!isKatakanaConversionSatisfied(s, bKatakanaConversion)) continue;
                     if (!isKanjiOrHiraganaPreferenceSatisfied(cand, s, piece)) continue;
@@ -1240,26 +1343,12 @@ namespace lattice2 {
                     newCandStr.setPenalty(penalty);
                     newCandStr.setPaddingDerived(bPaddingDerived);
                     newCandStr.setFollowingPreferenceType(prefType);
-                    // ここで形態素解析やNgram解析をしてコストを計算し、末尾に追加する
+                    // 後段で形態素解析やNgram解析をしてコストを計算し、末尾に追加する
                     //MString subStr = substringBetweenNonJapaneseChars(s);
-                    int tailMorphLen = calcCandidateCost(newCandStr, minLen, useMorphAnalyzer, isStrokeBS);
-                    if (tailMorphLen == 1 && isTailIsolatedKanji(s)) {
-                        // 末尾が孤立した漢字なら、出現順で初期コストを加算する(「過|禍」で「禍」のほうが優先されて出力されることがあるため)
-                        int cost = newCandStr.totalCost();
-                        _LOG_DETAIL(_T("ISOLATED KANJI={}, cost={}, prevCost={}"), to_wstr(s), cost, prevKanjiCandCost);
-                        if (prevKanjiCandCost == INT_MIN) {
-                            prevKanjiCandCost = cost;
-                        } else if (cost > prevKanjiCandCost) {
-                            prevKanjiCandCost = cost;
-                        } else {
-                            newCandStr.addNgramCost(prevKanjiCandCost - cost + 1);
-                            _LOG_DETAIL(_T("ngramCost adjusted. newCandStr.totalCost={}"), newCandStr.totalCost());
-                        }
-                    }
                     // 多値 piece では通常候補は全展開しつつ、代表候補としては先頭に対応する1件だけを前寄せ対象にする
                     bool promoteThisCandidate = isRepresentativeSource && !representativeMarked;
-                    _LOG_DETAIL(_T("add newCandStr={}"), newCandStr.debugString());
-                    appendGeneratedCandidate(newCandidates, promotedFlags, newCandStr, promoteThisCandidate);
+                    _LOG_DETAIL(_T("add pendingCand={}"), newCandStr.debugString());
+                    appendPendingCandidate(pendingCandidates, newCandStr, promoteThisCandidate, useMorphAnalyzer, isStrokeBS, isolatedKanjiGroupId);
                     if (promoteThisCandidate || multiChoicePiece) representativeMarked = true;
                 }
                 // pieceが確定文字の場合
@@ -1443,10 +1532,13 @@ namespace lattice2 {
                 isMultiChoiceSingleHiraganaPiece(pieces.front().getString()) &&
                 areAllCandidateStringsEmpty(_candidates);
             // BS でないか、以前の候補が無くなっていた
+            std::vector<PendingCandidate> pendingCandidates;
+            int nextIsolatedKanjiGroupId = 0;
             for (const auto& piece : pieces) {
-                // 素片のストロークと適合する候補だけを追加
-                addOnePiece(newCandidates, promotedFlags, piece, prefType, useMorphAnalyzer, strokeCount, paddingLen, bKatakanaConversion);
+                // 素片のストロークと適合する候補だけを生成
+                addOnePiece(pendingCandidates, piece, prefType, useMorphAnalyzer, strokeCount, paddingLen, bKatakanaConversion, nextIsolatedKanjiGroupId);
             }
+            scorePendingCandidates(pendingCandidates, newCandidates, promotedFlags);
             if (!isPaddingPiece) {
                 // ユーザーによるNgram選択をtotalCostに反映して、候補の順序を totalCost の昇順にソート
                 if (keepInputOrder) {

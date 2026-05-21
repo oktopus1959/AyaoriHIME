@@ -67,6 +67,8 @@ AGENTS.d/permissions.md も参照のこと。
 `kw-uni.dll` に対して `deckey` 列の逐次的な生成文字列を確認する目的では、
 `tools/deckey_sequence_probe.ps1` を標準の確認手段として用いてよい。
 
+なお、`kw-uni.dll` をビルドする際には、 bin/Release/kw-uni.dll を削除してからビルドを実行すること。
+
 - 文字列から `deckey` 列を逆引きしたい場合は、まず `tools/find_deckey_sequence.ps1` の利用を検討すること
 - 目的が `deckey` 列に対する逐次生成文字列の確認である場合、
   Codex はまず `tools/deckey_sequence_probe.ps1` の利用を検討すること
