@@ -164,7 +164,8 @@ namespace NgramBridge {
     //}
 
 #define MIN_PENALTY_HIRAGANA_MORPH_NUM 5
-#define MAX_PENALTY_HIRAGANA_LEN 3
+#define MAX_PENALTY_HIRAGANA_MORPH_LEN 3
+#define PENALTY_HIRAGANA_LEN 5
 
     //// 形態素解析の結果から、ペナルティとなる形態素を抽出する。具体的には、単一ひらがなの4gram
     //String pickPenaltyMorphs(const std::vector<MString>& morphs) {
@@ -178,7 +179,7 @@ namespace NgramBridge {
     //        if (items.size() > 2) {
     //            const MString& surf = items[0];
     //            // かな配列だけの場合は、ひらがなのみの形態素や交ぜ書き候補も含める。
-    //            if (!surf.empty() && surf.size() <= MAX_PENALTY_HIRAGANA_LEN &&
+    //            if (!surf.empty() && surf.size() <= MAX_PENALTY_HIRAGANA_MORPH_LEN &&
     //                utils::is_hiragana(surf.front()) && (surf.size() == 1 || (utils::is_hiragana(surf[1]) && (surf.size() == 2 || utils::is_hiragana(surf[2]))))) {
     //                hiraganaStr.append(surf);
     //                ++hiraganaCount;
@@ -213,6 +214,7 @@ namespace NgramBridge {
 
         MString penaltyMorphs;
         MString hiraganaStr;
+        MString prevSurf;   // ひらがな連の開始前の形態素
         size_t hiraganaStartPos = 0;
         size_t hiraganaCount = 0;
         for (const auto& morph : morphs) {
@@ -220,10 +222,12 @@ namespace NgramBridge {
             if (items.size() > 2) {
                 const MString& surf = items[0];
 
-                // 全形態素を抽出する
-                if (!surf.empty()) {
-                    if (!allMorphs.empty()) allMorphs.append(MSTR_VERT_BAR);
-                    allMorphs.append(surf);
+                // 全形態素を抽出する (NgramAnalyze における、ひらがな境界のペナルティ計算用)
+                if (SETTINGS->multiStreamMode) {
+                    if (!surf.empty()) {
+                        if (!allMorphs.empty()) allMorphs.append(MSTR_VERT_BAR);
+                        allMorphs.append(surf);
+                    }
                 }
 
                 // Ngramの一時的な辞書エントリのために、形態素解析の結果から、未知語や交ぜ書き候補を除いた主要な形態素を抽出する
@@ -238,23 +242,34 @@ namespace NgramBridge {
                     }
                 }
 
-                // ペナルティとなる形態素を抽出する。具体的には、単一ひらがなの4gram
-                if (!surf.empty() && surf.size() <= MAX_PENALTY_HIRAGANA_LEN &&
-                    utils::is_hiragana(surf.front()) && (surf.size() == 1 || (utils::is_hiragana(surf[1]) && (surf.size() == 2 || utils::is_hiragana(surf[2]))))) {
-                    hiraganaStr.append(surf);
-                    ++hiraganaCount;
-                    if (hiraganaStr.size() >= MIN_PENALTY_HIRAGANA_MORPH_NUM && hiraganaCount >= MIN_PENALTY_HIRAGANA_MORPH_NUM) {
-                        // 1~L文字ひらがながN個以上続く場合は、ペナルティ対象とする
-                        while (hiraganaStartPos + MIN_PENALTY_HIRAGANA_MORPH_NUM <= hiraganaStr.size()) {
-                            if (!penaltyMorphs.empty()) penaltyMorphs.append(MSTR_VERT_BAR);
-                            penaltyMorphs.append(hiraganaStr.substr(hiraganaStartPos, MIN_PENALTY_HIRAGANA_MORPH_NUM));
-                            ++hiraganaStartPos;
+                // ペナルティとなる形態素を抽出する。具体的には、3gram以下のひらがな形態素が連なってできた、ひらがなの5gram
+                if (SETTINGS->multiStreamMode) {
+                    if (!surf.empty() && surf.size() <= MAX_PENALTY_HIRAGANA_MORPH_LEN &&
+                        utils::is_hiragana(surf.front()) && (surf.size() == 1 || (utils::is_hiragana(surf[1]) && (surf.size() == 2 || utils::is_hiragana(surf[2]))))) {
+                        if (hiraganaStr.empty() && !prevSurf.empty()) {
+                            // 直前の形態素の末尾ひらがなもアペンドしておく
+                            size_t p = prevSurf.size();
+                            while (p > 0 && utils::is_hiragana(prevSurf[p - 1])) --p;
+                            size_t len = prevSurf.size() - p;
+                            if (len > 0) hiraganaStr = prevSurf.substr(p, len);
                         }
+                        hiraganaStr.append(surf);
+                        ++hiraganaCount;
+                        if (hiraganaCount >= MIN_PENALTY_HIRAGANA_MORPH_NUM) {
+                            // 1~L文字ひらがながN個以上続く場合は、ペナルティ対象とする
+                            while (hiraganaStartPos + PENALTY_HIRAGANA_LEN <= hiraganaStr.size()) {
+                                if (!penaltyMorphs.empty()) penaltyMorphs.append(MSTR_VERT_BAR);
+                                penaltyMorphs.append(hiraganaStr.substr(hiraganaStartPos, MIN_PENALTY_HIRAGANA_MORPH_NUM));
+                                ++hiraganaStartPos;
+                            }
+                        }
+                    } else {
+                        hiraganaStr.clear();
+                        hiraganaStartPos = 0;
+                        hiraganaCount = 0;
                     }
-                } else {
-                    hiraganaStr.clear();
-                    hiraganaStartPos = 0;
-                    hiraganaCount = 0;
+
+                    prevSurf = surf;
                 }
             }
         }

@@ -76,9 +76,18 @@ namespace analyzer {
             Vector<size_t> boundaryPositions;
             size_t pos = 0;
             for (const auto& morph : utils::split(morphEntries, L'|')) {
-                joined.append(morph);
-                pos += morph.length();
-                boundaryPositions.push_back(pos);
+                if (!morph.empty()) {
+                    joined.append(morph);
+                    bool found = false;
+                    if (std::any_of(morph.begin(), morph.end(), [](wchar_t ch) {return !utils::is_hiragana(ch);})) {
+                        // ひらがな以外があったら、どの位置でも分割可能とする
+                        for (size_t i = 0; i < morph.size() - 1; ++i) {
+                            boundaryPositions.push_back(pos + i + 1);
+                        }
+                    }
+                    pos += morph.length();
+                    boundaryPositions.push_back(pos);
+                }
             }
 
             if (joined != sentence) {
@@ -116,6 +125,7 @@ namespace analyzer {
             // 各位置における、lookupされたNgram群の最大長
             // Ngramの接続位置で、それをカバーするようなNgramがあればその長さを GLUE ボーナスの計算に使用するために記録しておく
             Vector<int>  glueNgramMaxLens(len + 1, 0);
+
             Vector<bool> morphBoundaries;
             const Vector<bool>* pMorphBoundaries = createMorphBoundaries(sentence->toString(), morphEntries, morphBoundaries);
 
