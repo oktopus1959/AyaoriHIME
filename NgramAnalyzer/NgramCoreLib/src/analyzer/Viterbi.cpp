@@ -19,6 +19,8 @@ namespace analyzer {
     int GLUE_BONUS_MIN_LEN = 4;
     static const int kShortHiraganaPenalty = 2000;
     static const int kMorphBoundaryMismatchPenalty = 5000;
+    static const int kMissingLowOrderQuadgramBasePenalty = 2000;
+    static const int kLowOrderQuadgramLength = 4;
     static const int MaxAccumBonus = 10000;
 
     static const int MorphPenaltyEntryFound = 7000;
@@ -52,6 +54,7 @@ namespace analyzer {
         UniqPtr<Tokenizer> tokenizer;
 
         int cost_factor_;
+        Map<String, bool> exactMatchCache;
 
     public:
         Impl(OptHandlerPtr opts) :
@@ -67,6 +70,66 @@ namespace analyzer {
     private:
         //---------------------------------------------------------------------------
         // private
+        bool isLowOrderNgramNode(const NodePtr& node) const {
+            if (!node || node->isBOS() || node->isEOS()) return false;
+            int len = node->length();
+            return len == 1 || len == 2;
+        }
+
+        bool isMissingQuadgramPenaltyTarget(StringRef key) const {
+            bool hasNonHiragana = false;
+            for (wchar_t ch : key) {
+                if (ch == GETA_CHAR || utils::is_space(ch) || utils::is_katakana(ch)) {
+                    return false;
+                }
+                if (!utils::is_hiragana(ch)) {
+                    hasNonHiragana = true;
+                }
+            }
+            return hasNonHiragana;
+        }
+
+        bool findExactMatchCached(StringRef key) {
+            auto it = exactMatchCache.find(key);
+            if (it != exactMatchCache.end()) {
+                return it->second;
+            }
+            bool found = tokenizer->findExactMatch(key);
+            exactMatchCache[key] = found;
+            return found;
+        }
+
+        int calcMissingLowOrderQuadgramPenalty(const NodePtr& lnode, const NodePtr& rnode, String& key) {
+            key.clear();
+            if (!isLowOrderNgramNode(rnode)) return 0;
+
+            Vector<NodePtr> nodes;
+            int totalLen = 0;
+            int totalBonus = 0;
+            NodePtr node = rnode;
+            while (node && totalLen < kLowOrderQuadgramLength) {
+                if (!isLowOrderNgramNode(node)) return 0;
+
+                nodes.push_back(node);
+                totalLen += node->length();
+                totalBonus += node->bonus();
+
+                if (totalLen > kLowOrderQuadgramLength) return 0;
+                node = (node == rnode) ? lnode : node->prev();
+            }
+
+            if (totalLen != kLowOrderQuadgramLength) return 0;
+
+            for (auto it = nodes.rbegin(); it != nodes.rend(); ++it) {
+                key.append((*it)->surface()->toString());
+            }
+
+            if (!isMissingQuadgramPenaltyTarget(key) || findExactMatchCached(key)) return 0;
+
+            int bonusPenalty = std::max(0, totalBonus);
+            return bonusPenalty + kMissingLowOrderQuadgramBasePenalty;
+        }
+
         const Vector<bool>* createMorphBoundaries(StringRef sentence, StringRef morphEntries, Vector<bool>& morphBoundaries) {
             if (morphEntries.empty()) {
                 return nullptr;
@@ -115,6 +178,7 @@ namespace analyzer {
             auto len = sentence->length();
             auto begin = sentence->begin();
             auto end = sentence->end();
+            exactMatchCache.clear();
 
             LOG_INFOH(L"ENTER: lattice->sentence={}, morphEntries={}, tempDictEntries={}", sentence->toString(), morphEntries, tempDictEntries);
 
@@ -219,6 +283,13 @@ namespace analyzer {
                     if (morphBoundaries && pos > 0 && pos + 1 < morphBoundaries->size() && !(*morphBoundaries)[pos]) {
                         connCost += kMorphBoundaryMismatchPenalty;
                         LOG_DEBUG(L"      morph boundary mismatch: pos={}, penalty={}, connCost={}", pos, kMorphBoundaryMismatchPenalty, connCost);
+                    }
+
+                    String missingQuadgramKey;
+                    int missingQuadgramPenalty = calcMissingLowOrderQuadgramPenalty(lnode, rnode, missingQuadgramKey);
+                    if (missingQuadgramPenalty > 0) {
+                        connCost += missingQuadgramPenalty;
+                        LOG_DEBUG(L"      missing low-order quadgram penalty: key={}, penalty={}, connCost={}", missingQuadgramKey, missingQuadgramPenalty, connCost);
                     }
 
                     // GLUE ボーナスの適用

@@ -43,5 +43,10 @@ namespace analyzer {
          * 与えられた文字列に完全一致するエントリがあるか
          */
         bool findExactMatch(const String& key);
+
+        /**
+         * 与えられた文字列に完全一致するユーザー定義Ngramエントリがあるか
+         */
+        bool findUserExactMatch(const String& key);
     }
 }
