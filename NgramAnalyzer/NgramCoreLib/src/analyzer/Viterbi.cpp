@@ -77,16 +77,17 @@ namespace analyzer {
         }
 
         bool isMissingQuadgramPenaltyTarget(StringRef key) const {
-            bool hasNonHiragana = false;
+            //bool hasNonHiragana = false;
             for (wchar_t ch : key) {
                 if (ch == GETA_CHAR || utils::is_space(ch) || utils::is_katakana(ch)) {
                     return false;
                 }
-                if (!utils::is_hiragana(ch)) {
-                    hasNonHiragana = true;
-                }
+                //if (!utils::is_hiragana(ch)) {
+                //    hasNonHiragana = true;
+                //}
             }
-            return hasNonHiragana;
+            //return hasNonHiragana;
+            return true;
         }
 
         bool findExactMatchCached(StringRef key) {
@@ -270,14 +271,23 @@ namespace analyzer {
                         if (rnode->isHeadHiragana() || (llnode && llnode->isTailHiragana())) {
                             connCost += kShortHiraganaPenalty;
                         }
-                    } else if (lnode->isGeta() && rnode->isKanji()) {
-                        // 直前ノードが 〓 で、rnodeが漢字語の場合はペナルティを軽減する
-                        if (rnode->length() >= 4) {
-                            connCost -= UNKNOWN_OTHER_COST;
-                        } else if (rnode->length() == 3) {
-                            connCost -= UNKNOWN_OTHER_COST / 2;
+                    } else if (lnode->isGeta()) {
+                        // 先頭の 〓 に長めのNgramが後接する場合は、〓 の未知語コストを一部相殺する
+                        NodePtr llnode = lnode->prev();
+                        int rlen = rnode->length();
+                        if (llnode && llnode->isBOS() && rlen >= 3) {
+                            int getaBonus = rlen >= 4 ? lnode->wcost() * 3 / 4 : lnode->wcost() / 2;
+                            connCost -= getaBonus;
+                            LOG_DEBUG(L"      leading GETA ngram bonus: rlen={}, bonus={}, connCost={}", rlen, getaBonus, connCost);
+                        } else if (rnode->isKanji()) {
+                            // 直前ノードが 〓 で、rnodeが漢字語の場合はペナルティを軽減する
+                            if (rnode->length() >= 4) {
+                                connCost -= UNKNOWN_OTHER_COST;
+                            } else if (rnode->length() == 3) {
+                                connCost -= UNKNOWN_OTHER_COST / 2;
+                            }
+                            LOG_DEBUG(L"      lnode: GETA, rnode: KANJI, connCost={}", connCost);
                         }
-                        LOG_DEBUG(L"      lnode: GETA, rnode: KANJI, connCost={}", connCost);
                     }
 
                     if (morphBoundaries && pos > 0 && pos + 1 < morphBoundaries->size() && !(*morphBoundaries)[pos]) {
