@@ -131,6 +131,30 @@ namespace analyzer {
             return bonusPenalty + kMissingLowOrderQuadgramBasePenalty;
         }
 
+        int calcMissingHeadGetaKanjiNgramPenalty(const NodePtr& lnode, const NodePtr& rnode, String& key) {
+            key.clear();
+            if (!lnode || !rnode || rnode->isBOS() || rnode->isEOS()) return 0;
+            if (rnode->length() != 1 && rnode->length() != 2) return 0;
+            if (lnode->length() != 2) return 0;
+
+            NodePtr prev = lnode->prev();
+            if (!prev || !prev->isBOS()) return 0;
+
+            auto lsurface = lnode->surface();
+            if (!lsurface) return 0;
+
+            wchar_t head = lsurface->charAt(lsurface->begin());
+            wchar_t kanji = lsurface->charAt(lsurface->begin() + 1);
+            if (head != GETA_CHAR || !utils::is_kanji(kanji)) return 0;
+
+            key.push_back(kanji);
+            key.append(rnode->surface()->toString());
+            if (!isMissingQuadgramPenaltyTarget(key) || findExactMatchCached(key)) return 0;
+
+            int bonusPenalty = std::max(0, lnode->bonus() + rnode->bonus());
+            return bonusPenalty + kMissingLowOrderQuadgramBasePenalty;
+        }
+
         const Vector<bool>* createMorphBoundaries(StringRef sentence, StringRef morphEntries, Vector<bool>& morphBoundaries) {
             if (morphEntries.empty()) {
                 return nullptr;
@@ -300,6 +324,13 @@ namespace analyzer {
                     if (missingQuadgramPenalty > 0) {
                         connCost += missingQuadgramPenalty;
                         LOG_DEBUG(L"      missing low-order quadgram penalty: key={}, penalty={}, connCost={}", missingQuadgramKey, missingQuadgramPenalty, connCost);
+                    }
+
+                    String missingHeadGetaKanjiNgramKey;
+                    int missingHeadGetaKanjiNgramPenalty = calcMissingHeadGetaKanjiNgramPenalty(lnode, rnode, missingHeadGetaKanjiNgramKey);
+                    if (missingHeadGetaKanjiNgramPenalty > 0) {
+                        connCost += missingHeadGetaKanjiNgramPenalty;
+                        LOG_DEBUG(L"      missing head-geta kanji ngram penalty: key={}, penalty={}, connCost={}", missingHeadGetaKanjiNgramKey, missingHeadGetaKanjiNgramPenalty, connCost);
                     }
 
                     // GLUE ボーナスの適用
