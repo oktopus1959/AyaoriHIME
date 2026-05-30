@@ -149,10 +149,16 @@ public:
 
     virtual void clear() = 0;
 
+    // 先頭の KBest だけを残す
     virtual void removeOtherThanKBest() = 0;
 
-    virtual void removeOtherThanFirst() = 0;
+    // 先頭の候補1つだけを残す
+    virtual void removeOtherThanFirstOne() = 0;
 
+    // 各ストローク長において、先頭の候補だけを残す
+    virtual void removeOtherThanFirstForEachStrokeLen() = 0;
+
+    // 最長のストローク長を持つ候補だけを残す
     virtual void removeOtherThanLongestStrokeCandidate() = 0;
 
     virtual FollowingPreferenceType getFollowingPreferenceType() const = 0;

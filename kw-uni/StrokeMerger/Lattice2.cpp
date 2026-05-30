@@ -104,9 +104,14 @@ namespace lattice2 {
             _kBestList->removeOtherThanKBest();
         }
 
-        void removeOtherThanFirst() override {
+        void removeOtherThanFirstOne() override {
             _LOG_DETAIL(_T("CALLED"));
-            _kBestList->removeOtherThanFirst();
+            _kBestList->removeOtherThanFirstOne();
+        }
+
+        void removeOtherThanFirstForEachStrokeLen() override {
+            _LOG_DETAIL(_T("CALLED"));
+            _kBestList->removeOtherThanFirstForEachStrokeLen();
         }
 
         void removeOtherThanLongestStrokeCandidate() override {

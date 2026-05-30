@@ -415,7 +415,7 @@ namespace lattice2 {
                 // 候補選択がなされていて、元の先頭候補以外が選択された
                 updateSelectedNgramByUserSelect(_candidates[_origFirstCand].string(), _candidates[0].string());
                 updateMazegakiPreference(_candidates[0], _candidates[_origFirstCand]);
-                removeOtherThanFirstForEachStroke();
+                removeOtherThanStartingWithFirstCandidate();
                 _origFirstCand = -1;
                 _LOG_DETAIL(L"LEAVE: CAND_SELECT:\nkBest:\n{}", debugCandidates(20));
             }
@@ -436,6 +436,7 @@ namespace lattice2 {
             _LOG_DETAIL(L"LEAVE");
         }
 
+        // 先頭の KBest だけを残す
         void removeOtherThanKBest() override {
             _LOG_DETAIL(L"ENTER");
             if ((int)_candidates.size() > SETTINGS->multiStreamBeamSize) {
@@ -444,7 +445,17 @@ namespace lattice2 {
             _LOG_DETAIL(L"LEAVE");
         }
 
-        void removeOtherThanFirst() override {
+        // 先頭の候補1つだけを残す
+        void removeOtherThanFirstOne() override {
+            _LOG_DETAIL(L"ENTER");
+            if ((int)_candidates.size() > 1) {
+                _candidates.erase(_candidates.begin() + 1, _candidates.end());
+            }
+            _LOG_DETAIL(L"LEAVE");
+        }
+
+        // 各ストローク長において、先頭の候補だけを残す
+        void removeOtherThanFirstForEachStrokeLen() override {
             _LOG_DETAIL(L"ENTER");
             if (_candidates.size() > 0) {
                 std::vector<CandidateString> filtered;
@@ -462,7 +473,7 @@ namespace lattice2 {
             _LOG_DETAIL(L"LEAVE");
         }
 
-        void removeOtherThanFirstForEachStroke() override {
+        void removeOtherThanStartingWithFirstCandidate() override {
             _LOG_DETAIL(L"ENTER");
             if (_candidates.size() > 0) {
                 const MString& first = _candidates[0].string();
@@ -479,6 +490,7 @@ namespace lattice2 {
             _LOG_DETAIL(L"LEAVE");
         }
 
+        // 最長のストローク長を持つ候補だけを残す
         void removeOtherThanLongestStrokeCandidate() override {
             _LOG_DETAIL(L"ENTER");
             if (_candidates.size() > 1) {
@@ -486,6 +498,7 @@ namespace lattice2 {
                 size_t n = 0;
                 while (n < _candidates.size()) {
                     if (_candidates[n].strokeLen() < topLen) break;
+                    ++n;
                 }
                 if (n < _candidates.size()) {
                     _candidates.erase(_candidates.begin() + n, _candidates.end());
@@ -1502,7 +1515,7 @@ namespace lattice2 {
                     return newCandidates;
                 }
                 // 以前のストロークの候補が無ければ、通常のBSの動作とする
-                removeOtherThanFirst();
+                removeOtherThanFirstForEachStrokeLen();
             }
             bool isPaddingPiece = pieces.size() == 1 && pieces.front().isAnyPadding();
             bool isBSpiece = pieces.size() == 1 && pieces.front().isBS();
@@ -1517,7 +1530,7 @@ namespace lattice2 {
             //        return newCandidates;
             //    }
             //    //// 以前のストロークの候補が無ければ、通常のBSの動作とする
-            //    //removeOtherThanFirst();
+            //    //removeOtherThanFirstForEachStrokeLen();
             //}
             //_prevBS = isBSpiece;
 
@@ -1769,7 +1782,7 @@ namespace lattice2 {
                 return;
             }
             raiseAndLowerByCandSelection();
-            removeOtherThanFirst();
+            removeOtherThanFirstForEachStrokeLen();
             CandidateString& srcCand = _candidates.front();
             // 交ぜ書き変換の実行
             _LOG_DETAIL(L"src: {}", to_wstr(srcCand.string()));

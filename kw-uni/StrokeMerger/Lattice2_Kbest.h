@@ -20,9 +20,12 @@ namespace lattice2 {
 
         virtual void removeOtherThanKBest() = 0;
 
-        virtual void removeOtherThanFirst() = 0;
+        // 先頭の候補1つだけを残す
+        virtual void removeOtherThanFirstOne() = 0;
 
-        virtual void removeOtherThanFirstForEachStroke() = 0;
+        virtual void removeOtherThanFirstForEachStrokeLen() = 0;
+
+        virtual void removeOtherThanStartingWithFirstCandidate() = 0;
 
         virtual void removeOtherThanLongestStrokeCandidate() = 0;
 

@@ -349,8 +349,11 @@ namespace {
         // 入力されたDECKEYをそのままGUI返すか
         int _throughDeckey = 0;
 
+        // 直近のBS/打鍵取消を検出した時点の総打鍵数
         int _strokeCountBS = -1;
+        // 直前のBSを検出した時点の総打鍵数
         int _prevStrokeCountBS = -1;
+        // 連続BSの開始時点の総打鍵数
         int _startStrokeCountBS = -1;
 
         // ストロークを1つ前に戻す
@@ -489,15 +492,14 @@ namespace {
                         LOG_DEBUGH(_T("BS"));
                         _strokeCountBS = (int)STATE_COMMON->GetTotalDecKeyCount();
                         if (_strokeCountBS != _prevStrokeCountBS + 1) _startStrokeCountBS = _strokeCountBS;
-                        if (SETTINGS->strokeBackByBS /* && (SETTINGS->maxStrokeBackCount <= 0 || _strokeCountBS - _startStrokeCountBS < SETTINGS->maxStrokeBackCount)*/) {
+                        if (SETTINGS->strokeBackByBS && (SETTINGS->maxStrokeBackCount <= 0 || _strokeCountBS - _startStrokeCountBS < SETTINGS->maxStrokeBackCount)) {
                             // 打鍵取消
                             LOG_DEBUGH(_T("stroke back by BS"));
                             _strokeBack = true;
                         } else {
                             // 本来のBS処理
-                            // 現在の先頭候補を優先する
-                            //WORD_LATTICE->selectFirst();
-                            WORD_LATTICE->removeOtherThanFirst();
+                            // 現在の先頭候補のみを残す
+                            WORD_LATTICE->removeOtherThanFirstOne();
                         }
                         _prevStrokeCountBS = _strokeCountBS;
                         if (!SETTINGS->multiStreamMode && bHasAnyStroke) {
@@ -538,7 +540,7 @@ namespace {
                         // 現在の先頭候補以外を削除する
                         LOG_DEBUGH(_T("MULTI_STREAM_SELECT_FIRST: commit first candidate"));
                         //WORD_LATTICE->selectFirst();
-                        WORD_LATTICE->removeOtherThanFirst();
+                        WORD_LATTICE->removeOtherThanFirstOne();
                         break;
                     case HISTORY_FULL_CAND_DECKEY:
                         LOG_DEBUGH(_T("HISTORY_FULL_CAND"));
@@ -564,7 +566,7 @@ namespace {
                         _isKatakanaConversionMode = false;
                         if (!NextNodeMaybe()) {
                             // WORD_LATTICE->clearAll();
-                            WORD_LATTICE->removeOtherThanFirst();
+                            WORD_LATTICE->removeOtherThanFirstForEachStrokeLen();
                             EISU_NODE->blockerNeeded = true; // 入力済み末尾にブロッカーを設定する
                             EISU_NODE->eisuExitCapitalCharNum = 0;
                             SetNextNodeMaybe(EISU_NODE);
@@ -590,14 +592,14 @@ namespace {
                         // 次の打鍵を漢字のみ通す (トグル)
                         LOG_DEBUGH(_T("MULTI_STREAM_KANJI_PREFERRED_NEXT_DECKEY"));
                         _followingPrefType = WORD_LATTICE->getFollowingPreferenceType() == FollowingPreferenceType::Kanji ? FollowingPreferenceType::Any : FollowingPreferenceType::Kanji;
-                        WORD_LATTICE->removeOtherThanFirst();
+                        WORD_LATTICE->removeOtherThanFirstForEachStrokeLen();
                         //WORD_LATTICE->removeOtherThanLongestStrokeCandidate();
                         break;
                     case MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY:
                         // 次の打鍵をひらがなのみ通す (トグル)
                         LOG_DEBUGH(_T("MULTI_STREAM_HIRAGANA_PREFERRED_NEXT_DECKEY"));
                         _followingPrefType = WORD_LATTICE->getFollowingPreferenceType() == FollowingPreferenceType::Hiragana ? FollowingPreferenceType::Any : FollowingPreferenceType::Hiragana;
-                        WORD_LATTICE->removeOtherThanFirst();
+                        WORD_LATTICE->removeOtherThanFirstForEachStrokeLen();
                         //WORD_LATTICE->removeOtherThanLongestStrokeCandidate();
                         break;
                     case CLEAR_STROKE_DECKEY:
@@ -886,7 +888,7 @@ namespace {
                     // ひらがな、カタカナ、漢字以外だったら、先頭候補で確定する
                     LOG_DEBUGH(_T("Generated other than Lattice or NOT japanese char={}"), to_wstr(pieces.front().getString()));
                     WORD_LATTICE->selectFirst();
-                    WORD_LATTICE->removeOtherThanFirst();
+                    WORD_LATTICE->removeOtherThanFirstForEachStrokeLen();
                     WORD_LATTICE->resetFollowingPreferenceType();
                     _followingPrefType = FollowingPreferenceType::Any;
                 }
