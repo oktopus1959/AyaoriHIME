@@ -46,6 +46,8 @@ namespace analyzer {
         /** ユーザー辞書の再ロード */
         void reload_userdics();
 
+        int conn3gramAverageCost(const Lattice& lattice) const;
+
     };
 
 } // namespace analyzer

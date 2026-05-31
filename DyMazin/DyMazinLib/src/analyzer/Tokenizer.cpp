@@ -4,6 +4,8 @@
 #include "Logger.h"
 #include "exception.h"
 
+#include "constants/Constants.h"
+#include "dict/Conn3gram.h"
 #include "dict/Dictionary.h"
 #include "Tokenizer.h"
 #include "Lattice.h"
@@ -32,6 +34,7 @@ namespace analyzer {
         DictionaryPtr sysdic;               // system dictionary
         Vector<DictionaryPtr> userdics;     // user dictionaries
         DictionaryPtr unkdic;               // unknown words dictionary
+        Conn3gramPtr conn3gram;
         CharProperty charPproperty;
 
         //  private val bos_feature = get_bos_feature()
@@ -247,6 +250,16 @@ namespace analyzer {
             if (sysdic->getType() != dict::DictionaryInfo::SYSTEM_DIC) THROW_RTE(L"Tokenizer::open: not a system dictionary: {}", prefix);
             charPproperty.set_charset(sysdic->charset());
 
+            auto conn3gramPath = utils::join_path(prefix, CONN_3GRAM_FILE);
+            if (utils::isFileExistent(conn3gramPath)) {
+                LOG_INFOH(L"load conn-3gram: START: {}", conn3gramPath);
+                conn3gram = MakeShared<dict::Conn3gram>(conn3gramPath);
+                LOG_INFOH(L"load conn-3gram: DONE");
+            } else {
+                LOG_INFOH(L"conn-3gram is not found: {}", conn3gramPath);
+                conn3gram.reset();
+            }
+
             unk_tokens = get_unk_tokens();
             SPACE = charPproperty.getCharInfo(L"SPACE");
 
@@ -306,6 +319,26 @@ namespace analyzer {
             return size <= 0 ? DEFAULT_MAX_GROUPING_SIZE : (size_t)size;
         }
 
+        int conn3gramAverageCost(const Lattice& lattice) const {
+            if (!conn3gram || !conn3gram->loaded()) return 0;
+
+            Vector<uint16_t> ids;
+            for (const auto node : lattice.nodeList()) {
+                ids.push_back(static_cast<uint16_t>(node->lcAttr()));
+                if (node->rcAttr() != node->lcAttr()) ids.push_back(static_cast<uint16_t>(node->rcAttr()));
+            }
+            LOG_DEBUG(L"ids={}", utils::join_primitive(ids, L","));
+            if (ids.size() < 3) return 0;
+
+            int64_t sum = 0;
+            int count = 0;
+            for (size_t i = 0; i + 2 < ids.size(); i++) {
+                sum += conn3gram->cost(ids[i], ids[i + 1], ids[i + 2]);
+                ++count;
+            }
+            return count == 0 ? 0 : static_cast<int>((sum * 2 + count) / (count * 2));
+        }
+
         //SharedPtr<dict::DictionaryInfo> make_dic_info_chain() {
         //    auto dic_info : dict::DictionaryInfo = null;
         //    dics.reverse.foreach{ dic = >
@@ -341,6 +374,10 @@ namespace analyzer {
     void Tokenizer::reload_userdics() {
         pImpl->reset_dics();
         pImpl->reload_userdics();
+    }
+
+    int Tokenizer::conn3gramAverageCost(const Lattice& lattice) const {
+        return pImpl->conn3gramAverageCost(lattice);
     }
 
 } // namespace analyzer

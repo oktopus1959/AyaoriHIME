@@ -210,6 +210,7 @@
     <ClCompile Include="src\analyzer\Viterbi.cpp" />
     <ClCompile Include="src\compiler\DictionaryBuilder.cpp" />
     <ClCompile Include="src\darts\DoubleArray.cpp" />
+    <ClCompile Include="src\dict\Conn3gram.cpp" />
     <ClCompile Include="src\dict\Dictionary.cpp" />
     <ClCompile Include="src\dict\DictionaryCompiler.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="src\constants\Constants.h" />
     <ClInclude Include="src\darts\DoubleArray.h" />
     <ClInclude Include="src\darts\DoubleArrayTestHelper.h" />
+    <ClInclude Include="src\dict\Conn3gram.h" />
     <ClInclude Include="src\dict\Dictionary.h" />
     <ClInclude Include="src\dict\DictionaryInfo.h" />
     <ClInclude Include="src\dymazin.h" />

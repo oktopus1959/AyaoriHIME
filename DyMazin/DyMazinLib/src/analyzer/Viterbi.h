@@ -24,6 +24,8 @@ namespace analyzer {
         /** ユーザー辞書の再オープン */
         void reload_userdics();
 
+        int conn3gramAverageCost(const Lattice& lattice) const;
+
     };
 
 } // namespace analyzer

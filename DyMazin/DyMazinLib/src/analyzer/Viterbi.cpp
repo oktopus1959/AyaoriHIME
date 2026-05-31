@@ -278,4 +278,8 @@ namespace analyzer {
         LOG_INFOH(L"LEAVE");
     }
 
+    int Viterbi::conn3gramAverageCost(const Lattice& lattice) const {
+        return pImpl->tokenizer->conn3gramAverageCost(lattice);
+    }
+
 } // namespace analyzer

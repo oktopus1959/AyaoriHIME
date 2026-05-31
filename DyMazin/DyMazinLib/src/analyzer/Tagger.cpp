@@ -40,7 +40,11 @@ namespace analyzer {
         //warnings.clear();
         LOG_INFO(L"CALLED: sentence={}, nBest={}", sentence, nBest);
 
-        return model->analyze(sentence, nBest, mazePenalty, mazeConnPenalty, allowNonTerminal)->getSolutions(results, mazePenalty < 0);
+        auto lattice = model->analyze(sentence, nBest, mazePenalty, mazeConnPenalty, allowNonTerminal);
+        lastConn3gramAverageCost_ = model->conn3gramAverageCost(*lattice);
+        int cost = lattice->getSolutions(results, mazePenalty < 0);
+        LOG_INFOH(L"conn3gramAverageCost={}", lastConn3gramAverageCost_);
+        return cost;
     }
 
 } // namespace analyzer

@@ -53,4 +53,8 @@ namespace analyzer {
         LOG_INFOH(L"LEAVE");
     }
 
+    int Model::conn3gramAverageCost(const Lattice& lattice) const {
+        return viterbi.conn3gramAverageCost(lattice);
+    }
+
 } // namespace analyzer

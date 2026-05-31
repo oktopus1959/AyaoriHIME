@@ -11,6 +11,7 @@
 
 #define DEFAULT_CONF            L"etc/dymazinrc"
 #define SYS_DIC_FILE            L"sys.dic"
+#define CONN_3GRAM_FILE         L"conn-3gram.bin"
 #define UNK_DEF_FILE            L"unk.def"
 #define UNK_DIC_FILE            L"unk.dic"
 #define MATRIX_DEF_FILE         L"matrix.def"

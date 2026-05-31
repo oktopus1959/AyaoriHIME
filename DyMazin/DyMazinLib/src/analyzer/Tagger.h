@@ -10,6 +10,7 @@ namespace analyzer {
         DECLARE_CLASS_LOGGER;
 
         ModelPtr model;
+        int lastConn3gramAverageCost_ = 0;
 
         //Vector<String> warnings;
 
@@ -32,8 +33,9 @@ namespace analyzer {
          */
         int parseNBest(StringRef sentence, Vector<String>& results, size_t nBest, int mazePenalty, int mazeConnPenalty, bool allowNonTerminal);
 
+        int lastConn3gramAverageCost() const { return lastConn3gramAverageCost_; }
+
     };
 } // namespace analyzer
 
 using TaggerPtr = SharedPtr<analyzer::Tagger>;
-

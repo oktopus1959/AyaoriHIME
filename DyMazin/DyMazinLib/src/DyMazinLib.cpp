@@ -232,6 +232,8 @@ int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize,
             if (wakati_buf) wakati_buf[0] = L'\0';
             Vector<String> results;
             cost = tagger->parseNBest(sentence, results, nBest, mazePenalty, mazeConnPenalty, allowNonTerminal);
+            cost += tagger->lastConn3gramAverageCost();
+            LOG_INFOH(L"totalCost={}", cost);
             bool bFirst = true;
             for (const auto& result : results) {
                 if (wakati_buf && bFirst) {
@@ -256,7 +258,9 @@ int DymazinAnalyze(const wchar_t* sentence, wchar_t* wakati_buf, size_t bufsize,
                 //if (line.empty()) continue;
                 //String result = tagger->parse(line, nBest, mazePenalty);
                 Vector<String> results;
-                tagger->parseNBest(line, results, nBest, mazePenalty, mazeConnPenalty, allowNonTerminal);
+                cost = tagger->parseNBest(line, results, nBest, mazePenalty, mazeConnPenalty, allowNonTerminal);
+                cost += tagger->lastConn3gramAverageCost();
+                LOG_INFOH(L"totalCost={}: line={}", cost, line);
                 for (const auto& result : results) {
                     if (showLineSeparator) std::cout << "----------------" << std::endl;
                     std::cout << utils::utf8_encode(result) << std::endl;
@@ -303,4 +307,3 @@ int DymazinFinalize(wchar_t* errMsgBuf, size_t bufsiz) {
     Logger::Close();
     return 0;
 }
-

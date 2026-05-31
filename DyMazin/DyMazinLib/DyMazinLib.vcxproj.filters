@@ -102,6 +102,9 @@
     <ClCompile Include="src\dict\Dictionary.cpp">
       <Filter>ソース ファイル\dict</Filter>
     </ClCompile>
+    <ClCompile Include="src\dict\Conn3gram.cpp">
+      <Filter>ソース ファイル\dict</Filter>
+    </ClCompile>
     <ClCompile Include="src\dict\DictionaryCompiler.cpp">
       <Filter>ソース ファイル\dict</Filter>
     </ClCompile>
@@ -279,6 +282,9 @@
       <Filter>ヘッダー ファイル\constants</Filter>
     </ClInclude>
     <ClInclude Include="src\dict\Dictionary.h">
+      <Filter>ヘッダー ファイル\dict</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dict\Conn3gram.h">
       <Filter>ヘッダー ファイル\dict</Filter>
     </ClInclude>
     <ClInclude Include="src\util\PackedString.h">
