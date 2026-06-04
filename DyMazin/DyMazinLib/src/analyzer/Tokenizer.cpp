@@ -323,7 +323,8 @@ namespace analyzer {
             if (!conn3gram || !conn3gram->loaded()) return 0;
 
             Vector<uint16_t> ids;
-            for (const auto node : lattice.nodeList()) {
+            ids.push_back(0);   // BOS
+            for (const auto node : lattice.nodeList()) {                // nodeList() は BOS/EOS を含まない
                 ids.push_back(static_cast<uint16_t>(node->lcAttr()));
                 if (node->rcAttr() != node->lcAttr()) ids.push_back(static_cast<uint16_t>(node->rcAttr()));
             }
@@ -333,7 +334,11 @@ namespace analyzer {
             int64_t sum = 0;
             int count = 0;
             for (size_t i = 0; i + 2 < ids.size(); i++) {
-                sum += conn3gram->cost(ids[i], ids[i + 1], ids[i + 2]);
+                int cost = conn3gram->cost(ids[i], ids[i + 1], ids[i + 2]);
+                sum += cost;
+#if _LOG_DEBUGH_FLAG
+            LOG_DEBUG(L"sum={}, cost={} ({},{},{})", sum, cost, ids[i], ids[i + 1], ids[i + 2]);
+#endif
                 ++count;
             }
             return count == 0 ? 0 : static_cast<int>((sum * 2 + count) / (count * 2));

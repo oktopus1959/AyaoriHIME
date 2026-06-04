@@ -288,12 +288,13 @@ namespace analyzer {
                     int connCost = 0; //connector->cost(*lnode, *rnode);  // connCost: connection cost
                     LOG_DEBUGH(L"    lnode={}, isShortHira={}", lnode->toVerbose() ,lnode->isShortHiragana());
                     if (lnode->isShortHiragana()) {
-                        // 直前ノードが短いひらがな語の場合はペナルティを加算する
+                        // 直前ノードが短いひらがな語で、その前または後にもひらがなが接続する場合はペナルティを加算する
                         NodePtr llnode = lnode->prev();
                         LOG_DEBUG(L"      rnode->isHeadHiragana={}", rnode->isHeadHiragana());
                         LOG_DEBUG(L"      llnode->isTailHiragana={}", llnode && llnode->isTailHiragana());
                         if (rnode->isHeadHiragana() || (llnode && llnode->isTailHiragana())) {
                             connCost += kShortHiraganaPenalty;
+                            LOG_DEBUG(L"      short Hiragana({}) penalty: connCost={}", lnode->surface()->toString(), connCost);
                         }
                     } else if (lnode->isGeta()) {
                         // 先頭の 〓 に長めのNgramが後接する場合は、〓 の未知語コストを一部相殺する
