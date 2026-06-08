@@ -331,6 +331,7 @@ namespace analyzer {
             LOG_DEBUG(L"ids={}", utils::join_primitive(ids, L","));
             if (ids.size() < 3) return 0;
 
+            double factor = 0.75;
             int64_t sum = 0;
             int count = 0;
             for (size_t i = 0; i + 2 < ids.size(); i++) {
@@ -341,7 +342,7 @@ namespace analyzer {
 #endif
                 ++count;
             }
-            return count == 0 ? 0 : static_cast<int>((sum * 2 + count) / (count * 2));
+            return count == 0 ? 0 : static_cast<int>(std::llround((sum * factor) / count));
         }
 
         //SharedPtr<dict::DictionaryInfo> make_dic_info_chain() {
