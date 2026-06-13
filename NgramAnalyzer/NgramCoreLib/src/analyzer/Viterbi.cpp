@@ -353,6 +353,7 @@ namespace analyzer {
                         LOG_DEBUG(L"      missing head-geta kanji ngram penalty: key={}, penalty={}, connCost={}", missingHeadGetaKanjiNgramKey, missingHeadGetaKanjiNgramPenalty, connCost);
                     }
 
+#if false
                     // GLUE ボーナスの適用
                     size_t chkPos = (int)pos <= lnode->length() ? 0 : pos - lnode->length();
                     int maxGlueLen = 0;
@@ -366,8 +367,10 @@ namespace analyzer {
                         glueBonus = (maxGlueLen - GLUE_BONUS_MIN_LEN + 1) * GLUE_BONUS_FACTOR;
                         LOG_DEBUG(L"      glueBonus={} ((maxGlueLen({}) - GLUE_BONUS_MIN_LEN({}) + 1) * GLUE_BONUS_FACTOR({}))", glueBonus, maxGlueLen, GLUE_BONUS_MIN_LEN, GLUE_BONUS_FACTOR);
                     }
+#endif
 
                     int bonus = rnode->bonus();
+#if false
                     int accumBonus = lnode->accumBonus() + glueBonus;
                     if (accumBonus >= MaxAccumBonus) {
                         LOG_DEBUG(L"      accumBonus + gluBonus capped: orig={}, capped={}", accumBonus, MaxAccumBonus);
@@ -386,6 +389,10 @@ namespace analyzer {
                     }
                     connCost -= glueBonus;
                     LOG_DEBUG(L"      connCost={}, glueBonus={}, bonus={}, accumBonus={}", connCost, glueBonus, bonus, accumBonus);
+#else
+                    int accumBonus = std::min(MaxAccumBonus, lnode->accumBonus() + bonus);
+                    bonus = accumBonus - lnode->accumBonus();
+#endif
 
                     int cost = lnode->accumCost() + connCost + rnode->wcost() - bonus;
 
