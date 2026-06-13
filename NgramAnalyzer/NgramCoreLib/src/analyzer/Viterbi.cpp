@@ -5,9 +5,13 @@
 #include "Tokenizer.h"
 #include "Viterbi.h"
 #include "RealtimeDict.h"
+#include "dict/Char3gram.h"
 
 #include "util/xsv_parser.h"
 #include "featureDef.h"
+#include "constants/Constants.h"
+#include "file_utils.h"
+#include "path_utils.h"
 
 #include "NgramDebugLog.h"
 
@@ -52,6 +56,7 @@ namespace analyzer {
         OptHandlerPtr opts;
 
         UniqPtr<Tokenizer> tokenizer;
+        Char3gramPtr char3gram;
 
         int cost_factor_;
         Map<String, bool> exactMatchCache;
@@ -64,6 +69,20 @@ namespace analyzer {
         {
             LOG_INFOH(L"ENTER: cost_factor_={}", cost_factor_);
             CHECK_OR_THROW(!tokenizer->getDictionaries().empty(), L"Dictionary is empty");
+            const auto char3gramPath = utils::join_path(opts->getString(L"dicdir", L"."), CHAR_3GRAM_FILE);
+            if (utils::isFileExistent(char3gramPath)) {
+                try {
+                    char3gram = MakeShared<dict::Char3gram>(char3gramPath);
+                } catch (const RuntimeException& ex) {
+                    char3gram.reset();
+                    LOG_WARN(L"文字3-gram辞書を無効化します: file={}, error={}", char3gramPath, ex.getMessage());
+                } catch (...) {
+                    char3gram.reset();
+                    LOG_WARN(L"文字3-gram辞書を無効化します: file={}, unknown error", char3gramPath);
+                }
+            } else {
+                LOG_WARN(L"文字3-gram辞書が見つからないため無効化します: {}", char3gramPath);
+            }
             LOG_INFOH(L"LEAVE");
         }
 
@@ -493,8 +512,11 @@ namespace analyzer {
         int baseCost = lattice->getSolutions(results, needResults);
         int morphPenalty = pImpl->getMorphPenalty(penaltyEntries);
         int userNgramPenalty = RealtimeDict::getUserNgramPenalty(sentence);
-        int totalCost = baseCost + morphPenalty + userNgramPenalty;
-        LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}", totalCost, baseCost, morphPenalty, userNgramPenalty);
+        const auto markov = pImpl->char3gram ? pImpl->char3gram->score(sentence) : dict::Char3gram::ScoreResult{};
+        const int64_t totalCost64 = static_cast<int64_t>(baseCost) + morphPenalty + userNgramPenalty + markov.averageCost;
+        const int totalCost = static_cast<int>(std::clamp<int64_t>(totalCost64, 0, std::numeric_limits<int>::max()));
+        LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}, normalized={}, markovWindows={}, markovCost={}",
+            totalCost, baseCost, morphPenalty, userNgramPenalty, markov.normalized, markov.validWindowCount, markov.averageCost);
         return totalCost;
     }
 

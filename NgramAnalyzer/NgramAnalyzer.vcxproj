@@ -25,8 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NgramCoreLib/src</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NgramCoreLib/src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>NgramCoreLib/src;NgramCoreLib/src/util;NgramCoreLib/src/reporting;NgramLib/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

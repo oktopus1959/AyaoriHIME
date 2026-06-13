@@ -44,7 +44,14 @@ int main(int argc, const char** argv) {
     const int ARRAY_SIZE = 1024;
     wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
 
-    if (args.size() > 1 && RegexUtil(L"^make[_\\-]dict").search(args[1])) {
+    if (args.size() > 1 && RegexUtil(L"^make[_\\-]char[_\\-]3gram$").search(args[1])) {
+        if (args.size() != 4) {
+            std::cerr << "Usage: ngramer make-char-3gram <input.tsv> <output.bin>" << std::endl;
+            result = NgramCoreLib::ErrorHandler::LEVEL_ERROR;
+        } else {
+            result = NgramMakeChar3gram(args[2].c_str(), args[3].c_str(), logFile.c_str(), errMsgBuf, ARRAY_SIZE, true);
+        }
+    } else if (args.size() > 1 && RegexUtil(L"^make[_\\-]dict").search(args[1])) {
         result = NgramMakeDictIndex(ac - 1, av.data() + 1, logFile.c_str(), errMsgBuf, ARRAY_SIZE, true);
         if (result == NgramCoreLib::ErrorHandler::LEVEL_ERROR) {
             std::cerr << "make_dict_index: result=" << result << std::endl;

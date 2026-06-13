@@ -10,6 +10,7 @@
 #include "analyzer/Viterbi.h"
 #include "analyzer/RealtimeDict.h"
 #include "compiler/DictionaryBuilder.h"
+#include "dict/Char3gram.h"
 
 #include "file_utils.h"
 
@@ -210,6 +211,30 @@ namespace NgramCoreLib {
         }
 
         LOG_INFOH(L"LEAVE");
+        return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
+    }
+
+    int NgramMakeChar3gram(const wchar_t* inputPath, const wchar_t* outputPath, const wchar_t* logFilePath, wchar_t* errMsgBuf, size_t bufsiz, bool showError) {
+        ERROR_HANDLER->Clear();
+        bShowError = showError;
+        if (Logger::LogFilename().empty() && logFilePath) {
+            Logger::SetLogFilename(logFilePath);
+        }
+
+        try {
+            if (!inputPath || !*inputPath || !outputPath || !*outputPath) {
+                THROW_RTE(L"make-char-3gram requires input and output paths");
+            }
+            dict::Char3gram::build(inputPath, outputPath);
+        } catch (RuntimeException ex) {
+            ERROR_HANDLER->Error(ex.getMessage());
+            if (showError) printError(ex);
+        } catch (...) {
+            auto msg = L"Unknown exception occurred";
+            LOG_ERROR(msg);
+            ERROR_HANDLER->Error(msg);
+            if (showError) std::wcerr << msg << std::endl;
+        }
         return ERROR_HANDLER->GetErrorInfo(errMsgBuf, bufsiz);
     }
 

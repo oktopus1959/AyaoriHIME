@@ -114,6 +114,9 @@
     <ClInclude Include="src\dict\DictionaryInfo.h">
       <Filter>ヘッダー ファイル\dict</Filter>
     </ClInclude>
+    <ClInclude Include="src\dict\Char3gram.h">
+      <Filter>ヘッダー ファイル\dict</Filter>
+    </ClInclude>
     <ClInclude Include="src\node\Node.h">
       <Filter>ヘッダー ファイル\node</Filter>
     </ClInclude>
@@ -222,6 +225,9 @@
       <Filter>ソース ファイル\dict</Filter>
     </ClCompile>
     <ClCompile Include="src\dict\DictionaryCompiler.cpp">
+      <Filter>ソース ファイル\dict</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dict\Char3gram.cpp">
       <Filter>ソース ファイル\dict</Filter>
     </ClCompile>
     <ClCompile Include="src\node\Node.cpp">

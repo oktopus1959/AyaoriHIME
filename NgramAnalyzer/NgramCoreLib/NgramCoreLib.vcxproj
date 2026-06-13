@@ -170,6 +170,7 @@
     <ClInclude Include="src\darts\DoubleArrayTestHelper.h" />
     <ClInclude Include="src\dict\Dictionary.h" />
     <ClInclude Include="src\dict\DictionaryInfo.h" />
+    <ClInclude Include="src\dict\Char3gram.h" />
     <ClInclude Include="src\NgramCoreLib.h" />
     <ClInclude Include="src\node\Node.h" />
     <ClInclude Include="src\node\NodeType.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="src\darts\DoubleArray.cpp" />
     <ClCompile Include="src\dict\Dictionary.cpp" />
     <ClCompile Include="src\dict\DictionaryCompiler.cpp" />
+    <ClCompile Include="src\dict\Char3gram.cpp" />
     <ClCompile Include="src\NgramCoreLib.cpp" />
     <ClCompile Include="src\node\Node.cpp" />
     <ClCompile Include="src\node\Path.cpp" />
