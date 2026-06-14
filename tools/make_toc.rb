@@ -11,14 +11,26 @@ while line = gets
   end
 end
 
+inComment = false
 while line = gets
   line = line.strip
-  if line =~ /^## +(.*[^\s])\s*$/ && line != "## 目次"
-    puts "- #{make_toc_line($1)}"
-  elsif line =~ /^### +(.*[^\s])\s*$/
-    puts "    - #{make_toc_line($1)}"
-#  elsif line =~ /^#### +(.*[^\s])\s*$/
-#    puts "        - #{make_toc_line($1)}"
+  if inComment
+    if line =~ /^[- ]*-->/
+      inComment = false
+      next
+    end
+  else
+    if line =~ /^<!--/
+      inComment = true
+      next
+    end
+    if line =~ /^## +(.*[^\s])\s*$/ && line != "## 目次"
+      puts "- #{make_toc_line($1)}"
+    elsif line =~ /^### +(.*[^\s])\s*$/
+      puts "    - #{make_toc_line($1)}"
+  #  elsif line =~ /^#### +(.*[^\s])\s*$/
+  #    puts "        - #{make_toc_line($1)}"
+    end
   end
 end
 
