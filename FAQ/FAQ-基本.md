@@ -770,6 +770,8 @@ TUT-Code やかな系など、カタカナの定義されていない配列を�
 
 ![Noshow Hist Cand First](image/noshow-hist-cand-first.png)
 
+[ ](#eisu_mode)
+
 ## 英数モード
 「変換・書換」>「英数入力モード」>「英大文字押下で英数モードに移行」にチェックを入れると、
 `Shift-A` などで英大文字を入力したときに「英数モード」に移行するようになります。
