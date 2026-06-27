@@ -113,20 +113,20 @@ namespace KanchokuWS.Gui
             readSettings_tabFontColor();
             setFontColortatusChecker();
 
-            readSettings_tabKeyAssign();
-            setKeyAssignStatusChecker();
+            //readSettings_tabKeyAssign();
+            //setKeyAssignStatusChecker();
 
             readSettings_tabCtrlKeys();
             setCtrlKeysStatusChecker();
 
-            readSettings_tabHistory();
-            setHistoryStatusChecker();
+            readSettings_tabSimpleDic();
+            setSimpleDicStatusChecker();
 
             readSettings_tabFusion();
             setFusionStatusChecker();
 
-            readSettings_tabMiscSettings();
-            setMiscSettingsStatusChecker();
+            readSettings_tabMazeHenkanSettings();
+            setMazeHankanSettingsStatusChecker();
 
             readSettings_tabDevelop();
             setDevelopStatusChecker();
@@ -475,11 +475,11 @@ namespace KanchokuWS.Gui
             checkerImeCombo.Reinitialize();
 
             // 機能キー割当も呼んでおく
-            readSettings_tabKeyAssign();
+            //readSettings_tabKeyAssign();
             checkerKeyAssign.Reinitialize();
 
             // その他設定も呼んでおく
-            readSettings_tabMiscSettings();
+            readSettings_tabMazeHenkanSettings();
             checkerMiscSettings.Reinitialize();
 
             // 各種定義ファイルの再読み込み
@@ -530,11 +530,11 @@ namespace KanchokuWS.Gui
             readSettings_tabAdvanced();
             readSettings_tabImeCombo();
             readSettings_tabFontColor();
-            readSettings_tabKeyAssign();
+            //readSettings_tabKeyAssign();
             readSettings_tabCtrlKeys();
-            readSettings_tabHistory();
+            readSettings_tabSimpleDic();
             readSettings_tabFusion();
-            readSettings_tabMiscSettings();
+            readSettings_tabMazeHenkanSettings();
             readSettings_tabDevelop();
 
             checkerAll.Reinitialize();
@@ -1090,752 +1090,6 @@ namespace KanchokuWS.Gui
         }
 
         //-----------------------------------------------------------------------------------
-        // フォント・色設定
-        //-----------------------------------------------------------------------------------
-        private string currentVerticalFontHeightFactort = "";
-
-        void readSettings_tabFontColor()
-        {
-            // 仮想鍵盤フォント
-            textBox_normalFont.Text = Settings.NormalVkbFontSpec;
-            textBox_centerFont.Text = Settings.CenterVkbFontSpec;
-            textBox_verticalFont.Text = Settings.VerticalVkbFontSpec;
-            textBox_horizontalFont.Text = Settings.HorizontalVkbFontSpec;
-            textBox_minibufFont.Text = Settings.MiniBufVkbFontSpec;
-            textBox_editBufferFont.Text = Settings.EditBufferFontSpec;
-            currentVerticalFontHeightFactort = $"{Settings.VerticalFontHeightFactor:f2}";
-            textBox_verticalFontHeightFactor.Text = currentVerticalFontHeightFactort;
-
-            // 通常鍵盤背景色
-            textBox_topLevelBackColor.Text = Settings.BgColorTopLevelCells;
-            textBox_centerSideBackColor.Text = Settings.BgColorCenterSideCells;
-            textBox_highLowLevelBackColor.Text = Settings.BgColorHighLowLevelCells;
-            textBox_middleLevelBackColor.Text = Settings.BgColorMiddleLevelCells;
-            textBox_nextStrokeBackColor.Text = Settings.BgColorNextStrokeCell;
-
-            // モード標識文字色
-            textBox_modeForeColor.Text = Settings.KanjiModeMarkerForeColor;
-            textBox_2ndStrokeForeColor.Text = Settings.KanjiModeMarker2ndForeColor;
-            textBox_alphaModeForeColor.Text = Settings.AlphaModeForeColor;
-
-            // 中央鍵盤背景色
-            textBox_on2ndStrokeBackColor.Text= Settings.BgColorOnWaiting2ndStroke;
-            //textBox_onMazegaki.Text= Settings.BgColorForMazegaki;
-            textBox_onHistAssoc.Text= Settings.BgColorForHistOrAssoc;
-            textBox_onBushuCompHelp.Text= Settings.BgColorForBushuCompHelp;
-            textBox_onSecondaryTable.Text= Settings.BgColorForSecondaryTable;
-            textBox_onKanaTrainingMode.Text= Settings.BgColorForKanaTrainingMode;
-            textBox_onMultiStreamMode.Text= Settings.BgColorForMultiStreamMode;
-
-            // 縦列・横列鍵盤背景色
-            textBox_firstCandidateBackColor.Text = Settings.BgColorForFirstCandidate;
-            textBox_onSelectedBackColor.Text = Settings.BgColorOnSelected;
-
-        }
-
-        private void setFontColortatusChecker()
-        {
-            button_fontColorEnter.Enabled = false;
-            checkerFontColor.CtlToBeEnabled = button_fontColorEnter;
-            checkerFontColor.ControlEnabler = tabFontColorStatusChanged;
-
-            // フォント
-            checkerFontColor.Add(textBox_normalFont);
-            checkerFontColor.Add(textBox_centerFont);
-            checkerFontColor.Add(textBox_verticalFont);
-            checkerFontColor.Add(textBox_horizontalFont);
-            checkerFontColor.Add(textBox_minibufFont);
-            checkerFontColor.Add(textBox_editBufferFont);
-            checkerFontColor.Add(textBox_verticalFontHeightFactor);
-
-            // 通常鍵盤背景色
-            checkerFontColor.Add(textBox_topLevelBackColor);
-            checkerFontColor.Add(textBox_centerSideBackColor);
-            checkerFontColor.Add(textBox_highLowLevelBackColor);
-            checkerFontColor.Add(textBox_middleLevelBackColor);
-            checkerFontColor.Add(textBox_nextStrokeBackColor);
-
-            // モード標識文字色
-            checkerFontColor.Add(textBox_modeForeColor);
-            checkerFontColor.Add(textBox_2ndStrokeForeColor);
-            checkerFontColor.Add(textBox_alphaModeForeColor);
-
-            // 中央鍵盤背景色
-            checkerFontColor.Add(textBox_on2ndStrokeBackColor);
-            checkerFontColor.Add(textBox_onMazegaki);
-            checkerFontColor.Add(textBox_onHistAssoc);
-            checkerFontColor.Add(textBox_onBushuCompHelp);
-            checkerFontColor.Add(textBox_onSecondaryTable);
-            checkerFontColor.Add(textBox_onKanaTrainingMode);
-            checkerFontColor.Add(textBox_onMultiStreamMode);
-
-            // 縦列・横列鍵盤背景色
-            checkerFontColor.Add(textBox_firstCandidateBackColor);
-            checkerFontColor.Add(textBox_onSelectedBackColor);
-
-            checkerAll.Add(checkerFontColor);
-        }
-
-        private void button_fontColrEnter_Click(object sender, EventArgs e)
-        {
-            logger.Info("ENTER");
-            frmMain?.DeactivateDecoderWithModifiersOff();
-
-            // フォント
-            Settings.SetUserIni("normalFont", textBox_normalFont.Text.Trim());
-            Settings.SetUserIni("centerFont", textBox_centerFont.Text.Trim());
-            Settings.SetUserIni("verticalFont", textBox_verticalFont.Text.Trim());
-            Settings.SetUserIni("horizontalFont", textBox_horizontalFont.Text.Trim());
-            Settings.SetUserIni("minibufFont", textBox_minibufFont.Text.Trim());
-            Settings.SetUserIni("editBufferFont", textBox_editBufferFont.Text.Trim());
-            if (textBox_verticalFontHeightFactor.Text.Trim()._ne(currentVerticalFontHeightFactort)) {
-                Settings.SetUserIni("verticalFontHeightFactor", textBox_verticalFontHeightFactor.Text.Trim());
-            }
-
-            // 通常鍵盤背景色
-            Settings.SetUserIni("bgColorTopLevelCells", textBox_topLevelBackColor.Text.Trim());
-            Settings.SetUserIni("bgColorCenterSideCells", textBox_centerSideBackColor.Text.Trim());
-            Settings.SetUserIni("bgColorHighLowLevelCells", textBox_highLowLevelBackColor.Text.Trim());
-            Settings.SetUserIni("bgColorMiddleLevelCells", textBox_middleLevelBackColor.Text.Trim());
-            Settings.SetUserIni("bgColorNextStrokeCell", textBox_nextStrokeBackColor.Text.Trim());
-
-            // モード標識色
-            Settings.SetUserIni("kanjiModeMarkerForeColor", textBox_modeForeColor.Text.Trim());
-            Settings.SetUserIni("kanjiModeMarker2ndForeColor", textBox_2ndStrokeForeColor.Text.Trim());
-            Settings.SetUserIni("alphaModeForeColor", textBox_alphaModeForeColor.Text.Trim());
-
-            // 中央鍵盤背景色
-            Settings.SetUserIni("bgColorOnWaiting2ndStroke", textBox_on2ndStrokeBackColor.Text.Trim());
-            Settings.SetUserIni("bgColorForMazegaki", textBox_onMazegaki.Text.Trim());
-            Settings.SetUserIni("bgColorForHistOrAssoc", textBox_onHistAssoc.Text.Trim());
-            Settings.SetUserIni("bgColorForBushuCompHelp", textBox_onBushuCompHelp.Text.Trim());
-            Settings.SetUserIni("bgColorForSecondaryTable", textBox_onSecondaryTable.Text.Trim());
-            Settings.SetUserIni("bgColorForKanaTrainingMode", textBox_onKanaTrainingMode.Text.Trim());
-            Settings.SetUserIni("bgColorForMultiStreamMode", textBox_onMultiStreamMode.Text.Trim());
-
-            // 縦列・横列鍵盤背景色
-            Settings.SetUserIni("bgColorForFirstCandidate", textBox_firstCandidateBackColor.Text.Trim());
-            Settings.SetUserIni("bgColorOnSelected", textBox_onSelectedBackColor.Text.Trim());
-
-            //Settings.ReadIniFile();
-            // 各種定義ファイルの再読み込み
-            frmMain?.ReloadSettingsAndDefFiles();
-
-            readSettings_tabFontColor();
-            checkerFontColor.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
-
-            // 各種定義ファイルの再読み込み
-            //FrmMain?.ReloadDefFiles();
-
-            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
-
-            label_okResultFontColor.Show();
-
-            logger.Info("LEAVE");
-        }
-
-        private void tabFontColorStatusChanged(bool flag)
-        {
-            button_fontColorClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
-            changeCancelButton(flag, button_fontColorClose);
-        }
-
-        private void button_fontColorClose_Click(object sender, EventArgs e)
-        {
-            logger.Info("ENTER");
-            if (button_fontColorClose.Text.StartsWith("閉")) {
-                this.Close();
-            } else {
-                readSettings_tabFontColor();
-                checkerFontColor.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
-                logger.Info("LEAVE");
-            }
-        }
-
-        //-----------------------------------------------------------------------------------
-        // 機能キー割り当て
-        //-----------------------------------------------------------------------------------
-        void readSettings_tabKeyAssign()
-        {
-            textBox_zenkakuModeKeySeq.Text = Settings.ZenkakuModeKeySeq._orElse(() => makePresetString(Settings.ZenkakuModeKeySeq_Preset));
-            setEnabled(textBox_zenkakuModeKeySeq, Settings.ZenkakuModeKeySeq_PropName);
-            textBox_zenkakuOneCharKeySeq.Text = Settings.ZenkakuOneCharKeySeq._orElse(() => makePresetString(Settings.ZenkakuOneCharKeySeq_Preset));
-            setEnabled(textBox_zenkakuOneCharKeySeq, Settings.ZenkakuOneCharKeySeq_PropName);
-            textBox_katakanaModeKeySeq.Text = Settings.KatakanaModeKeySeq._orElse(() => makePresetString(Settings.KatakanaModeKeySeq_Preset));
-            setEnabled(textBox_katakanaModeKeySeq, Settings.KatakanaModeKeySeq_PropName);
-            textBox_nextThroughKeySeq.Text = Settings.NextThroughKeySeq._orElse(() => makePresetString(Settings.NextThroughKeySeq_Preset));
-            setEnabled(textBox_nextThroughKeySeq, Settings.NextThroughKeySeq_PropName);
-            textBox_historyKeySeq.Text = Settings.HistoryKeySeq._orElse(() => makePresetString(Settings.HistoryKeySeq_Preset));
-            setEnabled(textBox_historyKeySeq, Settings.HistoryKeySeq_PropName);
-            textBox_historyOneCharKeySeq.Text = Settings.HistoryOneCharKeySeq._orElse(() => makePresetString(Settings.HistoryOneCharKeySeq_Preset));
-            setEnabled(textBox_historyOneCharKeySeq, Settings.HistoryOneCharKeySeq_PropName);
-            textBox_historyFewCharsKeySeq.Text = Settings.HistoryFewCharsKeySeq._orElse(() => makePresetString(Settings.HistoryFewCharsKeySeq_Preset));
-            setEnabled(textBox_historyFewCharsKeySeq, Settings.HistoryFewCharsKeySeq_PropName);
-            textBox_bushuCompKeySeq.Text = Settings.BushuCompKeySeq._orElse(() => makePresetString(Settings.BushuCompKeySeq_Preset));
-            setEnabled(textBox_bushuCompKeySeq, Settings.BushuCompKeySeq_PropName);
-            textBox_bushuAssocKeySeq.Text = Settings.BushuAssocKeySeq._orElse(() => makePresetString(Settings.BushuAssocKeySeq_Preset));
-            setEnabled(textBox_bushuAssocKeySeq, Settings.BushuAssocKeySeq_PropName);
-            textBox_bushuAssocDirectKeySeq.Text = Settings.BushuAssocDirectKeySeq._orElse(() => makePresetString(Settings.BushuAssocDirectKeySeq_Preset));
-            setEnabled(textBox_bushuAssocDirectKeySeq, Settings.BushuAssocDirectKeySeq_PropName);
-            textBox_katakanaOneShotKeySeq.Text = Settings.KatakanaOneShotKeySeq._orElse(() => makePresetString(Settings.KatakanaOneShotKeySeq_Preset));
-            setEnabled(textBox_katakanaOneShotKeySeq, Settings.KatakanaOneShotKeySeq_PropName);
-            textBox_hankakuKatakanaOneShotKeySeq.Text = Settings.HankakuKatakanaOneShotKeySeq._orElse(() => makePresetString(Settings.HankakuKatakanaOneShotKeySeq_Preset));
-            setEnabled(textBox_hankakuKatakanaOneShotKeySeq, Settings.HankakuKatakanaOneShotKeySeq_PropName);
-            textBox_blockerSetterOneShotKeySeq.Text = Settings.BlockerSetterOneShotKeySeq._orElse(() => makePresetString(Settings.BlockerSetterOneShotKeySeq_Preset));
-            setEnabled(textBox_blockerSetterOneShotKeySeq, Settings.BlockerSetterOneShotKeySeq_PropName);
-        }
-
-        string makePresetString(string preset)
-        {
-            return preset._notEmpty() ? "(" + preset + ")" : "";
-        }
-
-        private string revertPresetString(string str)
-        {
-            return str._getFirst() == '(' && str._getLast() == ')' ? "" : str;
-        }
-
-        private void setKeyAssignStatusChecker()
-        {
-            button_keyAssignEnter.Enabled = false;
-            checkerKeyAssign.CtlToBeEnabled = button_keyAssignEnter;
-            checkerKeyAssign.ControlEnabler = tabKeyAssignStatusChanged;
-
-            checkerKeyAssign.Add(textBox_zenkakuModeKeySeq);
-            checkerKeyAssign.Add(textBox_zenkakuOneCharKeySeq);
-            checkerKeyAssign.Add(textBox_katakanaModeKeySeq);
-            checkerKeyAssign.Add(textBox_nextThroughKeySeq);
-            checkerKeyAssign.Add(textBox_historyKeySeq);
-            checkerKeyAssign.Add(textBox_historyOneCharKeySeq);
-            checkerKeyAssign.Add(textBox_historyFewCharsKeySeq);
-            checkerKeyAssign.Add(textBox_bushuCompKeySeq);
-            checkerKeyAssign.Add(textBox_bushuAssocKeySeq);
-            checkerKeyAssign.Add(textBox_bushuAssocDirectKeySeq);
-            checkerKeyAssign.Add(textBox_katakanaOneShotKeySeq);
-            checkerKeyAssign.Add(textBox_hankakuKatakanaOneShotKeySeq);
-            checkerKeyAssign.Add(textBox_blockerSetterOneShotKeySeq);
-
-            checkerAll.Add(checkerKeyAssign);
-        }
-
-        private void tabKeyAssignStatusChanged(bool flag)
-        {
-            button_keyAssignClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
-            changeCancelButton(flag, button_keyAssignClose);
-        }
-
-        private void button_keyAssignReload_Click(object sender, EventArgs e)
-        {
-            logger.Info("ENTER");
-            reloadIniFileAndDefFiles();
-            label_keyAssignReload.Show();
-            logger.Info("LEAVE");
-        }
-
-        private void button_keyAssignEnter_Click(object sender, EventArgs e)
-        {
-            logger.Info("ENTER");
-            frmMain?.DeactivateDecoderWithModifiersOff();
-
-            Settings.SetUserIni("zenkakuModeKeySeq", revertPresetString(textBox_zenkakuModeKeySeq.Text));
-            Settings.SetUserIni("zenkakuOneCharKeySeq", revertPresetString(textBox_zenkakuOneCharKeySeq.Text));
-            Settings.SetUserIni("katakanaModeKeySeq", revertPresetString(textBox_katakanaModeKeySeq.Text));
-            Settings.SetUserIni("nextThroughKeySeq", revertPresetString(textBox_nextThroughKeySeq.Text));
-            Settings.SetUserIni("historyKeySeq", revertPresetString(textBox_historyKeySeq.Text));
-            Settings.SetUserIni("historyOneCharKeySeq", revertPresetString(textBox_historyOneCharKeySeq.Text));
-            Settings.SetUserIni("historyFewCharsKeySeq", revertPresetString(textBox_historyFewCharsKeySeq.Text));
-            Settings.SetUserIni("bushuCompKeySeq", revertPresetString(textBox_bushuCompKeySeq.Text));
-            Settings.SetUserIni("bushuAssocKeySeq", revertPresetString(textBox_bushuAssocKeySeq.Text));
-            Settings.SetUserIni("bushuAssocDirectKeySeq", revertPresetString(textBox_bushuAssocDirectKeySeq.Text));
-            Settings.SetUserIni("katakanaOneShotKeySeq", revertPresetString(textBox_katakanaOneShotKeySeq.Text));
-            Settings.SetUserIni("hanKataOneShotKeySeq", revertPresetString(textBox_hankakuKatakanaOneShotKeySeq.Text));
-            Settings.SetUserIni("blkSetOneShotKeySeq", revertPresetString(textBox_blockerSetterOneShotKeySeq.Text));
-
-            Settings.ReadIniFile(false);
-            // 各種定義ファイルの再読み込み
-            frmMain?.ReloadSettingsAndDefFiles();
-
-            readSettings_tabKeyAssign();
-            checkerKeyAssign.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
-
-            //frmVkb?.SetNormalCellBackColors();
-            frmMode?.ShowImmediately();
-
-            // 各種定義ファイルの再読み込み
-            //FrmMain?.ReloadDefFiles();
-
-            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
-            //FrmMain?.MakeInitialVkbTable();
-
-            label_okResultKeyAssign.Show();
-
-            logger.Info("LEAVE");
-        }
-
-        private void button_keyAssignClose_Click(object sender, EventArgs e)
-        {
-            logger.Info("ENTER");
-            if (button_keyAssignClose.Text.StartsWith("閉")) {
-                this.Close();
-            } else {
-                readSettings_tabKeyAssign();
-                checkerKeyAssign.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
-                logger.Info("LEAVE");
-            }
-        }
-
-        private void button_keyAssignTable_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            openDocumentUrl(Settings.KeyboardUrl);
-        }
-
-        //-----------------------------------------------------------------------------------
-        //  Ctrlキー変換
-        //-----------------------------------------------------------------------------------
-        void readSettings_tabCtrlKeys()
-        {
-            // Ctrlキー変換
-            checkBox_globalCtrlKeysEnabled.Checked = Settings.GlobalCtrlKeysEnabled;
-
-            initializeCtrlKeyConversionComboBox();
-
-            checkBox_backSpaceKey.Checked = Settings.CtrlKeyConvertedToBackSpace._notEmpty() && !Settings.CtrlKeyConvertedToBackSpace.StartsWith("#");
-            checkBox_deleteKey.Checked = Settings.CtrlKeyConvertedToDelete._notEmpty() && !Settings.CtrlKeyConvertedToDelete.StartsWith("#");
-            checkBox_leftArrowKey.Checked = Settings.CtrlKeyConvertedToLeftArrow._notEmpty() && !Settings.CtrlKeyConvertedToLeftArrow.StartsWith("#");
-            checkBox_rightArrowKey.Checked = Settings.CtrlKeyConvertedToRightArrow._notEmpty() && !Settings.CtrlKeyConvertedToRightArrow.StartsWith("#");
-            checkBox_upArrowKey.Checked = Settings.CtrlKeyConvertedToUpArrow._notEmpty() && !Settings.CtrlKeyConvertedToUpArrow.StartsWith("#");
-            checkBox_downArrowKey.Checked = Settings.CtrlKeyConvertedToDownArrow._notEmpty() && !Settings.CtrlKeyConvertedToDownArrow.StartsWith("#");
-            checkBox_escKey.Checked = Settings.CtrlKeyConvertedToEsc._notEmpty() && !Settings.CtrlKeyConvertedToEsc.StartsWith("#");
-            checkBox_tabKey.Checked = Settings.CtrlKeyConvertedToTab._notEmpty() && !Settings.CtrlKeyConvertedToTab.StartsWith("#");
-            checkBox_enterKey.Checked = Settings.CtrlKeyConvertedToEnter._notEmpty() && !Settings.CtrlKeyConvertedToEnter.StartsWith("#");
-            checkBox_homeKey.Checked = Settings.CtrlKeyConvertedToHome._notEmpty() && !Settings.CtrlKeyConvertedToHome.StartsWith("#");
-            checkBox_endKey.Checked = Settings.CtrlKeyConvertedToEnd._notEmpty() && !Settings.CtrlKeyConvertedToEnd.StartsWith("#");
-
-            comboBox_selectCtrlKeyItem(comboBox_backSpaceKey, $"{Settings.CtrlKeyConvertedToBackSpace.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_deleteKey, $"{Settings.CtrlKeyConvertedToDelete.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_leftArrowKey, $"{Settings.CtrlKeyConvertedToLeftArrow.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_rightArrowKey, $"{Settings.CtrlKeyConvertedToRightArrow.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_upArrowKey, $"{Settings.CtrlKeyConvertedToUpArrow.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_downArrowKey, $"{Settings.CtrlKeyConvertedToDownArrow.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_escKey, $"{Settings.CtrlKeyConvertedToEsc.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_tabKey, $"{Settings.CtrlKeyConvertedToTab.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_enterKey, $"{Settings.CtrlKeyConvertedToEnter.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_homeKey, $"{Settings.CtrlKeyConvertedToHome.Replace("#", "")}");
-            comboBox_selectCtrlKeyItem(comboBox_endKey, $"{Settings.CtrlKeyConvertedToEnd.Replace("#", "")}");
-
-            checkBox_useLeftCtrl.Checked = Settings.UseLeftControlToConversion;
-            checkBox_useRightCtrl.Checked = Settings.UseRightControlToConversion;
-
-            radioButton_excludeFollowings.Checked = !Settings.UseClassNameListAsInclusion;
-            radioButton_includeFollowings.Checked = Settings.UseClassNameListAsInclusion;
-
-            textBox_targetClassNames.Text = Settings.CtrlKeyTargetClassNames._reReplace(@"\|", "\r\n");
-
-            checkBox_ctrlJasEnter.Checked = Settings.UseCtrlJasEnter;
-            //checkBox_ctrlMasEnter.Checked = Settings.UseCtrlMasEnter;
-
-            comboBox_selectCtrlKeyItem(comboBox_fullEscapeKey, $"{Settings.FullEscapeKey}");
-            comboBox_selectCtrlKeyItem(comboBox_strokeHelpRotationKey, $"{Settings.StrokeHelpRotationKey}");
-
-            checkBox_dateStringKey.Checked = Settings.CtrlKeyConvertedToDateString._notEmpty() && !Settings.CtrlKeyConvertedToDateString.StartsWith("#");
-            comboBox_selectCtrlKeyItem(comboBox_dateStringKey, $"{Settings.CtrlKeyConvertedToDateString.Replace("#", "")}");
-            textBox_dateStringFormat.Text = Settings.DateStringFormat._reReplace(@"\|", "\r\n");
-
-            checkBox_extraModifiersEnabled.Checked = Settings.ExtraModifiersEnabled;
-            textBox_commonTableFile.Text = Settings.CommonTableFile;
-        }
-
-        private void setCtrlKeysStatusChecker()
-        {
-            button_ctrlEnter.Enabled = false;
-            checkerCtrlKeys.CtlToBeEnabled = button_ctrlEnter;
-            checkerCtrlKeys.ControlEnabler = tabCtrlKeyStatusChanged;
-
-            checkerCtrlKeys.Add(checkBox_globalCtrlKeysEnabled);
-
-            checkerCtrlKeys.Add(checkBox_backSpaceKey);
-            checkerCtrlKeys.Add(checkBox_deleteKey);
-            checkerCtrlKeys.Add(checkBox_leftArrowKey);
-            checkerCtrlKeys.Add(checkBox_rightArrowKey);
-            checkerCtrlKeys.Add(checkBox_upArrowKey);
-            checkerCtrlKeys.Add(checkBox_downArrowKey);
-            checkerCtrlKeys.Add(checkBox_escKey);
-            checkerCtrlKeys.Add(checkBox_tabKey);
-            checkerCtrlKeys.Add(checkBox_enterKey);
-            checkerCtrlKeys.Add(checkBox_homeKey);
-            checkerCtrlKeys.Add(checkBox_endKey);
-
-            checkerCtrlKeys.Add(comboBox_backSpaceKey);
-            checkerCtrlKeys.Add(comboBox_deleteKey);
-            checkerCtrlKeys.Add(comboBox_leftArrowKey);
-            checkerCtrlKeys.Add(comboBox_rightArrowKey);
-            checkerCtrlKeys.Add(comboBox_upArrowKey);
-            checkerCtrlKeys.Add(comboBox_downArrowKey);
-            checkerCtrlKeys.Add(comboBox_escKey);
-            checkerCtrlKeys.Add(comboBox_tabKey);
-            checkerCtrlKeys.Add(comboBox_enterKey);
-            checkerCtrlKeys.Add(comboBox_homeKey);
-            checkerCtrlKeys.Add(comboBox_endKey);
-
-            checkerCtrlKeys.Add(checkBox_dateStringKey);
-            checkerCtrlKeys.Add(comboBox_dateStringKey);
-            checkerCtrlKeys.Add(textBox_dateStringFormat);
-
-            checkerCtrlKeys.Add(checkBox_useLeftCtrl);
-            checkerCtrlKeys.Add(checkBox_useRightCtrl);
-
-            checkerCtrlKeys.Add(radioButton_excludeFollowings);
-            checkerCtrlKeys.Add(radioButton_includeFollowings);
-
-            checkerCtrlKeys.Add(textBox_targetClassNames);
-
-            checkerCtrlKeys.Add(checkBox_ctrlJasEnter);
-            //checkerCtrlKeys.Add(checkBox_ctrlMasEnter);
-
-            checkerCtrlKeys.Add(comboBox_fullEscapeKey);
-            checkerCtrlKeys.Add(comboBox_strokeHelpRotationKey);
-
-            checkerCtrlKeys.Add(checkBox_extraModifiersEnabled);
-            checkerCtrlKeys.Add(textBox_commonTableFile);
-
-            checkerAll.Add(checkerCtrlKeys);
-        }
-
-        private void tabCtrlKeyStatusChanged(bool flag)
-        {
-            button_ctrlClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
-            changeCancelButton(flag, button_ctrlClose);
-        }
-
-        private string makeCtrlKeyConversion(CheckBox checkBox, ComboBox comboBox)
-        {
-            return $"{(checkBox.Checked ? "" : "#")}{comboBox._getSelectedItemSplittedFirst()}";
-        }
-
-        private void button_ctrlEnter_Click(object sender, EventArgs e)
-        {
-            logger.Info("ENTER");
-            frmMain?.DeactivateDecoderWithModifiersOff();
-
-            Settings.SetUserIni("globalCtrlKeysEnabled", checkBox_globalCtrlKeysEnabled.Checked);
-
-            Settings.SetUserIni("ctrlKeyToBackSpace", makeCtrlKeyConversion(checkBox_backSpaceKey, comboBox_backSpaceKey));
-            Settings.SetUserIni("ctrlKeyToDelete", makeCtrlKeyConversion(checkBox_deleteKey, comboBox_deleteKey));
-            Settings.SetUserIni("ctrlKeyToLeftArrowKey", makeCtrlKeyConversion(checkBox_leftArrowKey, comboBox_leftArrowKey));
-            Settings.SetUserIni("ctrlKeyToRightArrowKey", makeCtrlKeyConversion(checkBox_rightArrowKey, comboBox_rightArrowKey));
-            Settings.SetUserIni("ctrlKeyToUpArrowKey", makeCtrlKeyConversion(checkBox_upArrowKey, comboBox_upArrowKey));
-            Settings.SetUserIni("ctrlKeyToDownArrowKey", makeCtrlKeyConversion(checkBox_downArrowKey, comboBox_downArrowKey));
-            Settings.SetUserIni("ctrlKeyToEsc", makeCtrlKeyConversion(checkBox_escKey, comboBox_escKey));
-            Settings.SetUserIni("ctrlKeyToTab", makeCtrlKeyConversion(checkBox_tabKey, comboBox_tabKey));
-            Settings.SetUserIni("ctrlKeyToEnter", makeCtrlKeyConversion(checkBox_enterKey, comboBox_enterKey));
-            Settings.SetUserIni("ctrlKeyToHome", makeCtrlKeyConversion(checkBox_homeKey, comboBox_homeKey));
-            Settings.SetUserIni("ctrlKeyToEnd", makeCtrlKeyConversion(checkBox_endKey, comboBox_endKey));
-
-            Settings.SetUserIni("ctrlKeyToDateString", makeCtrlKeyConversion(checkBox_dateStringKey, comboBox_dateStringKey));
-            Settings.SetUserIni("dateStringFormat", textBox_dateStringFormat.Text.Trim()._reReplace(@"[ \r\n]+", "|"));
-
-            Settings.SetUserIni("useLeftControlToConversion", checkBox_useLeftCtrl.Checked);
-            Settings.SetUserIni("useRightControlToConversion", checkBox_useRightCtrl.Checked);
-            Settings.SetUserIni("useClassNameListAsInclusion", radioButton_includeFollowings.Checked);
-            Settings.SetUserIni("ctrlKeyTargetClassNames", textBox_targetClassNames.Text.Trim()._reReplace(@"[ \r\n]+", "|"));
-
-            Settings.SetUserIni("useCtrlJasEnter", checkBox_ctrlJasEnter.Checked);
-            //Settings.SetUserIni("useCtrlMasEnter", checkBox_ctrlMasEnter.Checked);
-
-            Settings.SetUserIni("fullEscapeKey", comboBox_fullEscapeKey._getSelectedItemSplittedFirst("G"));
-            Settings.SetUserIni("strokeHelpRotationKey", comboBox_strokeHelpRotationKey._getSelectedItemSplittedFirst("T"));
-
-            Settings.SetUserIni("extraModifiersEnabled", checkBox_extraModifiersEnabled.Checked);
-            Settings.SetUserIni("commonTableFile", textBox_commonTableFile.Text);
-
-            Settings.ReadIniFile(false);
-            // 各種定義ファイルの再読み込み
-            frmMain?.ReloadSettingsAndDefFiles();
-
-            readSettings_tabCtrlKeys();
-            checkerCtrlKeys.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
-
-            label_okResultCtrlKeys.Show();
-
-            logger.Info("LEAVE");
-        }
-
-        private void button_ctrlClose_Click(object sender, EventArgs e)
-        {
-            logger.Info("ENTER");
-            if (button_ctrlClose.Text.StartsWith("閉")) {
-                this.Close();
-            } else {
-                readSettings_tabCtrlKeys();
-                checkerCtrlKeys.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
-                logger.Info("LEAVE");
-            }
-        }
-
-        private void checkBox_extraModifiersEnabled_CheckedChanged(object sender, EventArgs e)
-        {
-            button_setCommonTable.Enabled = checkBox_extraModifiersEnabled.Checked;
-        }
-
-        private void button_openCommonTableFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            //try {
-            //    if (Settings.ModConversionFile._notEmpty()) {
-            //        System.Diagnostics.Process.Start(TableFileDir._joinPath(Settings.ModConversionFile));
-            //    }
-            //} catch { }
-            openFileInUserFolder(textBox_commonTableFile.Text);
-        }
-
-        private void button_ctrlReload_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            reloadIniFileAndDefFiles();
-            label_ctrlReload.Show();
-        }
-
-        //-----------------------------------------------------------------------------------
-        //  履歴・交ぜ書き
-        //-----------------------------------------------------------------------------------
-        void readSettings_tabHistory()
-        {
-            // 履歴関連
-            textBox_histKanjiWordMinLength.Text = $"{Settings.HistKanjiWordMinLength}";
-            textBox_histKanjiWordMaxLength.Text = $"{Settings.HistKanjiWordMaxLength}";
-            textBox_histKanjiWordMinLengthEx.Text = $"{Settings.HistKanjiWordMinLengthEx}";
-            textBox_histKatakanaWordMinLength.Text = $"{Settings.HistKatakanaWordMinLength}";
-            textBox_histKatakanaWordMaxLength.Text = $"{Settings.HistKatakanaWordMaxLength}";
-            //textBox_histMaxLength.Text = $"{Settings.HistMaxLength}";
-            textBox_histKanjiKeyLen.Text = $"{Settings.HistKanjiKeyLength}";
-            textBox_histKatakanaKeyLen.Text = $"{Settings.HistKatakanaKeyLength}";
-            textBox_histHiraganaKeyLen.Text = $"{Settings.HistHiraganaKeyLength}";
-            textBox_histRomanKeyLen.Text = $"{Settings.HistRomanKeyLength}";
-            textBox_histHorizontalCandMax.Text = $"{Settings.HistHorizontalCandMax}";
-            checkBox_autoHistEnabled.Checked = Settings.AutoHistSearchEnabled;
-            checkBox_suppressAutoHistRegister.Checked = !Settings.SuppressAutoHistRegister;
-            comboBox_historySearchKey.Enabled = checkBox_historySearchKey.Checked;
-            checkBox_historySearchKey.Checked = Settings.HistorySearchCtrlKey._notEmpty() && !Settings.HistorySearchCtrlKey.StartsWith("#");
-            comboBox_selectCtrlKeyItem(comboBox_historySearchKey, $"{Settings.HistorySearchCtrlKey.Replace("#", "")}");
-            //checkBox_histSearchByShiftSpace.Checked = Settings.HistSearchByShiftSpace;
-            checkBox_showHistCandsFromFirst.Checked = !Settings.ShowHistCandsFromFirst;
-            checkBox_selectFirstCandByEnter.Checked = Settings.SelectFirstCandByEnter;
-            checkBox_newLineWhenHistEnter.Checked = Settings.NewLineWhenHistEnter;
-            //checkBox_autoHistEnabled_CheckedChanged(null, null);
-            checkBox_useArrowKeyToSelectCand.Checked = Settings.UseArrowKeyToSelectCandidate;
-            checkBox_selectHistCandByTab.Checked = Settings.SelectHistCandByTab;
-            checkBox_selectHistCandByNumberKey.Checked = Settings.SelectHistCandByNumberKey;
-            comboBox_histDelDeckeyId.SelectedIndex = Settings.HistDelDeckeyId._lowLimit(41)._highLimit(48) - 41;
-            comboBox_histNumDeckeyId.SelectedIndex = Settings.HistNumDeckeyId._lowLimit(41)._highLimit(48) - 41;
-
-            //// 交ぜ書き
-            ////checkBox_mazegakiByShiftSpace.Checked = Settings.MazegakiByShiftSpace;
-            //checkBox_mazegakiSelectFirstCand.Checked = Settings.MazegakiSelectFirstCand;
-            //checkBox_mazeBlockerTail.Checked = !Settings.MazeBlockerTail;
-            //checkBox_mazeRemoveHeadSpace.Checked = Settings.MazeRemoveHeadSpace;
-            //checkBox_mazeRightShiftYomiPos.Checked = Settings.MazeRightShiftYomiPos;
-            //checkBox_mazeNoIfxConnectKanji.Checked = Settings.MazeNoIfxConnectKanji;
-            //checkBox_mazeNoIfxConnectAny.Checked = Settings.MazeNoIfxConnectAny;
-            //textBox_mazeYomiMaxLen.Text = $"{Settings.MazeYomiMaxLen}";
-            //textBox_mazeGobiMaxLen.Text = $"{Settings.MazeGobiMaxLen}";
-            //textBox_mazeGobiLikeTailLen.Text = $"{Settings.MazeGobiLikeTailLen}";
-            //textBox_histMapGobiMaxLength.Text = $"{Settings.HistMapGobiMaxLength}";
-            //textBox_mazeHistRegisterMinLen.Text = $"{Settings.MazeHistRegisterMinLen}";
-
-            textBox_mazeUserDicSourceFile.Text = $"{Settings.GetUserIni("mazeUserDicSourceFile")._orElse("userDic.csv")}";
-            button_ImportUserDIc.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
-            button_openUserDicFile.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
-        }
-
-        private void setHistoryStatusChecker()
-        {
-            // 履歴関連
-            button_histEnter.Enabled = false;
-            checkerHistory.CtlToBeEnabled = button_histEnter;
-            checkerHistory.ControlEnabler = tabHistoryStatusChanged;
-            checkerHistory.Add(textBox_histKanjiWordMinLength);
-            checkerHistory.Add(textBox_histKanjiWordMaxLength);
-            checkerHistory.Add(textBox_histKanjiWordMinLengthEx);
-            checkerHistory.Add(textBox_histKatakanaWordMinLength);
-            checkerHistory.Add(textBox_histKatakanaWordMaxLength);
-            //checkerHistory.Add(textBox_histMaxLength);
-            checkerHistory.Add(textBox_histKanjiKeyLen);
-            checkerHistory.Add(textBox_histKatakanaKeyLen);
-            checkerHistory.Add(textBox_histHiraganaKeyLen);
-            checkerHistory.Add(textBox_histRomanKeyLen);
-            checkerHistory.Add(textBox_histHorizontalCandMax);
-            checkerHistory.Add(checkBox_autoHistEnabled);
-            checkerHistory.Add(checkBox_suppressAutoHistRegister);
-            checkerHistory.Add(checkBox_historySearchKey);
-            checkerHistory.Add(comboBox_historySearchKey);
-            //checkerHistory.Add(checkBox_histSearchByShiftSpace);
-            checkerHistory.Add(checkBox_showHistCandsFromFirst);
-            checkerHistory.Add(checkBox_selectFirstCandByEnter);
-            checkerHistory.Add(checkBox_newLineWhenHistEnter);
-            //checkerHistory.Add(checkBox_autoHistEnabled_CheckedChanged);
-            checkerHistory.Add(checkBox_useArrowKeyToSelectCand);
-            checkerHistory.Add(checkBox_selectHistCandByTab);
-            checkerHistory.Add(checkBox_selectHistCandByNumberKey);
-            checkerHistory.Add(comboBox_histDelDeckeyId);
-            checkerHistory.Add(comboBox_histNumDeckeyId);
-
-            // 交ぜ書き
-            ////checkerHistory.Add(checkBox_mazegakiByShiftSpace);
-            //checkerHistory.Add(checkBox_mazegakiSelectFirstCand);
-            //checkerHistory.Add(checkBox_mazeBlockerTail);
-            //checkerHistory.Add(checkBox_mazeRemoveHeadSpace);
-            //checkerHistory.Add(checkBox_mazeRightShiftYomiPos);
-            //checkerHistory.Add(checkBox_mazeNoIfxConnectKanji);
-            //checkerHistory.Add(checkBox_mazeNoIfxConnectAny);
-            //checkerHistory.Add(textBox_mazeYomiMaxLen);
-            //checkerHistory.Add(textBox_mazeGobiMaxLen);
-            //checkerHistory.Add(textBox_mazeGobiLikeTailLen);
-            //checkerHistory.Add(textBox_histMapGobiMaxLength);
-            //checkerHistory.Add(textBox_mazeHistRegisterMinLen);
-
-            //checkerHistory.Add(textBox_mazeUserDicSourceFile);
-
-            checkerAll.Add(checkerHistory);
-        }
-
-        private void tabHistoryStatusChanged(bool flag)
-        {
-            button_histClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
-            changeCancelButton(flag, button_histClose);
-        }
-
-        private void button_histEnter_Click(object sender, EventArgs e)
-        {
-            logger.Info("ENTER");
-            frmMain?.DeactivateDecoderWithModifiersOff();
-
-            Settings.SetUserIni("histKanjiWordMinLength", textBox_histKanjiWordMinLength.Text.Trim());
-            Settings.SetUserIni("histKanjiWordMaxLength", textBox_histKanjiWordMaxLength.Text.Trim());
-            Settings.SetUserIni("histKanjiWordMinLengthEx", textBox_histKanjiWordMinLengthEx.Text.Trim());
-            Settings.SetUserIni("histKatakanaWordMinLength", textBox_histKatakanaWordMinLength.Text.Trim());
-            Settings.SetUserIni("histKatakanaWordMaxLength", textBox_histKatakanaWordMaxLength.Text.Trim());
-            //Settings.SetUserIni("histMaxLength", textBox_histMaxLength.Text.Trim());
-            Settings.SetUserIni("histHiraganaKeyLength", textBox_histHiraganaKeyLen.Text.Trim());
-            Settings.SetUserIni("histRomanKeyLength", textBox_histRomanKeyLen.Text.Trim());
-            Settings.SetUserIni("histHorizontalCandMax", textBox_histHorizontalCandMax.Text.Trim());
-            Settings.SetUserIni("histKatakanaKeyLength", textBox_histKatakanaKeyLen.Text.Trim());
-            Settings.SetUserIni("histKanjiKeyLength", textBox_histKanjiKeyLen.Text.Trim());
-            Settings.SetUserIni("autoHistSearchEnabled", checkBox_autoHistEnabled.Checked);
-            Settings.SetUserIni("suppressAutoHistRegister", !checkBox_suppressAutoHistRegister.Checked);
-            Settings.SetUserIni("histSearchCtrlKey", makeCtrlKeyConversion(checkBox_historySearchKey, comboBox_historySearchKey));
-            //Settings.SetUserIni("histSearchByShiftSpace", checkBox_histSearchByShiftSpace.Checked);
-            Settings.SetUserIni("showHistCandsFromFirst", !checkBox_showHistCandsFromFirst.Checked);
-            Settings.SetUserIni("selectFirstCandByEnter", checkBox_selectFirstCandByEnter.Checked);
-            Settings.SetUserIni("newLineWhenHistEnter", checkBox_newLineWhenHistEnter.Checked);
-            Settings.SetUserIni("useArrowToSelCand", checkBox_useArrowKeyToSelectCand.Checked);
-            Settings.SetUserIni("selectHistCandByTab", checkBox_selectHistCandByTab.Checked);
-            Settings.SetUserIni("selectHistCandByNumberKey", checkBox_selectHistCandByNumberKey.Checked);
-            Settings.SetUserIni("histDelDeckeyId", comboBox_histDelDeckeyId.Text.Trim()._substring(0, 2));
-            Settings.SetUserIni("histNumDeckeyId", comboBox_histNumDeckeyId.Text.Trim()._substring(0, 2));
-
-            //Settings.SetUserIni("mazegakiByShiftSpace", checkBox_mazegakiByShiftSpace.Checked);
-            //Settings.SetUserIni("mazegakiSelectFirstCand", checkBox_mazegakiSelectFirstCand.Checked);
-            //Settings.SetUserIni("mazeBlockerTail", !checkBox_mazeBlockerTail.Checked);
-            //Settings.SetUserIni("mazeRemoveHeadSpace", checkBox_mazeRemoveHeadSpace.Checked);
-            //Settings.SetUserIni("mazeRightShiftYomiPos", checkBox_mazeRightShiftYomiPos.Checked);
-            //Settings.SetUserIni("mazeNoIfxConnectKanji", checkBox_mazeNoIfxConnectKanji.Checked);
-            //Settings.SetUserIni("mazeNoIfxConnectAny", checkBox_mazeNoIfxConnectAny.Checked);
-            //Settings.SetUserIni("mazeGobiMaxLen", textBox_mazeGobiMaxLen.Text.Trim());
-            //Settings.SetUserIni("mazeYomiMaxLen", textBox_mazeYomiMaxLen.Text.Trim());
-            //Settings.SetUserIni("mazeGobiLikeTailLen", textBox_mazeGobiLikeTailLen.Text.Trim());
-            //Settings.SetUserIni("histMapGobiMaxLength", textBox_histMapGobiMaxLength.Text.Trim());
-            //Settings.SetUserIni("mazeHistRegisterMinLen", textBox_mazeHistRegisterMinLen.Text.Trim());
-
-            //Settings.SetUserIni("mazeUserDicSourceFile", textBox_mazeUserDicSourceFile.Text.Trim());
-
-            Settings.ReadIniFile(false);
-            // 各種定義ファイルの再読み込み
-            frmMain?.ReloadSettingsAndDefFiles();
-
-            readSettings_tabHistory();
-            checkerHistory.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
-
-            // 各種定義ファイルの再読み込み
-            //FrmMain?.ReloadDefFiles();
-
-            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
-
-            label_okResultHist.Show();
-
-            logger.Info("LEAVE");
-        }
-
-        private void button_histReload_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            reloadIniFileAndDefFiles();
-            label_histReload.Show();
-
-        }
-
-        private void button_histClose_Click(object sender, EventArgs e)
-        {
-            logger.Info("ENTER");
-            if (button_histClose.Text.StartsWith("閉")) {
-                this.Close();
-            } else {
-                readSettings_tabHistory();
-                checkerHistory.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
-                logger.Info("LEAVE");
-            }
-        }
-
-        private void textBox_mazeUserDicSourceFile_TextChanged(object sender, EventArgs e)
-        {
-            button_ImportUserDIc.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
-            button_openUserDicFile.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
-        }
-
-        private void button_mazeFAQ_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            openDocumentUrl(Settings.FaqMazegakiUrl);
-        }
-
-        private void button_ImportUserDic_Click(object sender, EventArgs e)
-        {
-            var dicDir = SystemHelper.MakeAbsPathUnderKanchokuRootDir(Settings.SystemFilesFolder._joinPath("dymazin/dic/mazedic"));
-            if (textBox_mazeUserDicSourceFile.Text._notEmpty()) {
-                var userDicPath = SystemHelper.MakeAbsPathUnderKanchokuRootDir(Settings.UserFilesFolder._joinAbsPath(textBox_mazeUserDicSourceFile.Text));
-                frmMain?.ExecCmdDecoder("compileAndLoadUserDic", $"{dicDir}\t{userDicPath}");
-                Settings.SetUserIni("mazeUserDicSourceFile", textBox_mazeUserDicSourceFile.Text.Trim());
-            }
-        }
-
-        private void button_selectUserDicFile_Click(object sender, EventArgs e)
-        {
-            var filePath = SystemHelper.SelectFileThroughOpenFileDialog(
-                "ユーザー辞書ファイルを選択してください",
-                "テキストファイル (*.txt;*.csv)",
-                "", SystemHelper.FindKanchokuRootDir()._joinPath("userFiles"));
-            if (filePath._notEmpty()) {
-                textBox_mazeUserDicSourceFile.Text = filePath;
-            }
-        }
-
-        private void button_openUserDicFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            var filename = textBox_mazeUserDicSourceFile.Text.Trim();
-            if (filename._notEmpty()) {
-                openFileInUserFolder(filename);
-                Settings.SetUserIni("mazeUserDicSourceFile", filename);
-            }
-        }
-
-        private void checkBox_autoHistEnabled_CheckedChanged(object sender, EventArgs e)
-        {
-            //checkBox_histSearchByCtrlSpace.Enabled = !checkBox_autoHistEnabled.Checked;
-            //checkBox_histSearchByShiftSpace.Enabled = !checkBox_autoHistEnabled.Checked;
-        }
-
-        //-----------------------------------------------------------------------------------
         //  配列融合設定
         //-----------------------------------------------------------------------------------
         void readSettings_tabFusion()
@@ -2060,15 +1314,673 @@ namespace KanchokuWS.Gui
         }
 
         //-----------------------------------------------------------------------------------
-        //  その他設定
+        //  Ctrlキーやその他の修飾キー設定
         //-----------------------------------------------------------------------------------
-        void readSettings_tabMiscSettings()
+        void readSettings_tabCtrlKeys()
+        {
+            // Ctrlキー変換
+            checkBox_globalCtrlKeysEnabled.Checked = Settings.GlobalCtrlKeysEnabled;
+
+            initializeCtrlKeyConversionComboBox();
+
+            checkBox_backSpaceKey.Checked = Settings.CtrlKeyConvertedToBackSpace._notEmpty() && !Settings.CtrlKeyConvertedToBackSpace.StartsWith("#");
+            checkBox_deleteKey.Checked = Settings.CtrlKeyConvertedToDelete._notEmpty() && !Settings.CtrlKeyConvertedToDelete.StartsWith("#");
+            checkBox_leftArrowKey.Checked = Settings.CtrlKeyConvertedToLeftArrow._notEmpty() && !Settings.CtrlKeyConvertedToLeftArrow.StartsWith("#");
+            checkBox_rightArrowKey.Checked = Settings.CtrlKeyConvertedToRightArrow._notEmpty() && !Settings.CtrlKeyConvertedToRightArrow.StartsWith("#");
+            checkBox_upArrowKey.Checked = Settings.CtrlKeyConvertedToUpArrow._notEmpty() && !Settings.CtrlKeyConvertedToUpArrow.StartsWith("#");
+            checkBox_downArrowKey.Checked = Settings.CtrlKeyConvertedToDownArrow._notEmpty() && !Settings.CtrlKeyConvertedToDownArrow.StartsWith("#");
+            checkBox_escKey.Checked = Settings.CtrlKeyConvertedToEsc._notEmpty() && !Settings.CtrlKeyConvertedToEsc.StartsWith("#");
+            checkBox_tabKey.Checked = Settings.CtrlKeyConvertedToTab._notEmpty() && !Settings.CtrlKeyConvertedToTab.StartsWith("#");
+            checkBox_enterKey.Checked = Settings.CtrlKeyConvertedToEnter._notEmpty() && !Settings.CtrlKeyConvertedToEnter.StartsWith("#");
+            checkBox_homeKey.Checked = Settings.CtrlKeyConvertedToHome._notEmpty() && !Settings.CtrlKeyConvertedToHome.StartsWith("#");
+            checkBox_endKey.Checked = Settings.CtrlKeyConvertedToEnd._notEmpty() && !Settings.CtrlKeyConvertedToEnd.StartsWith("#");
+
+            comboBox_selectCtrlKeyItem(comboBox_backSpaceKey, $"{Settings.CtrlKeyConvertedToBackSpace.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_deleteKey, $"{Settings.CtrlKeyConvertedToDelete.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_leftArrowKey, $"{Settings.CtrlKeyConvertedToLeftArrow.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_rightArrowKey, $"{Settings.CtrlKeyConvertedToRightArrow.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_upArrowKey, $"{Settings.CtrlKeyConvertedToUpArrow.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_downArrowKey, $"{Settings.CtrlKeyConvertedToDownArrow.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_escKey, $"{Settings.CtrlKeyConvertedToEsc.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_tabKey, $"{Settings.CtrlKeyConvertedToTab.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_enterKey, $"{Settings.CtrlKeyConvertedToEnter.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_homeKey, $"{Settings.CtrlKeyConvertedToHome.Replace("#", "")}");
+            comboBox_selectCtrlKeyItem(comboBox_endKey, $"{Settings.CtrlKeyConvertedToEnd.Replace("#", "")}");
+
+            checkBox_useLeftCtrl.Checked = Settings.UseLeftControlToConversion;
+            checkBox_useRightCtrl.Checked = Settings.UseRightControlToConversion;
+
+            radioButton_excludeFollowings.Checked = !Settings.UseClassNameListAsInclusion;
+            radioButton_includeFollowings.Checked = Settings.UseClassNameListAsInclusion;
+
+            textBox_targetClassNames.Text = Settings.CtrlKeyTargetClassNames._reReplace(@"\|", "\r\n");
+
+            checkBox_ctrlJasEnter.Checked = Settings.UseCtrlJasEnter;
+            //checkBox_ctrlMasEnter.Checked = Settings.UseCtrlMasEnter;
+
+            comboBox_selectCtrlKeyItem(comboBox_fullEscapeKey, $"{Settings.FullEscapeKey}");
+            comboBox_selectCtrlKeyItem(comboBox_strokeHelpRotationKey, $"{Settings.StrokeHelpRotationKey}");
+
+            checkBox_dateStringKey.Checked = Settings.CtrlKeyConvertedToDateString._notEmpty() && !Settings.CtrlKeyConvertedToDateString.StartsWith("#");
+            comboBox_selectCtrlKeyItem(comboBox_dateStringKey, $"{Settings.CtrlKeyConvertedToDateString.Replace("#", "")}");
+            textBox_dateStringFormat.Text = Settings.DateStringFormat._reReplace(@"\|", "\r\n");
+
+            checkBox_extraModifiersEnabled.Checked = Settings.ExtraModifiersEnabled;
+            textBox_commonTableFile.Text = Settings.CommonTableFile;
+        }
+
+        private void setCtrlKeysStatusChecker()
+        {
+            button_ctrlEnter.Enabled = false;
+            checkerCtrlKeys.CtlToBeEnabled = button_ctrlEnter;
+            checkerCtrlKeys.ControlEnabler = tabCtrlKeyStatusChanged;
+
+            checkerCtrlKeys.Add(checkBox_globalCtrlKeysEnabled);
+
+            checkerCtrlKeys.Add(checkBox_backSpaceKey);
+            checkerCtrlKeys.Add(checkBox_deleteKey);
+            checkerCtrlKeys.Add(checkBox_leftArrowKey);
+            checkerCtrlKeys.Add(checkBox_rightArrowKey);
+            checkerCtrlKeys.Add(checkBox_upArrowKey);
+            checkerCtrlKeys.Add(checkBox_downArrowKey);
+            checkerCtrlKeys.Add(checkBox_escKey);
+            checkerCtrlKeys.Add(checkBox_tabKey);
+            checkerCtrlKeys.Add(checkBox_enterKey);
+            checkerCtrlKeys.Add(checkBox_homeKey);
+            checkerCtrlKeys.Add(checkBox_endKey);
+
+            checkerCtrlKeys.Add(comboBox_backSpaceKey);
+            checkerCtrlKeys.Add(comboBox_deleteKey);
+            checkerCtrlKeys.Add(comboBox_leftArrowKey);
+            checkerCtrlKeys.Add(comboBox_rightArrowKey);
+            checkerCtrlKeys.Add(comboBox_upArrowKey);
+            checkerCtrlKeys.Add(comboBox_downArrowKey);
+            checkerCtrlKeys.Add(comboBox_escKey);
+            checkerCtrlKeys.Add(comboBox_tabKey);
+            checkerCtrlKeys.Add(comboBox_enterKey);
+            checkerCtrlKeys.Add(comboBox_homeKey);
+            checkerCtrlKeys.Add(comboBox_endKey);
+
+            checkerCtrlKeys.Add(checkBox_dateStringKey);
+            checkerCtrlKeys.Add(comboBox_dateStringKey);
+            checkerCtrlKeys.Add(textBox_dateStringFormat);
+
+            checkerCtrlKeys.Add(checkBox_useLeftCtrl);
+            checkerCtrlKeys.Add(checkBox_useRightCtrl);
+
+            checkerCtrlKeys.Add(radioButton_excludeFollowings);
+            checkerCtrlKeys.Add(radioButton_includeFollowings);
+
+            checkerCtrlKeys.Add(textBox_targetClassNames);
+
+            checkerCtrlKeys.Add(checkBox_ctrlJasEnter);
+            //checkerCtrlKeys.Add(checkBox_ctrlMasEnter);
+
+            checkerCtrlKeys.Add(comboBox_fullEscapeKey);
+            checkerCtrlKeys.Add(comboBox_strokeHelpRotationKey);
+
+            checkerCtrlKeys.Add(checkBox_extraModifiersEnabled);
+            checkerCtrlKeys.Add(textBox_commonTableFile);
+
+            checkerAll.Add(checkerCtrlKeys);
+        }
+
+        private void tabCtrlKeyStatusChanged(bool flag)
+        {
+            button_ctrlClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
+            changeCancelButton(flag, button_ctrlClose);
+        }
+
+        private string makeCtrlKeyConversion(CheckBox checkBox, ComboBox comboBox)
+        {
+            return $"{(checkBox.Checked ? "" : "#")}{comboBox._getSelectedItemSplittedFirst()}";
+        }
+
+        private void button_ctrlEnter_Click(object sender, EventArgs e)
+        {
+            logger.Info("ENTER");
+            frmMain?.DeactivateDecoderWithModifiersOff();
+
+            Settings.SetUserIni("globalCtrlKeysEnabled", checkBox_globalCtrlKeysEnabled.Checked);
+
+            Settings.SetUserIni("ctrlKeyToBackSpace", makeCtrlKeyConversion(checkBox_backSpaceKey, comboBox_backSpaceKey));
+            Settings.SetUserIni("ctrlKeyToDelete", makeCtrlKeyConversion(checkBox_deleteKey, comboBox_deleteKey));
+            Settings.SetUserIni("ctrlKeyToLeftArrowKey", makeCtrlKeyConversion(checkBox_leftArrowKey, comboBox_leftArrowKey));
+            Settings.SetUserIni("ctrlKeyToRightArrowKey", makeCtrlKeyConversion(checkBox_rightArrowKey, comboBox_rightArrowKey));
+            Settings.SetUserIni("ctrlKeyToUpArrowKey", makeCtrlKeyConversion(checkBox_upArrowKey, comboBox_upArrowKey));
+            Settings.SetUserIni("ctrlKeyToDownArrowKey", makeCtrlKeyConversion(checkBox_downArrowKey, comboBox_downArrowKey));
+            Settings.SetUserIni("ctrlKeyToEsc", makeCtrlKeyConversion(checkBox_escKey, comboBox_escKey));
+            Settings.SetUserIni("ctrlKeyToTab", makeCtrlKeyConversion(checkBox_tabKey, comboBox_tabKey));
+            Settings.SetUserIni("ctrlKeyToEnter", makeCtrlKeyConversion(checkBox_enterKey, comboBox_enterKey));
+            Settings.SetUserIni("ctrlKeyToHome", makeCtrlKeyConversion(checkBox_homeKey, comboBox_homeKey));
+            Settings.SetUserIni("ctrlKeyToEnd", makeCtrlKeyConversion(checkBox_endKey, comboBox_endKey));
+
+            Settings.SetUserIni("ctrlKeyToDateString", makeCtrlKeyConversion(checkBox_dateStringKey, comboBox_dateStringKey));
+            Settings.SetUserIni("dateStringFormat", textBox_dateStringFormat.Text.Trim()._reReplace(@"[ \r\n]+", "|"));
+
+            Settings.SetUserIni("useLeftControlToConversion", checkBox_useLeftCtrl.Checked);
+            Settings.SetUserIni("useRightControlToConversion", checkBox_useRightCtrl.Checked);
+            Settings.SetUserIni("useClassNameListAsInclusion", radioButton_includeFollowings.Checked);
+            Settings.SetUserIni("ctrlKeyTargetClassNames", textBox_targetClassNames.Text.Trim()._reReplace(@"[ \r\n]+", "|"));
+
+            Settings.SetUserIni("useCtrlJasEnter", checkBox_ctrlJasEnter.Checked);
+            //Settings.SetUserIni("useCtrlMasEnter", checkBox_ctrlMasEnter.Checked);
+
+            Settings.SetUserIni("fullEscapeKey", comboBox_fullEscapeKey._getSelectedItemSplittedFirst("G"));
+            Settings.SetUserIni("strokeHelpRotationKey", comboBox_strokeHelpRotationKey._getSelectedItemSplittedFirst("T"));
+
+            Settings.SetUserIni("extraModifiersEnabled", checkBox_extraModifiersEnabled.Checked);
+            Settings.SetUserIni("commonTableFile", textBox_commonTableFile.Text);
+
+            Settings.ReadIniFile(false);
+            // 各種定義ファイルの再読み込み
+            frmMain?.ReloadSettingsAndDefFiles();
+
+            readSettings_tabCtrlKeys();
+            checkerCtrlKeys.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+
+            label_okResultCtrlKeys.Show();
+
+            logger.Info("LEAVE");
+        }
+
+        private void button_ctrlClose_Click(object sender, EventArgs e)
+        {
+            logger.Info("ENTER");
+            if (button_ctrlClose.Text.StartsWith("閉")) {
+                this.Close();
+            } else {
+                readSettings_tabCtrlKeys();
+                checkerCtrlKeys.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+                logger.Info("LEAVE");
+            }
+        }
+
+        private void checkBox_extraModifiersEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            button_setCommonTable.Enabled = checkBox_extraModifiersEnabled.Checked;
+        }
+
+        private void button_openCommonTableFile_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            //try {
+            //    if (Settings.ModConversionFile._notEmpty()) {
+            //        System.Diagnostics.Process.Start(TableFileDir._joinPath(Settings.ModConversionFile));
+            //    }
+            //} catch { }
+            openFileInUserFolder(textBox_commonTableFile.Text);
+        }
+
+        private void button_ctrlReload_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            reloadIniFileAndDefFiles();
+            label_ctrlReload.Show();
+        }
+
+        private void button_faq_modKeys_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openDocumentUrl(Settings.FaqKeyAssignUrl);
+        }
+
+        //-----------------------------------------------------------------------------------
+        // フォント・色設定
+        //-----------------------------------------------------------------------------------
+        private string currentVerticalFontHeightFactort = "";
+
+        void readSettings_tabFontColor()
+        {
+            // 仮想鍵盤フォント
+            textBox_normalFont.Text = Settings.NormalVkbFontSpec;
+            textBox_centerFont.Text = Settings.CenterVkbFontSpec;
+            textBox_verticalFont.Text = Settings.VerticalVkbFontSpec;
+            textBox_horizontalFont.Text = Settings.HorizontalVkbFontSpec;
+            textBox_minibufFont.Text = Settings.MiniBufVkbFontSpec;
+            textBox_editBufferFont.Text = Settings.EditBufferFontSpec;
+            currentVerticalFontHeightFactort = $"{Settings.VerticalFontHeightFactor:f2}";
+            textBox_verticalFontHeightFactor.Text = currentVerticalFontHeightFactort;
+
+            // 通常鍵盤背景色
+            textBox_topLevelBackColor.Text = Settings.BgColorTopLevelCells;
+            textBox_centerSideBackColor.Text = Settings.BgColorCenterSideCells;
+            textBox_highLowLevelBackColor.Text = Settings.BgColorHighLowLevelCells;
+            textBox_middleLevelBackColor.Text = Settings.BgColorMiddleLevelCells;
+            textBox_nextStrokeBackColor.Text = Settings.BgColorNextStrokeCell;
+
+            // モード標識文字色
+            textBox_modeForeColor.Text = Settings.KanjiModeMarkerForeColor;
+            textBox_2ndStrokeForeColor.Text = Settings.KanjiModeMarker2ndForeColor;
+            textBox_alphaModeForeColor.Text = Settings.AlphaModeForeColor;
+
+            // 中央鍵盤背景色
+            textBox_on2ndStrokeBackColor.Text= Settings.BgColorOnWaiting2ndStroke;
+            //textBox_onMazegaki.Text= Settings.BgColorForMazegaki;
+            textBox_onHistAssoc.Text= Settings.BgColorForHistOrAssoc;
+            textBox_onBushuCompHelp.Text= Settings.BgColorForBushuCompHelp;
+            textBox_onSecondaryTable.Text= Settings.BgColorForSecondaryTable;
+            textBox_onKanaTrainingMode.Text= Settings.BgColorForKanaTrainingMode;
+            textBox_onMultiStreamMode.Text= Settings.BgColorForMultiStreamMode;
+
+            // 縦列・横列鍵盤背景色
+            textBox_firstCandidateBackColor.Text = Settings.BgColorForFirstCandidate;
+            textBox_onSelectedBackColor.Text = Settings.BgColorOnSelected;
+
+        }
+
+        private void setFontColortatusChecker()
+        {
+            button_fontColorEnter.Enabled = false;
+            checkerFontColor.CtlToBeEnabled = button_fontColorEnter;
+            checkerFontColor.ControlEnabler = tabFontColorStatusChanged;
+
+            // フォント
+            checkerFontColor.Add(textBox_normalFont);
+            checkerFontColor.Add(textBox_centerFont);
+            checkerFontColor.Add(textBox_verticalFont);
+            checkerFontColor.Add(textBox_horizontalFont);
+            checkerFontColor.Add(textBox_minibufFont);
+            checkerFontColor.Add(textBox_editBufferFont);
+            checkerFontColor.Add(textBox_verticalFontHeightFactor);
+
+            // 通常鍵盤背景色
+            checkerFontColor.Add(textBox_topLevelBackColor);
+            checkerFontColor.Add(textBox_centerSideBackColor);
+            checkerFontColor.Add(textBox_highLowLevelBackColor);
+            checkerFontColor.Add(textBox_middleLevelBackColor);
+            checkerFontColor.Add(textBox_nextStrokeBackColor);
+
+            // モード標識文字色
+            checkerFontColor.Add(textBox_modeForeColor);
+            checkerFontColor.Add(textBox_2ndStrokeForeColor);
+            checkerFontColor.Add(textBox_alphaModeForeColor);
+
+            // 中央鍵盤背景色
+            checkerFontColor.Add(textBox_on2ndStrokeBackColor);
+            checkerFontColor.Add(textBox_onMazegaki);
+            checkerFontColor.Add(textBox_onHistAssoc);
+            checkerFontColor.Add(textBox_onBushuCompHelp);
+            checkerFontColor.Add(textBox_onSecondaryTable);
+            checkerFontColor.Add(textBox_onKanaTrainingMode);
+            checkerFontColor.Add(textBox_onMultiStreamMode);
+
+            // 縦列・横列鍵盤背景色
+            checkerFontColor.Add(textBox_firstCandidateBackColor);
+            checkerFontColor.Add(textBox_onSelectedBackColor);
+
+            checkerAll.Add(checkerFontColor);
+        }
+
+        private void button_fontColrEnter_Click(object sender, EventArgs e)
+        {
+            logger.Info("ENTER");
+            frmMain?.DeactivateDecoderWithModifiersOff();
+
+            // フォント
+            Settings.SetUserIni("normalFont", textBox_normalFont.Text.Trim());
+            Settings.SetUserIni("centerFont", textBox_centerFont.Text.Trim());
+            Settings.SetUserIni("verticalFont", textBox_verticalFont.Text.Trim());
+            Settings.SetUserIni("horizontalFont", textBox_horizontalFont.Text.Trim());
+            Settings.SetUserIni("minibufFont", textBox_minibufFont.Text.Trim());
+            Settings.SetUserIni("editBufferFont", textBox_editBufferFont.Text.Trim());
+            if (textBox_verticalFontHeightFactor.Text.Trim()._ne(currentVerticalFontHeightFactort)) {
+                Settings.SetUserIni("verticalFontHeightFactor", textBox_verticalFontHeightFactor.Text.Trim());
+            }
+
+            // 通常鍵盤背景色
+            Settings.SetUserIni("bgColorTopLevelCells", textBox_topLevelBackColor.Text.Trim());
+            Settings.SetUserIni("bgColorCenterSideCells", textBox_centerSideBackColor.Text.Trim());
+            Settings.SetUserIni("bgColorHighLowLevelCells", textBox_highLowLevelBackColor.Text.Trim());
+            Settings.SetUserIni("bgColorMiddleLevelCells", textBox_middleLevelBackColor.Text.Trim());
+            Settings.SetUserIni("bgColorNextStrokeCell", textBox_nextStrokeBackColor.Text.Trim());
+
+            // モード標識色
+            Settings.SetUserIni("kanjiModeMarkerForeColor", textBox_modeForeColor.Text.Trim());
+            Settings.SetUserIni("kanjiModeMarker2ndForeColor", textBox_2ndStrokeForeColor.Text.Trim());
+            Settings.SetUserIni("alphaModeForeColor", textBox_alphaModeForeColor.Text.Trim());
+
+            // 中央鍵盤背景色
+            Settings.SetUserIni("bgColorOnWaiting2ndStroke", textBox_on2ndStrokeBackColor.Text.Trim());
+            Settings.SetUserIni("bgColorForMazegaki", textBox_onMazegaki.Text.Trim());
+            Settings.SetUserIni("bgColorForHistOrAssoc", textBox_onHistAssoc.Text.Trim());
+            Settings.SetUserIni("bgColorForBushuCompHelp", textBox_onBushuCompHelp.Text.Trim());
+            Settings.SetUserIni("bgColorForSecondaryTable", textBox_onSecondaryTable.Text.Trim());
+            Settings.SetUserIni("bgColorForKanaTrainingMode", textBox_onKanaTrainingMode.Text.Trim());
+            Settings.SetUserIni("bgColorForMultiStreamMode", textBox_onMultiStreamMode.Text.Trim());
+
+            // 縦列・横列鍵盤背景色
+            Settings.SetUserIni("bgColorForFirstCandidate", textBox_firstCandidateBackColor.Text.Trim());
+            Settings.SetUserIni("bgColorOnSelected", textBox_onSelectedBackColor.Text.Trim());
+
+            //Settings.ReadIniFile();
+            // 各種定義ファイルの再読み込み
+            frmMain?.ReloadSettingsAndDefFiles();
+
+            readSettings_tabFontColor();
+            checkerFontColor.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+
+            // 各種定義ファイルの再読み込み
+            //FrmMain?.ReloadDefFiles();
+
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+
+            label_okResultFontColor.Show();
+
+            logger.Info("LEAVE");
+        }
+
+        private void tabFontColorStatusChanged(bool flag)
+        {
+            button_fontColorClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
+            changeCancelButton(flag, button_fontColorClose);
+        }
+
+        private void button_fontColorClose_Click(object sender, EventArgs e)
+        {
+            logger.Info("ENTER");
+            if (button_fontColorClose.Text.StartsWith("閉")) {
+                this.Close();
+            } else {
+                readSettings_tabFontColor();
+                checkerFontColor.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+                logger.Info("LEAVE");
+            }
+        }
+
+#if false
+        //-----------------------------------------------------------------------------------
+        // 機能キー割り当て
+        //-----------------------------------------------------------------------------------
+        void readSettings_tabKeyAssign()
+        {
+            textBox_zenkakuModeKeySeq.Text = Settings.ZenkakuModeKeySeq._orElse(() => makePresetString(Settings.ZenkakuModeKeySeq_Preset));
+            setEnabled(textBox_zenkakuModeKeySeq, Settings.ZenkakuModeKeySeq_PropName);
+            textBox_zenkakuOneCharKeySeq.Text = Settings.ZenkakuOneCharKeySeq._orElse(() => makePresetString(Settings.ZenkakuOneCharKeySeq_Preset));
+            setEnabled(textBox_zenkakuOneCharKeySeq, Settings.ZenkakuOneCharKeySeq_PropName);
+            textBox_katakanaModeKeySeq.Text = Settings.KatakanaModeKeySeq._orElse(() => makePresetString(Settings.KatakanaModeKeySeq_Preset));
+            setEnabled(textBox_katakanaModeKeySeq, Settings.KatakanaModeKeySeq_PropName);
+            textBox_nextThroughKeySeq.Text = Settings.NextThroughKeySeq._orElse(() => makePresetString(Settings.NextThroughKeySeq_Preset));
+            setEnabled(textBox_nextThroughKeySeq, Settings.NextThroughKeySeq_PropName);
+            textBox_historyKeySeq.Text = Settings.HistoryKeySeq._orElse(() => makePresetString(Settings.HistoryKeySeq_Preset));
+            setEnabled(textBox_historyKeySeq, Settings.HistoryKeySeq_PropName);
+            textBox_historyOneCharKeySeq.Text = Settings.HistoryOneCharKeySeq._orElse(() => makePresetString(Settings.HistoryOneCharKeySeq_Preset));
+            setEnabled(textBox_historyOneCharKeySeq, Settings.HistoryOneCharKeySeq_PropName);
+            textBox_historyFewCharsKeySeq.Text = Settings.HistoryFewCharsKeySeq._orElse(() => makePresetString(Settings.HistoryFewCharsKeySeq_Preset));
+            setEnabled(textBox_historyFewCharsKeySeq, Settings.HistoryFewCharsKeySeq_PropName);
+            textBox_bushuCompKeySeq.Text = Settings.BushuCompKeySeq._orElse(() => makePresetString(Settings.BushuCompKeySeq_Preset));
+            setEnabled(textBox_bushuCompKeySeq, Settings.BushuCompKeySeq_PropName);
+            textBox_bushuAssocKeySeq.Text = Settings.BushuAssocKeySeq._orElse(() => makePresetString(Settings.BushuAssocKeySeq_Preset));
+            setEnabled(textBox_bushuAssocKeySeq, Settings.BushuAssocKeySeq_PropName);
+            textBox_bushuAssocDirectKeySeq.Text = Settings.BushuAssocDirectKeySeq._orElse(() => makePresetString(Settings.BushuAssocDirectKeySeq_Preset));
+            setEnabled(textBox_bushuAssocDirectKeySeq, Settings.BushuAssocDirectKeySeq_PropName);
+            textBox_katakanaOneShotKeySeq.Text = Settings.KatakanaOneShotKeySeq._orElse(() => makePresetString(Settings.KatakanaOneShotKeySeq_Preset));
+            setEnabled(textBox_katakanaOneShotKeySeq, Settings.KatakanaOneShotKeySeq_PropName);
+            textBox_hankakuKatakanaOneShotKeySeq.Text = Settings.HankakuKatakanaOneShotKeySeq._orElse(() => makePresetString(Settings.HankakuKatakanaOneShotKeySeq_Preset));
+            setEnabled(textBox_hankakuKatakanaOneShotKeySeq, Settings.HankakuKatakanaOneShotKeySeq_PropName);
+            textBox_blockerSetterOneShotKeySeq.Text = Settings.BlockerSetterOneShotKeySeq._orElse(() => makePresetString(Settings.BlockerSetterOneShotKeySeq_Preset));
+            setEnabled(textBox_blockerSetterOneShotKeySeq, Settings.BlockerSetterOneShotKeySeq_PropName);
+        }
+
+        string makePresetString(string preset)
+        {
+            return preset._notEmpty() ? "(" + preset + ")" : "";
+        }
+
+        private string revertPresetString(string str)
+        {
+            return str._getFirst() == '(' && str._getLast() == ')' ? "" : str;
+        }
+
+        private void setKeyAssignStatusChecker()
+        {
+            button_keyAssignEnter.Enabled = false;
+            checkerKeyAssign.CtlToBeEnabled = button_keyAssignEnter;
+            checkerKeyAssign.ControlEnabler = tabKeyAssignStatusChanged;
+
+            checkerKeyAssign.Add(textBox_zenkakuModeKeySeq);
+            checkerKeyAssign.Add(textBox_zenkakuOneCharKeySeq);
+            checkerKeyAssign.Add(textBox_katakanaModeKeySeq);
+            checkerKeyAssign.Add(textBox_nextThroughKeySeq);
+            checkerKeyAssign.Add(textBox_historyKeySeq);
+            checkerKeyAssign.Add(textBox_historyOneCharKeySeq);
+            checkerKeyAssign.Add(textBox_historyFewCharsKeySeq);
+            checkerKeyAssign.Add(textBox_bushuCompKeySeq);
+            checkerKeyAssign.Add(textBox_bushuAssocKeySeq);
+            checkerKeyAssign.Add(textBox_bushuAssocDirectKeySeq);
+            checkerKeyAssign.Add(textBox_katakanaOneShotKeySeq);
+            checkerKeyAssign.Add(textBox_hankakuKatakanaOneShotKeySeq);
+            checkerKeyAssign.Add(textBox_blockerSetterOneShotKeySeq);
+
+            checkerAll.Add(checkerKeyAssign);
+        }
+
+        private void tabKeyAssignStatusChanged(bool flag)
+        {
+            button_keyAssignClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
+            changeCancelButton(flag, button_keyAssignClose);
+        }
+
+        private void button_keyAssignReload_Click(object sender, EventArgs e)
+        {
+            logger.Info("ENTER");
+            reloadIniFileAndDefFiles();
+            label_keyAssignReload.Show();
+            logger.Info("LEAVE");
+        }
+
+        private void button_keyAssignEnter_Click(object sender, EventArgs e)
+        {
+            logger.Info("ENTER");
+            frmMain?.DeactivateDecoderWithModifiersOff();
+
+            Settings.SetUserIni("zenkakuModeKeySeq", revertPresetString(textBox_zenkakuModeKeySeq.Text));
+            Settings.SetUserIni("zenkakuOneCharKeySeq", revertPresetString(textBox_zenkakuOneCharKeySeq.Text));
+            Settings.SetUserIni("katakanaModeKeySeq", revertPresetString(textBox_katakanaModeKeySeq.Text));
+            Settings.SetUserIni("nextThroughKeySeq", revertPresetString(textBox_nextThroughKeySeq.Text));
+            Settings.SetUserIni("historyKeySeq", revertPresetString(textBox_historyKeySeq.Text));
+            Settings.SetUserIni("historyOneCharKeySeq", revertPresetString(textBox_historyOneCharKeySeq.Text));
+            Settings.SetUserIni("historyFewCharsKeySeq", revertPresetString(textBox_historyFewCharsKeySeq.Text));
+            Settings.SetUserIni("bushuCompKeySeq", revertPresetString(textBox_bushuCompKeySeq.Text));
+            Settings.SetUserIni("bushuAssocKeySeq", revertPresetString(textBox_bushuAssocKeySeq.Text));
+            Settings.SetUserIni("bushuAssocDirectKeySeq", revertPresetString(textBox_bushuAssocDirectKeySeq.Text));
+            Settings.SetUserIni("katakanaOneShotKeySeq", revertPresetString(textBox_katakanaOneShotKeySeq.Text));
+            Settings.SetUserIni("hanKataOneShotKeySeq", revertPresetString(textBox_hankakuKatakanaOneShotKeySeq.Text));
+            Settings.SetUserIni("blkSetOneShotKeySeq", revertPresetString(textBox_blockerSetterOneShotKeySeq.Text));
+
+            Settings.ReadIniFile(false);
+            // 各種定義ファイルの再読み込み
+            frmMain?.ReloadSettingsAndDefFiles();
+
+            readSettings_tabKeyAssign();
+            checkerKeyAssign.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+
+            //frmVkb?.SetNormalCellBackColors();
+            frmMode?.ShowImmediately();
+
+            // 各種定義ファイルの再読み込み
+            //FrmMain?.ReloadDefFiles();
+
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+            //FrmMain?.MakeInitialVkbTable();
+
+            label_okResultKeyAssign.Show();
+
+            logger.Info("LEAVE");
+        }
+
+        private void button_keyAssignClose_Click(object sender, EventArgs e)
+        {
+            logger.Info("ENTER");
+            if (button_keyAssignClose.Text.StartsWith("閉")) {
+                this.Close();
+            } else {
+                readSettings_tabKeyAssign();
+                checkerKeyAssign.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+                logger.Info("LEAVE");
+            }
+        }
+
+        private void button_keyAssignTable_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openDocumentUrl(Settings.KeyboardUrl);
+        }
+#endif
+
+        //-----------------------------------------------------------------------------------
+        //  英数モード、カタカナ、簡易辞書
+        //-----------------------------------------------------------------------------------
+        void readSettings_tabSimpleDic()
+        {
+            textBox_simpleDicCandMax.Text = $"{Settings.HistHorizontalCandMax}";
+            comboBox_simpleDicSearchKey.Enabled = checkBox_simpleDicSearchKey.Checked;
+            checkBox_simpleDicSearchKey.Checked = Settings.HistorySearchCtrlKey._notEmpty() && !Settings.HistorySearchCtrlKey.StartsWith("#");
+            comboBox_selectCtrlKeyItem(comboBox_simpleDicSearchKey, $"{Settings.HistorySearchCtrlKey.Replace("#", "")}");
+            checkBox_showsimpleDicCandsFromFirst.Checked = !Settings.ShowHistCandsFromFirst;
+            //checkBox_autoHistEnabled_CheckedChanged(null, null);
+            checkBox_useArrowKeyToSelectCand.Checked = Settings.UseArrowKeyToSelectCandidate;
+            checkBox_selectSimpleDicCandByTab.Checked = Settings.SelectHistCandByTab;
+
+        }
+
+        private void setSimpleDicStatusChecker()
+        {
+            // 履歴関連
+            button_simpleDicApply.Enabled = false;
+            checkerHistory.CtlToBeEnabled = button_simpleDicApply;
+            checkerHistory.ControlEnabler = tabSimpleDicStatusChanged;
+            checkerHistory.Add(textBox_simpleDicCandMax);
+            checkerHistory.Add(checkBox_simpleDicSearchKey);
+            checkerHistory.Add(comboBox_simpleDicSearchKey);
+            checkerHistory.Add(checkBox_showsimpleDicCandsFromFirst);
+            checkerHistory.Add(checkBox_useArrowKeyToSelectCand);
+            checkerHistory.Add(checkBox_selectSimpleDicCandByTab);
+
+            checkerAll.Add(checkerHistory);
+        }
+
+        private void tabSimpleDicStatusChanged(bool flag)
+        {
+            button_simpleDicClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
+            changeCancelButton(flag, button_simpleDicClose);
+        }
+
+        private void button_simpleDicApply_Click(object sender, EventArgs e)
+        {
+            logger.Info("ENTER");
+            frmMain?.DeactivateDecoderWithModifiersOff();
+
+            Settings.SetUserIni("histHorizontalCandMax", textBox_simpleDicCandMax.Text.Trim());
+            Settings.SetUserIni("histSearchCtrlKey", makeCtrlKeyConversion(checkBox_simpleDicSearchKey, comboBox_simpleDicSearchKey));
+            Settings.SetUserIni("showHistCandsFromFirst", !checkBox_showsimpleDicCandsFromFirst.Checked);
+            Settings.SetUserIni("useArrowToSelCand", checkBox_useArrowKeyToSelectCand.Checked);
+            Settings.SetUserIni("selectHistCandByTab", checkBox_selectSimpleDicCandByTab.Checked);
+
+            Settings.ReadIniFile(false);
+            // 各種定義ファイルの再読み込み
+            frmMain?.ReloadSettingsAndDefFiles();
+
+            readSettings_tabSimpleDic();
+            checkerHistory.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+
+            // 各種定義ファイルの再読み込み
+            //FrmMain?.ReloadDefFiles();
+
+            //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
+
+            label_okResultHist.Show();
+
+            logger.Info("LEAVE");
+        }
+
+        private void button_simpleDicReload_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            reloadIniFileAndDefFiles();
+            label_histReload.Show();
+
+        }
+
+        private void button_simpleDicClose_Click(object sender, EventArgs e)
+        {
+            logger.Info("ENTER");
+            if (button_simpleDicClose.Text.StartsWith("閉")) {
+                this.Close();
+            } else {
+                readSettings_tabSimpleDic();
+                checkerHistory.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+                logger.Info("LEAVE");
+            }
+        }
+
+        private void button_openUserRomanFile_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openFileInUserFolder(textBox_userRomanFile.Text);
+        }
+
+        private void button_loadUserRomanFile_Click(object sender, EventArgs e)
+        {
+            frmMain?.ExecCmdDecoder("readUserRomanFile", null);
+        }
+
+        /// <summary> 簡易辞書登録 </summary>
+        private void button_enterSimpleDic_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            var line = textBox_history.Text.Trim().Replace(" ", "");
+            if (line._notEmpty()) {
+                //FrmMain?.ExecCmdDecoder("addHistEntry", line);
+                frmMain?.AddHistEntry(line);
+                label_saveHist.Hide();
+                label_history.Show();
+                dicRegLabelCount = dicRegLabelCountMax;
+            }
+        }
+
+        private void button_saveSimpleDic_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            frmMain?.ExecCmdDecoder("saveHistoryDic", null);
+            label_history.Hide();
+            label_saveHist.Show();
+            dicRegLabelCount = dicRegLabelCountMax;
+        }
+
+        private void textBox_simpleDic_TextChanged(object sender, EventArgs e)
+        {
+            label_saveHist.Hide();
+            label_history.Hide();
+        }
+
+        private void button_faq_eisu_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openDocumentUrl(Settings.FaqEisuUrl);
+        }
+
+        private void button_faq_simpleDict_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openDocumentUrl(Settings.FaqSimpleDicUrl);
+        }
+
+        //private void checkBox_autoHistEnabled_CheckedChanged(object sender, EventArgs e)
+        //{
+        //    //checkBox_histSearchByCtrlSpace.Enabled = !checkBox_autoHistEnabled.Checked;
+        //    //checkBox_histSearchByShiftSpace.Enabled = !checkBox_autoHistEnabled.Checked;
+        //}
+
+        //-----------------------------------------------------------------------------------
+        //  交ぜ書き、書き換え設定
+        //-----------------------------------------------------------------------------------
+        void readSettings_tabMazeHenkanSettings()
         {
             // その他変換
             checkBox_yamanobeEnabled.Checked = Settings.YamanobeEnabled;
             //checkBox_autoBushuComp.Checked = Settings.AutoBushuComp;
             textBox_autoBushuCompMinCount.Text = $"{Settings.AutoBushuCompMinCount}";
-            textBox_bushuAssocSelectCount.Text = $"{Settings.BushuAssocSelectCount}";
             checkBox_convertShiftedHiraganaToKatakana.Checked = Settings.ConvertShiftedHiraganaToKatakana;
             switch (Settings.HiraganaToKatakanaShiftPlane) {
                 case 2: radioButton_shiftA.Checked = true; break;
@@ -2077,16 +1989,11 @@ namespace KanchokuWS.Gui
             }
             changeShiftPlaneSectionRadioButtonsState();
             checkBox_convertHiraganaToKatakanaNormalPlane.Checked = Settings.HiraganaToKatakanaNormalPlane;
-            checkBox_convertJaPeriod.Checked = Settings.ConvertJaPeriod;
-            checkBox_convertJaComma.Checked = Settings.ConvertJaComma;
             checkBox_eisuModeEnabled.Checked = Settings.EisuModeEnabled;
-            checkBox_postRewriteCompatibleWithGoogle.Checked = Settings.PostRewriteCompatibleWithGooble;
             textBox_eisuHistSearchChar.Text = Settings.EisuHistSearchChar;
             textBox_eisuExitCapitalCharNum.Text = $"{Settings.EisuExitCapitalCharNum}";
             textBox_eisuExitSpaceNum.Text = $"{Settings.EisuExitSpaceNum}";
             textBox_userRomanFile.Text = $"{Settings.HistoryFile._safeReplace("*", "roman")}";
-            textBox_romanBushuCompPrefix.Text = Settings.RomanBushuCompPrefix;
-            textBox_romanSecPlanePrefix.Text = Settings.RomanSecPlanePrefix;
             textBox_preRewriteTargetChars.Text = $"{Settings.PreRewriteTargetChars}";
             setEnabled(textBox_preRewriteTargetChars, Settings.PreRewriteTargetChars_PropName);
             textBox_preRewriteAllowedDelayTimeMs.Text = $"{Settings.PreRewriteAllowedDelayTimeMs}";
@@ -2095,32 +2002,30 @@ namespace KanchokuWS.Gui
             setEnabled(textBox_preRewriteAllowedDelayTimeMs2, Settings.PreRewriteAllowedDelayTimeMs2_PropName);
             textBox_preRewriteWaitTimeMsWhenTrainingMode.Text = $"{Settings.PreRewriteWaitTimeMsWhenTrainingMode}";
             setEnabled(textBox_preRewriteWaitTimeMsWhenTrainingMode, Settings.PreRewriteWaitTimeMsWhenTrainingMode_PropName);
+
+            textBox_mazeUserDicSourceFile.Text = $"{Settings.GetUserIni("mazeUserDicSourceFile")._orElse("userDic.csv")}";
+            button_ImportUserDIc.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
+            button_openUserDicFile.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
         }
 
-        private void setMiscSettingsStatusChecker()
+        private void setMazeHankanSettingsStatusChecker()
         {
             // その他変換
             button_miscEnter.Enabled = false;
             checkerMiscSettings.CtlToBeEnabled = button_miscEnter;
-            checkerMiscSettings.ControlEnabler = tabMiscStatusChanged;
+            checkerMiscSettings.ControlEnabler = tabMazeHenkanStatusChanged;
             checkerMiscSettings.Add(checkBox_yamanobeEnabled);
             //checkerMiscSettings.Add(checkBox_autoBushuComp);
             checkerMiscSettings.Add(textBox_autoBushuCompMinCount);
-            checkerMiscSettings.Add(textBox_bushuAssocSelectCount);
             checkerMiscSettings.Add(checkBox_convertShiftedHiraganaToKatakana);
             checkerMiscSettings.Add(radioButton_normalShift);
             checkerMiscSettings.Add(radioButton_shiftA);
             checkerMiscSettings.Add(radioButton_shiftB);
             checkerMiscSettings.Add(checkBox_convertHiraganaToKatakanaNormalPlane);
-            checkerMiscSettings.Add(checkBox_convertJaPeriod);
-            checkerMiscSettings.Add(checkBox_convertJaComma);
             checkerMiscSettings.Add(checkBox_eisuModeEnabled);
-            checkerMiscSettings.Add(checkBox_postRewriteCompatibleWithGoogle);
             checkerMiscSettings.Add(textBox_eisuHistSearchChar);
             checkerMiscSettings.Add(textBox_eisuExitCapitalCharNum);
             checkerMiscSettings.Add(textBox_eisuExitSpaceNum);
-            checkerMiscSettings.Add(textBox_romanBushuCompPrefix);
-            checkerMiscSettings.Add(textBox_romanSecPlanePrefix);
             checkerMiscSettings.Add(textBox_preRewriteTargetChars);
             checkerMiscSettings.Add(textBox_preRewriteAllowedDelayTimeMs);
             checkerMiscSettings.Add(textBox_preRewriteAllowedDelayTimeMs2);
@@ -2129,32 +2034,26 @@ namespace KanchokuWS.Gui
             checkerAll.Add(checkerMiscSettings);
         }
 
-        private void tabMiscStatusChanged(bool flag)
+        private void tabMazeHenkanStatusChanged(bool flag)
         {
             button_miscClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
             changeCancelButton(flag, button_miscClose);
             //button_saveRomanTableFile.Enabled = !flag;
         }
 
-        private void button_miscEnter_Click(object sender, EventArgs e)
+        private void button_mazeHenkanApply_Click(object sender, EventArgs e)
         {
             logger.Info("ENTER");
             Settings.SetUserIni("yamanobeEnabled", checkBox_yamanobeEnabled.Checked);
             //Settings.SetUserIni("autoBushuComp", checkBox_autoBushuComp.Checked);
             Settings.SetUserIni("autoBushuCompMinCount", textBox_autoBushuCompMinCount.Text);
-            Settings.SetUserIni("bushuAssocSelectCount", textBox_bushuAssocSelectCount.Text);
             Settings.SetUserIni("convertShiftedHiraganaToKatakana", checkBox_convertShiftedHiraganaToKatakana.Checked);
             Settings.SetUserIni("hiraToKataShiftPlane", radioButton_shiftA.Checked ? 2 : radioButton_shiftB.Checked ? 3 : 1);
             Settings.SetUserIni("hiraToKataNormalPlane", checkBox_convertHiraganaToKatakanaNormalPlane.Checked);
-            Settings.SetUserIni("convertJaPeriod", checkBox_convertJaPeriod.Checked);
-            Settings.SetUserIni("convertJaComma", checkBox_convertJaComma.Checked);
             Settings.SetUserIni("eisuModeEnabled", checkBox_eisuModeEnabled.Checked);
-            Settings.SetUserIni("googleCompatible", checkBox_postRewriteCompatibleWithGoogle.Checked);
             Settings.SetUserIni("eisuHistSearchChar", textBox_eisuHistSearchChar.Text);
             Settings.SetUserIni("eisuExitCapitalCharNum", textBox_eisuExitCapitalCharNum.Text);
             Settings.SetUserIni("eisuExitSpaceNum", textBox_eisuExitSpaceNum.Text);
-            Settings.SetUserIni("romanBushuCompPrefix", textBox_romanBushuCompPrefix.Text);
-            Settings.SetUserIni("romanSecPlanePrefix", textBox_romanSecPlanePrefix.Text);
             Settings.SetUserIni(Settings.PreRewriteTargetChars_PropName, textBox_preRewriteTargetChars.Text.Trim());
             Settings.SetUserIni(Settings.PreRewriteAllowedDelayTimeMs_PropName, textBox_preRewriteAllowedDelayTimeMs.Text.Trim());
             Settings.SetUserIni(Settings.PreRewriteAllowedDelayTimeMs2_PropName, textBox_preRewriteAllowedDelayTimeMs2.Text.Trim());
@@ -2164,7 +2063,7 @@ namespace KanchokuWS.Gui
             // 各種定義ファイルの再読み込み
             frmMain?.ReloadSettingsAndDefFiles();
 
-            readSettings_tabMiscSettings();
+            readSettings_tabMazeHenkanSettings();
             checkerMiscSettings.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
 
             // 各種定義ファイルの再読み込み
@@ -2189,82 +2088,78 @@ namespace KanchokuWS.Gui
             radioButton_shiftB.Enabled = checkBox_convertShiftedHiraganaToKatakana.Checked;
         }
 
-        private void button_miscReload_Click(object sender, EventArgs e)
+        private void button_mazeHenkanReload_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
             reloadIniFileAndDefFiles();
             label_miscReload.Show();
         }
 
-        private void button_saveRomanTableFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            frmMain?.ExecCmdDecoder("SaveRomanStrokeTable", $"{textBox_romanBushuCompPrefix.Text}\t{textBox_romanSecPlanePrefix.Text}");
-            label_miscRomanOut.Show();
-        }
-
-        private void button_saveEelllJsTableFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            frmMain?.ExecCmdDecoder("SaveEelllJsTable", null);
-            label_miscEelllJsOut.Show();
-        }
-
-        private void button_openUserRomanFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            openFileInUserFolder(textBox_userRomanFile.Text);
-        }
-
-        private void button_loadUserRomanFile_Click(object sender, EventArgs e)
-        {
-            frmMain?.ExecCmdDecoder("readUserRomanFile", null);
-        }
-
         /// <summary> 閉じる </summary>
-        private void button_miscClose_Click(object sender, EventArgs e)
+        private void button_mazeHenkanClose_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
             if (button_miscClose.Text.StartsWith("閉")) {
                 this.Close();
             } else {
-                readSettings_tabMiscSettings();
+                readSettings_tabMazeHenkanSettings();
                 checkerMiscSettings.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
             }
         }
 
-        //-----------------------------------------------------------------------------------
-        // 辞書登録
-        //-----------------------------------------------------------------------------------
-        /// <summary> 履歴辞書登録 </summary>
-        private void button_enterHistory_Click(object sender, EventArgs e)
+        private void textBox_mazeUserDicSourceFile_TextChanged(object sender, EventArgs e)
+        {
+            button_ImportUserDIc.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
+            button_openUserDicFile.Enabled = textBox_mazeUserDicSourceFile.Text._notEmpty();
+        }
+
+        private void button_mazeFAQ_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            var line = textBox_history.Text.Trim().Replace(" ", "");
-            if (line._notEmpty()) {
-                //FrmMain?.ExecCmdDecoder("addHistEntry", line);
-                frmMain?.AddHistEntry(line);
-                label_saveHist.Hide();
-                label_history.Show();
-                dicRegLabelCount = dicRegLabelCountMax;
+            openDocumentUrl(Settings.FaqMazegakiUrl);
+        }
+
+        private void button_faq_rewrite_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openDocumentUrl(Settings.FaqRewriteUrl);
+        }
+
+        private void button_ImportUserDic_Click(object sender, EventArgs e)
+        {
+            var dicDir = SystemHelper.MakeAbsPathUnderKanchokuRootDir(Settings.SystemFilesFolder._joinPath("dymazin/dic/mazedic"));
+            if (textBox_mazeUserDicSourceFile.Text._notEmpty()) {
+                var userDicPath = SystemHelper.MakeAbsPathUnderKanchokuRootDir(Settings.UserFilesFolder._joinAbsPath(textBox_mazeUserDicSourceFile.Text));
+                frmMain?.ExecCmdDecoder("compileAndLoadUserDic", $"{dicDir}\t{userDicPath}");
+                Settings.SetUserIni("mazeUserDicSourceFile", textBox_mazeUserDicSourceFile.Text.Trim());
             }
         }
 
-        private void button_saveHistoryFile_Click(object sender, EventArgs e)
+        private void button_selectUserDicFile_Click(object sender, EventArgs e)
+        {
+            var filePath = SystemHelper.SelectFileThroughOpenFileDialog(
+                "ユーザー辞書ファイルを選択してください",
+                "テキストファイル (*.txt;*.csv)",
+                "", SystemHelper.FindKanchokuRootDir()._joinPath("userFiles"));
+            if (filePath._notEmpty()) {
+                textBox_mazeUserDicSourceFile.Text = filePath;
+            }
+        }
+
+        private void button_openUserDicFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            frmMain?.ExecCmdDecoder("saveHistoryDic", null);
-            label_history.Hide();
-            label_saveHist.Show();
-            dicRegLabelCount = dicRegLabelCountMax;
+            var filename = textBox_mazeUserDicSourceFile.Text.Trim();
+            if (filename._notEmpty()) {
+                openFileInUserFolder(filename);
+                Settings.SetUserIni("mazeUserDicSourceFile", filename);
+            }
         }
 
-        private void textBox_history_TextChanged(object sender, EventArgs e)
-        {
-            label_saveHist.Hide();
-            label_history.Hide();
-        }
-
+#if false
+        //-----------------------------------------------------------------------------------
+        // 辞書登録
+        //-----------------------------------------------------------------------------------
         /// <summary> 交ぜ書き辞書登録 </summary>
         /// <summary> 部首連想辞書登録 </summary>
         private void button_enterBushuAssoc_Click(object sender, EventArgs e)
@@ -2395,6 +2290,7 @@ namespace KanchokuWS.Gui
             logger.Info("CALLED");
             this.Close();
         }
+#endif
 
         //-----------------------------------------------------------------------------------
         // 共通・ヘルパー他
@@ -2415,19 +2311,17 @@ namespace KanchokuWS.Gui
                     label_okResultImeCombo.Hide();
                     label_okResultFontColor.Hide();
                     label_okResultHist.Hide();
-                    label_okResultKeyAssign.Hide();
                     label_okResultCtrlKeys.Hide();
                     label_okResultMisc.Hide();
                     label_okResultFusion.Hide();
                     label_imeComboReload.Hide();
-                    label_keyAssignReload.Hide();
                     label_ctrlReload.Hide();
                     label_histReload.Hide();
-                    label_miscRomanOut.Hide();
-                    label_miscEelllJsOut.Hide();
+                    //label_miscRomanOut.Hide();
+                    //label_miscEelllJsOut.Hide();
                     label_miscReload.Hide();
                     label_fusionReload.Hide();
-                    label_execResultFile.Hide();
+                    //label_execResultFile.Hide();
                     label_okResultDevelop.Hide();
                 }
             }
@@ -2543,13 +2437,6 @@ namespace KanchokuWS.Gui
                 if (dicRegLabelCount == 0) {
                     label_saveHist.Hide();
                     label_history.Hide();
-                    label_saveAssoc.Hide();
-                    label_bushuAssoc.Hide();
-                    label_saveBushu.Hide();
-                    label_bushuComp.Hide();
-                    label_saveAutoBushu.Hide();
-                    label_autoBushuComp.Hide();
-                    button_readBushuAssoc.Show();
                 }
             }
         }
@@ -2583,31 +2470,22 @@ namespace KanchokuWS.Gui
                     AcceptButton = button_fontColorEnter;
                     CancelButton = button_fontColorClose;
                     break;
-                case "tabPage_keyAssign":
-                    AcceptButton = button_keyAssignEnter;
-                    CancelButton = button_keyAssignClose;
-                    readSettings_tabKeyAssign();
-                    break;
                 case "tabPage_ctrlKeys":
                     AcceptButton = button_ctrlEnter;
                     CancelButton = button_ctrlClose;
                     break;
                 case "tabPage_history":
-                    AcceptButton = button_histEnter;
-                    CancelButton = button_histClose;
+                    AcceptButton = button_simpleDicApply;
+                    CancelButton = button_simpleDicClose;
                     break;
                 case "tabPage_misc":
                     AcceptButton = button_miscEnter;
                     CancelButton = button_miscClose;
-                    readSettings_tabMiscSettings();
+                    readSettings_tabMazeHenkanSettings();
                     break;
                 case "tabPage_fusion":
                     AcceptButton = button_fusionEnter;
                     CancelButton = button_fusionClose;
-                    break;
-                case "tabPage_register":
-                    AcceptButton = button_registerClose;
-                    CancelButton = button_registerClose;
                     break;
                 case "tabPage_develop":
                     AcceptButton = button_developEnter;
@@ -2628,7 +2506,7 @@ namespace KanchokuWS.Gui
         {
             logger.Info("CALLED");
             frmMain?.SaveAllFiles();
-            label_execResultFile.Show();
+            //label_execResultFile.Show();
         }
 
         private string makeFontSpec(string oldSpec /*, bool bVertical*/)
@@ -2752,7 +2630,13 @@ namespace KanchokuWS.Gui
         private void button_imeFAQ_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            openDocumentUrl(Settings.FaqBasicUrl);
+            openDocumentUrl(Settings.FaqImeUrl);
+        }
+
+        private void button_faq_combo_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openDocumentUrl(Settings.FaqComboUrl);
         }
 
         private void radioButton_normalVkb_CheckedChanged(object sender, EventArgs e)
@@ -2975,12 +2859,12 @@ namespace KanchokuWS.Gui
 
         private void comboBox_historySearchKey_DropDown(object sender, EventArgs e)
         {
-            comboBox_ctrlKey_setItems(comboBox_historySearchKey);
+            comboBox_ctrlKey_setItems(comboBox_simpleDicSearchKey);
         }
 
         private void checkBox_historySearchKey_CheckedChanged(object sender, EventArgs e)
         {
-            comboBox_historySearchKey.Enabled = checkBox_historySearchKey.Checked;
+            comboBox_simpleDicSearchKey.Enabled = checkBox_simpleDicSearchKey.Checked;
         }
 
         private void comboBox_dateStringKey_DropDown(object sender, EventArgs e)
