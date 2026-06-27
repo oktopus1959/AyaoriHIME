@@ -4,6 +4,9 @@
 #include "Logger.h"
 #include "exception.h"
 
+#include <algorithm>
+#include <cmath>
+
 #include "dict/Dictionary.h"
 #include "Tokenizer.h"
 #include "Lattice.h"
@@ -22,6 +25,24 @@ namespace analyzer {
     int HEAD_GETA_COST = 8000;
     int REALTIME_NORMALENTRY_BASE_COST = 6000;  // システムNgramに含まれない、リアルタイムNgramの通常エントリの基本コスト (NgramAnalyzer/tools/merge_realtime_ngram_cost.rb も合わせて修正すること)
     int REALTIME_GETA_ENTRY_BASE_COST = 9500;   // システムNgramに含まれない、GETAで始まるリアルタイムNgramの通常エントリの基本コスト (NgramAnalyzer/tools/merge_realtime_ngram_cost.rb も合わせて修正すること)
+
+    namespace {
+        constexpr int SYSTEM_NGRAM_LOW_COST_INFLEXION = 2000;
+
+        // システムNgramのコストが変曲点を下回る場合、ボーナスを圧縮してコストを緩やかに0へ近づける。
+        int adjustSystemNgramBonus(int wcost, int bonus) {
+            if (bonus <= 0) return bonus;
+
+            int rawCost = wcost - bonus;
+            if (rawCost >= SYSTEM_NGRAM_LOW_COST_INFLEXION) return bonus;
+
+            double adjustedCost = SYSTEM_NGRAM_LOW_COST_INFLEXION *
+                std::exp(static_cast<double>(rawCost - SYSTEM_NGRAM_LOW_COST_INFLEXION) /
+                    SYSTEM_NGRAM_LOW_COST_INFLEXION);
+            int adjustedBonus = wcost - static_cast<int>(std::lround(adjustedCost));
+            return std::clamp(adjustedBonus, 0, bonus);
+        }
+    }
 
     //-----------------------------------------------------------------------------
     /**
@@ -133,11 +154,12 @@ namespace analyzer {
                     // 辞書引きされた各表層形ごとに
                     for (const auto& token : tokens) {
                         // 同一表層形の各Ngramごとにノードを作成
-                        int bonus = length < bonusList.size() ? bonusList[length] : 0;
+                        int originalBonus = length < bonusList.size() ? bonusList[length] : 0;
+                        int bonus = adjustSystemNgramBonus(token->wcost, originalBonus);
                         __addNewNode(token->wcost, begin2 + length, bonus);
                         if (length < bonusList.size()) bonusList[length] = 0;  // 既に使用済み
-                        LOG_DEBUGH(L"    system ngram FOUND: {}, total cost={} (orig cost={} BONUS={})",
-                            rngStrPtr->toString(begin2, begin2 + length), token->wcost - bonus, token->wcost, bonus);
+                        LOG_DEBUGH(L"    system ngram FOUND: {}, total cost={} (orig cost={} BONUS={} -> {})",
+                            rngStrPtr->toString(begin2, begin2 + length), token->wcost - bonus, token->wcost, originalBonus, bonus);
                     }
                 }
             }

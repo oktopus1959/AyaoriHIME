@@ -4,6 +4,9 @@
 require 'fileutils'
 require 'optparse'
 
+REALTIME_COST_FLOOR = 1000
+REALTIME_COST_INFLEXION = 3000
+
 options = {
   base_ngram_file: 'work/input/wiki_hplt.all.txt',
   base_score_file: nil,
@@ -59,6 +62,18 @@ def realtime_bonus(count, max_count, max_bonus)
   bonus
 end
 
+def apply_realtime_bonus_to_cost(original_cost, bonus)
+  return original_cost if original_cost <= REALTIME_COST_FLOOR
+
+  reduced_cost = original_cost - bonus
+  return reduced_cost if original_cost > REALTIME_COST_INFLEXION && reduced_cost > REALTIME_COST_INFLEXION
+
+  start_cost = [original_cost, REALTIME_COST_INFLEXION].min
+  cost_range = start_cost - REALTIME_COST_FLOOR
+  reduction = start_cost - reduced_cost
+  (REALTIME_COST_FLOOR + cost_range * Math.exp(-reduction.to_f / cost_range)).round
+end
+
 def hiragana_only?(text)
   /\A\p{Hiragana}+\z/.match?(text)
 end
@@ -93,9 +108,14 @@ def user_bonus(point, inflex_point, bonus_factor)
   (value * bonus_factor).to_i
 end
 
-def apply_bonus!(merged, base_entries, key, bonus, normal_base_cost, geta_base_cost, long_hiragana_base_cost, geta_char)
+def apply_bonus!(merged, base_entries, key, bonus, normal_base_cost, geta_base_cost, long_hiragana_base_cost, geta_char, realtime_decay: false)
   if merged.key?(key)
-    merged[key] -= bonus
+    merged[key] =
+      if realtime_decay
+        apply_realtime_bonus_to_cost(merged[key], bonus)
+      else
+        merged[key] - bonus
+      end
     return :overwritten
   end
 
@@ -107,7 +127,12 @@ def apply_bonus!(merged, base_entries, key, bonus, normal_base_cost, geta_base_c
     else
       normal_base_cost
     end
-  merged[key] = base_cost - bonus
+  merged[key] =
+    if realtime_decay
+      apply_realtime_bonus_to_cost(base_cost, bonus)
+    else
+      base_cost - bonus
+    end
   :added
 end
 
@@ -353,7 +378,7 @@ rt_counts.each do |key, count|
   targets << "#{geta_char}#{key}" if starts_with_kanji?(key)
 
   targets.each do |target|
-    case apply_bonus!(merged, base_entries, target, bonus, options[:realtime_base_cost], options[:realtime_geta_base_cost], options[:long_hiragana_base_cost], geta_char)
+    case apply_bonus!(merged, base_entries, target, bonus, options[:realtime_base_cost], options[:realtime_geta_base_cost], options[:long_hiragana_base_cost], geta_char, realtime_decay: true)
     when :overwritten
       overwritten_count += 1
     when :added
