@@ -762,13 +762,8 @@ kanchoku.user.ini のグローバルな設定が上書きされないように�
 |zenkakuOneCharKeySeq|整数(列)|機能呼出: 「全角変換(1文字)」機能の呼び出しキー(列)|
 |katakanaModeKeySeq|整数(列)|機能呼出: 「カタカナ変換(モード)」機能の呼び出しキー(列)|
 |nextThroughKeySeq|整数(列)|機能呼出: 「次打鍵スルー」機能の呼び出しキー(列)|
-|historyKeySeq|整数(列)|機能呼出: 「履歴検索」機能の呼び出しキー(列)|
-|historyOneCharKeySeq|整数(列)|機能呼出: 「履歴検索(1文字)」機能の呼び出しキー(列)|
-|historyFewCharsKeySeq|整数(列)|機能呼出: 「履歴検索(数文字)」機能の呼び出しキー(列)|
 |mazegakiKeySeq|整数(列)|機能呼出: 「交ぜ書き変換」機能の呼び出しキー(列)|
 |bushuCompKeySeq|整数(列)|機能呼出: 「部首合成」機能の呼び出しキー(列)|
-|bushuAssocKeySeq|整数(列)|機能呼出: 「連想文字検索」機能の呼び出しキー(列)|
-|bushuAssocDirectKeySeq|整数(列)|機能呼出: 「連想直接変換」機能の呼び出しキー(列)|
 |katakanaOneShotKeySeq|整数(列)|機能呼出: 「カタカナ変換(一括)」機能の呼び出しキー(列)|
 |hanKataOneShotKeySeq|整数(列)|機能呼出: 「半角カタカナ変換」機能の呼び出しキー(列)|
 |blkSetOneShotKeySeq|整数(列)|機能呼出: 「ブロッカー設定/解除」機能の呼び出しキー(列)|
@@ -843,12 +838,6 @@ kanchoku.user.ini のグローバルな設定が上書きされないように�
 ;;#set katakanaModeKeySeq=
 ;; 機能呼出: 「次打鍵スルー」機能の呼び出しキー(列)
 ;;#set nextThroughKeySeq=
-;; 機能呼出: 「履歴検索」機能の呼び出しキー(列)
-;;#set historyKeySeq=44
-;; 機能呼出: 「履歴検索(1文字)」機能の呼び出しキー(列)
-;;#set historyOneCharKeySeq=
-;; 機能呼出: 「履歴検索(数文字)」機能の呼び出しキー(列)
-;;#set historyFewCharsKeySeq=
 ;; 機能呼出: 「交ぜ書き変換」機能の呼び出しキー(列)
 ;;#set mazegakiKeySeq=23,26
 ;; 機能呼出: 「部首合成」機能の呼び出しキー(列)

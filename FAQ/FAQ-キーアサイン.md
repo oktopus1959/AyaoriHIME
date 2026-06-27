@@ -145,37 +145,35 @@ Space、CapsLock, 英数, 無変換, 変換, ひらがな, BS, Enter, 左右シ�
 |9|MultiStreamHiraganaPreferredNext|配列融合時に、以降の打鍵ではひらがなのみを通す|
 |10|MultiStreamKanjiPreferredNext|配列融合時に、次の打鍵では漢字のみを通す|
 |11|StrokeBack|配列融合時に、ストロークを1つ前の状態に戻す|
-|12|ClearStroke|打鍵中のストロークを取り消して、第1打鍵待ちに戻る|
-|13|FlushOutputString|出力バッファに溜まっている文字列をフラッシュする|
-|14|MazeConversion|交ぜ書き変換の実行|
-|15|BushuComp|部首合成を実行する|
-|16|BushuCompHelp|部首合成ヘルプ表示|
-|17|HistFullCand|全履歴候補の表示|
-|18|HistFewCharsCand|2～3文字履歴候補の表示|
-|19|HistOneCharCand|1文字履歴候補の表示|
-|20|HistNext|履歴を先頭から選択|
-|21|HistPrev|履歴を末尾から選択|
-|22|FullEscape|入力途中状態をクリアし、入力文字列の末尾にブロッカーを置く。履歴候補もクリアされる|
-|23|Unblock|入力文字列の末尾のブロッカーを解除する|
-|24|BlockerToggle|入力文字列の末尾のブロッカーを設定・解除する", "toggleblocker|
-|25|EisuModeToggle|英数モードと通常モードのトグル|
-|26|EisuModeCancel|英数モードをキャンセルする|
-|27|EisuConversion|英数モードで英字列をカタカナに変換する|
-|28|EisuDecapitalize|英数モードで先頭文字を小文字化する|
-|29|ZenkakuConversion|全角変換入力モードのON/OFF|
-|30|KatakanaConversion|カタカナ入力モードのON/OFF|
-|31|KanaTrainingToggle|かな入力練習モードと通常モードを切り替える|
-|32|DateRotate|日時変換の入力(フォーマットの正順切替)|
-|33|DateUnrotate|日時変換の入力(フォーマットの逆順切替)|
-|34|HelpRotate|ストロークヘルプの正順回転|
-|35|HelpUnrotate|ストロークヘルプの逆順回転|
-|36|StrokeHelp|最後に入力した文字のストロークヘルプ|
-|37|RomanStrokeGuide|打鍵ガイドへのローマ字による読み入力モードのON/OFF(読み入力OFF後にガイド開始)|
-|38|UpperRomanStrokeGuide|英大文字ローマ字による読み打鍵ガイドモード|
-|39|HiraganaStrokeGuide|ひらがな入力による読み打鍵ガイドモード|
-|40|CopyAndRegisterSelection|アクティブウィンドウに Ctrl-C を送りつけて、選択されている部分をクリップボードにコピーし、それをデコーダの辞書に送って登録する。形式はミニバッファへのコピペによる辞書登録と同じで、履歴、交ぜ書き、連想の3通りの登録が可能",
-|41|ShiftSpace|Shift+Space に変換|
-|42|DirectSpace|デコーダを通さずに直接Spaceをアプリに送る|
+|12|ToggleEditWindow|編集ウィンドウの有効・無効を切り替える|
+|13|ClearStroke|打鍵中のストロークを取り消して、第1打鍵待ちに戻る|
+|14|FlushOutputString|出力バッファに溜まっている文字列をフラッシュする|
+|15|MazeConversion|交ぜ書き変換の実行|
+|16|BushuComp|部首合成を実行する|
+|17|BushuCompHelp|部首合成ヘルプ表示|
+|18|SimpleDicNext|簡易辞書検索候補を先頭から選択|
+|19|SimpleDicPrev|簡易辞書検索候補を末尾から選択|
+|20|FullEscape|入力途中状態をクリアし、入力文字列の末尾にブロッカーを置く|
+|21|Unblock|入力文字列の末尾のブロッカーを解除する|
+|22|BlockerToggle|入力文字列の末尾のブロッカーを設定・解除する", "toggleblocker|
+|23|EisuModeToggle|英数モードと通常モードのトグル|
+|24|EisuModeCancel|英数モードをキャンセルする|
+|25|EisuConversion|英数モードで英字列をカタカナに変換する|
+|26|EisuDecapitalize|英数モードで先頭文字を小文字化する|
+|27|ZenkakuConversion|全角変換入力モードのON/OFF|
+|28|KatakanaConversion|カタカナ入力モードのON/OFF|
+|29|KanaTrainingToggle|かな入力練習モードと通常モードを切り替える|
+|30|DateRotate|日時変換の入力(フォーマットの正順切替)|
+|31|DateUnrotate|日時変換の入力(フォーマットの逆順切替)|
+|32|HelpRotate|ストロークヘルプの正順回転|
+|33|HelpUnrotate|ストロークヘルプの逆順回転|
+|34|StrokeHelp|最後に入力した文字のストロークヘルプ|
+|35|RomanStrokeGuide|打鍵ガイドへのローマ字による読み入力モードのON/OFF(読み入力OFF後にガイド開始)|
+|36|UpperRomanStrokeGuide|英大文字ローマ字による読み打鍵ガイドモード|
+|37|HiraganaStrokeGuide|ひらがな入力による読み打鍵ガイドモード|
+|38|CopyAndRegisterSelection|アクティブウィンドウに Ctrl-C を送りつけて、選択されている部分をクリップボードにコピーし、それをデコーダの簡易辞書に送って登録する",
+|39|ShiftSpace|Shift+Space に変換|
+|40|DirectSpace|デコーダを通さずに直接Spaceをアプリに送る|
 
 ※ コマンド名は大文字・小文字を区別しません。
 
