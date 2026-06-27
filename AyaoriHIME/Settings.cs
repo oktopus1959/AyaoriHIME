@@ -92,18 +92,18 @@ namespace KanchokuWS
         //-------------------------------------------------------------------------------------
         /// <summary> ドキュメントへのURL </summary>
         public static string ReadmeUrl => "https://github.com/oktopus1959/AyaoriHIME#readme";
-        public static string ManualUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/MANUAL.md#top";
-        public static string FaqUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ.md#faq-home";
-        public static string FaqBasicUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ/FAQ-基本.md#faq-home";
-        public static string FaqImeUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ/FAQ-%E5%9F%BA%E6%9C%AC.md#IME%E9%80%A3%E6%90%BA";
-        public static string FaqComboUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ/FAQ-%E5%9F%BA%E6%9C%AC.md#%E5%90%8C%E6%99%82%E6%89%93%E9%8D%B5";
-        public static string FaqMazegakiUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ/FAQ-交ぜ書き変換.md#faq-home";
-        public static string FaqRewriteUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ/FAQ-書き換え.md#faq-home";
-        public static string FaqMultiStreamUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ/FAQ-配列融合.md#faq-home";
-        public static string FaqEisuUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ/FAQ-%E5%9F%BA%E6%9C%AC.md#%E8%8B%B1%E6%95%B0%E3%83%A2%E3%83%BC%E3%83%89";
-        public static string FaqSimpleDicUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ/FAQ-簡易辞書検索.md#faq-home";
-        public static string FaqKeyAssignUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/FAQ/FAQ-キーアサイン.md#faq-home";
-        public static string KeyboardUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/refact/tab/KEYBOARD.md#top";
+        public static string ManualUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/MANUAL.md#top";
+        public static string FaqUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ.md#faq-home";
+        public static string FaqBasicUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ/FAQ-基本.md#faq-home";
+        public static string FaqImeUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ/FAQ-%E5%9F%BA%E6%9C%AC.md#IME%E9%80%A3%E6%90%BA";
+        public static string FaqComboUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ/FAQ-%E5%9F%BA%E6%9C%AC.md#%E5%90%8C%E6%99%82%E6%89%93%E9%8D%B5";
+        public static string FaqMazegakiUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ/FAQ-交ぜ書き変換.md#faq-home";
+        public static string FaqRewriteUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ/FAQ-書き換え.md#faq-home";
+        public static string FaqMultiStreamUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ/FAQ-配列融合.md#faq-home";
+        public static string FaqEisuUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ/FAQ-%E5%9F%BA%E6%9C%AC.md#%E8%8B%B1%E6%95%B0%E3%83%A2%E3%83%BC%E3%83%89";
+        public static string FaqSimpleDicUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ/FAQ-簡易辞書検索.md#faq-home";
+        public static string FaqKeyAssignUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/FAQ/FAQ-キーアサイン.md#faq-home";
+        public static string KeyboardUrl => "https://github.com/oktopus1959/AyaoriHIME/blob/main/KEYBOARD.md#top";
 
         //-------------------------------------------------------------------------------------
         // 一時停止
