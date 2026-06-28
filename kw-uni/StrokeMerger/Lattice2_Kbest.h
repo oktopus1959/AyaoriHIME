@@ -105,6 +105,9 @@ namespace lattice2 {
         // 交ぜ書き変換
         virtual void updateByMazegaki() = 0;
 
+        // 先頭候補の末尾かな列をワンショット変換する
+        virtual void updateByKatakanaConversion() = 0;
+
     public:
         static std::unique_ptr<KBestList> createKBestList();
     };

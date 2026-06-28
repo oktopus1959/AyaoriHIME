@@ -1774,6 +1774,46 @@ namespace lattice2 {
             }
         }
 
+        // 先頭候補の末尾かな列をワンショット変換する
+        void updateByKatakanaConversion() override {
+            _LOG_DETAIL(_T("ENTER"));
+            if (_candidates.empty()) {
+                _LOG_DETAIL(_T("LEAVE: KBest is empty"));
+                return;
+            }
+
+            const MString& source = _candidates.front().string();
+            if (source.empty()) {
+                _LOG_DETAIL(_T("LEAVE: top candidate is empty"));
+                return;
+            }
+
+            MString converted = source;
+            if (utils::is_hiragana(source.back())) {
+                size_t tailLen = utils::count_tail_hiragana(source);
+                size_t tailPos = source.size() - tailLen;
+                converted.replace(tailPos, tailLen,
+                    utils::convert_hiragana_to_katakana(source.substr(tailPos)));
+                if (tailPos > 0 && utils::is_space(source[tailPos - 1])) {
+                    converted.erase(tailPos - 1, 1);
+                }
+            } else if (utils::is_katakana(source.back())) {
+                MString tail = utils::find_tail_katakana_str(source);
+                if (!tail.empty()) {
+                    size_t tailPos = source.size() - tail.size();
+                    if (utils::is_pure_katakana(source[tailPos])) {
+                        converted[tailPos] = utils::katakana_to_hiragana(source[tailPos]);
+                    }
+                }
+            }
+
+            if (converted != source) {
+                _LOG_DETAIL(L"CONVERT: {} -> {}", to_wstr(source), to_wstr(converted));
+                updateByConversion(converted);
+            }
+            _LOG_DETAIL(_T("LEAVE"));
+        }
+
         // 交ぜ書き変換
         void updateByMazegaki() override {
             _LOG_DETAIL(_T("ENTER"));

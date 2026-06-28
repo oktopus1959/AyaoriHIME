@@ -183,6 +183,8 @@ namespace KanchokuWS
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.EISU_MODE_CANCEL_DECKEY, 0, "EisuModeCancel", "", "英数モードをキャンセルする"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.EISU_CONVERSION_DECKEY, 0, "EisuConversion", "", "英数モードで英字列をカタカナに変換する"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.EISU_DECAPITALIZE_DECKEY, 0, "EisuDecapitalize", "", "英数モードで先頭文字を小文字化する"),
+            new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.ONESHOT_ZENKAKU_CONVERSION_DECKEY, 0, "OneshotZenkakuConversion", "", "入力文字列の末尾の半角を全角に変換"),
+            new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.ONESHOT_KATAKANA_CONVERSION_DECKEY, 0, "OneshotKatakanaConversion", "", "入力文字列の末尾のひらがなをカタカナに変換"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.TOGGLE_ZENKAKU_CONVERSION_DECKEY, 0, "ZenkakuModeToggle", "", "全角変換入力モードのON/OFF"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.TOGGLE_KATAKANA_CONVERSION_DECKEY, 0, "KatakanaModeToggle", "", "カタカナ入力モードのON/OFF"),
             //new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.TOGGLE_KATAKANA_CONVERSION1_DECKEY, 0, "KatakanaModeToggle1", "", "主テーブルを選択してカタカナ入力モードのON/OFF"),

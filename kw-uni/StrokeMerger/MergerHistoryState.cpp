@@ -602,6 +602,11 @@ namespace {
                         WORD_LATTICE->removeOtherThanFirstForEachStrokeLen();
                         //WORD_LATTICE->removeOtherThanLongestStrokeCandidate();
                         break;
+                    case ONESHOT_ZENKAKU_CONVERSION_DECKEY:
+                        break;
+                    case ONESHOT_KATAKANA_CONVERSION_DECKEY:
+                        WORD_LATTICE->updateByKatakanaConversion();
+                        break;
                     case CLEAR_STROKE_DECKEY:
                         _LOG_DETAIL(_T("CLEAR_STROKE_DECKEY: DO NOTHING"));
                         // Do nothing

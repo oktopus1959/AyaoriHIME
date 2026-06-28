@@ -198,6 +198,12 @@ namespace lattice2 {
             _kBestList->updateByMazegaki();
         }
 
+        // 先頭候補の末尾かな列をワンショット変換する
+        void updateByKatakanaConversion() override {
+            _LOG_DETAIL(_T("CALLED"));
+            _kBestList->updateByKatakanaConversion();
+        }
+
         bool hasMultiCandidates() const override {
             return _kBestList->hasMultiCandStringsWithSameStrokeLen();
         }

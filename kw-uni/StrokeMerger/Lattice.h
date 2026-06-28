@@ -191,6 +191,9 @@ public:
 
     virtual void updateByMazegaki() = 0;
 
+    // 先頭候補の末尾かな列をワンショット変換する
+    virtual void updateByKatakanaConversion() = 0;
+
     virtual bool hasMultiCandidates() const = 0;
 
     virtual void enableCandidateLog(bool enabled) = 0;
