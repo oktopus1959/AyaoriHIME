@@ -120,7 +120,7 @@ namespace {
             return new StringNode(L"!{MazeConversion}", false);
         case 'Z':
             // 全角変換
-            return new StringNode(L"!{ZenkakuConversion}", false);
+            return new StringNode(L"!{ZenkakuModeToggle}", false);
         default:
             return FunctionNodeManager::CreateFunctionNode(marker);
         }

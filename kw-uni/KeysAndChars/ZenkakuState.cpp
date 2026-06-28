@@ -132,8 +132,8 @@ namespace {
             cancelMe();
         }
 
-        // ZenkakuConversionの処理 - 処理のキャンセル
-        void handleZenkakuConversion() {
+        // ZenkakuModeToggleの処理 - 処理のキャンセル
+        void handleZenkakuModeToggle() {
             LOG_DEBUGH(_T("CALLED: {}: Initialized={}"), Name, bInitialized);
             if (!bInitialized) {
                 cancelMe();

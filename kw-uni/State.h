@@ -362,11 +362,11 @@ public:
     // PrevCandTrigger ハンドラ
     virtual void handlePrevCandTrigger();
 
-    // ZenkakuConversion ハンドラ
-    virtual void handleZenkakuConversion();
+    // ZenkakuModeToggle ハンドラ
+    virtual void handleZenkakuModeToggle();
 
-    // KatakanaConversion ハンドラ
-    virtual void handleKatakanaConversion();
+    // KatakanaKatakanaModeToggle ハンドラ
+    virtual void handleKatakanaModeToggle();
 
     // EisuMode デフォルトハンドラ
     virtual void handleEisuMode();

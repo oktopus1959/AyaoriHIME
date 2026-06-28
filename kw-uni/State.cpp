@@ -518,9 +518,9 @@ void State::dispatchDeckey(int deckey) {
     } else if (deckey == HISTORY_PREV_SEARCH_DECKEY) {
         handlePrevCandTrigger();
     } else if (deckey == TOGGLE_ZENKAKU_CONVERSION_DECKEY) {
-        handleZenkakuConversion();
+        handleZenkakuModeToggle();
     } else if (deckey == TOGGLE_KATAKANA_CONVERSION_DECKEY) {
-        handleKatakanaConversion();
+        handleKatakanaModeToggle();
     } else if (deckey == SOFT_ESCAPE_DECKEY) {
         handleEsc();
     } else if (deckey == CLEAR_STROKE_DECKEY) {
@@ -692,11 +692,11 @@ void State::handleNextCandTrigger() { LOG_INFO(_T("CALLED")); handleSpecialKeys(
 // handlePrevCandTrigger デフォルトハンドラ
 void State::handlePrevCandTrigger() { LOG_INFO(_T("CALLED")); handleSpecialKeys(HISTORY_PREV_SEARCH_DECKEY); }
 
-// handleZenkakuConversion デフォルトハンドラ
-void State::handleZenkakuConversion() { LOG_INFO(_T("CALLED")); handleSpecialKeys(TOGGLE_ZENKAKU_CONVERSION_DECKEY); }
+// handleZenkakuModeToggle デフォルトハンドラ
+void State::handleZenkakuModeToggle() { LOG_INFO(_T("CALLED")); handleSpecialKeys(TOGGLE_ZENKAKU_CONVERSION_DECKEY); }
 
-// handleKatakanaConversion デフォルトハンドラ
-void State::handleKatakanaConversion() { LOG_INFO(_T("CALLED")); handleSpecialKeys(TOGGLE_KATAKANA_CONVERSION_DECKEY); }
+// handleKatakanaModeToggle デフォルトハンドラ
+void State::handleKatakanaModeToggle() { LOG_INFO(_T("CALLED")); handleSpecialKeys(TOGGLE_KATAKANA_CONVERSION_DECKEY); }
 
 // handleEisuMode デフォルトハンドラ
 void State::handleEisuMode() { LOG_INFO(_T("CALLED")); handleSpecialKeys(EISU_MODE_TOGGLE_DECKEY); }

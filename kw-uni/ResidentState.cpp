@@ -27,8 +27,8 @@ void ResidentState::handleEsc() {
     _LOG_DEBUGH(_T("LEAVE"));
 }
 
-//// ZenkakuConversionの処理
-//void handleZenkakuConversion() {
+//// ZenkakuModeToggleの処理
+//void handleZenkakuModeToggle() {
 //
 //}
 

@@ -137,8 +137,8 @@ namespace {
             MERGER_HISTORY_RESIDENT_STATE->dispatchDeckey(deckey);
         }
 
-        // KatakanaConversionの処理 - 処理のキャンセル
-        void handleKatakanaConversion() override {
+        // KatakanaModeToggle の処理 - 処理のキャンセル
+        void handleKatakanaModeToggle() override {
             LOG_DEBUGH(_T("CALLED: {}: Initialized={}"), Name, bInitialized);
             if (!bInitialized) {
                 cancelMe();
