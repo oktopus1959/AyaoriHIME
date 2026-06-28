@@ -160,8 +160,8 @@ Space、CapsLock, 英数, 無変換, 変換, ひらがな, BS, Enter, 左右シ�
 |24|EisuModeCancel|英数モードをキャンセルする|
 |25|EisuConversion|英数モードで英字列をカタカナに変換する|
 |26|EisuDecapitalize|英数モードで先頭文字を小文字化する|
-|27|ZenkakuConversion|全角変換入力モードのON/OFF|
-|28|KatakanaConversion|カタカナ入力モードのON/OFF|
+|27|ZenkakuModeToggle|全角変換入力モードのON/OFF|
+|28|KatakanaModeToggle|カタカナ入力モードのON/OFF|
 |29|KanaTrainingToggle|かな入力練習モードと通常モードを切り替える|
 |30|DateRotate|日時変換の入力(フォーマットの正順切替)|
 |31|DateUnrotate|日時変換の入力(フォーマットの逆順切替)|
