@@ -43,8 +43,6 @@ namespace {
     class ZenkakuState : public State {
         DECLARE_CLASS_LOGGER;
 
-        bool bInitialized = true;
-
         wchar_t zenkakuChar = '\0';
 
     public:
@@ -69,12 +67,6 @@ namespace {
             // 前状態にチェインする
             MarkNecessary();
             LOG_INFO(_T("LEAVE: CHAIN ME"));
-        }
-
-        // 中間チェック
-        void DoIntermediateCheck() override {
-            LOG_INFO(_T("CALLED: {}: Clear bInitialized"), Name);
-            bInitialized = false;
         }
 
         // 出力文字を取得する
@@ -134,10 +126,8 @@ namespace {
 
         // ZenkakuModeToggleの処理 - 処理のキャンセル
         void handleZenkakuModeToggle() {
-            LOG_DEBUGH(_T("CALLED: {}: Initialized={}"), Name, bInitialized);
-            if (!bInitialized) {
-                cancelMe();
-            }
+            LOG_DEBUGH(_T("CALLED: {}"), Name);
+            cancelMe();
         }
 
         // モード標識文字を返す
@@ -278,4 +268,3 @@ Node* ZenkakuOneNodeBuilder::CreateNode() {
     LOG_DEBUGH(_T("CALLED"));
     return new ZenkakuOneNode();
 }
-

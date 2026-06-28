@@ -204,6 +204,12 @@ namespace lattice2 {
             _kBestList->updateByKatakanaConversion();
         }
 
+        // 先頭候補の末尾ASCII列をワンショット全角変換する
+        void updateByZenkakuConversion() override {
+            _LOG_DETAIL(_T("CALLED"));
+            _kBestList->updateByZenkakuConversion();
+        }
+
         bool hasMultiCandidates() const override {
             return _kBestList->hasMultiCandStringsWithSameStrokeLen();
         }

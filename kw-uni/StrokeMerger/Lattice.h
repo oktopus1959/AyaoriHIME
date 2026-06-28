@@ -194,6 +194,9 @@ public:
     // 先頭候補の末尾かな列をワンショット変換する
     virtual void updateByKatakanaConversion() = 0;
 
+    // 先頭候補の末尾ASCII列をワンショット全角変換する
+    virtual void updateByZenkakuConversion() = 0;
+
     virtual bool hasMultiCandidates() const = 0;
 
     virtual void enableCandidateLog(bool enabled) = 0;

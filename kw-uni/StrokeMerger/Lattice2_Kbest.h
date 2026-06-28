@@ -108,6 +108,9 @@ namespace lattice2 {
         // 先頭候補の末尾かな列をワンショット変換する
         virtual void updateByKatakanaConversion() = 0;
 
+        // 先頭候補の末尾ASCII列をワンショット全角変換する
+        virtual void updateByZenkakuConversion() = 0;
+
     public:
         static std::unique_ptr<KBestList> createKBestList();
     };

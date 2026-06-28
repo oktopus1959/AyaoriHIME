@@ -430,6 +430,13 @@ namespace {
                 LOG_DEBUG(L"deckey is combo and NextState is EisuState: delete it");
                 this->DeleteNextState();
             }
+            if (deckey == ONESHOT_ZENKAKU_CONVERSION_DECKEY && NextState() && NextState()->GetName() == L"EisuState") {
+                // 英数モードから直接出力された文字列は K-best に入っていないので、
+                // 英数モードを終了して編集バッファを同期してからワンショット全角変換を行う
+                LOG_DEBUG(L"ONESHOT_ZENKAKU_CONVERSION in EisuState: sync edit buffer to KBest");
+                this->DeleteNextState();
+                WORD_LATTICE->syncBaseString(STATE_COMMON->GetEditBufferString());
+            }
             if (NextState()) {
                 LOG_DEBUGH(_T("NextState: FOUND"));
                 _followingPrefType = FollowingPreferenceType::Any;
@@ -603,6 +610,11 @@ namespace {
                         //WORD_LATTICE->removeOtherThanLongestStrokeCandidate();
                         break;
                     case ONESHOT_ZENKAKU_CONVERSION_DECKEY:
+                        if (WORD_LATTICE->getFirst() != STATE_COMMON->GetEditBufferString()) {
+                            // 英数モードなど Lattice 外から直接出力された文字列を K-best に反映する
+                            WORD_LATTICE->syncBaseString(STATE_COMMON->GetEditBufferString());
+                        }
+                        WORD_LATTICE->updateByZenkakuConversion();
                         break;
                     case ONESHOT_KATAKANA_CONVERSION_DECKEY:
                         WORD_LATTICE->updateByKatakanaConversion();

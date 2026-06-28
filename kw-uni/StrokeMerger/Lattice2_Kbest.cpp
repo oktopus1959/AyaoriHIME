@@ -1814,6 +1814,46 @@ namespace lattice2 {
             _LOG_DETAIL(_T("LEAVE"));
         }
 
+        // 先頭候補の末尾ASCII列をワンショット全角変換する
+        void updateByZenkakuConversion() override {
+            _LOG_DETAIL(_T("ENTER"));
+            if (_candidates.empty()) {
+                _LOG_DETAIL(_T("LEAVE: KBest is empty"));
+                return;
+            }
+
+            const MString& source = _candidates.front().string();
+            if (source.empty()) {
+                _LOG_DETAIL(_T("LEAVE: top candidate is empty"));
+                return;
+            }
+
+            MString converted = source;
+            if (source.back() >= 0x21 && source.back() <= 0x7e) {
+                size_t tailPos = source.size();
+                while (tailPos > 0 && source[tailPos - 1] >= 0x21 && source[tailPos - 1] <= 0x7e) {
+                    --tailPos;
+                }
+                for (size_t i = tailPos; i < converted.size(); ++i) {
+                    converted[i] = make_fullwide_char(converted[i]);
+                }
+            } else if (source.back() >= 0xff01 && source.back() <= 0xff5e) {
+                size_t tailPos = source.size();
+                while (tailPos > 0 && source[tailPos - 1] >= 0xff01 && source[tailPos - 1] <= 0xff5e) {
+                    --tailPos;
+                }
+                for (size_t i = tailPos; i < converted.size(); ++i) {
+                    converted[i] = converted[i] - 0xff00 + 0x20;
+                }
+            }
+
+            if (converted != source) {
+                _LOG_DETAIL(L"CONVERT: {} -> {}", to_wstr(source), to_wstr(converted));
+                updateByConversion(converted);
+            }
+            _LOG_DETAIL(_T("LEAVE"));
+        }
+
         // 交ぜ書き変換
         void updateByMazegaki() override {
             _LOG_DETAIL(_T("ENTER"));
