@@ -160,20 +160,22 @@ Space、CapsLock, 英数, 無変換, 変換, ひらがな, BS, Enter, 左右シ�
 |24|EisuModeCancel|英数モードをキャンセルする|
 |25|EisuConversion|英数モードで英字列をカタカナに変換する|
 |26|EisuDecapitalize|英数モードで先頭文字を小文字化する|
-|27|ZenkakuModeToggle|全角変換入力モードのON/OFF|
-|28|KatakanaModeToggle|カタカナ入力モードのON/OFF|
-|29|KanaTrainingToggle|かな入力練習モードと通常モードを切り替える|
-|30|DateRotate|日時変換の入力(フォーマットの正順切替)|
-|31|DateUnrotate|日時変換の入力(フォーマットの逆順切替)|
-|32|HelpRotate|ストロークヘルプの正順回転|
-|33|HelpUnrotate|ストロークヘルプの逆順回転|
-|34|StrokeHelp|最後に入力した文字のストロークヘルプ|
-|35|RomanStrokeGuide|打鍵ガイドへのローマ字による読み入力モードのON/OFF(読み入力OFF後にガイド開始)|
-|36|UpperRomanStrokeGuide|英大文字ローマ字による読み打鍵ガイドモード|
-|37|HiraganaStrokeGuide|ひらがな入力による読み打鍵ガイドモード|
-|38|CopyAndRegisterSelection|アクティブウィンドウに Ctrl-C を送りつけて、選択されている部分をクリップボードにコピーし、それをデコーダの簡易辞書に送って登録する",
-|39|ShiftSpace|Shift+Space に変換|
-|40|DirectSpace|デコーダを通さずに直接Spaceをアプリに送る|
+|27|OneshotZenkakuConversion|入力文字列の末尾の半角を全角に変換|
+|28|OneshotKatakanaConversion|入力文字列の末尾のひらがなをカタカナに変換|
+|29|ZenkakuModeToggle|全角変換入力モードのON/OFF|
+|30|KatakanaModeToggle|カタカナ入力モードのON/OFF|
+|31|KanaTrainingToggle|かな入力練習モードと通常モードを切り替える|
+|32|DateRotate|日時変換の入力(フォーマットの正順切替)|
+|33|DateUnrotate|日時変換の入力(フォーマットの逆順切替)|
+|34|HelpRotate|ストロークヘルプの正順回転|
+|35|HelpUnrotate|ストロークヘルプの逆順回転|
+|36|StrokeHelp|最後に入力した文字のストロークヘルプ|
+|37|RomanStrokeGuide|打鍵ガイドへのローマ字による読み入力モードのON/OFF(読み入力OFF後にガイド開始)|
+|38|UpperRomanStrokeGuide|英大文字ローマ字による読み打鍵ガイドモード|
+|39|HiraganaStrokeGuide|ひらがな入力による読み打鍵ガイドモード|
+|40|CopyAndRegisterSelection|アクティブウィンドウに Ctrl-C を送りつけて、選択されている部分をクリップボードにコピーし、それをデコーダの簡易辞書に送って登録する",
+|41|ShiftSpace|Shift+Space に変換|
+|42|DirectSpace|デコーダを通さずに直接Spaceをアプリに送る|
 
 ※ コマンド名は大文字・小文字を区別しません。
 
