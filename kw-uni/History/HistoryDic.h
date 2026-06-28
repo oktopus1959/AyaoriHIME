@@ -137,7 +137,7 @@ public:
     virtual void ReadRomanFileAsReadOnly(const std::vector<String>& lines) = 0;
 
     // 登録
-    virtual void AddNewEntry(const MString& line) = 0;
+    virtual void AutoAddNewEntry(const MString& line) = 0;
 
     // 登録(条件なし)
     virtual void AddNewEntryAnyway(const MString& line) = 0;

@@ -782,7 +782,7 @@ namespace {
 
     public:
         // 新規登録
-        void AddNewEntry(const MString& word) override {
+        void AutoAddNewEntry(const MString& word) override {
             _LOG_DEBUGH(_T("CALLED: word={}"), to_wstr(word));
             if (SETTINGS->suppressAutoHistRegister) return;
             if (word.empty()) return;

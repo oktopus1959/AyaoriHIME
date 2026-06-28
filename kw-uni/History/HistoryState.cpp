@@ -60,7 +60,7 @@ namespace {
             auto ws = OUTPUT_STACK->GetLastOutputStackStrUptoNL(1);
             if (ws.size() == 1 && ws[0] >= 0x100 && !STROKE_HELP->Find(ws[0])) {
                 // 末尾文字がストローク可能文字でなければ登録する
-                HISTORY_DIC->AddNewEntry(ws);
+                HISTORY_DIC->AutoAddNewEntry(ws);
             }
 
             MString key;

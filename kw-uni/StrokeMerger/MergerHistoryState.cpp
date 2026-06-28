@@ -1004,7 +1004,7 @@ namespace {
                 if (OUTPUT_STACK->isLastOutputStackCharKanjiOrKatakana()) {
                     // これまでの出力末尾が漢字またはカタカナであるなら
                     // 出力履歴の末尾の漢字列またはカタカナ列を取得して、それを履歴辞書に登録する
-                    HISTORY_DIC->AddNewEntry(OUTPUT_STACK->GetLastKanjiOrKatakanaStr<MString>());
+                    HISTORY_DIC->AutoAddNewEntry(OUTPUT_STACK->GetLastKanjiOrKatakanaStr<MString>());
                 } else if (OUTPUT_STACK->isLastOutputStackCharHirakana()) {
                     //// 漢字・カタカナ以外なら5〜10文字の範囲でNグラム登録する
                     //HISTORY_DIC->AddNgramEntries(OUTPUT_STACK->GetLastJapaneseStr<MString>(10));
@@ -1022,9 +1022,9 @@ namespace {
                 if ((!utils::is_kanji(ch1) && (utils::is_kanji(ch2))) ||
                     // または、今回の出力の先頭がカタカナ以外であり、これまでの出力末尾がカタカナであるなら、
                     (!utils::is_katakana(ch1) && (utils::is_katakana(ch2)))) {
-                    LOG_DEBUG(_T("Call AddNewEntry"));
+                    LOG_DEBUG(_T("Call AutoAddNewEntry"));
                     // 出力履歴の末尾の漢字列またはカタカナ列を取得して、それを履歴辞書に登録する
-                    HISTORY_DIC->AddNewEntry(OUTPUT_STACK->GetLastKanjiOrKatakanaStr<MString>());
+                    HISTORY_DIC->AutoAddNewEntry(OUTPUT_STACK->GetLastKanjiOrKatakanaStr<MString>());
                 } else if (utils::is_japanese_char_except_nakaguro((wchar_t)ch1)) {
                     //LOG_DEBUG(_T("Call AddNgramEntries"));
                     //// 出力末尾が日本語文字なら5〜10文字の範囲でNグラム登録する

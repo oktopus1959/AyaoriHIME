@@ -1867,7 +1867,7 @@ namespace KanchokuWS
             HistRomanKeyLength = addDecoderSetting("histRomanKeyLength", 4, 1);                 // ローマ字履歴の自動検索を行う際のキー長
             HistMapKeyMaxLength = addDecoderSetting("histMapKeyMaxLength", 16, 4);              // 変換履歴キーの最大長
             HistMapGobiMaxLength = addDecoderSetting("histMapGobiMaxLength", 2, 0);             // 変換履歴キーに付加できる語尾の最大長
-            AutoHistSearchEnabled = addDecoderSetting("autoHistSearchEnabled", false);          // 自動履歴検索を行う
+            //AutoHistSearchEnabled = addDecoderSetting("autoHistSearchEnabled", false);          // 自動履歴検索を行う
             SuppressAutoHistRegister = addDecoderSetting("suppressAutoHistRegister", true);     // 履歴の自動登録を抑制する
             //HistSearchByCtrlSpace = addDecoderSetting("histSearchByCtrlSpace", true);           // Ctrl-Space で履歴検索を行う
             //VKeyComboRepository.AddCtrlDeckeyAndCombo(" ", DecoderKeys.CTRL_SPACE_DECKEY, 0);           // 登録
