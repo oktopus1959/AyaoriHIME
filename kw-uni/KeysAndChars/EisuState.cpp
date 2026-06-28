@@ -216,6 +216,12 @@ namespace {
             _LOG_DEBUGH(_T("LEAVE: {}"), Name);
         }
 
+        // NextCandTrigger の処理 -- 履歴検索の開始、次の候補を返す
+        void handleNextCandTrigger() override {
+            LOG_DEBUGH(_T("CALLED: {}"), Name);
+            _handleEisuConversion();
+        }
+
         // BS
         void handleBS() {
             _LOG_DEBUGH(_T("CALLED: {}"), Name);
