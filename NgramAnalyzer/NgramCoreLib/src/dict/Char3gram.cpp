@@ -23,7 +23,7 @@ namespace dict {
 
     namespace {
         constexpr std::array<char, 8> Magic = { 'N', 'G', 'C', '3', 'G', '0', '0', '1' };
-        constexpr uint32_t Version = 2;
+        constexpr uint32_t Version = 3;
         constexpr double Alpha = 0.1;
         constexpr double CostScale = 1000.0;
 
@@ -102,6 +102,12 @@ namespace dict {
         bool containsKanji(StringRef gram) {
             return std::any_of(gram.begin(), gram.end(), [](wchar_t ch) {
                 return utils::is_kanji(ch);
+            });
+        }
+
+        bool isHiraganaOnly(StringRef gram) {
+            return std::all_of(gram.begin(), gram.end(), [](wchar_t ch) {
+                return utils::is_hiragana(ch);
             });
         }
     }
@@ -230,7 +236,7 @@ namespace dict {
         return entryIt == lastEntry || entryIt->next != nextId ? contextIt->missingCost : entryIt->cost;
     }
 
-    Char3gram::ScoreResult Char3gram::score(StringRef sentence) const {
+    Char3gram::ScoreResult Char3gram::score(StringRef sentence, bool includeHiragana) const {
         ScoreResult result;
         if (!loaded()) return result;
 
@@ -249,9 +255,15 @@ namespace dict {
 
         for (size_t i = 0; i + 2 < result.normalized.size(); ++i) {
             const StringRef normalized = result.normalized;
-            if (!utils::is_kanji(normalized[i]) &&
-                !utils::is_kanji(normalized[i + 1]) &&
-                !utils::is_kanji(normalized[i + 2])) {
+            const bool containsKanji =
+                utils::is_kanji(normalized[i]) ||
+                utils::is_kanji(normalized[i + 1]) ||
+                utils::is_kanji(normalized[i + 2]);
+            const bool isHiragana =
+                utils::is_hiragana(normalized[i]) &&
+                utils::is_hiragana(normalized[i + 1]) &&
+                utils::is_hiragana(normalized[i + 2]);
+            if (!containsKanji && (!includeHiragana || !isHiragana)) {
                 continue;
             }
             result.costSum += cost(normalized[i], normalized[i + 1], normalized[i + 2]);
@@ -290,7 +302,7 @@ namespace dict {
                 LOG_ERROR_AND_THROW_RTE(L"Char3gram: line {} does not contain three UTF-16 characters", lineNumber);
             }
             const uint64_t count = parseCount(line.substr(tab + 1), lineNumber);
-            if (!containsKanji(gram)) continue;
+            if (!containsKanji(gram) && !isHiraganaOnly(gram)) continue;
 
             const uint64_t key = trigramKey(gram[0], gram[1], gram[2]);
             if (!counts.emplace(key, count).second) {

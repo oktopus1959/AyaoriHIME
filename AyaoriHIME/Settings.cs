@@ -261,7 +261,7 @@ namespace KanchokuWS
         public static int Char3gramWeight { get; set; } = 1;
 
         /// <summary>文字4-gramボーナスの係数</summary>
-        public static double Char4gramWeight { get; set; } = 0.5;
+        public static double Char4gramWeight { get; set; } = 0.3;
 
         /// <summary>Ngramに与えるボーナスポイントの最大値</summary>
         public static int NgramMaxBonusPoint{ get; set; } = 100;
@@ -1939,7 +1939,7 @@ namespace KanchokuWS
             AnalyzeMorphLen = addDecoderSetting("analyzeMorphLen", 10);                         // 形態素解析を行う際の最小形態素長
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
             Char3gramWeight = addDecoderSetting("char3gramWeight", 1, 0);                       // 文字3-gram言語モデルの重み
-            Char4gramWeight = addDecoderSetting("char4gramWeight", 0.5, 0.0);                   // 文字4-gramボーナスの係数
+            Char4gramWeight = addDecoderSetting("char4gramWeight", 0.0, 0.0);                   // 文字4-gramボーナスの係数
             NgramMaxBonusPoint = addDecoderSetting("ngramMaxBonusPoint", 25);                   // Ngramに与えるボーナスポイントの最大値
             NgramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 250);            // 嵩上げされたNgramに与えるボーナスの係数
             NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 10);           // 候補選択によるNgramカウントの変動幅

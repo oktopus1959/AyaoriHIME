@@ -52,7 +52,7 @@ namespace dict {
 
         void load(StringRef filepath);
         bool loaded() const;
-        ScoreResult score(StringRef sentence) const;
+        ScoreResult score(StringRef sentence, bool includeHiragana = false) const;
 
         static void build(StringRef inputPath, StringRef outputPath);
     };

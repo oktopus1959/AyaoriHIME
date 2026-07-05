@@ -50,6 +50,7 @@
 **事前の確認や許可を取ることなく、自由に実行してよいものとする**。
 
 - `rg`（ripgrep）：クラス名、メソッド名、呼び出し箇所の検索
+- `_tools/rg.exe` : Windows 環境での rg
 - `sed -n 'N,Mp'`：ファイルの一部分の表示
 - Get-Content | Select-Object : Power Shell でファイルの一部分の表示
 - `awk`, `head`, `tail`, `wc`, `cut`：軽量なテキスト確認

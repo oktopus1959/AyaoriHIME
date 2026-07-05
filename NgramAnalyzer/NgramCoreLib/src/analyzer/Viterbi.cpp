@@ -550,7 +550,10 @@ namespace analyzer {
         int baseCost = lattice->getSolutions(results, needResults);
         int morphPenalty = pImpl->getMorphPenalty(penaltyEntries);
         int userNgramPenalty = RealtimeDict::getUserNgramPenalty(sentence);
-        const auto markov3 = pImpl->char3gram ? pImpl->char3gram->score(sentence) : dict::Char3gram::ScoreResult{};
+        const bool char3gramHiraganaEnabled = pImpl->char4gramWeight_ == 0;
+        const auto markov3 = pImpl->char3gram
+            ? pImpl->char3gram->score(sentence, char3gramHiraganaEnabled)
+            : dict::Char3gram::ScoreResult{};
         const auto markov4 = pImpl->char4gram ? pImpl->char4gram->score(sentence) : dict::Char4gram::ScoreResult{};
         const auto weightedAverage = [](long double weight, int64_t sum, int windowCount) {
             if (weight == 0 || windowCount == 0) return 0;
@@ -568,11 +571,12 @@ namespace analyzer {
         const int totalCost = static_cast<int>(std::clamp<int64_t>(totalCost64, 0, std::numeric_limits<int>::max()));
         const StringRef normalized = !markov3.normalized.empty() ? markov3.normalized : markov4.normalized;
         LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}, normalized={}, "
-            L"char3gramWeight={}, char3gramWindows={}, char3gramCostSum={}, char3gramCost={}, "
+            L"char3gramWeight={}, char3gramHiraganaEnabled={}, char3gramWindows={}, char3gramCostSum={}, char3gramCost={}, "
             L"char4gramWeight={}, char4gramTargetWindows={}, char4gramMatchedWindows={}, "
             L"char4gramBonusSum={}, char4gramBonus={}",
             totalCost, baseCost, morphPenalty, userNgramPenalty, normalized,
-            pImpl->char3gramWeight_, markov3.validWindowCount, markov3.costSum, char3gramCost,
+            pImpl->char3gramWeight_, char3gramHiraganaEnabled,
+            markov3.validWindowCount, markov3.costSum, char3gramCost,
             pImpl->char4gramWeight_, markov4.targetWindowCount, markov4.matchedWindowCount,
             markov4.bonusSum, char4gramBonus);
         return totalCost;
