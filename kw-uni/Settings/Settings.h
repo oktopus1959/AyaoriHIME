@@ -125,6 +125,8 @@ struct Settings {
     int morphNonTerminalCost = 5000;        // 非終端形態素の単語コスト
     int analyzeMorphLen = 10;               // 形態素解析を行う際の最小形態素長
     int ngramCostFactor = 1;                // 形態素コストに対するNgramコストの係数
+    int char3gramWeight = 1;                // 文字3-gram言語モデルの重み
+    double char4gramWeight = 0.5;           // 文字4-gramボーナスの係数
     int ngramMaxBonusPoint = 25;            // Ngramに与えるボーナスポイントの最大値
     int ngramBonusPointFactor = 100;        // 嵩上げされたNgramに与えるボーナスの係数
     int ngramManualSelectDelta = 10;        // 候補選択によるNgramカウントの変動幅

@@ -11,6 +11,7 @@
 
 #define SYS_DIC_FILE            L"ngram-sys.dic"
 #define CHAR_3GRAM_FILE         L"char-3gram.bin"
+#define CHAR_4GRAM_FILE         L"char-4gram.bin"
 #define BOS_KEY                 L"BOS/EOS"
 
 #define NBEST_MAX 512

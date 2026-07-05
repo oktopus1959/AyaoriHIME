@@ -30,6 +30,10 @@ int NgramMakeChar3gram(const wchar_t* inputPath, const wchar_t* outputPath, cons
     return NgramCoreLib::NgramMakeChar3gram(inputPath, outputPath, logFilePath, errMsgBuf, bufsiz, showError);
 }
 
+int NgramMakeChar4gram(const wchar_t* inputPath, const wchar_t* outputPath, const wchar_t* logFilePath, wchar_t* errMsgBuf, size_t bufsiz, bool showError) {
+    return NgramCoreLib::NgramMakeChar4gram(inputPath, outputPath, logFilePath, errMsgBuf, bufsiz, showError);
+}
+
 /**
  * Ngram解析の実行(コストを返す)
  * @param tempEntries 一時的なユーザー辞書エントリ ("|" 区切り)

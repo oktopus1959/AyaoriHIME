@@ -7,15 +7,16 @@
 
 namespace dict {
 
-    class Char3gram {
+    class Char4gram {
         DECLARE_CLASS_LOGGER;
 
     public:
         struct ScoreResult {
             String normalized;
-            int validWindowCount = 0;
-            int64_t costSum = 0;
-            int averageCost = 0;
+            int targetWindowCount = 0;
+            int matchedWindowCount = 0;
+            int64_t bonusSum = 0;
+            int averageBonus = 0;
         };
 
     private:
@@ -23,6 +24,8 @@ namespace dict {
         struct Context {
             uint16_t first = 0;
             uint16_t second = 0;
+            uint16_t third = 0;
+            uint16_t reserved = 0;
             uint32_t entryBegin = 0;
             uint32_t entryCount = 0;
             int32_t missingCost = 0;
@@ -35,7 +38,7 @@ namespace dict {
         };
 #pragma pack(pop)
 
-        static_assert(sizeof(Context) == 16);
+        static_assert(sizeof(Context) == 20);
         static_assert(sizeof(Entry) == 8);
 
         Vector<wchar_t> characters_;
@@ -44,11 +47,11 @@ namespace dict {
         int32_t uniformCost_ = 0;
 
         int findCharacterId(wchar_t ch) const;
-        int cost(wchar_t first, wchar_t second, wchar_t next) const;
+        int bonus(wchar_t first, wchar_t second, wchar_t third, wchar_t next, bool& matched) const;
 
     public:
-        Char3gram() = default;
-        explicit Char3gram(StringRef filepath);
+        Char4gram() = default;
+        explicit Char4gram(StringRef filepath);
 
         void load(StringRef filepath);
         bool loaded() const;
@@ -59,4 +62,4 @@ namespace dict {
 
 } // namespace dict
 
-using Char3gramPtr = SharedPtr<dict::Char3gram>;
+using Char4gramPtr = SharedPtr<dict::Char4gram>;

@@ -23,6 +23,9 @@ NGRAM_DLL_EXTERN int NgramMakeDictIndex(size_t argc, const wchar_t** argv, const
 // 文字3-gram辞書の作成
 NGRAM_DLL_EXTERN int NgramMakeChar3gram(const wchar_t* inputPath, const wchar_t* outputPath, const wchar_t* logFile, wchar_t* errMsgBuf, size_t bufsiz, bool showError = false);
 
+// 文字4-gram辞書の作成
+NGRAM_DLL_EXTERN int NgramMakeChar4gram(const wchar_t* inputPath, const wchar_t* outputPath, const wchar_t* logFile, wchar_t* errMsgBuf, size_t bufsiz, bool showError = false);
+
 // 形態素解析の実行(コストを返す)
 NGRAM_DLL_EXTERN int NgramAnalyze(const wchar_t* sentence, const wchar_t* tempEntries, wchar_t* wakati_buf, size_t bufsize, bool bStdout, wchar_t* errMsgBuf, size_t bufsiz);
 

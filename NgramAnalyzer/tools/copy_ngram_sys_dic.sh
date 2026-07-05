@@ -6,3 +6,5 @@ RUN_CMD "cp work/bin/ngram-sys.dic /f/Dev/CSharp/AyaoriHIME/systemFiles/ngram/di
 RUN_CMD "cp work/bin/ngram-sys.dic /f/Dev/CSharp/AyaoriHIME/publish/systemFiles/ngram/dic/ngram-sys.dic"
 RUN_CMD "cp work/bin/char-3gram.bin /f/Dev/CSharp/AyaoriHIME/systemFiles/ngram/dic/char-3gram.bin"
 RUN_CMD "cp work/bin/char-3gram.bin /f/Dev/CSharp/AyaoriHIME/publish/systemFiles/ngram/dic/char-3gram.bin"
+RUN_CMD "cp work/bin/char-4gram.bin /f/Dev/CSharp/AyaoriHIME/systemFiles/ngram/dic/char-4gram.bin"
+RUN_CMD "cp work/bin/char-4gram.bin /f/Dev/CSharp/AyaoriHIME/publish/systemFiles/ngram/dic/char-4gram.bin"

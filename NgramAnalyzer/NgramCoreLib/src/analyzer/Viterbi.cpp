@@ -6,6 +6,7 @@
 #include "Viterbi.h"
 #include "RealtimeDict.h"
 #include "dict/Char3gram.h"
+#include "dict/Char4gram.h"
 
 #include "util/xsv_parser.h"
 #include "featureDef.h"
@@ -57,31 +58,61 @@ namespace analyzer {
 
         UniqPtr<Tokenizer> tokenizer;
         Char3gramPtr char3gram;
+        Char4gramPtr char4gram;
 
         int cost_factor_;
+        int char3gramWeight_;
+        double char4gramWeight_;
         Map<String, bool> exactMatchCache;
 
     public:
         Impl(OptHandlerPtr opts) :
             opts(opts),
             tokenizer(MakeUniq<Tokenizer>(opts)),
-            cost_factor_(opts->getInt(L"cost-factor", 800))
+            cost_factor_(opts->getInt(L"cost-factor", 800)),
+            char3gramWeight_(opts->getInt(L"char-3gram-weight", 1)),
+            char4gramWeight_(opts->getDouble(L"char-4gram-weight", 0.5))
         {
-            LOG_INFOH(L"ENTER: cost_factor_={}", cost_factor_);
+            LOG_INFOH(L"ENTER: cost_factor_={}, char3gramWeight_={}, char4gramWeight_={}",
+                cost_factor_, char3gramWeight_, char4gramWeight_);
             CHECK_OR_THROW(!tokenizer->getDictionaries().empty(), L"Dictionary is empty");
-            const auto char3gramPath = utils::join_path(opts->getString(L"dicdir", L"."), CHAR_3GRAM_FILE);
-            if (utils::isFileExistent(char3gramPath)) {
-                try {
-                    char3gram = MakeShared<dict::Char3gram>(char3gramPath);
-                } catch (const RuntimeException& ex) {
-                    char3gram.reset();
-                    LOG_WARN(L"文字3-gram辞書を無効化します: file={}, error={}", char3gramPath, ex.getMessage());
-                } catch (...) {
-                    char3gram.reset();
-                    LOG_WARN(L"文字3-gram辞書を無効化します: file={}, unknown error", char3gramPath);
+            CHECK_OR_THROW(char3gramWeight_ >= 0 && std::isfinite(char4gramWeight_) && char4gramWeight_ >= 0,
+                L"character n-gram weights must be non-negative: 3gram={}, 4gram={}",
+                char3gramWeight_, char4gramWeight_);
+
+            const auto dicdir = opts->getString(L"dicdir", L".");
+            if (char3gramWeight_ > 0) {
+                const auto char3gramPath = utils::join_path(dicdir, CHAR_3GRAM_FILE);
+                if (utils::isFileExistent(char3gramPath)) {
+                    try {
+                        char3gram = MakeShared<dict::Char3gram>(char3gramPath);
+                    } catch (const RuntimeException& ex) {
+                        char3gram.reset();
+                        LOG_WARN(L"文字3-gram辞書を無効化します: file={}, error={}", char3gramPath, ex.getMessage());
+                    } catch (...) {
+                        char3gram.reset();
+                        LOG_WARN(L"文字3-gram辞書を無効化します: file={}, unknown error", char3gramPath);
+                    }
+                } else {
+                    LOG_WARN(L"文字3-gram辞書が見つからないため無効化します: {}", char3gramPath);
                 }
-            } else {
-                LOG_WARN(L"文字3-gram辞書が見つからないため無効化します: {}", char3gramPath);
+            }
+
+            if (char4gramWeight_ > 0) {
+                const auto char4gramPath = utils::join_path(dicdir, CHAR_4GRAM_FILE);
+                if (utils::isFileExistent(char4gramPath)) {
+                    try {
+                        char4gram = MakeShared<dict::Char4gram>(char4gramPath);
+                    } catch (const RuntimeException& ex) {
+                        char4gram.reset();
+                        LOG_WARN(L"文字4-gram辞書を無効化します: file={}, error={}", char4gramPath, ex.getMessage());
+                    } catch (...) {
+                        char4gram.reset();
+                        LOG_WARN(L"文字4-gram辞書を無効化します: file={}, unknown error", char4gramPath);
+                    }
+                } else {
+                    LOG_WARN(L"文字4-gram辞書が見つからないため無効化します: {}", char4gramPath);
+                }
             }
             LOG_INFOH(L"LEAVE");
         }
@@ -519,11 +550,31 @@ namespace analyzer {
         int baseCost = lattice->getSolutions(results, needResults);
         int morphPenalty = pImpl->getMorphPenalty(penaltyEntries);
         int userNgramPenalty = RealtimeDict::getUserNgramPenalty(sentence);
-        const auto markov = pImpl->char3gram ? pImpl->char3gram->score(sentence) : dict::Char3gram::ScoreResult{};
-        const int64_t totalCost64 = static_cast<int64_t>(baseCost) + morphPenalty + userNgramPenalty + markov.averageCost;
+        const auto markov3 = pImpl->char3gram ? pImpl->char3gram->score(sentence) : dict::Char3gram::ScoreResult{};
+        const auto markov4 = pImpl->char4gram ? pImpl->char4gram->score(sentence) : dict::Char4gram::ScoreResult{};
+        const auto weightedAverage = [](long double weight, int64_t sum, int windowCount) {
+            if (weight == 0 || windowCount == 0) return 0;
+            return static_cast<int>(std::clamp<long double>(
+                std::round(weight * sum / windowCount),
+                0,
+                std::numeric_limits<int>::max()));
+        };
+        const int char3gramCost = weightedAverage(
+            pImpl->char3gramWeight_, markov3.costSum, markov3.validWindowCount);
+        const int char4gramBonus = weightedAverage(
+            pImpl->char4gramWeight_, markov4.bonusSum, markov4.targetWindowCount);
+        const int64_t totalCost64 = static_cast<int64_t>(baseCost) + morphPenalty +
+            userNgramPenalty + char3gramCost - char4gramBonus;
         const int totalCost = static_cast<int>(std::clamp<int64_t>(totalCost64, 0, std::numeric_limits<int>::max()));
-        LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}, normalized={}, markovWindows={}, markovCost={}",
-            totalCost, baseCost, morphPenalty, userNgramPenalty, markov.normalized, markov.validWindowCount, markov.averageCost);
+        const StringRef normalized = !markov3.normalized.empty() ? markov3.normalized : markov4.normalized;
+        LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}, normalized={}, "
+            L"char3gramWeight={}, char3gramWindows={}, char3gramCostSum={}, char3gramCost={}, "
+            L"char4gramWeight={}, char4gramTargetWindows={}, char4gramMatchedWindows={}, "
+            L"char4gramBonusSum={}, char4gramBonus={}",
+            totalCost, baseCost, morphPenalty, userNgramPenalty, normalized,
+            pImpl->char3gramWeight_, markov3.validWindowCount, markov3.costSum, char3gramCost,
+            pImpl->char4gramWeight_, markov4.targetWindowCount, markov4.matchedWindowCount,
+            markov4.bonusSum, char4gramBonus);
         return totalCost;
     }
 

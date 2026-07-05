@@ -1,4 +1,4 @@
-#include "Char3gram.h"
+#include "Char4gram.h"
 
 #include <algorithm>
 #include <array>
@@ -19,11 +19,11 @@
 #include "NgramDebugLog.h"
 
 namespace dict {
-    DEFINE_CLASS_LOGGER(Char3gram);
+    DEFINE_CLASS_LOGGER(Char4gram);
 
     namespace {
-        constexpr std::array<char, 8> Magic = { 'N', 'G', 'C', '3', 'G', '0', '0', '1' };
-        constexpr uint32_t Version = 2;
+        constexpr std::array<char, 8> Magic = { 'N', 'G', 'C', '4', 'G', '0', '0', '1' };
+        constexpr uint32_t Version = 1;
         constexpr double Alpha = 0.1;
         constexpr double CostScale = 1000.0;
 
@@ -45,6 +45,7 @@ namespace dict {
         struct SourceRow {
             wchar_t first = 0;
             wchar_t second = 0;
+            wchar_t third = 0;
             wchar_t next = 0;
             uint64_t count = 0;
         };
@@ -54,7 +55,7 @@ namespace dict {
             if (count == 0) return;
             input.read(reinterpret_cast<char*>(data), static_cast<std::streamsize>(sizeof(T) * count));
             if (!input) {
-                throw util::RuntimeException(std::format(L"Char3gram: cannot read {} from {}", section, filepath), __FILE__, __LINE__);
+                throw util::RuntimeException(std::format(L"Char4gram: cannot read {} from {}", section, filepath), __FILE__, __LINE__);
             }
         }
 
@@ -63,75 +64,83 @@ namespace dict {
             if (count == 0) return;
             output.write(reinterpret_cast<const char*>(data), static_cast<std::streamsize>(sizeof(T) * count));
             if (!output) {
-                throw util::RuntimeException(std::format(L"Char3gram: cannot write {} to {}", section, filepath), __FILE__, __LINE__);
+                throw util::RuntimeException(std::format(L"Char4gram: cannot write {} to {}", section, filepath), __FILE__, __LINE__);
             }
         }
 
-        uint64_t trigramKey(wchar_t first, wchar_t second, wchar_t next) {
-            return (static_cast<uint64_t>(static_cast<uint16_t>(first)) << 32) |
-                (static_cast<uint64_t>(static_cast<uint16_t>(second)) << 16) |
+        uint64_t quadgramKey(wchar_t first, wchar_t second, wchar_t third, wchar_t next) {
+            return (static_cast<uint64_t>(static_cast<uint16_t>(first)) << 48) |
+                (static_cast<uint64_t>(static_cast<uint16_t>(second)) << 32) |
+                (static_cast<uint64_t>(static_cast<uint16_t>(third)) << 16) |
                 static_cast<uint16_t>(next);
         }
 
-        uint32_t contextKey(wchar_t first, wchar_t second) {
-            return (static_cast<uint32_t>(static_cast<uint16_t>(first)) << 16) |
-                static_cast<uint16_t>(second);
+        uint64_t contextKey(wchar_t first, wchar_t second, wchar_t third) {
+            return (static_cast<uint64_t>(static_cast<uint16_t>(first)) << 32) |
+                (static_cast<uint64_t>(static_cast<uint16_t>(second)) << 16) |
+                static_cast<uint16_t>(third);
+        }
+
+        uint64_t contextKey(uint16_t first, uint16_t second, uint16_t third) {
+            return (static_cast<uint64_t>(first) << 32) |
+                (static_cast<uint64_t>(second) << 16) |
+                third;
         }
 
         int32_t probabilityCost(double probability) {
             const double value = std::round(-std::log(probability) * CostScale);
             if (value < 0.0 || value > static_cast<double>(std::numeric_limits<int32_t>::max())) {
-                throw util::RuntimeException(L"Char3gram: calculated cost is out of range", __FILE__, __LINE__);
+                throw util::RuntimeException(L"Char4gram: calculated cost is out of range", __FILE__, __LINE__);
             }
             return static_cast<int32_t>(value);
         }
 
         uint64_t parseCount(StringRef value, uint64_t lineNumber) {
             if (value.empty() || std::any_of(value.begin(), value.end(), [](wchar_t ch) { return ch < L'0' || ch > L'9'; })) {
-                throw util::RuntimeException(std::format(L"Char3gram: invalid count at line {}", lineNumber), __FILE__, __LINE__);
+                throw util::RuntimeException(std::format(L"Char4gram: invalid count at line {}", lineNumber), __FILE__, __LINE__);
             }
             errno = 0;
             wchar_t* end = nullptr;
             const uint64_t count = std::wcstoull(value.c_str(), &end, 10);
             if (errno == ERANGE || end != value.c_str() + value.size() || count == 0) {
-                throw util::RuntimeException(std::format(L"Char3gram: invalid count at line {}", lineNumber), __FILE__, __LINE__);
+                throw util::RuntimeException(std::format(L"Char4gram: invalid count at line {}", lineNumber), __FILE__, __LINE__);
             }
             return count;
         }
 
-        bool containsKanji(StringRef gram) {
-            return std::any_of(gram.begin(), gram.end(), [](wchar_t ch) {
-                return utils::is_kanji(ch);
+        bool isHiraganaOnly(StringRef gram) {
+            return std::all_of(gram.begin(), gram.end(), [](wchar_t ch) {
+                return utils::is_hiragana(ch);
             });
         }
     }
 
-    Char3gram::Char3gram(StringRef filepath) {
+    Char4gram::Char4gram(StringRef filepath) {
         load(filepath);
     }
 
-    void Char3gram::load(StringRef filepath) {
+    void Char4gram::load(StringRef filepath) {
         LOG_INFOH(L"ENTER: filepath={}", filepath);
 
         std::ifstream input(filepath, std::ios::binary);
         if (!input) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: cannot open {}", filepath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: cannot open {}", filepath);
         }
 
         FileHeader header{};
         readExact(input, &header, 1, filepath, L"header");
         if (!std::equal(Magic.begin(), Magic.end(), header.magic)) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: invalid magic: {}", filepath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: invalid magic: {}", filepath);
         }
         if (header.version != Version || header.headerSize != sizeof(FileHeader)) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: unsupported format: {}", filepath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: unsupported format: {}", filepath);
         }
         if (header.characterCount == 0 || header.characterCount > std::numeric_limits<uint16_t>::max() ||
             header.contextCount == 0 || header.entryCount == 0 || header.reserved != 0 ||
             header.entryCount > std::numeric_limits<uint32_t>::max() ||
             header.entryCount > static_cast<uint64_t>(std::numeric_limits<size_t>::max()) ||
             header.uniformCost < 0) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: invalid header: {}", filepath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: invalid header: {}", filepath);
         }
 
         const uint64_t expectedSize = sizeof(FileHeader) +
@@ -141,7 +150,7 @@ namespace dict {
         std::error_code ec;
         const uint64_t actualSize = std::filesystem::file_size(filepath, ec);
         if (ec || actualSize != expectedSize) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: invalid file size: {}", filepath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: invalid file size: {}", filepath);
         }
 
         Vector<wchar_t> characters(header.characterCount);
@@ -153,21 +162,22 @@ namespace dict {
 
         if (!std::is_sorted(characters.begin(), characters.end()) ||
             std::adjacent_find(characters.begin(), characters.end()) != characters.end()) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: character table is not strictly sorted: {}", filepath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: character table is not strictly sorted: {}", filepath);
         }
 
         uint32_t expectedEntryBegin = 0;
-        uint32_t previousContextKey = 0;
+        uint64_t previousContextKey = 0;
         bool hasPreviousContext = false;
         for (const auto& context : contexts) {
             if (context.first >= characters.size() || context.second >= characters.size() ||
+                context.third >= characters.size() || context.reserved != 0 ||
                 context.entryBegin != expectedEntryBegin || context.entryCount == 0 ||
                 context.entryCount > entries.size() - context.entryBegin || context.missingCost < 0) {
-                LOG_ERROR_AND_THROW_RTE(L"Char3gram: invalid context table: {}", filepath);
+                LOG_ERROR_AND_THROW_RTE(L"Char4gram: invalid context table: {}", filepath);
             }
-            const uint32_t key = (static_cast<uint32_t>(context.first) << 16) | context.second;
+            const uint64_t key = contextKey(context.first, context.second, context.third);
             if (hasPreviousContext && key <= previousContextKey) {
-                LOG_ERROR_AND_THROW_RTE(L"Char3gram: context table is not strictly sorted: {}", filepath);
+                LOG_ERROR_AND_THROW_RTE(L"Char4gram: context table is not strictly sorted: {}", filepath);
             }
             hasPreviousContext = true;
             previousContextKey = key;
@@ -178,7 +188,7 @@ namespace dict {
                 const auto& entry = entries[context.entryBegin + i];
                 if (entry.next >= characters.size() || entry.reserved != 0 || entry.cost < 0 ||
                     (hasPreviousNext && entry.next <= previousNext)) {
-                    LOG_ERROR_AND_THROW_RTE(L"Char3gram: invalid entry table: {}", filepath);
+                    LOG_ERROR_AND_THROW_RTE(L"Char4gram: invalid entry table: {}", filepath);
                 }
                 hasPreviousNext = true;
                 previousNext = entry.next;
@@ -186,7 +196,7 @@ namespace dict {
             expectedEntryBegin += context.entryCount;
         }
         if (expectedEntryBegin != entries.size()) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: entry count mismatch: {}", filepath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: entry count mismatch: {}", filepath);
         }
 
         characters_.swap(characters);
@@ -197,40 +207,48 @@ namespace dict {
             characters_.size(), contexts_.size(), entries_.size(), uniformCost_);
     }
 
-    bool Char3gram::loaded() const {
+    bool Char4gram::loaded() const {
         return !characters_.empty() && !contexts_.empty() && !entries_.empty();
     }
 
-    int Char3gram::findCharacterId(wchar_t ch) const {
+    int Char4gram::findCharacterId(wchar_t ch) const {
         const auto it = std::lower_bound(characters_.begin(), characters_.end(), ch);
         return it == characters_.end() || *it != ch ? -1 : static_cast<int>(it - characters_.begin());
     }
 
-    int Char3gram::cost(wchar_t first, wchar_t second, wchar_t next) const {
+    int Char4gram::bonus(wchar_t first, wchar_t second, wchar_t third, wchar_t next, bool& matched) const {
+        matched = false;
         const int firstId = findCharacterId(first);
         const int secondId = findCharacterId(second);
-        if (firstId < 0 || secondId < 0) return uniformCost_;
+        const int thirdId = findCharacterId(third);
+        if (firstId < 0 || secondId < 0 || thirdId < 0) return 0;
 
-        const uint32_t key = (static_cast<uint32_t>(firstId) << 16) | static_cast<uint16_t>(secondId);
-        const auto contextIt = std::lower_bound(contexts_.begin(), contexts_.end(), key, [](const Context& context, uint32_t value) {
-            return ((static_cast<uint32_t>(context.first) << 16) | context.second) < value;
+        const uint64_t key = contextKey(
+            static_cast<uint16_t>(firstId),
+            static_cast<uint16_t>(secondId),
+            static_cast<uint16_t>(thirdId));
+        const auto contextIt = std::lower_bound(contexts_.begin(), contexts_.end(), key, [](const Context& context, uint64_t value) {
+            return contextKey(context.first, context.second, context.third) < value;
         });
         if (contextIt == contexts_.end() ||
-            ((static_cast<uint32_t>(contextIt->first) << 16) | contextIt->second) != key) {
-            return uniformCost_;
+            contextKey(contextIt->first, contextIt->second, contextIt->third) != key) {
+            return 0;
         }
 
         const int nextId = findCharacterId(next);
-        if (nextId < 0) return contextIt->missingCost;
+        if (nextId < 0) return 0;
         const auto firstEntry = entries_.begin() + contextIt->entryBegin;
         const auto lastEntry = firstEntry + contextIt->entryCount;
         const auto entryIt = std::lower_bound(firstEntry, lastEntry, static_cast<uint16_t>(nextId), [](const Entry& entry, uint16_t value) {
             return entry.next < value;
         });
-        return entryIt == lastEntry || entryIt->next != nextId ? contextIt->missingCost : entryIt->cost;
+        if (entryIt == lastEntry || entryIt->next != nextId) return 0;
+
+        matched = true;
+        return std::max(0, contextIt->missingCost - entryIt->cost);
     }
 
-    Char3gram::ScoreResult Char3gram::score(StringRef sentence) const {
+    Char4gram::ScoreResult Char4gram::score(StringRef sentence) const {
         ScoreResult result;
         if (!loaded()) return result;
 
@@ -247,33 +265,39 @@ namespace dict {
             }
         }
 
-        for (size_t i = 0; i + 2 < result.normalized.size(); ++i) {
+        for (size_t i = 0; i + 3 < result.normalized.size(); ++i) {
             const StringRef normalized = result.normalized;
-            if (!utils::is_kanji(normalized[i]) &&
-                !utils::is_kanji(normalized[i + 1]) &&
-                !utils::is_kanji(normalized[i + 2])) {
+            if (!utils::is_hiragana(normalized[i]) ||
+                !utils::is_hiragana(normalized[i + 1]) ||
+                !utils::is_hiragana(normalized[i + 2]) ||
+                !utils::is_hiragana(normalized[i + 3])) {
                 continue;
             }
-            result.costSum += cost(normalized[i], normalized[i + 1], normalized[i + 2]);
-            ++result.validWindowCount;
+            bool matched = false;
+            result.bonusSum += bonus(normalized[i], normalized[i + 1], normalized[i + 2], normalized[i + 3], matched);
+            ++result.targetWindowCount;
+            if (matched) {
+                ++result.matchedWindowCount;
+            }
         }
-        LOG_DEBUGH(L"validWindowCount={}, costSum={}", result.validWindowCount, result.costSum);
-        if (result.validWindowCount > 0) {
-            result.averageCost = static_cast<int>(std::llround(
-                static_cast<double>(result.costSum) / result.validWindowCount));
+        LOG_DEBUGH(L"targetWindowCount={}, matchedWindowCount={}, bonusSum={}",
+            result.targetWindowCount, result.matchedWindowCount, result.bonusSum);
+        if (result.targetWindowCount > 0) {
+            result.averageBonus = static_cast<int>(std::llround(
+                static_cast<double>(result.bonusSum) / result.targetWindowCount));
         }
         return result;
     }
 
-    void Char3gram::build(StringRef inputPath, StringRef outputPath) {
+    void Char4gram::build(StringRef inputPath, StringRef outputPath) {
         LOG_INFOH(L"ENTER: input={}, output={}", inputPath, outputPath);
         utils::IfstreamReader reader(inputPath);
         if (!reader.success()) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: cannot open input {}", inputPath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: cannot open input {}", inputPath);
         }
 
         std::unordered_map<uint64_t, uint64_t> counts;
-        std::unordered_map<uint32_t, uint64_t> contextTotals;
+        std::unordered_map<uint64_t, uint64_t> contextTotals;
         std::set<wchar_t> characterSet;
         uint64_t lineNumber = 0;
         while (true) {
@@ -283,31 +307,32 @@ namespace dict {
 
             const size_t tab = line.find(L'\t');
             if (tab == String::npos || line.find(L'\t', tab + 1) != String::npos) {
-                LOG_ERROR_AND_THROW_RTE(L"Char3gram: line {} must have two TSV columns", lineNumber);
+                LOG_ERROR_AND_THROW_RTE(L"Char4gram: line {} must have two TSV columns", lineNumber);
             }
             const String gram = line.substr(0, tab);
-            if (gram.size() != 3) {
-                LOG_ERROR_AND_THROW_RTE(L"Char3gram: line {} does not contain three UTF-16 characters", lineNumber);
+            if (gram.size() != 4) {
+                LOG_ERROR_AND_THROW_RTE(L"Char4gram: line {} does not contain four UTF-16 characters", lineNumber);
             }
             const uint64_t count = parseCount(line.substr(tab + 1), lineNumber);
-            if (!containsKanji(gram)) continue;
+            if (!isHiraganaOnly(gram)) continue;
 
-            const uint64_t key = trigramKey(gram[0], gram[1], gram[2]);
+            const uint64_t key = quadgramKey(gram[0], gram[1], gram[2], gram[3]);
             if (!counts.emplace(key, count).second) {
-                LOG_ERROR_AND_THROW_RTE(L"Char3gram: duplicate trigram at line {}", lineNumber);
+                LOG_ERROR_AND_THROW_RTE(L"Char4gram: duplicate quadgram at line {}", lineNumber);
             }
-            const uint32_t ckey = contextKey(gram[0], gram[1]);
+            const uint64_t ckey = contextKey(gram[0], gram[1], gram[2]);
             auto& total = contextTotals[ckey];
             if (count > std::numeric_limits<uint64_t>::max() - total) {
-                LOG_ERROR_AND_THROW_RTE(L"Char3gram: context count overflow at line {}", lineNumber);
+                LOG_ERROR_AND_THROW_RTE(L"Char4gram: context count overflow at line {}", lineNumber);
             }
             total += count;
             characterSet.insert(gram[0]);
             characterSet.insert(gram[1]);
             characterSet.insert(gram[2]);
+            characterSet.insert(gram[3]);
         }
         if (counts.empty() || characterSet.empty() || characterSet.size() > std::numeric_limits<uint16_t>::max()) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: input has no usable entries or too many characters: {}", inputPath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: input has no usable entries or too many characters: {}", inputPath);
         }
 
         Vector<wchar_t> characters(characterSet.begin(), characterSet.end());
@@ -321,6 +346,7 @@ namespace dict {
         rows.reserve(counts.size());
         for (const auto& [key, count] : counts) {
             rows.push_back({
+                static_cast<wchar_t>((key >> 48) & 0xffff),
                 static_cast<wchar_t>((key >> 32) & 0xffff),
                 static_cast<wchar_t>((key >> 16) & 0xffff),
                 static_cast<wchar_t>(key & 0xffff),
@@ -328,7 +354,8 @@ namespace dict {
             });
         }
         std::sort(rows.begin(), rows.end(), [](const SourceRow& lhs, const SourceRow& rhs) {
-            return std::tie(lhs.first, lhs.second, lhs.next) < std::tie(rhs.first, rhs.second, rhs.next);
+            return std::tie(lhs.first, lhs.second, lhs.third, lhs.next) <
+                std::tie(rhs.first, rhs.second, rhs.third, rhs.next);
         });
 
         Vector<Context> contexts;
@@ -339,16 +366,21 @@ namespace dict {
         for (size_t pos = 0; pos < rows.size();) {
             const wchar_t first = rows[pos].first;
             const wchar_t second = rows[pos].second;
-            const uint64_t total = contextTotals.at(contextKey(first, second));
+            const wchar_t third = rows[pos].third;
+            const uint64_t total = contextTotals.at(contextKey(first, second, third));
             const double denominator = static_cast<double>(total) + Alpha * vocabularySize;
 
             Context context;
             context.first = characterIds.at(first);
             context.second = characterIds.at(second);
+            context.third = characterIds.at(third);
             context.entryBegin = static_cast<uint32_t>(entries.size());
             context.missingCost = probabilityCost(Alpha / denominator);
 
-            while (pos < rows.size() && rows[pos].first == first && rows[pos].second == second) {
+            while (pos < rows.size() &&
+                rows[pos].first == first &&
+                rows[pos].second == second &&
+                rows[pos].third == third) {
                 Entry entry;
                 entry.next = characterIds.at(rows[pos].next);
                 entry.cost = probabilityCost((static_cast<double>(rows[pos].count) + Alpha) / denominator);
@@ -373,12 +405,12 @@ namespace dict {
             std::error_code ec;
             std::filesystem::create_directories(outputFile.parent_path(), ec);
             if (ec) {
-                LOG_ERROR_AND_THROW_RTE(L"Char3gram: cannot create output directory: {}", outputPath);
+                LOG_ERROR_AND_THROW_RTE(L"Char4gram: cannot create output directory: {}", outputPath);
             }
         }
         std::ofstream output(outputPath, std::ios::binary | std::ios::trunc);
         if (!output) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: cannot open output {}", outputPath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: cannot open output {}", outputPath);
         }
         writeExact(output, &header, 1, outputPath, L"header");
         writeExact(output, characters.data(), characters.size(), outputPath, L"characters");
@@ -386,7 +418,7 @@ namespace dict {
         writeExact(output, entries.data(), entries.size(), outputPath, L"entries");
         output.close();
         if (!output) {
-            LOG_ERROR_AND_THROW_RTE(L"Char3gram: cannot finish output {}", outputPath);
+            LOG_ERROR_AND_THROW_RTE(L"Char4gram: cannot finish output {}", outputPath);
         }
         LOG_INFOH(L"LEAVE: characters={}, contexts={}, entries={}", characters.size(), contexts.size(), entries.size());
     }
