@@ -132,7 +132,7 @@ namespace KanchokuWS.Forms
                 } else {
                     // 何もせずに、呼び出し元に任せる
                     logger.InfoH(() => $"CALL: SendStringViaClipboardIfNeeded({str}, {numBS}, true)");
-                    SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(chars, numBS, true);
+                    TextOutputRouter.Singleton.SendStringViaClipboardIfNeeded(chars, numBS, true);
                 }
                 frmMain.ExecCmdDecoder("clearMultiStream", "");
                 logger.InfoH("LEAVE: REDIRECT");
@@ -276,6 +276,7 @@ namespace KanchokuWS.Forms
             }
 
             editTextBox.Text = makeEditText(preText, postText);
+            bool compositionHandled = SyncComposition();
             if (toFlush || bFlushAll ||
                 (preText._safeCount() == 1 && preText[0] > 0x20 && preText[0] <= 0x7f && !preText[0]._isAlphaNum() && postText._isEmpty())) {
                 // フラッシュ
@@ -298,9 +299,9 @@ namespace KanchokuWS.Forms
                 } else {
                     this.Hide();
                 }
-            } else {
+            } else if (!compositionHandled) {
                 logger.InfoH(() => $"SendString: chars='{chars._toString()}', numBS={numBS}");
-                SendInputHandler.Singleton.SendString(chars, chars.Length, numBS);
+                TextOutputRouter.Singleton.SendString(chars, chars._strlen(), numBS);
             }
 
             //if (toFlush && pos < str.Length) {
@@ -318,6 +319,19 @@ namespace KanchokuWS.Forms
                 SendInputHandler.Singleton.SendVKeyCombo(modifier, vkey, 1);
                 return;
             }
+
+            if (vkey == (uint)Keys.Escape) {
+                logger.InfoH("Escape");
+                if (prevVkey == vkey) {
+                    ClearBuffer();
+                } else {
+                    // 通常のIMEと同様に、1回目は候補表示だけを閉じて未確定文字列を維持する。
+                    frmCands?.Hide();
+                }
+                prevVkey = vkey;
+                return;
+            }
+
             bool isEditKey = true;
             switch (vkey) {
                 case (uint)Keys.Left:
@@ -348,18 +362,12 @@ namespace KanchokuWS.Forms
                     logger.InfoH("Enter");
                     FlushBuffer(true);
                     break;
-                case (uint)Keys.Escape:
-                    logger.InfoH("Escape");
-                    if (prevVkey == vkey) {
-                        //FlushBuffer(true);
-                        ClearBuffer();
-                    }
-                    break;
                 default:
                     isEditKey = false;
                     break;
             }
             if (Settings.UseEditWindow && isEditKey) {
+                SyncComposition();
                 if (EditText._notEmpty()) {
                     ShowNonActive();
                 } else {
@@ -377,6 +385,16 @@ namespace KanchokuWS.Forms
             var text = preText + ((preText._notEmpty() || postText._notEmpty()) ? Settings.EditBufferCaretChar : "") + postText;       // 空でないときだけカレットを入れる
             //logger.InfoH(() => $"text={text}, len={text.Length}");
             return text;
+        }
+
+        private bool SyncComposition()
+        {
+            if (!Settings.UseTsfOutput) return false;
+            int caretOffset = editTextBox.Text._safeIndexOf(Settings.EditBufferCaretChar[0]);
+            string text = editTextBox.Text._safeReplace(Settings.EditBufferCaretChar, "");
+            if (text._isEmpty()) return TextOutputRouter.Singleton.CancelComposition();
+            if (caretOffset < 0) caretOffset = text.Length;
+            return TextOutputRouter.Singleton.UpdateComposition(text, caretOffset);
         }
 
         private string[] splitByCaret()
@@ -463,12 +481,14 @@ namespace KanchokuWS.Forms
             }
             this.Hide();
             frmCands?.Hide();
-            if (Settings.UseEditWindow) {
+            string remainingText = editTextBox.Text._safeReplace(Settings.EditBufferCaretChar, "");
+            bool compositionHandled = TextOutputRouter.Singleton.CommitComposition(result.Length, remainingText._notEmpty());
+            if (Settings.UseEditWindow && !compositionHandled) {
                 //frmCands?.Hide();
                 //Helper.WaitMilliSeconds(10);
                 //System.Windows.Forms.Application.DoEvents();
                 var winClass = ActiveWindowHandler.Singleton.ActiveWinClassName;
-                SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(result._toCharArray(), 0, winClass == "mintty" || winClass == "PuTTY");
+                TextOutputRouter.Singleton.SendStringViaClipboardIfNeeded(result._toCharArray(), 0, winClass == "mintty" || winClass == "PuTTY");
                 //this.ShowNonActive();
             }
             frmMain.ExecCmdDecoder("clearMultiStream", result);
@@ -485,12 +505,30 @@ namespace KanchokuWS.Forms
         {
             if (editTextBox.Text._isEmpty()) return false;
 
+            TextOutputRouter.Singleton.CancelComposition();
+            // Esc による取消では未確定文字列を確定・学習させず、decoder の候補状態も破棄する。
+            frmMain.ExecCmdDecoder("clearMultiStream", "");
             resetReservedEditBufferTextWidth();
             editTextBox.Text = "";
             editTextBox.SelectionStart = 0;
             this.Hide();
             frmCands?.Hide();
             return true;
+        }
+
+        public void OnTsfCompositionTerminated(ulong compositionId)
+        {
+            if (InvokeRequired) {
+                BeginInvoke(new Action<ulong>(OnTsfCompositionTerminated), compositionId);
+                return;
+            }
+            string committedText = EditText;
+            editTextBox.Text = "";
+            editTextBox.SelectionStart = 0;
+            Hide();
+            frmCands?.Hide();
+            frmMain.ExecCmdDecoder("clearMultiStream", committedText);
+            logger.InfoH(() => $"TSF composition externally terminated: id={compositionId}, length={committedText.Length}");
         }
 
         private void resetReservedEditBufferTextWidth()

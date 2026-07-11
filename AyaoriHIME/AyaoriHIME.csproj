@@ -226,6 +226,10 @@
     <Compile Include="Handler\IMEHandler.cs" />
     <Compile Include="Handler\ModifierKeyState.cs" />
     <Compile Include="Handler\SendInputHandler.cs" />
+    <Compile Include="Handler\TextOutput\ITextOutputSink.cs" />
+    <Compile Include="Handler\TextOutput\SendInputTextOutputSink.cs" />
+    <Compile Include="Handler\TextOutput\TextOutputRouter.cs" />
+    <Compile Include="Handler\TextOutput\TsfTextOutputSink.cs" />
     <Compile Include="Handler\HandlerUtils.cs" />
     <Compile Include="KanchokuHelper.cs" />
     <Compile Include="KanchokuIni.cs" />

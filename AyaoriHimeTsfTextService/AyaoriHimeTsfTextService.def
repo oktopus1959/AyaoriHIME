@@ -1,0 +1,7 @@
+LIBRARY "AyaoriHimeTsfTextService"
+
+EXPORTS
+    DllCanUnloadNow
+    DllGetClassObject
+    DllRegisterServer
+    DllUnregisterServer

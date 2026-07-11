@@ -187,7 +187,8 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if (LogLevel >= LogLevelInfo || (IsInfoPromoted && LogLevel >= LogPromotedLevel)) {
-                writeLog("INFO", $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
+                //writeLog("INFO", $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
+                writeLog("INFO", $"{ClassName}.{method}", lineNumber, msg, appendLogToFile);
             }
         }
 
@@ -196,7 +197,8 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if ((LogLevel >= LogLevelInfo || (IsInfoPromoted && LogLevel >= LogPromotedLevel)) && func != null) {
-                writeLog("INFO", $"{ClassName}.{method}", lineNumber, func(), appendLogToQueue);
+                //writeLog("INFO", $"{ClassName}.{method}", lineNumber, func(), appendLogToQueue);
+                writeLog("INFO", $"{ClassName}.{method}", lineNumber, func(), appendLogToFile);
             }
         }
 
@@ -205,7 +207,8 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if (LogLevel >= LogLevelInfoH) {
-                writeLog("INFOH", $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
+                //writeLog("INFOH", $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
+                writeLog("INFOH", $"{ClassName}.{method}", lineNumber, msg, appendLogToFile);
             }
         }
 
@@ -214,7 +217,8 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if ((LogLevel >= LogLevelInfoH || (IsInfoPromoted && LogLevel >= LogPromotedLevel)) && func != null) {
-                writeLog("INFOH", $"{ClassName}.{method}", lineNumber, func(), appendLogToQueue);
+                //writeLog("INFOH", $"{ClassName}.{method}", lineNumber, func(), appendLogToQueue);
+                writeLog("INFOH", $"{ClassName}.{method}", lineNumber, func(), appendLogToFile);
             }
         }
 
@@ -223,7 +227,8 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if (LogLevel >= LogLevelWarn) {
-                writeLog("WARN", $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
+                //writeLog("WARN", $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
+                writeLog("WARN", $"{ClassName}.{method}", lineNumber, msg, appendLogToFile);
             }
         }
 
@@ -232,7 +237,8 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if (LogLevel >= LogLevelWarn && func != null) {
-                writeLog("WARN", $"{ClassName}.{method}", lineNumber, func(), appendLogToQueue);
+                //writeLog("WARN", $"{ClassName}.{method}", lineNumber, func(), appendLogToQueue);
+                writeLog("WARN", $"{ClassName}.{method}", lineNumber, func(), appendLogToFile);
             }
         }
 

@@ -5,6 +5,8 @@ _tools/
 bin/
 Debug/
 Release/
+**/Debug/
+**/Release/
 ipch/
 obj/
 tmp/
@@ -19,6 +21,7 @@ _tables/
 *.back*
 *.VC.db
 *.VC.opendb
+*.vcxproj.user
 *.ncb
 *.opt
 *.plg

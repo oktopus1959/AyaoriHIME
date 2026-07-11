@@ -346,6 +346,12 @@ namespace KanchokuWS
         /// <summary>Space が入力されたら編集バッファをフラッシュして Space をSendInputするか<br/></summary>
         public static bool IsSpaceFlushAndDirectInput { get; set; } = false;
 
+        /// <summary>TSF text service 経由の文字列出力を試すか</summary>
+        public static bool UseTsfOutput { get; private set; } = false;
+
+        /// <summary>TSF text service への出力要求の応答待ち時間</summary>
+        public static int TsfOutputTimeoutMillisec { get; private set; } = 50;
+
         /// <summary>英大文字を入力されたら編集バッファをフラッシュする</summary>
         public static bool FlushEditBufferWhenCaptalAlphabet { get; set; } = false;
 
@@ -1551,6 +1557,10 @@ namespace KanchokuWS
             // N文字以上の削除にBSではなく Shift+LeftArrow+Deleteを使うウィンドウ
             ShiftLeftArrowDeleteClassNames = GetString("shiftLeftArrowDeleteClassNames").Trim();
             ShiftLeftArrowDeleteClassNamesHash = new HashSet<string>(ShiftLeftArrowDeleteClassNames._toLower()._split('|'));
+
+            // TSF text service 経由の文字列出力
+            UseTsfOutput = GetString("useTsfOutput")._parseBool(false);
+            TsfOutputTimeoutMillisec = GetString("tsfOutputTimeoutMillisec")._parseInt(50)._lowLimit(1);
 
             // 自身以外のキーボードフックツールからの出力を無視する
             IgnoreOtherHooker = GetString("ignoreOtherHooker")._parseBool(true);

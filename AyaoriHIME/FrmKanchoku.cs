@@ -456,6 +456,10 @@ namespace KanchokuWS
             logger.InfoH("CALL: ReadIniFile");
             Settings.ReadIniFile(true);
 
+            logger.InfoH("CALL: TextOutputRouter.CreateSingleton");
+            TextOutputRouter.CreateSingleton();
+            TextOutputRouter.Singleton.CompositionTerminated += frmEditBuf.OnTsfCompositionTerminated;
+
             Logger.Close();
 
             if (!resultOK) return;
@@ -697,6 +701,7 @@ namespace KanchokuWS
             // この後は各種終了処理
             //DecKeyHandler.Destroy();
             ActiveWindowHandler.DisposeSingleton();
+            TextOutputRouter.DisposeSingleton();
             SendInputHandler.DisposeSingleton();
             finalizeDecoder();
             frmEditBuf?.Close();
@@ -2424,7 +2429,7 @@ namespace KanchokuWS
             if (IsDecoderActive) {
                 frmEditBuf.PutString(decoderOutput.outString, decoderOutput.numBackSpaces);
             } else {
-                SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(decoderOutput.outString, decoderOutput.numBackSpaces, bFuncVkeyContained);
+                TextOutputRouter.Singleton.SendStringViaClipboardIfNeeded(decoderOutput.outString, decoderOutput.numBackSpaces, bFuncVkeyContained);
             }
 #if false
             if (bFuncVkeyContained) {
@@ -2634,7 +2639,7 @@ namespace KanchokuWS
                 dtStr = dtNow.AddYears(-diffYear).ToString(fmt);
                 if (Settings.LoggingDecKeyInfo) logger.Info($"fmt={fmt}, dtStr={dtStr}");
             }
-            SendInputHandler.Singleton.SendStringViaClipboardIfNeeded(dtStr.ToCharArray(), prevDateStrLength);
+            TextOutputRouter.Singleton.SendStringViaClipboardIfNeeded(dtStr.ToCharArray(), prevDateStrLength);
             prevDateStrLength = dtStr.Length;
         }
 
