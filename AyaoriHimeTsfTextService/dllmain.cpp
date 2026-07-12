@@ -1,7 +1,9 @@
 #include <windows.h>
+#include <ime.h>
 #include <msctf.h>
 #include <sddl.h>
 #include <strsafe.h>
+#include <algorithm>
 #include <atomic>
 #include <new>
 #include <stdint.h>
@@ -45,6 +47,13 @@ static const int16_t MessageReadPrecedingContext = 9;
 static const int16_t MessagePrecedingContextResult = 10;
 static const int32_t MaxPayloadLength = 1024 * 1024;
 static const ULONGLONG CachedOutputAnchorMaxAgeMs = 2000;
+static const DWORD ImmDocumentFeedTimeoutMs = 50;
+static const DWORD MaxReconvertStringBytes = 1024 * 1024;
+static const LONG MaxPrecedingContextLength = 16;
+
+// MozcがCUASによる仮のdocument manager判定に使用しているcompartment GUID。
+static const GUID GUID_TsfEmulatedDocumentMgr =
+{ 0xa94c5fd2, 0xc471, 0x4031, { 0x95, 0x46, 0x70, 0x9c, 0x17, 0x30, 0x0c, 0xb9 } };
 
 static SRWLOCK g_runtimeLogLock = SRWLOCK_INIT;
 
@@ -88,6 +97,197 @@ static void RuntimeLog(const wchar_t* format, ...)
         fclose(fp);
     }
     ReleaseSRWLockExclusive(&g_runtimeLogLock);
+}
+
+static bool IsSameComIdentity(IUnknown* left, IUnknown* right)
+{
+    if (left == right) return true;
+    if (!left || !right) return false;
+    IUnknown* leftIdentity = nullptr;
+    IUnknown* rightIdentity = nullptr;
+    HRESULT leftHr = left->QueryInterface(IID_IUnknown, reinterpret_cast<void**>(&leftIdentity));
+    HRESULT rightHr = right->QueryInterface(IID_IUnknown, reinterpret_cast<void**>(&rightIdentity));
+    bool same = SUCCEEDED(leftHr) && SUCCEEDED(rightHr) && leftIdentity == rightIdentity;
+    if (leftIdentity) leftIdentity->Release();
+    if (rightIdentity) rightIdentity->Release();
+    return same;
+}
+
+static bool TryGetCompartmentValue(IUnknown* owner, REFGUID guid, VARIANT* value)
+{
+    if (!owner || !value) return false;
+    VariantInit(value);
+    ITfCompartmentMgr* manager = nullptr;
+    HRESULT hr = owner->QueryInterface(IID_ITfCompartmentMgr, reinterpret_cast<void**>(&manager));
+    ITfCompartment* compartment = nullptr;
+    if (SUCCEEDED(hr)) hr = manager->GetCompartment(guid, &compartment);
+    if (SUCCEEDED(hr)) hr = compartment->GetValue(value);
+    if (compartment) compartment->Release();
+    if (manager) manager->Release();
+    return SUCCEEDED(hr);
+}
+
+static bool IsTsfEmulatedDocumentMgr(ITfDocumentMgr* documentMgr)
+{
+    VARIANT value = {};
+    bool found = TryGetCompartmentValue(documentMgr, GUID_TsfEmulatedDocumentMgr, &value);
+    bool emulated = found && value.vt == VT_I4 && (value.lVal & 1) != 0;
+    VariantClear(&value);
+    return emulated;
+}
+
+// 呼び出し側がReleaseするfull contextを返す。nullptrはIMM32 fallback対象を表す。
+static ITfContext* GetFullContext(ITfContext* context)
+{
+    if (!context) return nullptr;
+    TF_STATUS status = {};
+    HRESULT statusHr = context->GetStatus(&status);
+    if (FAILED(statusHr)) {
+        RuntimeLog(L"FullContext: GetStatus failed hr=0x%08X", static_cast<unsigned int>(statusHr));
+        return nullptr;
+    }
+    if ((status.dwStaticFlags & TF_SS_TRANSITORY) == 0) {
+        context->AddRef();
+        RuntimeLog(L"FullContext: direct staticFlags=0x%08X", status.dwStaticFlags);
+        return context;
+    }
+
+    ITfDocumentMgr* documentMgr = nullptr;
+    HRESULT hr = context->GetDocumentMgr(&documentMgr);
+    if (FAILED(hr) || !documentMgr) {
+        RuntimeLog(L"FullContext: transitory GetDocumentMgr failed hr=0x%08X", static_cast<unsigned int>(hr));
+        return nullptr;
+    }
+
+    ITfDocumentMgr* targetDocumentMgr = nullptr;
+    VARIANT parent = {};
+    if (TryGetCompartmentValue(documentMgr, GUID_COMPARTMENT_TRANSITORYEXTENSION_PARENT, &parent) &&
+        parent.vt == VT_UNKNOWN && parent.punkVal) {
+        parent.punkVal->QueryInterface(IID_ITfDocumentMgr, reinterpret_cast<void**>(&targetDocumentMgr));
+    }
+    VariantClear(&parent);
+
+    if (targetDocumentMgr && !IsSameComIdentity(documentMgr, targetDocumentMgr)) {
+        ITfContext* targetContext = nullptr;
+        hr = targetDocumentMgr->GetTop(&targetContext);
+        TF_STATUS targetStatus = {};
+        HRESULT targetStatusHr = targetContext ? targetContext->GetStatus(&targetStatus) : E_FAIL;
+        targetDocumentMgr->Release();
+        documentMgr->Release();
+        if (SUCCEEDED(hr) && targetContext && SUCCEEDED(targetStatusHr) &&
+            (targetStatus.dwStaticFlags & TF_SS_TRANSITORY) == 0) {
+            RuntimeLog(L"FullContext: transitory extension parent selected staticFlags=0x%08X", targetStatus.dwStaticFlags);
+            return targetContext;
+        }
+        if (targetContext) targetContext->Release();
+        RuntimeLog(L"FullContext: transitory extension parent is unavailable hr=0x%08X status=0x%08X",
+            static_cast<unsigned int>(hr), static_cast<unsigned int>(targetStatusHr));
+        return nullptr;
+    }
+    if (targetDocumentMgr) targetDocumentMgr->Release();
+
+    bool emulated = IsTsfEmulatedDocumentMgr(documentMgr);
+    documentMgr->Release();
+    if (emulated) {
+        RuntimeLog(L"FullContext: CUAS emulated document manager detected");
+        return nullptr;
+    }
+
+    context->AddRef();
+    RuntimeLog(L"FullContext: explicit transitory context selected staticFlags=0x%08X", status.dwStaticFlags);
+    return context;
+}
+
+static void TrimPrecedingContext(std::wstring* text, LONG maxLength)
+{
+    if (!text) return;
+    size_t boundary = text->find_last_of(L"\r\n、。");
+    if (boundary != std::wstring::npos) text->erase(0, boundary + 1);
+    if (maxLength >= 0 && text->length() > static_cast<size_t>(maxLength)) {
+        text->erase(0, text->length() - static_cast<size_t>(maxLength));
+    }
+}
+
+static bool ValidateReconvertString(const RECONVERTSTRING* reconvert, DWORD bufferSize)
+{
+    if (!reconvert || bufferSize < sizeof(RECONVERTSTRING)) return false;
+    if (reconvert->dwSize < sizeof(RECONVERTSTRING) || reconvert->dwSize > bufferSize) return false;
+    if (reconvert->dwVersion != 0) return false;
+    if ((reconvert->dwStrOffset % sizeof(wchar_t)) != 0) return false;
+    if (reconvert->dwStrLen > (MAXDWORD - reconvert->dwStrOffset) / sizeof(wchar_t)) return false;
+    DWORD stringBytes = reconvert->dwStrLen * sizeof(wchar_t);
+    if (reconvert->dwStrOffset > reconvert->dwSize ||
+        stringBytes > reconvert->dwSize - reconvert->dwStrOffset) return false;
+    if ((reconvert->dwCompStrOffset % sizeof(wchar_t)) != 0 ||
+        (reconvert->dwTargetStrOffset % sizeof(wchar_t)) != 0) return false;
+    if (reconvert->dwCompStrLen > MAXDWORD / sizeof(wchar_t) ||
+        reconvert->dwTargetStrLen > MAXDWORD / sizeof(wchar_t)) return false;
+    DWORD compositionBytes = reconvert->dwCompStrLen * sizeof(wchar_t);
+    DWORD targetBytes = reconvert->dwTargetStrLen * sizeof(wchar_t);
+    if (reconvert->dwCompStrOffset > stringBytes ||
+        compositionBytes > stringBytes - reconvert->dwCompStrOffset) return false;
+    if (reconvert->dwTargetStrOffset < reconvert->dwCompStrOffset ||
+        reconvert->dwTargetStrOffset > reconvert->dwCompStrOffset + compositionBytes ||
+        targetBytes > reconvert->dwCompStrOffset + compositionBytes - reconvert->dwTargetStrOffset) return false;
+    return true;
+}
+
+static HRESULT ReadPrecedingContextImm32(ITfContext* context, LONG maxLength, std::wstring* result)
+{
+    if (!context || !result || maxLength < 0 || maxLength > MaxPrecedingContextLength) return E_INVALIDARG;
+    result->clear();
+    ITfContextView* view = nullptr;
+    HRESULT hr = context->GetActiveView(&view);
+    HWND attachedWindow = nullptr;
+    if (SUCCEEDED(hr) && view) hr = view->GetWnd(&attachedWindow);
+    if (view) view->Release();
+    if (FAILED(hr) || !attachedWindow) {
+        RuntimeLog(L"PrecedingContext: source=imm32 GetActiveView/GetWnd hr=0x%08X",
+            static_cast<unsigned int>(hr));
+        return FAILED(hr) ? hr : E_FAIL;
+    }
+
+    DWORD_PTR requiredSize = 0;
+    LRESULT sendResult = SendMessageTimeoutW(attachedWindow, WM_IME_REQUEST, IMR_DOCUMENTFEED, 0,
+        SMTO_ABORTIFHUNG | SMTO_BLOCK, ImmDocumentFeedTimeoutMs, &requiredSize);
+    if (!sendResult) {
+        DWORD error = GetLastError();
+        RuntimeLog(L"PrecedingContext: source=imm32 size request failed error=%lu timeout=%d",
+            error, error == ERROR_TIMEOUT);
+        return error == ERROR_SUCCESS ? E_NOTIMPL : HRESULT_FROM_WIN32(error);
+    }
+    if (requiredSize < sizeof(RECONVERTSTRING) || requiredSize > MaxReconvertStringBytes) {
+        RuntimeLog(L"PrecedingContext: source=imm32 invalid requiredSize=%llu",
+            static_cast<unsigned long long>(requiredSize));
+        return E_INVALIDARG;
+    }
+
+    std::vector<BYTE> buffer(static_cast<size_t>(requiredSize), 0);
+    auto reconvert = reinterpret_cast<RECONVERTSTRING*>(buffer.data());
+    reconvert->dwSize = static_cast<DWORD>(buffer.size());
+    DWORD_PTR documentFeedResult = 0;
+    sendResult = SendMessageTimeoutW(attachedWindow, WM_IME_REQUEST, IMR_DOCUMENTFEED,
+        reinterpret_cast<LPARAM>(reconvert), SMTO_ABORTIFHUNG | SMTO_BLOCK,
+        ImmDocumentFeedTimeoutMs, &documentFeedResult);
+    if (!sendResult) {
+        DWORD error = GetLastError();
+        RuntimeLog(L"PrecedingContext: source=imm32 data request failed error=%lu timeout=%d",
+            error, error == ERROR_TIMEOUT);
+        return error == ERROR_SUCCESS ? E_NOTIMPL : HRESULT_FROM_WIN32(error);
+    }
+    if (!ValidateReconvertString(reconvert, static_cast<DWORD>(buffer.size()))) {
+        RuntimeLog(L"PrecedingContext: source=imm32 invalid RECONVERTSTRING size=%zu result=%llu",
+            buffer.size(), static_cast<unsigned long long>(documentFeedResult));
+        return E_INVALIDARG;
+    }
+
+    const wchar_t* entireText = reinterpret_cast<const wchar_t*>(buffer.data() + reconvert->dwStrOffset);
+    size_t precedingLength = reconvert->dwCompStrOffset / sizeof(wchar_t);
+    result->assign(entireText, entireText + precedingLength);
+    TrimPrecedingContext(result, maxLength);
+    RuntimeLog(L"PrecedingContext: source=imm32 requested=%ld stringLength=%lu compositionOffset=%lu resultLength=%zu",
+        maxLength, reconvert->dwStrLen, reconvert->dwCompStrOffset, result->length());
+    return S_OK;
 }
 
 #pragma pack(push, 1)
@@ -186,12 +386,11 @@ struct ContextRequest
 class PrecedingContextEditSession final : public ITfEditSession
 {
 public:
-    PrecedingContextEditSession(ITfContext* context, ITfComposition* composition, LONG maxLength,
-        bool hasPreferredAnchor, LONG preferredAnchor, std::wstring* result, ContextRequest* request = nullptr)
-        : refCount_(1), context_(context), composition_(composition), maxLength_(maxLength),
-          hasPreferredAnchor_(hasPreferredAnchor), preferredAnchor_(preferredAnchor), result_(result), request_(request)
-    { if (context_) context_->AddRef(); if (composition_) composition_->AddRef(); if (request_) request_->AddRef(); }
-    ~PrecedingContextEditSession() { if (request_) request_->Release(); if (composition_) composition_->Release(); if (context_) context_->Release(); }
+    PrecedingContextEditSession(ITfContext* context, LONG maxLength,
+        std::wstring* result, ContextRequest* request = nullptr)
+        : refCount_(1), context_(context), maxLength_(maxLength), result_(result), request_(request)
+    { if (context_) context_->AddRef(); if (request_) request_->AddRef(); }
+    ~PrecedingContextEditSession() { if (request_) request_->Release(); if (context_) context_->Release(); }
     STDMETHODIMP QueryInterface(REFIID riid, void** ppv) override {
         if (!ppv) return E_POINTER; *ppv = nullptr;
         if (riid == IID_IUnknown || riid == IID_ITfEditSession) { *ppv = static_cast<ITfEditSession*>(this); AddRef(); return S_OK; }
@@ -206,79 +405,46 @@ public:
     }
 private:
     HRESULT Execute(TfEditCookie ec) {
-        if (!context_ || !result_ || maxLength_ < 0) return E_INVALIDARG;
-        ITfRange* range = nullptr;
-        HRESULT hr = composition_ ? composition_->GetRange(&range) : E_FAIL;
-        if (FAILED(hr) || !range) {
-            TF_SELECTION selection = {}; ULONG fetched = 0;
-            hr = context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &selection, &fetched);
-            if (FAILED(hr) || fetched != 1 || !selection.range) return FAILED(hr) ? hr : TF_E_NOSELECTION;
-            range = selection.range;
+        if (!context_ || !result_ || maxLength_ < 0 || maxLength_ > MaxPrecedingContextLength) return E_INVALIDARG;
+        TF_SELECTION selection = {};
+        ULONG selectionCount = 0;
+        HRESULT hr = context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &selection, &selectionCount);
+        if (FAILED(hr) || selectionCount != 1 || !selection.range) {
+            RuntimeLog(L"PrecedingContextEditSession: GetSelection hr=0x%08X count=%lu",
+                static_cast<unsigned int>(hr), selectionCount);
+            return FAILED(hr) ? hr : TF_E_NOSELECTION;
         }
+
+        ITfRange* range = nullptr;
+        hr = selection.range->Clone(&range);
+        selection.range->Release();
+        if (FAILED(hr) || !range) return FAILED(hr) ? hr : E_FAIL;
+
+        hr = range->Collapse(ec, TF_ANCHOR_START);
         LONG shifted = 0;
-        LONG anchor = -1;
-        LONG originalLength = 0;
-        bool usedAcp = false;
-        ITfRangeACP* acp = nullptr;
-        HRESULT acpHr = range->QueryInterface(IID_ITfRangeACP, reinterpret_cast<void**>(&acp));
-        if (SUCCEEDED(acpHr) && acp) {
-            hr = acp->GetExtent(&anchor, &originalLength);
-            if (SUCCEEDED(hr)) {
-                if (!composition_ && anchor == 0 && originalLength == 0 && hasPreferredAnchor_ && preferredAnchor_ > 0) {
-                    anchor = preferredAnchor_;
-                }
-                LONG start = anchor > maxLength_ ? anchor - maxLength_ : 0;
-                LONG length = anchor - start;
-                ITfRange* documentRange = nullptr;
-                hr = context_->GetStart(ec, &documentRange);
-                ITfRangeACP* documentAcp = nullptr;
-                if (SUCCEEDED(hr) && documentRange) {
-                    hr = documentRange->QueryInterface(IID_ITfRangeACP, reinterpret_cast<void**>(&documentAcp));
-                }
-                if (SUCCEEDED(hr) && documentAcp) hr = documentAcp->SetExtent(start, length);
-                LONG readAnchor = -1;
-                LONG readLength = -1;
-                HRESULT verifyHr = SUCCEEDED(hr) && documentAcp
-                    ? documentAcp->GetExtent(&readAnchor, &readLength)
-                    : E_FAIL;
-                RuntimeLog(L"PrecedingContextEditSession: document range SetExtent start=%ld length=%ld hr=0x%08X verify=0x%08X anchor=%ld length=%ld",
-                    start, length, static_cast<unsigned int>(hr), static_cast<unsigned int>(verifyHr), readAnchor, readLength);
-                if (documentAcp) documentAcp->Release();
-                if (SUCCEEDED(hr) && documentRange) {
-                    range->Release();
-                    range = documentRange;
-                    documentRange = nullptr;
-                    shifted = -length;
-                    usedAcp = true;
-                }
-                if (documentRange) documentRange->Release();
-            }
-            acp->Release();
-        } else {
-            hr = range->Collapse(ec, TF_ANCHOR_START);
-            if (SUCCEEDED(hr) && maxLength_ > 0) hr = range->ShiftStart(ec, -maxLength_, &shifted, nullptr);
+        const TF_HALTCOND haltCondition = { nullptr, TF_ANCHOR_START, TF_HF_OBJECT };
+        if (SUCCEEDED(hr) && maxLength_ > 0) {
+            hr = range->ShiftStart(ec, -maxLength_, &shifted, &haltCondition);
         }
         wchar_t buffer[17] = {};
         ULONG fetched = 0;
-        ULONG readLength = usedAcp && shifted < 0
-            ? static_cast<ULONG>(-shifted)
-            : static_cast<ULONG>(_countof(buffer) - 1);
+        ULONG readLength = shifted < 0
+            ? static_cast<ULONG>((std::min)(-shifted, maxLength_))
+            : 0;
         if (SUCCEEDED(hr) && readLength > 0) {
-            hr = range->GetText(ec, TF_TF_MOVESTART | TF_TF_IGNOREEND, buffer, readLength, &fetched);
+            hr = range->GetText(ec, 0, buffer, readLength, &fetched);
         }
         range->Release();
         if (FAILED(hr)) return hr;
         std::wstring text(buffer, fetched);
-        size_t boundary = text.find_last_of(L"\r\n、。");
-        if (boundary != std::wstring::npos) text.erase(0, boundary + 1);
-        if (text.length() > static_cast<size_t>(maxLength_)) text.erase(0, text.length() - maxLength_);
+        TrimPrecedingContext(&text, maxLength_);
         *result_ = text;
-        RuntimeLog(L"PrecedingContextEditSession: requested=%ld acp=%d anchor=%ld originalLength=%ld shifted=%ld fetched=%lu resultLength=%zu",
-            maxLength_, usedAcp ? 1 : 0, anchor, originalLength, shifted, fetched, result_->length());
+        RuntimeLog(L"PrecedingContextEditSession: source=tsf requested=%ld shifted=%ld fetched=%lu resultLength=%zu",
+            maxLength_, shifted, fetched, result_->length());
         return S_OK;
     }
-    long refCount_; ITfContext* context_; ITfComposition* composition_; LONG maxLength_;
-    bool hasPreferredAnchor_; LONG preferredAnchor_; std::wstring* result_; ContextRequest* request_;
+    long refCount_; ITfContext* context_; LONG maxLength_;
+    std::wstring* result_; ContextRequest* request_;
 };
 
 class CommitEditSession final : public ITfEditSession
@@ -1942,30 +2108,40 @@ private:
         ContextRequest* request, bool* completionPending)
     {
         if (!text || !completionPending) return E_POINTER;
+        if (maxLength < 0 || maxLength > MaxPrecedingContextLength) return E_INVALIDARG;
         *completionPending = false;
         text->clear();
         ITfContext* context = GetCurrentContext();
         if (!context) return TF_E_DISCONNECTED;
-        LONG preferredAnchor = 0;
-        bool hasPreferredAnchor = TryGetRecentOutputAnchor(context, &preferredAnchor);
+
+        ITfContext* fullContext = GetFullContext(context);
+        if (!fullContext) {
+            HRESULT immHr = ReadPrecedingContextImm32(context, maxLength, text);
+            context->Release();
+            RuntimeLog(L"ReadPrecedingContext: route=imm32 maxLength=%ld resultLength=%zu hr=0x%08X",
+                maxLength, text->length(), static_cast<unsigned int>(immHr));
+            return immHr;
+        }
+
         auto session = new (std::nothrow) PrecedingContextEditSession(
-            context, composition_, maxLength, hasPreferredAnchor, preferredAnchor, text);
-        if (!session) { context->Release(); return E_OUTOFMEMORY; }
+            fullContext, maxLength, text);
+        if (!session) { fullContext->Release(); context->Release(); return E_OUTOFMEMORY; }
         HRESULT sessionResult = E_FAIL;
-        HRESULT hr = context->RequestEditSession(clientId_, session, TF_ES_SYNC | TF_ES_READ, &sessionResult);
+        HRESULT hr = fullContext->RequestEditSession(clientId_, session, TF_ES_SYNC | TF_ES_READ, &sessionResult);
         if ((hr == TF_E_SYNCHRONOUS || (SUCCEEDED(hr) && sessionResult == TF_E_SYNCHRONOUS)) && request) {
             RuntimeLog(L"ReadPrecedingContext: synchronous edit rejected request=0x%08X session=0x%08X",
                 static_cast<unsigned int>(hr), static_cast<unsigned int>(sessionResult));
             auto asyncSession = new (std::nothrow) PrecedingContextEditSession(
-                context, composition_, maxLength, hasPreferredAnchor, preferredAnchor, text, request);
+                fullContext, maxLength, text, request);
             sessionResult = E_FAIL;
             hr = asyncSession
-                ? context->RequestEditSession(clientId_, asyncSession, TF_ES_ASYNC | TF_ES_READ, &sessionResult)
+                ? fullContext->RequestEditSession(clientId_, asyncSession, TF_ES_ASYNC | TF_ES_READ, &sessionResult)
                 : E_OUTOFMEMORY;
             if (asyncSession) asyncSession->Release();
             if (SUCCEEDED(hr)) {
                 *completionPending = true;
                 session->Release();
+                fullContext->Release();
                 context->Release();
                 RuntimeLog(L"ReadPrecedingContext: queued asynchronous request=0x%08X",
                     static_cast<unsigned int>(hr));
@@ -1973,9 +2149,10 @@ private:
             }
         }
         session->Release();
+        fullContext->Release();
         context->Release();
         HRESULT result = FAILED(hr) ? hr : sessionResult;
-        RuntimeLog(L"ReadPrecedingContext: maxLength=%ld resultLength=%zu hr=0x%08X",
+        RuntimeLog(L"ReadPrecedingContext: route=tsf maxLength=%ld resultLength=%zu hr=0x%08X",
             maxLength, text->length(), static_cast<unsigned int>(result));
         return result;
     }
