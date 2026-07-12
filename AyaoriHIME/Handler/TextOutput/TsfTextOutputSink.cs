@@ -15,7 +15,7 @@ namespace KanchokuWS.Handler
         private static readonly Logger logger = Logger.GetLogger();
 
         private const int Magic = 0x54465341; // ASFT
-        private const short Version = 2;
+        private const short Version = 3;
         private const short MessageHello = 1;
         private const short MessageFocusChanged = 2;
         private const short MessageUpdateComposition = 3;
@@ -24,6 +24,8 @@ namespace KanchokuWS.Handler
         private const short MessageOperationResult = 6;
         private const short MessageCompositionTerminated = 7;
         private const short MessageBye = 8;
+        private const short MessageReadPrecedingContext = 9;
+        private const short MessagePrecedingContextResult = 10;
         private const int HresultOk = 0;
         private const int HresultFail = unchecked((int)0x80004005);
         private const int MaxPayloadLength = 1024 * 1024;
@@ -37,11 +39,13 @@ namespace KanchokuWS.Handler
         private int nextClientId;
         private long nextFocusOrder;
         private long nextCompositionId;
+        private long nextContextRequestId;
         private ulong compositionId;
         private ulong compositionSequence;
         private ClientConnection compositionClient;
 
         public event Action<ulong> CompositionTerminated;
+        public event Action ActiveClientChanged;
 
         public TsfTextOutputSink()
         {
@@ -66,6 +70,20 @@ namespace KanchokuWS.Handler
         }
 
         public bool HasComposition => compositionId != 0;
+
+        public bool TryGetPrecedingContext(int maxLength, out string context, out string failureReason)
+        {
+            context = "";
+            failureReason = "";
+            ClientConnection client = GetActiveClient();
+            if (client == null) {
+                failureReason = "active TSF client is not connected";
+                return false;
+            }
+            ulong requestId = unchecked((ulong)Interlocked.Increment(ref nextContextRequestId));
+            return client.TryGetPrecedingContext(requestId, maxLength, Settings.TsfOutputTimeoutMillisec,
+                out context, out failureReason);
+        }
 
         public void PrepareCompositionTarget()
         {
@@ -293,6 +311,7 @@ namespace KanchokuWS.Handler
 
         private void OnFocusChanged(ClientConnection client, bool hasFocus)
         {
+            bool changed = false;
             lock (sync) {
                 if (disposed || !clients.Contains(client)) return;
                 if (client.ProtocolVersion != Version) {
@@ -301,11 +320,14 @@ namespace KanchokuWS.Handler
                 }
                 if (hasFocus) {
                     client.FocusOrder = ++nextFocusOrder;
+                    changed = !ReferenceEquals(activeClient, client);
                     activeClient = client;
                 } else if (ReferenceEquals(activeClient, client)) {
                     activeClient = null;
+                    changed = true;
                 }
             }
+            if (changed) ActiveClientChanged?.Invoke();
             logger.InfoH(() => $"TSF client focus changed: client={client.Id}, focus={hasFocus}");
         }
 
@@ -317,10 +339,12 @@ namespace KanchokuWS.Handler
         private void DisconnectClient(ClientConnection client, string reason)
         {
             bool removed = false;
+            bool activeChanged = false;
             lock (sync) {
                 removed = clients.Remove(client);
-                if (ReferenceEquals(activeClient, client)) activeClient = null;
+                if (ReferenceEquals(activeClient, client)) { activeClient = null; activeChanged = true; }
             }
+            if (activeChanged) ActiveClientChanged?.Invoke();
             if (removed) {
                 logger.InfoH(() => $"TSF pipe disconnected: client={client.Id}, reason={reason}");
             }
@@ -369,6 +393,18 @@ namespace KanchokuWS.Handler
                 }
                 byte[] payload = ms.ToArray();
                 WriteHeader(pipe, operation, payload.Length);
+                pipe.Write(payload, 0, payload.Length);
+                pipe.Flush();
+            }
+        }
+
+        private static void WriteContextRequest(Stream pipe, ulong requestId, int maxLength)
+        {
+            using (var ms = new MemoryStream()) {
+                WriteUInt64(ms, requestId);
+                WriteInt32(ms, maxLength);
+                byte[] payload = ms.ToArray();
+                WriteHeader(pipe, MessageReadPrecedingContext, payload.Length);
                 pipe.Write(payload, 0, payload.Length);
                 pipe.Flush();
             }
@@ -463,6 +499,10 @@ namespace KanchokuWS.Handler
             private short expectedOperation;
             private ulong expectedCompositionId;
             private ulong expectedSequence;
+            private bool waitingContextResult;
+            private ulong expectedContextRequestId;
+            private int contextHresult = HresultFail;
+            private string contextResult = "";
 
             public ClientConnection(TsfTextOutputSink owner, NamedPipeServerStream pipe, int id)
             {
@@ -548,6 +588,44 @@ namespace KanchokuWS.Handler
                 }
             }
 
+            public bool TryGetPrecedingContext(ulong requestId, int maxLength, int timeoutMs,
+                out string context, out string error)
+            {
+                context = "";
+                error = "";
+                maxLength = Math.Max(0, Math.Min(16, maxLength));
+                lock (commitLock) {
+                    if (!IsConnected) { error = "active TSF client is disconnected"; return false; }
+                    lock (resultSync) {
+                        waitingContextResult = true;
+                        expectedContextRequestId = requestId;
+                        contextHresult = HresultFail;
+                        contextResult = "";
+                        commitResultEvent.Reset();
+                    }
+                    try {
+                        WriteContextRequest(pipe, requestId, maxLength);
+                    } catch (Exception ex) {
+                        ClearWaitingContextResult();
+                        error = ex.Message;
+                        return false;
+                    }
+                    if (!commitResultEvent.Wait(Math.Max(1, timeoutMs))) {
+                        ClearWaitingContextResult();
+                        error = "TSF preceding context timeout";
+                        return false;
+                    }
+                    lock (resultSync) {
+                        if (contextHresult != HresultOk) {
+                            error = $"TSF preceding context failed: HRESULT=0x{unchecked((uint)contextHresult):X8}";
+                            return false;
+                        }
+                        context = contextResult;
+                        return true;
+                    }
+                }
+            }
+
             public void Dispose()
             {
                 if (disposed) return;
@@ -611,6 +689,9 @@ namespace KanchokuWS.Handler
                     case MessageCompositionTerminated:
                         owner.OnCompositionTerminated(payload);
                         return true;
+                    case MessagePrecedingContextResult:
+                        HandleContextResult(payload);
+                        return true;
                     case MessageBye:
                         owner.OnClientBye(this);
                         return false;
@@ -653,6 +734,31 @@ namespace KanchokuWS.Handler
                     waitingCommitResult = false;
                     commitResultReceived = false;
                     commitHresult = HresultFail;
+                    commitResultEvent.Set();
+                }
+            }
+
+            private void HandleContextResult(byte[] payload)
+            {
+                ulong requestId = payload.Length >= 16 ? BitConverter.ToUInt64(payload, 0) : 0;
+                int hr = payload.Length >= 16 ? BitConverter.ToInt32(payload, 8) : HresultFail;
+                int byteLength = payload.Length >= 16 ? BitConverter.ToInt32(payload, 12) : -1;
+                lock (resultSync) {
+                    if (!waitingContextResult || requestId != expectedContextRequestId || byteLength < 0 ||
+                        (byteLength & 1) != 0 || payload.Length != 16 + byteLength) return;
+                    contextHresult = hr;
+                    contextResult = byteLength == 0 ? "" : Encoding.Unicode.GetString(payload, 16, byteLength);
+                    waitingContextResult = false;
+                    commitResultEvent.Set();
+                }
+            }
+
+            private void ClearWaitingContextResult()
+            {
+                lock (resultSync) {
+                    waitingContextResult = false;
+                    contextHresult = HresultFail;
+                    contextResult = "";
                     commitResultEvent.Set();
                 }
             }

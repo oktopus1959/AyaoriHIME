@@ -29,9 +29,10 @@ static std::atomic<long> g_lockCount = 0;
 static const wchar_t* MessageWindowClassName = L"AyaoriHIME.TsfTextService.MessageWindow";
 static const UINT WM_AYAORI_OPERATION_REQUEST = WM_APP + 0x481;
 static const UINT WM_AYAORI_OPERATION_COMPLETED = WM_APP + 0x482;
+static const UINT WM_AYAORI_CONTEXT_REQUEST = WM_APP + 0x483;
 
 static const int32_t PipeMagic = 0x54465341; // ASFT
-static const int16_t PipeVersion = 2;
+static const int16_t PipeVersion = 3;
 static const int16_t MessageHello = 1;
 static const int16_t MessageFocusChanged = 2;
 static const int16_t MessageUpdateComposition = 3;
@@ -40,6 +41,8 @@ static const int16_t MessageCancelComposition = 5;
 static const int16_t MessageOperationResult = 6;
 static const int16_t MessageCompositionTerminated = 7;
 static const int16_t MessageBye = 8;
+static const int16_t MessageReadPrecedingContext = 9;
+static const int16_t MessagePrecedingContextResult = 10;
 static const int32_t MaxPayloadLength = 1024 * 1024;
 static const ULONGLONG CachedOutputAnchorMaxAgeMs = 2000;
 
@@ -158,6 +161,124 @@ struct CommitRequest
     int32_t commitLength;
     HRESULT result;
     HANDLE completedEvent;
+};
+
+struct ContextRequest
+{
+    ContextRequest(uint64_t id, int32_t length)
+        : refCount(1), completed(0), requestId(id), maxLength(length), result(E_FAIL), completedEvent(CreateEventW(nullptr, TRUE, FALSE, nullptr)) {}
+    void AddRef() { InterlockedIncrement(&refCount); }
+    void Release() { if (InterlockedDecrement(&refCount) == 0) { if (completedEvent) CloseHandle(completedEvent); delete this; } }
+    void Complete(HRESULT value)
+    {
+        result = value;
+        if (InterlockedCompareExchange(&completed, 1, 0) == 0 && completedEvent) SetEvent(completedEvent);
+    }
+    long refCount;
+    volatile LONG completed;
+    uint64_t requestId;
+    int32_t maxLength;
+    HRESULT result;
+    std::wstring text;
+    HANDLE completedEvent;
+};
+
+class PrecedingContextEditSession final : public ITfEditSession
+{
+public:
+    PrecedingContextEditSession(ITfContext* context, ITfComposition* composition, LONG maxLength,
+        bool hasPreferredAnchor, LONG preferredAnchor, std::wstring* result, ContextRequest* request = nullptr)
+        : refCount_(1), context_(context), composition_(composition), maxLength_(maxLength),
+          hasPreferredAnchor_(hasPreferredAnchor), preferredAnchor_(preferredAnchor), result_(result), request_(request)
+    { if (context_) context_->AddRef(); if (composition_) composition_->AddRef(); if (request_) request_->AddRef(); }
+    ~PrecedingContextEditSession() { if (request_) request_->Release(); if (composition_) composition_->Release(); if (context_) context_->Release(); }
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppv) override {
+        if (!ppv) return E_POINTER; *ppv = nullptr;
+        if (riid == IID_IUnknown || riid == IID_ITfEditSession) { *ppv = static_cast<ITfEditSession*>(this); AddRef(); return S_OK; }
+        return E_NOINTERFACE;
+    }
+    STDMETHODIMP_(ULONG) AddRef() override { return static_cast<ULONG>(InterlockedIncrement(&refCount_)); }
+    STDMETHODIMP_(ULONG) Release() override { LONG n = InterlockedDecrement(&refCount_); if (!n) delete this; return static_cast<ULONG>(n); }
+    STDMETHODIMP DoEditSession(TfEditCookie ec) override {
+        HRESULT hr = Execute(ec);
+        if (request_) request_->Complete(hr);
+        return hr;
+    }
+private:
+    HRESULT Execute(TfEditCookie ec) {
+        if (!context_ || !result_ || maxLength_ < 0) return E_INVALIDARG;
+        ITfRange* range = nullptr;
+        HRESULT hr = composition_ ? composition_->GetRange(&range) : E_FAIL;
+        if (FAILED(hr) || !range) {
+            TF_SELECTION selection = {}; ULONG fetched = 0;
+            hr = context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &selection, &fetched);
+            if (FAILED(hr) || fetched != 1 || !selection.range) return FAILED(hr) ? hr : TF_E_NOSELECTION;
+            range = selection.range;
+        }
+        LONG shifted = 0;
+        LONG anchor = -1;
+        LONG originalLength = 0;
+        bool usedAcp = false;
+        ITfRangeACP* acp = nullptr;
+        HRESULT acpHr = range->QueryInterface(IID_ITfRangeACP, reinterpret_cast<void**>(&acp));
+        if (SUCCEEDED(acpHr) && acp) {
+            hr = acp->GetExtent(&anchor, &originalLength);
+            if (SUCCEEDED(hr)) {
+                if (!composition_ && anchor == 0 && originalLength == 0 && hasPreferredAnchor_ && preferredAnchor_ > 0) {
+                    anchor = preferredAnchor_;
+                }
+                LONG start = anchor > maxLength_ ? anchor - maxLength_ : 0;
+                LONG length = anchor - start;
+                ITfRange* documentRange = nullptr;
+                hr = context_->GetStart(ec, &documentRange);
+                ITfRangeACP* documentAcp = nullptr;
+                if (SUCCEEDED(hr) && documentRange) {
+                    hr = documentRange->QueryInterface(IID_ITfRangeACP, reinterpret_cast<void**>(&documentAcp));
+                }
+                if (SUCCEEDED(hr) && documentAcp) hr = documentAcp->SetExtent(start, length);
+                LONG readAnchor = -1;
+                LONG readLength = -1;
+                HRESULT verifyHr = SUCCEEDED(hr) && documentAcp
+                    ? documentAcp->GetExtent(&readAnchor, &readLength)
+                    : E_FAIL;
+                RuntimeLog(L"PrecedingContextEditSession: document range SetExtent start=%ld length=%ld hr=0x%08X verify=0x%08X anchor=%ld length=%ld",
+                    start, length, static_cast<unsigned int>(hr), static_cast<unsigned int>(verifyHr), readAnchor, readLength);
+                if (documentAcp) documentAcp->Release();
+                if (SUCCEEDED(hr) && documentRange) {
+                    range->Release();
+                    range = documentRange;
+                    documentRange = nullptr;
+                    shifted = -length;
+                    usedAcp = true;
+                }
+                if (documentRange) documentRange->Release();
+            }
+            acp->Release();
+        } else {
+            hr = range->Collapse(ec, TF_ANCHOR_START);
+            if (SUCCEEDED(hr) && maxLength_ > 0) hr = range->ShiftStart(ec, -maxLength_, &shifted, nullptr);
+        }
+        wchar_t buffer[17] = {};
+        ULONG fetched = 0;
+        ULONG readLength = usedAcp && shifted < 0
+            ? static_cast<ULONG>(-shifted)
+            : static_cast<ULONG>(_countof(buffer) - 1);
+        if (SUCCEEDED(hr) && readLength > 0) {
+            hr = range->GetText(ec, TF_TF_MOVESTART | TF_TF_IGNOREEND, buffer, readLength, &fetched);
+        }
+        range->Release();
+        if (FAILED(hr)) return hr;
+        std::wstring text(buffer, fetched);
+        size_t boundary = text.find_last_of(L"\r\n、。");
+        if (boundary != std::wstring::npos) text.erase(0, boundary + 1);
+        if (text.length() > static_cast<size_t>(maxLength_)) text.erase(0, text.length() - maxLength_);
+        *result_ = text;
+        RuntimeLog(L"PrecedingContextEditSession: requested=%ld acp=%d anchor=%ld originalLength=%ld shifted=%ld fetched=%lu resultLength=%zu",
+            maxLength_, usedAcp ? 1 : 0, anchor, originalLength, shifted, fetched, result_->length());
+        return S_OK;
+    }
+    long refCount_; ITfContext* context_; ITfComposition* composition_; LONG maxLength_;
+    bool hasPreferredAnchor_; LONG preferredAnchor_; std::wstring* result_; ContextRequest* request_;
 };
 
 class CommitEditSession final : public ITfEditSession
@@ -565,7 +686,8 @@ public:
         HWND completionWindow = nullptr, CommitRequest* completionRequest = nullptr)
         : refCount_(1), context_(context), operation_(operation), text_(text), caretOffset_(caretOffset),
           commitLength_(commitLength), composition_(composition), sink_(sink), endingComposition_(endingComposition),
-          completionWindow_(completionWindow), completionRequest_(completionRequest), result_(E_FAIL)
+          completionWindow_(completionWindow), completionRequest_(completionRequest), result_(E_FAIL),
+          hasCommittedAnchor_(false), committedAnchor_(0)
     {
         if (context_) context_->AddRef();
         if (sink_) sink_->AddRef();
@@ -597,6 +719,13 @@ public:
         ULONG next = static_cast<ULONG>(InterlockedDecrement(&refCount_));
         if (next == 0) delete this;
         return next;
+    }
+
+    bool TryGetCommittedAnchor(LONG* anchor) const
+    {
+        if (!hasCommittedAnchor_) return false;
+        if (anchor) *anchor = committedAnchor_;
+        return true;
     }
 
     STDMETHODIMP DoEditSession(TfEditCookie ec) override
@@ -803,6 +932,18 @@ private:
             if (SUCCEEDED(hr)) {
                 (*composition_)->Release();
                 *composition_ = nullptr;
+                HRESULT caretHr = acp->SetExtent(anchor + length, 0);
+                if (SUCCEEDED(caretHr)) {
+                    TF_SELECTION selection = {};
+                    selection.range = range;
+                    selection.style.ase = TF_AE_END;
+                    selection.style.fInterimChar = FALSE;
+                    caretHr = context_->SetSelection(ec, 1, &selection);
+                }
+                RuntimeLog(L"CompositionEditSession: Commit SetSelection anchor=%ld hr=0x%08X",
+                    anchor + length, static_cast<unsigned int>(caretHr));
+                hasCommittedAnchor_ = true;
+                committedAnchor_ = anchor + length;
             }
         }
         if (acp) acp->Release();
@@ -853,6 +994,8 @@ private:
     HWND completionWindow_;
     CommitRequest* completionRequest_;
     HRESULT result_;
+    bool hasCommittedAnchor_;
+    LONG committedAnchor_;
 };
 
 class DisplayAttributeInfo final : public ITfDisplayAttributeInfo
@@ -1278,6 +1421,17 @@ private:
             }
             return 0;
         }
+        if (self && message == WM_AYAORI_CONTEXT_REQUEST) {
+            auto request = reinterpret_cast<ContextRequest*>(lParam);
+            if (request) {
+                bool completionPending = false;
+                HRESULT result = self->ReadPrecedingContext(
+                    request->maxLength, &request->text, request, &completionPending);
+                if (!completionPending) request->Complete(result);
+                request->Release();
+            }
+            return 0;
+        }
         return DefWindowProcW(hwnd, message, wParam, lParam);
     }
 
@@ -1332,11 +1486,13 @@ private:
     {
         if (!hwnd_) return;
         MSG msg = {};
-        while (PeekMessageW(&msg, hwnd_, WM_AYAORI_OPERATION_REQUEST, WM_AYAORI_OPERATION_COMPLETED, PM_REMOVE)) {
-            auto request = reinterpret_cast<CommitRequest*>(msg.lParam);
-            if (request) {
-                request->Complete(E_ABORT);
-                request->Release();
+        while (PeekMessageW(&msg, hwnd_, WM_AYAORI_OPERATION_REQUEST, WM_AYAORI_CONTEXT_REQUEST, PM_REMOVE)) {
+            if (msg.message == WM_AYAORI_CONTEXT_REQUEST) {
+                auto request = reinterpret_cast<ContextRequest*>(msg.lParam);
+                if (request) { request->result = E_ABORT; SetEvent(request->completedEvent); request->Release(); }
+            } else {
+                auto request = reinterpret_cast<CommitRequest*>(msg.lParam);
+                if (request) { request->Complete(E_ABORT); request->Release(); }
             }
         }
     }
@@ -1647,7 +1803,6 @@ private:
         }
         HRESULT sessionResult = E_FAIL;
         HRESULT hr = context->RequestEditSession(clientId_, editSession, TF_ES_SYNC | TF_ES_READWRITE, &sessionResult);
-        editSession->Release();
         if ((hr == TF_E_SYNCHRONOUS || (SUCCEEDED(hr) && sessionResult == TF_E_SYNCHRONOUS)) &&
             request && completionPending) {
             RuntimeLog(L"CompositionOperation: synchronous edit rejected request=0x%08X session=0x%08X",
@@ -1662,6 +1817,7 @@ private:
             if (asyncSession) asyncSession->Release();
             if (SUCCEEDED(hr)) {
                 *completionPending = true;
+                editSession->Release();
                 context->Release();
                 RuntimeLog(L"CompositionOperation: queued asynchronous type=%ld id=%llu sequence=%llu request=0x%08X",
                     static_cast<LONG>(operation), compositionId, sequence, static_cast<unsigned int>(hr));
@@ -1672,7 +1828,12 @@ private:
         if (SUCCEEDED(result)) {
             compositionId_ = composition_ ? compositionId : 0;
             compositionSequence_ = composition_ ? sequence : 0;
+            LONG committedAnchor = 0;
+            if (operation == CompositionOperation::Commit && editSession->TryGetCommittedAnchor(&committedAnchor)) {
+                SetLastOutputAnchor(context, true, committedAnchor);
+            }
         }
+        editSession->Release();
         context->Release();
         RuntimeLog(L"CompositionOperation: type=%ld id=%llu sequence=%llu textLength=%zu caret=%ld commitLength=%ld result=0x%08X active=%d",
             static_cast<LONG>(operation), compositionId, sequence, text.length(), caretOffset, commitLength,
@@ -1754,6 +1915,68 @@ private:
         if (waitResult == WAIT_OBJECT_0) result = request->result;
         else InterlockedExchange(&request->abandoned, 1);
         request->Release();
+        return result;
+    }
+
+    HRESULT DispatchContextRequestToTsfThread(uint64_t requestId, int32_t maxLength, std::wstring* text)
+    {
+        if (!text || maxLength < 0 || maxLength > 16) return E_INVALIDARG;
+        HWND hwnd = hwnd_;
+        if (!hwnd) return E_FAIL;
+        auto request = new (std::nothrow) ContextRequest(requestId, maxLength);
+        if (!request) return E_OUTOFMEMORY;
+        if (!request->completedEvent) { request->Release(); return HRESULT_FROM_WIN32(GetLastError()); }
+        request->AddRef();
+        if (!PostMessageW(hwnd, WM_AYAORI_CONTEXT_REQUEST, 0, reinterpret_cast<LPARAM>(request))) {
+            HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); request->Release(); request->Release(); return hr;
+        }
+        HANDLE waits[2] = { request->completedEvent, stopEvent_ };
+        DWORD waitResult = WaitForMultipleObjects(stopEvent_ ? 2 : 1, waits, FALSE, INFINITE);
+        HRESULT hr = waitResult == WAIT_OBJECT_0 ? request->result : E_ABORT;
+        if (SUCCEEDED(hr)) *text = request->text;
+        request->Release();
+        return hr;
+    }
+
+    HRESULT ReadPrecedingContext(int32_t maxLength, std::wstring* text,
+        ContextRequest* request, bool* completionPending)
+    {
+        if (!text || !completionPending) return E_POINTER;
+        *completionPending = false;
+        text->clear();
+        ITfContext* context = GetCurrentContext();
+        if (!context) return TF_E_DISCONNECTED;
+        LONG preferredAnchor = 0;
+        bool hasPreferredAnchor = TryGetRecentOutputAnchor(context, &preferredAnchor);
+        auto session = new (std::nothrow) PrecedingContextEditSession(
+            context, composition_, maxLength, hasPreferredAnchor, preferredAnchor, text);
+        if (!session) { context->Release(); return E_OUTOFMEMORY; }
+        HRESULT sessionResult = E_FAIL;
+        HRESULT hr = context->RequestEditSession(clientId_, session, TF_ES_SYNC | TF_ES_READ, &sessionResult);
+        if ((hr == TF_E_SYNCHRONOUS || (SUCCEEDED(hr) && sessionResult == TF_E_SYNCHRONOUS)) && request) {
+            RuntimeLog(L"ReadPrecedingContext: synchronous edit rejected request=0x%08X session=0x%08X",
+                static_cast<unsigned int>(hr), static_cast<unsigned int>(sessionResult));
+            auto asyncSession = new (std::nothrow) PrecedingContextEditSession(
+                context, composition_, maxLength, hasPreferredAnchor, preferredAnchor, text, request);
+            sessionResult = E_FAIL;
+            hr = asyncSession
+                ? context->RequestEditSession(clientId_, asyncSession, TF_ES_ASYNC | TF_ES_READ, &sessionResult)
+                : E_OUTOFMEMORY;
+            if (asyncSession) asyncSession->Release();
+            if (SUCCEEDED(hr)) {
+                *completionPending = true;
+                session->Release();
+                context->Release();
+                RuntimeLog(L"ReadPrecedingContext: queued asynchronous request=0x%08X",
+                    static_cast<unsigned int>(hr));
+                return S_OK;
+            }
+        }
+        session->Release();
+        context->Release();
+        HRESULT result = FAILED(hr) ? hr : sessionResult;
+        RuntimeLog(L"ReadPrecedingContext: maxLength=%ld resultLength=%zu hr=0x%08X",
+            maxLength, text->length(), static_cast<unsigned int>(result));
         return result;
     }
 
@@ -1923,6 +2146,18 @@ private:
         return SendPipeMessage(MessageOperationResult, &payload, sizeof(payload));
     }
 
+    HRESULT SendContextResultToPipe(uint64_t requestId, HRESULT result, const std::wstring& text)
+    {
+        int32_t byteLength = static_cast<int32_t>(text.length() * sizeof(wchar_t));
+        std::vector<BYTE> payload(16 + static_cast<size_t>(byteLength));
+        memcpy(payload.data(), &requestId, 8);
+        int32_t hr = static_cast<int32_t>(result);
+        memcpy(payload.data() + 8, &hr, 4);
+        memcpy(payload.data() + 12, &byteLength, 4);
+        if (byteLength > 0) memcpy(payload.data() + 16, text.data(), byteLength);
+        return SendPipeMessage(MessagePrecedingContextResult, payload.data(), static_cast<DWORD>(payload.size()));
+    }
+
     HRESULT SendPipeMessage(int16_t type, const void* payload, DWORD payloadLength)
     {
         EnterCriticalSection(&pipeLock_);
@@ -1992,6 +2227,19 @@ private:
                 RuntimeLog(L"ReadPipeLoop: operation=%d id=%llu sequence=%llu payloadLength=%ld result=0x%08X",
                     header.type, compositionId, sequence, header.payloadLength, static_cast<unsigned int>(hr));
                 SendOperationResultToPipe(operation, compositionId, sequence, hr);
+            } else if (header.type == MessageReadPrecedingContext) {
+                uint64_t requestId = 0;
+                int32_t maxLength = 0;
+                std::wstring text;
+                HRESULT hr = E_INVALIDARG;
+                if (payload.size() == 12) {
+                    memcpy(&requestId, payload.data(), 8);
+                    memcpy(&maxLength, payload.data() + 8, 4);
+                    hr = DispatchContextRequestToTsfThread(requestId, maxLength, &text);
+                }
+                RuntimeLog(L"ReadPipeLoop: context requestId=%llu maxLength=%ld resultLength=%zu hr=0x%08X",
+                    requestId, maxLength, text.length(), static_cast<unsigned int>(hr));
+                SendContextResultToPipe(requestId, hr, SUCCEEDED(hr) ? text : L"");
             } else {
                 RuntimeLog(L"ReadPipeLoop: ignored message type=%d payloadLength=%ld", header.type, header.payloadLength);
             }

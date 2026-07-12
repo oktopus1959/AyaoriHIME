@@ -145,6 +145,8 @@ public:
 
     virtual void syncBaseString(const MString& base) = 0;
 
+    virtual void setPrecedingContext(const MString& context) = 0;
+
     virtual void clearAll() = 0;
 
     virtual void clear() = 0;

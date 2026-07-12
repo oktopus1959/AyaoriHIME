@@ -234,6 +234,7 @@ namespace lattice2 {
         std::vector<bool> _rollOverStroke;
         std::vector<MString> _topCandidateHistory;
         MString _fixedLeaderPrefix;
+        MString _precedingContext;
 
         //void setHighFreqJoshiStroke(int count, mchar_t ch) {
         //    if (count >= 0 && count < 1024) {
@@ -261,7 +262,7 @@ namespace lattice2 {
             MString commonPrefix;
             bool initialized = false;
             for (const auto& pending : pendingCandidates) {
-                const MString& s = pending.cand.string();
+                MString s = _precedingContext + pending.cand.string();
                 if (s.empty()) continue;
                 if (!initialized) {
                     commonPrefix = s;
@@ -293,7 +294,7 @@ namespace lattice2 {
             MString baseStr;
             for (const auto& pending : pendingCandidates) {
                 if (!pending.cand.string().empty()) {
-                    baseStr = pending.cand.string();
+                    baseStr = _precedingContext + pending.cand.string();
                     break;
                 }
             }
@@ -729,7 +730,8 @@ namespace lattice2 {
             const MString& candStr = newCandStr.string();
             //MString targetStr = substringBetweenPunctuations(candStr);
             //MString targetStr = substringBetweenNonJapaneseChars(candStr);
-            MString subStr = removeHeadSubstring(candStr, analysisStart);
+            MString analysisStr = _precedingContext + candStr;
+            MString subStr = removeHeadSubstring(analysisStr, analysisStart);
             _LOG_DETAIL(_T("candStr={}, analysisStart={}, subStr={}"), to_wstr(candStr), analysisStart, to_wstr(subStr));
 
             std::vector<MString> morphs;
@@ -1691,6 +1693,11 @@ namespace lattice2 {
                 _candidates.push_back(CandidateString(base, 0));
             }
             _LOG_DETAIL(_T("LEAVE: _candidates.size()={}"), _candidates.size());
+        }
+
+        void setPrecedingContext(const MString& context) override {
+            _precedingContext = context;
+            _LOG_DETAIL(_T("Preceding context length={}"), _precedingContext.size());
         }
 
         // 先頭候補を取得する

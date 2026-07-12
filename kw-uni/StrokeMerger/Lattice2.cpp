@@ -91,6 +91,10 @@ namespace lattice2 {
             _LOG_DETAIL(_T("LEAVE"));
         }
 
+        void setPrecedingContext(const MString& context) override {
+            _kBestList->setPrecedingContext(context);
+        }
+
         void clear() override {
             _LOG_DETAIL(_T("ENTER"));
             _prevOutputStr.clear();

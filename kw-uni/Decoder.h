@@ -22,12 +22,14 @@ struct DecoderCommandParams {
 };
 
 #define HANDLE_DECKEY_DATA_SIZE 64
+#define PRECEDING_CONTEXT_DATA_SIZE 17
 
 /// <summary> Decoder コマンド呼び出し用の構造体 </summary>
 struct DecoderHandleDeckeyParams {
     // 種々の受け渡しデータ
     //[MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = HANDLE_DECKEY_DATA_SIZE)]
     wchar_t editBufferData[HANDLE_DECKEY_DATA_SIZE];
+    wchar_t precedingContextData[PRECEDING_CONTEXT_DATA_SIZE];
 };
 
 // -------------------------------------------------------------------
@@ -130,4 +132,3 @@ extern "C" {
     __declspec(dllexport) int HandleDeckeyDecoder(void*, DecoderHandleDeckeyParams*, int, mchar_t, int, DecoderOutParams*);
     __declspec(dllexport) int ExecCmdDecoder(void*, DecoderCommandParams*, DecoderOutParams*);
 }
-

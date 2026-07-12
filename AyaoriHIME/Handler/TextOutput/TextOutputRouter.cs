@@ -23,6 +23,8 @@ namespace KanchokuWS.Handler
         private readonly SendInputTextOutputSink sendInputSink = new SendInputTextOutputSink();
         private readonly TsfTextOutputSink tsfSink;
         private CompositionRoute compositionRoute;
+        private bool precedingContextCached;
+        private string precedingContext = "";
 
         private enum CompositionRoute
         {
@@ -38,8 +40,10 @@ namespace KanchokuWS.Handler
             tsfSink = new TsfTextOutputSink();
             tsfSink.CompositionTerminated += id => {
                 compositionRoute = CompositionRoute.None;
+                ResetPrecedingContext();
                 CompositionTerminated?.Invoke(id);
             };
+            tsfSink.ActiveClientChanged += ResetPrecedingContext;
         }
 
         public event System.Action<ulong> CompositionTerminated;
@@ -47,6 +51,26 @@ namespace KanchokuWS.Handler
         public void PrepareCompositionTarget()
         {
             if (Settings.UseTsfOutput) tsfSink.PrepareCompositionTarget();
+        }
+
+        public string GetPrecedingContext(bool allowFetch)
+        {
+            if (precedingContextCached) return precedingContext;
+            if (!allowFetch) return "";
+            precedingContextCached = true;
+            precedingContext = "";
+            if (!Settings.UseTsfOutput || IsTsfFallbackWindow()) return precedingContext;
+            if (!tsfSink.TryGetPrecedingContext(16, out precedingContext, out string reason)) {
+                precedingContext = "";
+                logger.InfoH(() => $"TSF preceding context unavailable: {reason}");
+            }
+            return precedingContext;
+        }
+
+        private void ResetPrecedingContext()
+        {
+            precedingContextCached = false;
+            precedingContext = "";
         }
 
         public void SendString(char[] str, int strLen, int numBS)
@@ -107,6 +131,7 @@ namespace KanchokuWS.Handler
                 if (!hasRemainingText) {
                     tsfSink.ResetComposition();
                     compositionRoute = CompositionRoute.None;
+                    ResetPrecedingContext();
                 } else if (!result) {
                     compositionRoute = CompositionRoute.TsfFaulted;
                 }
@@ -115,6 +140,7 @@ namespace KanchokuWS.Handler
 
             bool outputAlreadySent = compositionRoute == CompositionRoute.SendInputLive;
             if (!hasRemainingText) compositionRoute = CompositionRoute.None;
+            if (!hasRemainingText) ResetPrecedingContext();
             return outputAlreadySent;
         }
 
@@ -127,9 +153,11 @@ namespace KanchokuWS.Handler
                 }
                 tsfSink.ResetComposition();
                 compositionRoute = CompositionRoute.None;
+                ResetPrecedingContext();
                 return true;
             }
             compositionRoute = CompositionRoute.None;
+            ResetPrecedingContext();
             return false;
         }
 

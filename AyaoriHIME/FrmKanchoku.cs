@@ -2138,6 +2138,7 @@ namespace KanchokuWS
         }
 
         private const int HANDLE_DECKEY_DATA_SIZE = 64;
+        private const int PRECEDING_CONTEXT_DATA_SIZE = 17;
 
         /// <summary> Decoder コマンド呼び出し用の構造体 </summary>
         [StructLayout(LayoutKind.Sequential)]
@@ -2146,18 +2147,26 @@ namespace KanchokuWS
             // 種々の受け渡しデータ
             [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = HANDLE_DECKEY_DATA_SIZE)]
             public char[] editBufferData;
+            [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U2, SizeConst = PRECEDING_CONTEXT_DATA_SIZE)]
+            public char[] precedingContextData;
         }
 
-        private void CallHandleDeckeyDecoder(Action<IntPtr> decoderCaller)
+        private void CallHandleDeckeyDecoder(Action<IntPtr> decoderCaller, bool includePrecedingContext = false)
         {
             // 構造体の初期化
             var prm = new DecoderHandleDeckeyParams() {
                 //hWnd = this.Handle,
                 editBufferData = new char[HANDLE_DECKEY_DATA_SIZE],
+                precedingContextData = new char[PRECEDING_CONTEXT_DATA_SIZE],
             };
             // 編集バッファの内容をコピー
             var cleanText = frmEditBuf.GetPreText();
             Array.Copy(cleanText._toCharArray(), prm.editBufferData, cleanText.Length._highLimit(prm.editBufferData.Length - 1));
+            var precedingContext = includePrecedingContext
+                ? TextOutputRouter.Singleton.GetPrecedingContext(cleanText.Length == 0)
+                : "";
+            Array.Copy(precedingContext._toCharArray(), prm.precedingContextData,
+                precedingContext.Length._highLimit(prm.precedingContextData.Length - 1));
             // アンマネージド構造体のメモリ確保
             int size = Marshal.SizeOf(typeof(DecoderHandleDeckeyParams));
             System.IntPtr paramsPtr = Marshal.AllocCoTaskMem(size);
@@ -2188,7 +2197,7 @@ namespace KanchokuWS
             // デコーダの呼び出し
             CallHandleDeckeyDecoder(cmdParamsPtr => {
                 HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode, rollOverStroke), ref decoderOutput);
-            });
+            }, true);
 
             logger.InfoH(() =>
                 $"HandleDeckeyDecoder: RESULT: table#={decoderOutput.strokeTableNum}, strokeDepth={decoderOutput.GetStrokeCount()}, layout={decoderOutput.layout}, " +
@@ -2203,7 +2212,7 @@ namespace KanchokuWS
                 // デコーダの再呼び出し
                 CallHandleDeckeyDecoder(cmdParamsPtr => {
                     HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode, rollOverStroke), ref decoderOutput);
-                });
+                }, true);
                 logger.InfoH(() =>
                     $"HandleDeckeyDecoder: RESULT: table#={decoderOutput.strokeTableNum}, strokeDepth={decoderOutput.GetStrokeCount()}, layout={decoderOutput.layout}, " +
                     $"numBS={decoderOutput.numBackSpaces}, resultFlags={decoderOutput.resultFlags:x}H, output={decoderOutput.outString._toString()}, topString={decoderOutput.topString._toString()}, " +
@@ -2398,7 +2407,7 @@ namespace KanchokuWS
             // デコーダの呼び出し
             CallHandleDeckeyDecoder(cmdParamsPtr => {
                 HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode), ref decoderOutput);
-            });
+            }, true);
 
             logger.Info(() =>
                 $"HandleDeckeyDecoder: RESULT: table#={decoderOutput.strokeTableNum}, strokeDepth={decoderOutput.GetStrokeCount()}, layout={decoderOutput.layout}, " +
@@ -2427,7 +2436,7 @@ namespace KanchokuWS
             // デコーダの呼び出し
             CallHandleDeckeyDecoder(cmdParamsPtr => {
                 HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode), ref decoderOutput);
-            });
+            }, true);
 
             logger.Info(() => $"HandleDeckeyDecoder: RESULT: {decoderOutput.outString._toString()}");
 

@@ -678,6 +678,7 @@ public:
 
         // 編集バッファの内容を取得しておく
         STATE_COMMON->SetEditBufferString(deckeyParams->editBufferData);
+        if (WORD_LATTICE) WORD_LATTICE->setPrecedingContext(to_mstr(std::wstring(deckeyParams->precedingContextData)));
         if (!keyFaceDirectMode && !upperRomanDirectMode) {
             const auto& editBuf = STATE_COMMON->GetEditBufferString();
             bool needsSync = needSyncEditBuffer(editBuf);

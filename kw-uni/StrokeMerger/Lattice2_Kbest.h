@@ -86,6 +86,8 @@ namespace lattice2 {
 
         virtual void setBaseString(const MString& base) = 0;
 
+        virtual void setPrecedingContext(const MString& context) = 0;
+
         // 先頭候補を取得する
         virtual MString getFirst() const = 0;
 
