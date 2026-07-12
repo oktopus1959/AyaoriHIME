@@ -352,6 +352,17 @@ namespace KanchokuWS
         /// <summary>TSF text service への出力要求の応答待ち時間</summary>
         public static int TsfOutputTimeoutMillisec { get; private set; } = 50;
 
+        /// <summary>TSFを使用せず既存出力へフォールバックするウィンドウクラス</summary>
+        public static string TsfFallbackClassNames { get; private set; } = "mintty";
+        private static HashSet<string> TsfFallbackClassNamesHash { get; set; } = new HashSet<string> { "mintty" };
+
+        public static bool IsTsfFallbackWinClass(string className)
+        {
+            if (className._isEmpty()) return false;
+            string lowerClassName = className._toLower();
+            return TsfFallbackClassNamesHash.Any(prefix => lowerClassName.StartsWith(prefix));
+        }
+
         /// <summary>英大文字を入力されたら編集バッファをフラッシュする</summary>
         public static bool FlushEditBufferWhenCaptalAlphabet { get; set; } = false;
 
@@ -1561,6 +1572,9 @@ namespace KanchokuWS
             // TSF text service 経由の文字列出力
             UseTsfOutput = GetString("useTsfOutput")._parseBool(false);
             TsfOutputTimeoutMillisec = GetString("tsfOutputTimeoutMillisec")._parseInt(50)._lowLimit(1);
+            TsfFallbackClassNames = GetString("tsfFallbackClassNames", "mintty").Trim();
+            TsfFallbackClassNamesHash = new HashSet<string>(
+                TsfFallbackClassNames._toLower()._split('|').Where(x => x._notEmpty()));
 
             // 自身以外のキーボードフックツールからの出力を無視する
             IgnoreOtherHooker = GetString("ignoreOtherHooker")._parseBool(true);

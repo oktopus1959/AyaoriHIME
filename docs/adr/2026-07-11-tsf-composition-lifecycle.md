@@ -114,6 +114,12 @@ TSF text serviceの各clientは、対象contextごとに次の状態を持つ。
 
 ## フォールバック
 - composition開始前にTSFが明示失敗した場合は、既存`SendInput`経路へフォールバックできる
+- `tsfFallbackClassNames`に`|`区切りで指定したwindow classでは、composition開始前から既存出力経路を使用する
+- `tsfFallbackClassNames`は大文字・小文字を区別しない前方一致とし、既定値を`mintty`とする
+- TSF text serviceはcomposition開始前に、selection rangeの`ITfContextView::GetTextExt()`でインライン表示位置を取得する
+- レイアウト取得失敗、無効な矩形、またはcontext viewのウィンドウ外を指す矩形の場合は、本文を変更せず明示失敗を返して既存出力経路へフォールバックする
+- `ITfTextInputProcessorEx::ActivateEx()`の起動フラグを記録するが、`TF_TMAE_CONSOLE`だけを理由にフォールバックしない
+- minttyのIMM互換text storeは有効な`GetTextExt()`矩形を返す一方で任意のTSF serviceのcompositionをインライン表示しないため、能力検査だけではなく既定のwindow class判定を併用する
 - composition開始後は、同じ未確定文字列を`SendInput`でも出力すると二重表示になるため、操作単位の安易なフォールバックを行わない
 - composition更新失敗時は、そのcompositionを異常状態として扱い、再同期またはキャンセルを試みる
 - timeout後はTSF側で要求が適用された可能性があるため、従来通り自動フォールバックしない

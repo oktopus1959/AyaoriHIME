@@ -76,6 +76,12 @@ namespace KanchokuWS.Handler
             if (compositionRoute == CompositionRoute.SendInputLive || compositionRoute == CompositionRoute.SendInputBuffered) return false;
             if (compositionRoute == CompositionRoute.TsfFaulted) return true;
 
+            if (compositionRoute == CompositionRoute.None && IsTsfFallbackWindow()) {
+                compositionRoute = Settings.UseEditWindow ? CompositionRoute.SendInputBuffered : CompositionRoute.SendInputLive;
+                logger.InfoH(() => $"TSF composition disabled for window class: {ActiveWindowHandler.Singleton.ActiveWinClassName}");
+                return false;
+            }
+
             string reason;
             if (tsfSink.TryUpdateComposition(text, caretOffset, out reason)) {
                 compositionRoute = CompositionRoute.Tsf;
@@ -129,7 +135,12 @@ namespace KanchokuWS.Handler
 
         private static bool ShouldUseTsf(bool forceString)
         {
-            return Settings.UseTsfOutput && !forceString;
+            return Settings.UseTsfOutput && !forceString && !IsTsfFallbackWindow();
+        }
+
+        private static bool IsTsfFallbackWindow()
+        {
+            return Settings.IsTsfFallbackWinClass(ActiveWindowHandler.Singleton.ActiveWinClassName);
         }
 
         private void Dispose()

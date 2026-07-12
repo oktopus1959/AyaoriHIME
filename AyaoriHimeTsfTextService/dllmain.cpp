@@ -617,6 +617,50 @@ public:
     HRESULT Result() const { return result_; }
 
 private:
+    HRESULT ProbeInlineCompositionLayout(TfEditCookie ec)
+    {
+        TF_SELECTION selection = {};
+        ULONG fetched = 0;
+        HRESULT hr = context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &selection, &fetched);
+        if (FAILED(hr) || fetched != 1 || !selection.range) {
+            RuntimeLog(L"Inline layout probe: GetSelection hr=0x%08X fetched=%lu",
+                static_cast<unsigned int>(hr), fetched);
+            return FAILED(hr) ? hr : E_NOTIMPL;
+        }
+
+        ITfContextView* view = nullptr;
+        hr = context_->GetActiveView(&view);
+        RECT textRect = {};
+        BOOL clipped = FALSE;
+        if (SUCCEEDED(hr) && view) {
+            hr = view->GetTextExt(ec, selection.range, &textRect, &clipped);
+        }
+        selection.range->Release();
+        if (FAILED(hr) || !view) {
+            RuntimeLog(L"Inline layout probe: GetTextExt hr=0x%08X",
+                static_cast<unsigned int>(hr));
+            if (view) view->Release();
+            return FAILED(hr) ? hr : E_NOTIMPL;
+        }
+
+        HWND viewWindow = nullptr;
+        HRESULT windowHr = view->GetWnd(&viewWindow);
+        view->Release();
+        bool validRect = textRect.bottom > textRect.top;
+        bool insideView = true;
+        RECT windowRect = {};
+        if (SUCCEEDED(windowHr) && viewWindow && GetWindowRect(viewWindow, &windowRect)) {
+            RECT caretRect = textRect;
+            if (caretRect.right <= caretRect.left) caretRect.right = caretRect.left + 1;
+            RECT intersection = {};
+            insideView = IntersectRect(&intersection, &caretRect, &windowRect) != FALSE;
+        }
+        RuntimeLog(L"Inline layout probe: text=(%ld,%ld)-(%ld,%ld) clipped=%d window=%p windowHr=0x%08X inside=%d",
+            textRect.left, textRect.top, textRect.right, textRect.bottom, clipped, viewWindow,
+            static_cast<unsigned int>(windowHr), insideView);
+        return validRect && insideView ? S_OK : E_NOTIMPL;
+    }
+
     HRESULT GetCompositionRange(ITfRange** range)
     {
         if (!range) return E_POINTER;
@@ -626,9 +670,16 @@ private:
 
     HRESULT StartComposition(TfEditCookie ec)
     {
+        HRESULT hr = ProbeInlineCompositionLayout(ec);
+        if (FAILED(hr)) {
+            RuntimeLog(L"CompositionEditSession: inline layout unavailable hr=0x%08X",
+                static_cast<unsigned int>(hr));
+            return hr;
+        }
+
         TF_SELECTION selection = {};
         ULONG fetched = 0;
-        HRESULT hr = context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &selection, &fetched);
+        hr = context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &selection, &fetched);
         if (FAILED(hr) || fetched != 1 || !selection.range) return FAILED(hr) ? hr : TF_E_NOSELECTION;
 
         ITfContextComposition* contextComposition = nullptr;
@@ -904,7 +955,8 @@ private:
     bool emitted_;
 };
 
-class TextService final : public ITfTextInputProcessor, public ITfThreadMgrEventSink, public ITfDisplayAttributeProvider, public ITfCompositionSink
+class TextService final : public ITfTextInputProcessorEx, public ITfThreadMgrEventSink,
+    public ITfDisplayAttributeProvider, public ITfCompositionSink
 {
 public:
     TextService()
@@ -912,6 +964,7 @@ public:
           threadMgr_(nullptr),
           source_(nullptr),
           clientId_(TF_CLIENTID_NULL),
+          activationFlags_(0),
           threadMgrSinkCookie_(TF_INVALID_COOKIE),
           hwnd_(nullptr),
           stopEvent_(nullptr),
@@ -957,7 +1010,9 @@ public:
         if (!ppv) return E_POINTER;
         *ppv = nullptr;
         if (riid == IID_IUnknown || riid == IID_ITfTextInputProcessor) {
-            *ppv = static_cast<ITfTextInputProcessor*>(this);
+            *ppv = static_cast<ITfTextInputProcessor*>(static_cast<ITfTextInputProcessorEx*>(this));
+        } else if (riid == IID_ITfTextInputProcessorEx) {
+            *ppv = static_cast<ITfTextInputProcessorEx*>(this);
         } else if (riid == IID_ITfThreadMgrEventSink) {
             *ppv = static_cast<ITfThreadMgrEventSink*>(this);
         } else if (riid == IID_ITfDisplayAttributeProvider) {
@@ -1017,14 +1072,27 @@ public:
 
     STDMETHODIMP Activate(ITfThreadMgr* ptim, TfClientId tid) override
     {
+        return ActivateInternal(ptim, tid, 0);
+    }
+
+    STDMETHODIMP ActivateEx(ITfThreadMgr* ptim, TfClientId tid, DWORD flags) override
+    {
+        return ActivateInternal(ptim, tid, flags);
+    }
+
+private:
+    HRESULT ActivateInternal(ITfThreadMgr* ptim, TfClientId tid, DWORD flags)
+    {
         if (!ptim) {
             RuntimeLog(L"Activate: ITfThreadMgr is null");
             return E_INVALIDARG;
         }
-        RuntimeLog(L"Activate: clientId=%lu", tid);
+        RuntimeLog(L"Activate: clientId=%lu flags=0x%08X console=%d", tid, flags,
+            (flags & TF_TMAE_CONSOLE) != 0);
         threadMgr_ = ptim;
         threadMgr_->AddRef();
         clientId_ = tid;
+        activationFlags_ = flags;
 
         HRESULT hr = CreateMessageWindow();
         if (FAILED(hr)) {
@@ -1043,6 +1111,8 @@ public:
         return S_OK;
     }
 
+public:
+
     STDMETHODIMP Deactivate() override
     {
         RuntimeLog(L"Deactivate: begin");
@@ -1056,6 +1126,7 @@ public:
             threadMgr_ = nullptr;
         }
         clientId_ = TF_CLIENTID_NULL;
+        activationFlags_ = 0;
         RuntimeLog(L"Deactivate: completed");
         return S_OK;
     }
@@ -1985,6 +2056,7 @@ private:
     ITfThreadMgr* threadMgr_;
     ITfSource* source_;
     TfClientId clientId_;
+    DWORD activationFlags_;
     DWORD threadMgrSinkCookie_;
     HWND hwnd_;
     HANDLE stopEvent_;
