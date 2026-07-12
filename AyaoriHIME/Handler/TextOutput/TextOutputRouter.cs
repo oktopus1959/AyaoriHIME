@@ -44,6 +44,11 @@ namespace KanchokuWS.Handler
 
         public event System.Action<ulong> CompositionTerminated;
 
+        public void PrepareCompositionTarget()
+        {
+            if (Settings.UseTsfOutput) tsfSink.PrepareCompositionTarget();
+        }
+
         public void SendString(char[] str, int strLen, int numBS)
         {
             string reason = "";

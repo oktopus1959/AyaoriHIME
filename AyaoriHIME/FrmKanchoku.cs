@@ -2176,6 +2176,9 @@ namespace KanchokuWS
         {
             logger.InfoH(() => $"ENTER: deckey={DecoderKeys.ToDebugString(deckey)}, mod={mod:x}, rollOver={rollOverStroke}");
 
+            // 出力先が変わった場合は、旧対象の編集状態を破棄してからこのキーをデコードする。
+            TextOutputRouter.Singleton.PrepareCompositionTarget();
+
             if (!bRomanStrokeGuideMode && !bHiraganaStrokeGuideMode && (!bUpperRomanStrokeGuideMode || deckey < DecoderKeys.NORMAL_DECKEY_NUM)) {
                 // ローマ字ストロークガイドモードでないときは、ガイド文字の取得を行う
                 getTargetChar(deckey);
@@ -2300,8 +2303,13 @@ namespace KanchokuWS
 
                     // 他のVKey送出(もしあれば)
                     if (decoderOutput.IsDeckeyToVkey()) {
-                        logger.DebugH(() => $"sendVkeyFromDeckey: deckey={deckey}({deckey:x}H), origDeckey={origDeckey}({origDeckey:x}), mod={mod:x}");
-                        sendKeyFlag = sendVkeyFromDeckey(deckey, origDeckey, mod);
+                        if (deckey == DecoderKeys.ENTER_DECKEY && !frmEditBuf.IsEmpty) {
+                            logger.InfoH("Consume Enter for composition commit");
+                            sendKeyFlag = true;
+                        } else {
+                            logger.DebugH(() => $"sendVkeyFromDeckey: deckey={deckey}({deckey:x}H), origDeckey={origDeckey}({origDeckey:x}), mod={mod:x}");
+                            sendKeyFlag = sendVkeyFromDeckey(deckey, origDeckey, mod);
+                        }
                         //nPreKeys += 1;
                     }
 

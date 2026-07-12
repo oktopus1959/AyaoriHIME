@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
 using System.Security.Principal;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Utils;
@@ -34,6 +35,7 @@ namespace KanchokuWS.Handler
         private ClientConnection activeClient;
         private bool disposed;
         private int nextClientId;
+        private long nextFocusOrder;
         private long nextCompositionId;
         private ulong compositionId;
         private ulong compositionSequence;
@@ -64,6 +66,18 @@ namespace KanchokuWS.Handler
         }
 
         public bool HasComposition => compositionId != 0;
+
+        public void PrepareCompositionTarget()
+        {
+            if (compositionId == 0) return;
+            ClientConnection client = GetActiveClient();
+            if (client == null || ReferenceEquals(compositionClient, client)) return;
+
+            ulong terminatedId = compositionId;
+            ResetComposition();
+            logger.InfoH(() => $"TSF composition target changed: id={terminatedId}, client={client.Id}, pid={client.ProcessId}");
+            CompositionTerminated?.Invoke(terminatedId);
+        }
 
         public bool TryUpdateComposition(string text, int caretOffset, out string failureReason)
         {
@@ -176,15 +190,25 @@ namespace KanchokuWS.Handler
 
         private ClientConnection GetActiveClient()
         {
+            uint foregroundProcessId = GetForegroundProcessId();
             lock (sync) {
-                if (activeClient == null) {
-                    logger.InfoH("TSF active client lookup: no focused client");
-                    return null;
+                if (activeClient != null && activeClient.IsConnected &&
+                    (foregroundProcessId == 0 || activeClient.ProcessId == foregroundProcessId)) {
+                    return activeClient;
                 }
 
-                bool isConnected = activeClient.IsConnected;
-                if (isConnected) return activeClient;
-                logger.InfoH(() => $"TSF active client lookup: client={activeClient.Id}, connected={isConnected}, registered={clients.Contains(activeClient)}");
+                ClientConnection foregroundClient = null;
+                foreach (var client in clients) {
+                    if (!client.IsConnected || foregroundProcessId == 0 || client.ProcessId != foregroundProcessId) continue;
+                    if (foregroundClient == null || client.FocusOrder > foregroundClient.FocusOrder) foregroundClient = client;
+                }
+                if (foregroundClient != null) {
+                    activeClient = foregroundClient;
+                    logger.InfoH(() => $"TSF active client recovered from foreground process: client={foregroundClient.Id}, pid={foregroundProcessId}");
+                    return foregroundClient;
+                }
+
+                logger.InfoH(() => $"TSF active client lookup: no client for foreground pid={foregroundProcessId}");
                 activeClient = null;
                 return null;
             }
@@ -249,7 +273,7 @@ namespace KanchokuWS.Handler
                 }
 
                 if (client != null) {
-                    logger.InfoH(() => $"TSF pipe connected: {pipeName}, client={client.Id}");
+                    logger.InfoH(() => $"TSF pipe connected: {pipeName}, client={client.Id}, pid={client.ProcessId}");
                     client.Start();
                 } else {
                     pipe.Dispose();
@@ -276,6 +300,7 @@ namespace KanchokuWS.Handler
                     return;
                 }
                 if (hasFocus) {
+                    client.FocusOrder = ++nextFocusOrder;
                     activeClient = client;
                 } else if (ReferenceEquals(activeClient, client)) {
                     activeClient = null;
@@ -310,6 +335,23 @@ namespace KanchokuWS.Handler
                 return "unknown";
             }
         }
+
+        private static uint GetForegroundProcessId()
+        {
+            IntPtr hwnd = GetForegroundWindow();
+            if (hwnd == IntPtr.Zero) return 0;
+            GetWindowThreadProcessId(hwnd, out uint processId);
+            return processId;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint processId);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool GetNamedPipeClientProcessId(Microsoft.Win32.SafeHandles.SafePipeHandle pipe, out uint clientProcessId);
 
         private static void WriteOperationRequest(Stream pipe, short operation, ulong compositionId, ulong sequence,
             string text, int caretOffset, int commitLength)
@@ -427,9 +469,13 @@ namespace KanchokuWS.Handler
                 this.owner = owner;
                 this.pipe = pipe;
                 Id = id;
+                if (!GetNamedPipeClientProcessId(pipe.SafePipeHandle, out uint processId)) processId = 0;
+                ProcessId = processId;
             }
 
             public int Id { get; }
+            public uint ProcessId { get; }
+            public long FocusOrder { get; set; }
             public short ProtocolVersion { get; private set; }
 
             public bool IsConnected

@@ -1000,7 +1000,6 @@ public:
         compositionId_ = 0;
         compositionSequence_ = 0;
         RuntimeLog(L"OnCompositionTerminated: external id=%llu", terminatedId);
-        SendPipeMessage(MessageCompositionTerminated, &terminatedId, sizeof(terminatedId));
         return S_OK;
     }
 
@@ -1627,8 +1626,15 @@ private:
     void CommitCompositionForContextChange()
     {
         if (!composition_) return;
+        uint64_t terminatedId = compositionId_;
         ITfContext* context = GetCurrentContext();
-        if (!context) return;
+        if (!context) {
+            composition_->Release();
+            composition_ = nullptr;
+            compositionId_ = 0;
+            compositionSequence_ = 0;
+            return;
+        }
         auto editSession = new (std::nothrow) CompositionEditSession(
             context, CompositionOperation::Commit, L"", 0, -1, &composition_,
             static_cast<ITfCompositionSink*>(this), &endingComposition_);
@@ -1648,6 +1654,9 @@ private:
         compositionId_ = 0;
         compositionSequence_ = 0;
         context->Release();
+        if (terminatedId != 0) {
+            RuntimeLog(L"CommitCompositionForContextChange: terminated id=%llu", terminatedId);
+        }
     }
 
     HRESULT DispatchOperationToTsfThread(CompositionOperation operation, uint64_t compositionId, uint64_t sequence,
@@ -1820,9 +1829,8 @@ private:
 
     void QueueFocusChangedToPipe(bool hasFocus)
     {
-        if (IsStopRequested() || !focusEvent_) return;
-        InterlockedExchange(&pendingFocusState_, hasFocus ? 1 : 0);
-        SetEvent(focusEvent_);
+        // active clientはAyaoriHIME側でforeground process IDから決定する。
+        // callbackから派生する同期pipe書き込みは対象アプリ停止の原因になるため送信しない。
         RuntimeLog(L"QueueFocusChanged: hasFocus=%d", hasFocus);
     }
 

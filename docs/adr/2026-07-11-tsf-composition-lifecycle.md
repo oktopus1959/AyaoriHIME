@@ -108,6 +108,9 @@ TSF text serviceの各clientは、対象contextごとに次の状態を持つ。
 - contextが既に無効で確定操作を実行できない場合、TSF text serviceはcomposition参照を破棄し、失敗結果を返す
 - 別プロセスのTSF clientから届いた`focus=False`で、現在activeな別clientを解除しない
 - 最後に`focus=True`を通知した接続済みclientをactive clientとする
+- focus通知が遅延または欠落した場合は、named pipeから取得したclient process IDとforeground windowのprocess IDが一致する接続を優先し、active clientを復旧する
+- TSF callbackを実行するUIスレッドおよびそこから派生する通知処理ではnamed pipe I/Oを行わない
+- アプリ切替時はforeground process IDの変化をAyaoriHIME側で検出し、旧論理compositionを確定済みとして終了する
 
 ## フォールバック
 - composition開始前にTSFが明示失敗した場合は、既存`SendInput`経路へフォールバックできる
