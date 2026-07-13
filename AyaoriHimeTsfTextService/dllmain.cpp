@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "resource.h"
+
 // {C8C73063-C937-47C6-B02F-A24D92B65635}
 static const CLSID CLSID_AyaoriHimeTsfTextService =
 { 0xc8c73063, 0xc937, 0x47c6, { 0xb0, 0x2f, 0xa2, 0x4d, 0x92, 0xb6, 0x56, 0x35 } };
@@ -2639,26 +2641,36 @@ static HRESULT RegisterTsfProfile()
         return hr;
     }
 
-    ITfInputProcessorProfiles* profiles = nullptr;
-    hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER, IID_ITfInputProcessorProfiles, reinterpret_cast<void**>(&profiles));
-    logHr(L"CoCreateInstance(CLSID_TF_InputProcessorProfiles)", hr);
+    wchar_t modulePath[32768] = {};
+    DWORD modulePathLength = GetModuleFileNameW(g_instance, modulePath, _countof(modulePath));
+    if (modulePathLength == 0 || modulePathLength >= _countof(modulePath)) {
+        DWORD error = GetLastError();
+        hr = HRESULT_FROM_WIN32(error == ERROR_SUCCESS ? ERROR_INSUFFICIENT_BUFFER : error);
+        logHr(L"GetModuleFileNameW(profile icon)", hr);
+        return hr;
+    }
+
+    ITfInputProcessorProfileMgr* profileMgr = nullptr;
+    hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER,
+        IID_ITfInputProcessorProfileMgr, reinterpret_cast<void**>(&profileMgr));
+    logHr(L"CoCreateInstance(IID_ITfInputProcessorProfileMgr)", hr);
     if (FAILED(hr)) return hr;
 
-    hr = profiles->Register(CLSID_AyaoriHimeTsfTextService);
-    logHr(L"ITfInputProcessorProfiles::Register", hr);
-    if (SUCCEEDED(hr)) {
-        hr = profiles->AddLanguageProfile(
-            CLSID_AyaoriHimeTsfTextService,
-            MAKELANGID(LANG_JAPANESE, SUBLANG_JAPANESE_JAPAN),
-            GUID_AyaoriHimeTsfProfile,
-            const_cast<WCHAR*>(L"AyaoriHIME TSF Output"),
-            static_cast<ULONG>(wcslen(L"AyaoriHIME TSF Output")),
-            const_cast<WCHAR*>(L""),
-            0,
-            0);
-        logHr(L"ITfInputProcessorProfiles::AddLanguageProfile", hr);
-    }
-    profiles->Release();
+    hr = profileMgr->RegisterProfile(
+        CLSID_AyaoriHimeTsfTextService,
+        MAKELANGID(LANG_JAPANESE, SUBLANG_JAPANESE_JAPAN),
+        GUID_AyaoriHimeTsfProfile,
+        const_cast<WCHAR*>(L"AyaoriHIME TSF Output"),
+        static_cast<ULONG>(wcslen(L"AyaoriHIME TSF Output")),
+        modulePath,
+        modulePathLength,
+        0,
+        nullptr,
+        0,
+        TRUE,
+        0);
+    logHr(L"ITfInputProcessorProfileMgr::RegisterProfile", hr);
+    profileMgr->Release();
     return hr;
 }
 
@@ -2671,11 +2683,12 @@ static void UnregisterTsfProfile()
         categoryMgr->Release();
     }
 
-    ITfInputProcessorProfiles* profiles = nullptr;
-    if (FAILED(CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER, IID_ITfInputProcessorProfiles, reinterpret_cast<void**>(&profiles)))) return;
-    profiles->RemoveLanguageProfile(CLSID_AyaoriHimeTsfTextService, MAKELANGID(LANG_JAPANESE, SUBLANG_JAPANESE_JAPAN), GUID_AyaoriHimeTsfProfile);
-    profiles->Unregister(CLSID_AyaoriHimeTsfTextService);
-    profiles->Release();
+    ITfInputProcessorProfileMgr* profileMgr = nullptr;
+    if (FAILED(CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER,
+        IID_ITfInputProcessorProfileMgr, reinterpret_cast<void**>(&profileMgr)))) return;
+    profileMgr->UnregisterProfile(CLSID_AyaoriHimeTsfTextService,
+        MAKELANGID(LANG_JAPANESE, SUBLANG_JAPANESE_JAPAN), GUID_AyaoriHimeTsfProfile, 0);
+    profileMgr->Release();
 }
 
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv)

@@ -1,0 +1,5 @@
+#include "resource.h"
+
+IDI_AYAORIHIME ICON "images/ayaorihime.ico"
+IDI_KANCHOKU ICON "images/kanchoku.ico"
+IDI_KANMINI0 ICON "images/kanmini0.ico"

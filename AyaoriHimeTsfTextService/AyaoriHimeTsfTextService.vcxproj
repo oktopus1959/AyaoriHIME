@@ -104,7 +104,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ResourceCompile Include="AyaoriHimeTsfTextService.rc" />
     <None Include="AyaoriHimeTsfTextService.def" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
