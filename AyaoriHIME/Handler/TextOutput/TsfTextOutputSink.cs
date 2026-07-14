@@ -29,13 +29,19 @@ namespace KanchokuWS.Handler
         private const int HresultOk = 0;
         private const int HresultFail = unchecked((int)0x80004005);
         private const int MaxPayloadLength = 1024 * 1024;
+        private const int ListenerRetryDelayMillisec = 1000;
 
         private readonly string pipeName;
         private readonly object sync = new object();
         private readonly List<ClientConnection> clients = new List<ClientConnection>();
+        private readonly Timer listenerRetryTimer;
         private NamedPipeServerStream listeningPipe;
         private ClientConnection activeClient;
         private bool disposed;
+        private bool acceptStarting;
+        private bool listenerRetryScheduled;
+        private bool listenerFailureActive;
+        private bool listenerStarted;
         private int nextClientId;
         private long nextFocusOrder;
         private long nextCompositionId;
@@ -50,7 +56,8 @@ namespace KanchokuWS.Handler
         public TsfTextOutputSink()
         {
             pipeName = "AyaoriHIME.TsfOutput." + GetUserSidForPipeName();
-            BeginAccept();
+            listenerRetryTimer = new Timer(OnListenerRetry, null, Timeout.Infinite, Timeout.Infinite);
+            EnsureListener();
         }
 
         public bool TrySendString(char[] str, int strLen, int numBS, out string failureReason)
@@ -192,7 +199,9 @@ namespace KanchokuWS.Handler
             NamedPipeServerStream closingListener;
 
             lock (sync) {
+                if (disposed) return;
                 disposed = true;
+                listenerRetryScheduled = false;
                 closingListener = listeningPipe;
                 listeningPipe = null;
                 closingClients = new List<ClientConnection>(clients);
@@ -200,6 +209,7 @@ namespace KanchokuWS.Handler
                 activeClient = null;
             }
 
+            listenerRetryTimer.Dispose();
             closingListener?.Dispose();
             foreach (var client in closingClients) {
                 client.Dispose();
@@ -232,37 +242,90 @@ namespace KanchokuWS.Handler
             }
         }
 
-        private void BeginAccept()
+        private void EnsureListener()
         {
             NamedPipeServerStream pipe = null;
+            bool listenerPublished = false;
+            bool initialStart = false;
+            bool recovered = false;
+            int clientCount = 0;
             try {
                 lock (sync) {
-                    if (disposed) return;
+                    if (disposed || listeningPipe != null || acceptStarting) return;
+                    acceptStarting = true;
                 }
 
                 pipe = new NamedPipeServerStream(
                     pipeName,
                     PipeDirection.InOut,
-                    16,
+                    NamedPipeServerStream.MaxAllowedServerInstances,
                     PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous);
 
                 lock (sync) {
+                    acceptStarting = false;
                     if (disposed) {
                         pipe.Dispose();
                         return;
                     }
                     listeningPipe = pipe;
+                    listenerPublished = true;
+                    clientCount = clients.Count;
+                    initialStart = !listenerStarted;
+                    listenerStarted = true;
+                    recovered = listenerFailureActive;
+                    listenerFailureActive = false;
+                    if (listenerRetryScheduled) {
+                        listenerRetryScheduled = false;
+                        listenerRetryTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    }
                 }
 
                 pipe.BeginWaitForConnection(OnPipeConnected, pipe);
+                if (recovered) {
+                    logger.InfoH(() => $"TSF pipe listener recovered: clients={clientCount}");
+                } else if (initialStart) {
+                    logger.InfoH(() => $"TSF pipe listener started: clients={clientCount}");
+                }
             } catch (Exception ex) {
                 pipe?.Dispose();
+                bool logFailure = false;
                 lock (sync) {
+                    acceptStarting = false;
+                    if (listenerPublished && ReferenceEquals(listeningPipe, pipe)) listeningPipe = null;
                     if (disposed) return;
+                    clientCount = clients.Count;
+                    logFailure = !listenerFailureActive;
+                    listenerFailureActive = true;
                 }
-                logger.WarnH(() => $"TSF pipe listen failed: {ex.Message}");
+                if (logFailure) {
+                    logger.WarnH(() => $"TSF pipe listen failed: clients={clientCount}, retry={ListenerRetryDelayMillisec}ms, {ex.Message}");
+                }
+                ScheduleListenerRetry(logFailure);
             }
+        }
+
+        private void ScheduleListenerRetry(bool logSchedule)
+        {
+            int clientCount;
+            lock (sync) {
+                if (disposed || listeningPipe != null || acceptStarting || listenerRetryScheduled) return;
+                listenerRetryScheduled = true;
+                clientCount = clients.Count;
+                listenerRetryTimer.Change(ListenerRetryDelayMillisec, Timeout.Infinite);
+            }
+            if (logSchedule) {
+                logger.InfoH(() => $"TSF pipe listener retry scheduled: clients={clientCount}, delay={ListenerRetryDelayMillisec}ms");
+            }
+        }
+
+        private void OnListenerRetry(object state)
+        {
+            lock (sync) {
+                if (disposed) return;
+                listenerRetryScheduled = false;
+            }
+            EnsureListener();
         }
 
         private void OnPipeConnected(IAsyncResult ar)
@@ -273,25 +336,28 @@ namespace KanchokuWS.Handler
                 pipe.EndWaitForConnection(ar);
                 accepted = true;
             } catch (ObjectDisposedException) {
-                return;
             } catch (Exception ex) {
                 lock (sync) {
                     if (!disposed) logger.WarnH(() => $"TSF pipe accept failed: {ex.Message}");
                 }
             }
 
-            if (accepted) {
-                ClientConnection client = null;
-                lock (sync) {
-                    if (ReferenceEquals(listeningPipe, pipe)) listeningPipe = null;
-                    if (!disposed) {
-                        client = new ClientConnection(this, pipe, ++nextClientId);
-                        clients.Add(client);
-                    }
+            int clientCount = 0;
+            bool isDisposed;
+            ClientConnection client = null;
+            lock (sync) {
+                if (ReferenceEquals(listeningPipe, pipe)) listeningPipe = null;
+                isDisposed = disposed;
+                if (accepted && !disposed) {
+                    client = new ClientConnection(this, pipe, ++nextClientId);
+                    clients.Add(client);
+                    clientCount = clients.Count;
                 }
+            }
 
+            if (accepted) {
                 if (client != null) {
-                    logger.InfoH(() => $"TSF pipe connected: {pipeName}, client={client.Id}, pid={client.ProcessId}");
+                    logger.InfoH(() => $"TSF pipe connected: {pipeName}, client={client.Id}, pid={client.ProcessId}, clients={clientCount}");
                     client.Start();
                 } else {
                     pipe.Dispose();
@@ -301,7 +367,7 @@ namespace KanchokuWS.Handler
                 pipe.Dispose();
             }
 
-            BeginAccept();
+            if (!isDisposed) EnsureListener();
         }
 
         private void OnClientHello(ClientConnection client)
@@ -340,15 +406,18 @@ namespace KanchokuWS.Handler
         {
             bool removed = false;
             bool activeChanged = false;
+            int clientCount = 0;
             lock (sync) {
                 removed = clients.Remove(client);
+                clientCount = clients.Count;
                 if (ReferenceEquals(activeClient, client)) { activeClient = null; activeChanged = true; }
             }
             if (activeChanged) ActiveClientChanged?.Invoke();
             if (removed) {
-                logger.InfoH(() => $"TSF pipe disconnected: client={client.Id}, reason={reason}");
+                logger.InfoH(() => $"TSF pipe disconnected: client={client.Id}, reason={reason}, clients={clientCount}");
             }
             client.Dispose();
+            if (removed) EnsureListener();
         }
 
         private static string GetUserSidForPipeName()
