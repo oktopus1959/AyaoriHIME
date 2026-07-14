@@ -73,6 +73,11 @@ namespace KanchokuWS.Handler
             precedingContext = "";
         }
 
+        public void InvalidatePrecedingContext()
+        {
+            ResetPrecedingContext();
+        }
+
         public void SendString(char[] str, int strLen, int numBS)
         {
             string reason = "";

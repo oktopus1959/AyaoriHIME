@@ -2137,6 +2137,12 @@ namespace KanchokuWS
             return result;
         }
 
+        private static bool shouldIncludePrecedingContext(int deckey)
+        {
+            if (deckey < 0 || deckey >= DecoderKeys.SPECIAL_DECKEY_ID_BASE) return false;
+            return deckey % DecoderKeys.PLANE_DECKEY_NUM < DecoderKeys.FUNC_DECKEY_START;
+        }
+
         private const int HANDLE_DECKEY_DATA_SIZE = 64;
         private const int PRECEDING_CONTEXT_DATA_SIZE = 17;
 
@@ -2197,7 +2203,7 @@ namespace KanchokuWS
             // デコーダの呼び出し
             CallHandleDeckeyDecoder(cmdParamsPtr => {
                 HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode, rollOverStroke), ref decoderOutput);
-            }, true);
+            }, shouldIncludePrecedingContext(deckey));
 
             logger.InfoH(() =>
                 $"HandleDeckeyDecoder: RESULT: table#={decoderOutput.strokeTableNum}, strokeDepth={decoderOutput.GetStrokeCount()}, layout={decoderOutput.layout}, " +
@@ -2212,7 +2218,7 @@ namespace KanchokuWS
                 // デコーダの再呼び出し
                 CallHandleDeckeyDecoder(cmdParamsPtr => {
                     HandleDeckeyDecoder(decoderPtr, cmdParamsPtr, deckey, targetChar, makeInputFlags(bRomanStrokeGuideMode, bUpperRomanStrokeGuideMode, rollOverStroke), ref decoderOutput);
-                }, true);
+                }, shouldIncludePrecedingContext(deckey));
                 logger.InfoH(() =>
                     $"HandleDeckeyDecoder: RESULT: table#={decoderOutput.strokeTableNum}, strokeDepth={decoderOutput.GetStrokeCount()}, layout={decoderOutput.layout}, " +
                     $"numBS={decoderOutput.numBackSpaces}, resultFlags={decoderOutput.resultFlags:x}H, output={decoderOutput.outString._toString()}, topString={decoderOutput.topString._toString()}, " +
@@ -2318,6 +2324,7 @@ namespace KanchokuWS
                         } else {
                             logger.DebugH(() => $"sendVkeyFromDeckey: deckey={deckey}({deckey:x}H), origDeckey={origDeckey}({origDeckey:x}), mod={mod:x}");
                             sendKeyFlag = sendVkeyFromDeckey(deckey, origDeckey, mod);
+                            TextOutputRouter.Singleton.InvalidatePrecedingContext();
                         }
                         //nPreKeys += 1;
                     }
