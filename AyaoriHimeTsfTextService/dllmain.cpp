@@ -138,6 +138,16 @@ static bool IsTsfEmulatedDocumentMgr(ITfDocumentMgr* documentMgr)
     return emulated;
 }
 
+static bool IsTsfEmulatedContext(ITfContext* context)
+{
+    if (!context) return false;
+    ITfDocumentMgr* documentMgr = nullptr;
+    HRESULT hr = context->GetDocumentMgr(&documentMgr);
+    bool emulated = SUCCEEDED(hr) && documentMgr && IsTsfEmulatedDocumentMgr(documentMgr);
+    if (documentMgr) documentMgr->Release();
+    return emulated;
+}
+
 // 呼び出し側がReleaseするfull contextを返す。nullptrはIMM32 fallback対象を表す。
 static ITfContext* GetFullContext(ITfContext* context)
 {
@@ -967,6 +977,11 @@ private:
 
     HRESULT StartComposition(TfEditCookie ec)
     {
+        if (IsTsfEmulatedContext(context_)) {
+            RuntimeLog(L"CompositionEditSession: CUAS emulated context is not eligible for inline composition");
+            return E_NOTIMPL;
+        }
+
         HRESULT hr = ProbeInlineCompositionLayout(ec);
         if (FAILED(hr)) {
             RuntimeLog(L"CompositionEditSession: inline layout unavailable hr=0x%08X",
