@@ -286,7 +286,9 @@ namespace KanchokuWS.Forms
                 ClearBuffer();
                 frmMain.ToDeactivateDecoder();
             }
-            if (Settings.UseEditWindow) {
+            if (compositionHandled) {
+                this.Hide();
+            } else if (Settings.UseEditWindow) {
                 if (EditText._notEmpty()) {
                     if (bWasEmpty && Settings.OutputSpaceAndBsAtFirstInChrome) {
                         if (ActiveWindowHandler.Singleton.ActiveWinClassName._startsWith("Chrome_WidgetWin")) {
@@ -299,7 +301,7 @@ namespace KanchokuWS.Forms
                 } else {
                     this.Hide();
                 }
-            } else if (!compositionHandled) {
+            } else {
                 logger.InfoH(() => $"SendString: chars='{chars._toString()}', numBS={numBS}");
                 TextOutputRouter.Singleton.SendString(chars, chars._strlen(), numBS);
             }
@@ -367,11 +369,11 @@ namespace KanchokuWS.Forms
                     break;
             }
             if (Settings.UseEditWindow && isEditKey) {
-                SyncComposition();
-                if (EditText._notEmpty()) {
-                    ShowNonActive();
-                } else {
+                bool compositionHandled = SyncComposition();
+                if (compositionHandled || EditText._isEmpty()) {
                     this.Hide();
+                } else {
+                    ShowNonActive();
                 }
             } else {
                 SendInputHandler.Singleton.SendVKeyCombo(modifier, vkey, 1);
@@ -637,7 +639,9 @@ namespace KanchokuWS.Forms
         /// <summary>バッファが空でない場合に入力フォームを表示する</summary>
         public void ShowNonActive()
         {
-            if (Settings.UseEditWindow && EditText._notEmpty()) ShowWindow(this.Handle, SW_SHOWNA);   // NonActive
+            if (Settings.UseEditWindow && TextOutputRouter.Singleton?.IsTsfCompositionActive != true && EditText._notEmpty()) {
+                ShowWindow(this.Handle, SW_SHOWNA);   // NonActive
+            }
         }
 
         /// <summary>

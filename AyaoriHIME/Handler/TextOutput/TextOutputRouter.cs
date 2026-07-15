@@ -48,6 +48,9 @@ namespace KanchokuWS.Handler
 
         public event System.Action<ulong> CompositionTerminated;
 
+        public bool IsTsfCompositionActive =>
+            compositionRoute == CompositionRoute.Tsf || compositionRoute == CompositionRoute.TsfFaulted;
+
         public void PrepareCompositionTarget()
         {
             if (Settings.UseTsfOutput) tsfSink.PrepareCompositionTarget();
