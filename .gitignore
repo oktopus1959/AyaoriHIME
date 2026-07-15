@@ -22,6 +22,7 @@ _tables/
 *.VC.db
 *.VC.opendb
 *.vcxproj.user
+*.aps
 *.ncb
 *.opt
 *.plg

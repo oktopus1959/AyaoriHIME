@@ -348,6 +348,10 @@ namespace KanchokuWS.Gui
             textBox_bushuAssocFile.Text = Settings.BushuAssocFile;
             textBox_historyFile.Text = Settings.HistoryFile;
 
+            // 入力文字列の表示方法
+            checkBox_useTsfOutput.Checked = Settings.UseTsfOutput;
+            checkBox_useEditWindow.Checked = Settings.UseEditWindow;
+
             if (Settings.TableFile._notEmpty()) comboBox_tableFile.Text = getTableName(KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.TableFile));
             if (Settings.TableFile2._notEmpty()) comboBox_tableFile2.Text = getTableName(KanchokuIni.Singleton.KanchokuDir._joinPath(Settings.TableFile2));
         }
@@ -401,6 +405,10 @@ namespace KanchokuWS.Gui
             checkerBasic.Add(textBox_bushuCompFile);
             checkerBasic.Add(textBox_bushuAssocFile);
             checkerBasic.Add(textBox_historyFile);
+
+            // 入力文字列の表示方法
+            checkerBasic.Add(checkBox_useTsfOutput);
+            checkerBasic.Add(checkBox_useEditWindow);
 
             checkerAll.Add(checkerBasic);
         }
@@ -463,12 +471,22 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("bushuAssocFile", textBox_bushuAssocFile.Text.Trim());
             Settings.SetUserIni("historyFile", textBox_historyFile.Text.Trim());
 
+            // 入力文字列の表示方法
+            Settings.SetUserIni("useTsfOutput", checkBox_useTsfOutput.Checked);
+            Settings.SetUserIni("useEditWindow", checkBox_useEditWindow.Checked);
+
             //Settings.ReadIniFile();
             // 各種定義ファイルの再読み込み
             frmMain?.ReloadSettingsAndDefFiles();
 
             readSettings_tabBasic();
             checkerBasic.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+
+            bool fusionWasDirty = checkerFusion.IsDirty();
+            checkBox_useEditBuffer.Checked = Settings.UseEditWindow;
+            if (!fusionWasDirty) {
+                checkerFusion.Reinitialize();
+            }
 
             // 同時打鍵・IME設定も呼んでおく
             readSettings_tabImeCombo();
@@ -553,6 +571,14 @@ namespace KanchokuWS.Gui
             } else {
                 readSettings_tabBasic();
                 checkerBasic.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+                bool flag = checkerFusion.IsDirty();
+                checkBox_useEditBuffer.Checked = Settings.UseEditWindow;
+                //if (checkBox_useEditWindow.Checked) {
+                //    Settings.SetUserIni("outputHeadSymbol", checkBox_outputHeadSymbol.Checked);
+                //}
+                if (!flag) {
+                    checkerFusion.Reinitialize();
+                }
                 logger.Info("LEAVE");
             }
         }
@@ -1226,6 +1252,12 @@ namespace KanchokuWS.Gui
 
             readSettings_tabFusion();
             checkerFusion.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+
+            bool basicWasDirty = checkerBasic.IsDirty();
+            checkBox_useEditWindow.Checked = Settings.UseEditWindow;
+            if (!basicWasDirty) {
+                checkerBasic.Reinitialize();
+            }
 
             label_okResultFusion.Show();
 

@@ -100,6 +100,11 @@ namespace Utils
             }
         }
 
+        public bool IsDirty()
+        {
+            return serializer()._ne(InitialSerializedData);
+        }
+
         /// <summary>
         /// 状態のチェック
         /// </summary>
