@@ -120,6 +120,23 @@
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="checkBox_useTsfOutput.ToolTip" xml:space="preserve">
+    <value>入力中の文字列を、対象アプリ内に表示する設定
+
+TSF (Text Service Framework) を利用して、入力中の文字列を
+フォーカスのある対象アプリに直接表示します。
+
+この機能を利用するには、上記機能を提供する DLL をインストール
+する必要があります。(管理者権限が必要です)
+詳細については、FAQ-基本編の「入力文字列の表示方法」を参照して
+ください。
+
+なお、アプリによっては TSF の機能が利用できずに、漢織媛独自の
+編集ウィンドウを使用する場合もあります。</value>
+  </data>
   <data name="comboBox_deckeyCharsFile.ToolTip" xml:space="preserve">
     <value>漢直キーコードから英数字・記号への変換を定義するファイルを選択します。
 
@@ -449,6 +466,9 @@ IMEを利用していて、Spaceでフラッシュと同時にかな漢字変換
 
 キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
   </data>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
   <data name="checkBox_eisuModeEnabled.ToolTip" xml:space="preserve">
     <value>この項目がチェックされている場合、通常シフトなどで英大文字を入力すると
 英数字の直接入力モードに移行します。

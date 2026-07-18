@@ -516,10 +516,10 @@ namespace KanchokuWS
                 }
             }
 
-            copyFile("alt-kanji.txt", false);           // userFile フォルダ→ systemFiles フォルダの順で読む
-            copyFile("kwbushu.rev", false);             // userFile フォルダ→ systemFiles フォルダの順で読む
-            //copyFile("kanji-yomi.txt", false);          // userFile フォルダ→ systemFiles フォルダの順で読む
-            copyFile("kwroman.def.txt", false);         // userFile フォルダ→ systemFiles フォルダの順で読む
+            copyFile("alt-kanji.txt", false);               // userFile フォルダ→ systemFiles フォルダの順で読む
+            copyFile("kwbushu.rev", false);                 // userFile フォルダ→ systemFiles フォルダの順で読む
+            //copyFile("kanji-yomi.txt", false);            // userFile フォルダ→ systemFiles フォルダの順で読む
+            copyFile(Settings.DefaultRomanDefFile, false);  // userFile フォルダ→ systemFiles フォルダの順で読む
             copyFile("kwhist.roman.txt", true);
             copyFile("easy_chars.txt", true);
             copyFile("stroke-help.txt", true);

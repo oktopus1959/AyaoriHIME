@@ -974,6 +974,8 @@ namespace KanchokuWS
         /// <summary>ローマ字テーブル出力時の裏面定義用プレフィックス</summary>
         public static string RomanSecPlanePrefix { get; set; }
 
+        public static string DefaultRomanDefFile { get; } = "kwroman.def.txt";
+
         //------------------------------------------------------------------------------
         // 同時打鍵判定
         //------------------------------------------------------------------------------

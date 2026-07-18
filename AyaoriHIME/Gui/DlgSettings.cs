@@ -39,13 +39,13 @@ namespace KanchokuWS.Gui
         private GuiStatusChecker checkerBasic;
         private GuiStatusChecker checkerAdvanced;
         private GuiStatusChecker checkerImeCombo;
-        private GuiStatusChecker checkerFontColor;
-        private GuiStatusChecker checkerKeyAssign;
-        private GuiStatusChecker checkerCtrlKeys;
-        private GuiStatusChecker checkerHistory;
         private GuiStatusChecker checkerFusion;
-        private GuiStatusChecker checkerMiscSettings;
+        private GuiStatusChecker checkerHistory;
+        private GuiStatusChecker checkerMazeHenkan;
+        private GuiStatusChecker checkerCtrlKeys;
+        private GuiStatusChecker checkerFontColor;
         private GuiStatusChecker checkerDevelop;
+        //private GuiStatusChecker checkerKeyAssign;
 
         private const int timerInterval = 200;
 
@@ -94,11 +94,11 @@ namespace KanchokuWS.Gui
             checkerAdvanced = new GuiStatusChecker("Advanced");
             checkerImeCombo = new GuiStatusChecker("ImeCombo");
             checkerFontColor = new GuiStatusChecker("FontAndColor");
-            checkerKeyAssign = new GuiStatusChecker("KeyAssign");
+            //checkerKeyAssign = new GuiStatusChecker("KeyAssign");
             checkerCtrlKeys = new GuiStatusChecker("CtrlKeys");
             checkerHistory = new GuiStatusChecker("History");
             checkerFusion = new GuiStatusChecker("Fusion");
-            checkerMiscSettings = new GuiStatusChecker("MiscSettings");
+            checkerMazeHenkan = new GuiStatusChecker("MazeHenkan");
             checkerDevelop = new GuiStatusChecker("Develop");
 
             readSettings_tabBasic();
@@ -125,7 +125,7 @@ namespace KanchokuWS.Gui
             readSettings_tabFusion();
             setFusionStatusChecker();
 
-            readSettings_tabMazeHenkanSettings();
+            readSettings_tabMazeHenkan();
             setMazeHankanSettingsStatusChecker();
 
             readSettings_tabDevelop();
@@ -492,13 +492,13 @@ namespace KanchokuWS.Gui
             readSettings_tabImeCombo();
             checkerImeCombo.Reinitialize();
 
-            // 機能キー割当も呼んでおく
-            //readSettings_tabKeyAssign();
-            checkerKeyAssign.Reinitialize();
+            //// 機能キー割当も呼んでおく
+            ////readSettings_tabKeyAssign();
+            //checkerKeyAssign.Reinitialize();
 
             // その他設定も呼んでおく
-            readSettings_tabMazeHenkanSettings();
-            checkerMiscSettings.Reinitialize();
+            readSettings_tabMazeHenkan();
+            checkerMazeHenkan.Reinitialize();
 
             // 各種定義ファイルの再読み込み
             //FrmMain?.ReloadDefFiles();
@@ -552,7 +552,7 @@ namespace KanchokuWS.Gui
             readSettings_tabCtrlKeys();
             readSettings_tabSimpleDic();
             readSettings_tabFusion();
-            readSettings_tabMazeHenkanSettings();
+            readSettings_tabMazeHenkan();
             readSettings_tabDevelop();
 
             checkerAll.Reinitialize();
@@ -1865,6 +1865,22 @@ namespace KanchokuWS.Gui
         //-----------------------------------------------------------------------------------
         void readSettings_tabSimpleDic()
         {
+            checkBox_eisuModeEnabled.Checked = Settings.EisuModeEnabled;
+            textBox_eisuHistSearchChar.Text = Settings.EisuHistSearchChar;
+            textBox_eisuExitCapitalCharNum.Text = $"{Settings.EisuExitCapitalCharNum}";
+            textBox_eisuExitSpaceNum.Text = $"{Settings.EisuExitSpaceNum}";
+            textBox_userRomanFile.Text = $"{Settings.HistoryFile._safeReplace("*", "roman")}";
+            textBox_romanDefFile.Text = Settings.DefaultRomanDefFile;
+
+            checkBox_convertShiftedHiraganaToKatakana.Checked = Settings.ConvertShiftedHiraganaToKatakana;
+            switch (Settings.HiraganaToKatakanaShiftPlane) {
+                case 2: radioButton_shiftA.Checked = true; break;
+                case 3: radioButton_shiftB.Checked = true; break;
+                default: radioButton_normalShift.Checked = true; break;
+            }
+            changeShiftPlaneSectionRadioButtonsState();
+            checkBox_convertHiraganaToKatakanaNormalPlane.Checked = Settings.HiraganaToKatakanaNormalPlane;
+
             textBox_simpleDicCandMax.Text = $"{Settings.HistHorizontalCandMax}";
             comboBox_simpleDicSearchKey.Enabled = checkBox_simpleDicSearchKey.Checked;
             checkBox_simpleDicSearchKey.Checked = Settings.HistorySearchCtrlKey._notEmpty() && !Settings.HistorySearchCtrlKey.StartsWith("#");
@@ -1957,11 +1973,22 @@ namespace KanchokuWS.Gui
             frmMain?.ExecCmdDecoder("readUserRomanFile", null);
         }
 
+        private void button_openRomanDefFile_Click(object sender, EventArgs e)
+        {
+            logger.Info("CALLED");
+            openFileInUserFolder(textBox_romanDefFile.Text);
+        }
+
+        private void button_simpleDicRead2_Click(object sender, EventArgs e)
+        {
+            frmMain?.ExecCmdDecoder("readRomanDefFile", null);
+        }
+
         /// <summary> 簡易辞書登録 </summary>
         private void button_enterSimpleDic_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            var line = textBox_history.Text.Trim().Replace(" ", "");
+            var line = textBox_simpleDicEntry.Text.Trim().Replace(" ", "");
             if (line._notEmpty()) {
                 //FrmMain?.ExecCmdDecoder("addHistEntry", line);
                 frmMain?.AddHistEntry(line);
@@ -2007,25 +2034,12 @@ namespace KanchokuWS.Gui
         //-----------------------------------------------------------------------------------
         //  交ぜ書き、書き換え設定
         //-----------------------------------------------------------------------------------
-        void readSettings_tabMazeHenkanSettings()
+        void readSettings_tabMazeHenkan()
         {
             // その他変換
             checkBox_yamanobeEnabled.Checked = Settings.YamanobeEnabled;
             //checkBox_autoBushuComp.Checked = Settings.AutoBushuComp;
             textBox_autoBushuCompMinCount.Text = $"{Settings.AutoBushuCompMinCount}";
-            checkBox_convertShiftedHiraganaToKatakana.Checked = Settings.ConvertShiftedHiraganaToKatakana;
-            switch (Settings.HiraganaToKatakanaShiftPlane) {
-                case 2: radioButton_shiftA.Checked = true; break;
-                case 3: radioButton_shiftB.Checked = true; break;
-                default: radioButton_normalShift.Checked = true; break;
-            }
-            changeShiftPlaneSectionRadioButtonsState();
-            checkBox_convertHiraganaToKatakanaNormalPlane.Checked = Settings.HiraganaToKatakanaNormalPlane;
-            checkBox_eisuModeEnabled.Checked = Settings.EisuModeEnabled;
-            textBox_eisuHistSearchChar.Text = Settings.EisuHistSearchChar;
-            textBox_eisuExitCapitalCharNum.Text = $"{Settings.EisuExitCapitalCharNum}";
-            textBox_eisuExitSpaceNum.Text = $"{Settings.EisuExitSpaceNum}";
-            textBox_userRomanFile.Text = $"{Settings.HistoryFile._safeReplace("*", "roman")}";
             textBox_preRewriteTargetChars.Text = $"{Settings.PreRewriteTargetChars}";
             setEnabled(textBox_preRewriteTargetChars, Settings.PreRewriteTargetChars_PropName);
             textBox_preRewriteAllowedDelayTimeMs.Text = $"{Settings.PreRewriteAllowedDelayTimeMs}";
@@ -2044,26 +2058,26 @@ namespace KanchokuWS.Gui
         {
             // その他変換
             button_miscEnter.Enabled = false;
-            checkerMiscSettings.CtlToBeEnabled = button_miscEnter;
-            checkerMiscSettings.ControlEnabler = tabMazeHenkanStatusChanged;
-            checkerMiscSettings.Add(checkBox_yamanobeEnabled);
-            //checkerMiscSettings.Add(checkBox_autoBushuComp);
-            checkerMiscSettings.Add(textBox_autoBushuCompMinCount);
-            checkerMiscSettings.Add(checkBox_convertShiftedHiraganaToKatakana);
-            checkerMiscSettings.Add(radioButton_normalShift);
-            checkerMiscSettings.Add(radioButton_shiftA);
-            checkerMiscSettings.Add(radioButton_shiftB);
-            checkerMiscSettings.Add(checkBox_convertHiraganaToKatakanaNormalPlane);
-            checkerMiscSettings.Add(checkBox_eisuModeEnabled);
-            checkerMiscSettings.Add(textBox_eisuHistSearchChar);
-            checkerMiscSettings.Add(textBox_eisuExitCapitalCharNum);
-            checkerMiscSettings.Add(textBox_eisuExitSpaceNum);
-            checkerMiscSettings.Add(textBox_preRewriteTargetChars);
-            checkerMiscSettings.Add(textBox_preRewriteAllowedDelayTimeMs);
-            checkerMiscSettings.Add(textBox_preRewriteAllowedDelayTimeMs2);
-            checkerMiscSettings.Add(textBox_preRewriteWaitTimeMsWhenTrainingMode);
+            checkerMazeHenkan.CtlToBeEnabled = button_miscEnter;
+            checkerMazeHenkan.ControlEnabler = tabMazeHenkanStatusChanged;
+            checkerMazeHenkan.Add(checkBox_yamanobeEnabled);
+            //checkerMazeHenkan.Add(checkBox_autoBushuComp);
+            checkerMazeHenkan.Add(textBox_autoBushuCompMinCount);
+            checkerMazeHenkan.Add(checkBox_convertShiftedHiraganaToKatakana);
+            checkerMazeHenkan.Add(radioButton_normalShift);
+            checkerMazeHenkan.Add(radioButton_shiftA);
+            checkerMazeHenkan.Add(radioButton_shiftB);
+            checkerMazeHenkan.Add(checkBox_convertHiraganaToKatakanaNormalPlane);
+            checkerMazeHenkan.Add(checkBox_eisuModeEnabled);
+            checkerMazeHenkan.Add(textBox_eisuHistSearchChar);
+            checkerMazeHenkan.Add(textBox_eisuExitCapitalCharNum);
+            checkerMazeHenkan.Add(textBox_eisuExitSpaceNum);
+            checkerMazeHenkan.Add(textBox_preRewriteTargetChars);
+            checkerMazeHenkan.Add(textBox_preRewriteAllowedDelayTimeMs);
+            checkerMazeHenkan.Add(textBox_preRewriteAllowedDelayTimeMs2);
+            checkerMazeHenkan.Add(textBox_preRewriteWaitTimeMsWhenTrainingMode);
 
-            checkerAll.Add(checkerMiscSettings);
+            checkerAll.Add(checkerMazeHenkan);
         }
 
         private void tabMazeHenkanStatusChanged(bool flag)
@@ -2095,8 +2109,8 @@ namespace KanchokuWS.Gui
             // 各種定義ファイルの再読み込み
             frmMain?.ReloadSettingsAndDefFiles();
 
-            readSettings_tabMazeHenkanSettings();
-            checkerMiscSettings.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+            readSettings_tabMazeHenkan();
+            checkerMazeHenkan.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
 
             // 各種定義ファイルの再読み込み
             //FrmMain?.ReloadDefFiles();
@@ -2134,8 +2148,8 @@ namespace KanchokuWS.Gui
             if (button_miscClose.Text.StartsWith("閉")) {
                 this.Close();
             } else {
-                readSettings_tabMazeHenkanSettings();
-                checkerMiscSettings.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+                readSettings_tabMazeHenkan();
+                checkerMazeHenkan.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
             }
         }
 
@@ -2513,7 +2527,7 @@ namespace KanchokuWS.Gui
                 case "tabPage_misc":
                     AcceptButton = button_miscEnter;
                     CancelButton = button_miscClose;
-                    readSettings_tabMazeHenkanSettings();
+                    readSettings_tabMazeHenkan();
                     break;
                 case "tabPage_fusion":
                     AcceptButton = button_fusionEnter;

@@ -465,6 +465,11 @@ namespace RomanToKatakana {
 
     }
 
+    // デフォルトのローマ字定義ファイルを読み込む
+    void ReadDefaultRomanDefFile() {
+        ReadRomanDefFile(_T("kwroman.def.txt"));
+    }
+
     // ローマ字定義ファイルを読み込む
     void ReadRomanDefFile(StringRef defFile) {
         LOG_INFO(_T("open roman def file: {}"), defFile);

@@ -262,7 +262,7 @@ public:
         createDeckeyToCharsInstance();
 
         // ローマ字定義ファイルのロード
-        RomanToKatakana::ReadRomanDefFile(_T("kwroman.def.txt"));
+        RomanToKatakana::ReadDefaultRomanDefFile();
 
         // ストローク木の構築
         createStrokeTrees(L"");
@@ -654,6 +654,9 @@ public:
             } else if (cmd == _T("readUserRomanFile")) {
                 // ユーザー定義ローマ字辞書ファイルの読み込み
                 HISTORY_DIC->ReadUserRomanFile();
+            } else if (cmd == _T("readRomanDefFile")) {
+                // ローマ字定義ファイルの読み込み
+                RomanToKatakana::ReadDefaultRomanDefFile();
             } else if (cmd == _T("saveTraceLog")) {
                 Reporting::Logger::SaveLog();
             } else if (cmd == _T("saveMorphLog")) {
