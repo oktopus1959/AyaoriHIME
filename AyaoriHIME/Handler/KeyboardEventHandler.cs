@@ -158,7 +158,7 @@ namespace KanchokuWS.Handler
         /// <summary>マウスボタン押下時のハンドラ</summary>
         private bool mouseButtonHandler(bool leftButton, bool rightButton)
         {
-            if (isDecoderActivated()) frmKanchoku?.CommitMultStream();
+            frmKanchoku?.CommitTsfCompositionBeforeExternalNavigation("mouse");
             return false;
         }
 
@@ -1046,6 +1046,11 @@ namespace KanchokuWS.Handler
                 if (isMyInjectedEvent(extraInfo)) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"Ignore self injected key down: vkey={vkey:x}H");
                     return false;
+                }
+
+                if (vkey == (uint)Keys.PageUp || vkey == (uint)Keys.PageDown) {
+                    frmKanchoku?.CommitTsfCompositionBeforeExternalNavigation(
+                        vkey == (uint)Keys.PageUp ? "PageUp" : "PageDown");
                 }
 
                 bool leftShift = (GetAsyncKeyState(FuncVKeys.LSHIFT) & 0x8000) != 0;

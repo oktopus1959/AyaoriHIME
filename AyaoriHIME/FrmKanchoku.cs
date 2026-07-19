@@ -1509,6 +1509,17 @@ namespace KanchokuWS
             InvokeDecoder(DecoderKeys.MULTI_STREAM_COMMIT_DECKEY, -1, 0, false);
         }
 
+        /// <summary>対象アプリのカレットが外部操作で移動する前にTSF未確定文字列を確定する</summary>
+        public void CommitTsfCompositionBeforeExternalNavigation(string source)
+        {
+            if (TextOutputRouter.Singleton == null ||
+                !TextOutputRouter.Singleton.IsTsfCompositionActive || frmEditBuf.IsEmpty) return;
+
+            logger.InfoH(() => $"Commit TSF composition before external navigation: source={source}, length={frmEditBuf.GetCleanText().Length}");
+            CommitMultStream();
+            frmEditBuf.FlushBuffer(true);
+        }
+
         private void changeCodeTableAndCombinationPool(string cmd)
         {
             ExecCmdDecoder(cmd, null);  // コードテーブルの切り替え

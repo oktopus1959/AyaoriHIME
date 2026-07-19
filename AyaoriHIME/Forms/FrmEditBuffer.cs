@@ -368,7 +368,9 @@ namespace KanchokuWS.Forms
                     isEditKey = false;
                     break;
             }
-            if (Settings.UseEditWindow && isEditKey) {
+            bool shouldSyncComposition = Settings.UseEditWindow ||
+                (TextOutputRouter.Singleton != null && TextOutputRouter.Singleton.IsTsfCompositionActive);
+            if (shouldSyncComposition && isEditKey) {
                 bool compositionHandled = SyncComposition();
                 if (compositionHandled || EditText._isEmpty()) {
                     this.Hide();

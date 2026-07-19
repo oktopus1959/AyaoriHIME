@@ -34,6 +34,7 @@ static const wchar_t* MessageWindowClassName = L"AyaoriHIME.TsfTextService.Messa
 static const UINT WM_AYAORI_OPERATION_REQUEST = WM_APP + 0x481;
 static const UINT WM_AYAORI_OPERATION_COMPLETED = WM_APP + 0x482;
 static const UINT WM_AYAORI_CONTEXT_REQUEST = WM_APP + 0x483;
+static const UINT WM_AYAORI_SELECTION_CHANGED = WM_APP + 0x484;
 
 static const int32_t PipeMagic = 0x54465341; // ASFT
 static const int16_t PipeVersion = 3;
@@ -861,11 +862,13 @@ class CompositionEditSession final : public ITfEditSession
 public:
     CompositionEditSession(ITfContext* context, CompositionOperation operation, const std::wstring& text,
         LONG caretOffset, LONG commitLength, ITfComposition** composition, ITfCompositionSink* sink, bool* endingComposition,
-        HWND completionWindow = nullptr, CommitRequest* completionRequest = nullptr)
+        HWND completionWindow = nullptr, CommitRequest* completionRequest = nullptr, bool preserveSelection = false,
+        ITfRange** compositionOrigin = nullptr, bool restoreOriginOnCommit = false)
         : refCount_(1), context_(context), operation_(operation), text_(text), caretOffset_(caretOffset),
           commitLength_(commitLength), composition_(composition), sink_(sink), endingComposition_(endingComposition),
           completionWindow_(completionWindow), completionRequest_(completionRequest), result_(E_FAIL),
-          hasCommittedAnchor_(false), committedAnchor_(0)
+          hasCommittedAnchor_(false), committedAnchor_(0), preserveSelection_(preserveSelection),
+          compositionOrigin_(compositionOrigin), restoreOriginOnCommit_(restoreOriginOnCommit)
     {
         if (context_) context_->AddRef();
         if (sink_) sink_->AddRef();
@@ -978,8 +981,14 @@ private:
     HRESULT StartComposition(TfEditCookie ec)
     {
         if (IsTsfEmulatedContext(context_)) {
-            RuntimeLog(L"CompositionEditSession: CUAS emulated context is not eligible for inline composition");
-            return E_NOTIMPL;
+            ITfContext* fullContext = GetFullContext(context_);
+            bool hasDistinctFullContext = fullContext && !IsSameComIdentity(context_, fullContext);
+            if (fullContext) fullContext->Release();
+            if (!hasDistinctFullContext) {
+                RuntimeLog(L"CompositionEditSession: CUAS emulated context has no inline-capable parent");
+                return E_NOTIMPL;
+            }
+            RuntimeLog(L"CompositionEditSession: CUAS transitory extension uses source context for inline composition");
         }
 
         HRESULT hr = ProbeInlineCompositionLayout(ec);
@@ -994,6 +1003,21 @@ private:
         hr = context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &selection, &fetched);
         if (FAILED(hr) || fetched != 1 || !selection.range) return FAILED(hr) ? hr : TF_E_NOSELECTION;
 
+        ITfRange* origin = nullptr;
+        if (compositionOrigin_ && !*compositionOrigin_) {
+            HRESULT originHr = selection.range->Clone(&origin);
+            if (SUCCEEDED(originHr) && origin) originHr = origin->Collapse(ec, TF_ANCHOR_START);
+            HRESULT gravityHr = SUCCEEDED(originHr) && origin
+                ? origin->SetGravity(ec, TF_GRAVITY_BACKWARD, TF_GRAVITY_BACKWARD)
+                : originHr;
+            RuntimeLog(L"CompositionEditSession: origin bookmark clone=0x%08X gravity=0x%08X",
+                static_cast<unsigned int>(originHr), static_cast<unsigned int>(gravityHr));
+            if (FAILED(originHr)) {
+                if (origin) origin->Release();
+                origin = nullptr;
+            }
+        }
+
         ITfContextComposition* contextComposition = nullptr;
         hr = context_->QueryInterface(IID_ITfContextComposition, reinterpret_cast<void**>(&contextComposition));
         if (SUCCEEDED(hr) && contextComposition) {
@@ -1002,11 +1026,16 @@ private:
             if (SUCCEEDED(hr) && created) {
                 if (*composition_) (*composition_)->Release();
                 *composition_ = created;
+                if (origin && compositionOrigin_ && !*compositionOrigin_) {
+                    *compositionOrigin_ = origin;
+                    origin = nullptr;
+                }
             } else if (SUCCEEDED(hr)) {
                 hr = E_FAIL;
             }
             contextComposition->Release();
         }
+        if (origin) origin->Release();
         selection.range->Release();
         RuntimeLog(L"CompositionEditSession: StartComposition hr=0x%08X", static_cast<unsigned int>(hr));
         return hr;
@@ -1075,6 +1104,36 @@ private:
         if (SUCCEEDED(hr) && acp) hr = acp->GetExtent(&anchor, &length);
         if (SUCCEEDED(hr) && (commitLength_ < -1 || commitLength_ > length)) hr = E_INVALIDARG;
 
+        if (SUCCEEDED(hr) && restoreOriginOnCommit_ && compositionOrigin_ && *compositionOrigin_) {
+            ITfRange* target = nullptr;
+            HRESULT restoreHr = (*compositionOrigin_)->Clone(&target);
+            if (SUCCEEDED(restoreHr) && target) restoreHr = target->Collapse(ec, TF_ANCHOR_START);
+            std::wstring committedText;
+            if (SUCCEEDED(restoreHr) && length > 0) {
+                committedText.resize(static_cast<size_t>(length));
+                ULONG fetched = 0;
+                restoreHr = range->GetText(ec, 0, &committedText[0], static_cast<ULONG>(length), &fetched);
+                if (SUCCEEDED(restoreHr)) committedText.resize(fetched);
+            }
+            if (SUCCEEDED(restoreHr)) SetCompositionDisplayAttribute(context_, ec, range, false);
+            if (SUCCEEDED(restoreHr)) restoreHr = range->SetText(ec, 0, L"", 0);
+            if (SUCCEEDED(restoreHr) && endingComposition_) *endingComposition_ = true;
+            if (SUCCEEDED(restoreHr)) restoreHr = (*composition_)->EndComposition(ec);
+            if (endingComposition_) *endingComposition_ = false;
+            if (SUCCEEDED(restoreHr)) {
+                (*composition_)->Release();
+                *composition_ = nullptr;
+                restoreHr = target->SetText(ec, 0, committedText.empty() ? L"" : committedText.c_str(),
+                    static_cast<LONG>(committedText.length()));
+            }
+            RuntimeLog(L"CompositionEditSession: restore origin currentAnchor=%ld length=%ld textLength=%zu hr=0x%08X",
+                anchor, length, committedText.length(), static_cast<unsigned int>(restoreHr));
+            if (target) target->Release();
+            if (acp) acp->Release();
+            if (range) range->Release();
+            return restoreHr;
+        }
+
         if (SUCCEEDED(hr)) SetCompositionDisplayAttribute(context_, ec, range, false);
 
         if (SUCCEEDED(hr) && commitLength_ >= 0 && commitLength_ < length) {
@@ -1115,18 +1174,21 @@ private:
             if (SUCCEEDED(hr)) {
                 (*composition_)->Release();
                 *composition_ = nullptr;
-                HRESULT caretHr = acp->SetExtent(anchor + length, 0);
-                if (SUCCEEDED(caretHr)) {
-                    TF_SELECTION selection = {};
-                    selection.range = range;
-                    selection.style.ase = TF_AE_END;
-                    selection.style.fInterimChar = FALSE;
-                    caretHr = context_->SetSelection(ec, 1, &selection);
+                HRESULT caretHr = S_OK;
+                if (!preserveSelection_) {
+                    caretHr = acp->SetExtent(anchor + length, 0);
+                    if (SUCCEEDED(caretHr)) {
+                        TF_SELECTION selection = {};
+                        selection.range = range;
+                        selection.style.ase = TF_AE_END;
+                        selection.style.fInterimChar = FALSE;
+                        caretHr = context_->SetSelection(ec, 1, &selection);
+                    }
+                    hasCommittedAnchor_ = true;
+                    committedAnchor_ = anchor + length;
                 }
-                RuntimeLog(L"CompositionEditSession: Commit SetSelection anchor=%ld hr=0x%08X",
-                    anchor + length, static_cast<unsigned int>(caretHr));
-                hasCommittedAnchor_ = true;
-                committedAnchor_ = anchor + length;
+                RuntimeLog(L"CompositionEditSession: Commit preserveSelection=%d anchor=%ld caretHr=0x%08X",
+                    preserveSelection_, anchor + length, static_cast<unsigned int>(caretHr));
             }
         }
         if (acp) acp->Release();
@@ -1179,6 +1241,169 @@ private:
     HRESULT result_;
     bool hasCommittedAnchor_;
     LONG committedAnchor_;
+    bool preserveSelection_;
+    ITfRange** compositionOrigin_;
+    bool restoreOriginOnCommit_;
+};
+
+class CaptureOriginEditSession final : public ITfEditSession
+{
+public:
+    explicit CaptureOriginEditSession(ITfContext* context, ITfRange** origin)
+        : refCount_(1), context_(context), origin_(origin), result_(E_FAIL)
+    {
+        if (context_) context_->AddRef();
+    }
+    ~CaptureOriginEditSession() { if (context_) context_->Release(); }
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppv) override
+    {
+        if (!ppv) return E_POINTER;
+        *ppv = nullptr;
+        if (riid != IID_IUnknown && riid != IID_ITfEditSession) return E_NOINTERFACE;
+        *ppv = static_cast<ITfEditSession*>(this);
+        AddRef();
+        return S_OK;
+    }
+    STDMETHODIMP_(ULONG) AddRef() override { return static_cast<ULONG>(InterlockedIncrement(&refCount_)); }
+    STDMETHODIMP_(ULONG) Release() override
+    {
+        ULONG next = static_cast<ULONG>(InterlockedDecrement(&refCount_));
+        if (next == 0) delete this;
+        return next;
+    }
+    STDMETHODIMP DoEditSession(TfEditCookie ec) override
+    {
+        if (!context_ || !origin_) return result_ = E_POINTER;
+        TF_SELECTION selection = {};
+        ULONG fetched = 0;
+        result_ = context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &selection, &fetched);
+        ITfRange* captured = nullptr;
+        if (SUCCEEDED(result_) && fetched == 1 && selection.range) result_ = selection.range->Clone(&captured);
+        if (SUCCEEDED(result_) && captured) result_ = captured->Collapse(ec, TF_ANCHOR_START);
+        HRESULT gravityHr = SUCCEEDED(result_) && captured
+            ? captured->SetGravity(ec, TF_GRAVITY_BACKWARD, TF_GRAVITY_BACKWARD)
+            : result_;
+        if (selection.range) selection.range->Release();
+        if (SUCCEEDED(result_) && captured) {
+            if (*origin_) (*origin_)->Release();
+            *origin_ = captured;
+            captured = nullptr;
+        }
+        if (captured) captured->Release();
+        RuntimeLog(L"CaptureOriginEditSession: result=0x%08X gravity=0x%08X",
+            static_cast<unsigned int>(result_), static_cast<unsigned int>(gravityHr));
+        return result_;
+    }
+private:
+    long refCount_;
+    ITfContext* context_;
+    ITfRange** origin_;
+    HRESULT result_;
+};
+
+class DetachCompositionEditSession final : public ITfEditSession
+{
+public:
+    DetachCompositionEditSession(ITfContext* context, ITfComposition** composition,
+        bool* endingComposition, std::wstring* text)
+        : refCount_(1), context_(context), composition_(composition),
+          endingComposition_(endingComposition), text_(text) { if (context_) context_->AddRef(); }
+    ~DetachCompositionEditSession() { if (context_) context_->Release(); }
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppv) override
+    {
+        if (!ppv) return E_POINTER;
+        *ppv = nullptr;
+        if (riid != IID_IUnknown && riid != IID_ITfEditSession) return E_NOINTERFACE;
+        *ppv = static_cast<ITfEditSession*>(this);
+        AddRef();
+        return S_OK;
+    }
+    STDMETHODIMP_(ULONG) AddRef() override { return static_cast<ULONG>(InterlockedIncrement(&refCount_)); }
+    STDMETHODIMP_(ULONG) Release() override
+    {
+        ULONG next = static_cast<ULONG>(InterlockedDecrement(&refCount_));
+        if (next == 0) delete this;
+        return next;
+    }
+    STDMETHODIMP DoEditSession(TfEditCookie ec) override
+    {
+        if (!context_ || !composition_ || !*composition_ || !text_) return E_POINTER;
+        ITfRange* range = nullptr;
+        HRESULT hr = (*composition_)->GetRange(&range);
+        ITfRangeACP* acp = nullptr;
+        LONG anchor = 0;
+        LONG length = 0;
+        if (SUCCEEDED(hr)) hr = range->QueryInterface(IID_ITfRangeACP, reinterpret_cast<void**>(&acp));
+        if (SUCCEEDED(hr)) hr = acp->GetExtent(&anchor, &length);
+        text_->clear();
+        if (SUCCEEDED(hr) && length > 0) {
+            text_->resize(static_cast<size_t>(length));
+            ULONG fetched = 0;
+            hr = range->GetText(ec, 0, &(*text_)[0], static_cast<ULONG>(length), &fetched);
+            if (SUCCEEDED(hr)) text_->resize(fetched);
+        }
+        if (SUCCEEDED(hr)) SetCompositionDisplayAttribute(context_, ec, range, false);
+        if (SUCCEEDED(hr)) hr = range->SetText(ec, 0, L"", 0);
+        if (SUCCEEDED(hr) && endingComposition_) *endingComposition_ = true;
+        if (SUCCEEDED(hr)) hr = (*composition_)->EndComposition(ec);
+        if (endingComposition_) *endingComposition_ = false;
+        if (SUCCEEDED(hr)) {
+            (*composition_)->Release();
+            *composition_ = nullptr;
+        }
+        if (acp) acp->Release();
+        if (range) range->Release();
+        RuntimeLog(L"DetachCompositionEditSession: anchor=%ld length=%ld textLength=%zu hr=0x%08X",
+            anchor, length, text_->length(), static_cast<unsigned int>(hr));
+        return hr;
+    }
+private:
+    long refCount_;
+    ITfContext* context_;
+    ITfComposition** composition_;
+    bool* endingComposition_;
+    std::wstring* text_;
+};
+
+class InsertOriginTextEditSession final : public ITfEditSession
+{
+public:
+    InsertOriginTextEditSession(ITfRange* origin, const std::wstring& text)
+        : refCount_(1), origin_(origin), text_(text) { if (origin_) origin_->AddRef(); }
+    ~InsertOriginTextEditSession() { if (origin_) origin_->Release(); }
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppv) override
+    {
+        if (!ppv) return E_POINTER;
+        *ppv = nullptr;
+        if (riid != IID_IUnknown && riid != IID_ITfEditSession) return E_NOINTERFACE;
+        *ppv = static_cast<ITfEditSession*>(this);
+        AddRef();
+        return S_OK;
+    }
+    STDMETHODIMP_(ULONG) AddRef() override { return static_cast<ULONG>(InterlockedIncrement(&refCount_)); }
+    STDMETHODIMP_(ULONG) Release() override
+    {
+        ULONG next = static_cast<ULONG>(InterlockedDecrement(&refCount_));
+        if (next == 0) delete this;
+        return next;
+    }
+    STDMETHODIMP DoEditSession(TfEditCookie ec) override
+    {
+        if (!origin_ || text_.length() > static_cast<size_t>(MAXLONG)) return E_INVALIDARG;
+        ITfRange* target = nullptr;
+        HRESULT hr = origin_->Clone(&target);
+        if (SUCCEEDED(hr) && target) hr = target->Collapse(ec, TF_ANCHOR_START);
+        if (SUCCEEDED(hr)) hr = target->SetText(ec, 0, text_.empty() ? L"" : text_.c_str(),
+            static_cast<LONG>(text_.length()));
+        if (target) target->Release();
+        RuntimeLog(L"InsertOriginTextEditSession: textLength=%zu hr=0x%08X",
+            text_.length(), static_cast<unsigned int>(hr));
+        return hr;
+    }
+private:
+    long refCount_;
+    ITfRange* origin_;
+    std::wstring text_;
 };
 
 class DisplayAttributeInfo final : public ITfDisplayAttributeInfo
@@ -1282,28 +1507,39 @@ private:
 };
 
 class TextService final : public ITfTextInputProcessorEx, public ITfThreadMgrEventSink,
-    public ITfDisplayAttributeProvider, public ITfCompositionSink
+    public ITfDisplayAttributeProvider, public ITfCompositionSink, public ITfTextEditSink,
+    public ITfKeyEventSink
 {
 public:
     TextService()
         : refCount_(1),
           threadMgr_(nullptr),
           source_(nullptr),
+          contextSource_(nullptr),
+          fullContextSource_(nullptr),
           clientId_(TF_CLIENTID_NULL),
           activationFlags_(0),
           threadMgrSinkCookie_(TF_INVALID_COOKIE),
+          keyEventSinkAdvised_(false),
+          textEditSinkCookie_(TF_INVALID_COOKIE),
+          fullTextEditSinkCookie_(TF_INVALID_COOKIE),
           hwnd_(nullptr),
           stopEvent_(nullptr),
           pipeThread_(nullptr),
           focusEvent_(nullptr),
           focusThread_(nullptr),
           pendingFocusState_(-1),
+          pendingCompositionTerminatedId_(0),
           pipeHandle_(INVALID_HANDLE_VALUE),
           currentContext_(nullptr),
           composition_(nullptr),
+          compositionOrigin_(nullptr),
+          compositionOriginContext_(nullptr),
           compositionId_(0),
           compositionSequence_(0),
           endingComposition_(false),
+          compositionEditInProgress_(0),
+          selectionCommitPending_(0),
           lastOutputContext_(nullptr),
           lastOutputAnchor_(0),
           hasLastOutputAnchor_(false),
@@ -1324,6 +1560,7 @@ public:
         DestroyMessageWindow();
         ClearCurrentContext();
         if (composition_) composition_->Release();
+        UnadviseKeyEventSink();
         UnadviseThreadMgrSink();
         if (threadMgr_) threadMgr_->Release();
         DeleteCriticalSection(&pipeLock_);
@@ -1345,6 +1582,10 @@ public:
             *ppv = static_cast<ITfDisplayAttributeProvider*>(this);
         } else if (riid == IID_ITfCompositionSink) {
             *ppv = static_cast<ITfCompositionSink*>(this);
+        } else if (riid == IID_ITfTextEditSink) {
+            *ppv = static_cast<ITfTextEditSink*>(this);
+        } else if (riid == IID_ITfKeyEventSink) {
+            *ppv = static_cast<ITfKeyEventSink*>(this);
         } else {
             return E_NOINTERFACE;
         }
@@ -1378,9 +1619,69 @@ public:
         uint64_t terminatedId = compositionId_;
         composition_->Release();
         composition_ = nullptr;
+        ClearCompositionOrigin();
         compositionId_ = 0;
         compositionSequence_ = 0;
         RuntimeLog(L"OnCompositionTerminated: external id=%llu", terminatedId);
+        QueueCompositionTerminatedToPipe(terminatedId);
+        return S_OK;
+    }
+
+    STDMETHODIMP OnEndEdit(ITfContext* context, TfEditCookie ec, ITfEditRecord* editRecord) override
+    {
+        if (!context || !editRecord || endingComposition_ || !composition_ ||
+            InterlockedCompareExchange(&compositionEditInProgress_, 0, 0) != 0) return S_OK;
+        BOOL selectionChanged = FALSE;
+        HRESULT hr = editRecord->GetSelectionStatus(&selectionChanged);
+        if (FAILED(hr) || !selectionChanged) return S_OK;
+
+        ITfContext* compositionContext = GetCurrentContext();
+        bool sameContext = IsSameComObject(compositionContext, context);
+        if (compositionContext) compositionContext->Release();
+        if (!sameContext) {
+            bool arrowMove = IsArrowKeyDown();
+            RuntimeLog(L"OnEndEdit: full-context selection changed arrow=%d", arrowMove);
+            if (!arrowMove &&
+                InterlockedCompareExchange(&selectionCommitPending_, 1, 0) == 0) {
+                if (!hwnd_ || !PostMessageW(hwnd_, WM_AYAORI_SELECTION_CHANGED, 0, 0)) {
+                    InterlockedExchange(&selectionCommitPending_, 0);
+                }
+            }
+            return S_OK;
+        }
+
+        TF_SELECTION selection = {};
+        ULONG fetched = 0;
+        hr = context->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &selection, &fetched);
+        ITfRange* compositionRange = nullptr;
+        if (SUCCEEDED(hr) && fetched == 1 && selection.range) {
+            hr = composition_->GetRange(&compositionRange);
+        }
+        LONG startComparison = 0;
+        LONG endComparison = 0;
+        if (SUCCEEDED(hr) && compositionRange) {
+            hr = selection.range->CompareStart(ec, compositionRange, TF_ANCHOR_START, &startComparison);
+        }
+        if (SUCCEEDED(hr) && compositionRange) {
+            hr = selection.range->CompareEnd(ec, compositionRange, TF_ANCHOR_END, &endComparison);
+        }
+        if (compositionRange) compositionRange->Release();
+        if (selection.range) selection.range->Release();
+        if (FAILED(hr)) {
+            RuntimeLog(L"OnEndEdit: selection comparison failed hr=0x%08X", static_cast<unsigned int>(hr));
+            return S_OK;
+        }
+
+        bool insideComposition = startComparison >= 0 && endComparison <= 0;
+        bool arrowMove = IsArrowKeyDown();
+        RuntimeLog(L"OnEndEdit: selection changed start=%ld end=%ld inside=%d arrow=%d",
+            startComparison, endComparison, insideComposition, arrowMove);
+        if (!insideComposition && !arrowMove &&
+            InterlockedCompareExchange(&selectionCommitPending_, 1, 0) == 0) {
+            if (!hwnd_ || !PostMessageW(hwnd_, WM_AYAORI_SELECTION_CHANGED, 0, 0)) {
+                InterlockedExchange(&selectionCommitPending_, 0);
+            }
+        }
         return S_OK;
     }
 
@@ -1427,6 +1728,7 @@ private:
         }
 
         AdviseThreadMgrSink();
+        AdviseKeyEventSink();
         UpdateCurrentContextFromThreadMgr(false);
         hr = StartPipeClient();
         if (FAILED(hr)) {
@@ -1446,6 +1748,7 @@ public:
         StopPipeClient();
         DestroyMessageWindow();
         ClearCurrentContext();
+        UnadviseKeyEventSink();
         UnadviseThreadMgrSink();
         if (threadMgr_) {
             threadMgr_->Release();
@@ -1487,6 +1790,35 @@ public:
     {
         RuntimeLog(L"OnPopContext");
         UpdateCurrentContextFromThreadMgr(true);
+        return S_OK;
+    }
+
+    STDMETHODIMP OnSetFocus(BOOL) override { return S_OK; }
+
+    STDMETHODIMP OnTestKeyDown(ITfContext*, WPARAM wParam, LPARAM, BOOL* eaten) override
+    {
+        return SetArrowKeyEaten(wParam, eaten, L"test-down");
+    }
+
+    STDMETHODIMP OnKeyDown(ITfContext*, WPARAM wParam, LPARAM, BOOL* eaten) override
+    {
+        return SetArrowKeyEaten(wParam, eaten, L"down");
+    }
+
+    STDMETHODIMP OnTestKeyUp(ITfContext*, WPARAM wParam, LPARAM, BOOL* eaten) override
+    {
+        return SetArrowKeyEaten(wParam, eaten, L"test-up");
+    }
+
+    STDMETHODIMP OnKeyUp(ITfContext*, WPARAM wParam, LPARAM, BOOL* eaten) override
+    {
+        return SetArrowKeyEaten(wParam, eaten, L"up");
+    }
+
+    STDMETHODIMP OnPreservedKey(ITfContext*, REFGUID, BOOL* eaten) override
+    {
+        if (!eaten) return E_POINTER;
+        *eaten = FALSE;
         return S_OK;
     }
 
@@ -1568,8 +1900,15 @@ private:
         while (!self->IsStopRequested()) {
             DWORD waitResult = WaitForMultipleObjects(2, waits, FALSE, INFINITE);
             if (waitResult != WAIT_OBJECT_0 || self->IsStopRequested()) break;
-            LONG state = InterlockedExchange(&self->pendingFocusState_, -1);
-            if (state >= 0) self->SendFocusChangedToPipe(state != 0);
+            do {
+                ResetEvent(self->focusEvent_);
+                LONG state = InterlockedExchange(&self->pendingFocusState_, -1);
+                uint64_t terminatedId = self->pendingCompositionTerminatedId_.exchange(0);
+                RuntimeLog(L"NotificationThread: wake focus=%ld terminatedId=%llu", state, terminatedId);
+                if (state >= 0) self->SendFocusChangedToPipe(state != 0);
+                if (terminatedId != 0) self->SendCompositionTerminatedToPipe(terminatedId);
+            } while (InterlockedCompareExchange(&self->pendingFocusState_, -1, -1) >= 0 ||
+                self->pendingCompositionTerminatedId_.load() != 0);
         }
         self->Release();
         return 0;
@@ -1613,6 +1952,11 @@ private:
                 if (!completionPending) request->Complete(result);
                 request->Release();
             }
+            return 0;
+        }
+        if (self && message == WM_AYAORI_SELECTION_CHANGED) {
+            InterlockedExchange(&self->selectionCommitPending_, 0);
+            self->CommitCompositionForSelectionChange();
             return 0;
         }
         return DefWindowProcW(hwnd, message, wParam, lParam);
@@ -1685,9 +2029,10 @@ private:
         if (pipeThread_) return S_OK;
         InterlockedExchange(&stopping_, 0);
         InterlockedExchange(&pendingFocusState_, -1);
+        pendingCompositionTerminatedId_.store(0);
         stopEvent_ = CreateEventW(nullptr, TRUE, FALSE, nullptr);
         if (!stopEvent_) return HRESULT_FROM_WIN32(GetLastError());
-        focusEvent_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+        focusEvent_ = CreateEventW(nullptr, TRUE, FALSE, nullptr);
         if (!focusEvent_) {
             HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
             CloseHandle(stopEvent_);
@@ -1794,12 +2139,133 @@ private:
         }
     }
 
+    void AdviseKeyEventSink()
+    {
+        if (!threadMgr_ || keyEventSinkAdvised_ || clientId_ == TF_CLIENTID_NULL) return;
+        ITfKeystrokeMgr* keystrokeMgr = nullptr;
+        HRESULT hr = threadMgr_->QueryInterface(IID_ITfKeystrokeMgr,
+            reinterpret_cast<void**>(&keystrokeMgr));
+        if (SUCCEEDED(hr) && keystrokeMgr) {
+            hr = keystrokeMgr->AdviseKeyEventSink(clientId_, static_cast<ITfKeyEventSink*>(this), TRUE);
+            if (SUCCEEDED(hr)) keyEventSinkAdvised_ = true;
+            keystrokeMgr->Release();
+        }
+        RuntimeLog(L"AdviseKeyEventSink: hr=0x%08X advised=%d",
+            static_cast<unsigned int>(hr), keyEventSinkAdvised_);
+    }
+
+    void UnadviseKeyEventSink()
+    {
+        if (!threadMgr_ || !keyEventSinkAdvised_ || clientId_ == TF_CLIENTID_NULL) return;
+        ITfKeystrokeMgr* keystrokeMgr = nullptr;
+        HRESULT hr = threadMgr_->QueryInterface(IID_ITfKeystrokeMgr,
+            reinterpret_cast<void**>(&keystrokeMgr));
+        if (SUCCEEDED(hr) && keystrokeMgr) {
+            hr = keystrokeMgr->UnadviseKeyEventSink(clientId_);
+            keystrokeMgr->Release();
+        }
+        keyEventSinkAdvised_ = false;
+        RuntimeLog(L"UnadviseKeyEventSink: hr=0x%08X", static_cast<unsigned int>(hr));
+    }
+
+    HRESULT SetArrowKeyEaten(WPARAM wParam, BOOL* eaten, const wchar_t* phase)
+    {
+        if (!eaten) return E_POINTER;
+        bool arrow = wParam == VK_LEFT || wParam == VK_RIGHT ||
+            wParam == VK_UP || wParam == VK_DOWN;
+        bool modified = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0 ||
+            (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 ||
+            (GetAsyncKeyState(VK_MENU) & 0x8000) != 0 ||
+            (GetAsyncKeyState(VK_LWIN) & 0x8000) != 0 ||
+            (GetAsyncKeyState(VK_RWIN) & 0x8000) != 0;
+        *eaten = composition_ && arrow && !modified ? TRUE : FALSE;
+        if (*eaten) {
+            RuntimeLog(L"KeyEventSink: phase=%s vkey=%llu eaten=1 compositionId=%llu",
+                phase, static_cast<unsigned long long>(wParam), compositionId_);
+        }
+        return S_OK;
+    }
+
+    void AdviseTextEditSink(ITfContext* context)
+    {
+        if (!context || contextSource_) return;
+        ITfSource* source = nullptr;
+        HRESULT hr = context->QueryInterface(IID_ITfSource, reinterpret_cast<void**>(&source));
+        DWORD cookie = TF_INVALID_COOKIE;
+        if (SUCCEEDED(hr) && source) {
+            hr = source->AdviseSink(IID_ITfTextEditSink, static_cast<ITfTextEditSink*>(this), &cookie);
+            if (SUCCEEDED(hr)) {
+                contextSource_ = source;
+                textEditSinkCookie_ = cookie;
+                RuntimeLog(L"AdviseTextEditSink: success cookie=%lu", cookie);
+                return;
+            }
+            source->Release();
+        }
+        RuntimeLog(L"AdviseTextEditSink: failed hr=0x%08X", static_cast<unsigned int>(hr));
+    }
+
+    void UnadviseTextEditSink()
+    {
+        if (!contextSource_) return;
+        HRESULT hr = textEditSinkCookie_ != TF_INVALID_COOKIE
+            ? contextSource_->UnadviseSink(textEditSinkCookie_)
+            : S_OK;
+        RuntimeLog(L"UnadviseTextEditSink: cookie=%lu hr=0x%08X",
+            textEditSinkCookie_, static_cast<unsigned int>(hr));
+        contextSource_->Release();
+        contextSource_ = nullptr;
+        textEditSinkCookie_ = TF_INVALID_COOKIE;
+    }
+
+    void AdviseFullContextTextEditSink(ITfContext* context)
+    {
+        if (!context || fullContextSource_) return;
+        ITfSource* source = nullptr;
+        HRESULT hr = context->QueryInterface(IID_ITfSource, reinterpret_cast<void**>(&source));
+        DWORD cookie = TF_INVALID_COOKIE;
+        if (SUCCEEDED(hr) && source) {
+            hr = source->AdviseSink(IID_ITfTextEditSink, static_cast<ITfTextEditSink*>(this), &cookie);
+            if (SUCCEEDED(hr)) {
+                fullContextSource_ = source;
+                fullTextEditSinkCookie_ = cookie;
+                RuntimeLog(L"AdviseFullContextTextEditSink: success cookie=%lu", cookie);
+                return;
+            }
+            source->Release();
+        }
+        RuntimeLog(L"AdviseFullContextTextEditSink: failed hr=0x%08X", static_cast<unsigned int>(hr));
+    }
+
+    void UnadviseFullContextTextEditSink()
+    {
+        if (!fullContextSource_) return;
+        HRESULT hr = fullTextEditSinkCookie_ != TF_INVALID_COOKIE
+            ? fullContextSource_->UnadviseSink(fullTextEditSinkCookie_)
+            : S_OK;
+        RuntimeLog(L"UnadviseFullContextTextEditSink: cookie=%lu hr=0x%08X",
+            fullTextEditSinkCookie_, static_cast<unsigned int>(hr));
+        fullContextSource_->Release();
+        fullContextSource_ = nullptr;
+        fullTextEditSinkCookie_ = TF_INVALID_COOKIE;
+    }
+
+    static bool IsArrowKeyDown()
+    {
+        return (GetAsyncKeyState(VK_LEFT) & 0x8000) != 0 ||
+            (GetAsyncKeyState(VK_RIGHT) & 0x8000) != 0 ||
+            (GetAsyncKeyState(VK_UP) & 0x8000) != 0 ||
+            (GetAsyncKeyState(VK_DOWN) & 0x8000) != 0;
+    }
+
     void SetCurrentContext(ITfContext* context)
     {
         EnterCriticalSection(&contextLock_);
         bool changed = !IsSameComObject(currentContext_, context);
         LeaveCriticalSection(&contextLock_);
         if (changed) CommitCompositionForContextChange();
+        if (changed) UnadviseTextEditSink();
+        if (changed) UnadviseFullContextTextEditSink();
 
         EnterCriticalSection(&contextLock_);
         if (!IsSameComObject(currentContext_, context)) {
@@ -1809,10 +2275,21 @@ private:
         currentContext_ = context;
         if (currentContext_) currentContext_->AddRef();
         LeaveCriticalSection(&contextLock_);
+        if (changed) {
+            AdviseTextEditSink(context);
+            ITfContext* fullContext = GetFullContext(context);
+            if (fullContext && !IsSameComObject(context, fullContext)) {
+                AdviseFullContextTextEditSink(fullContext);
+            }
+            if (fullContext) fullContext->Release();
+        }
     }
 
     void ClearCurrentContext()
     {
+        UnadviseTextEditSink();
+        UnadviseFullContextTextEditSink();
+        ClearCompositionOrigin();
         EnterCriticalSection(&contextLock_);
         ClearLastOutputAnchorLocked();
         if (currentContext_) {
@@ -1829,6 +2306,42 @@ private:
         if (context) context->AddRef();
         LeaveCriticalSection(&contextLock_);
         return context;
+    }
+
+    void ClearCompositionOrigin()
+    {
+        if (compositionOrigin_) {
+            compositionOrigin_->Release();
+            compositionOrigin_ = nullptr;
+        }
+        if (compositionOriginContext_) {
+            compositionOriginContext_->Release();
+            compositionOriginContext_ = nullptr;
+        }
+    }
+
+    void CaptureCompositionOrigin(ITfContext* sourceContext)
+    {
+        if (!sourceContext || compositionOrigin_) return;
+        ITfContext* fullContext = GetFullContext(sourceContext);
+        if (!fullContext || IsSameComObject(sourceContext, fullContext)) {
+            if (fullContext) fullContext->Release();
+            return;
+        }
+        auto session = new (std::nothrow) CaptureOriginEditSession(fullContext, &compositionOrigin_);
+        HRESULT sessionResult = E_FAIL;
+        HRESULT hr = session
+            ? fullContext->RequestEditSession(clientId_, session, TF_ES_SYNC | TF_ES_READWRITE, &sessionResult)
+            : E_OUTOFMEMORY;
+        if (session) session->Release();
+        HRESULT result = FAILED(hr) ? hr : sessionResult;
+        if (SUCCEEDED(result) && compositionOrigin_) {
+            compositionOriginContext_ = fullContext;
+            compositionOriginContext_->AddRef();
+        }
+        RuntimeLog(L"CaptureCompositionOrigin: request=0x%08X session=0x%08X captured=%d",
+            static_cast<unsigned int>(hr), static_cast<unsigned int>(sessionResult), compositionOrigin_ != nullptr);
+        fullContext->Release();
     }
 
     bool HasCurrentContext()
@@ -1934,6 +2447,7 @@ private:
             if (!context) {
                 composition_->Release();
                 composition_ = nullptr;
+                ClearCompositionOrigin();
                 compositionId_ = 0;
                 compositionSequence_ = 0;
                 return S_OK;
@@ -1942,15 +2456,18 @@ private:
                 context, CompositionOperation::Cancel, L"", 0, 0, &composition_,
                 static_cast<ITfCompositionSink*>(this), &endingComposition_);
             HRESULT sessionResult = E_FAIL;
+            InterlockedExchange(&compositionEditInProgress_, 1);
             HRESULT hr = editSession
                 ? context->RequestEditSession(clientId_, editSession, TF_ES_SYNC | TF_ES_READWRITE, &sessionResult)
                 : E_OUTOFMEMORY;
+            InterlockedExchange(&compositionEditInProgress_, 0);
             if (editSession) editSession->Release();
             context->Release();
             HRESULT result = FAILED(hr) ? hr : sessionResult;
             if (SUCCEEDED(result)) {
                 compositionId_ = 0;
                 compositionSequence_ = 0;
+                ClearCompositionOrigin();
             }
             RuntimeLog(L"CompositionOperation: reset after disconnect result=0x%08X active=%d",
                 static_cast<unsigned int>(result), composition_ != nullptr);
@@ -1963,6 +2480,9 @@ private:
         }
         ITfContext* context = GetCurrentContext();
         if (!context) return E_FAIL;
+        if (!composition_ && operation == CompositionOperation::Update) {
+            CaptureCompositionOrigin(context);
+        }
         if (compositionId == 0 || sequence == 0) {
             context->Release();
             return E_INVALIDARG;
@@ -1979,12 +2499,14 @@ private:
 
         auto editSession = new (std::nothrow) CompositionEditSession(
             context, operation, text, caretOffset, commitLength, &composition_,
-            static_cast<ITfCompositionSink*>(this), &endingComposition_);
+            static_cast<ITfCompositionSink*>(this), &endingComposition_, nullptr, nullptr, false,
+            &compositionOrigin_);
         if (!editSession) {
             context->Release();
             return E_OUTOFMEMORY;
         }
         HRESULT sessionResult = E_FAIL;
+        InterlockedExchange(&compositionEditInProgress_, 1);
         HRESULT hr = context->RequestEditSession(clientId_, editSession, TF_ES_SYNC | TF_ES_READWRITE, &sessionResult);
         if ((hr == TF_E_SYNCHRONOUS || (SUCCEEDED(hr) && sessionResult == TF_E_SYNCHRONOUS)) &&
             request && completionPending) {
@@ -1992,7 +2514,8 @@ private:
                 static_cast<unsigned int>(hr), static_cast<unsigned int>(sessionResult));
             auto asyncSession = new (std::nothrow) CompositionEditSession(
                 context, operation, text, caretOffset, commitLength, &composition_,
-                static_cast<ITfCompositionSink*>(this), &endingComposition_, hwnd_, request);
+                static_cast<ITfCompositionSink*>(this), &endingComposition_, hwnd_, request, false,
+                &compositionOrigin_);
             sessionResult = E_FAIL;
             hr = asyncSession
                 ? context->RequestEditSession(clientId_, asyncSession, TF_ES_ASYNC | TF_ES_READWRITE, &sessionResult)
@@ -2007,14 +2530,20 @@ private:
                 return S_OK;
             }
         }
+        InterlockedExchange(&compositionEditInProgress_, 0);
         HRESULT result = FAILED(hr) ? hr : sessionResult;
         if (SUCCEEDED(result)) {
             compositionId_ = composition_ ? compositionId : 0;
             compositionSequence_ = composition_ ? sequence : 0;
+            if (composition_ && compositionOrigin_ && !compositionOriginContext_) {
+                compositionOriginContext_ = context;
+                compositionOriginContext_->AddRef();
+            }
             LONG committedAnchor = 0;
             if (operation == CompositionOperation::Commit && editSession->TryGetCommittedAnchor(&committedAnchor)) {
                 SetLastOutputAnchor(context, true, committedAnchor);
             }
+            if (!composition_) ClearCompositionOrigin();
         }
         editSession->Release();
         context->Release();
@@ -2027,10 +2556,12 @@ private:
     void FinalizeAsyncCompositionOperation(CommitRequest* request)
     {
         if (!request) return;
+        InterlockedExchange(&compositionEditInProgress_, 0);
         HRESULT result = request->result;
         if (SUCCEEDED(result)) {
             compositionId_ = composition_ ? request->compositionId : 0;
             compositionSequence_ = composition_ ? request->sequence : 0;
+            if (!composition_) ClearCompositionOrigin();
         }
         RuntimeLog(L"CompositionOperation: asynchronous completed type=%ld id=%llu sequence=%llu result=0x%08X active=%d",
             static_cast<LONG>(request->operation), request->compositionId, request->sequence,
@@ -2046,6 +2577,7 @@ private:
         if (!context) {
             composition_->Release();
             composition_ = nullptr;
+            ClearCompositionOrigin();
             compositionId_ = 0;
             compositionSequence_ = 0;
             return;
@@ -2068,9 +2600,78 @@ private:
         }
         compositionId_ = 0;
         compositionSequence_ = 0;
+        ClearCompositionOrigin();
         context->Release();
         if (terminatedId != 0) {
             RuntimeLog(L"CommitCompositionForContextChange: terminated id=%llu", terminatedId);
+        }
+    }
+
+    void CommitCompositionForSelectionChange()
+    {
+        if (!composition_) return;
+        uint64_t terminatedId = compositionId_;
+        ITfContext* context = GetCurrentContext();
+        if (!context) return;
+        bool crossContextRestore = compositionOrigin_ && compositionOriginContext_ &&
+            !IsSameComObject(context, compositionOriginContext_);
+        if (crossContextRestore) {
+            std::wstring committedText;
+            auto detachSession = new (std::nothrow) DetachCompositionEditSession(
+                context, &composition_, &endingComposition_, &committedText);
+            HRESULT detachSessionResult = E_FAIL;
+            InterlockedExchange(&compositionEditInProgress_, 1);
+            HRESULT detachHr = detachSession
+                ? context->RequestEditSession(clientId_, detachSession, TF_ES_SYNC | TF_ES_READWRITE, &detachSessionResult)
+                : E_OUTOFMEMORY;
+            if (detachSession) detachSession->Release();
+            HRESULT detachResult = FAILED(detachHr) ? detachHr : detachSessionResult;
+
+            HRESULT insertHr = E_FAIL;
+            HRESULT insertSessionResult = E_FAIL;
+            if (SUCCEEDED(detachResult)) {
+                auto insertSession = new (std::nothrow) InsertOriginTextEditSession(compositionOrigin_, committedText);
+                insertHr = insertSession
+                    ? compositionOriginContext_->RequestEditSession(clientId_, insertSession,
+                        TF_ES_SYNC | TF_ES_READWRITE, &insertSessionResult)
+                    : E_OUTOFMEMORY;
+                if (insertSession) insertSession->Release();
+            }
+            InterlockedExchange(&compositionEditInProgress_, 0);
+            context->Release();
+            HRESULT result = FAILED(detachResult) ? detachResult :
+                (FAILED(insertHr) ? insertHr : insertSessionResult);
+            RuntimeLog(L"CommitCompositionForSelectionChange: cross-context id=%llu detach=0x%08X insert=0x%08X result=0x%08X",
+                terminatedId, static_cast<unsigned int>(detachResult),
+                static_cast<unsigned int>(FAILED(insertHr) ? insertHr : insertSessionResult),
+                static_cast<unsigned int>(result));
+            if (SUCCEEDED(result)) {
+                compositionId_ = 0;
+                compositionSequence_ = 0;
+                ClearCompositionOrigin();
+                QueueCompositionTerminatedToPipe(terminatedId);
+            }
+            return;
+        }
+        auto editSession = new (std::nothrow) CompositionEditSession(
+            context, CompositionOperation::Commit, L"", 0, -1, &composition_,
+            static_cast<ITfCompositionSink*>(this), &endingComposition_, nullptr, nullptr, true,
+            &compositionOrigin_, true);
+        HRESULT sessionResult = E_FAIL;
+        HRESULT hr = editSession
+            ? context->RequestEditSession(clientId_, editSession, TF_ES_SYNC | TF_ES_READWRITE, &sessionResult)
+            : E_OUTOFMEMORY;
+        if (editSession) editSession->Release();
+        context->Release();
+        HRESULT result = FAILED(hr) ? hr : sessionResult;
+        RuntimeLog(L"CommitCompositionForSelectionChange: id=%llu request=0x%08X session=0x%08X result=0x%08X active=%d",
+            terminatedId, static_cast<unsigned int>(hr), static_cast<unsigned int>(sessionResult),
+            static_cast<unsigned int>(result), composition_ != nullptr);
+        if (SUCCEEDED(result)) {
+            compositionId_ = 0;
+            compositionSequence_ = 0;
+            ClearCompositionOrigin();
+            QueueCompositionTerminatedToPipe(terminatedId);
         }
     }
 
@@ -2315,11 +2916,28 @@ private:
         return hr;
     }
 
+    HRESULT SendCompositionTerminatedToPipe(uint64_t compositionId)
+    {
+        HRESULT hr = SendPipeMessage(MessageCompositionTerminated, &compositionId, sizeof(compositionId));
+        RuntimeLog(L"SendCompositionTerminated: id=%llu hr=0x%08X",
+            compositionId, static_cast<unsigned int>(hr));
+        return hr;
+    }
+
     void QueueFocusChangedToPipe(bool hasFocus)
     {
         // active clientはAyaoriHIME側でforeground process IDから決定する。
         // callbackから派生する同期pipe書き込みは対象アプリ停止の原因になるため送信しない。
         RuntimeLog(L"QueueFocusChanged: hasFocus=%d", hasFocus);
+    }
+
+    void QueueCompositionTerminatedToPipe(uint64_t compositionId)
+    {
+        if (compositionId == 0) return;
+        pendingCompositionTerminatedId_.store(compositionId);
+        BOOL signaled = focusEvent_ ? SetEvent(focusEvent_) : FALSE;
+        RuntimeLog(L"QueueCompositionTerminated: id=%llu signaled=%d error=%lu",
+            compositionId, signaled, signaled ? ERROR_SUCCESS : GetLastError());
     }
 
     HRESULT SendCommitResultToPipe(HRESULT result)
@@ -2497,21 +3115,31 @@ private:
     long refCount_;
     ITfThreadMgr* threadMgr_;
     ITfSource* source_;
+    ITfSource* contextSource_;
+    ITfSource* fullContextSource_;
     TfClientId clientId_;
     DWORD activationFlags_;
     DWORD threadMgrSinkCookie_;
+    bool keyEventSinkAdvised_;
+    DWORD textEditSinkCookie_;
+    DWORD fullTextEditSinkCookie_;
     HWND hwnd_;
     HANDLE stopEvent_;
     HANDLE pipeThread_;
     HANDLE focusEvent_;
     HANDLE focusThread_;
     volatile LONG pendingFocusState_;
+    std::atomic<uint64_t> pendingCompositionTerminatedId_;
     HANDLE pipeHandle_;
     ITfContext* currentContext_;
     ITfComposition* composition_;
+    ITfRange* compositionOrigin_;
+    ITfContext* compositionOriginContext_;
     uint64_t compositionId_;
     uint64_t compositionSequence_;
     bool endingComposition_;
+    volatile LONG compositionEditInProgress_;
+    volatile LONG selectionCommitPending_;
     ITfContext* lastOutputContext_;
     LONG lastOutputAnchor_;
     bool hasLastOutputAnchor_;
