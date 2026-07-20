@@ -33,6 +33,9 @@ namespace {
 
         int currentLen = 0;
 
+        // 英数モードから明示的に変換された1文字ASCIIキーのhistMap検索を許可するか
+        bool currentAllowSingleAsciiHistMap = false;
+
         // 選択位置 -- -1 は未選択状態を表す
         mutable int selectPos = -1;
 
@@ -86,6 +89,7 @@ namespace {
         void ClearKeyInfo() override {
             histCands.ClearKeyInfo();
             currentKey.clear();
+            currentAllowSingleAsciiHistMap = false;
             isHistInSearch = false;
         }
 
@@ -99,20 +103,24 @@ namespace {
         }
 
         // 指定のキーで始まる候補を取得する (len > 0 なら指定の長さの候補だけを取得, len < 0 なら Abs(len)以下の長さの候補を取得)
-        const std::vector<HistResult>& GetCandidates(const MString& key, bool bCheckMinKeyLen, int len) override {
+        const std::vector<HistResult>& GetCandidates(const MString& key, bool bCheckMinKeyLen, int len,
+                                                     bool allowSingleAsciiHistMap = false) override {
             isHistInSearch = true;
             DelayedPushFrontSelectedWord();
             currentLen = len;
-            histCands = HISTORY_DIC->GetCandidates(key, currentKey, bCheckMinKeyLen, len);  // ここで currentKey は変更される (currentKey = resultKey)
+            currentAllowSingleAsciiHistMap = allowSingleAsciiHistMap;
+            histCands = HISTORY_DIC->GetCandidates(key, currentKey, bCheckMinKeyLen, len, allowSingleAsciiHistMap);  // ここで currentKey は変更される (currentKey = resultKey)
             histResults.clear();
             utils::append(histResults, histCands.GetHistories());
             _LOG_DEBUGH(_T("cands num={}, new currentKey={}"), histResults.size(), to_wstr(currentKey));
             return histResults;
         }
 
-        const std::vector<MString> GetCandWords(const MString& key, bool bCheckMinKeyLen, int len) override {
-            _LOG_DEBUGH(_T("CALLED: key={}, bCheckMinKeyLen={}, len={}"), to_wstr(key), bCheckMinKeyLen, len);
-            GetCandidates(key, bCheckMinKeyLen, len);
+        const std::vector<MString> GetCandWords(const MString& key, bool bCheckMinKeyLen, int len,
+                                                bool allowSingleAsciiHistMap = false) override {
+            _LOG_DEBUGH(_T("CALLED: key={}, bCheckMinKeyLen={}, len={}, allowSingleAsciiHistMap={}"),
+                to_wstr(key), bCheckMinKeyLen, len, allowSingleAsciiHistMap);
+            GetCandidates(key, bCheckMinKeyLen, len, allowSingleAsciiHistMap);
             return GetCandWords();
         }
 
@@ -192,7 +200,7 @@ namespace {
 
             HistResult result = histResults[n];
             HISTORY_DIC->UseWord(result.Word);
-            GetCandidates(currentKey, false, currentLen);
+            GetCandidates(currentKey, false, currentLen, currentAllowSingleAsciiHistMap);
             _LOG_DEBUGH(_T("LEAVE: OrigKey={}, Key={}, Word={}"), to_wstr(result.OrigKey), to_wstr(result.Key), to_wstr(result.Word));
             return result;
         }
@@ -202,7 +210,7 @@ namespace {
             DelayedPushFrontSelectedWord();
             if (n < histCands.Size()) {
                 HISTORY_DIC->DeleteEntry(histCands.GetNthWord(n));
-                GetCandidates(currentKey, false, currentLen);
+                GetCandidates(currentKey, false, currentLen, currentAllowSingleAsciiHistMap);
             }
             _LOG_DEBUGH(_T("LEAVE"));
         }

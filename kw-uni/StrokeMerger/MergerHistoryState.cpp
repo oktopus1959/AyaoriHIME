@@ -1273,7 +1273,9 @@ namespace {
                             LOG_DEBUGH(_T("HistSearch: PATH 9: different key"));
                             //bool bCheckMinKeyLen = !bManual && utils::is_hiragana(key[0]);       // 自動検索かつ、キー先頭がひらがなならキー長チェックをやる
                             bool bCheckMinKeyLen = !bManual;                                     // 自動検索ならキー長チェックをやる
-                            histCandsChecker(HIST_CAND->GetCandWords(key, bCheckMinKeyLen, 0), key);
+                            // 1文字ASCIIのhistMap検索は、英数モードから明示的に変換した場合だけ許可する
+                            bool allowSingleAsciiHistMap = bManual && NextState() && NextState()->GetName() == L"EisuState";
+                            histCandsChecker(HIST_CAND->GetCandWords(key, bCheckMinKeyLen, 0, allowSingleAsciiHistMap), key);
                             // キーが短くなる可能性があるので再取得
                             key = HIST_CAND->GetCurrentKey();
                             LOG_DEBUGH(_T("HistSearch: PATH 10: currentKey={}"), to_wstr(key));

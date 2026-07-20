@@ -152,7 +152,8 @@ public:
     virtual void DeleteEntry(const MString& word) = 0;
 
     // 指定の見出し文字に対する変換候補のセットを取得する
-    virtual const HistResultList& GetCandidates(const MString& key, MString&, bool checkMinKeyLen, int len) = 0;
+    virtual const HistResultList& GetCandidates(const MString& key, MString&, bool checkMinKeyLen, int len,
+                                                bool allowSingleAsciiHistMap = false) = 0;
 
     // 単語の使用
     virtual void UseWord(const MString& word) = 0;

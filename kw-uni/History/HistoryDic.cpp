@@ -407,6 +407,32 @@ namespace {
             }
         }
 
+        // 前半部が key に完全一致するhistMap候補だけを、最近使用した順で取得する
+        void ExtractExactHistMapWords(const MString& key, HistResultList& outvec, std::set<MString>& set_, size_t wlen = 0) {
+            LOG_DEBUG(_T("CALLED: key={}, wlen={}"), to_wstr(key), wlen);
+            size_t keylen = key.size();
+            std::map<MString, MString> exactEntries;
+            for (const auto& s : set_) {
+                if (s.size() > keylen && s[keylen] == VERT_BAR) {
+                    // 読み取り専用辞書の内部表現「||」を、使用履歴と同じ「|」にそろえる
+                    exactEntries.emplace(utils::replace(s, MSTR_VERT_BAR_2, MSTR_VERT_BAR), s);
+                }
+            }
+
+            for (const auto& usedWord : usedList) {
+                auto iter = exactEntries.find(usedWord);
+                if (iter != exactEntries.end()) {
+                    const auto& entry = iter->second;
+                    if ((wlen > 0 && entry.size() == wlen) || (wlen == 0 && (keylen != 1 || entry.size() >= 2))) {
+                        outvec.PushHistory(key, entry);
+                    }
+                    set_.erase(entry);
+                    exactEntries.erase(iter);
+                    if (exactEntries.empty()) break;
+                }
+            }
+        }
+
         // usedList に含まれるものから下記を満たすものを返す(最大 n 個)
         // ・単語長が minlen 以上、maxlen 以下
         // ・maxlen == 0 なら単語長 >= 2
@@ -876,15 +902,40 @@ namespace {
             _LOG_DEBUGH(_T("extract_and_copy(key={}, bWild={}, wlen={}, set_.size()={}, set_.begin()={}"), to_wstr(key), bWild, wlen, set_.size(), set_.empty() ? L"(none)" : to_wstr(*set_.begin()));
             resultList.SetKeyInfoIfFirst(key, bWild);
             size_t keylen = key.size();
-            usedList.ExtractUsedWords(key, resultList, set_, wlen);
-            romanPriorityList.ExtractHeadWord(key, resultList, set_);
-
             size_t n = 0;
+            bool bRomanNeeded = utils::isRomanString(key);
+
+            if (keylen <= 3) {
+                // 短いキーでは、前半部がキーに完全一致するhistMap候補を最近使用候補より優先する
+                usedList.ExtractExactHistMapWords(key, resultList, set_, wlen);
+                romanPriorityList.ExtractHeadWord(key, resultList, set_);
+                std::vector<MString> exactHistMapEntries;
+                for (const auto& s : set_) {
+                    if (s.size() > keylen && s[keylen] == VERT_BAR) exactHistMapEntries.push_back(s);
+                }
+                for (const auto& s : exactHistMapEntries) {
+                    if ((wlen > 0 && s.size() == wlen) || (wlen == 0 && (keylen != 1 || s.size() >= 2))) {
+                        pushCandidate(key, s, n);
+                    }
+                    set_.erase(s);
+                }
+                // 明示的なhistMap候補の次に、自動ローマ字変換を優先する
+                if (bRomanNeeded) {
+                    pushRomanEntry(key);
+                    bRomanNeeded = false;
+                }
+                // 優先候補がなければ、ここから従来どおり最近使用順の前方一致候補になる
+                usedList.ExtractUsedWords(key, resultList, set_, wlen);
+            } else {
+                // 4文字以上は従来の候補順を維持する
+                usedList.ExtractUsedWords(key, resultList, set_, wlen);
+                romanPriorityList.ExtractHeadWord(key, resultList, set_);
+            }
+
             // set_ を vec に詰め替えてソートしてから回す。なお、'|' のままだと期待した順にならないので、'\t' に置換してからソートする(後で'|'に戻す)
             std::vector<MString> vec;
             std::transform(set_.begin(), set_.end(), std::back_inserter(vec), [](const auto& w) { return utils::replace_all(w, '|', '\t');});
             if (vec.size() < 100000) std::sort(vec.begin(), vec.end());
-            bool bRomanNeeded = utils::isRomanString(key);
 
             for (const auto& s : vec) {
                 if (bRomanNeeded) {
@@ -963,8 +1014,10 @@ namespace {
         // key.size() == 1 なら 2文字以上の候補列を返す
         // key.size() >= 2 なら key.size() 文字以上の候補を返す
         // bCheckMinKeyLen = false なら、キー長チェックをやらない
-        const HistResultList& GetCandidates(const MString& key, MString& resultKey, bool bCheckMinKeyLen, int len) override {
-            _LOG_DEBUGH(_T("ENTER: key={}, bCheckMinKeyLen={}, len={}"), to_wstr(key), bCheckMinKeyLen, len);
+        const HistResultList& GetCandidates(const MString& key, MString& resultKey, bool bCheckMinKeyLen, int len,
+                                            bool allowSingleAsciiHistMap = false) override {
+            _LOG_DEBUGH(_T("ENTER: key={}, bCheckMinKeyLen={}, len={}, allowSingleAsciiHistMap={}"),
+                to_wstr(key), bCheckMinKeyLen, len, allowSingleAsciiHistMap);
             // 結果を返すためのリストをクリアしておく
             resultList.ClearKeyInfo();
             size_t minlen = len >= 0 ? len : 2;
@@ -1082,8 +1135,9 @@ namespace {
                                 _LOG_DEBUGH(_T("histDic2: resultList.size()={}"), resultList.Size());
                             }
                             bListEmpty = IS_LIST_EMPTY();
-                            if ((bAll || bListEmpty) && (!bIsRomanKey || keySize <= 1) && !is_ascii_char(tail_char(key))) {
-                                // 末尾1文字がASCII文字のものは対象外
+                            if ((bAll || bListEmpty) && (!bIsRomanKey || keySize <= 1) &&
+                                (allowSingleAsciiHistMap || !is_ascii_char(tail_char(key)))) {
+                                // 末尾1文字がASCII文字のものは、英数モードから明示的に変換した場合だけ対象とする
                                 if (checkFunc(1)) {
                                     _LOG_DEBUGH(_T("CHECK-POINT-1"));
                                     CHECK_LIST_EMPTY(1);
@@ -1378,4 +1432,3 @@ void HistoryDic::WriteHistoryDic(StringRef histFile) {
 void HistoryDic::WriteHistoryDic() {
     WriteHistoryDic(SETTINGS->historyFile);
 }
-

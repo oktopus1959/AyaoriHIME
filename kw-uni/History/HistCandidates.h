@@ -20,9 +20,11 @@ public:
     virtual const MString& GetOrigKey() = 0;
 
     // 指定のキーで始まる候補を取得する (len > 0 なら指定の長さの候補だけを取得, len < 0 なら Abs(len)以下の長さの候補を取得)
-    virtual const std::vector<HistResult>& GetCandidates(const MString& key, bool bCheckMinKeyLen, int len) = 0;
+    virtual const std::vector<HistResult>& GetCandidates(const MString& key, bool bCheckMinKeyLen, int len,
+                                                         bool allowSingleAsciiHistMap = false) = 0;
 
-    virtual const std::vector<MString> GetCandWords(const MString& key, bool bCheckMinKeyLen, int len) = 0;
+    virtual const std::vector<MString> GetCandWords(const MString& key, bool bCheckMinKeyLen, int len,
+                                                    bool allowSingleAsciiHistMap = false) = 0;
 
     // 取得済みの候補列を返す
     //virtual const std::vector<HistResult>& GetCandidates() const = 0;
@@ -65,4 +67,3 @@ public:
 };
 
 #define HIST_CAND (HistCandidates::Singleton)
-
