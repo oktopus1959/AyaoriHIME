@@ -10,6 +10,9 @@ namespace Utils
 {
     public class Logger : IDisposable
     {
+        private static Action<string> LogAppender = appendLogToQueue;
+        //private static Action<string> LogAppender = appendLogToFile;
+
         public const int LogLevelError = 1;
         public const int LogLevelWarnH = 2;
         public const int LogLevelWarn = 3;
@@ -187,8 +190,7 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if (LogLevel >= LogLevelInfo || (IsInfoPromoted && LogLevel >= LogPromotedLevel)) {
-                //writeLog("INFO", $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
-                writeLog("INFO", $"{ClassName}.{method}", lineNumber, msg, appendLogToFile);
+                writeLog("INFO", $"{ClassName}.{method}", lineNumber, msg, LogAppender);
             }
         }
 
@@ -197,8 +199,7 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if ((LogLevel >= LogLevelInfo || (IsInfoPromoted && LogLevel >= LogPromotedLevel)) && func != null) {
-                //writeLog("INFO", $"{ClassName}.{method}", lineNumber, func(), appendLogToQueue);
-                writeLog("INFO", $"{ClassName}.{method}", lineNumber, func(), appendLogToFile);
+                writeLog("INFO", $"{ClassName}.{method}", lineNumber, func(), LogAppender);
             }
         }
 
@@ -207,8 +208,7 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if (LogLevel >= LogLevelInfoH) {
-                //writeLog("INFOH", $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
-                writeLog("INFOH", $"{ClassName}.{method}", lineNumber, msg, appendLogToFile);
+                writeLog("INFOH", $"{ClassName}.{method}", lineNumber, msg, LogAppender);
             }
         }
 
@@ -217,8 +217,7 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if ((LogLevel >= LogLevelInfoH || (IsInfoPromoted && LogLevel >= LogPromotedLevel)) && func != null) {
-                //writeLog("INFOH", $"{ClassName}.{method}", lineNumber, func(), appendLogToQueue);
-                writeLog("INFOH", $"{ClassName}.{method}", lineNumber, func(), appendLogToFile);
+                writeLog("INFOH", $"{ClassName}.{method}", lineNumber, func(), LogAppender);
             }
         }
 
@@ -227,8 +226,7 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if (LogLevel >= LogLevelWarn) {
-                //writeLog("WARN", $"{ClassName}.{method}", lineNumber, msg, appendLogToQueue);
-                writeLog("WARN", $"{ClassName}.{method}", lineNumber, msg, appendLogToFile);
+                writeLog("WARN", $"{ClassName}.{method}", lineNumber, msg, LogAppender);
             }
         }
 
@@ -237,8 +235,7 @@ namespace Utils
             [CallerLineNumber] int lineNumber = -1)
         {
             if (LogLevel >= LogLevelWarn && func != null) {
-                //writeLog("WARN", $"{ClassName}.{method}", lineNumber, func(), appendLogToQueue);
-                writeLog("WARN", $"{ClassName}.{method}", lineNumber, func(), appendLogToFile);
+                writeLog("WARN", $"{ClassName}.{method}", lineNumber, func(), LogAppender);
             }
         }
 
@@ -278,6 +275,7 @@ namespace Utils
             }
         }
 
+        /// <summary>ファイルとキューの両方にログを出力する</summary>
         public void WriteLog(string Level, string msg,
             [CallerMemberName] string method = "",
             [CallerLineNumber] int lineNumber = -1)
@@ -315,7 +313,7 @@ namespace Utils
             } catch { }
         }
 
-        private void appendLogToFile(String msg)
+        private static void appendLogToFile(String msg)
         {
             var sw = getWriter();
             if (sw != null) {
@@ -329,7 +327,7 @@ namespace Utils
             }
         }
 
-        private void appendLogToQueue(String msg)
+        private static void appendLogToQueue(String msg)
         {
             if (traceLogQueue.Count > QUEUE_SIZE + QUEUE_EXTRA_SIZE) {
                 while (traceLogQueue.Count > QUEUE_SIZE) {
