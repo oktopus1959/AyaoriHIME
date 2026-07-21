@@ -115,6 +115,19 @@ namespace KanchokuWS.Handler
             leftShiftState.Reset();
             rightShiftState.Reset();
             activeNonShiftVkeys.Clear();
+            consumedHoldShiftTargetVkeys.Clear();
+            holdShiftTargetDeterminerDeckeys.Clear();
+            pendingCommonSingleHitStates.Clear();
+            ClearDeterminerKeyDownMappings();
+            bLCtrlShifted = false;
+            bRCtrlShifted = false;
+            prevComboVkey = 0;
+            bComboKeyRepeated = false;
+        }
+
+        private void ClearDeterminerKeyDownMappings()
+        {
+            determinerDeckeysByVkey.Clear();
         }
 
         /// <summary>
@@ -531,6 +544,7 @@ namespace KanchokuWS.Handler
         private readonly HashSet<uint> activeNonShiftVkeys = new HashSet<uint>();
         private readonly HashSet<uint> consumedHoldShiftTargetVkeys = new HashSet<uint>();
         private readonly Dictionary<uint, int> holdShiftTargetDeterminerDeckeys = new Dictionary<uint, int>();
+        private readonly Dictionary<uint, int> determinerDeckeysByVkey = new Dictionary<uint, int>();
         private readonly Dictionary<uint, PendingCommonSingleHitState> pendingCommonSingleHitStates = new Dictionary<uint, PendingCommonSingleHitState>();
 
         private ShiftKeyRuntimeState getShiftState(uint vkey)
@@ -1326,6 +1340,7 @@ namespace KanchokuWS.Handler
                     ) {
                     // KeyDown時処理を呼び出す。同時打鍵キーのオートリピートが開始されたら打鍵ガイドを切り替える
                     determiner.KeyDown(kanchokuCode, bDecoderOn, keyDownCount, (decKeys) => handleComboKeyRepeat(vkey, decKeys));
+                    determinerDeckeysByVkey[vkey] = kanchokuCode;
                     result = true;
                 } else {
                     // 直接ハンドラを呼び出す
@@ -1565,10 +1580,14 @@ namespace KanchokuWS.Handler
         /// <returns>キー入力を破棄する場合は true を返す。flase を返すとシステム側でキー入力処理が行われる</returns>
         private void keyboardUpHandler(bool bDecoderOn, uint vkey, bool leftCtrl, bool rightCtrl, uint modFlag)
         {
+            int dispatchedDeckey = determinerDeckeysByVkey._safeGet(vkey, -1);
+            if (dispatchedDeckey >= 0) determinerDeckeysByVkey.Remove(vkey);
+
             if (/*(bDecoderOn || currentPool.HasComboEffectiveAlways) &&*/
-                CombinationKeyStroke.DeterminerLib.KeyCombinationPool._Enabled &&  !leftCtrl && !rightCtrl && modFlag == 0) {
+                CombinationKeyStroke.DeterminerLib.KeyCombinationPool._Enabled &&
+                (dispatchedDeckey >= 0 || (!leftCtrl && !rightCtrl && modFlag == 0))) {
                 //int deckey = /* vkey == (int)Keys.Space ? DecoderKeys.STROKE_SPACE_DECKEY :*/ VKeyComboRepository.GetDecKeyFromCombo(0, normalDecKey); /* ここではまだ、Spaceはいったん文字として扱う */
-                int deckey = DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
+                int deckey = dispatchedDeckey >= 0 ? dispatchedDeckey : DecoderKeyVsVKey.GetDecKeyFromVKey(vkey);
                 if (deckey >= 0 && deckey < DecoderKeys.STROKE_DECKEY_END) {
                     if (Settings.LoggingDecKeyInfo) logger.Info(() => $"CALL Determiner.Singleton.KeyUp(deckey={deckey}, bDecoderOn={bDecoderOn})");
                     CombinationKeyStroke.Determiner.Singleton.KeyUp(deckey, bDecoderOn);

@@ -1729,6 +1729,7 @@ namespace KanchokuWS
                 if (frmSplash != null) closeSplash();
                 if (decoderPtr != IntPtr.Zero) ResetDecoder(decoderPtr);
                 CombinationKeyStroke.Determiner.Singleton.Clear();     // 同時打鍵キューのクリア
+                keHandler.Reinitialize();                              // HoldShiftなどキー入力の一時状態をクリア
                 decoderOutput.layout = 0;   // None にリセットしておく。これをやらないと仮想鍵盤モードを切り替えたときに以前の履歴選択状態が残ったりする
                 CommonState.CenterString = "";
                 Settings.VirtualKeyboardShowStrokeCountTemp = 0;
