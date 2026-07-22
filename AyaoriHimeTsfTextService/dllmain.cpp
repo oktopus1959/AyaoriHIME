@@ -2480,6 +2480,17 @@ private:
         }
         ITfContext* context = GetCurrentContext();
         if (!context) return E_FAIL;
+        if (!composition_ && operation == CompositionOperation::Update && IsTsfEmulatedContext(context)) {
+            ITfContext* fullContext = GetFullContext(context);
+            bool hasDistinctFullContext = fullContext && !IsSameComIdentity(context, fullContext);
+            if (fullContext) fullContext->Release();
+            if (!hasDistinctFullContext) {
+                RuntimeLog(L"CompositionOperation: reject CUAS before edit session id=%llu sequence=%llu",
+                    compositionId, sequence);
+                context->Release();
+                return E_NOTIMPL;
+            }
+        }
         if (!composition_ && operation == CompositionOperation::Update) {
             CaptureCompositionOrigin(context);
         }
