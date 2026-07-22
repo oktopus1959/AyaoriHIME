@@ -171,7 +171,18 @@ namespace KanchokuWS.Handler
         /// <summary>マウスボタン押下時のハンドラ</summary>
         private bool mouseButtonHandler(bool leftButton, bool rightButton)
         {
-            frmKanchoku?.CommitTsfCompositionBeforeExternalNavigation("mouse");
+            var form = frmKanchoku;
+            if (form == null || form.IsDisposed || !form.IsHandleCreated) return false;
+            try {
+                if (form.InvokeRequired) {
+                    form.Invoke(new Action(() => form.CommitTsfCompositionBeforeExternalNavigation("mouse")));
+                } else {
+                    form.CommitTsfCompositionBeforeExternalNavigation("mouse");
+                }
+            } catch (ObjectDisposedException) {
+                // 終了処理中はクリックをそのまま通す。
+            } catch (InvalidOperationException) {
+            }
             return false;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Utils;
 
 namespace KanchokuWS.Handler
@@ -29,6 +30,7 @@ namespace KanchokuWS.Handler
         private const int WM_RBUTTONDOWN = 0x0204;
         private const int WM_RBUTTONUP = 0x0205;
         private const int WM_MOUSEMOVE = 0x0200;
+        private const uint WM_QUIT = 0x0012;
 
         #region Win32API Structures
         [StructLayout(LayoutKind.Sequential)]
@@ -66,6 +68,18 @@ namespace KanchokuWS.Handler
             public uint time;
             public UIntPtr dwExtraInfo;
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MSG
+        {
+            public IntPtr hwnd;
+            public uint message;
+            public UIntPtr wParam;
+            public IntPtr lParam;
+            public uint time;
+            public POINT pt;
+            public uint lPrivate;
+        }
         #endregion
 
         #region Win32 Methods
@@ -90,6 +104,20 @@ namespace KanchokuWS.Handler
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern int GetMessage(out MSG message, IntPtr hWnd, uint minFilter, uint maxFilter);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool PeekMessage(out MSG message, IntPtr hWnd, uint minFilter, uint maxFilter, uint removeMessage);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool PostThreadMessage(uint threadId, uint message, UIntPtr wParam, IntPtr lParam);
+
+        [DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
         #endregion
 
         #region Delegate
@@ -102,6 +130,10 @@ namespace KanchokuWS.Handler
         private static IntPtr keyboardHookId = IntPtr.Zero;
         private static MouseProc mouseProc;
         private static IntPtr mouseHookId = IntPtr.Zero;
+        private static Thread mouseHookThread;
+        private static uint mouseHookThreadId;
+        private static ManualResetEventSlim mouseHookReady;
+        private static readonly object mouseHookSync = new object();
         private static readonly uint currentProcessId = (uint)Process.GetCurrentProcess().Id;
 #endregion
 
@@ -121,22 +153,83 @@ namespace KanchokuWS.Handler
         {
             if (keyboardHookId == IntPtr.Zero) {
                 keyboardProc = HookProcedure;
-                mouseProc = MouseHookCallback;
                 using (var curProcess = Process.GetCurrentProcess()) {
                     using (ProcessModule curModule = curProcess.MainModule) {
                         keyboardHookId = SetWindowsHookEx(WH_KEYBOARD_LL, keyboardProc, GetModuleHandle(curModule.ModuleName), 0);
-                        mouseHookId = SetWindowsHookEx(WH_MOUSE_LL, mouseProc, GetModuleHandle(curModule.ModuleName), 0);
                     }
                 }
             }
+            StartMouseHookThread();
         }
 
         public static void UnHook()
         {
             UnhookWindowsHookEx(keyboardHookId);
             keyboardHookId = IntPtr.Zero;
-            if (mouseHookId != IntPtr.Zero) UnhookWindowsHookEx(mouseHookId);
-            mouseHookId = IntPtr.Zero;
+            StopMouseHookThread();
+        }
+
+        private static void StartMouseHookThread()
+        {
+            lock (mouseHookSync) {
+                if (mouseHookThread != null && mouseHookThread.IsAlive) return;
+                mouseProc = MouseHookCallback;
+                mouseHookReady = new ManualResetEventSlim(false);
+                mouseHookThread = new Thread(MouseHookThreadMain) {
+                    IsBackground = true,
+                    Name = "AyaoriHIME mouse hook"
+                };
+                mouseHookThread.Start();
+            }
+            if (!mouseHookReady.Wait(1000)) logger.Error("Mouse hook thread did not start");
+        }
+
+        private static void StopMouseHookThread()
+        {
+            Thread thread;
+            uint threadId;
+            lock (mouseHookSync) {
+                thread = mouseHookThread;
+                threadId = mouseHookThreadId;
+                if (mouseHookId != IntPtr.Zero) UnhookWindowsHookEx(mouseHookId);
+                mouseHookId = IntPtr.Zero;
+                if (threadId != 0) PostThreadMessage(threadId, WM_QUIT, UIntPtr.Zero, IntPtr.Zero);
+            }
+            if (thread != null && thread != Thread.CurrentThread) thread.Join(1000);
+            lock (mouseHookSync) {
+                mouseHookThread = null;
+                mouseHookThreadId = 0;
+                mouseHookReady?.Dispose();
+                mouseHookReady = null;
+                mouseProc = null;
+            }
+        }
+
+        private static void MouseHookThreadMain()
+        {
+            mouseHookThreadId = GetCurrentThreadId();
+            PeekMessage(out _, IntPtr.Zero, 0, 0, 0);
+            using (var curProcess = Process.GetCurrentProcess()) {
+                using (ProcessModule curModule = curProcess.MainModule) {
+                    mouseHookId = SetWindowsHookEx(WH_MOUSE_LL, mouseProc, GetModuleHandle(curModule.ModuleName), 0);
+                }
+            }
+            int installError = mouseHookId == IntPtr.Zero ? Marshal.GetLastWin32Error() : 0;
+            mouseHookReady.Set();
+            if (mouseHookId == IntPtr.Zero) {
+                logger.Error($"Mouse hook installation failed: {installError}");
+                return;
+            }
+
+            IntPtr installedHook = mouseHookId;
+            try {
+                MSG message;
+                while (GetMessage(out message, IntPtr.Zero, 0, 0) > 0) {
+                }
+            } finally {
+                UnhookWindowsHookEx(installedHook);
+                if (mouseHookId == installedHook) mouseHookId = IntPtr.Zero;
+            }
         }
 
         public class OriginalKeyEventArg : EventArgs
