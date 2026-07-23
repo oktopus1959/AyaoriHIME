@@ -102,6 +102,16 @@ static void RuntimeLog(const wchar_t* format, ...)
     ReleaseSRWLockExclusive(&g_runtimeLogLock);
 }
 
+static void RestartCurrentThreadCaretBlink()
+{
+    GUITHREADINFO info = {};
+    info.cbSize = sizeof(info);
+    if (!GetGUIThreadInfo(GetCurrentThreadId(), &info) || !info.hwndCaret) return;
+
+    // HideCaret/ShowCaretは累積するため、HideCaret成功時だけ対で呼び出す。
+    if (HideCaret(info.hwndCaret)) ShowCaret(info.hwndCaret);
+}
+
 static bool IsSameComIdentity(IUnknown* left, IUnknown* right)
 {
     if (left == right) return true;
@@ -1060,8 +1070,10 @@ private:
         if (SUCCEEDED(hr)) {
             TF_SELECTION selection = {};
             selection.range = selectionRange;
-            selection.style.ase = TF_AE_END;
+            selection.style.ase = TF_AE_NONE;
+            selection.style.fInterimChar = FALSE;
             hr = context_->SetSelection(ec, 1, &selection);
+            if (SUCCEEDED(hr)) RestartCurrentThreadCaretBlink();
         }
         RuntimeLog(L"CompositionEditSession: SetCaret offset=%ld hr=0x%08X", caretOffset_, static_cast<unsigned int>(hr));
         acp->Release();
