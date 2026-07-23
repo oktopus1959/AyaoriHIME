@@ -466,9 +466,6 @@ IMEを利用していて、Spaceでフラッシュと同時にかな漢字変換
 
 キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
   </data>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
   <data name="checkBox_eisuModeEnabled.ToolTip" xml:space="preserve">
     <value>この項目がチェックされている場合、通常シフトなどで英大文字を入力すると
 英数字の直接入力モードに移行します。

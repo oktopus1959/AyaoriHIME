@@ -499,6 +499,7 @@ namespace KanchokuWS.Gui
             this.checkBox_bushuDicLogEnabled = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.textBox_simpleDicEntryRO = new Utils.TextBoxRO();
             this.tabControl1.SuspendLayout();
             this.tabPage_basic.SuspendLayout();
             this.groupBox9.SuspendLayout();
@@ -3407,6 +3408,7 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_simpleDic
             // 
+            this.tabPage_simpleDic.Controls.Add(this.textBox_simpleDicEntryRO);
             this.tabPage_simpleDic.Controls.Add(this.groupBox33);
             this.tabPage_simpleDic.Controls.Add(this.groupBox37);
             this.tabPage_simpleDic.Controls.Add(this.groupBox7);
@@ -3777,6 +3779,7 @@ namespace KanchokuWS.Gui
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_simpleDicEntry.Location = new System.Drawing.Point(16, 18);
             this.textBox_simpleDicEntry.Name = "textBox_simpleDicEntry";
+            this.textBox_simpleDicEntry.ReadOnly = true;
             this.textBox_simpleDicEntry.Size = new System.Drawing.Size(285, 23);
             this.textBox_simpleDicEntry.TabIndex = 0;
             this.toolTip1.SetToolTip(this.textBox_simpleDicEntry, "簡易辞書検索の対象となるエントリを登録します。\r\n\r\nここでは任意の文字列を登録することが可能です。\r\n\r\n半角の「|」を含む文字列を登録すると、「|」の前の部分" +
@@ -6229,6 +6232,17 @@ namespace KanchokuWS.Gui
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // textBox_simpleDicEntryRO
+            // 
+            this.textBox_simpleDicEntryRO.actionOnPaste = null;
+            this.textBox_simpleDicEntryRO.Location = new System.Drawing.Point(403, 274);
+            this.textBox_simpleDicEntryRO.Name = "textBox_simpleDicEntryRO";
+            this.textBox_simpleDicEntryRO.Size = new System.Drawing.Size(285, 23);
+            this.textBox_simpleDicEntryRO.TabIndex = 39;
+            this.textBox_simpleDicEntryRO.TabStop = false;
+            this.toolTip1.SetToolTip(this.textBox_simpleDicEntryRO, "ここに、簡易辞書検索の対象となる文字列をペーストします。\r\n\r\nここでは任意の文字列を登録することが可能です。\r\n\r\n半角の「|」を含む文字列を登録すると、「|」" +
+        "の前の部分を\r\n短縮形(abbreviation)として扱うようになります。\r\n短縮形の場合は、「|」より後の部分が本体文字列となります。");
+            // 
             // DlgSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -6819,5 +6833,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.TextBox textBox_romanDefFile;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Button button_openRomanDefFile;
+        private Utils.TextBoxRO textBox_simpleDicEntryRO;
     }
 }

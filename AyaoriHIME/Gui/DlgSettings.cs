@@ -1988,7 +1988,7 @@ namespace KanchokuWS.Gui
         private void button_enterSimpleDic_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            var line = textBox_simpleDicEntry.Text.Trim().Replace(" ", "");
+            var line = textBox_simpleDicEntryRO.Text.Trim().Replace(" ", "");
             if (line._notEmpty()) {
                 //FrmMain?.ExecCmdDecoder("addHistEntry", line);
                 frmMain?.AddHistEntry(line);
