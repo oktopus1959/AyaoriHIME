@@ -112,6 +112,17 @@ static void RestartCurrentThreadCaretBlink()
     if (HideCaret(info.hwndCaret)) ShowCaret(info.hwndCaret);
 }
 
+static bool IsAyaoriHimeHostProcess()
+{
+    wchar_t modulePath[32768] = {};
+    DWORD length = GetModuleFileNameW(nullptr, modulePath, _countof(modulePath));
+    if (length == 0 || length >= _countof(modulePath)) return false;
+
+    const wchar_t* fileName = wcsrchr(modulePath, L'\\');
+    fileName = fileName ? fileName + 1 : modulePath;
+    return _wcsicmp(fileName, L"AyaoriHIME.exe") == 0;
+}
+
 static bool IsSameComIdentity(IUnknown* left, IUnknown* right)
 {
     if (left == right) return true;
@@ -1725,6 +1736,10 @@ private:
         if (!ptim) {
             RuntimeLog(L"Activate: ITfThreadMgr is null");
             return E_INVALIDARG;
+        }
+        if (IsAyaoriHimeHostProcess()) {
+            RuntimeLog(L"Activate: disabled for AyaoriHIME host process");
+            return S_OK;
         }
         RuntimeLog(L"Activate: clientId=%lu flags=0x%08X console=%d", tid, flags,
             (flags & TF_TMAE_CONSOLE) != 0);
