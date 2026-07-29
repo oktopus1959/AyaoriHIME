@@ -266,7 +266,9 @@ namespace dict {
             if (!containsKanji && (!includeHiragana || !isHiragana)) {
                 continue;
             }
-            result.costSum += cost(normalized[i], normalized[i + 1], normalized[i + 2]);
+            const int windowCost = cost(normalized[i], normalized[i + 1], normalized[i + 2]);
+            // 3gram窓の末尾が漢字の場合は、当該窓のマルコフコストを半減する。
+            result.costSum += utils::is_kanji(normalized[i + 2]) ? windowCost / 2 : windowCost;
             ++result.validWindowCount;
         }
         LOG_DEBUGH(L"validWindowCount={}, costSum={}", result.validWindowCount, result.costSum);
