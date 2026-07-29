@@ -62,6 +62,7 @@ namespace analyzer {
 
         int cost_factor_;
         int char3gramWeight_;
+        double char3gramTailKanjiCostDecayRate_;
         double char4gramWeight_;
         Map<String, bool> exactMatchCache;
 
@@ -71,14 +72,17 @@ namespace analyzer {
             tokenizer(MakeUniq<Tokenizer>(opts)),
             cost_factor_(opts->getInt(L"cost-factor", 800)),
             char3gramWeight_(opts->getInt(L"char-3gram-weight", 1)),
+            char3gramTailKanjiCostDecayRate_(opts->getDouble(L"char-3gram-tail-kanji-cost-decay-rate", 0.5)),
             char4gramWeight_(opts->getDouble(L"char-4gram-weight", 0.5))
         {
-            LOG_INFOH(L"ENTER: cost_factor_={}, char3gramWeight_={}, char4gramWeight_={}",
-                cost_factor_, char3gramWeight_, char4gramWeight_);
+            LOG_INFOH(L"ENTER: cost_factor_={}, char3gramWeight_={}, char3gramTailKanjiCostDecayRate_={}, char4gramWeight_={}",
+                cost_factor_, char3gramWeight_, char3gramTailKanjiCostDecayRate_, char4gramWeight_);
             CHECK_OR_THROW(!tokenizer->getDictionaries().empty(), L"Dictionary is empty");
-            CHECK_OR_THROW(char3gramWeight_ >= 0 && std::isfinite(char4gramWeight_) && char4gramWeight_ >= 0,
-                L"character n-gram weights must be non-negative: 3gram={}, 4gram={}",
-                char3gramWeight_, char4gramWeight_);
+            CHECK_OR_THROW(char3gramWeight_ >= 0 && std::isfinite(char3gramTailKanjiCostDecayRate_) &&
+                char3gramTailKanjiCostDecayRate_ >= 0 && char3gramTailKanjiCostDecayRate_ <= 1 &&
+                std::isfinite(char4gramWeight_) && char4gramWeight_ >= 0,
+                L"invalid character n-gram parameters: 3gram={}, tailKanjiDecayRate={}, 4gram={}",
+                char3gramWeight_, char3gramTailKanjiCostDecayRate_, char4gramWeight_);
 
             const auto dicdir = opts->getString(L"dicdir", L".");
             if (char3gramWeight_ > 0) {
@@ -552,7 +556,7 @@ namespace analyzer {
         int userNgramPenalty = RealtimeDict::getUserNgramPenalty(sentence);
         const bool char3gramHiraganaEnabled = pImpl->char4gramWeight_ == 0;
         const auto markov3 = pImpl->char3gram
-            ? pImpl->char3gram->score(sentence, char3gramHiraganaEnabled)
+            ? pImpl->char3gram->score(sentence, char3gramHiraganaEnabled, pImpl->char3gramTailKanjiCostDecayRate_)
             : dict::Char3gram::ScoreResult{};
         const auto markov4 = pImpl->char4gram ? pImpl->char4gram->score(sentence) : dict::Char4gram::ScoreResult{};
         const auto weightedAverage = [](long double weight, int64_t sum, int windowCount) {
@@ -571,11 +575,11 @@ namespace analyzer {
         const int totalCost = static_cast<int>(std::clamp<int64_t>(totalCost64, 0, std::numeric_limits<int>::max()));
         const StringRef normalized = !markov3.normalized.empty() ? markov3.normalized : markov4.normalized;
         LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}, normalized={}, "
-            L"char3gramWeight={}, char3gramHiraganaEnabled={}, char3gramWindows={}, char3gramCostSum={}, char3gramCost={}, "
+            L"char3gramWeight={}, char3gramTailKanjiCostDecayRate={}, char3gramHiraganaEnabled={}, char3gramWindows={}, char3gramCostSum={}, char3gramCost={}, "
             L"char4gramWeight={}, char4gramTargetWindows={}, char4gramMatchedWindows={}, "
             L"char4gramBonusSum={}, char4gramBonus={}",
             totalCost, baseCost, morphPenalty, userNgramPenalty, normalized,
-            pImpl->char3gramWeight_, char3gramHiraganaEnabled,
+            pImpl->char3gramWeight_, pImpl->char3gramTailKanjiCostDecayRate_, char3gramHiraganaEnabled,
             markov3.validWindowCount, markov3.costSum, char3gramCost,
             pImpl->char4gramWeight_, markov4.targetWindowCount, markov4.matchedWindowCount,
             markov4.bonusSum, char4gramBonus);

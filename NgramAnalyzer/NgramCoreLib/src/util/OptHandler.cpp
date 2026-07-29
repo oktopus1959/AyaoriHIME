@@ -26,6 +26,7 @@ namespace {
         Vector<String>({L"b/hiragana-bigram",              L"", L"hiragana bigram enabled"}),
         Vector<String>({L"b/hiragana-quadgram",            L"", L"hiragana 4-gram enabled"}),
         Vector<String>({L"char-3gram-weight:INT",          L"1", L"set character 3-gram weight (default 1)"}),
+        Vector<String>({L"char-3gram-tail-kanji-cost-decay-rate:FLOAT", L"0.5", L"set character 3-gram tail kanji cost decay rate (default 0.5)"}),
         Vector<String>({L"char-4gram-weight:FLOAT",        L"0.5", L"set character 4-gram bonus factor (default 0.5)"}),
         Vector<String>({L"c/cost-factor:INT",           L"700", L"set cost factor (default 700)"}),
         Vector<String>({L"?/non-terminal-cost:INT",        L"10000", L"set non terminal word cost (default 10000)"}),

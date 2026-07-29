@@ -236,7 +236,7 @@ namespace dict {
         return entryIt == lastEntry || entryIt->next != nextId ? contextIt->missingCost : entryIt->cost;
     }
 
-    Char3gram::ScoreResult Char3gram::score(StringRef sentence, bool includeHiragana) const {
+    Char3gram::ScoreResult Char3gram::score(StringRef sentence, bool includeHiragana, double tailKanjiCostDecayRate) const {
         ScoreResult result;
         if (!loaded()) return result;
 
@@ -267,8 +267,10 @@ namespace dict {
                 continue;
             }
             const int windowCost = cost(normalized[i], normalized[i + 1], normalized[i + 2]);
-            // 3gram窓の末尾が漢字の場合は、当該窓のマルコフコストを半減する。
-            result.costSum += utils::is_kanji(normalized[i + 2]) ? windowCost / 2 : windowCost;
+            // 3gram窓の末尾が漢字の場合は、当該窓のマルコフコストに減衰率を適用する。
+            result.costSum += utils::is_kanji(normalized[i + 2])
+                ? static_cast<int>(windowCost * tailKanjiCostDecayRate)
+                : windowCost;
             ++result.validWindowCount;
         }
         LOG_DEBUGH(L"validWindowCount={}, costSum={}", result.validWindowCount, result.costSum);

@@ -21,12 +21,15 @@ namespace NgramBridge {
 
         std::vector<const wchar_t*> av;
         String char3gramWeight = std::to_wstring(SETTINGS->char3gramWeight);
+        String char3gramTailKanjiCostDecayRate = std::to_wstring(SETTINGS->char3gramTailKanjiCostDecayRate);
         String char4gramWeight = std::to_wstring(SETTINGS->char4gramWeight);
         av.push_back(L"ngramer");
         av.push_back(L"-d");
         av.push_back(dicdir.c_str());
         av.push_back(L"--char-3gram-weight");
         av.push_back(char3gramWeight.c_str());
+        av.push_back(L"--char-3gram-tail-kanji-cost-decay-rate");
+        av.push_back(char3gramTailKanjiCostDecayRate.c_str());
         av.push_back(L"--char-4gram-weight");
         av.push_back(char4gramWeight.c_str());
         if (SETTINGS->hiraganaBigramEnabled) {
