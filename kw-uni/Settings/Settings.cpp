@@ -155,7 +155,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(morphNonTerminalCost);
     SET_INT_VALUE(analyzeMorphLen);
     SET_INT_VALUE(ngramCostFactor);
-    SET_INT_VALUE(char3gramWeight);
+    SET_DOUBLE_VALUE(char3gramWeight);
     SET_DOUBLE_VALUE(char3gramTailKanjiCostDecayRate);
     SET_DOUBLE_VALUE(char4gramWeight);
     SET_INT_VALUE(ngramMaxBonusPoint);

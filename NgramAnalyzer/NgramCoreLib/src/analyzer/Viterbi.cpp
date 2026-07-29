@@ -61,7 +61,7 @@ namespace analyzer {
         Char4gramPtr char4gram;
 
         int cost_factor_;
-        int char3gramWeight_;
+        double char3gramWeight_;
         double char3gramTailKanjiCostDecayRate_;
         double char4gramWeight_;
         Map<String, bool> exactMatchCache;
@@ -71,14 +71,14 @@ namespace analyzer {
             opts(opts),
             tokenizer(MakeUniq<Tokenizer>(opts)),
             cost_factor_(opts->getInt(L"cost-factor", 800)),
-            char3gramWeight_(opts->getInt(L"char-3gram-weight", 1)),
+            char3gramWeight_(opts->getDouble(L"char-3gram-weight", 1.0)),
             char3gramTailKanjiCostDecayRate_(opts->getDouble(L"char-3gram-tail-kanji-cost-decay-rate", 0.5)),
             char4gramWeight_(opts->getDouble(L"char-4gram-weight", 0.5))
         {
             LOG_INFOH(L"ENTER: cost_factor_={}, char3gramWeight_={}, char3gramTailKanjiCostDecayRate_={}, char4gramWeight_={}",
                 cost_factor_, char3gramWeight_, char3gramTailKanjiCostDecayRate_, char4gramWeight_);
             CHECK_OR_THROW(!tokenizer->getDictionaries().empty(), L"Dictionary is empty");
-            CHECK_OR_THROW(char3gramWeight_ >= 0 && std::isfinite(char3gramTailKanjiCostDecayRate_) &&
+            CHECK_OR_THROW(std::isfinite(char3gramWeight_) && char3gramWeight_ >= 0 && std::isfinite(char3gramTailKanjiCostDecayRate_) &&
                 char3gramTailKanjiCostDecayRate_ >= 0 && char3gramTailKanjiCostDecayRate_ <= 1 &&
                 std::isfinite(char4gramWeight_) && char4gramWeight_ >= 0,
                 L"invalid character n-gram parameters: 3gram={}, tailKanjiDecayRate={}, 4gram={}",
