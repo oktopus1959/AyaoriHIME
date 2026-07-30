@@ -83,14 +83,12 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(useArrowToSelCand);
     SET_BOOL_VALUE(selectHistCandByTab);
 
-    SET_BOOL_VALUE(mazeHistRegisterAnyway);
     SET_BOOL_VALUE(mazegakiSelectFirstCand);
     SET_BOOL_VALUE(mazeBlockerTail);
     SET_BOOL_VALUE(mazeRemoveHeadSpace);
     SET_BOOL_VALUE(mazeRightShiftYomiPos);
     SET_BOOL_VALUE(mazeNoIfxConnectKanji);
     SET_BOOL_VALUE(mazeNoIfxConnectAny);
-    SET_INT_VALUE(mazeHistRegisterMinLen);
     SET_INT_VALUE(mazeYomiMaxLen);
     SET_INT_VALUE(mazeGobiMaxLen);
     SET_INT_VALUE(mazeNoIfxGobiMaxLen);

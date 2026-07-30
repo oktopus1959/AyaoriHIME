@@ -50,9 +50,6 @@ struct Settings {
     //bool handleShiftSpaceAsNormalSpace = true;    // Shift-Space を通常の Space として扱う (ただし histSearchByShiftSpace が優先)
 
     bool histGatherAllCandidates = true;    // キーの開始位置をずらして全履歴候補を取得するか
-    bool mazeHistRegisterAnyway = false;    // 交ぜ書き変換での選択を強制的に履歴登録する(除外登録されていたら復活する)
-    size_t mazeHistRegisterMinLen = 2;      // 交ぜ書き変換での選択を履歴登録する際の最小長
-
     //bool mazegakiByShiftSpace = true;       // Shift-Space で交ぜ書き変換
     bool mazegakiSelectFirstCand = false;   // 交ぜ書き変換で先頭の候補を自動選択
     bool mazeBlockerTail = true;            // 交ぜ書き変換で、変換後のブロッカーの位置
