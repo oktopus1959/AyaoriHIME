@@ -29,8 +29,6 @@ void FunctionNodeManager::AddFunctionNodeBuilders() {
     //addFunctionNodeBuilder(_T("M"), _T("mazegaki"), new MazegakiNodeBuilder());
     //addFunctionNodeBuilder(_T("m"), _T("mazegaki"), new MazegakiNodeBuilder());
     addFunctionNodeBuilder(_T("!"), _T("history"), new HistoryNodeBuilder());
-    addFunctionNodeBuilder(_T("1"), _T("historyOneChar"), new HistoryOneCharNodeBuilder());
-    addFunctionNodeBuilder(_T("?"), _T("historyFewChars"), new HistoryFewCharsNodeBuilder());
     addFunctionNodeBuilder(_T("\\"), _T("nextThrough"), new EscapeNodeBuilder());
     addFunctionNodeBuilder(_T("\\\\"), _T("nextThrough"), new EscapeNodeBuilder());
     addFunctionNodeBuilder(_T("Z"), _T("zenkakuMode"), new ZenkakuNodeBuilder());
@@ -45,4 +43,3 @@ void FunctionNodeManager::AddFunctionNodeBuilders() {
     addFunctionNodeBuilder(_T("゜"), _T("handakutenOneShot"), new HanDakutenOneShotNodeBuilder());
     //addFunctionNodeBuilder(_T("Z"), new TemplateNodeBuilder());
 }
-

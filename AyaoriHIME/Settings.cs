@@ -671,16 +671,6 @@ namespace KanchokuWS
         public static string HistoryKeySeq_PropName = "historyKeySeq"; 
         public static string HistoryKeySeq_Preset { get; set; }
 
-        /// <summary>履歴検索(1文字)を呼び出す打鍵列</summary>
-        public static string HistoryOneCharKeySeq { get; set; }
-        public static string HistoryOneCharKeySeq_PropName = "historyOneCharKeySeq"; 
-        public static string HistoryOneCharKeySeq_Preset { get; set; }
-
-        /// <summary>履歴検索(1～3文字)を呼び出す打鍵列</summary>
-        public static string HistoryFewCharsKeySeq { get; set; }
-        public static string HistoryFewCharsKeySeq_PropName = "historyFewCharsKeySeq"; 
-        public static string HistoryFewCharsKeySeq_Preset { get; set; }
-
         /// <summary>交ぜ書きを呼び出す打鍵列</summary>
         public static string MazegakiKeySeq { get; set; }
         public static string MazegakiKeySeq_PropName = "mazegakiKeySeq"; 
@@ -1440,8 +1430,6 @@ namespace KanchokuWS
                 ZenkakuOneCharKeySeq_Preset = "";
                 NextThroughKeySeq_Preset = "";
                 HistoryKeySeq_Preset = "";
-                HistoryOneCharKeySeq_Preset = "";
-                HistoryFewCharsKeySeq_Preset = "";
                 MazegakiKeySeq_Preset = "";
                 BushuCompKeySeq_Preset = "";
                 BushuAssocKeySeq_Preset = "";
@@ -1983,10 +1971,6 @@ namespace KanchokuWS
             if (NextThroughKeySeq._notEmpty()) FunctionKeySeqSet.Add(NextThroughKeySeq);
             HistoryKeySeq = addDecoderKeySeqSetting(HistoryKeySeq_PropName);
             if (HistoryKeySeq._notEmpty()) FunctionKeySeqSet.Add(HistoryKeySeq);
-            HistoryOneCharKeySeq = addDecoderKeySeqSetting(HistoryOneCharKeySeq_PropName);
-            if (HistoryOneCharKeySeq._notEmpty()) FunctionKeySeqSet.Add(HistoryOneCharKeySeq);
-            HistoryFewCharsKeySeq = addDecoderKeySeqSetting(HistoryFewCharsKeySeq_PropName);
-            if (HistoryFewCharsKeySeq._notEmpty()) FunctionKeySeqSet.Add(HistoryFewCharsKeySeq);
             MazegakiKeySeq = addDecoderKeySeqSetting(MazegakiKeySeq_PropName);
             if (MazegakiKeySeq._notEmpty()) FunctionKeySeqSet.Add(MazegakiKeySeq);
             BushuCompKeySeq = addDecoderKeySeqSetting(BushuCompKeySeq_PropName);

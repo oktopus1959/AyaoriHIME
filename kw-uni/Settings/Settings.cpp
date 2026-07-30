@@ -173,8 +173,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     RESET_STROKE_FUNC("zenkakuOneChar");
     RESET_STROKE_FUNC("nextThrough");
     RESET_STROKE_FUNC("history");
-    RESET_STROKE_FUNC("historyOneChar");
-    RESET_STROKE_FUNC("historyFewChars");
     RESET_STROKE_FUNC("mazegaki");
     RESET_STROKE_FUNC("bushuComp");
     RESET_STROKE_FUNC("bushuAssoc");

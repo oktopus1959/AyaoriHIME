@@ -1736,10 +1736,6 @@ namespace KanchokuWS.Gui
             setEnabled(textBox_nextThroughKeySeq, Settings.NextThroughKeySeq_PropName);
             textBox_historyKeySeq.Text = Settings.HistoryKeySeq._orElse(() => makePresetString(Settings.HistoryKeySeq_Preset));
             setEnabled(textBox_historyKeySeq, Settings.HistoryKeySeq_PropName);
-            textBox_historyOneCharKeySeq.Text = Settings.HistoryOneCharKeySeq._orElse(() => makePresetString(Settings.HistoryOneCharKeySeq_Preset));
-            setEnabled(textBox_historyOneCharKeySeq, Settings.HistoryOneCharKeySeq_PropName);
-            textBox_historyFewCharsKeySeq.Text = Settings.HistoryFewCharsKeySeq._orElse(() => makePresetString(Settings.HistoryFewCharsKeySeq_Preset));
-            setEnabled(textBox_historyFewCharsKeySeq, Settings.HistoryFewCharsKeySeq_PropName);
             textBox_bushuCompKeySeq.Text = Settings.BushuCompKeySeq._orElse(() => makePresetString(Settings.BushuCompKeySeq_Preset));
             setEnabled(textBox_bushuCompKeySeq, Settings.BushuCompKeySeq_PropName);
             textBox_bushuAssocKeySeq.Text = Settings.BushuAssocKeySeq._orElse(() => makePresetString(Settings.BushuAssocKeySeq_Preset));
@@ -1775,8 +1771,6 @@ namespace KanchokuWS.Gui
             checkerKeyAssign.Add(textBox_katakanaModeKeySeq);
             checkerKeyAssign.Add(textBox_nextThroughKeySeq);
             checkerKeyAssign.Add(textBox_historyKeySeq);
-            checkerKeyAssign.Add(textBox_historyOneCharKeySeq);
-            checkerKeyAssign.Add(textBox_historyFewCharsKeySeq);
             checkerKeyAssign.Add(textBox_bushuCompKeySeq);
             checkerKeyAssign.Add(textBox_bushuAssocKeySeq);
             checkerKeyAssign.Add(textBox_bushuAssocDirectKeySeq);
@@ -1811,8 +1805,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("katakanaModeKeySeq", revertPresetString(textBox_katakanaModeKeySeq.Text));
             Settings.SetUserIni("nextThroughKeySeq", revertPresetString(textBox_nextThroughKeySeq.Text));
             Settings.SetUserIni("historyKeySeq", revertPresetString(textBox_historyKeySeq.Text));
-            Settings.SetUserIni("historyOneCharKeySeq", revertPresetString(textBox_historyOneCharKeySeq.Text));
-            Settings.SetUserIni("historyFewCharsKeySeq", revertPresetString(textBox_historyFewCharsKeySeq.Text));
             Settings.SetUserIni("bushuCompKeySeq", revertPresetString(textBox_bushuCompKeySeq.Text));
             Settings.SetUserIni("bushuAssocKeySeq", revertPresetString(textBox_bushuAssocKeySeq.Text));
             Settings.SetUserIni("bushuAssocDirectKeySeq", revertPresetString(textBox_bushuAssocDirectKeySeq.Text));
@@ -3041,4 +3033,3 @@ namespace KanchokuWS.Gui
 
     }
 }
-

@@ -583,12 +583,6 @@ namespace KanchokuWS.TableParser
                 case "!":   // history
                     Settings.HistoryKeySeq_Preset = chooseMinimalOne(Settings.HistoryKeySeq_Preset, strkList);
                     break;
-                case "1":   // historyOneChar
-                    Settings.HistoryOneCharKeySeq_Preset = chooseMinimalOne(Settings.HistoryOneCharKeySeq_Preset, strkList);
-                    break;
-                case "?":   // historyFewChars
-                    Settings.HistoryFewCharsKeySeq_Preset = chooseMinimalOne(Settings.HistoryFewCharsKeySeq_Preset, strkList);
-                    break;
                 case "\\":  // nextThrough
                     Settings.NextThroughKeySeq_Preset = chooseMinimalOne(Settings.NextThroughKeySeq_Preset, strkList);
                     break;

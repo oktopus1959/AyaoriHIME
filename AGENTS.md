@@ -78,6 +78,13 @@ AGENTS.d/permissions.md も参照のこと。
 - 実行時は 32bit Windows PowerShell を前提とする
 - settings 抽出元と trace 出力先は、既定では `src\kw-uni.log` を用いる
 
+## 許可コマンド（deckey ID 定義の同期)
+- `AyaoriHIME/Domain/DecoderKeys.cs` を変更した場合は、
+  `tools/make_deckey_id_def.sh` を実行して `kw-uni/KeysAndChars/deckey_id_defs.{cpp,h}` を更新してよい。
+- `tools/make_deckey_id_def.sh` の実行は、毎回ユーザー確認を取らなくてよい。
+- 実行後は生成された `deckey_id_defs.{cpp,h}` の差分を確認し、
+  `DecoderKeys.cs` の定義と一致していることを確認する。
+
 ## コマンド使用ルール
 
 - 推測や記憶に頼らず、上記コマンドを積極的に使用して事実を確認すること
