@@ -17,13 +17,13 @@ namespace {
         DECLARE_CLASS_LOGGER;
 
         // 履歴入力候補のリスト
-        HistResultList histCands;
+        SImpleDicResultList histCands;
 
         // 候補単語列
         //std::vector<MString> histWords;
-        std::vector<HistResult> histResults;
+        std::vector<SimpleDicResult> histResults;
 
-        HistResult emptyResult;
+        SimpleDicResult emptyResult;
 
         // 履歴検索中か
         bool isHistInSearch = false;
@@ -69,10 +69,10 @@ namespace {
             return selectPos > 0 && selectPos < (int)histResults.size();
         }
 
-        inline const HistResult getSelectedHist() const {
+        inline const SimpleDicResult getSelectedHist() const {
             int n = getSelectPos();
             int x = (int)(std::min(histCands.Size(), SETTINGS->histHorizontalCandMax));
-            return n >= 0 && n < x ? histCands.GetNthHist(n) : emptyResult;
+            return n >= 0 && n < x ? histCands.GetNthResult(n) : emptyResult;
         }
 
         inline const MString& getSelectedWord() const {
@@ -103,7 +103,7 @@ namespace {
         }
 
         // 指定のキーで始まる候補を取得する (len > 0 なら指定の長さの候補だけを取得, len < 0 なら Abs(len)以下の長さの候補を取得)
-        const std::vector<HistResult>& GetCandidates(const MString& key, bool bCheckMinKeyLen, int len,
+        const std::vector<SimpleDicResult>& GetCandidates(const MString& key, bool bCheckMinKeyLen, int len,
                                                      bool allowSingleAsciiHistMap = false) override {
             isHistInSearch = true;
             DelayedPushFrontSelectedWord();
@@ -111,7 +111,7 @@ namespace {
             currentAllowSingleAsciiHistMap = allowSingleAsciiHistMap;
             histCands = HISTORY_DIC->GetCandidates(key, currentKey, bCheckMinKeyLen, len, allowSingleAsciiHistMap);  // ここで currentKey は変更される (currentKey = resultKey)
             histResults.clear();
-            utils::append(histResults, histCands.GetHistories());
+            utils::append(histResults, histCands.GetResults());
             _LOG_DEBUGH(_T("cands num={}, new currentKey={}"), histResults.size(), to_wstr(currentKey));
             return histResults;
         }
@@ -125,14 +125,14 @@ namespace {
         }
 
         // 取得済みの候補列を返す
-        //const std::vector<HistResult>& GetCandidates() const override {
+        //const std::vector<SimpleDicResult>& GetCandidates() const override {
         //    return histResults;
         //}
 
         const std::vector<MString> GetCandWords() const override {
             _LOG_DEBUGH(_T("CALLED"));
             std::vector<MString> words;
-            utils::transform_append(histResults, words, [](const HistResult& res) { return res.Word; });
+            utils::transform_append(histResults, words, [](const SimpleDicResult& res) { return res.Word; });
             return words;
         }
 
@@ -141,19 +141,19 @@ namespace {
         }
 
         // 次の履歴を選択する
-        const HistResult GetNext() const override {
+        const SimpleDicResult GetNext() const override {
             incSelectPos();
             return getSelectedHist();
         }
 
         // 前の履歴を選択する
-        const HistResult GetPrev() const override {
+        const SimpleDicResult GetPrev() const override {
             decSelectPos();
             return getSelectedHist();
         }
 
         // 選択された単語を取得する
-        const HistResult GetPositionedHist(size_t pos) const override {
+        const SimpleDicResult GetPositionedHist(size_t pos) const override {
             _LOG_DEBUGH(_T("CALLED: selectPos={}"), pos);
             setSelectPos(pos);
             return getSelectedHist();
@@ -172,7 +172,7 @@ namespace {
         }
 
         // 選択位置を初期化(未選択状態)する
-        const HistResult ClearSelectPos() override {
+        const SimpleDicResult ClearSelectPos() override {
             _LOG_DEBUGH(_T("CALLED: nextSelect={}"), selectPos);
             resetSelectPos();
             return emptyResult;
@@ -190,7 +190,7 @@ namespace {
 
         // 取得済みの履歴入力候補リストから指定位置の候補を返す
         // 選択された候補は使用履歴の先頭に移動する
-        const HistResult SelectNth(size_t n) override {
+        const SimpleDicResult SelectNth(size_t n) override {
             _LOG_DEBUGH(_T("ENTER: n={}, histResults={}"), n, histResults.size());
             ClearSelectPos();
             if (n >= histResults.size()) {
@@ -198,7 +198,7 @@ namespace {
                 return emptyResult;
             }
 
-            HistResult result = histResults[n];
+            SimpleDicResult result = histResults[n];
             HISTORY_DIC->UseWord(result.Word);
             GetCandidates(currentKey, false, currentLen, currentAllowSingleAsciiHistMap);
             _LOG_DEBUGH(_T("LEAVE: OrigKey={}, Key={}, Word={}"), to_wstr(result.OrigKey), to_wstr(result.Key), to_wstr(result.Word));

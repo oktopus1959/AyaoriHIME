@@ -12,7 +12,7 @@
 #include "BushuDic.h"
 #include "BushuAssoc.h"
 #include "BushuAssocDic.h"
-#include "SimpleDic/SimpleDicDic.h"
+#include "SimpleDic/SimpleDictionary.h"
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughBushu)
 

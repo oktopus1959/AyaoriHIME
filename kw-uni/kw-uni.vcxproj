@@ -226,7 +226,7 @@
     <ClInclude Include="Settings\Settings.h" />
     <ClInclude Include="SimpleDic\SimpleDicCandidates.h" />
     <ClInclude Include="SimpleDic\SimpleDic.h" />
-    <ClInclude Include="SimpleDic\SimpleDicDic.h" />
+    <ClInclude Include="SimpleDic\SimpleDictionary.h" />
     <ClInclude Include="SimpleDic\SimpleDicStateBase.h" />
     <ClInclude Include="StartNode.h" />
     <ClInclude Include="StartState.h" />

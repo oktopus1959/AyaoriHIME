@@ -333,7 +333,7 @@
     <ClInclude Include="SimpleDic\SimpleDic.h">
       <Filter>ヘッダー ファイル\SimpleDic</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleDic\SimpleDicDic.h">
+    <ClInclude Include="SimpleDic\SimpleDictionary.h">
       <Filter>ヘッダー ファイル\SimpleDic</Filter>
     </ClInclude>
     <ClInclude Include="SimpleDic\SimpleDicStateBase.h">

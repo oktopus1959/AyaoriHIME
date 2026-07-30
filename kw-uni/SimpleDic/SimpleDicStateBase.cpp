@@ -53,7 +53,7 @@ namespace {
         }
 
         // 選択された履歴候補を出力(これが呼ばれた時点で、すでにキーの先頭まで巻き戻すように plannedNumBS が設定されていること)
-        void setOutString(const HistResult& result, MStringResult& resultStr) override {
+        void setOutString(const SimpleDicResult& result, MStringResult& resultStr) override {
             _LOG_DEBUGH(_T("ENTER: result.OrigKey={}, result.Key={}, result.Word={}, keyLen={}, wildKey={}, prevOutStr={}, prevKey={}, plannedNumBS={}"), \
                 to_wstr(result.OrigKey), to_wstr(result.Key), to_wstr(result.Word), result.KeyLen(), result.WildKey, \
                 to_wstr(STROKE_MERGER_NODE->GetPrevOutString()), to_wstr(STROKE_MERGER_NODE->GetPrevKey()), resultStr.numBS());
@@ -295,7 +295,7 @@ namespace {
 
             // 候補の選択
             _LOG_DEBUGH(_T("HIST_CAND->SelectNth()"));
-            HistResult result = HIST_CAND->SelectNth((deckey >= STROKE_SPACE_DECKEY ? 0 : deckey % LONG_KEY_NUM) + candDispHorizontalPos);
+            SimpleDicResult result = HIST_CAND->SelectNth((deckey >= STROKE_SPACE_DECKEY ? 0 : deckey % LONG_KEY_NUM) + candDispHorizontalPos);
             _LOG_DEBUGH(_T("result.Word={}, result.KeyLen={}"), to_wstr(result.Word), result.KeyLen());
             if (!result.Word.empty()) {
                 getLastHistKeyAndRewindOutput(resultStr);    // 前回の履歴検索キー取得と出力スタックの巻き戻し予約(numBackSpacesに値をセット)

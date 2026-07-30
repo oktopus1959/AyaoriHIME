@@ -1713,7 +1713,7 @@ namespace {
         }
 
         // 履歴結果出力 (bSetVKb = false なら、仮想鍵盤表示を履歴選択モードにしない; 英数モードから履歴検索をした直後のESCのケース)
-        void outputHistResult(const HistResult& result, bool bSetVkb) {
+        void outputHistResult(const SimpleDicResult& result, bool bSetVkb) {
             LOG_DEBUGH(_T("ENTER: {}: bSetVkb={}"), Name, bSetVkb);
             histBase->getLastHistKeyAndRewindOutput(resultStr);    // 前回の履歴検索キー取得と出力スタックの巻き戻し予約(numBackSpacesに値をセット)
 
@@ -1806,7 +1806,7 @@ void StrokeMergerHistoryNode::Initialize() {
     LOG_DEBUGH(_T("histFile={}"), histFile);
     // 履歴入力辞書の読み込み(ファイル名の指定がなくても辞書自体は構築する)
     LOG_DEBUGH(_T("CALLED: histFile={}, sysRomanFile={}"), histFile, sysRomanFile);
-    HistoryDic::CreateHistoryDic(histFile, sysRomanFile);
+    SimpleDictionary::CreateSimpleDictionary(histFile, sysRomanFile);
 
     SimpleDicCandidates::CreateSingleton();
 

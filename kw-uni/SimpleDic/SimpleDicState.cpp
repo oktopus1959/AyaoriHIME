@@ -339,7 +339,7 @@ Node* HistoryNodeBuilder::CreateNode() {
     ////}
     //// 履歴入力辞書の読み込み(ファイル名の指定がなくても辞書自体は構築する)
     //LOG_DEBUGH(_T("CALLED: histFile={}"), histFile);
-    //HistoryDic::CreateHistoryDic(histFile);
+    //SimpleDictionary::CreateSimpleDictionary(histFile);
 
     return HistoryNode::Singleton(true);
 }

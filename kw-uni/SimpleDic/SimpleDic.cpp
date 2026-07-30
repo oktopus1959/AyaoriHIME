@@ -8,12 +8,10 @@
 #include "Settings.h"
 #include "ErrorHandler.h"
 #include "OutputStack.h"
-#include "SimpleDicDic.h"
+#include "SimpleDictionary.h"
 #include "EasyChars.h"
 #include "StrokeHelp.h"
 #include "RomanToKatakana.h"
-
-#define _LOG_DEBUGH_FLAG (SETTINGS->debughHistory)
 
 #if 0
 #undef _DEBUG_SENT
@@ -92,7 +90,7 @@ namespace {
 
     // -------------------------------------------------------------------
     // 単語中の文字から、それを含む文字列のハッシュ値集合へのマップ
-    class HistCharDic {
+    class SimpleCharDic {
         std::map<mchar_t, std::set<HashVal>> dic;
 
         void insert(mchar_t mch, size_t hsh) {
@@ -133,14 +131,14 @@ namespace {
     };
 
     // 単語の先頭4文字を含むハッシュ値集合へのマップ
-    class Hist4CharsDic {
+    class Simple4CharsDic {
         DECLARE_CLASS_LOGGER;
 
         // 0～3文字目に指定文字を含む文字列ハッシュ集合のリスト
-        std::vector<HistCharDic> histCharDics;
+        std::vector<SimpleCharDic> histCharDics;
 
     public:
-        Hist4CharsDic() {
+        Simple4CharsDic() {
             histCharDics.resize(4);
         }
 
@@ -276,11 +274,11 @@ namespace {
             return 0;
         }
     };
-    DEFINE_CLASS_LOGGER(Hist4CharsDic);
+    DEFINE_CLASS_LOGGER(Simple4CharsDic);
 
     // -------------------------------------------------------------------
     // 使用された順に並べたリスト
-    class HistUsedList {
+    class SimpleDicUsedList {
         DECLARE_CLASS_LOGGER;
 
         const size_t MAX_SIZE = 10000;
@@ -384,7 +382,7 @@ namespace {
         // ・wlen == 0 なら単語長 >= 2
         // ・wlen >= 9 なら単語長 >= 9
         // ・ただし、キーが1文字(keylen==1)なら、候補列から1文字単語は除く
-        void ExtractUsedWords(const MString& key, HistResultList& outvec, std::set<MString>& set_, size_t wlen = 0) {
+        void ExtractUsedWords(const MString& key, SImpleDicResultList& outvec, std::set<MString>& set_, size_t wlen = 0) {
             LOG_DEBUG(_T("CALLED: key={}, wlen={}"), to_wstr(key), wlen);
             size_t keylen = key.size();
             _DEBUG_SENT(size_t n = 0);
@@ -395,12 +393,12 @@ namespace {
                         // キーが1文字なら、候補列から1文字単語は除く
                         _DEBUG_SENT(\
                             if (n < 10) { \
-                                _LOG_DEBUGH(_T("outvec.PushHistory(key={}, w={})"), to_wstr(key), to_wstr(w)); \
+                                _LOG_DEBUGH(_T("outvec.PushEntry(key={}, w={})"), to_wstr(key), to_wstr(w)); \
                             } else if (n == 10) { \
                                 _LOG_DEBUGH(_T("and {} entries..."), usedList.size() - 10); \
                             }\
                             ++n);
-                        outvec.PushHistory(key, w);
+                        outvec.PushEntry(key, w);
                         set_.erase(w);
                     }
                 }
@@ -408,7 +406,7 @@ namespace {
         }
 
         // 前半部が key に完全一致するhistMap候補だけを、最近使用した順で取得する
-        void ExtractExactHistMapWords(const MString& key, HistResultList& outvec, std::set<MString>& set_, size_t wlen = 0) {
+        void ExtractExactUsedMapWords(const MString& key, SImpleDicResultList& outvec, std::set<MString>& set_, size_t wlen = 0) {
             LOG_DEBUG(_T("CALLED: key={}, wlen={}"), to_wstr(key), wlen);
             size_t keylen = key.size();
             std::map<MString, MString> exactEntries;
@@ -424,7 +422,7 @@ namespace {
                 if (iter != exactEntries.end()) {
                     const auto& entry = iter->second;
                     if ((wlen > 0 && entry.size() == wlen) || (wlen == 0 && (keylen != 1 || entry.size() >= 2))) {
-                        outvec.PushHistory(key, entry);
+                        outvec.PushEntry(key, entry);
                     }
                     set_.erase(entry);
                     exactEntries.erase(iter);
@@ -438,7 +436,7 @@ namespace {
         // ・maxlen == 0 なら単語長 >= 2
         // ・1 <= maxlen <= 3 なら難打鍵文字を含むものだけ
         // ・maxlen >= 9 なら単語長 >= 9
-        void ExtractUsedWords(const MString& key, HistResultList& outvec, size_t n, size_t minlen = 0, size_t maxlen = 0) {
+        void ExtractUsedWords(const MString& key, SImpleDicResultList& outvec, size_t n, size_t minlen = 0, size_t maxlen = 0) {
             LOG_DEBUG(_T("CALLED: size={}, minlen={}, maxlen={}"), n, minlen, maxlen);
             auto checkCond = [minlen, maxlen](const MString& w) {
                 if (w.size() >= minlen && w.size() <= maxlen && (maxlen > 3 || !EASY_CHARS->AllContainedIn(w))) return true;
@@ -449,8 +447,8 @@ namespace {
             size_t i = 0;
             for (const auto& w : usedList) {
                 if (w != key && checkCond(w)) {
-                    _LOG_DEBUGH_COND((i < 10), _T("outvec.PushHistory(key={}, w={})"), to_wstr(key), to_wstr(w));
-                    outvec.PushHistory(key, w);
+                    _LOG_DEBUGH_COND((i < 10), _T("outvec.PushEntry(key={}, w={})"), to_wstr(key), to_wstr(w));
+                    outvec.PushEntry(key, w);
                     if (++i >= n) break;
                 }
             }
@@ -480,11 +478,11 @@ namespace {
         }
 
     };
-    DEFINE_CLASS_LOGGER(HistUsedList);
+    DEFINE_CLASS_LOGGER(SimpleDicUsedList);
 
     // -------------------------------------------------------------------
     // 複数候補があるケースで先頭候補を並べたリスト
-    class HistHeadCandList {
+    class SimpleDicHeadCandList {
         DECLARE_CLASS_LOGGER;
 
         const size_t MAX_SIZE = 10000;
@@ -498,7 +496,7 @@ namespace {
             headCandList.push_back(word);
         }
 
-        void ExtractHeadWord(const MString& key, HistResultList& outvec, std::set<MString>& set_) {
+        void ExtractHeadWord(const MString& key, SImpleDicResultList& outvec, std::set<MString>& set_) {
             LOG_DEBUG(_T("CALLED: key={}"), to_wstr(key));
             _DEBUG_SENT(size_t n = 0);
             for (const auto& w : headCandList) {
@@ -506,23 +504,23 @@ namespace {
                     // キーが1文字なら、候補列から1文字単語は除く
                     _DEBUG_SENT(\
                         if (n < 10) { \
-                            _LOG_DEBUGH(_T("outvec.PushHistory(key={}, w={})"), to_wstr(key), to_wstr(w)); \
+                            _LOG_DEBUGH(_T("outvec.PushEntry(key={}, w={})"), to_wstr(key), to_wstr(w)); \
                         } else if (n == 10) { \
                             _LOG_DEBUGH(_T("and {} entries..."), headCandList.size() - 10); \
                         }\
                         ++n);
-                    outvec.PushHistory(key, w);
+                    outvec.PushEntry(key, w);
                     set_.erase(w);
                 }
             }
         }
 
     };
-    DEFINE_CLASS_LOGGER(HistHeadCandList);
+    DEFINE_CLASS_LOGGER(SimpleDicHeadCandList);
 
     // -------------------------------------------------------------------
     // 除外する履歴を並べたリスト
-    class HistExcludeList {
+    class SimpleDicExcludeList {
         DECLARE_CLASS_LOGGER;
         std::set<MString> exclSet;
 
@@ -575,7 +573,7 @@ namespace {
             return bDirty;
         }
     };
-    DEFINE_CLASS_LOGGER(HistExcludeList);
+    DEFINE_CLASS_LOGGER(SimpleDicExcludeList);
 
     // -------------------------------------------------------------------
     // Nグラム頻度辞書
@@ -680,21 +678,21 @@ namespace {
 
     // -------------------------------------------------------------------
     // 履歴辞書の実装クラス
-    class HistoryDicImpl : public HistoryDic {
+    class SimpleDictionaryImpl : public SimpleDictionary {
     private:
         DECLARE_CLASS_LOGGER;
         // 0～3文字目に指定文字を含む文字列ハッシュ集合のリスト
-        Hist4CharsDic hist4CharsDic;
+        Simple4CharsDic hist4CharsDic;
 
-        HistUsedList usedList;
+        SimpleDicUsedList usedList;
 
-        HistHeadCandList romanPriorityList;
+        SimpleDicHeadCandList romanPriorityList;
 
-        HistExcludeList exclList;
+        SimpleDicExcludeList exclList;
 
         // 結果を保持しておくリスト
-        //std::vector<HistResult> resultList;
-        HistResultList resultList;
+        //std::vector<SimpleDicResult> resultList;
+        SImpleDicResultList resultList;
 
         NgramFreqDic ngramDic;
 
@@ -702,7 +700,7 @@ namespace {
 
     private:
         // 一行の辞書ソース文字列を解析して辞書に登録する
-        bool addHistDicEntry(const MString& line, size_t minlen = 2, bool bForce = false) {
+        bool addOneEntry(const MString& line, size_t minlen = 2, bool bForce = false) {
             LOG_DEBUG(_T("ENTER: line={}, minlen={}"), to_wstr(line), minlen);
             auto word = utils::strip(line);
             LOG_DEBUG(_T("word={}"), to_wstr(word));
@@ -733,9 +731,9 @@ namespace {
             for (const auto& line : lines) {
                 if (!line.empty() && line[0] != '#') {
                     if (bReadOnly && line.find(_T("||")) == String::npos) {
-                        addHistDicEntry(to_mstr(utils::replace(line, _T("|"), _T("||"))), 1);
+                        addOneEntry(to_mstr(utils::replace(line, _T("|"), _T("||"))), 1);
                     } else {
-                        addHistDicEntry(to_mstr(line), 1);
+                        addOneEntry(to_mstr(line), 1);
                     }
                 }
             }
@@ -745,7 +743,7 @@ namespace {
         }
 
     public:
-        HistoryDicImpl() {
+        SimpleDictionaryImpl() {
         }
 
         // UTF8で書かれた辞書ソースを読み込む
@@ -784,25 +782,25 @@ namespace {
         }
 
     private:
-        inline void addNewEntry(const MString& word, bool bForce = false, size_t minlen = 2) {
+        inline void addNewEntryEx(const MString& word, bool bForce = false, size_t minlen = 2) {
             LOG_DEBUG(_T("CALLED: word={}, bForce={}"), to_wstr(word), bForce);
             if (bForce || !exclList.Find(word)) {
                 usedList.PushEntry(word, minlen);
-                addHistDicEntry(word, minlen, bForce);
+                addOneEntry(word, minlen, bForce);
             }
         }
 
-        inline void addNewHistDicEntry(const MString& word, bool bForce = false, size_t minlen = 2) {
+        inline void addNewEntry(const MString& word, bool bForce = false, size_t minlen = 2) {
             LOG_DEBUG(_T("CALLED: word={}, bForce={}"), to_wstr(word), bForce);
             if (bForce || !exclList.Find(word)) {
-                addHistDicEntry(word, minlen);
+                addOneEntry(word, minlen);
             }
         }
 
         void addNgramEntry(const MString& ngram) {
             if (ngramDic.AddNgramEntry(ngram)) {
                 LOG_DEBUGH(_T("addNewGgramEntry={}"), to_wstr(ngram));
-                addNewEntry(ngram);
+                addNewEntryEx(ngram);
             }
         }
 
@@ -816,11 +814,11 @@ namespace {
                 // 末尾文字がストローク可能文字でなければ、履歴に登録しておく
                 if (word.size() == 1) {
                     // 自身も1文字なら、usedListにも反映させて終わり
-                    addNewEntry(utils::last_substr(word, 1), false, 1);
+                    addNewEntryEx(utils::last_substr(word, 1), false, 1);
                     return;
                 } else {
                     // 履歴だけに反映させる
-                    addNewHistDicEntry(utils::last_substr(word, 1), false, 1);
+                    addNewEntry(utils::last_substr(word, 1), false, 1);
                 }
             }
             if ((utils::is_katakana(word[0]) && word.size() >= SETTINGS->histKatakanaWordMinLength && word.size() <= SETTINGS->histKatakanaWordMaxLength) ||
@@ -831,22 +829,22 @@ namespace {
                 //if (std::regex_match(word, reEntry)) {
                 //    LOG_DEBUG(_T("REGEX_MATCH! Maybe garbage"));
                 //} else {
-                //    addNewEntry(word);
+                //    addNewEntryEx(word);
                 //}
-                addNewEntry(word);
+                addNewEntryEx(word);
             }
         }
 
         // 新規登録(条件なし)
         void AddNewEntryAnyway(const MString& word) override {
-            addNewEntry(word, true);
+            addNewEntryEx(word, true);
             exclList.RemoveEntry(word);
         }
 
         // Nグラム登録
         void AddNgramEntries(const MString& word) override {
             for (const auto& w : ngramDic.AddNgramEntries(word)) {
-                addNewEntry(w);
+                addNewEntryEx(w);
             }
         }
 
@@ -866,8 +864,8 @@ namespace {
 
     private:
         void pushCandidate(const MString& key, const MString& s, size_t& n) {
-            _DEBUG_SENT(if (n < 10) _LOG_DEBUGH(_T("resultList.PushHistory(key={}, s={})"), to_wstr(key), to_wstr(s)));
-            resultList.PushHistory(key, utils::replace_all(s, '\t', '|'));
+            _DEBUG_SENT(if (n < 10) _LOG_DEBUGH(_T("resultList.PushEntry(key={}, s={})"), to_wstr(key), to_wstr(s)));
+            resultList.PushEntry(key, utils::replace_all(s, '\t', '|'));
             ++n;
         }
 
@@ -892,7 +890,7 @@ namespace {
 
         void pushRomanEntry(const MString& key) {
             _LOG_DEBUGH(_T("convertRomanToKatakana: key={}"), to_wstr(key));
-            resultList.PushHistory(key, key + MSTR_VERT_BAR + MSTR_HASH_MARK + RomanToKatakana::convertRomanToKatakana(key));
+            resultList.PushEntry(key, key + MSTR_VERT_BAR + MSTR_HASH_MARK + RomanToKatakana::convertRomanToKatakana(key));
         }
 
         // resultList に最近使ったものから取得した候補を格納し、pasts には set_ に含まれるものでそれ以外の候補を格納する
@@ -907,13 +905,13 @@ namespace {
 
             if (keylen <= 3) {
                 // 短いキーでは、前半部がキーに完全一致するhistMap候補を最近使用候補より優先する
-                usedList.ExtractExactHistMapWords(key, resultList, set_, wlen);
+                usedList.ExtractExactUsedMapWords(key, resultList, set_, wlen);
                 romanPriorityList.ExtractHeadWord(key, resultList, set_);
-                std::vector<MString> exactHistMapEntries;
+                std::vector<MString> exactUsedMapEntries;
                 for (const auto& s : set_) {
-                    if (s.size() > keylen && s[keylen] == VERT_BAR) exactHistMapEntries.push_back(s);
+                    if (s.size() > keylen && s[keylen] == VERT_BAR) exactUsedMapEntries.push_back(s);
                 }
-                for (const auto& s : exactHistMapEntries) {
+                for (const auto& s : exactUsedMapEntries) {
                     if ((wlen > 0 && s.size() == wlen) || (wlen == 0 && (keylen != 1 || s.size() >= 2))) {
                         pushCandidate(key, s, n);
                     }
@@ -1014,10 +1012,10 @@ namespace {
         // key.size() == 1 なら 2文字以上の候補列を返す
         // key.size() >= 2 なら key.size() 文字以上の候補を返す
         // bCheckMinKeyLen = false なら、キー長チェックをやらない
-        const HistResultList& GetCandidates(const MString& key, MString& resultKey, bool bCheckMinKeyLen, int len,
-                                            bool allowSingleAsciiHistMap = false) override {
-            _LOG_DEBUGH(_T("ENTER: key={}, bCheckMinKeyLen={}, len={}, allowSingleAsciiHistMap={}"),
-                to_wstr(key), bCheckMinKeyLen, len, allowSingleAsciiHistMap);
+        const SImpleDicResultList& GetCandidates(const MString& key, MString& resultKey, bool bCheckMinKeyLen, int len,
+                                            bool allowSingleAsciiMap = false) override {
+            _LOG_DEBUGH(_T("ENTER: key={}, bCheckMinKeyLen={}, len={}, allowSingleAsciiMap={}"),
+                to_wstr(key), bCheckMinKeyLen, len, allowSingleAsciiMap);
             // 結果を返すためのリストをクリアしておく
             resultList.ClearKeyInfo();
             size_t minlen = len >= 0 ? len : 2;
@@ -1136,7 +1134,7 @@ namespace {
                             }
                             bListEmpty = IS_LIST_EMPTY();
                             if ((bAll || bListEmpty) && (!bIsRomanKey || keySize <= 1) &&
-                                (allowSingleAsciiHistMap || !is_ascii_char(tail_char(key)))) {
+                                (allowSingleAsciiMap || !is_ascii_char(tail_char(key)))) {
                                 // 末尾1文字がASCII文字のものは、英数モードから明示的に変換した場合だけ対象とする
                                 if (checkFunc(1)) {
                                     _LOG_DEBUGH(_T("CHECK-POINT-1"));
@@ -1164,7 +1162,7 @@ namespace {
                                 if (w.size() > 1) {
                                     // ここで候補取得処理の再帰呼び出し
                                     GetCandidates(w, resultKey, false, 0);
-                                    //const HistResult& hr = resultList.findSameHistMapKey(w);
+                                    //const SimpleDicResult& hr = resultList.findSameResultMapKey(w);
                                     const MString& rw = resultList.GetNthWord(0);
                                     size_t pos = rw.find_first_of(VERT_BAR);
                                     if (pos + 1 < rw.size()) {
@@ -1181,7 +1179,7 @@ namespace {
                             }
                             _LOG_DEBUGH(_T("CHECK-POINT-J: Join Katakana"));
                             resultList.ClearKeyInfo();
-                            resultList.PushHistory(key, key + MSTR_VERT_BAR + MSTR_HASH_MARK + joinedWord);
+                            resultList.PushEntry(key, key + MSTR_VERT_BAR + MSTR_HASH_MARK + joinedWord);
                         } else {
                             _LOG_DEBUGH(_T("CHECK-POINT-K"));
                             pushRomanEntry(key);
@@ -1202,7 +1200,7 @@ namespace {
             if (SETTINGS->histMoveShortestAt2nd) {
                 // 最短語を少なくとも先頭から2番目に移動する
                 _LOG_DEBUGH(_T("CHECK-POINT-P"));
-                resultList.MoveShortestHistAt2nd();
+                resultList.MoveShortestResultAt2nd();
             }
 
             _LOG_DEBUGH(_T("LEAVE: resultKey={}, resultList.size()={}"), to_wstr(resultKey), resultList.Size());
@@ -1237,7 +1235,7 @@ namespace {
         }
 
         // 辞書が空か
-        bool IsHistDicDirty() const override {
+        bool IsSimpleDicDirty() const override {
             return bDirty;
         }
 
@@ -1291,23 +1289,23 @@ namespace {
 
     private:
     };
-    DEFINE_CLASS_LOGGER(HistoryDicImpl);
+    DEFINE_CLASS_LOGGER(SimpleDictionaryImpl);
 
 } // namespace
 
 // -------------------------------------------------------------------
-DEFINE_CLASS_LOGGER(HistoryDic);
+DEFINE_CLASS_LOGGER(SimpleDictionary);
 
-std::unique_ptr<HistoryDic> HistoryDic::Singleton;
+std::unique_ptr<SimpleDictionary> SimpleDictionary::Singleton;
 
 namespace {
-    DEFINE_NAMESPACE_LOGGER(HistoryDic_Local);
+    DEFINE_NAMESPACE_LOGGER(SimpleDic_Local);
 
     String replaceStar(StringRef path, size_t pos, const wchar_t* name) {
         return path.substr(0, pos) + name + path.substr(pos + 1);
     }
 
-    typedef void (HistoryDic::* READ_FUNC)(const std::vector<String>& lines);
+    typedef void (SimpleDictionary::* READ_FUNC)(const std::vector<String>& lines);
 
     // 履歴ファイルの読み込み
     void readFile(StringRef path, READ_FUNC func, bool bWarn = true) {
@@ -1322,7 +1320,7 @@ namespace {
         }
     };
 
-    typedef void (HistoryDic::* WRITE_FUNC)(utils::OfstreamWriter&);
+    typedef void (SimpleDictionary::* WRITE_FUNC)(utils::OfstreamWriter&);
 
     // 辞書ファイルの内容の書き出し
     void writeFile(StringRef path, WRITE_FUNC func) {
@@ -1342,7 +1340,7 @@ namespace {
 // ファイルに名は * を含むこと(例: xxxx.*.yyy)。
 // * の部分を {entry,recent,exclude,ngram} に置換したファイルが読み込まれる
 // エラーがあったら例外を投げる
-int HistoryDic::CreateHistoryDic(StringRef histFile, StringRef 
+int SimpleDictionary::CreateSimpleDictionary(StringRef histFile, StringRef 
 #ifndef _DEBUG
     sysRomanFile
 #endif
@@ -1355,7 +1353,7 @@ int HistoryDic::CreateHistoryDic(StringRef histFile, StringRef
     }
 
     // 辞書ファイルが無くても辞書インスタンスは作成する
-    Singleton.reset(new HistoryDicImpl());
+    Singleton.reset(new SimpleDictionaryImpl());
 
     if (!histFile.empty()) {
         String filename = histFile;
@@ -1370,18 +1368,18 @@ int HistoryDic::CreateHistoryDic(StringRef histFile, StringRef
 
         size_t pos = path.find(_T("*"));
 #ifndef _DEBUG
-        readFile(replaceStar(path, pos, _T("entry")), &HistoryDic::ReadFile);
+        readFile(replaceStar(path, pos, _T("entry")), &SimpleDictionary::ReadFile);
 #endif
-        readFile(replaceStar(path, pos, _T("roman")), &HistoryDic::ReadRomanFileAsReadOnly, false);
-        readFile(replaceStar(path, pos, _T("recent")), &HistoryDic::ReadUsedFile);
-        readFile(replaceStar(path, pos, _T("exclude")), &HistoryDic::ReadExcludeFile);
-        //readFile(replaceStar(path, pos, _T("ngram")), &HistoryDic::ReadNgramFile);
+        readFile(replaceStar(path, pos, _T("roman")), &SimpleDictionary::ReadRomanFileAsReadOnly, false);
+        readFile(replaceStar(path, pos, _T("recent")), &SimpleDictionary::ReadUsedFile);
+        readFile(replaceStar(path, pos, _T("exclude")), &SimpleDictionary::ReadExcludeFile);
+        //readFile(replaceStar(path, pos, _T("ngram")), &SimpleDictionary::ReadNgramFile);
     }
 #ifndef _DEBUG
     if (!sysRomanFile.empty()) {
         // システムローマ字辞書ファイルの読み込み
         LOG_DEBUGH(_T("open system roman file: {}"), sysRomanFile);
-        readFile(sysRomanFile, &HistoryDic::ReadRomanFileAsReadOnly);
+        readFile(sysRomanFile, &SimpleDictionary::ReadRomanFileAsReadOnly);
     }
 #endif
     LOG_INFOH(_T("LEAVE"));
@@ -1389,7 +1387,7 @@ int HistoryDic::CreateHistoryDic(StringRef histFile, StringRef
 }
 
 // ユーザー定義のローマ字辞書を読み込む
-int HistoryDic::ReadUserRomanFile() {
+int SimpleDictionary::ReadUserRomanFile() {
     String filename = SETTINGS->historyFile;
     if (!filename.empty()) {
         if (!utils::contains(filename, _T("*"))) {
@@ -1400,35 +1398,35 @@ int HistoryDic::ReadUserRomanFile() {
         }
         auto path = utils::joinPath(SETTINGS->userFilesFolder, filename);
         size_t pos = path.find(_T("*"));
-        readFile(replaceStar(path, pos, _T("roman")), &HistoryDic::ReadRomanFileAsReadOnly, false);
+        readFile(replaceStar(path, pos, _T("roman")), &SimpleDictionary::ReadRomanFileAsReadOnly, false);
     }
     return 0;
 }
 
 // 辞書ファイルの内容の書き出し
-void HistoryDic::WriteHistoryDic(StringRef histFile) {
+void SimpleDictionary::WriteSimpleDictionary(StringRef histFile) {
     LOG_SAVE_DICT(_T("ENTER: histFile={}"), histFile);
     if (Singleton) {
         auto path = utils::joinPath(SETTINGS->rootDir,
             utils::joinPath(USER_FILES_FOLDER, utils::contains(histFile, _T("*")) ? histFile : _T("kwhist.*.txt")));
         LOG_SAVE_DICT(_T("path={}"), path);
         size_t pos = path.find(_T("*"));
-        if (Singleton->IsHistDicDirty()) {
+        if (Singleton->IsSimpleDicDirty()) {
             auto pathEntry = replaceStar(path, pos, _T("entry"));
             // 一旦、一時ファイルに書き込み
             auto pathEntryTmp = pathEntry + L".tmp";
-            writeFile(pathEntryTmp, &HistoryDic::WriteFile);
+            writeFile(pathEntryTmp, &SimpleDictionary::WriteFile);
             // pathEntryTmp ファイルのサイズが PathEntry ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
             utils::compareAndMoveFileToBackDirWithRotation(pathEntryTmp, pathEntry, SETTINGS->backFileRotationGeneration);
         }
-        if (Singleton->IsUsedDicDirty()) writeFile(replaceStar(path, pos, _T("recent")), &HistoryDic::WriteUsedFile);
-        if (Singleton->IsExcludeDicDirty()) writeFile(replaceStar(path, pos, _T("exclude")), &HistoryDic::WriteExcludeFile);
-        //if (Singleton->IsNgramDicDirty()) writeFile(replaceStar(path, pos, _T("ngram")), &HistoryDic::WriteNgramFile);
+        if (Singleton->IsUsedDicDirty()) writeFile(replaceStar(path, pos, _T("recent")), &SimpleDictionary::WriteUsedFile);
+        if (Singleton->IsExcludeDicDirty()) writeFile(replaceStar(path, pos, _T("exclude")), &SimpleDictionary::WriteExcludeFile);
+        //if (Singleton->IsNgramDicDirty()) writeFile(replaceStar(path, pos, _T("ngram")), &SimpleDictionary::WriteNgramFile);
     }
     LOG_SAVE_DICT(_T("LEAVE: path={}"), histFile);
 }
 
 // 辞書ファイルの内容の書き出し
-void HistoryDic::WriteHistoryDic() {
-    WriteHistoryDic(SETTINGS->historyFile);
+void SimpleDictionary::WriteSimpleDictionary() {
+    WriteSimpleDictionary(SETTINGS->historyFile);
 }

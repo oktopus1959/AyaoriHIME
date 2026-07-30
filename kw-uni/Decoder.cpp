@@ -33,7 +33,7 @@
 #include "BushuComp/BushuAssoc.h"
 #include "BushuComp/BushuAssocDic.h"
 //#include "StrokeMerger/History.h"
-#include "SimpleDic/SimpleDicDic.h"
+#include "SimpleDic/SimpleDictionary.h"
 //#include "Mazegaki/Mazegaki.h"
 //#include "Mazegaki/MazegakiDic.h"
 
@@ -386,7 +386,7 @@ public:
         if (BUSHU_ASSOC_DIC) BUSHU_ASSOC_DIC->WriteBushuAssocDic();
         //if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
         if (HISTORY_DIC) {
-            HISTORY_DIC->WriteHistoryDic();
+            HISTORY_DIC->WriteSimpleDictionary();
             //HISTORY_DIC->WriteHistUsedDic();
             //HISTORY_DIC->WriteHistExcludeDic();
             //HISTORY_DIC->WriteNgramDic();
@@ -442,7 +442,7 @@ public:
                 }
             } else if (cmd == _T("saveHistoryDic") && BUSHU_ASSOC_DIC) {
                 // 履歴辞書の保存
-                if (HISTORY_DIC) HISTORY_DIC->WriteHistoryDic();
+                if (HISTORY_DIC) HISTORY_DIC->WriteSimpleDictionary();
             } else if (cmd == _T("readBushuDic") && BUSHU_DIC) {
                 // 部首合成辞書の再読み込み
                 BushuDic::ReadBushuDic(SETTINGS->bushuFile);

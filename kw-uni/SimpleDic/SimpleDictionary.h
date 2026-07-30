@@ -6,7 +6,7 @@
 
 // -------------------------------------------------------------------
 // 検索された履歴候補のクラス
-struct HistResult {
+struct SimpleDicResult {
     MString OrigKey;        // 履歴検索の基となったキー (ex.「プログ」)
     MString Key;            // 当履歴候補のキー (ex.「ログ」)
     MString Word;           // 当履歴候補 (ex.「ログファイル」)
@@ -15,19 +15,19 @@ struct HistResult {
 };
 
 // 検索された履歴候補リストのクラス
-class HistResultList {
-    std::vector<HistResult> histories;
+class SImpleDicResultList {
+    std::vector<SimpleDicResult> dicResults;
     MString origKey;
     bool isWildKey = false;
 
-    HistResult emptyResult;
+    SimpleDicResult emptyResult;
 
 private:
     // 履歴リストのサイズが10個以下なら、先頭から10個分の要素と比較する
     bool findSameEntry(const MString& word) {
-        if (histories.size() < 10) {
-            for (size_t i = 0; i < histories.size(); ++i) {
-                if (histories[i].Word == word) return true;
+        if (dicResults.size() < 10) {
+            for (size_t i = 0; i < dicResults.size(); ++i) {
+                if (dicResults[i].Word == word) return true;
             }
         }
         return false;
@@ -35,7 +35,7 @@ private:
 
 public:
     void ClearKeyInfo() {
-        histories.clear();
+        dicResults.clear();
         origKey.clear();
         isWildKey = false;
     }
@@ -52,54 +52,54 @@ public:
         return origKey;
     }
 
-    const std::vector<HistResult>& GetHistories() const {
-        return histories;
+    const std::vector<SimpleDicResult>& GetResults() const {
+        return dicResults;
     }
 
-    void PushHistory(const MString& key, const MString& word) {
-        auto result = HistResult{ origKey, key, utils::replace(word, MSTR_VERT_BAR_2, MSTR_VERT_BAR), isWildKey };
+    void PushEntry(const MString& key, const MString& word) {
+        auto result = SimpleDicResult{ origKey, key, utils::replace(word, MSTR_VERT_BAR_2, MSTR_VERT_BAR), isWildKey };
         if (!findSameEntry(word)) {
-            histories.push_back(result);
+            dicResults.push_back(result);
         }
     }
 
     const MString& GetNthWord(size_t n) const {
-        return GetNthHist(n).Word;
+        return GetNthResult(n).Word;
 
     }
 
-    const HistResult& GetNthHist(size_t n) const {
-        return n < histories.size() ? histories[n] : emptyResult;
+    const SimpleDicResult& GetNthResult(size_t n) const {
+        return n < dicResults.size() ? dicResults[n] : emptyResult;
     }
 
-    size_t Size() const { return histories.size(); }
+    size_t Size() const { return dicResults.size(); }
 
     bool Empty() const { return Size() == 0; }
 
-    void Append(const HistResultList& list) {
-        utils::append(histories, list.histories);
+    void Append(const SImpleDicResultList& list) {
+        utils::append(dicResults, list.dicResults);
     }
 
     // 最短語を少なくとも先頭から2番目に移動する
-    void MoveShortestHistAt2nd() {
+    void MoveShortestResultAt2nd() {
         size_t shortestIdx = 0;
         size_t shortestLen = size_t(-1);
         for (size_t i = 0; i < Size(); ++i) {
-            if (histories[i].Word.size() < shortestLen) {
+            if (dicResults[i].Word.size() < shortestLen) {
                 shortestIdx = i;
-                shortestLen = histories[i].Word.size();
+                shortestLen = dicResults[i].Word.size();
             }
         }
         if (shortestIdx > 1) {
-            auto elem = histories[shortestIdx];
-            histories.erase(histories.begin() + shortestIdx);
-            histories.insert(histories.begin() + 1, elem);
+            auto elem = dicResults[shortestIdx];
+            dicResults.erase(dicResults.begin() + shortestIdx);
+            dicResults.insert(dicResults.begin() + 1, elem);
         }
     }
 
     // 同じ履歴変換キーを探す
-    const HistResult& findSameHistMapKey(const MString& key) {
-        for (const auto& hr : histories) {
+    const SimpleDicResult& findSameResultMapKey(const MString& key) {
+        for (const auto& hr : dicResults) {
             if (key == hr.Key && hr.Word.size() > key.size() && hr.Word[key.size()] == VERT_BAR) return hr;
         }
         return emptyResult;
@@ -108,27 +108,27 @@ public:
 
 // -------------------------------------------------------------------
 // 履歴入力辞書クラス
-class HistoryDic{
+class SimpleDictionary{
     DECLARE_CLASS_LOGGER;
 
 public:
     // 仮想デストラクタ
-    virtual ~HistoryDic() { }
+    virtual ~SimpleDictionary() { }
 
     // 作成された履歴入力辞書インスタンスにアクセスするための Singleton
-    static std::unique_ptr<HistoryDic> Singleton;
+    static std::unique_ptr<SimpleDictionary> Singleton;
 
     // 履歴入力辞書インスタンスを生成する
-    static int CreateHistoryDic(const String&, const String& sysRomanFile);
+    static int CreateSimpleDictionary(const String&, const String& sysRomanFile);
 
     // ユーザー定義のローマ字辞書を読み込む
     static int ReadUserRomanFile();
 
     // 辞書ファイルへの内容の書き出し
-    static void WriteHistoryDic();
+    static void WriteSimpleDictionary();
 
     // 辞書ファイルへの内容の書き出し
-    static void WriteHistoryDic(const String&);
+    static void WriteSimpleDictionary(const String&);
 
     // 履歴入力辞書ファイルの読み込み
     virtual void ReadFile(const std::vector<String>& lines) = 0;
@@ -152,8 +152,8 @@ public:
     virtual void DeleteEntry(const MString& word) = 0;
 
     // 指定の見出し文字に対する変換候補のセットを取得する
-    virtual const HistResultList& GetCandidates(const MString& key, MString&, bool checkMinKeyLen, int len,
-                                                bool allowSingleAsciiHistMap = false) = 0;
+    virtual const SImpleDicResultList& GetCandidates(const MString& key, MString&, bool checkMinKeyLen, int len,
+                                                bool allowSingleAsciiMap = false) = 0;
 
     // 単語の使用
     virtual void UseWord(const MString& word) = 0;
@@ -167,7 +167,7 @@ public:
     // 辞書ファイルの内容の書き出し
     virtual void WriteFile(utils::OfstreamWriter& writer) = 0;
 
-    virtual bool IsHistDicDirty() const = 0;
+    virtual bool IsSimpleDicDirty() const = 0;
 
     // 使用辞書の読み込み
     virtual void ReadUsedFile(const std::vector<String>& lines) = 0;
@@ -194,4 +194,4 @@ public:
     virtual bool IsNgramDicDirty() const = 0;
 };
 
-#define HISTORY_DIC (HistoryDic::Singleton)
+#define HISTORY_DIC (SimpleDictionary::Singleton)

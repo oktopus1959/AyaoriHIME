@@ -1,6 +1,6 @@
 #include "Logger.h"
 
-#include "SimpleDic/SimpleDicDic.h"
+#include "SimpleDic/SimpleDictionary.h"
 #include "Settings.h"
 
 #include "StringNode.h"
