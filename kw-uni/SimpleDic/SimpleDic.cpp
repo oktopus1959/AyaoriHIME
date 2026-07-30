@@ -805,36 +805,6 @@ namespace {
         }
 
     public:
-        // 新規登録
-        void AutoAddNewEntry(const MString& word) override {
-            _LOG_DEBUGH(_T("CALLED: word={}"), to_wstr(word));
-            if (SETTINGS->suppressAutoHistRegister) return;
-            if (word.empty()) return;
-            if (!STROKE_HELP->Find(utils::safe_back(word))) {
-                // 末尾文字がストローク可能文字でなければ、履歴に登録しておく
-                if (word.size() == 1) {
-                    // 自身も1文字なら、usedListにも反映させて終わり
-                    addNewEntryEx(utils::last_substr(word, 1), false, 1);
-                    return;
-                } else {
-                    // 履歴だけに反映させる
-                    addNewEntry(utils::last_substr(word, 1), false, 1);
-                }
-            }
-            if ((utils::is_katakana(word[0]) && word.size() >= SETTINGS->histKatakanaWordMinLength && word.size() <= SETTINGS->histKatakanaWordMaxLength) ||
-                (utils::is_kanji(word[0]) &&
-                    (word.size() >= SETTINGS->histKanjiWordMinLength || (word.size() >= SETTINGS->histKanjiWordMinLengthEx && !EASY_CHARS->AllContainedIn(word))) &&
-                    word.size() <= SETTINGS->histKanjiWordMaxLength)) {
-                //std::wregex reEntry(_T(".*(.{3,}).*\\1.*"));
-                //if (std::regex_match(word, reEntry)) {
-                //    LOG_DEBUG(_T("REGEX_MATCH! Maybe garbage"));
-                //} else {
-                //    addNewEntryEx(word);
-                //}
-                addNewEntryEx(word);
-            }
-        }
-
         // 新規登録(条件なし)
         void AddNewEntryAnyway(const MString& word) override {
             addNewEntryEx(word, true);
@@ -1011,11 +981,9 @@ namespace {
         // key.size() == 0 なら 最近使用した単語列を返す
         // key.size() == 1 なら 2文字以上の候補列を返す
         // key.size() >= 2 なら key.size() 文字以上の候補を返す
-        // bCheckMinKeyLen = false なら、キー長チェックをやらない
-        const SImpleDicResultList& GetCandidates(const MString& key, MString& resultKey, bool bCheckMinKeyLen, int len,
+        const SImpleDicResultList& GetCandidates(const MString& key, MString& resultKey, int len,
                                             bool allowSingleAsciiMap = false) override {
-            _LOG_DEBUGH(_T("ENTER: key={}, bCheckMinKeyLen={}, len={}, allowSingleAsciiMap={}"),
-                to_wstr(key), bCheckMinKeyLen, len, allowSingleAsciiMap);
+            _LOG_DEBUGH(_T("ENTER: key={}, len={}, allowSingleAsciiMap={}"), to_wstr(key), len, allowSingleAsciiMap);
             // 結果を返すためのリストをクリアしておく
             resultList.ClearKeyInfo();
             size_t minlen = len >= 0 ? len : 2;
@@ -1090,24 +1058,7 @@ namespace {
 
                 // Phase-B (4文字以下のマッチング)
                 if ((bAll || bListEmpty) && (!bIsRomanKey || keySize <= 4)) {
-                    size_t minKana = SETTINGS->histHiraganaKeyLength;
-                    size_t minKata = SETTINGS->histKatakanaKeyLength;
-                    size_t minKanj = SETTINGS->histKanjiKeyLength;
-                    size_t minRoma = SETTINGS->histRomanKeyLength;
-                    _LOG_DEBUGH(_T("CHECK-POINT-E: minKana={}, minKata={}, minKanj={}, minRoma={}"), minKana, minKata, minKanj, minRoma);
-
-                    auto checkFunc = [key, bCheckMinKeyLen, minKana, minKata, minKanj, minRoma](size_t len) {
-                        _LOG_DEBUGH(_T("checkFunc(key={}, bCheckMinKeyLen={}, len={})"), to_wstr(key), bCheckMinKeyLen, len);
-                        size_t minMax = 4;
-                        mchar_t startChar = utils::safe_back(key, len);     // チェック対象keyの先頭文字
-                        return key.size() >= len &&
-                            (!bCheckMinKeyLen || len >= minMax ||
-                             (len >= minKana && utils::is_hirakana(startChar)) ||
-                             (len >= minKata && utils::is_katakana(startChar)) ||
-                             (len >= minKanj && utils::is_kanji(startChar)) ||
-                             (len >= minRoma && is_upper_alphabet(startChar))      // チェック対象keyが英大文字で始まっているか
-                            );
-                    };
+                    auto checkFunc = [key](size_t len) { return key.size() >= len; };
 
                     if (checkFunc(4)) {
                         _LOG_DEBUGH(_T("CHECK-POINT-4"));
@@ -1151,7 +1102,7 @@ namespace {
                 if (resultList.Empty()) {
                     _LOG_DEBUGH(_T("CHECK-POINT-G: resultList.Empty"));
                     // 履歴検索で結果がなかった場合
-                    if ((!bCheckMinKeyLen || key.size() >= SETTINGS->histRomanKeyLength) && is_ascii_str(key)) {
+                    if (is_ascii_str(key)) {
                         _LOG_DEBUGH(_T("CHECK-POINT-H: find ASCII key: {}"), to_wstr(key));
                         // 英大文字で区切って検索、なければローマ字化
                         auto words = splitByCapitalLetter(key);
@@ -1161,7 +1112,7 @@ namespace {
                             for (const auto& w : words) {
                                 if (w.size() > 1) {
                                     // ここで候補取得処理の再帰呼び出し
-                                    GetCandidates(w, resultKey, false, 0);
+                                    GetCandidates(w, resultKey, 0);
                                     //const SimpleDicResult& hr = resultList.findSameResultMapKey(w);
                                     const MString& rw = resultList.GetNthWord(0);
                                     size_t pos = rw.find_first_of(VERT_BAR);

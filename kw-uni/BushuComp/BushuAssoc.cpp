@@ -203,8 +203,6 @@ namespace {
             if (!word.empty()) {
                 //STATE_COMMON->SetBackspaceNum(1);
                 resultStr.setNumBS(1);
-                //選択した文字を履歴に登録
-                if (HISTORY_DIC) HISTORY_DIC->AutoAddNewEntry(utils::last_substr(word, 1));
             }
             // ストロークヘルプも表示(true)
             handleKeyPostProc(true);
@@ -396,8 +394,6 @@ namespace {
                                 //copyStrokeHelpToVkbFaces();
                                 resultStr.setResult(cs, 1);
                                 resultOut.setResult(resultStr);
-                                //やり直し合成した文字を履歴に登録
-                                if (HISTORY_DIC) HISTORY_DIC->AutoAddNewEntry(utils::last_substr(cs, 1));
                                 _LOG_DEBUGH(_T("LEAVE: {}: Reduce by using swapped bushu"), Name);
                                 return;
                             }

@@ -1011,46 +1011,7 @@ namespace {
         }
 
     public:
-        // Enter時の新しい履歴の追加
-        void AddNewHistEntryOnEnter() override {
-            LOG_DEBUGH(_T("CALLED: {}"), Name);
-            if (HISTORY_DIC) {
-                HIST_CAND->DelayedPushFrontSelectedWord();
-                STATE_COMMON->SetBothHistoryBlockFlag();
-                LOG_DEBUGH(_T("SetBothHistoryBlocker"));
-                if (OUTPUT_STACK->isLastOutputStackCharKanjiOrKatakana()) {
-                    // これまでの出力末尾が漢字またはカタカナであるなら
-                    // 出力履歴の末尾の漢字列またはカタカナ列を取得して、それを履歴辞書に登録する
-                    HISTORY_DIC->AutoAddNewEntry(OUTPUT_STACK->GetLastKanjiOrKatakanaStr<MString>());
-                } else if (OUTPUT_STACK->isLastOutputStackCharHirakana()) {
-                    //// 漢字・カタカナ以外なら5〜10文字の範囲でNグラム登録する
-                    //HISTORY_DIC->AddNgramEntries(OUTPUT_STACK->GetLastJapaneseStr<MString>(10));
-                }
-            }
-        }
-
-        // 何か文字が入力されたときの新しい履歴の追加
-        void AddNewHistEntryOnSomeChar() override {
-            //auto ch1 = STATE_COMMON->GetFirstOutChar();
-            auto ch1 = utils::safe_front(resultStr.resultStr());
-            auto ch2 = OUTPUT_STACK->GetLastOutputStackChar();
-            if (ch1 != 0 && HISTORY_DIC) {
-                // 今回の出力の先頭が漢字以外であり、これまでの出力末尾が漢字であるか、
-                if ((!utils::is_kanji(ch1) && (utils::is_kanji(ch2))) ||
-                    // または、今回の出力の先頭がカタカナ以外であり、これまでの出力末尾がカタカナであるなら、
-                    (!utils::is_katakana(ch1) && (utils::is_katakana(ch2)))) {
-                    LOG_DEBUG(_T("Call AutoAddNewEntry"));
-                    // 出力履歴の末尾の漢字列またはカタカナ列を取得して、それを履歴辞書に登録する
-                    HISTORY_DIC->AutoAddNewEntry(OUTPUT_STACK->GetLastKanjiOrKatakanaStr<MString>());
-                } else if (utils::is_japanese_char_except_nakaguro((wchar_t)ch1)) {
-                    //LOG_DEBUG(_T("Call AddNgramEntries"));
-                    //// 出力末尾が日本語文字なら5〜10文字の範囲でNグラム登録する
-                    //HISTORY_DIC->AddNgramEntries(OUTPUT_STACK->GetLastJapaneseStr<MString>(9) + ch1);
-                }
-            }
-        }
-
-        // 文字列を変換して出力、その後、履歴の追加
+        // 文字列を変換して出力
         void SetTranslatedOutString(const MStringResult& result) {
             SetTranslatedOutString(result.resultStr(), result.rewritableLen(), result.isBushuComp(), result.numBS());
         }
@@ -1078,7 +1039,6 @@ namespace {
                     resultStr.setResultWithRewriteLen(outStr, rewritableLen, numBS);
                 }
             }
-            AddNewHistEntryOnSomeChar();
             LOG_DEBUGH(_T("LEAVE: {}: resultStr={}, numBS={}"), Name, to_wstr(resultStr.resultStr()), resultStr.numBS());
         }
 
@@ -1184,41 +1144,11 @@ namespace {
             return result;
         }
 
-        // 一時的にこのフラグを立てることにより、履歴検索を行わないようになる
-        bool bNoHistTemporary = false;
-
-        // 一時的にこのフラグを立てることにより、自動モードでなくても履歴検索が実行されるようになる
-        bool bManualTemporary = false;
-
-        // 前回の履歴検索との比較、新しい履歴検索の開始 (bManual=trueなら自動モードでなくても履歴検索を実行する)
-        void historySearch(bool bManual) {
-            LOG_DEBUGH(_T("ENTER: auto={}, manual={}, maybeEditedBySubState={}, histInSearch={}"), \
-                SETTINGS->autoHistSearchEnabled, bManual, maybeEditedBySubState, HIST_CAND->IsHistInSearch());
-            if (!SETTINGS->autoHistSearchEnabled && !bManual) {
-                // 履歴検索状態ではないので、前回キーをクリアしておく。
-                // こうしておかないと、自動履歴検索OFFのとき、たとえば、
-                // 「エッ」⇒Ctrl+Space⇒「エッセンス」⇒Esc⇒「エッ」⇒「セ」追加⇒出力「エッセ」、キー=「エッ」のまま⇒再検索⇒「エッセセンス」となる
-                LOG_DEBUGH(_T("Not Hist Search mode: Clear PrevKey"));
-                STROKE_MERGER_NODE->ClearPrevHistState();
-                HIST_CAND->ClearKeyInfo();
-            } else {
-                // 履歴検索可能状態である
-                LOG_DEBUGH(_T("Auto or Manual"));
-                // 前回の履歴選択の出力と現在の出力文字列(改行以降)の末尾を比較する。
-                // たとえば前回「中」で履歴検索し「中納言家持」が履歴出力されており、現在の出力スタックが「・・・中納言家持」なら true が返る
-                bool bSameOut = !bManual && histBase->isLastHistOutSameAsCurrentOut();
-                LOG_DEBUGH(_T("bSameOut={}, maybeEditedBySubState={}, histInSearch={}"), \
-                    bSameOut, maybeEditedBySubState, HIST_CAND->IsHistInSearch());
-                if (bSameOut && !maybeEditedBySubState && HIST_CAND->IsHistInSearch()) {
-                    // 前回履歴出力が取得できた、つまり出力文字列の末尾が前回の履歴選択と同じ出力だったら、出力文字列をキーとした履歴検索はやらない
-                    // これは、たとえば「中」で履歴検索し、「中納言家持」を選択した際に、キーとして返される「中納言家持」の末尾の「持」を拾って「持統天皇」を履歴検索してしまうことを防ぐため。
-                    LOG_DEBUGH(_T("Do nothing: prevOut is same as current out"));
-                } else {
-                    // ただし、交ぜ書き変換など何か後続状態により出力がなされた場合(maybeEditedBySubState)は、履歴検索を行う。
-                    LOG_DEBUGH(_T("DO HistSearch: prevOut is diff with current out or maybeEditedBySubState or not yet HistInSearch"));
-                    // 現在の出力文字列は履歴選択したものではなかった
-                    // キー取得用 lambda
-                    auto keyGetter = []() {
+        // 明示的な簡易辞書検索を開始する
+        void historySearch() {
+            LOG_DEBUGH(_T("ENTER: maybeEditedBySubState={}, histInSearch={}"), maybeEditedBySubState, HIST_CAND->IsHistInSearch());
+            // キー取得用 lambda
+            auto keyGetter = []() {
                         // まず、ワイルドカードパターンを試す
                         auto key9 = OUTPUT_STACK->GetLastOutputStackStrUptoBlocker(9);
                         LOG_DEBUGH(_T("HistSearch: key9={}"), to_wstr(key9));
@@ -1247,49 +1177,36 @@ namespace {
                         // 最終的には末尾8文字をキーとする('*' は含まない。'?' は含んでいる可能性あり)
                         LOG_DEBUGH(_T("HistSearch: tail_substr(key9, 8)={}"), to_wstr(utils::tail_substr(key9, 8)));
                         return utils::tail_substr(key9, 8);
-                    };
-                    // キーの取得
-                    MString key = keyGetter();
-                    LOG_DEBUGH(_T("HistSearch: LastJapaneseKey={}"), to_wstr(key));
-                    if (!key.empty() && key.find(MSTR_CMD_HEADER) > key.size()) {
-                        // キーが取得できた
-                        //bool isAscii = is_ascii_char((wchar_t)utils::safe_back(key));
-                        LOG_DEBUGH(_T("HistSearch: PATH 8: key={}, prevKey={}, maybeEditedBySubState={}"),
-                            to_wstr(key), to_wstr(STROKE_MERGER_NODE->GetPrevKey()), maybeEditedBySubState);
-                        auto histCandsChecker = [this](const std::vector<MString>& words, const MString& ky) {
-                            LOG_DEBUGH(_T("HistSearch: CANDS CHECKER: words({})={}, key={}"), words.size(), to_wstr(utils::join(words, '/', 10)), to_wstr(ky));
-                            if (words.empty() || (words.size() == 1 && (words[0].empty() || words[0] == ky))) {
-                                LOG_DEBUGH(_T("HistSearch: CANDS CHECKER-A: cands size <= 1"));
-                                // 候補が1つだけで、keyに一致するときは履歴選択状態にはしない
-                            } else {
-                                LOG_DEBUGH(_T("HistSearch: CANDS CHECKER-B"));
-                                if (SETTINGS->autoHistSearchEnabled || SETTINGS->showHistCandsFromFirst) {
-                                    // 初回の履歴選択でも横列候補表示を行う
-                                    histBase->setCandidatesVKB(VkbLayout::Horizontal, words, ky);
-                                }
-                            }
-                        };
-                        if (key != STROKE_MERGER_NODE->GetPrevKey() || maybeEditedBySubState || bManual) {
-                            LOG_DEBUGH(_T("HistSearch: PATH 9: different key"));
-                            //bool bCheckMinKeyLen = !bManual && utils::is_hiragana(key[0]);       // 自動検索かつ、キー先頭がひらがなならキー長チェックをやる
-                            bool bCheckMinKeyLen = !bManual;                                     // 自動検索ならキー長チェックをやる
-                            // 1文字ASCIIのhistMap検索は、英数モードから明示的に変換した場合だけ許可する
-                            bool allowSingleAsciiHistMap = bManual && NextState() && NextState()->GetName() == L"EisuState";
-                            histCandsChecker(HIST_CAND->GetCandWords(key, bCheckMinKeyLen, 0, allowSingleAsciiHistMap), key);
-                            // キーが短くなる可能性があるので再取得
-                            key = HIST_CAND->GetCurrentKey();
-                            LOG_DEBUGH(_T("HistSearch: PATH 10: currentKey={}"), to_wstr(key));
-                        } else {
-                            // 前回の履歴検索と同じキーだった
-                            LOG_DEBUGH(_T("HistSearch: PATH 11: Same as prev hist key"));
-                            histCandsChecker(HIST_CAND->GetCandWords(), key);
-                        }
+            };
+            // キーの取得
+            MString key = keyGetter();
+            LOG_DEBUGH(_T("HistSearch: LastJapaneseKey={}"), to_wstr(key));
+            if (!key.empty() && key.find(MSTR_CMD_HEADER) > key.size()) {
+                LOG_DEBUGH(_T("HistSearch: key={}, prevKey={}, maybeEditedBySubState={}"),
+                    to_wstr(key), to_wstr(STROKE_MERGER_NODE->GetPrevKey()), maybeEditedBySubState);
+                auto histCandsChecker = [this](const std::vector<MString>& words, const MString& ky) {
+                    LOG_DEBUGH(_T("HistSearch: CANDS CHECKER: words({})={}, key={}"), words.size(), to_wstr(utils::join(words, '/', 10)), to_wstr(ky));
+                    if (words.empty() || (words.size() == 1 && (words[0].empty() || words[0] == ky))) {
+                        LOG_DEBUGH(_T("HistSearch: CANDS CHECKER-A: cands size <= 1"));
+                    } else if (SETTINGS->showHistCandsFromFirst) {
+                        histBase->setCandidatesVKB(VkbLayout::Horizontal, words, ky);
                     }
-                    LOG_DEBUGH(_T("HistSearch: SetPrevHistKeyState(key={})"), to_wstr(key));
-                    STROKE_MERGER_NODE->SetPrevHistKeyState(key);
-                    LOG_DEBUGH(_T("DONE HistSearch"));
+                };
+                if (key != STROKE_MERGER_NODE->GetPrevKey() || maybeEditedBySubState) {
+                    LOG_DEBUGH(_T("HistSearch: different key"));
+                    // 1文字ASCIIのhistMap検索は、英数モードから明示的に変換した場合だけ許可する
+                    bool allowSingleAsciiHistMap = NextState() && NextState()->GetName() == L"EisuState";
+                    histCandsChecker(HIST_CAND->GetCandWords(key, 0, allowSingleAsciiHistMap), key);
+                    key = HIST_CAND->GetCurrentKey();
+                    LOG_DEBUGH(_T("HistSearch: currentKey={}"), to_wstr(key));
+                } else {
+                    LOG_DEBUGH(_T("HistSearch: same key"));
+                    histCandsChecker(HIST_CAND->GetCandWords(), key);
                 }
             }
+            LOG_DEBUGH(_T("HistSearch: SetPrevHistKeyState(key={})"), to_wstr(key));
+            STROKE_MERGER_NODE->SetPrevHistKeyState(key);
+            LOG_DEBUGH(_T("DONE HistSearch"));
 
             // この処理は、GUI側で候補の背景色を変更するために必要
             if (isHotCandidateReady(STROKE_MERGER_NODE->GetPrevKey(), HIST_CAND->GetCandWords())) {
@@ -1332,40 +1249,14 @@ namespace {
                 HIST_CAND->DelayedPushFrontSelectedWord();
                 bCandSelectable = false;
 
-                LOG_DEBUGH(_T("PATH 6: bCandSelectable={}, bNoHistTemporary={}"), bCandSelectable, bNoHistTemporary);
+                LOG_DEBUGH(_T("PATH 6: bCandSelectable={}"), bCandSelectable);
                 if (OUTPUT_STACK->isLastOutputStackCharBlocker()) {
                     LOG_DEBUGH(_T("PATH 7: LastOutputStackChar is Blocker"));
                     HISTORY_DIC->ClearNgramSet();
                 }
-
-                // 前回の履歴検索との比較、新しい履歴検索の開始
-                if (bNoHistTemporary) {
-                    // 一時的に履歴検索が不可になっている場合は、キーと出力文字列を比較して、異った状態になっていたら可に戻す
-                    MString prevKey = STROKE_MERGER_NODE->GetPrevKey();
-                    MString outStr = OUTPUT_STACK->GetLastOutputStackStrUptoBlocker(prevKey.size());
-                    bNoHistTemporary = OUTPUT_STACK->GetLastOutputStackStrUptoBlocker(prevKey.size()) == prevKey;
-                    LOG_DEBUGH(_T("PATH 8: bNoHistTemporary={}: prevKey={}, outStr={}"), bNoHistTemporary, to_wstr(prevKey), to_wstr(outStr));
-                }
-
-                LOG_DEBUGH(_T("PATH 9: bNoHistTemporary={}"), bNoHistTemporary);
-                if (!bNoHistTemporary) {
-                    if (isEditingFuncDecKey()) {
-                        //// 編集用キーが呼び出されたので、全ブロッカーを置く
-                        //LOG_DEBUGH(_T("PATH 9: EditingFuncDecKey: pushNewLine()"));
-                        //OUTPUT_STACK->pushNewLine();
-                        // 編集用キーが呼び出されたので、ブロッカーを置く
-                        LOG_DEBUGH(_T("PATH 9: EditingFuncDecKey: setHistBlocker()"));
-                        OUTPUT_STACK->setHistBlocker();
-                    } else {
-                        historySearch(bManualTemporary);
-                    }
-                }
-                //bNoHistTemporary = false;
-                //bManualTemporary = false;
+                STROKE_MERGER_NODE->ClearPrevHistState();
+                HIST_CAND->ClearKeyInfo();
             }
-
-            bNoHistTemporary = false;
-            bManualTemporary = false;
 
             LOG_DEBUGH(_T("LEAVE: {}\n"), Name);
         }
@@ -1438,13 +1329,12 @@ namespace {
             // 今回、履歴選択用ホットキーだったことを保存
             setCandSelectIsCalled();
 
-            // 自動履歴検索が有効になっているか、初回から履歴候補の横列表示をするか、または2回目以降の履歴検索の場合は、履歴候補の横列表示あり
-            bool bShowHistCands = SETTINGS->autoHistSearchEnabled || SETTINGS->showHistCandsFromFirst || bCandSelectable;
+            bool bShowHistCands = SETTINGS->showHistCandsFromFirst || bCandSelectable;
 
             if (!bCandSelectable) {
                 // 履歴候補選択可能状態でなければ、前回の履歴検索との比較、新しい履歴検索の開始
                 copyEditBufferToOutputStack();
-                historySearch(true);
+                historySearch();
             }
             if (bCandSelectable) {
                 LOG_DEBUGH(_T("CandSelectable: bNext={}"), bNext);
@@ -1585,8 +1475,6 @@ namespace {
         // DecoderOff の処理
         void handleDecoderOff() override {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
-            // Enter と同じ扱いにする
-            AddNewHistEntryOnEnter();
             State::handleDecoderOff();
         }
         
@@ -1599,20 +1487,16 @@ namespace {
                 setCandSelectIsCalled();
                 getNextCandidate(false);
             } else if (bCandSelectable && HIST_CAND->GetSelectPos() >= 0) {
-                LOG_DEBUGH(_T("CALL: STROKE_MERGER_NODE->ClearPrevHistState(); HIST_CAND->ClearKeyInfo(); bManualTemporary = true"));
+                LOG_DEBUGH(_T("CALL: STROKE_MERGER_NODE->ClearPrevHistState(); HIST_CAND->ClearKeyInfo()"));
                 // どれかの候補が選択されている状態なら、それを確定し、履歴キーをクリアしておく
                 STROKE_MERGER_NODE->ClearPrevHistState();
                 HIST_CAND->ClearKeyInfo();
-                // 一時的にマニュアル操作フラグを立てることで、DoLastHistoryProc() から historySearch() を呼ぶときに履歴再検索が実行されるようにする
-                bManualTemporary = true;
                 if (SETTINGS->newLineWhenHistEnter) {
                     // 履歴候補選択時のEnterではつねに改行するなら、確定後、Enter処理を行う
                     State::handleEnter();
                 }
             } else {
                 // それ以外は通常のEnter処理
-                LOG_DEBUGH(_T("CALL: AddNewHistEntryOnEnter()"));
-                AddNewHistEntryOnEnter();
                 State::handleEnter();
             }
             //// 前回の句読点から末尾までの出力文字列に対して Ngram解析を行う
@@ -1638,7 +1522,6 @@ namespace {
         //        }
         //    } else {
         //        // Enterと同じ扱い
-        //        AddNewHistEntryOnEnter();
         //        State::handleCtrlJ();
         //    }
         //}
@@ -1654,20 +1537,14 @@ namespace {
                     // 直前に英数モードから履歴検索された場合
                     LOG_DEBUGH(_T("SetNextNode: EISU_NODE"));
                     resetCandSelect(false);     // false: 仮想鍵盤表示を履歴選択モードにしない
-                    // 一時的にこのフラグを立てることにより、履歴検索を行わないようにする
-                    bNoHistTemporary = true;
                     // 再度、英数モード状態に入る
                     SetNextNodeMaybe(EISU_NODE);
                     //STATE_COMMON->SetNormalVkbLayout();
                 } else {
                     resetCandSelect(true);
-                    // 一時的にマニュアル操作フラグを立てることで、DoLastHistoryProc() から historySearch() を呼ぶときに履歴再検索が実行されるようにする
-                    bManualTemporary = true;
                 }
             } else {
                 LOG_DEBUGH(_T("No Cand Selected"));
-                // 一時的にこのフラグを立てることにより、履歴検索を行わないようにする
-                bNoHistTemporary = true;
                 // Esc処理が必要なものがあればそれをやる。なければアクティブウィンドウにEscを送る
                 ResidentState::handleEsc();
                 //// 何も候補が選択されていない状態なら履歴選択状態から抜ける

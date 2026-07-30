@@ -79,11 +79,6 @@ public:
 
     //void handleBS() { LOG_DEBUG(_T("BackSpace")); setCharDeleteInfo(1); /*STATE_COMMON->SetSpecialDeckeyOnStartStateFlag();*/ }
 
-    //void handleEnter() {
-    //    LOG_DEBUG(_T("Enter: {}"), Name);
-    //    HISTORY_RESIDENT_STATE->AddNewHistEntryOnEnter();
-    //    State::handleEnter();
-    //}
 };
 
 DEFINE_CLASS_LOGGER(StartStateImpl);
@@ -96,4 +91,3 @@ State* StartNode::CreateState() {
     LOG_INFO(_T("CALLED"));
     return new StartStateImpl(this);
 }
-

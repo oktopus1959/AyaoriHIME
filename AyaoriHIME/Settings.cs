@@ -812,29 +812,12 @@ namespace KanchokuWS
         //------------------------------------------------------------------------------
         // 履歴
         //------------------------------------------------------------------------------
-        public static int HistMaxLength { get; private set; }
-        public static int HistKatakanaWordMinLength { get; private set; }
-        public static int HistKatakanaWordMaxLength { get; private set; }
-        public static int HistKanjiWordMinLength { get; private set; }
-        public static int HistKanjiWordMaxLength { get; private set; }
-        public static int HistKanjiWordMinLengthEx { get; private set; }
-        public static int HistHiraganaKeyLength { get; private set; }
-        public static int HistKatakanaKeyLength { get; private set; }
-        public static int HistKanjiKeyLength { get; private set; }
-        public static int HistRomanKeyLength { get; private set; }
         public static int HistMapKeyMaxLength { get; private set; }             // 変換履歴キーの最大長
         public static int HistMapGobiMaxLength { get; private set; }            // 変換履歴キーに付加できる語尾の最大長
 
-        /// <summary>自動履歴検索</summary>
-        public static bool AutoHistSearchEnabled { get; private set; }
-        /// <summary>履歴の自動登録を抑制する</summary>
-        public static bool SuppressAutoHistRegister { get; private set; }
-        //public static bool HistSearchByCtrlSpace { get; private set; }
-        //public static bool HistSearchByShiftSpace { get; private set; }
         /// <summary>Enterで先頭候補を選択</summary>
         public static bool SelectFirstCandByEnter { get; private set; }
         public static bool NewLineWhenHistEnter { get; private set; }
-        public static bool HistAllowFromMiddleChar { get; private set; }
         public static int HistDelDeckeyId { get; private set; }
         public static int HistNumDeckeyId { get; private set; }
 
@@ -1888,25 +1871,8 @@ namespace KanchokuWS
 
             BackFileRotationGeneration = addDecoderSetting("backFileRotationGeneration", 3, 1); // 辞書ファイルの保存世代数
 
-            HistKatakanaWordMinLength = addDecoderSetting("histKatakanaWordMinLength", 4, 3);   // 自動履歴登録対象となるカタカナ文字列の最小長
-            HistKatakanaWordMaxLength = addDecoderSetting("histKatakanaWordMaxLength", 8, 8);   // 自動履歴登録対象となるカタカナ文字列の最大長
-            HistKanjiWordMinLength = addDecoderSetting("histKanjiWordMinLength", 4, 3);         // 自動履歴登録対象となる漢字文字列の最小長
-            HistKanjiWordMaxLength = addDecoderSetting("histKanjiWordMaxLength", 6, 6);         // 自動履歴登録対象となる漢字文字列の最大長
-            HistKanjiWordMinLengthEx = addDecoderSetting("histKanjiWordMinLengthEx", 2, 2);     // 自動履歴登録対象となる難打鍵文字を含む漢字文字列の最小長
-            //HistMaxLength = addDecoderSetting("histMaxLength", 10, 4);                          // 自動履歴登録対象となる文字列の最大長
-            HistMaxLength = HistKatakanaWordMaxLength._max(HistKanjiWordMaxLength);             // 自動履歴登録対象となる文字列の最大長
-            setDecoderSetting("histMaxLength", $"{HistMaxLength}");
-            HistHiraganaKeyLength = addDecoderSetting("histHiraganaKeyLength", 2, 1);           // ひらがな始まり履歴の自動検索を行う際のキー長
-            HistKatakanaKeyLength = addDecoderSetting("histKatakanaKeyLength", 2, 1);           // カタカナ履歴の自動検索を行う際のキー長
-            HistKanjiKeyLength = addDecoderSetting("histKanjiKeyLength", 1, 1);                 // 漢字履歴の自動検索を行う際のキー長
-            HistRomanKeyLength = addDecoderSetting("histRomanKeyLength", 4, 1);                 // ローマ字履歴の自動検索を行う際のキー長
             HistMapKeyMaxLength = addDecoderSetting("histMapKeyMaxLength", 16, 4);              // 変換履歴キーの最大長
             HistMapGobiMaxLength = addDecoderSetting("histMapGobiMaxLength", 2, 0);             // 変換履歴キーに付加できる語尾の最大長
-            //AutoHistSearchEnabled = addDecoderSetting("autoHistSearchEnabled", false);          // 自動履歴検索を行う
-            SuppressAutoHistRegister = addDecoderSetting("suppressAutoHistRegister", true);     // 履歴の自動登録を抑制する
-            //HistSearchByCtrlSpace = addDecoderSetting("histSearchByCtrlSpace", true);           // Ctrl-Space で履歴検索を行う
-            //VKeyComboRepository.AddCtrlDeckeyAndCombo(" ", DecoderKeys.CTRL_SPACE_DECKEY, 0);           // 登録
-            //HistSearchByShiftSpace = addDecoderSetting("histSearchByShiftSpace", true);         // Shift-Space で履歴検索を行う
             SelectFirstCandByEnter = addDecoderSetting("selectFirstCandByEnter", false);        // Enter で最初の履歴検索候補を選択する
             NewLineWhenHistEnter = addDecoderSetting("newLineWhenHistEnter", false);            // 履歴候補選択時のEnterではつねに改行する
             HistDelDeckeyId = addDecoderSetting("histDelDeckeyId", "histDelHotkeyId", 41, 41);  // 履歴削除を呼び出すDecKeyのID
@@ -1914,7 +1880,6 @@ namespace KanchokuWS
             HistHorizontalCandMax = addDecoderSetting("histHorizontalCandMax", 10, 1, 10);      // 履歴候補の横列鍵盤表示の際の最大候補数
             HistMoveShortestAt2nd = addDecoderSetting("histMoveShortestAt2nd", false);          // 最短長履歴文字列を2番目に表示する
             ShowHistCandsFromFirst = addDecoderSetting("showHistCandsFromFirst", true);         // 最初の履歴選択から横列候補表示を行うか
-            HistAllowFromMiddleChar = addDecoderSetting("histAllowFromMiddleChar", true);       // 出力漢字列やカタカナ列の途中からでも自動履歴検索を行う(@TODO)
             UseArrowKeyToSelectCandidate = addDecoderSetting("useArrowToSelCand", true);        // 矢印キーで履歴候補選択を行う
             SelectHistCandByTab = addDecoderSetting("selectHistCandByTab", true);               // Tabキーで履歴候補選択を行う
             //HandleShiftSpaceAsNormalSpace = addDecoderSetting("handleShiftSpaceAsNormalSpace", true);  // Shift+Space を通常 Space しとて扱う(HistSearchByShiftSpaceがfalseの場合)

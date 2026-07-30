@@ -2,8 +2,6 @@
 #include "string_utils.h"
 
 #include "Settings.h"
-#include "StrokeHelp.h"
-
 #include "State.h"
 #include "SimpleDicStateBase.h"
 #include "SimpleDic.h"
@@ -56,13 +54,6 @@ namespace {
             // 過去の履歴候補選択の結果を反映しておく
             HIST_CAND->DelayedPushFrontSelectedWord();
 
-            // 末尾1文字の登録
-            auto ws = OUTPUT_STACK->GetLastOutputStackStrUptoNL(1);
-            if (ws.size() == 1 && ws[0] >= 0x100 && !STROKE_HELP->Find(ws[0])) {
-                // 末尾文字がストローク可能文字でなければ登録する
-                HISTORY_DIC->AutoAddNewEntry(ws);
-            }
-
             MString key;
             if (HIST_CAND->IsHistInSearch()) {
                 _LOG_DEBUGH(_T("History in Search"));
@@ -79,7 +70,7 @@ namespace {
 
             // 履歴入力候補の取得
             //candLen = 0;
-            histBase->setCandidatesVKB(VkbLayout::Vertical, 0 /*HIST_CAND->GetCandWords(key, false, candLen)*/, key);
+            histBase->setCandidatesVKB(VkbLayout::Vertical, 0, key);
 
             // 検索キーの設定
             STROKE_MERGER_NODE->SetPrevHistKeyState(HIST_CAND->GetOrigKey());
@@ -252,7 +243,7 @@ namespace {
             // 2～3文字履歴の取得
             MString key;
             //candLen = -3;
-            histBase->setCandidatesVKB(VkbLayout::Vertical, -3 /*HIST_CAND->GetCandWords(key, false, candLen)*/, key);
+            histBase->setCandidatesVKB(VkbLayout::Vertical, -3, key);
 
             MarkNecessary();
         }
@@ -286,7 +277,7 @@ namespace {
             // 1文字履歴の取得
             MString key;
             //candLen = 1;
-            histBase->setCandidatesVKB(VkbLayout::Vertical, 1 /*HIST_CAND->GetCandWords(key, false, candLen)*/, key);
+            histBase->setCandidatesVKB(VkbLayout::Vertical, 1, key);
 
             MarkNecessary();
         }
@@ -397,4 +388,3 @@ DEFINE_CLASS_LOGGER(HistoryOneCharNodeBuilder);
 Node* HistoryOneCharNodeBuilder::CreateNode() {
     return new HistoryOneCharNode();
 }
-

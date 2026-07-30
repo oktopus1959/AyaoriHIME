@@ -70,24 +70,9 @@ void Settings::SetValues(const std::map<String, String>& dict) {
 
     SET_INT_VALUE(backFileRotationGeneration);
 
-    SET_INT_VALUE(histMaxLength);
-    SET_INT_VALUE(histKanjiWordMinLength);
-    SET_INT_VALUE(histKanjiWordMaxLength);
-    SET_INT_VALUE(histKanjiWordMinLengthEx);
-    SET_INT_VALUE(histKatakanaWordMinLength);
-    SET_INT_VALUE(histKatakanaWordMaxLength);
-    SET_INT_VALUE(histHiraganaKeyLength);
-    SET_INT_VALUE(histKatakanaKeyLength);
-    SET_INT_VALUE(histKanjiKeyLength);
-    SET_INT_VALUE(histRomanKeyLength);
-    //SET_INT_VALUE(histMapKeyLength);
     SET_INT_VALUE(histMapKeyMaxLength);
     SET_INT_VALUE(histMapGobiMaxLength);
 
-    SET_BOOL_VALUE(autoHistSearchEnabled);
-    SET_BOOL_VALUE(suppressAutoHistRegister);
-    //SET_BOOL_VALUE(histSearchByCtrlSpace);
-    //SET_BOOL_VALUE(histSearchByShiftSpace);
     SET_BOOL_VALUE(selectFirstCandByEnter);
     SET_BOOL_VALUE(newLineWhenHistEnter);
     SET_INT_VALUE(histDelDeckeyId);

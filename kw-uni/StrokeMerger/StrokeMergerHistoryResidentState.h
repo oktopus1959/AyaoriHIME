@@ -11,13 +11,7 @@ protected:
     //int HandleDeckeyPreProc(int deckey) override = 0;
 
 public:
-    // Enter時の新しい履歴の追加
-    virtual void AddNewHistEntryOnEnter() = 0;
-
-    // 何か文字が入力されたときの新しい履歴の追加
-    virtual void AddNewHistEntryOnSomeChar() = 0;
-
-    // 文字列を変換して出力、その後、履歴の追加
+    // 文字列を変換して出力
     virtual void SetTranslatedOutString(const MString& outStr, size_t rewritableLen, bool bBushuComp = true, int numBS = -1) = 0;
 
     virtual void handleFullEscapeResidentState() = 0;

@@ -103,24 +103,23 @@ namespace {
         }
 
         // 指定のキーで始まる候補を取得する (len > 0 なら指定の長さの候補だけを取得, len < 0 なら Abs(len)以下の長さの候補を取得)
-        const std::vector<SimpleDicResult>& GetCandidates(const MString& key, bool bCheckMinKeyLen, int len,
+        const std::vector<SimpleDicResult>& GetCandidates(const MString& key, int len,
                                                      bool allowSingleAsciiHistMap = false) override {
             isHistInSearch = true;
             DelayedPushFrontSelectedWord();
             currentLen = len;
             currentAllowSingleAsciiHistMap = allowSingleAsciiHistMap;
-            histCands = HISTORY_DIC->GetCandidates(key, currentKey, bCheckMinKeyLen, len, allowSingleAsciiHistMap);  // ここで currentKey は変更される (currentKey = resultKey)
+            histCands = HISTORY_DIC->GetCandidates(key, currentKey, len, allowSingleAsciiHistMap);  // ここで currentKey は変更される (currentKey = resultKey)
             histResults.clear();
             utils::append(histResults, histCands.GetResults());
             _LOG_DEBUGH(_T("cands num={}, new currentKey={}"), histResults.size(), to_wstr(currentKey));
             return histResults;
         }
 
-        const std::vector<MString> GetCandWords(const MString& key, bool bCheckMinKeyLen, int len,
+        const std::vector<MString> GetCandWords(const MString& key, int len,
                                                 bool allowSingleAsciiHistMap = false) override {
-            _LOG_DEBUGH(_T("CALLED: key={}, bCheckMinKeyLen={}, len={}, allowSingleAsciiHistMap={}"),
-                to_wstr(key), bCheckMinKeyLen, len, allowSingleAsciiHistMap);
-            GetCandidates(key, bCheckMinKeyLen, len, allowSingleAsciiHistMap);
+            _LOG_DEBUGH(_T("CALLED: key={}, len={}, allowSingleAsciiHistMap={}"), to_wstr(key), len, allowSingleAsciiHistMap);
+            GetCandidates(key, len, allowSingleAsciiHistMap);
             return GetCandWords();
         }
 
@@ -200,7 +199,7 @@ namespace {
 
             SimpleDicResult result = histResults[n];
             HISTORY_DIC->UseWord(result.Word);
-            GetCandidates(currentKey, false, currentLen, currentAllowSingleAsciiHistMap);
+            GetCandidates(currentKey, currentLen, currentAllowSingleAsciiHistMap);
             _LOG_DEBUGH(_T("LEAVE: OrigKey={}, Key={}, Word={}"), to_wstr(result.OrigKey), to_wstr(result.Key), to_wstr(result.Word));
             return result;
         }
@@ -210,7 +209,7 @@ namespace {
             DelayedPushFrontSelectedWord();
             if (n < histCands.Size()) {
                 HISTORY_DIC->DeleteEntry(histCands.GetNthWord(n));
-                GetCandidates(currentKey, false, currentLen, currentAllowSingleAsciiHistMap);
+                GetCandidates(currentKey, currentLen, currentAllowSingleAsciiHistMap);
             }
             _LOG_DEBUGH(_T("LEAVE"));
         }

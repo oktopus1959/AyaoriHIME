@@ -136,9 +136,6 @@ public:
     // 履歴入力辞書ファイルの読み込み(読み込み専用辞書)
     virtual void ReadRomanFileAsReadOnly(const std::vector<String>& lines) = 0;
 
-    // 登録
-    virtual void AutoAddNewEntry(const MString& line) = 0;
-
     // 登録(条件なし)
     virtual void AddNewEntryAnyway(const MString& line) = 0;
 
@@ -152,7 +149,7 @@ public:
     virtual void DeleteEntry(const MString& word) = 0;
 
     // 指定の見出し文字に対する変換候補のセットを取得する
-    virtual const SImpleDicResultList& GetCandidates(const MString& key, MString&, bool checkMinKeyLen, int len,
+    virtual const SImpleDicResultList& GetCandidates(const MString& key, MString&, int len,
                                                 bool allowSingleAsciiMap = false) = 0;
 
     // 単語の使用

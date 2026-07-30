@@ -34,27 +34,9 @@ struct Settings {
 
     int backFileRotationGeneration = 3;     // 辞書ファイル保存世代数
 
-    size_t histMaxLength = 10;              // 自動履歴登録可能な履歴文字列の最大長
-
-    size_t histKanjiWordMinLength = 4;      // 自動履歴登録対象となる漢字文字列の最小長
-    size_t histKanjiWordMaxLength = 5;      // 自動履歴登録対象となる漢字文字列の最大長
-    size_t histKatakanaWordMinLength = 4;   // 自動履歴登録対象となるカタカナ文字列の最小長
-    size_t histKatakanaWordMaxLength = 8;   // 自動履歴登録対象となるカタカナ文字列の最大長
-    size_t histKanjiWordMinLengthEx = 2;    // 自動履歴登録対象となる難打鍵文字を含む漢字文字列の最小長
-
-    size_t histHiraganaKeyLength = 2;       // ひらがな履歴検索キーの長さ
-    size_t histKatakanaKeyLength = 2;       // カタカナ履歴検索キーの長さ
-    size_t histKanjiKeyLength = 1;          // 漢字履歴検索キーの長さ
-    size_t histRomanKeyLength = 4;          // ローマ字履歴検索キーの長さ
-    //size_t histMapKeyLength = 1;            // 変換履歴検索キーの長さ
-
     size_t histMapKeyMaxLength = 16;        // 変換履歴キーの最大長
     size_t histMapGobiMaxLength = 3;        // 変換履歴キーに付加できる語尾の最大長
 
-    bool autoHistSearchEnabled = false;     // 自動履歴検索を行う
-    bool suppressAutoHistRegister = true;   // 履歴の自動登録を抑制する
-    //bool histSearchByCtrlSpace = false;     // Ctrl-Space で履歴検索を行う
-    //bool histSearchByShiftSpace = false;    // Shift-Space で履歴検索を行う
     bool selectFirstCandByEnter = false;    // 履歴の第1候補をEnterキーで選択する
     bool newLineWhenHistEnter = false;      // 履歴候補選択時のEnterではつねに改行する
     int histDelDeckeyId = 41;               // 履歴削除のDecKeyID

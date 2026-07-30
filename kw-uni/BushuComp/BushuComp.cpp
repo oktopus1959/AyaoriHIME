@@ -63,8 +63,6 @@ namespace {
                 if (!result.empty()) {
                     resultStr.setResult(result, 2);
                     copyStrokeHelpToVkbFaces();
-                    //合成した文字を履歴に登録
-                    if (HISTORY_DIC) HISTORY_DIC->AutoAddNewEntry(utils::last_substr(result, 1));
                 }
             }
         }
@@ -149,8 +147,6 @@ bool BushuCompNode::ReduceByAutoBushu(mchar_t tailChar, mchar_t thisChar, MStrin
                 resultOut.setResult(ms, 1);
                 STATE_COMMON->CopyStrokeHelpToVkbFaces((wchar_t)m);
                 IsPrevAuto = true;
-                //合成した文字を履歴に登録
-                if (HISTORY_DIC) HISTORY_DIC->AutoAddNewEntry(ms);
                 _LOG_DEBUGH(_T("LEAVE: true"));
                 return true;
             }
@@ -178,4 +174,3 @@ Node* BushuCompNodeBuilder::CreateNode() {
 
     return new BushuCompNode();
 }
-

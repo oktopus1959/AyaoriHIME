@@ -148,7 +148,7 @@ namespace {
         // 履歴入力候補を鍵盤にセットする
         void setCandidatesVKB(VkbLayout layout, int canLen, const MString& key, bool bShrinkWord = false) override {
             candLen = canLen;
-            setCandidatesVKB(layout, HIST_CAND->GetCandWords(key, false, canLen), key, bShrinkWord);
+            setCandidatesVKB(layout, HIST_CAND->GetCandWords(key, canLen), key, bShrinkWord);
         }
 
         // 履歴入力候補を鍵盤にセットする
@@ -257,7 +257,7 @@ namespace {
                     const auto key = OUTPUT_STACK->GetLastKanjiOrKatakanaOrHirakanaOrAsciiKey<MString>(SETTINGS->histMapKeyMaxLength);
                     _LOG_DEBUGH(_T("key={}"), to_wstr(key));
                     candLen = 0;
-                    HIST_CAND->GetCandidates(key, false, candLen);
+                    HIST_CAND->GetCandidates(key, candLen);
                     _LOG_DEBUGH(_T("LEAVE DELETE MODE"));
                 }
                 return false;
@@ -279,7 +279,7 @@ namespace {
                     candDispVerticalPos = 0;
                     auto key = HIST_CAND->GetCurrentKey();
                     candLen = (deckey + 1) % LONG_KEY_NUM;
-                    setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(key, false, candLen), key);
+                    setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(key, candLen), key);
                 }
                 _LOG_DEBUGH(_T("LEAVE: forNum"));
                 return false;
@@ -341,7 +341,7 @@ namespace {
             auto key = HIST_CAND->GetCurrentKey();
             //指定の長さのものだけを残して仮想鍵盤に表示
             candLen = candLen < 0 ? abs(candLen) : (candLen + 1) % CAND_LEN_THRESHOLD;
-            setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(key, false, candLen), key);
+            setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(key, candLen), key);
             return;
         }
 
@@ -355,7 +355,7 @@ namespace {
             auto key = HIST_CAND->GetCurrentKey();
             //指定の長さのものだけを残して仮想鍵盤に表示
             candLen = candLen < 0 ? abs(candLen) - 1 : (candLen == 0 ? CAND_LEN_THRESHOLD : candLen) - 1;
-            setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(key, false, candLen), key);
+            setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(key, candLen), key);
             return;
         }
 

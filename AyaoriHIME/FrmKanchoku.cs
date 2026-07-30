@@ -1633,7 +1633,6 @@ namespace KanchokuWS
                 } else if (str._reMatch("^[^ ]+ /")) {
                     ExecCmdDecoder("addMazegakiEntry", str);
                 } else {
-                    //ExecCmdDecoder("addHistEntry", str._safeSubstring(0, Settings.HistMaxLength));
                     AddHistEntry(str);
                 }
             }
@@ -2926,10 +2925,8 @@ namespace KanchokuWS
                 if (Settings.KanaTrainingMode) {
                     SendInputHandler.Singleton.InitializePreRewriteTimer(this);
                     ExecCmdDecoder("setKanaTrainingMode", "true");
-                    ExecCmdDecoder("setAutoHistSearchEnabled", "false");
                 } else {
                     ExecCmdDecoder("setKanaTrainingMode", "false");
-                    if (Settings.AutoHistSearchEnabled) ExecCmdDecoder("setAutoHistSearchEnabled", "true");
                 }
                 frmVkb.DrawInitialVkb();
             }
