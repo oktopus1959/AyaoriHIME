@@ -110,7 +110,6 @@ namespace KanchokuWS.Domain
             {"helpunrotate", DecoderKeys.STROKE_HELP_UNROTATION_DECKEY},
             {"daterotate", DecoderKeys.DATE_STRING_ROTATION_DECKEY},
             {"dateunrotate", DecoderKeys.DATE_STRING_UNROTATION_DECKEY},
-            {"histfullcand", DecoderKeys.HISTORY_FULL_CAND_DECKEY},
             {"histnext", DecoderKeys.HISTORY_NEXT_SEARCH_DECKEY},
             {"histprev", DecoderKeys.HISTORY_PREV_SEARCH_DECKEY},
             {"strokehelp", DecoderKeys.STROKE_HELP_DECKEY},

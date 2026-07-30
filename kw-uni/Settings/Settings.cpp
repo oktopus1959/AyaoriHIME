@@ -75,8 +75,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
 
     SET_BOOL_VALUE(selectFirstCandByEnter);
     SET_BOOL_VALUE(newLineWhenHistEnter);
-    SET_INT_VALUE(histDelDeckeyId);
-    SET_INT_VALUE(histNumDeckeyId);
     SET_UINT_VALUE(histHorizontalCandMax);
     SET_BOOL_VALUE(histMoveShortestAt2nd);
     SET_BOOL_VALUE(showHistCandsFromFirst);

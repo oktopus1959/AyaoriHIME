@@ -289,8 +289,7 @@ namespace KanchokuWS
         public const int CLEAR_STROKE_DECKEY = SOFT_ESCAPE_DECKEY + 1;                  // 途中まで打ったストロークのクリア
         public const int COMMIT_STATE_DECKEY = CLEAR_STROKE_DECKEY + 1;                 // 状態をコミットする
 
-        public const int HISTORY_FULL_CAND_DECKEY = COMMIT_STATE_DECKEY + 1;                // 全文字履歴候補表示キー
-        public const int HISTORY_NEXT_SEARCH_DECKEY = HISTORY_FULL_CAND_DECKEY + 1;         // 履歴検索実行&次候補選択キー（2枠は予約欠番）
+        public const int HISTORY_NEXT_SEARCH_DECKEY = COMMIT_STATE_DECKEY + 1;              // 履歴検索実行&次候補選択キー
         public const int HISTORY_PREV_SEARCH_DECKEY = HISTORY_NEXT_SEARCH_DECKEY + 1;       // 履歴検索実行&前候補選択キー
 
         public const int STROKE_HELP_DECKEY = HISTORY_PREV_SEARCH_DECKEY + 1;              // ストロークヘルプ

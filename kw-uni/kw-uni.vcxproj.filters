@@ -330,9 +330,6 @@
     <ClInclude Include="SimpleDic\SimpleDicCandidates.h">
       <Filter>ヘッダー ファイル\SimpleDic</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleDic\SimpleDic.h">
-      <Filter>ヘッダー ファイル\SimpleDic</Filter>
-    </ClInclude>
     <ClInclude Include="SimpleDic\SimpleDictionary.h">
       <Filter>ヘッダー ファイル\SimpleDic</Filter>
     </ClInclude>
@@ -494,10 +491,7 @@
     <ClCompile Include="SimpleDic\SimpleDicCandidates.cpp">
       <Filter>ソース ファイル\SimpleDic</Filter>
     </ClCompile>
-    <ClCompile Include="SimpleDic\SimpleDic.cpp">
-      <Filter>ソース ファイル\SimpleDic</Filter>
-    </ClCompile>
-    <ClCompile Include="SimpleDic\SimpleDicState.cpp">
+    <ClCompile Include="SimpleDic\SimpleDictionary.cpp">
       <Filter>ソース ファイル\SimpleDic</Filter>
     </ClCompile>
     <ClCompile Include="SimpleDic\SimpleDicStateBase.cpp">

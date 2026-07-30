@@ -7,7 +7,6 @@
 #include "BushuComp/BushuComp.h"
 #include "BushuComp/BushuAssoc.h"
 //#include "Mazegaki/Mazegaki.h"
-#include "SimpleDic/SimpleDic.h"
 #include "EscapeNode.h"
 #include "KeysAndChars/Zenkaku.h"
 #include "KeysAndChars/Katakana.h"
@@ -28,7 +27,6 @@ void FunctionNodeManager::AddFunctionNodeBuilders() {
     addFunctionNodeBuilder(_T("a"), _T("bushuAssocDirect"), new BushuAssocExNodeBuilder());
     //addFunctionNodeBuilder(_T("M"), _T("mazegaki"), new MazegakiNodeBuilder());
     //addFunctionNodeBuilder(_T("m"), _T("mazegaki"), new MazegakiNodeBuilder());
-    addFunctionNodeBuilder(_T("!"), _T("history"), new HistoryNodeBuilder());
     addFunctionNodeBuilder(_T("\\"), _T("nextThrough"), new EscapeNodeBuilder());
     addFunctionNodeBuilder(_T("\\\\"), _T("nextThrough"), new EscapeNodeBuilder());
     addFunctionNodeBuilder(_T("Z"), _T("zenkakuMode"), new ZenkakuNodeBuilder());

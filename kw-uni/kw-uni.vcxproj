@@ -225,7 +225,6 @@
     <ClInclude Include="Settings\KanchokuIni.h" />
     <ClInclude Include="Settings\Settings.h" />
     <ClInclude Include="SimpleDic\SimpleDicCandidates.h" />
-    <ClInclude Include="SimpleDic\SimpleDic.h" />
     <ClInclude Include="SimpleDic\SimpleDictionary.h" />
     <ClInclude Include="SimpleDic\SimpleDicStateBase.h" />
     <ClInclude Include="StartNode.h" />
@@ -297,8 +296,7 @@
     <ClCompile Include="Reporting\Logger.cpp" />
     <ClCompile Include="Settings\Settings.cpp" />
     <ClCompile Include="SimpleDic\SimpleDicCandidates.cpp" />
-    <ClCompile Include="SimpleDic\SimpleDic.cpp" />
-    <ClCompile Include="SimpleDic\SimpleDicState.cpp" />
+    <ClCompile Include="SimpleDic\SimpleDictionary.cpp" />
     <ClCompile Include="SimpleDic\SimpleDicStateBase.cpp" />
     <ClCompile Include="StartState.cpp" />
     <ClCompile Include="StateCommonInfo.cpp" />

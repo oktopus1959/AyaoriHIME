@@ -10,7 +10,6 @@
 #include "FunctionNodeManager.h"
 
 #include "SimpleDic/SimpleDicStateBase.h"
-#include "SimpleDic/SimpleDic.h"
 #include "Merger.h"
 #include "StrokeMergerHistoryResidentState.h"
 #include "Lattice.h"
@@ -548,12 +547,6 @@ namespace {
                         LOG_DEBUGH(_T("MULTI_STREAM_SELECT_FIRST: commit first candidate"));
                         //WORD_LATTICE->selectFirst();
                         WORD_LATTICE->removeOtherThanFirstOne();
-                        break;
-                    case HISTORY_FULL_CAND_DECKEY:
-                        LOG_DEBUGH(_T("HISTORY_FULL_CAND"));
-                        if (!NextNodeMaybe()) {
-                            SetNextNodeMaybe(HISTORY_NODE);
-                        }
                         break;
                     case TOGGLE_ZENKAKU_CONVERSION_DECKEY:
                         LOG_DEBUGH(_T("TOGGLE_ZENKAKU_CONVERSION"));
@@ -1189,7 +1182,7 @@ namespace {
                     if (words.empty() || (words.size() == 1 && (words[0].empty() || words[0] == ky))) {
                         LOG_DEBUGH(_T("HistSearch: CANDS CHECKER-A: cands size <= 1"));
                     } else if (SETTINGS->showHistCandsFromFirst) {
-                        histBase->setCandidatesVKB(VkbLayout::Horizontal, words, ky);
+                        histBase->setCandidatesVKB(words, ky);
                     }
                 };
                 if (key != STROKE_MERGER_NODE->GetPrevKey() || maybeEditedBySubState) {
@@ -1600,7 +1593,7 @@ namespace {
                 LOG_DEBUGH(_T("SetHistoryBlocker"));
                 STATE_COMMON->SetHistoryBlockFlag();
             }
-            if (bSetVkb) histBase->setCandidatesVKB(VkbLayout::Horizontal, HIST_CAND->GetCandWords(), HIST_CAND->GetCurrentKey());
+            if (bSetVkb) histBase->setCandidatesVKB(HIST_CAND->GetCandWords(), HIST_CAND->GetCurrentKey());
 
             // 英数モードはキャンセルする
             if (NextState()) NextState()->handleEisuCancel();

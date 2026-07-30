@@ -171,7 +171,6 @@ namespace KanchokuWS
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.MAZE_CONVERSION_DECKEY, 0, "MazeConversion", "", "交ぜ書き変換の実行"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.BUSHU_COMP_DECKEY, 0, "BushuComp", "", "部首合成を実行する"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.BUSHU_COMP_HELP_DECKEY, 0, "BushuCompHelp", "", "部首合成ヘルプ表示"),
-            //new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.HISTORY_FULL_CAND_DECKEY, 0, "HistFullCand", "", "全履歴候補の表示"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.HISTORY_NEXT_SEARCH_DECKEY, 0, "SimpleDicNext", "", "簡易辞書検索候補を先頭から選択"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.HISTORY_PREV_SEARCH_DECKEY, 0, "SimpleDicPrev", "", "簡易辞書検索候補を末尾から選択"),
             new KeyOrFunction(KeyOrFunction.ATTR_FUNCTION, DecoderKeys.FULL_ESCAPE_DECKEY, 0, "FullEscape", "", "入力途中状態をクリアし、入力文字列の末尾にブロッカーを置く"),

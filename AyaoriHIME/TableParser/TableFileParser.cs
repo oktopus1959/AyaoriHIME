@@ -580,9 +580,6 @@ namespace KanchokuWS.TableParser
                 case "m":   // mazegaki
                     Settings.MazegakiKeySeq_Preset = chooseMinimalOne(Settings.MazegakiKeySeq_Preset, strkList);
                     break;
-                case "!":   // history
-                    Settings.HistoryKeySeq_Preset = chooseMinimalOne(Settings.HistoryKeySeq_Preset, strkList);
-                    break;
                 case "\\":  // nextThrough
                     Settings.NextThroughKeySeq_Preset = chooseMinimalOne(Settings.NextThroughKeySeq_Preset, strkList);
                     break;

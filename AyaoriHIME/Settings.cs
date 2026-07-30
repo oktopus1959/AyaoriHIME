@@ -666,11 +666,6 @@ namespace KanchokuWS
         public static string NextThroughKeySeq_PropName = "nextThroughKeySeq"; 
         public static string NextThroughKeySeq_Preset { get; set; }
 
-        /// <summary>履歴検索を呼び出す打鍵列</summary>
-        public static string HistoryKeySeq { get; set; }
-        public static string HistoryKeySeq_PropName = "historyKeySeq"; 
-        public static string HistoryKeySeq_Preset { get; set; }
-
         /// <summary>交ぜ書きを呼び出す打鍵列</summary>
         public static string MazegakiKeySeq { get; set; }
         public static string MazegakiKeySeq_PropName = "mazegakiKeySeq"; 
@@ -808,8 +803,6 @@ namespace KanchokuWS
         /// <summary>Enterで先頭候補を選択</summary>
         public static bool SelectFirstCandByEnter { get; private set; }
         public static bool NewLineWhenHistEnter { get; private set; }
-        public static int HistDelDeckeyId { get; private set; }
-        public static int HistNumDeckeyId { get; private set; }
 
         /// <summary>履歴候補の横列鍵盤表示の際の最大候補数</summary>
         public static int HistHorizontalCandMax { get; private set; }
@@ -1429,7 +1422,6 @@ namespace KanchokuWS
                 ZenkakuModeKeySeq_Preset = "";
                 ZenkakuOneCharKeySeq_Preset = "";
                 NextThroughKeySeq_Preset = "";
-                HistoryKeySeq_Preset = "";
                 MazegakiKeySeq_Preset = "";
                 BushuCompKeySeq_Preset = "";
                 BushuAssocKeySeq_Preset = "";
@@ -1863,8 +1855,6 @@ namespace KanchokuWS
             HistMapGobiMaxLength = addDecoderSetting("histMapGobiMaxLength", 2, 0);             // 変換履歴キーに付加できる語尾の最大長
             SelectFirstCandByEnter = addDecoderSetting("selectFirstCandByEnter", false);        // Enter で最初の履歴検索候補を選択する
             NewLineWhenHistEnter = addDecoderSetting("newLineWhenHistEnter", false);            // 履歴候補選択時のEnterではつねに改行する
-            HistDelDeckeyId = addDecoderSetting("histDelDeckeyId", "histDelHotkeyId", 41, 41);  // 履歴削除を呼び出すDecKeyのID
-            HistNumDeckeyId = addDecoderSetting("histNumDeckeyId", "histNumHotkeyId", 45, 41);  // 履歴文字数指定を呼び出すDecKeyのID
             HistHorizontalCandMax = addDecoderSetting("histHorizontalCandMax", 10, 1, 10);      // 履歴候補の横列鍵盤表示の際の最大候補数
             HistMoveShortestAt2nd = addDecoderSetting("histMoveShortestAt2nd", false);          // 最短長履歴文字列を2番目に表示する
             ShowHistCandsFromFirst = addDecoderSetting("showHistCandsFromFirst", true);         // 最初の履歴選択から横列候補表示を行うか
@@ -1969,8 +1959,6 @@ namespace KanchokuWS
             if (ZenkakuOneCharKeySeq._notEmpty()) FunctionKeySeqSet.Add(ZenkakuOneCharKeySeq);
             NextThroughKeySeq = addDecoderKeySeqSetting(NextThroughKeySeq_PropName);
             if (NextThroughKeySeq._notEmpty()) FunctionKeySeqSet.Add(NextThroughKeySeq);
-            HistoryKeySeq = addDecoderKeySeqSetting(HistoryKeySeq_PropName);
-            if (HistoryKeySeq._notEmpty()) FunctionKeySeqSet.Add(HistoryKeySeq);
             MazegakiKeySeq = addDecoderKeySeqSetting(MazegakiKeySeq_PropName);
             if (MazegakiKeySeq._notEmpty()) FunctionKeySeqSet.Add(MazegakiKeySeq);
             BushuCompKeySeq = addDecoderKeySeqSetting(BushuCompKeySeq_PropName);

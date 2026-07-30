@@ -10,12 +10,10 @@
 #define _LOG_DEBUGH LOG_INFOH
 #endif
 
-#define CAND_LEN_THRESHOLD 10
-
 namespace {
 
     // -------------------------------------------------------------------
-    // 履歴入力機能状態基底クラス
+    // 簡易辞書検索状態基底クラス
     class HistoryStateBaseImpl : public HistoryStateBase {
         DECLARE_CLASS_LOGGER;
 
@@ -26,13 +24,6 @@ namespace {
     protected:
         // 履歴入力候補のリスト
         //SimpleDicCandidates histCands;
-
-        int candLen = 0;
-        size_t candDispVerticalPos = 0;
-        size_t candDispHorizontalPos = 0;
-
-        bool bWaitingForNum = false;
-        bool bDeleteMode = false;
 
     public:
         // コンストラクタ
@@ -134,242 +125,20 @@ namespace {
             return prevKey;
         }
 
-        // 前回の履歴選択の出力と現在の出力文字列(改行以降)の末尾が同一であるか
-        bool isLastHistOutSameAsCurrentOut() override {
-            // 前回の履歴選択の出力
-            MString prevOut = STROKE_MERGER_NODE->GetPrevOutString();
-            // 出力スタックから、上記と同じ長さの末尾文字列を取得
-            auto lastJstr = OUTPUT_STACK->GetLastJapaneseStr<MString>(prevOut.size());
-            bool result = !prevOut.empty() && lastJstr == prevOut;
-            _LOG_DEBUGH(_T("RESULT: {}: prevOut={}, lastJapaneseStr={}"), result, to_wstr(prevOut), to_wstr(lastJstr));
-            return result;
-        }
-
-        // 履歴入力候補を鍵盤にセットする
-        void setCandidatesVKB(VkbLayout layout, int canLen, const MString& key, bool bShrinkWord = false) override {
-            candLen = canLen;
-            setCandidatesVKB(layout, HIST_CAND->GetCandWords(key, canLen), key, bShrinkWord);
-        }
-
-        // 履歴入力候補を鍵盤にセットする
-        void setCandidatesVKB(VkbLayout layout, const std::vector<MString>& cands, const MString& key, bool bShrinkWord = false) override {
-            _LOG_DEBUGH(_T("ENTER: layout={}, cands.size()={}, key={}"), StateCommonInfo::GetVkbLayoutStr(layout), cands.size(), to_wstr(key));
+        // 簡易辞書候補を横列鍵盤にセットする
+        void setCandidatesVKB(const std::vector<MString>& cands, const MString& key) override {
+            _LOG_DEBUGH(_T("ENTER: cands.size()={}, key={}"), cands.size(), to_wstr(key));
             auto mark = pNode_->getString();
-            size_t maxlen = 0;
-            for (const auto& w : cands) { if (maxlen < w.size()) maxlen = w.size(); }
-
-            _LOG_DEBUGH(_T("maxlen={}, candDispVerticalPos={}, candDispHorizontalPos={}"), maxlen, candDispVerticalPos, candDispHorizontalPos);
-
-            if (maxlen <= CAND_DISP_LONG_VKEY_LEN) {
-                candDispVerticalPos = 0;
-            } else if (candDispVerticalPos >= maxlen) {
-                candDispVerticalPos -= CAND_DISP_LONG_VKEY_LEN;
-            }
-            size_t p = candDispHorizontalPos;
-            if (p >= cands.size()) {
-                p = p >= LONG_KEY_NUM ? p - LONG_KEY_NUM : 0;
-                candDispHorizontalPos = p;
-            }
-            size_t q = p + (layout == VkbLayout::Horizontal ? SETTINGS->histHorizontalCandMax : LONG_KEY_NUM);
-            if (q > cands.size()) q = cands.size();
-
-            _LOG_DEBUGH(_T("p={}, q={}, candDispVerticalPos={}, candDispHorizontalPos={}"), p, q, candDispVerticalPos, candDispHorizontalPos);
-
             std::vector<MString> words;
-            for (size_t i = p; i < q; ++i) {
-                words.push_back(
-                    bShrinkWord ? utils::str_shrink(cands[i], CAND_DISP_LONG_VKEY_LEN)
-                    : utils::safe_substr(cands[i], candDispVerticalPos, CAND_DISP_LONG_VKEY_LEN));
+            size_t q = std::min(cands.size(), SETTINGS->histHorizontalCandMax);
+            for (size_t i = 0; i < q; ++i) {
+                words.push_back(utils::str_shrink(cands[i], 20));
             }
-            STATE_COMMON->SetVirtualKeyboardStrings(layout, mark + utils::str_shrink(key, 5), words);
+            STATE_COMMON->SetVirtualKeyboardStrings(VkbLayout::Horizontal, mark + utils::str_shrink(key, 5), words);
 
             if (HIST_CAND->GetSelectPos() >= 0) STATE_COMMON->SetDontMoveVirtualKeyboard();
 
             _LOG_DEBUGH(_T("LEAVE"));
-        }
-
-        // 中央鍵盤の色付け、矢印キー有効、縦列鍵盤の色付けあり
-        void setHistSelectColorAndBackColor() override {
-            // 「候補選択」の色で中央鍵盤の色付け
-            STATE_COMMON->SetHistCandSelecting();
-            // 矢印キーを有効にして、背景色の色付けあり
-            _LOG_DEBUGH(_T("Set Unselected"));
-            STATE_COMMON->SetWaitingCandSelect(-1);
-        }
-
-        // 中央鍵盤の文字出力と色付け、矢印キー有効、縦列鍵盤の色付けなし
-        void setCenterStringAndBackColor(StringRef ws) override {
-            // 中央鍵盤の文字出力
-            STATE_COMMON->SetCenterString(ws);
-            // 「その他の状態」の色で中央鍵盤の色付け
-            STATE_COMMON->SetOtherStatus();
-            // 矢印キーを有効にして、背景色の色付けなし
-            _LOG_DEBUGH(_T("Set Unselected=-2"));
-            STATE_COMMON->SetWaitingCandSelect(-2);
-        }
-
-        void setCandDispHorizontalPos(size_t pos) override {
-            candDispHorizontalPos = pos;
-        }
-
-        // モード標識文字を返す
-        mchar_t GetModeMarker() override {
-            return utils::safe_front(pNode_->getString());
-        }
-
-        // 最終的な出力履歴が整ったところで呼び出される処理
-        void DoLastHistoryProc() override {
-            _LOG_DEBUGH(_T("ENTER"));
-
-            setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(), HIST_CAND->GetCurrentKey());
-            if (bDeleteMode) {
-                // 中央鍵盤の文字出力と色付け、矢印キー有効、縦列鍵盤の色付けなし
-                setCenterStringAndBackColor(_T("削除"));
-            } else if (bWaitingForNum) {
-                // 中央鍵盤の文字出力と色付け、矢印キー有効、縦列鍵盤の色付けなし
-                setCenterStringAndBackColor(_T("文字数指定"));
-            } else {
-                // 矢印キーを有効にして、先頭候補の背景色を色付け
-                setHistSelectColorAndBackColor();
-            }
-            _LOG_DEBUGH(_T("LEAVE"));
-        }
-
-        // Strokeキー を処理する
-        bool handleStrokeKeys(int deckey, MStringResult& resultStr) override {
-            _LOG_DEBUGH(_T("ENTER: deckey={:x}H({})"), deckey, deckey);
-            if (deckey == SETTINGS->histDelDeckeyId) {
-                // 削除モードに入る
-                _LOG_DEBUGH(_T("LEAVE: DELETE MODE"));
-                bDeleteMode = true;
-                return false;
-            }
-            if (bDeleteMode) {
-                // 削除モードのとき
-                if (deckey == SETTINGS->histDelDeckeyId) {
-                    bDeleteMode = false;
-                    _LOG_DEBUGH(_T("LEAVE DELETE MODE"));
-                } else if (deckey < STROKE_SPACE_DECKEY) {
-                    HIST_CAND->DeleteNth((deckey % LONG_KEY_NUM) + candDispHorizontalPos);
-                    bDeleteMode = false;
-                    //const String key = STATE_COMMON->GetLastKanjiOrKatakanaKey();
-                    // ひらがな交じりやASCIIもキーとして取得する
-                    const auto key = OUTPUT_STACK->GetLastKanjiOrKatakanaOrHirakanaOrAsciiKey<MString>(SETTINGS->histMapKeyMaxLength);
-                    _LOG_DEBUGH(_T("key={}"), to_wstr(key));
-                    candLen = 0;
-                    HIST_CAND->GetCandidates(key, candLen);
-                    _LOG_DEBUGH(_T("LEAVE DELETE MODE"));
-                }
-                return false;
-            }
-            if (deckey == SETTINGS->histNumDeckeyId) {
-                // 履歴文字数指定
-                _LOG_DEBUGH(_T("ENTER: NUM MODE"));
-                bWaitingForNum = true;
-                return false;
-            }
-            if (bWaitingForNum) {
-                // 履歴文字数指定のとき
-                bWaitingForNum = false;
-                if (deckey >= 0 && deckey < CAND_LEN_THRESHOLD) {
-                    // '1'〜'0' (1〜10文字のものだけを表示)
-                    _LOG_DEBUGH(_T("ENTER JUST LEN MODE"));
-                    //指定の長さのものだけを残して仮想鍵盤に表示
-                    candDispHorizontalPos = 0;
-                    candDispVerticalPos = 0;
-                    auto key = HIST_CAND->GetCurrentKey();
-                    candLen = (deckey + 1) % LONG_KEY_NUM;
-                    setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(key, candLen), key);
-                }
-                _LOG_DEBUGH(_T("LEAVE: forNum"));
-                return false;
-            }
-
-            // 下記は不要。いったん出力履歴バッファをクリアしてから履歴入力を行えばよいため
-            //if (deckey == DECKEY_STROKE_44) {
-            //    // '@' : 全使用リストから取得する
-            //    //histBase->setCandidatesVKB(HIST_CAND->GetCandidates(_T("")), _T(""));
-            //    HIST_CAND->GetCandidates(_T(""));
-            //    return false;
-            //}
-
-            // 候補の選択
-            _LOG_DEBUGH(_T("HIST_CAND->SelectNth()"));
-            SimpleDicResult result = HIST_CAND->SelectNth((deckey >= STROKE_SPACE_DECKEY ? 0 : deckey % LONG_KEY_NUM) + candDispHorizontalPos);
-            _LOG_DEBUGH(_T("result.Word={}, result.KeyLen={}"), to_wstr(result.Word), result.KeyLen());
-            if (!result.Word.empty()) {
-                getLastHistKeyAndRewindOutput(resultStr);    // 前回の履歴検索キー取得と出力スタックの巻き戻し予約(numBackSpacesに値をセット)
-                setOutString(result, resultStr);               // 選択された候補の出力
-                HIST_CAND->ClearKeyInfo();
-                //if (result.KeyLen() >= 2) STATE_COMMON->SetHistoryBlockFlag();  // 1文字の場合は履歴検索の対象となる
-                // 出力された履歴に対しては、履歴の再検索の対象としない(変換形履歴の場合を除く)
-                if (result.Word.find(VERT_BAR) == MString::npos) {
-                    _LOG_DEBUGH(_T("SetHistoryBlocker"));
-                    STATE_COMMON->SetHistoryBlockFlag();
-                }
-            }
-            //handleKeyPostProc();
-            _LOG_DEBUGH(_T("LEAVE: True"));
-            return true;
-        }
-
-        // 機能キーだったときの一括処理(false を返すと、この後、個々の機能キーのハンドラが呼ばれる)
-        bool handleFunctionKeys(int deckey) override {
-            _LOG_DEBUGH(_T("CALLED"));
-            switch (deckey) {
-            case LEFT_ARROW_DECKEY:
-            case RIGHT_ARROW_DECKEY:
-            case UP_ARROW_DECKEY:
-            case DOWN_ARROW_DECKEY:
-                return false;
-            default:
-                if (bDeleteMode || bWaitingForNum) {
-                    // 矢印キーでなくて、削除モードまたは数字入力モードなら、それを抜ける
-                    bDeleteMode = false;
-                    bWaitingForNum = false;
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        void handleDownArrow() override {
-            //candDispVerticalPos += CAND_DISP_LONG_VKEY_LEN;
-            candDispHorizontalPos = 0;
-            candDispVerticalPos = 0;
-            auto key = HIST_CAND->GetCurrentKey();
-            //指定の長さのものだけを残して仮想鍵盤に表示
-            candLen = candLen < 0 ? abs(candLen) : (candLen + 1) % CAND_LEN_THRESHOLD;
-            setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(key, candLen), key);
-            return;
-        }
-
-        void handleUpArrow() override {
-            //if (candDispVerticalPos >= CAND_DISP_LONG_VKEY_LEN)
-            //    candDispVerticalPos -= CAND_DISP_LONG_VKEY_LEN;
-            //else
-            //    candDispVerticalPos = 0;
-            candDispHorizontalPos = 0;
-            candDispVerticalPos = 0;
-            auto key = HIST_CAND->GetCurrentKey();
-            //指定の長さのものだけを残して仮想鍵盤に表示
-            candLen = candLen < 0 ? abs(candLen) - 1 : (candLen == 0 ? CAND_LEN_THRESHOLD : candLen) - 1;
-            setCandidatesVKB(VkbLayout::Vertical, HIST_CAND->GetCandWords(key, candLen), key);
-            return;
-        }
-
-        void handleLeftArrow() override {
-            if (candDispHorizontalPos >= LONG_KEY_NUM)
-                candDispHorizontalPos -= LONG_KEY_NUM;
-            else
-                candDispHorizontalPos = 0;
-            candDispVerticalPos = 0;
-        }
-
-        void handleRightArrow() override {
-            candDispHorizontalPos += LONG_KEY_NUM;
-            candDispVerticalPos = 0;
         }
 
     };

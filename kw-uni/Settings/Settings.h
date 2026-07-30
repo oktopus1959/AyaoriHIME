@@ -39,8 +39,6 @@ struct Settings {
 
     bool selectFirstCandByEnter = false;    // 履歴の第1候補をEnterキーで選択する
     bool newLineWhenHistEnter = false;      // 履歴候補選択時のEnterではつねに改行する
-    int histDelDeckeyId = 41;               // 履歴削除のDecKeyID
-    int histNumDeckeyId = 45;               // 履歴文字数指定のDecKeyID
     size_t histHorizontalCandMax = 5;       // 履歴候補の横列鍵盤表示の際の最大数
 
     bool histMoveShortestAt2nd = false;     // 最短長履歴文字列を2番目に表示する

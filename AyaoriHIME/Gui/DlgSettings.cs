@@ -1734,8 +1734,6 @@ namespace KanchokuWS.Gui
             setEnabled(textBox_katakanaModeKeySeq, Settings.KatakanaModeKeySeq_PropName);
             textBox_nextThroughKeySeq.Text = Settings.NextThroughKeySeq._orElse(() => makePresetString(Settings.NextThroughKeySeq_Preset));
             setEnabled(textBox_nextThroughKeySeq, Settings.NextThroughKeySeq_PropName);
-            textBox_historyKeySeq.Text = Settings.HistoryKeySeq._orElse(() => makePresetString(Settings.HistoryKeySeq_Preset));
-            setEnabled(textBox_historyKeySeq, Settings.HistoryKeySeq_PropName);
             textBox_bushuCompKeySeq.Text = Settings.BushuCompKeySeq._orElse(() => makePresetString(Settings.BushuCompKeySeq_Preset));
             setEnabled(textBox_bushuCompKeySeq, Settings.BushuCompKeySeq_PropName);
             textBox_bushuAssocKeySeq.Text = Settings.BushuAssocKeySeq._orElse(() => makePresetString(Settings.BushuAssocKeySeq_Preset));
@@ -1770,7 +1768,6 @@ namespace KanchokuWS.Gui
             checkerKeyAssign.Add(textBox_zenkakuOneCharKeySeq);
             checkerKeyAssign.Add(textBox_katakanaModeKeySeq);
             checkerKeyAssign.Add(textBox_nextThroughKeySeq);
-            checkerKeyAssign.Add(textBox_historyKeySeq);
             checkerKeyAssign.Add(textBox_bushuCompKeySeq);
             checkerKeyAssign.Add(textBox_bushuAssocKeySeq);
             checkerKeyAssign.Add(textBox_bushuAssocDirectKeySeq);
@@ -1804,7 +1801,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("zenkakuOneCharKeySeq", revertPresetString(textBox_zenkakuOneCharKeySeq.Text));
             Settings.SetUserIni("katakanaModeKeySeq", revertPresetString(textBox_katakanaModeKeySeq.Text));
             Settings.SetUserIni("nextThroughKeySeq", revertPresetString(textBox_nextThroughKeySeq.Text));
-            Settings.SetUserIni("historyKeySeq", revertPresetString(textBox_historyKeySeq.Text));
             Settings.SetUserIni("bushuCompKeySeq", revertPresetString(textBox_bushuCompKeySeq.Text));
             Settings.SetUserIni("bushuAssocKeySeq", revertPresetString(textBox_bushuAssocKeySeq.Text));
             Settings.SetUserIni("bushuAssocDirectKeySeq", revertPresetString(textBox_bushuAssocDirectKeySeq.Text));
