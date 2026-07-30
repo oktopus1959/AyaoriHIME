@@ -14,7 +14,7 @@
 
 #include "DeckeyUtil.h"
 #include "DeckeyToChars.h"
-//#include "History/HistoryResidentState.h"
+//#include "SimpleDic/SimpleDicResidentState.h"
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughStrokeTable)
 #define _LOG_DETAIL if (SETTINGS->multiStreamDetailLog) LOG_INFO_QUEUE

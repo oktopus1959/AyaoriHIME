@@ -12,7 +12,6 @@
 #include "State.h"
 #include "StrokeTable.h"
 #include "OutputStack.h"
-//#include "StrokeMerger/HistoryResidentState.h"
 #include "StrokeMerger/StrokeMergerHistoryResidentState.h"
 
 #include "Katakana.h"

@@ -3,7 +3,7 @@
 #include "string_utils.h"
 
 #include "StateCommonInfo.h"    // for VkbLayout
-#include "HistCandidates.h"     // for HistResult
+#include "SimpleDicCandidates.h"     // for HistResult
 #include "Node.h"
 #include "MStringResult.h"
 

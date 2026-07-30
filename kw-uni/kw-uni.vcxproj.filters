@@ -16,9 +16,6 @@
     <Filter Include="ソース ファイル\BushuComp">
       <UniqueIdentifier>{f39c7ea7-c26f-4c74-992f-fae756095eac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\History">
-      <UniqueIdentifier>{6681c7a6-a30e-44c2-9fb4-bc938f41d83c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\KeysAndChars">
       <UniqueIdentifier>{4e942085-1a22-4a5f-ac63-f461ece57fa1}</UniqueIdentifier>
     </Filter>
@@ -36,9 +33,6 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\BushuComp">
       <UniqueIdentifier>{c7a4a725-3c77-4ff0-b514-3482804d8e1d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\History">
-      <UniqueIdentifier>{19d18409-df36-4564-b551-2329bf802601}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\KeysAndChars">
       <UniqueIdentifier>{325b33a9-c7d2-4233-a174-927ad318e967}</UniqueIdentifier>
@@ -93,6 +87,12 @@
     </Filter>
     <Filter Include="ソース ファイル\Ngram">
       <UniqueIdentifier>{b1807999-6322-4549-9e39-bc0e687c0eff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\SimpleDic">
+      <UniqueIdentifier>{6dac35e9-c4d0-4c89-b6a4-ae66f6d26720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\SimpleDic">
+      <UniqueIdentifier>{c7d5e904-bb97-4097-8e4c-fd517539064d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -158,9 +158,6 @@
     </ClInclude>
     <ClInclude Include="BushuComp\BushuDic.h">
       <Filter>ヘッダー ファイル\BushuComp</Filter>
-    </ClInclude>
-    <ClInclude Include="History\HistoryDic.h">
-      <Filter>ヘッダー ファイル\History</Filter>
     </ClInclude>
     <ClInclude Include="KeysAndChars\deckey_id_defs.h">
       <Filter>ヘッダー ファイル\KeysAndChars</Filter>
@@ -282,15 +279,6 @@
     <ClInclude Include="MStringResult.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="History\HistCandidates.h">
-      <Filter>ヘッダー ファイル\History</Filter>
-    </ClInclude>
-    <ClInclude Include="History\History.h">
-      <Filter>ヘッダー ファイル\History</Filter>
-    </ClInclude>
-    <ClInclude Include="History\HistoryStateBase.h">
-      <Filter>ヘッダー ファイル\History</Filter>
-    </ClInclude>
     <ClInclude Include="StrokeMerger\StrokeMergerHistoryResidentState.h">
       <Filter>ヘッダー ファイル\StrokeMerger</Filter>
     </ClInclude>
@@ -338,6 +326,18 @@
     </ClInclude>
     <ClInclude Include="DebugLog.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleDic\SimpleDicCandidates.h">
+      <Filter>ヘッダー ファイル\SimpleDic</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleDic\SimpleDic.h">
+      <Filter>ヘッダー ファイル\SimpleDic</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleDic\SimpleDicDic.h">
+      <Filter>ヘッダー ファイル\SimpleDic</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleDic\SimpleDicStateBase.h">
+      <Filter>ヘッダー ファイル\SimpleDic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -394,9 +394,6 @@
     </ClCompile>
     <ClCompile Include="BushuComp\BushuDic.cpp">
       <Filter>ソース ファイル\BushuComp</Filter>
-    </ClCompile>
-    <ClCompile Include="History\HistoryDic.cpp">
-      <Filter>ソース ファイル\History</Filter>
     </ClCompile>
     <ClCompile Include="KeysAndChars\deckey_id_defs.cpp">
       <Filter>ソース ファイル\KeysAndChars</Filter>
@@ -464,15 +461,6 @@
     <ClCompile Include="StrokeMerger\Lattice2.cpp">
       <Filter>ソース ファイル\StrokeMerger</Filter>
     </ClCompile>
-    <ClCompile Include="History\HistCandidates.cpp">
-      <Filter>ソース ファイル\History</Filter>
-    </ClCompile>
-    <ClCompile Include="History\HistoryState.cpp">
-      <Filter>ソース ファイル\History</Filter>
-    </ClCompile>
-    <ClCompile Include="History\HistoryStateBase.cpp">
-      <Filter>ソース ファイル\History</Filter>
-    </ClCompile>
     <ClCompile Include="StrokeMerger\MergerHistoryState.cpp">
       <Filter>ソース ファイル\StrokeMerger</Filter>
     </ClCompile>
@@ -502,6 +490,18 @@
     </ClCompile>
     <ClCompile Include="DyMazin\MorphBridge.cpp">
       <Filter>ソース ファイル\DyMazin</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleDic\SimpleDicCandidates.cpp">
+      <Filter>ソース ファイル\SimpleDic</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleDic\SimpleDic.cpp">
+      <Filter>ソース ファイル\SimpleDic</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleDic\SimpleDicState.cpp">
+      <Filter>ソース ファイル\SimpleDic</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleDic\SimpleDicStateBase.cpp">
+      <Filter>ソース ファイル\SimpleDic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

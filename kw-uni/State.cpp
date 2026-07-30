@@ -7,7 +7,7 @@
 #include "State.h"
 #include "deckey_id_defs.h"
 #include "Node.h"
-#include "History/HistoryDic.h"
+#include "SimpleDic/SimpleDicDic.h"
 #include "StrokeHelp.h"
 #include "Settings.h"
 #include "StrokeTable.h"

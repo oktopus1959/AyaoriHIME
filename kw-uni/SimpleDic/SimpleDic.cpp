@@ -8,7 +8,7 @@
 #include "Settings.h"
 #include "ErrorHandler.h"
 #include "OutputStack.h"
-#include "HistoryDic.h"
+#include "SimpleDicDic.h"
 #include "EasyChars.h"
 #include "StrokeHelp.h"
 #include "RomanToKatakana.h"

@@ -198,10 +198,6 @@
     <ClInclude Include="FunctionNodeBuilder.h" />
     <ClInclude Include="FunctionNodeBuilderList.h" />
     <ClInclude Include="FunctionNodeManager.h" />
-    <ClInclude Include="History\HistCandidates.h" />
-    <ClInclude Include="History\History.h" />
-    <ClInclude Include="History\HistoryDic.h" />
-    <ClInclude Include="History\HistoryStateBase.h" />
     <ClInclude Include="KeysAndChars\DeckeyToChars.h" />
     <ClInclude Include="KeysAndChars\deckey_id_defs.h" />
     <ClInclude Include="KeysAndChars\EasyChars.h" />
@@ -228,6 +224,10 @@
     <ClInclude Include="Settings\IniAccessor.h" />
     <ClInclude Include="Settings\KanchokuIni.h" />
     <ClInclude Include="Settings\Settings.h" />
+    <ClInclude Include="SimpleDic\SimpleDicCandidates.h" />
+    <ClInclude Include="SimpleDic\SimpleDic.h" />
+    <ClInclude Include="SimpleDic\SimpleDicDic.h" />
+    <ClInclude Include="SimpleDic\SimpleDicStateBase.h" />
     <ClInclude Include="StartNode.h" />
     <ClInclude Include="StartState.h" />
     <ClInclude Include="StateCommonInfo.h" />
@@ -273,10 +273,6 @@
     <ClCompile Include="DyMazin\MorphBridge.cpp" />
     <ClCompile Include="EscapeState.cpp" />
     <ClCompile Include="FunctionNodeManager.cpp" />
-    <ClCompile Include="History\HistCandidates.cpp" />
-    <ClCompile Include="History\HistoryDic.cpp" />
-    <ClCompile Include="History\HistoryState.cpp" />
-    <ClCompile Include="History\HistoryStateBase.cpp" />
     <ClCompile Include="KeysAndChars\DeckeyToChars.cpp" />
     <ClCompile Include="KeysAndChars\deckey_id_defs.cpp" />
     <ClCompile Include="KeysAndChars\EasyChars.cpp" />
@@ -300,6 +296,10 @@
     <ClCompile Include="Reporting\ErrorHandler.cpp" />
     <ClCompile Include="Reporting\Logger.cpp" />
     <ClCompile Include="Settings\Settings.cpp" />
+    <ClCompile Include="SimpleDic\SimpleDicCandidates.cpp" />
+    <ClCompile Include="SimpleDic\SimpleDic.cpp" />
+    <ClCompile Include="SimpleDic\SimpleDicState.cpp" />
+    <ClCompile Include="SimpleDic\SimpleDicStateBase.cpp" />
     <ClCompile Include="StartState.cpp" />
     <ClCompile Include="StateCommonInfo.cpp" />
     <ClCompile Include="ResidentState.cpp" />

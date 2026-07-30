@@ -3,7 +3,7 @@
 #include "Settings.h"
 #include "State.h"
 
-#include "HistCandidates.h"
+#include "SimpleDicCandidates.h"
 
 #if 0
 #undef _LOG_DEBUGH
@@ -13,7 +13,7 @@
 namespace {
     // -------------------------------------------------------------------
     // 履歴入力リストのクラス
-    class HistCandidatesImpl : public HistCandidates {
+    class SimpleDicCandidatesImpl : public SimpleDicCandidates {
         DECLARE_CLASS_LOGGER;
 
         // 履歴入力候補のリスト
@@ -81,7 +81,7 @@ namespace {
         }
 
     public:
-        ~HistCandidatesImpl() {
+        ~SimpleDicCandidatesImpl() {
         }
 
     public:
@@ -216,13 +216,13 @@ namespace {
         }
 
     };
-    DEFINE_CLASS_LOGGER(HistCandidatesImpl);
+    DEFINE_CLASS_LOGGER(SimpleDicCandidatesImpl);
 
 } // namespace
 
-// HistCandidates::Singleton
-std::unique_ptr<HistCandidates> HistCandidates::Singleton;
+// SimpleDicCandidates::Singleton
+std::unique_ptr<SimpleDicCandidates> SimpleDicCandidates::Singleton;
 
-void HistCandidates::CreateSingleton() {
-    Singleton.reset(new HistCandidatesImpl());
+void SimpleDicCandidates::CreateSingleton() {
+    Singleton.reset(new SimpleDicCandidatesImpl());
 }

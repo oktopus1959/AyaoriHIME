@@ -11,7 +11,7 @@
 #include "Node.h"
 #include "State.h"
 #include "OutputStack.h"
-//#include "History/History.h"
+//#include "SimpleDic/SimpleDic.h"
 
 #include "RewriteString.h"
 #include "PostRewriteOneShot.h"

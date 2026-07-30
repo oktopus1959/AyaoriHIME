@@ -7,7 +7,7 @@
 #include "BushuComp/BushuComp.h"
 #include "BushuComp/BushuAssoc.h"
 //#include "Mazegaki/Mazegaki.h"
-#include "History/History.h"
+#include "SimpleDic/SimpleDic.h"
 #include "EscapeNode.h"
 #include "KeysAndChars/Zenkaku.h"
 #include "KeysAndChars/Katakana.h"

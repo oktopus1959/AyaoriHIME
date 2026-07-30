@@ -14,7 +14,7 @@
 
 #include "BushuComp.h"
 #include "BushuDic.h"
-#include "History/HistoryDic.h"
+#include "SimpleDic/SimpleDicDic.h"
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughBushu)
 

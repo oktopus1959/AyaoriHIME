@@ -1,6 +1,6 @@
 #include "Logger.h"
 
-#include "HistoryStateBase.h"
+#include "SimpleDicStateBase.h"
 
 #include "Settings.h"
 #include "StrokeMerger/Merger.h"
@@ -25,7 +25,7 @@ namespace {
 
     protected:
         // 履歴入力候補のリスト
-        //HistCandidates histCands;
+        //SimpleDicCandidates histCands;
 
         int candLen = 0;
         size_t candDispVerticalPos = 0;

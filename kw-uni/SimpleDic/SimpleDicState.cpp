@@ -5,8 +5,8 @@
 #include "StrokeHelp.h"
 
 #include "State.h"
-#include "HistoryStateBase.h"
-#include "History.h"
+#include "SimpleDicStateBase.h"
+#include "SimpleDic.h"
 #include "StrokeMerger/Merger.h"
 
 #if 0

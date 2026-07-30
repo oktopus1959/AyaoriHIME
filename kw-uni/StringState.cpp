@@ -1,12 +1,12 @@
 #include "Logger.h"
 
-#include "History/HistoryDic.h"
+#include "SimpleDic/SimpleDicDic.h"
 #include "Settings.h"
 
 #include "StringNode.h"
 #include "OneShot/RewriteString.h"
 #include "State.h"
-//#include "History/HistoryResidentState.h"
+//#include "SimpleDic/SimpleDicResidentState.h"
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughString)
 

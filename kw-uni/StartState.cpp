@@ -3,7 +3,7 @@
 #include "StartNode.h"
 #include "StartState.h"
 //#include "ResidentState.h"
-//#include "History/HistoryResidentState.h"
+//#include "SimpleDic/SimpleDicResidentState.h"
 
 #include "DebugLog.h"
 

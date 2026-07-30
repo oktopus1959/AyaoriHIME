@@ -9,8 +9,8 @@
 
 #include "FunctionNodeManager.h"
 
-#include "History/HistoryStateBase.h"
-#include "History/History.h"
+#include "SimpleDic/SimpleDicStateBase.h"
+#include "SimpleDic/SimpleDic.h"
 #include "Merger.h"
 #include "StrokeMergerHistoryResidentState.h"
 #include "Lattice.h"
@@ -1808,7 +1808,7 @@ void StrokeMergerHistoryNode::Initialize() {
     LOG_DEBUGH(_T("CALLED: histFile={}, sysRomanFile={}"), histFile, sysRomanFile);
     HistoryDic::CreateHistoryDic(histFile, sysRomanFile);
 
-    HistCandidates::CreateSingleton();
+    SimpleDicCandidates::CreateSingleton();
 
     FunctionNodeManager::CreateFunctionNodeByName(_T("history"));
 

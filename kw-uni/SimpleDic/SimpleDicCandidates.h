@@ -3,14 +3,14 @@
 //#include "Settings.h"
 //#include "State.h"
 
-#include "History/HistoryDic.h"
+#include "SimpleDic/SimpleDicDic.h"
 
 // -------------------------------------------------------------------
 // 履歴入力リストのクラス
-class HistCandidates {
+class SimpleDicCandidates {
 public:
     // デストラクタ
-    virtual ~HistCandidates() { }
+    virtual ~SimpleDicCandidates() { }
 
     // 履歴検索キー設定をクリアする
     virtual void ClearKeyInfo() = 0;
@@ -61,9 +61,9 @@ public:
     virtual void DeleteNth(size_t n) = 0;
 
 public:
-    static std::unique_ptr<HistCandidates> Singleton;
+    static std::unique_ptr<SimpleDicCandidates> Singleton;
 
     static void CreateSingleton();
 };
 
-#define HIST_CAND (HistCandidates::Singleton)
+#define HIST_CAND (SimpleDicCandidates::Singleton)

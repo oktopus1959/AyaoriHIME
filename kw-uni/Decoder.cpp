@@ -33,7 +33,7 @@
 #include "BushuComp/BushuAssoc.h"
 #include "BushuComp/BushuAssocDic.h"
 //#include "StrokeMerger/History.h"
-#include "History/HistoryDic.h"
+#include "SimpleDic/SimpleDicDic.h"
 //#include "Mazegaki/Mazegaki.h"
 //#include "Mazegaki/MazegakiDic.h"
 
