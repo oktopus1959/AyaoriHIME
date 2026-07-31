@@ -6,7 +6,6 @@
 #include "StringNode.h"
 #include "OneShot/RewriteString.h"
 #include "State.h"
-//#include "SimpleDic/SimpleDicResidentState.h"
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughString)
 
@@ -84,4 +83,3 @@ State* StringNode::CreateState() {
     LOG_INFO(_T("CALLED"));
     return new StringState(this);
 }
-

@@ -794,15 +794,6 @@ namespace {
             ngramDic.ClearNgramSet();
         }
 
-        // 指定の見出し語のエントリを削除する
-        void DeleteEntry(const MString& word) override {
-            LOG_DEBUGH(_T("CALLED: {}"), to_wstr(word));
-            usedList.RemoveEntry(word);
-            hashToStrMap.Remove(word);
-            exclList.AddEntry(word);
-            bDirty = true;
-        }
-
     private:
         void pushCandidate(const MString& key, const MString& s, size_t& n) {
             _DEBUG_SENT(if (n < 10) _LOG_DEBUGH(_T("resultList.PushEntry(key={}, s={})"), to_wstr(key), to_wstr(s)));

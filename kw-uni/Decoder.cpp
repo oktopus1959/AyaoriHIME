@@ -32,7 +32,6 @@
 #include "BushuComp/BushuDic.h"
 #include "BushuComp/BushuAssoc.h"
 #include "BushuComp/BushuAssocDic.h"
-//#include "StrokeMerger/History.h"
 #include "SimpleDic/SimpleDictionary.h"
 //#include "Mazegaki/Mazegaki.h"
 //#include "Mazegaki/MazegakiDic.h"
@@ -387,9 +386,6 @@ public:
         //if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
         if (HISTORY_DIC) {
             HISTORY_DIC->WriteSimpleDictionary();
-            //HISTORY_DIC->WriteHistUsedDic();
-            //HISTORY_DIC->WriteHistExcludeDic();
-            //HISTORY_DIC->WriteNgramDic();
         }
         Lattice2::saveLatticeRelatedFiles();
         LOG_INFOH(_T("LEAVE"));

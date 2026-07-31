@@ -204,16 +204,6 @@ namespace {
             return result;
         }
 
-        void DeleteNth(size_t n) override {
-            _LOG_DEBUGH(_T("ENTER"));
-            DelayedPushFrontSelectedWord();
-            if (n < histCands.Size()) {
-                HISTORY_DIC->DeleteEntry(histCands.GetNthWord(n));
-                GetCandidates(currentKey, currentLen, currentAllowSingleAsciiHistMap);
-            }
-            _LOG_DEBUGH(_T("LEAVE"));
-        }
-
     };
     DEFINE_CLASS_LOGGER(SimpleDicCandidatesImpl);
 

@@ -58,8 +58,6 @@ public:
     // 選択された候補は使用履歴の先頭に移動する
     virtual const SimpleDicResult SelectNth(size_t n) = 0;
 
-    virtual void DeleteNth(size_t n) = 0;
-
 public:
     static std::unique_ptr<SimpleDicCandidates> Singleton;
 

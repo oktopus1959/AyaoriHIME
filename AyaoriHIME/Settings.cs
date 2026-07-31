@@ -417,9 +417,6 @@ namespace KanchokuWS
         public static string TableFile3 { get; private set; }
         public static string HistoryFile { get; private set; }
         public static string HistorySystemRomanFile { get; private set; }
-        //public static string HistoryUsedFile {get; private set; }
-        //public static string HistoryExcludeFile {get; private set; }
-        //public static string HistoryNgramFile {get; private set; }
         //public static string MazegakiFile { get; private set; }
 
         // 使用したテーブルファイルの履歴(最大10個)
@@ -1827,9 +1824,6 @@ namespace KanchokuWS
             //addDecoderSetting("strokeHelpFile");
             HistoryFile = addDecoderSetting("historyFile", "kwhist.*.txt");
             HistorySystemRomanFile = addDecoderSetting("historySystemRomanFile", "kwhist.system.roman.txt");
-            //addDecoderSetting("historyUsedFile");
-            //addDecoderSetting("historyExcludeFile");
-            //addDecoderSetting("historyNgramFile");
             //MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "kwmaze.*.dic");
             //MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "");
 

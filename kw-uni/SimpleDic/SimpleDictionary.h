@@ -145,9 +145,6 @@ public:
     // 登録済みNグラム集合をクリアする
     virtual void ClearNgramSet() = 0;
 
-    // 指定の見出し文字のエントリを削除する
-    virtual void DeleteEntry(const MString& word) = 0;
-
     // 指定の見出し文字に対する変換候補のセットを取得する
     virtual const SImpleDicResultList& GetCandidates(const MString& key, MString&, int len,
                                                 bool allowSingleAsciiMap = false) = 0;

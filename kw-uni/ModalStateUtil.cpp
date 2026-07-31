@@ -7,7 +7,6 @@
 #include "StrokeTable.h"
 #include "Settings.h"
 #include "StrokeMerger/Merger.h"
-//#include "SimpleDic/SimpleDicResidentState.h"
 #include "StrokeMerger/StrokeMergerHistoryResidentState.h"
 
 #if 0 || defined(_DEBUG)
