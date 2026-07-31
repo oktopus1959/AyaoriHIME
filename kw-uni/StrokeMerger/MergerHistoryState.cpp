@@ -1123,15 +1123,14 @@ namespace {
         // たとえば、直前に「竈門」を交ぜ書きで出力したような場合で、これまでの出力履歴が「竈門」だけなら履歴候補の表示はやらない。
         // 他にも「竈門炭治郎」の出力履歴があるなら、履歴候補の表示をする。
         bool isHotCandidateReady(const MString& prevKey, const std::vector<MString>& cands) {
-            size_t gobiLen = SETTINGS->histMapGobiMaxLength;
             size_t candsSize = cands.size();
             MString cand0 = candsSize > 0 ? cands[0] : MString();
             MString cand1 = candsSize > 1 ? cands[1] : MString();
-            LOG_DEBUGH(_T("ENTER: prevKey={}, cands.size={}, cand0={}, cand1={}, gobiLen={}"), to_wstr(prevKey), candsSize, to_wstr(cand0), to_wstr(cand1), gobiLen);
+            LOG_DEBUGH(_T("ENTER: prevKey={}, cands.size={}, cand0={}, cand1={}"), to_wstr(prevKey), candsSize, to_wstr(cand0), to_wstr(cand1));
 
             bool result = (!prevKey.empty() &&
-                           ((!cand0.empty() && (utils::startsWithWildKey(cand0, prevKey, gobiLen) || matchWildcardKey(cand0, prevKey)) && cand0 != prevKey) ||
-                            (!cand1.empty() && (utils::startsWithWildKey(cand1, prevKey, gobiLen) || matchWildcardKey(cand1, prevKey)) && cand1 != prevKey)));
+                           ((!cand0.empty() && (utils::startsWithWildKey(cand0, prevKey, 0) || matchWildcardKey(cand0, prevKey)) && cand0 != prevKey) ||
+                            (!cand1.empty() && (utils::startsWithWildKey(cand1, prevKey, 0) || matchWildcardKey(cand1, prevKey)) && cand1 != prevKey)));
 
             LOG_DEBUGH(_T("LEAVE: result={}"), result);
             return result;

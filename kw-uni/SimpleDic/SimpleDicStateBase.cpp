@@ -65,11 +65,6 @@ namespace {
                     if (pos + 1 < outStr.size() && outStr[pos + 1] == HASH_MARK) ++pos;  // '|#' だったら1つ進める(# はローマ字変換の印)
                     outStr = utils::safe_substr(outStr, pos + 1);
                     _LOG_DEBUGH(_T("histMap: outStr={}, outKey={}"), to_wstr(outStr), to_wstr(outKey));
-                    if (outKey.size() > pos) {
-                        // 変換キー('|'より前の部分)よりも入力された文字列キーが長い場合(例: "にら|韮" に対して「にらちされ」が入力されたような場合)
-                        outStr.append(utils::safe_substr(outKey, pos));
-                        _LOG_DEBUGH(_T("histMap: outKey Appended: outStr={}"), to_wstr(outStr));
-                    }
                 }
                 if (outKey.size() < result.OrigKey.size()) {
                     // 変換キーが元キーよりも短い場合(「あわなだ」が元キーで「わなだ」が変換キーのケース)

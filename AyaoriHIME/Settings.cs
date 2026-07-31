@@ -798,7 +798,6 @@ namespace KanchokuWS
         // 履歴
         //------------------------------------------------------------------------------
         public static int HistMapKeyMaxLength { get; private set; }             // 変換履歴キーの最大長
-        public static int HistMapGobiMaxLength { get; private set; }            // 変換履歴キーに付加できる語尾の最大長
 
         /// <summary>Enterで先頭候補を選択</summary>
         public static bool SelectFirstCandByEnter { get; private set; }
@@ -836,20 +835,11 @@ namespace KanchokuWS
         //public static bool MazegakiByShiftSpace { get; set; } = true;
         public static bool MazegakiSelectFirstCand { get; set; }
         public static int MazeYomiMaxLen { get; private set; }
-        public static int MazeGobiMaxLen { get; private set; }
-        //public static int MazeNoIfxGobiMaxLen { get; private set; } = 3;
-        public static int MazeGobiLikeTailLen { get; private set; }
 
         public static bool MazeBlockerTail { get; set; }
         public static bool MazeRemoveHeadSpace { get; set; }
 
         public static bool MazeRightShiftYomiPos { get; set; }
-
-        /// <summary>無活用語の語尾に漢字を許可する</summary>
-        public static bool MazeNoIfxConnectKanji { get; set; }
-
-        /// <summary>無活用語の語尾に任意文字を許可する</summary>
-        public static bool MazeNoIfxConnectAny { get; set; }
 
         /// <summary>交ぜ書きユーザー辞書のソースファイル</summary>
         //public static string MazeUserDicSourceFile { get; set; }
@@ -1846,7 +1836,6 @@ namespace KanchokuWS
             BackFileRotationGeneration = addDecoderSetting("backFileRotationGeneration", 3, 1); // 辞書ファイルの保存世代数
 
             HistMapKeyMaxLength = addDecoderSetting("histMapKeyMaxLength", 16, 4);              // 変換履歴キーの最大長
-            HistMapGobiMaxLength = addDecoderSetting("histMapGobiMaxLength", 2, 0);             // 変換履歴キーに付加できる語尾の最大長
             SelectFirstCandByEnter = addDecoderSetting("selectFirstCandByEnter", false);        // Enter で最初の履歴検索候補を選択する
             NewLineWhenHistEnter = addDecoderSetting("newLineWhenHistEnter", false);            // 履歴候補選択時のEnterではつねに改行する
             HistHorizontalCandMax = addDecoderSetting("histHorizontalCandMax", 10, 1, 10);      // 履歴候補の横列鍵盤表示の際の最大候補数
@@ -1862,11 +1851,7 @@ namespace KanchokuWS
             MazeBlockerTail = addDecoderSetting("mazeBlockerTail", true);                       // 交ぜ書き変換で、変換後のブロッカーの位置
             MazeRemoveHeadSpace = addDecoderSetting("mazeRemoveHeadSpace", true);               // 交ぜ書き変換で、空白文字を変換開始位置とする
             MazeRightShiftYomiPos = addDecoderSetting("mazeRightShiftYomiPos", false);          // 交ぜ書き変換で、読みの開始位置を右移動する
-            MazeNoIfxConnectKanji = addDecoderSetting("mazeNoIfxConnectKanji", true);           // 無活用語の語尾に漢字を許可する
-            MazeNoIfxConnectAny = addDecoderSetting("mazeNoIfxConnectAny", false);              // 無活用語の語尾に任意文字を許可する
             MazeYomiMaxLen = addDecoderSetting("mazeYomiMaxLen", 10, 4);                        // 交ぜ書きの読み入力の最大長
-            MazeGobiMaxLen = addDecoderSetting("mazeGobiMaxLen", 5, 0);                         // 交ぜ書きの語尾の最大長
-            MazeGobiLikeTailLen = addDecoderSetting("mazeGobiLikeTailLen", 2, 0);               // 交ぜ書き変換で、語尾に含めてしまう末尾の長さ
 
             HiraganaToKatakanaShiftPlane = GetString("hiraToKataShiftPlane")._parseInt(1);      // 平仮名をカタカナに変換する際に使用するシフト面(0:None, 1:通常、2:A、3:B)
             DecoderSettings["hiraToKataShiftPlane"] = (!ConvertShiftedHiraganaToKatakana ? 0 : HiraganaToKatakanaShiftPlane).ToString();

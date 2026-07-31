@@ -35,7 +35,6 @@ struct Settings {
     int backFileRotationGeneration = 3;     // 辞書ファイル保存世代数
 
     size_t histMapKeyMaxLength = 16;        // 変換履歴キーの最大長
-    size_t histMapGobiMaxLength = 3;        // 変換履歴キーに付加できる語尾の最大長
 
     bool selectFirstCandByEnter = false;    // 履歴の第1候補をEnterキーで選択する
     bool newLineWhenHistEnter = false;      // 履歴候補選択時のEnterではつねに改行する
@@ -55,12 +54,7 @@ struct Settings {
     bool mazeBlockerTail = true;            // 交ぜ書き変換で、変換後のブロッカーの位置
     bool mazeRemoveHeadSpace = true;        // 交ぜ書き変換で、変換開始位置の空白を削除
     bool mazeRightShiftYomiPos = true;      // 交ぜ書き変換で、読みの開始位置を右移動する
-    bool mazeNoIfxConnectKanji = false;     // 交ぜ書き変換で、無活用語の語尾に漢字を許可する
-    bool mazeNoIfxConnectAny = true;        // 交ぜ書き変換で、無活用語の語尾は何でもOKとする
     size_t mazeYomiMaxLen = 10;             // 交ぜ書き変換時の最長入力読み長
-    size_t mazeGobiMaxLen = 3;              // 語尾あり交ぜ書きの最長語尾長
-    size_t mazeNoIfxGobiMaxLen = 4;         // 交ぜ書きでの無活用語の語尾の最大長
-    size_t mazeGobiLikeTailLen = 2;         // 交ぜ書き変換で、語尾に含めてしまう末尾の長さ
 
     size_t bushuAssocSelectCount = 1;       // 部首連想直接出力の回数
 

@@ -155,38 +155,10 @@ namespace {
         std::set<MString> GetSet(const MString& key, size_t n) {
             _LOG_DEBUGH(_T("ENTER: key={}, n={}"), to_wstr(key), n);
             std::set<MString> result;
-            std::set<MString> histMaps; // '|' を含む候補
             size_t start = n >= key.size() ? 0 : key.size() - n;
             size_t nkey = key.size() - start;
             std::vector<size_t> quesPoses;  // '?' の位置
             for (size_t i = 0; i < histCharDics.size() && i < nkey; ++i) {
-                if (i > 0 && nkey <= i + SETTINGS->histMapGobiMaxLength) {
-                    // '|' を含む候補を集める(ただし最大語尾長以下の場合)
-                    for (auto w : result) {
-                        if (w.size() > i && w[i] == VERT_BAR) {
-                            // w[i] == '|' だった。
-                            // 語尾はひらがなだけか
-                            bool allHiragana = true;
-                            for (size_t j = i; j < nkey; ++j) {
-                                if (!utils::is_hiragana(key[start + j])) {
-                                    allHiragana = false;
-                                    break;
-                                }
-                            }
-                            if (!allHiragana) {
-                                // 語尾にひらがな以外も含まれている
-                                if (i == 1) {
-                                    // i == 1 (つまり、読みが1文字)の場合は、語尾はひらがな以外があれば採用しない
-                                    continue;
-                                } else if (!utils::is_kanji(key[start + i])) {
-                                    // i >= 2 (読みが2文字以上)のでひらがな以外を含む場合は、漢字で始まるもの以外は採用しない
-                                    continue;
-                                }
-                            }
-                            histMaps.insert(w);
-                        }
-                    }
-                }
                 auto mch = key[start + i];
                 if (mch == '?') {
                     _LOG_DEBUGH(_T("'?' found in key={}: start={}, i={}"), to_wstr(key), start, i);
@@ -212,8 +184,7 @@ namespace {
                 }
                 if (result.empty()) break;
             }
-            _LOG_DEBUGH(_T("result.size={}, histMaps.size()={}"), result.size(), histMaps.size());
-            utils::apply_union(result, histMaps);
+            _LOG_DEBUGH(_T("result.size={}"), result.size());
             if (!quesPoses.empty()) {
                 // '?' があった
                 _LOG_DEBUGH(_T("'?' pos={}, {}, {}"), quesPoses.size() > 0 ? quesPoses[0] : -1, quesPoses.size() > 1 ? quesPoses[1] : -1, quesPoses.size() > 2 ? quesPoses[2] : -1);
@@ -953,10 +924,9 @@ namespace {
         void extract_and_copy_for_longer_than_4(const MString& key, size_t wlen, size_t pos) {
             auto subStr = key.substr(pos);
             auto subKey = subStr.substr(0, 4);
-            size_t gobiLen = utils::isAsciiString(subStr) ? 0 : SETTINGS->histMapGobiMaxLength;
             _LOG_DEBUGH(_T("subStr={}, subKey={}"), to_wstr(subStr), to_wstr(subKey));
-            std::set<MString> set_ = utils::filter(hist4CharsDic.GetSet(subKey, 4), [subStr, gobiLen](const auto& s) {return utils::startsWithWildKey(s, subStr, gobiLen);});
-            _LOG_DEBUGH(_T("filter(hist4CharsDic.GetSet(subKey={}, 4), startsWithWildKey(s, qKey={}, gobiLen={})): set_.size()={}"), to_wstr(subKey), to_wstr(subStr), gobiLen, set_.size());
+            std::set<MString> set_ = utils::filter(hist4CharsDic.GetSet(subKey, 4), [subStr](const auto& s) {return utils::startsWithWildKey(s, subStr, 0);});
+            _LOG_DEBUGH(_T("filter(hist4CharsDic.GetSet(subKey={}, 4), startsWithWildKey(s, qKey={}, 0)): set_.size()={}"), to_wstr(subKey), to_wstr(subStr), set_.size());
             if (!set_.empty()) {
                 //bool bWild = subStr.find('?') != MString::npos;
                 extract_and_copy(subStr, set_, wlen);

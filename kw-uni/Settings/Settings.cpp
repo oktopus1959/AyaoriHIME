@@ -71,7 +71,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(backFileRotationGeneration);
 
     SET_INT_VALUE(histMapKeyMaxLength);
-    SET_INT_VALUE(histMapGobiMaxLength);
 
     SET_BOOL_VALUE(selectFirstCandByEnter);
     SET_BOOL_VALUE(newLineWhenHistEnter);
@@ -87,12 +86,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(mazeBlockerTail);
     SET_BOOL_VALUE(mazeRemoveHeadSpace);
     SET_BOOL_VALUE(mazeRightShiftYomiPos);
-    SET_BOOL_VALUE(mazeNoIfxConnectKanji);
-    SET_BOOL_VALUE(mazeNoIfxConnectAny);
     SET_INT_VALUE(mazeYomiMaxLen);
-    SET_INT_VALUE(mazeGobiMaxLen);
-    SET_INT_VALUE(mazeNoIfxGobiMaxLen);
-    SET_INT_VALUE(mazeGobiLikeTailLen);
 
     SET_INT_VALUE(bushuAssocSelectCount);
 
