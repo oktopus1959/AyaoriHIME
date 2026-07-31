@@ -794,30 +794,30 @@ namespace KanchokuWS
         //------------------------------------------------------------------------------
         // 履歴
         //------------------------------------------------------------------------------
-        public static int HistMapKeyMaxLength { get; private set; }             // 変換履歴キーの最大長
+        public static int SimpleDicMapKeyMaxLength { get; private set; }        // 簡易辞書変換キーの最大長
 
         /// <summary>Enterで先頭候補を選択</summary>
-        public static bool SelectFirstCandByEnter { get; private set; }
-        public static bool NewLineWhenHistEnter { get; private set; }
+        public static bool SimpleDicSelectFirstCandByEnter { get; private set; }
+        public static bool SimpleDicNewLineWhenEnter { get; private set; }
 
         /// <summary>履歴候補の横列鍵盤表示の際の最大候補数</summary>
-        public static int HistHorizontalCandMax { get; private set; }
-        public static bool HistMoveShortestAt2nd { get; private set; }
+        public static int SimpleDicHorizontalCandMax { get; private set; }
+        public static bool SimpleDicMoveShortestAt2nd { get; private set; }
 
         /// <summary>最初の履歴選択から横列候補表示を行うか</summary>
-        public static bool ShowHistCandsFromFirst { get; private set; }
+        public static bool SimpleDicShowCandsFromFirst { get; private set; }
 
         /// <summary>矢印キーで候補を選択</summary>
-        public static bool UseArrowKeyToSelectCandidate { get; set; }
+        public static bool SimpleDicUseArrowToSelectCand { get; set; }
         //public static bool HandleShiftSpaceAsNormalSpace { get; set; } = true;
         /// <summary>Tabで候補を選択</summary>
-        public static bool SelectHistCandByTab { get; private set; }
+        public static bool SimpleDicSelectCandByTab { get; private set; }
 
         /// <summary>横列候補表示時、数字キーで候補選択する</summary>
-        public static bool SelectHistCandByNumberKey { get; private set; }
+        public static bool SimpleDicSelectCandByNumberKey { get; private set; }
 
         /// <summary>履歴検索&選択するCtrlキー </summary>
-        public static string HistorySearchCtrlKey { get; private set; }
+        public static string SimpleDicSearchCtrlKey { get; private set; }
 
         //------------------------------------------------------------------------------
         // スペースキー
@@ -862,7 +862,7 @@ namespace KanchokuWS
         public static bool EisuModeEnabled { get; set; }
 
         /// <summary>英数モードから履歴検索を呼び出す文字</summary>
-        public static string EisuHistSearchChar { get; set; }
+        public static string EisuSimpleDicSearchChar { get; set; }
 
         /// <summary>英数モードからそのまま抜ける文字</summary>
         public static string EisuExitAsIsChar { get; set; }
@@ -1829,16 +1829,16 @@ namespace KanchokuWS
 
             BackFileRotationGeneration = addDecoderSetting("backFileRotationGeneration", 3, 1); // 辞書ファイルの保存世代数
 
-            HistMapKeyMaxLength = addDecoderSetting("histMapKeyMaxLength", 16, 4);              // 変換履歴キーの最大長
-            SelectFirstCandByEnter = addDecoderSetting("selectFirstCandByEnter", false);        // Enter で最初の履歴検索候補を選択する
-            NewLineWhenHistEnter = addDecoderSetting("newLineWhenHistEnter", false);            // 履歴候補選択時のEnterではつねに改行する
-            HistHorizontalCandMax = addDecoderSetting("histHorizontalCandMax", 10, 1, 10);      // 履歴候補の横列鍵盤表示の際の最大候補数
-            HistMoveShortestAt2nd = addDecoderSetting("histMoveShortestAt2nd", false);          // 最短長履歴文字列を2番目に表示する
-            ShowHistCandsFromFirst = addDecoderSetting("showHistCandsFromFirst", true);         // 最初の履歴選択から横列候補表示を行うか
-            UseArrowKeyToSelectCandidate = addDecoderSetting("useArrowToSelCand", true);        // 矢印キーで履歴候補選択を行う
-            SelectHistCandByTab = addDecoderSetting("selectHistCandByTab", true);               // Tabキーで履歴候補選択を行う
+            SimpleDicMapKeyMaxLength = addDecoderSetting("simpleDicMapKeyMaxLength", 16, 4);              // 簡易辞書変換キーの最大長
+            SimpleDicSelectFirstCandByEnter = addDecoderSetting("simpleDicSelectFirstCandByEnter", false); // Enter で最初の簡易辞書候補を選択する
+            SimpleDicNewLineWhenEnter = addDecoderSetting("simpleDicNewLineWhenEnter", false);             // 簡易辞書候補選択時のEnterではつねに改行する
+            SimpleDicHorizontalCandMax = addDecoderSetting("simpleDicHorizontalCandMax", 10, 1, 10);       // 簡易辞書候補の横列鍵盤表示の際の最大候補数
+            SimpleDicMoveShortestAt2nd = addDecoderSetting("simpleDicMoveShortestAt2nd", false);            // 最短長候補を2番目に表示する
+            SimpleDicShowCandsFromFirst = addDecoderSetting("simpleDicShowCandsFromFirst", true);           // 最初の簡易辞書候補選択から横列候補表示を行うか
+            SimpleDicUseArrowToSelectCand = addDecoderSetting("simpleDicUseArrowToSelectCand", true);       // 矢印キーで簡易辞書候補選択を行う
+            SimpleDicSelectCandByTab = addDecoderSetting("simpleDicSelectCandByTab", true);                 // Tabキーで簡易辞書候補選択を行う
             //HandleShiftSpaceAsNormalSpace = addDecoderSetting("handleShiftSpaceAsNormalSpace", true);  // Shift+Space を通常 Space しとて扱う(HistSearchByShiftSpaceがfalseの場合)
-            SelectHistCandByNumberKey = addDecoderSetting("selectHistCandByNumberKey", false);  // 横列候補表示時、数字キーで候補選択する
+            SimpleDicSelectCandByNumberKey = addDecoderSetting("simpleDicSelectCandByNumberKey", false);  // 横列候補表示時、数字キーで候補選択する
 
             //MazegakiByShiftSpace = GetString("mazegakiByShiftSpace")._parseBool(true);          // Shift-Space で交ぜ書き変換
             MazegakiSelectFirstCand = addDecoderSetting("mazegakiSelectFirstCand", true);       // 交ぜ書き変換で文末最長一致候補を自動選択
@@ -1854,7 +1854,7 @@ namespace KanchokuWS
             ConvertJaComma = addDecoderSetting("convertJaComma", false);                        // 「、」と「，」の相互変換
 
             EisuModeEnabled = addDecoderSetting("eisuModeEnabled", false);                      // 英大文字入力による英数モード移行が有効か
-            EisuHistSearchChar = addDecoderSetting("eisuHistSearchChar", ";");                  // 英数モードから履歴検索を呼び出す文字
+            EisuSimpleDicSearchChar = addDecoderSetting("eisuSimpleDicSearchChar", ";");       // 英数モードから簡易辞書検索を呼び出す文字
             EisuExitAsIsChar = addDecoderSetting("eisuExitAsIsChar", "");                       // 英数モードからそのまま抜ける文字
             EisuExitDecapitalChar = addDecoderSetting("eisuExitDecapitalChar", "");             // 英数モードから小文字化して抜ける文字
             EisuExitCapitalCharNum = addDecoderSetting("eisuExitCapitalCharNum", 3, 2);         // 英数モードを自動的に抜けるまでの大文字数
@@ -1910,8 +1910,8 @@ namespace KanchokuWS
             setDecoderSetting("mergerCandidateFile", MergerCandidateFile );                     // 解候補ログファイル
 
             // キー割当
-            HistorySearchCtrlKey = GetString("histSearchCtrlKey");                              // 履歴検索&選択を行うCtrlキー
-            InputActionResolver.RegisterCtrlDeckeyAndCombo(HistorySearchCtrlKey, DecoderKeys.SIMPLE_DIC_NEXT_SEARCH_DECKEY, DecoderKeys.SIMPLE_DIC_PREV_SEARCH_DECKEY);   // 登録
+            SimpleDicSearchCtrlKey = GetString("simpleDicSearchCtrlKey");                       // 簡易辞書検索&選択を行うCtrlキー
+            InputActionResolver.RegisterCtrlDeckeyAndCombo(SimpleDicSearchCtrlKey, DecoderKeys.SIMPLE_DIC_NEXT_SEARCH_DECKEY, DecoderKeys.SIMPLE_DIC_PREV_SEARCH_DECKEY);   // 登録
             FullEscapeKey = GetString("fullEscapeKey", "G").Trim();
             InputActionResolver.RegisterCtrlDeckeyAndCombo(FullEscapeKey, DecoderKeys.FULL_ESCAPE_DECKEY, DecoderKeys.UNBLOCK_DECKEY);
             StrokeHelpRotationKey = GetString("strokeHelpRotationKey", "T").Trim();   // T

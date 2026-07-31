@@ -67,17 +67,17 @@ void Settings::SetValues(const std::map<String, String>& dict) {
 
     SET_INT_VALUE(backFileRotationGeneration);
 
-    SET_INT_VALUE(histMapKeyMaxLength);
+    SET_INT_VALUE(simpleDicMapKeyMaxLength);
 
-    SET_BOOL_VALUE(selectFirstCandByEnter);
-    SET_BOOL_VALUE(newLineWhenHistEnter);
-    SET_UINT_VALUE(histHorizontalCandMax);
-    SET_BOOL_VALUE(histMoveShortestAt2nd);
-    SET_BOOL_VALUE(showHistCandsFromFirst);
-    SET_BOOL_VALUE(selectHistCandByNumberKey);
+    SET_BOOL_VALUE(simpleDicSelectFirstCandByEnter);
+    SET_BOOL_VALUE(simpleDicNewLineWhenEnter);
+    SET_UINT_VALUE(simpleDicHorizontalCandMax);
+    SET_BOOL_VALUE(simpleDicMoveShortestAt2nd);
+    SET_BOOL_VALUE(simpleDicShowCandsFromFirst);
+    SET_BOOL_VALUE(simpleDicSelectCandByNumberKey);
 
-    SET_BOOL_VALUE(useArrowToSelCand);
-    SET_BOOL_VALUE(selectHistCandByTab);
+    SET_BOOL_VALUE(simpleDicUseArrowToSelectCand);
+    SET_BOOL_VALUE(simpleDicSelectCandByTab);
 
     SET_BOOL_VALUE(mazegakiSelectFirstCand);
     SET_BOOL_VALUE(mazeBlockerTail);
@@ -93,8 +93,8 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(convertJaComma);
 
     SET_BOOL_VALUE(eisuModeEnabled);
-    SET_CHAR_VALUE(eisuHistSearchChar);
-    if (eisuHistSearchChar == '_') eisuHistSearchChar = ' ';
+    SET_CHAR_VALUE(eisuSimpleDicSearchChar);
+    if (eisuSimpleDicSearchChar == '_') eisuSimpleDicSearchChar = ' ';
     SET_CHAR_VALUE(eisuExitAsIsChar);
     if (eisuExitAsIsChar == '_') eisuExitAsIsChar = ' ';
     SET_CHAR_VALUE(eisuExitDecapitalChar);

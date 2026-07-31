@@ -506,7 +506,7 @@ IMEを利用していて、Spaceでフラッシュと同時にかな漢字変換
 IMEなどと併用しているような場合には 0 か 1 を設定すると有用かも
 しれません。</value>
   </data>
-  <data name="textBox_eisuHistSearchChar.ToolTip" xml:space="preserve">
+  <data name="textBox_eisuSimpleDicSearchChar.ToolTip" xml:space="preserve">
     <value>入力した英字列を簡易辞書検索またはローマ字変換によってカタカナ等の
 文字列に変換する機能を呼び出すための文字を設定します。
 

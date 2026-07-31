@@ -1854,7 +1854,7 @@ namespace KanchokuWS.Gui
         void readSettings_tabSimpleDic()
         {
             checkBox_eisuModeEnabled.Checked = Settings.EisuModeEnabled;
-            textBox_eisuHistSearchChar.Text = Settings.EisuHistSearchChar;
+            textBox_eisuSimpleDicSearchChar.Text = Settings.EisuSimpleDicSearchChar;
             textBox_eisuExitCapitalCharNum.Text = $"{Settings.EisuExitCapitalCharNum}";
             textBox_eisuExitSpaceNum.Text = $"{Settings.EisuExitSpaceNum}";
             textBox_userRomanFile.Text = $"{Settings.HistoryFile._safeReplace("*", "roman")}";
@@ -1869,14 +1869,14 @@ namespace KanchokuWS.Gui
             changeShiftPlaneSectionRadioButtonsState();
             checkBox_convertHiraganaToKatakanaNormalPlane.Checked = Settings.HiraganaToKatakanaNormalPlane;
 
-            textBox_simpleDicCandMax.Text = $"{Settings.HistHorizontalCandMax}";
+            textBox_simpleDicCandMax.Text = $"{Settings.SimpleDicHorizontalCandMax}";
             comboBox_simpleDicSearchKey.Enabled = checkBox_simpleDicSearchKey.Checked;
-            checkBox_simpleDicSearchKey.Checked = Settings.HistorySearchCtrlKey._notEmpty() && !Settings.HistorySearchCtrlKey.StartsWith("#");
-            comboBox_selectCtrlKeyItem(comboBox_simpleDicSearchKey, $"{Settings.HistorySearchCtrlKey.Replace("#", "")}");
-            checkBox_showsimpleDicCandsFromFirst.Checked = !Settings.ShowHistCandsFromFirst;
+            checkBox_simpleDicSearchKey.Checked = Settings.SimpleDicSearchCtrlKey._notEmpty() && !Settings.SimpleDicSearchCtrlKey.StartsWith("#");
+            comboBox_selectCtrlKeyItem(comboBox_simpleDicSearchKey, $"{Settings.SimpleDicSearchCtrlKey.Replace("#", "")}");
+            checkBox_showsimpleDicCandsFromFirst.Checked = !Settings.SimpleDicShowCandsFromFirst;
             //checkBox_autoHistEnabled_CheckedChanged(null, null);
-            checkBox_useArrowKeyToSelectCand.Checked = Settings.UseArrowKeyToSelectCandidate;
-            checkBox_selectSimpleDicCandByTab.Checked = Settings.SelectHistCandByTab;
+            checkBox_useArrowKeyToSelectCand.Checked = Settings.SimpleDicUseArrowToSelectCand;
+            checkBox_selectSimpleDicCandByTab.Checked = Settings.SimpleDicSelectCandByTab;
 
         }
 
@@ -1907,11 +1907,11 @@ namespace KanchokuWS.Gui
             logger.Info("ENTER");
             frmMain?.DeactivateDecoderWithModifiersOff();
 
-            Settings.SetUserIni("histHorizontalCandMax", textBox_simpleDicCandMax.Text.Trim());
-            Settings.SetUserIni("histSearchCtrlKey", makeCtrlKeyConversion(checkBox_simpleDicSearchKey, comboBox_simpleDicSearchKey));
-            Settings.SetUserIni("showHistCandsFromFirst", !checkBox_showsimpleDicCandsFromFirst.Checked);
-            Settings.SetUserIni("useArrowToSelCand", checkBox_useArrowKeyToSelectCand.Checked);
-            Settings.SetUserIni("selectHistCandByTab", checkBox_selectSimpleDicCandByTab.Checked);
+            Settings.SetUserIni("simpleDicHorizontalCandMax", textBox_simpleDicCandMax.Text.Trim());
+            Settings.SetUserIni("simpleDicSearchCtrlKey", makeCtrlKeyConversion(checkBox_simpleDicSearchKey, comboBox_simpleDicSearchKey));
+            Settings.SetUserIni("simpleDicShowCandsFromFirst", !checkBox_showsimpleDicCandsFromFirst.Checked);
+            Settings.SetUserIni("simpleDicUseArrowToSelectCand", checkBox_useArrowKeyToSelectCand.Checked);
+            Settings.SetUserIni("simpleDicSelectCandByTab", checkBox_selectSimpleDicCandByTab.Checked);
 
             Settings.ReadIniFile(false);
             // 各種定義ファイルの再読み込み
@@ -2057,7 +2057,7 @@ namespace KanchokuWS.Gui
             checkerMazeHenkan.Add(radioButton_shiftB);
             checkerMazeHenkan.Add(checkBox_convertHiraganaToKatakanaNormalPlane);
             checkerMazeHenkan.Add(checkBox_eisuModeEnabled);
-            checkerMazeHenkan.Add(textBox_eisuHistSearchChar);
+            checkerMazeHenkan.Add(textBox_eisuSimpleDicSearchChar);
             checkerMazeHenkan.Add(textBox_eisuExitCapitalCharNum);
             checkerMazeHenkan.Add(textBox_eisuExitSpaceNum);
             checkerMazeHenkan.Add(textBox_preRewriteTargetChars);
@@ -2085,7 +2085,7 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("hiraToKataShiftPlane", radioButton_shiftA.Checked ? 2 : radioButton_shiftB.Checked ? 3 : 1);
             Settings.SetUserIni("hiraToKataNormalPlane", checkBox_convertHiraganaToKatakanaNormalPlane.Checked);
             Settings.SetUserIni("eisuModeEnabled", checkBox_eisuModeEnabled.Checked);
-            Settings.SetUserIni("eisuHistSearchChar", textBox_eisuHistSearchChar.Text);
+            Settings.SetUserIni("eisuSimpleDicSearchChar", textBox_eisuSimpleDicSearchChar.Text);
             Settings.SetUserIni("eisuExitCapitalCharNum", textBox_eisuExitCapitalCharNum.Text);
             Settings.SetUserIni("eisuExitSpaceNum", textBox_eisuExitSpaceNum.Text);
             Settings.SetUserIni(Settings.PreRewriteTargetChars_PropName, textBox_preRewriteTargetChars.Text.Trim());

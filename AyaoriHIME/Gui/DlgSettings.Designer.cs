@@ -276,7 +276,7 @@ namespace KanchokuWS.Gui
             this.checkBox_eisuModeEnabled = new System.Windows.Forms.CheckBox();
             this.textBox_eisuExitSpaceNum = new System.Windows.Forms.TextBox();
             this.label148 = new System.Windows.Forms.Label();
-            this.textBox_eisuHistSearchChar = new System.Windows.Forms.TextBox();
+            this.textBox_eisuSimpleDicSearchChar = new System.Windows.Forms.TextBox();
             this.label146 = new System.Windows.Forms.Label();
             this.textBox_eisuExitCapitalCharNum = new System.Windows.Forms.TextBox();
             this.label145 = new System.Windows.Forms.Label();
@@ -3441,7 +3441,7 @@ namespace KanchokuWS.Gui
             this.groupBox33.Controls.Add(this.checkBox_eisuModeEnabled);
             this.groupBox33.Controls.Add(this.textBox_eisuExitSpaceNum);
             this.groupBox33.Controls.Add(this.label148);
-            this.groupBox33.Controls.Add(this.textBox_eisuHistSearchChar);
+            this.groupBox33.Controls.Add(this.textBox_eisuSimpleDicSearchChar);
             this.groupBox33.Controls.Add(this.label146);
             this.groupBox33.Controls.Add(this.textBox_eisuExitCapitalCharNum);
             this.groupBox33.Controls.Add(this.label145);
@@ -3601,16 +3601,16 @@ namespace KanchokuWS.Gui
             this.label148.TabIndex = 47;
             this.label148.Text = "回連続入力したら英数モードを抜ける";
             // 
-            // textBox_eisuHistSearchChar
+            // textBox_eisuSimpleDicSearchChar
             // 
-            this.textBox_eisuHistSearchChar.Font = new System.Drawing.Font("ＭＳ ゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_eisuHistSearchChar.Location = new System.Drawing.Point(32, 41);
-            this.textBox_eisuHistSearchChar.MaxLength = 1;
-            this.textBox_eisuHistSearchChar.Name = "textBox_eisuHistSearchChar";
-            this.textBox_eisuHistSearchChar.Size = new System.Drawing.Size(28, 19);
-            this.textBox_eisuHistSearchChar.TabIndex = 2;
-            this.textBox_eisuHistSearchChar.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip1.SetToolTip(this.textBox_eisuHistSearchChar, resources.GetString("textBox_eisuHistSearchChar.ToolTip"));
+            this.textBox_eisuSimpleDicSearchChar.Font = new System.Drawing.Font("ＭＳ ゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textBox_eisuSimpleDicSearchChar.Location = new System.Drawing.Point(32, 41);
+            this.textBox_eisuSimpleDicSearchChar.MaxLength = 1;
+            this.textBox_eisuSimpleDicSearchChar.Name = "textBox_eisuSimpleDicSearchChar";
+            this.textBox_eisuSimpleDicSearchChar.Size = new System.Drawing.Size(28, 19);
+            this.textBox_eisuSimpleDicSearchChar.TabIndex = 2;
+            this.textBox_eisuSimpleDicSearchChar.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip1.SetToolTip(this.textBox_eisuSimpleDicSearchChar, resources.GetString("textBox_eisuSimpleDicSearchChar.ToolTip"));
             // 
             // label146
             // 
@@ -3942,7 +3942,7 @@ namespace KanchokuWS.Gui
             this.checkBox_simpleDicSearchKey.TabIndex = 1;
             this.checkBox_simpleDicSearchKey.Text = "次の Ctrl キーで辞書検索・候補選択する：";
             this.toolTip1.SetToolTip(this.checkBox_simpleDicSearchKey, "Ctrl修飾キーで簡易辞書検索を実行し、同時に先頭候補を選択できるようにします。\r\n\r\n連続して押すことで、次の候補を選択することもできます。\r\n\r\n辞書検索・選" +
-        "択は、 「その他設定 > 拡張修飾キー」の「設定」をクリックして開く\r\n「拡張修飾キー設定」ダイアログで、適当なキーに HistNext, HistPrev の" +
+        "択は、 「その他設定 > 拡張修飾キー」の「設定」をクリックして開く\r\n「拡張修飾キー設定」ダイアログで、適当なキーに SimpleDicNext, SimpleDicPrev の" +
         "呼び出しを\r\n設定することでも可能です。");
             this.checkBox_simpleDicSearchKey.UseVisualStyleBackColor = true;
             this.checkBox_simpleDicSearchKey.CheckedChanged += new System.EventHandler(this.checkBox_historySearchKey_CheckedChanged);
@@ -6795,7 +6795,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.CheckBox checkBox_eisuModeEnabled;
         private System.Windows.Forms.TextBox textBox_eisuExitSpaceNum;
         private System.Windows.Forms.Label label148;
-        private System.Windows.Forms.TextBox textBox_eisuHistSearchChar;
+        private System.Windows.Forms.TextBox textBox_eisuSimpleDicSearchChar;
         private System.Windows.Forms.Label label146;
         private System.Windows.Forms.TextBox textBox_eisuExitCapitalCharNum;
         private System.Windows.Forms.Label label145;

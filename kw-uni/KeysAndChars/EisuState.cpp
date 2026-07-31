@@ -132,9 +132,9 @@ namespace {
 
             //size_t totalCnt = STATE_COMMON->GetTotalDecKeyCount();
             myChar = DECKEY_TO_CHARS->GetCharFromDeckey(deckey);
-            _LOG_DEBUGH(_T("ENTER: {}: deckey={:x}H({}), face='{}', eisuHistSearchChar={}"), Name, deckey, deckey, myChar, SETTINGS->eisuHistSearchChar);
-            if (myChar == SETTINGS->eisuHistSearchChar) {
-                LOG_INFO(_T("eisuHistSearchChar='{}'"), SETTINGS->eisuHistSearchChar);
+            _LOG_DEBUGH(_T("ENTER: {}: deckey={:x}H({}), face='{}', eisuSimpleDicSearchChar={}"), Name, deckey, deckey, myChar, SETTINGS->eisuSimpleDicSearchChar);
+            if (myChar == SETTINGS->eisuSimpleDicSearchChar) {
+                LOG_INFO(_T("eisuSimpleDicSearchChar='{}'"), SETTINGS->eisuSimpleDicSearchChar);
                 if (!_handleEisuConversion()) {
                     // 変換できなければ、英数モードを終了
                     _LOG_DEBUGH(_T("Failed to convert"));

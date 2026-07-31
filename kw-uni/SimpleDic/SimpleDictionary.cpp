@@ -967,7 +967,7 @@ namespace {
                 // 英大文字でない文字を含む(ローマ字キーとみなす)
                 bool bIsRomanKey = utils::isAsciiString(key) && !utils::isUpperAlphabetString(key);
                 bool bListEmpty = IS_LIST_EMPTY();
-                bool bAll = SETTINGS->histGatherAllCandidates && bListEmpty;
+                bool bAll = SETTINGS->simpleDicGatherAllCandidates && bListEmpty;
 
                 _LOG_DEBUGH(_T("bAll={}"), bAll);
 
@@ -1109,7 +1109,7 @@ namespace {
                 _LOG_DEBUGH(_T("CHECK-POINT-O: resultKey={}, resultKeyLen={}, resultList.size()={}"), to_wstr(resultKey), resultKeyLen, resultList.Size());
             }
 
-            if (SETTINGS->histMoveShortestAt2nd) {
+            if (SETTINGS->simpleDicMoveShortestAt2nd) {
                 // 最短語を少なくとも先頭から2番目に移動する
                 _LOG_DEBUGH(_T("CHECK-POINT-P"));
                 resultList.MoveShortestResultAt2nd();

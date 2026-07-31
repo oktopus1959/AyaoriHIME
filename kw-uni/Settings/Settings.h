@@ -31,21 +31,21 @@ struct Settings {
 
     int backFileRotationGeneration = 3;     // 辞書ファイル保存世代数
 
-    size_t histMapKeyMaxLength = 16;        // 変換履歴キーの最大長
+    size_t simpleDicMapKeyMaxLength = 16;   // 簡易辞書変換キーの最大長
 
-    bool selectFirstCandByEnter = false;    // 履歴の第1候補をEnterキーで選択する
-    bool newLineWhenHistEnter = false;      // 履歴候補選択時のEnterではつねに改行する
-    size_t histHorizontalCandMax = 5;       // 履歴候補の横列鍵盤表示の際の最大数
+    bool simpleDicSelectFirstCandByEnter = false; // 簡易辞書の第1候補をEnterキーで選択する
+    bool simpleDicNewLineWhenEnter = false;        // 簡易辞書候補選択時のEnterではつねに改行する
+    size_t simpleDicHorizontalCandMax = 5;         // 簡易辞書候補の横列鍵盤表示の際の最大数
 
-    bool histMoveShortestAt2nd = false;     // 最短長履歴文字列を2番目に表示する
-    bool showHistCandsFromFirst = true;     // 最初の履歴選択から横列候補表示を行うか
-    bool selectHistCandByNumberKey = false; // 横列候補表示時に、数字キーで候補の選択を行うか
+    bool simpleDicMoveShortestAt2nd = false;       // 最短長候補を2番目に表示する
+    bool simpleDicShowCandsFromFirst = true;       // 最初の簡易辞書候補選択から横列候補表示を行うか
+    bool simpleDicSelectCandByNumberKey = false;   // 横列候補表示時に、数字キーで候補の選択を行うか
 
-    bool useArrowToSelCand = true;          // 矢印キーで履歴候補選択を行う
-    bool selectHistCandByTab = true;        // Tabキーで履歴候補選択を行う
+    bool simpleDicUseArrowToSelectCand = true; // 矢印キーで簡易辞書候補選択を行う
+    bool simpleDicSelectCandByTab = true;      // Tabキーで簡易辞書候補選択を行う
     //bool handleShiftSpaceAsNormalSpace = true;    // Shift-Space を通常の Space として扱う (ただし histSearchByShiftSpace が優先)
 
-    bool histGatherAllCandidates = true;    // キーの開始位置をずらして全履歴候補を取得するか
+    bool simpleDicGatherAllCandidates = true; // キーの開始位置をずらして全簡易辞書候補を取得するか
     //bool mazegakiByShiftSpace = true;       // Shift-Space で交ぜ書き変換
     bool mazegakiSelectFirstCand = false;   // 交ぜ書き変換で先頭の候補を自動選択
     bool mazeBlockerTail = true;            // 交ぜ書き変換で、変換後のブロッカーの位置
@@ -61,7 +61,7 @@ struct Settings {
     bool convertJaComma = false;            // 「、」と「，」を相互変換する
 
     bool eisuModeEnabled = false;           // 英大文字入力による英数モード移行が有効か
-    wchar_t eisuHistSearchChar = '\0';      // 英数モードから履歴検索を呼び出す文字
+    wchar_t eisuSimpleDicSearchChar = '\0'; // 英数モードから簡易辞書検索を呼び出す文字
     wchar_t eisuExitAsIsChar = '\0';        // 英数モードからそのまま抜ける文字
     wchar_t eisuExitDecapitalChar = '\0';   // 英数モードから小文字化して抜ける文字
     size_t eisuExitCapitalCharNum = 3;      // 英数モードを自動的に抜けるまでの大文字数

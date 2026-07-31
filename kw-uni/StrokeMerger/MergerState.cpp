@@ -1042,8 +1042,8 @@ namespace {
         // 先頭文字の小文字化
         void handleEisuDecapitalize() override {
             LOG_DEBUGH(_T("ENTER: {}"), Name);
-            auto romanStr = OUTPUT_STACK->GetLastAsciiKey<MString>(SETTINGS->histMapKeyMaxLength + 1);
-            if (!romanStr.empty() && romanStr.size() <= SETTINGS->histMapKeyMaxLength) {
+            auto romanStr = OUTPUT_STACK->GetLastAsciiKey<MString>(SETTINGS->simpleDicMapKeyMaxLength + 1);
+            if (!romanStr.empty() && romanStr.size() <= SETTINGS->simpleDicMapKeyMaxLength) {
                 if (is_upper_alphabet(romanStr[0])) {
                     romanStr[0] = to_lower(romanStr[0]);
                     resultStr.setResult(romanStr, (int)(romanStr.size()));
@@ -1068,7 +1068,7 @@ namespace {
         }
 
         bool IsHistorySelectableByArrowKey() const override {
-            return SETTINGS->useArrowToSelCand && bCandSelectable;
+            return SETTINGS->simpleDicUseArrowToSelectCand && bCandSelectable;
         }
 
     protected:
@@ -1077,7 +1077,7 @@ namespace {
         //    LOG_DEBUGH(_T("ENTER: XXXX: {}"), Name);
         //    resultStr.clear();
         //    //deckey = ModalStateUtil::ModalStatePreProc(this, deckey,
-        //    //    State::isStrokableKey(deckey) && (!bCandSelectable || deckey >= 10 || !SETTINGS->selectHistCandByNumberKey));
+        //    //    State::isStrokableKey(deckey) && (!bCandSelectable || deckey >= 10 || !SETTINGS->simpleDicSelectCandByNumberKey));
         //    maybeEditedBySubState = false;
         //    // 常駐モード
         //    //if (pNext && pNext->GetName().find(_T("History")) == String::npos)
@@ -1160,7 +1160,7 @@ namespace {
                         // ワイルドカードパターンでなかった
                         LOG_DEBUGH(_T("NOT WILDCARD, GetLastKanjiOrKatakanaOrHirakanaOrAsciiKey"));
                         // 出力文字から、ひらがな交じりやASCIIもキーとして取得する
-                        auto jaKey = OUTPUT_STACK->GetLastKanjiOrKatakanaOrHirakanaOrAlphabetKey<MString>(SETTINGS->histMapKeyMaxLength);
+                        auto jaKey = OUTPUT_STACK->GetLastKanjiOrKatakanaOrHirakanaOrAlphabetKey<MString>(SETTINGS->simpleDicMapKeyMaxLength);
                         LOG_DEBUGH(_T("HistSearch: jaKey={}"), to_wstr(jaKey));
                         if (jaKey.size() >= 9 || (!jaKey.empty() && is_alphabet(jaKey.back()))) {
                             // 同種の文字列で9文以上取れたか、またはアルファベットだったので、これをキーとする
@@ -1180,7 +1180,7 @@ namespace {
                     LOG_DEBUGH(_T("HistSearch: CANDS CHECKER: words({})={}, key={}"), words.size(), to_wstr(utils::join(words, '/', 10)), to_wstr(ky));
                     if (words.empty() || (words.size() == 1 && (words[0].empty() || words[0] == ky))) {
                         LOG_DEBUGH(_T("HistSearch: CANDS CHECKER-A: cands size <= 1"));
-                    } else if (SETTINGS->showHistCandsFromFirst) {
+                    } else if (SETTINGS->simpleDicShowCandsFromFirst) {
                         simpleDicBase->setCandidatesVKB(words, ky);
                     }
                 };
@@ -1321,7 +1321,7 @@ namespace {
             // 今回、履歴選択用ホットキーだったことを保存
             setCandSelectIsCalled();
 
-            bool bShowHistCands = SETTINGS->showHistCandsFromFirst || bCandSelectable;
+            bool bShowHistCands = SETTINGS->simpleDicShowCandsFromFirst || bCandSelectable;
 
             if (!bCandSelectable) {
                 // 履歴候補選択可能状態でなければ、前回の履歴検索との比較、新しい履歴検索の開始
@@ -1383,7 +1383,7 @@ namespace {
         // ↓の処理 -- 次候補を返す
         void handleDownArrow() override {
             LOG_DEBUGH(_T("ENTER: {}: bCandSelectable={}"), Name, bCandSelectable);
-            if (SETTINGS->useArrowToSelCand && bCandSelectable) {
+            if (SETTINGS->simpleDicUseArrowToSelectCand && bCandSelectable) {
                 setCandSelectIsCalled();
                 getNextCandidate();
             } else {
@@ -1396,7 +1396,7 @@ namespace {
         // ↑の処理 -- 前候補を返す
         void handleUpArrow() override {
             LOG_DEBUGH(_T("ENTER: {}: bCandSelectable={}"), Name, bCandSelectable);
-            if (SETTINGS->useArrowToSelCand && bCandSelectable) {
+            if (SETTINGS->simpleDicUseArrowToSelectCand && bCandSelectable) {
                 setCandSelectIsCalled();
                 getPrevCandidate();
             } else {
@@ -1435,7 +1435,7 @@ namespace {
         // Tab の処理 -- 次の候補を返す
         void handleTab() override {
             LOG_DEBUGH(_T("CALLED: {}: bCandSelectable={}"), Name, bCandSelectable);
-            if (SETTINGS->selectHistCandByTab && bCandSelectable) {
+            if (SETTINGS->simpleDicSelectCandByTab && bCandSelectable) {
                 setCandSelectIsCalled();
                 getNextCandidate();
             } else {
@@ -1446,7 +1446,7 @@ namespace {
         // ShiftTab の処理 -- 前の候補を返す
         void handleShiftTab() override {
             LOG_DEBUGH(_T("CALLED: {}: bCandSelectable={}"), Name, bCandSelectable);
-            if (SETTINGS->selectHistCandByTab && bCandSelectable) {
+            if (SETTINGS->simpleDicSelectCandByTab && bCandSelectable) {
                 setCandSelectIsCalled();
                 getPrevCandidate();
             } else {
@@ -1473,7 +1473,7 @@ namespace {
         // RET/Enter の処理
         void handleEnter() override {
             LOG_DEBUGH(_T("ENTER: {}: bCandSelectable={}, selectPos={}"), Name, bCandSelectable, SIMPLE_DIC_CAND->GetSelectPos());
-            if (SETTINGS->selectFirstCandByEnter && bCandSelectable && SIMPLE_DIC_CAND->GetSelectPos() < 0) {
+            if (SETTINGS->simpleDicSelectFirstCandByEnter && bCandSelectable && SIMPLE_DIC_CAND->GetSelectPos() < 0) {
                 // 選択可能状態かつ候補未選択なら第1候補を返す。
                 LOG_DEBUGH(_T("CALL: getNextCandidate(false)"));
                 setCandSelectIsCalled();
@@ -1483,7 +1483,7 @@ namespace {
                 // どれかの候補が選択されている状態なら、それを確定し、履歴キーをクリアしておく
                 STROKE_MERGER_NODE->ClearPrevHistState();
                 SIMPLE_DIC_CAND->ClearKeyInfo();
-                if (SETTINGS->newLineWhenHistEnter) {
+                if (SETTINGS->simpleDicNewLineWhenEnter) {
                     // 履歴候補選択時のEnterではつねに改行するなら、確定後、Enter処理を行う
                     State::handleEnter();
                 }

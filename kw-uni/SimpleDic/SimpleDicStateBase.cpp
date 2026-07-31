@@ -58,8 +58,8 @@ namespace {
                 if (outStr.empty()) outStr = outKey;
             } else {
                 size_t pos = outStr.find(VERT_BAR);     // '|' を含むか
-                _LOG_DEBUGH(_T("pos={}, histMapKeyMaxLength={}"), pos, SETTINGS->histMapKeyMaxLength);
-                if (pos <= SETTINGS->histMapKeyMaxLength) {
+                _LOG_DEBUGH(_T("pos={}, simpleDicMapKeyMaxLength={}"), pos, SETTINGS->simpleDicMapKeyMaxLength);
+                if (pos <= SETTINGS->simpleDicMapKeyMaxLength) {
                     // histMap候補
                     if (pos + 1 < outStr.size() && outStr[pos + 1] == VERT_BAR) ++pos;  // '||' だったら1つ進める(HistoryDicで既に対処済みなので、多分、ここでは不要のはず)
                     if (pos + 1 < outStr.size() && outStr[pos + 1] == HASH_MARK) ++pos;  // '|#' だったら1つ進める(# はローマ字変換の印)
@@ -125,7 +125,7 @@ namespace {
             _LOG_DEBUGH(_T("ENTER: cands.size()={}, key={}"), cands.size(), to_wstr(key));
             auto mark = pNode_->getString();
             std::vector<MString> words;
-            size_t q = std::min(cands.size(), SETTINGS->histHorizontalCandMax);
+            size_t q = std::min(cands.size(), SETTINGS->simpleDicHorizontalCandMax);
             for (size_t i = 0; i < q; ++i) {
                 words.push_back(utils::str_shrink(cands[i], 20));
             }
