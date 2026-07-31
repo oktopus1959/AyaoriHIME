@@ -7,7 +7,7 @@
 #include "StrokeTable.h"
 #include "Settings.h"
 #include "StrokeMerger/Merger.h"
-#include "StrokeMerger/StrokeMergerHistoryResidentState.h"
+#include "StrokeMerger/SimpleDicResidentState.h"
 
 #if 0 || defined(_DEBUG)
 #undef _DEBUG_SENT
@@ -99,9 +99,9 @@ int ModalStateUtil::ModalStatePreProc(State* pState, int deckey, bool isStrokabl
 // その他の特殊キー (常駐の履歴機能があればそれを呼び出す)
 void ModalStateUtil::handleSpecialKeys(State* pState, int deckey) {
     _LOG_DEBUGH(_T("CALLED: {}, deckey={}"), pState->GetName(), deckey);
-    if (MERGER_HISTORY_RESIDENT_STATE) {
+    if (SIMPLE_DIC_RESIDENT_STATE) {
         // 常駐の履歴機能があればそれを呼び出す//
-        MERGER_HISTORY_RESIDENT_STATE->dispatchDeckey(deckey);
+        SIMPLE_DIC_RESIDENT_STATE->dispatchDeckey(deckey);
     } else {
         pState->State::handleSpecialKeys(deckey);
     }

@@ -3,7 +3,7 @@
 #include "Logger.h"
 
 #include "FunctionNode.h"
-//#include "StrokeMerger/StrokeMergerHistoryResidentState.h"
+//#include "StrokeMerger/SimpleDicResidentState.h"
 
 #if 0
 #define HIST_LOG_DEBUGH LOG_INFO
@@ -12,8 +12,8 @@
 #endif
 
 // -------------------------------------------------------------------
-// StrokeMergerHistoryNode - マージ入力履歴機能常駐ノード
-class StrokeMergerHistoryNode : public FunctionNode {
+// SimpleDicMergerNode - マージ入力簡易辞書機能常駐ノード
+class SimpleDicMergerNode : public FunctionNode {
     DECLARE_CLASS_LOGGER;
 private:
     // マージ選択により出力された文字列
@@ -23,9 +23,9 @@ private:
     MString prevKey;
 
 public:
-     StrokeMergerHistoryNode();
+     SimpleDicMergerNode();
 
-     ~StrokeMergerHistoryNode() override;
+     ~SimpleDicMergerNode() override;
 
     // 当ノードを処理する State インスタンスを作成する
      State* CreateState() override;
@@ -67,7 +67,7 @@ public:
 
 public:
     // マージ履歴機能ノードのSingleton
-    static std::unique_ptr<StrokeMergerHistoryNode> Singleton;
+    static std::unique_ptr<SimpleDicMergerNode> Singleton;
 
     // マージ履歴機能ノードの生成
     static void CreateSingleton();
@@ -76,5 +76,4 @@ public:
     static void Initialize();
 
 };
-#define STROKE_MERGER_NODE (StrokeMergerHistoryNode::Singleton)
-
+#define STROKE_MERGER_NODE (SimpleDicMergerNode::Singleton)

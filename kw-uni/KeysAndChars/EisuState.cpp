@@ -1,5 +1,5 @@
 #include "Settings.h"
-#include "StrokeMerger/StrokeMergerHistoryResidentState.h"
+#include "StrokeMerger/SimpleDicResidentState.h"
 
 #include "Eisu.h"
 
@@ -116,7 +116,7 @@ namespace {
                     (is_alphabet(s[len - 2]) && is_lower_alphabet(s[len - 1])) ||
                     (!is_alphabet(s[len - 2]) && is_upper_alphabet(s[len - 1]))) {
                     // 履歴検索の実行(末尾文字が英小文字であるか、英大文字1文字でないと発動させない; "CO" の後の場合は、'O' がキーになるが、この場合は発動させない)
-                    MERGER_HISTORY_RESIDENT_STATE->handleNextCandTrigger();
+                    SIMPLE_DIC_RESIDENT_STATE->handleNextCandTrigger();
                     MY_NODE->prevHistSearchDeckeyCount = STATE_COMMON->GetTotalDecKeyCount();
                     result = true;
                 }
@@ -142,7 +142,7 @@ namespace {
                 }
             } else if (myChar == SETTINGS->eisuExitDecapitalChar) {
                 LOG_INFO(_T("eisuExitDecapitalChar='{}'"), SETTINGS->eisuExitDecapitalChar);
-                MERGER_HISTORY_RESIDENT_STATE->handleEisuDecapitalize();
+                SIMPLE_DIC_RESIDENT_STATE->handleEisuDecapitalize();
                 // 即時キャンセルする
                 cancelMe();
             } else if (myChar == SETTINGS->eisuExitAsIsChar) {
@@ -208,9 +208,9 @@ namespace {
             //    // 2回続けて呼ばれたらキャンセル
             //    cancelMe();
             //} else {
-            //    MERGER_HISTORY_RESIDENT_STATE->handleEisuDecapitalize();
+            //    SIMPLE_DIC_RESIDENT_STATE->handleEisuDecapitalize();
             //}
-            MERGER_HISTORY_RESIDENT_STATE->handleEisuDecapitalize();
+            SIMPLE_DIC_RESIDENT_STATE->handleEisuDecapitalize();
             // 即時キャンセルする
             cancelMe();
             _LOG_DEBUGH(_T("LEAVE: {}"), Name);
@@ -225,7 +225,7 @@ namespace {
         // BS
         void handleBS() {
             _LOG_DEBUGH(_T("CALLED: {}"), Name);
-            //MERGER_HISTORY_RESIDENT_STATE->handleBS();
+            //SIMPLE_DIC_RESIDENT_STATE->handleBS();
             if (is_upper_alphabet(OUTPUT_STACK->back()) && capitalCharCnt > 0) --capitalCharCnt;
             resultStr.setNumBS(1);
             resultStr.setNumBSofOutputStack(1);
@@ -252,7 +252,7 @@ namespace {
         void handleFullEscape() override {
             _LOG_DEBUGH(_T("CALLED: {}"), Name);
             cancelMe();
-            MERGER_HISTORY_RESIDENT_STATE->handleFullEscapeResidentState();
+            SIMPLE_DIC_RESIDENT_STATE->handleFullEscapeResidentState();
         }
 
         // Esc の処理 -- 処理のキャンセル
@@ -385,4 +385,3 @@ Node* EisuNodeBuilder::CreateNode() {
     LOG_DEBUGH(_T("CALLED"));
     return new EisuNode();
 }
-

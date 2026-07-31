@@ -1225,7 +1225,7 @@ namespace {
         utils::IfstreamReader reader(path);
         if (reader.success()) {
             // ファイル読み込み
-            (HISTORY_DIC.get()->*func)(reader.getAllLines());
+            (SIMPLE_DIC.get()->*func)(reader.getAllLines());
             LOG_INFOH(_T("close hist file: {}"), path);
         } else {
             if (bWarn) LOG_WARN(_T("Can't read hist file: {}"), path);
@@ -1237,10 +1237,10 @@ namespace {
     // 辞書ファイルの内容の書き出し
     void writeFile(StringRef path, WRITE_FUNC func) {
         LOG_SAVE_DICT(_T("ENTER: path={}"), path);
-        if (!path.empty() && HISTORY_DIC) {
+        if (!path.empty() && SIMPLE_DIC) {
             utils::OfstreamWriter writer(path);
             if (writer.success()) {
-                (HISTORY_DIC.get()->*func)(writer);
+                (SIMPLE_DIC.get()->*func)(writer);
             }
         }
         LOG_SAVE_DICT(_T("LEAVE: path={}"), path);

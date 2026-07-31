@@ -64,4 +64,4 @@ public:
     static void CreateSingleton();
 };
 
-#define HIST_CAND (SimpleDicCandidates::Singleton)
+#define SIMPLE_DIC_CAND (SimpleDicCandidates::Singleton)

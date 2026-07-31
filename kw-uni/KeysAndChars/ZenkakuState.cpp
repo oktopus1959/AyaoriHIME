@@ -11,7 +11,7 @@
 #include "Node.h"
 #include "State.h"
 #include "OutputStack.h"
-#include "StrokeMerger/StrokeMergerHistoryResidentState.h"
+#include "StrokeMerger/SimpleDicResidentState.h"
 #include "StrokeMerger/Lattice.h"
 
 #include "Zenkaku.h"
@@ -103,7 +103,7 @@ namespace {
 
         // その他の特殊キー (常駐の履歴機能があればそれを呼び出す)
         void handleSpecialKeys(int deckey) {
-            MERGER_HISTORY_RESIDENT_STATE->dispatchDeckey(deckey);
+            SIMPLE_DIC_RESIDENT_STATE->dispatchDeckey(deckey);
         }
 
         // Space キーの処理 -- origChar を出力してキャンセル

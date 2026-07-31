@@ -9,9 +9,9 @@
 
 // -------------------------------------------------------------------
 // 簡易辞書検索状態基底クラス
-class HistoryStateBase {
+class SimpleDicStateBase {
 public:
-    virtual ~HistoryStateBase() { };
+    virtual ~SimpleDicStateBase() { };
 
 public:
     // 履歴検索文字列の遡及ブロッカーをセット
@@ -27,5 +27,5 @@ public:
     virtual void setCandidatesVKB(const std::vector<MString>& cands, const MString& key) = 0;
 
 public:
-    static HistoryStateBase* createInstance(const Node* pN);
+    static SimpleDicStateBase* createInstance(const Node* pN);
 };

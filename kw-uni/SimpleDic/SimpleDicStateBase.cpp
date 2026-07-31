@@ -14,7 +14,7 @@ namespace {
 
     // -------------------------------------------------------------------
     // 簡易辞書検索状態基底クラス
-    class HistoryStateBaseImpl : public HistoryStateBase {
+    class SimpleDicStateBaseImpl : public SimpleDicStateBase {
         DECLARE_CLASS_LOGGER;
 
         const Node* pNode_ = 0;
@@ -27,12 +27,12 @@ namespace {
 
     public:
         // コンストラクタ
-        HistoryStateBaseImpl(const Node* pN)
+        SimpleDicStateBaseImpl(const Node* pN)
             : pNode_(pN), BaseName(logger.ClassNameT()) {
             LOG_DEBUGH(_T("CALLED"));
         }
 
-        ~HistoryStateBaseImpl() override { };
+        ~SimpleDicStateBaseImpl() override { };
 
     public:
         // 履歴検索文字列の遡及ブロッカーをセット
@@ -131,15 +131,15 @@ namespace {
             }
             STATE_COMMON->SetVirtualKeyboardStrings(VkbLayout::Horizontal, mark + utils::str_shrink(key, 5), words);
 
-            if (HIST_CAND->GetSelectPos() >= 0) STATE_COMMON->SetDontMoveVirtualKeyboard();
+            if (SIMPLE_DIC_CAND->GetSelectPos() >= 0) STATE_COMMON->SetDontMoveVirtualKeyboard();
 
             _LOG_DEBUGH(_T("LEAVE"));
         }
 
     };
-    DEFINE_CLASS_LOGGER(HistoryStateBaseImpl);
+    DEFINE_CLASS_LOGGER(SimpleDicStateBaseImpl);
 } // namespace
 
-HistoryStateBase* HistoryStateBase::createInstance(const Node* pN) {
-    return new HistoryStateBaseImpl(pN);
+SimpleDicStateBase* SimpleDicStateBase::createInstance(const Node* pN) {
+    return new SimpleDicStateBaseImpl(pN);
 }

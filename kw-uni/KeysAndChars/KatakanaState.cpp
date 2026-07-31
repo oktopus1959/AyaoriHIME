@@ -12,7 +12,7 @@
 #include "State.h"
 #include "StrokeTable.h"
 #include "OutputStack.h"
-#include "StrokeMerger/StrokeMergerHistoryResidentState.h"
+#include "StrokeMerger/SimpleDicResidentState.h"
 
 #include "Katakana.h"
 
@@ -122,7 +122,7 @@ namespace {
         void handleFullEscape() override {
             _LOG_DEBUGH(_T("CALLED: {}"), Name);
             //cancelMe();
-            MERGER_HISTORY_RESIDENT_STATE->handleFullEscapeResidentState();
+            SIMPLE_DIC_RESIDENT_STATE->handleFullEscapeResidentState();
         }
 
         // Esc の処理 -- 処理のキャンセル
@@ -133,7 +133,7 @@ namespace {
 
         // その他の特殊キー (常駐の履歴機能があればそれを呼び出す)
         void handleSpecialKeys(int deckey) {
-            MERGER_HISTORY_RESIDENT_STATE->dispatchDeckey(deckey);
+            SIMPLE_DIC_RESIDENT_STATE->dispatchDeckey(deckey);
         }
 
         // KatakanaModeToggle の処理 - 処理のキャンセル
@@ -213,4 +213,3 @@ Node* KatakanaNodeBuilder::CreateNode() {
     LOG_DEBUGH(_T("CALLED"));
     return new KatakanaNode();
 }
-

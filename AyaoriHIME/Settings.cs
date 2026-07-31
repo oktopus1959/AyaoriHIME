@@ -1911,7 +1911,7 @@ namespace KanchokuWS
 
             // キー割当
             HistorySearchCtrlKey = GetString("histSearchCtrlKey");                              // 履歴検索&選択を行うCtrlキー
-            InputActionResolver.RegisterCtrlDeckeyAndCombo(HistorySearchCtrlKey, DecoderKeys.HISTORY_NEXT_SEARCH_DECKEY, DecoderKeys.HISTORY_PREV_SEARCH_DECKEY);   // 登録
+            InputActionResolver.RegisterCtrlDeckeyAndCombo(HistorySearchCtrlKey, DecoderKeys.SIMPLE_DIC_NEXT_SEARCH_DECKEY, DecoderKeys.SIMPLE_DIC_PREV_SEARCH_DECKEY);   // 登録
             FullEscapeKey = GetString("fullEscapeKey", "G").Trim();
             InputActionResolver.RegisterCtrlDeckeyAndCombo(FullEscapeKey, DecoderKeys.FULL_ESCAPE_DECKEY, DecoderKeys.UNBLOCK_DECKEY);
             StrokeHelpRotationKey = GetString("strokeHelpRotationKey", "T").Trim();   // T

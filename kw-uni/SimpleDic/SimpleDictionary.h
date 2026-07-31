@@ -188,4 +188,4 @@ public:
     virtual bool IsNgramDicDirty() const = 0;
 };
 
-#define HISTORY_DIC (SimpleDictionary::Singleton)
+#define SIMPLE_DIC (SimpleDictionary::Singleton)

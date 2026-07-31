@@ -513,9 +513,9 @@ void State::dispatchDeckey(int deckey) {
         handleFullEscape();
     } else if (deckey == UNBLOCK_DECKEY) {
         handleUnblock();
-    } else if (deckey == HISTORY_NEXT_SEARCH_DECKEY) {
+    } else if (deckey == SIMPLE_DIC_NEXT_SEARCH_DECKEY) {
         handleNextCandTrigger();
-    } else if (deckey == HISTORY_PREV_SEARCH_DECKEY) {
+    } else if (deckey == SIMPLE_DIC_PREV_SEARCH_DECKEY) {
         handlePrevCandTrigger();
     } else if (deckey == TOGGLE_ZENKAKU_CONVERSION_DECKEY) {
         handleZenkakuModeToggle();
@@ -687,10 +687,10 @@ void State::handleFullEscape() { LOG_INFO(_T("CALLED")); handleSpecialKeys(FULL_
 void State::handleUnblock() { LOG_INFO(_T("CALLED")); handleSpecialKeys(UNBLOCK_DECKEY); }
 
 // handleNextCandTrigger デフォルトハンドラ
-void State::handleNextCandTrigger() { LOG_INFO(_T("CALLED")); handleSpecialKeys(HISTORY_NEXT_SEARCH_DECKEY); }
+void State::handleNextCandTrigger() { LOG_INFO(_T("CALLED")); handleSpecialKeys(SIMPLE_DIC_NEXT_SEARCH_DECKEY); }
 
 // handlePrevCandTrigger デフォルトハンドラ
-void State::handlePrevCandTrigger() { LOG_INFO(_T("CALLED")); handleSpecialKeys(HISTORY_PREV_SEARCH_DECKEY); }
+void State::handlePrevCandTrigger() { LOG_INFO(_T("CALLED")); handleSpecialKeys(SIMPLE_DIC_PREV_SEARCH_DECKEY); }
 
 // handleZenkakuModeToggle デフォルトハンドラ
 void State::handleZenkakuModeToggle() { LOG_INFO(_T("CALLED")); handleSpecialKeys(TOGGLE_ZENKAKU_CONVERSION_DECKEY); }
@@ -851,4 +851,3 @@ void State::handleDownArrow() { handleSpecialKeys(DOWN_ARROW_DECKEY); }
 
 // Ctrl ↓ ハンドラ
 void State::handleCtrlDownArrow() { handleSpecialKeys(DOWN_ARROW_DECKEY); }
-

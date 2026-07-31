@@ -109,7 +109,7 @@ namespace {
             DelayedPushFrontSelectedWord();
             currentLen = len;
             currentAllowSingleAsciiHistMap = allowSingleAsciiHistMap;
-            histCands = HISTORY_DIC->GetCandidates(key, currentKey, len, allowSingleAsciiHistMap);  // ここで currentKey は変更される (currentKey = resultKey)
+            histCands = SIMPLE_DIC->GetCandidates(key, currentKey, len, allowSingleAsciiHistMap);  // ここで currentKey は変更される (currentKey = resultKey)
             histResults.clear();
             utils::append(histResults, histCands.GetResults());
             _LOG_DEBUGH(_T("cands num={}, new currentKey={}"), histResults.size(), to_wstr(currentKey));
@@ -181,7 +181,7 @@ namespace {
         void DelayedPushFrontSelectedWord() override {
             _LOG_DEBUGH(_T("ENTER"));
             if (isSelecting()) {
-                HISTORY_DIC->UseWord(GetSelectedWord());
+                SIMPLE_DIC->UseWord(GetSelectedWord());
             }
             ClearSelectPos();
             _LOG_DEBUGH(_T("LEAVE"));
@@ -198,7 +198,7 @@ namespace {
             }
 
             SimpleDicResult result = histResults[n];
-            HISTORY_DIC->UseWord(result.Word);
+            SIMPLE_DIC->UseWord(result.Word);
             GetCandidates(currentKey, currentLen, currentAllowSingleAsciiHistMap);
             _LOG_DEBUGH(_T("LEAVE: OrigKey={}, Key={}, Word={}"), to_wstr(result.OrigKey), to_wstr(result.Key), to_wstr(result.Word));
             return result;

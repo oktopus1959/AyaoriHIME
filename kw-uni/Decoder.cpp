@@ -38,7 +38,7 @@
 
 #include "StrokeMerger/Lattice.h"
 #include "StrokeMerger/Merger.h"
-#include "StrokeMerger/StrokeMergerHistoryResidentState.h"
+#include "StrokeMerger/SimpleDicResidentState.h"
 
 #include "Dymazin/MorphBridge.h"
 #include "Ngram/NgramBridge.h"
@@ -173,7 +173,7 @@ public:
         Lattice2::createLattice();
 
         // マージ履歴機能ノードを初期化
-        StrokeMergerHistoryNode::Initialize();
+        SimpleDicMergerNode::Initialize();
 
         // 履歴入力機能を生成して常駐させる
         startState->CreateStateAndStayResidentAtEndOfChain(STROKE_MERGER_NODE.get());
@@ -255,7 +255,7 @@ public:
         // settings の事前ロード
         if (bPreLoad) loadSettings(decoderSettings);
 
-        if (MERGER_HISTORY_RESIDENT_STATE) MERGER_HISTORY_RESIDENT_STATE->ClearState();
+        if (SIMPLE_DIC_RESIDENT_STATE) SIMPLE_DIC_RESIDENT_STATE->ClearState();
 
         // Deckey から文字への変換インスタンスの構築
         createDeckeyToCharsInstance();
@@ -372,7 +372,7 @@ public:
 
     // 履歴のコミットと初期化
     void commitHistory() {
-        MERGER_HISTORY_RESIDENT_STATE->commitHistory();
+        SIMPLE_DIC_RESIDENT_STATE->commitHistory();
     }
 
     // デコーダが扱う辞書を保存する
@@ -384,8 +384,8 @@ public:
         }
         if (BUSHU_ASSOC_DIC) BUSHU_ASSOC_DIC->WriteBushuAssocDic();
         //if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
-        if (HISTORY_DIC) {
-            HISTORY_DIC->WriteSimpleDictionary();
+        if (SIMPLE_DIC) {
+            SIMPLE_DIC->WriteSimpleDictionary();
         }
         Lattice2::saveLatticeRelatedFiles();
         LOG_INFOH(_T("LEAVE"));
@@ -429,16 +429,16 @@ public:
                 if (items.size() > 2) {
                     MorphBridge::morphCompileAndLoadUserDic(items[1], items[2]);
                 }
-            } else if (cmd == _T("addHistEntry") && HISTORY_DIC) {
+            } else if (cmd == _T("addHistEntry") && SIMPLE_DIC) {
                 // 履歴登録
                 if (items.size() >= 2 && !items[1].empty()) {
-                    HISTORY_DIC->AddNewEntryAnyway(to_mstr(items[1]));
+                    SIMPLE_DIC->AddNewEntryAnyway(to_mstr(items[1]));
                 } else {
-                    HISTORY_DIC->AddNewEntryAnyway(OUTPUT_STACK->GetLastJapaneseKey<MString>(32));
+                    SIMPLE_DIC->AddNewEntryAnyway(OUTPUT_STACK->GetLastJapaneseKey<MString>(32));
                 }
             } else if (cmd == _T("saveHistoryDic") && BUSHU_ASSOC_DIC) {
                 // 履歴辞書の保存
-                if (HISTORY_DIC) HISTORY_DIC->WriteSimpleDictionary();
+                if (SIMPLE_DIC) SIMPLE_DIC->WriteSimpleDictionary();
             } else if (cmd == _T("readBushuDic") && BUSHU_DIC) {
                 // 部首合成辞書の再読み込み
                 BushuDic::ReadBushuDic(SETTINGS->bushuFile);
@@ -646,7 +646,7 @@ public:
                 commitHistory();
             } else if (cmd == _T("readUserRomanFile")) {
                 // ユーザー定義ローマ字辞書ファイルの読み込み
-                HISTORY_DIC->ReadUserRomanFile();
+                SIMPLE_DIC->ReadUserRomanFile();
             } else if (cmd == _T("readRomanDefFile")) {
                 // ローマ字定義ファイルの読み込み
                 RomanToKatakana::ReadDefaultRomanDefFile();

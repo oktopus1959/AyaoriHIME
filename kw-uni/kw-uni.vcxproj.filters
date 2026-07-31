@@ -279,7 +279,7 @@
     <ClInclude Include="MStringResult.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="StrokeMerger\StrokeMergerHistoryResidentState.h">
+    <ClInclude Include="StrokeMerger\SimpleDicResidentState.h">
       <Filter>ヘッダー ファイル\StrokeMerger</Filter>
     </ClInclude>
     <ClInclude Include="DyMazin\DymazinBridge.h">
@@ -458,7 +458,7 @@
     <ClCompile Include="StrokeMerger\Lattice2.cpp">
       <Filter>ソース ファイル\StrokeMerger</Filter>
     </ClCompile>
-    <ClCompile Include="StrokeMerger\MergerHistoryState.cpp">
+    <ClCompile Include="StrokeMerger\MergerState.cpp">
       <Filter>ソース ファイル\StrokeMerger</Filter>
     </ClCompile>
     <ClCompile Include="DyMazin\DymazinBridge.cpp">

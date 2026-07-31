@@ -11,7 +11,7 @@
 
 #include "SimpleDic/SimpleDicStateBase.h"
 #include "Merger.h"
-#include "StrokeMergerHistoryResidentState.h"
+#include "SimpleDicResidentState.h"
 #include "Lattice.h"
 
 #define _LOG_INFOH LOG_INFO
@@ -328,11 +328,11 @@ namespace {
 
     // -------------------------------------------------------------------
     // ストロークテーブルからの出力のマージ機能
-    class StrokeMergerHistoryResidentStateImpl : public StrokeMergerHistoryResidentState {
+    class SimpleDicResidentStateImpl : public SimpleDicResidentState {
     private:
         DECLARE_CLASS_LOGGER;
 
-        std::unique_ptr<HistoryStateBase> histBase;
+        std::unique_ptr<SimpleDicStateBase> simpleDicBase;
 
         bool bDualTableMode = false;
 
@@ -384,15 +384,15 @@ namespace {
 
     public:
         // コンストラクタ
-        StrokeMergerHistoryResidentStateImpl(StrokeMergerHistoryNode* pN)
-            : histBase(HistoryStateBase::createInstance(pN))
+        SimpleDicResidentStateImpl(SimpleDicMergerNode* pN)
+            : simpleDicBase(SimpleDicStateBase::createInstance(pN))
             , _streamList1(_T("streamList1"))
             , _streamList2(_T("streamList2")) {
             LOG_DEBUGH(_T("CALLED: Constructor"));
             Initialize(logger.ClassNameT(), pN);
         }
 
-        ~StrokeMergerHistoryResidentStateImpl() override {
+        ~SimpleDicResidentStateImpl() override {
             LOG_DEBUGH(_T("ENTER: Destructor"));
             ClearState();
             LOG_DEBUGH(_T("LEAVE: Destructor"));
@@ -518,7 +518,7 @@ namespace {
                     case DOWN_ARROW_DECKEY:
                         LOG_DEBUGH(_T("DOWN_ARROW_DECKEY: select next candidate"));
                         if (!WORD_LATTICE->hasMultiCandidates() &&
-                            (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || !SETTINGS->useEditWindow || WORD_LATTICE->isEmpty())) {
+                            (SIMPLE_DIC_RESIDENT_STATE->IsHistorySelectableByArrowKey() || !SETTINGS->useEditWindow || WORD_LATTICE->isEmpty())) {
                             //State::handleDownArrow();
                             doDefault = true;
                             break;
@@ -532,7 +532,7 @@ namespace {
                     case UP_ARROW_DECKEY:
                         LOG_DEBUGH(_T("UP_ARROW_DECKEY: select prev candidate"));
                         if (!WORD_LATTICE->hasMultiCandidates() &&
-                            (MERGER_HISTORY_RESIDENT_STATE->IsHistorySelectableByArrowKey() || !SETTINGS->useEditWindow || WORD_LATTICE->isEmpty())) {
+                            (SIMPLE_DIC_RESIDENT_STATE->IsHistorySelectableByArrowKey() || !SETTINGS->useEditWindow || WORD_LATTICE->isEmpty())) {
                             //State::handleUpArrow();
                             doDefault = true;
                             break;
@@ -993,7 +993,7 @@ namespace {
             LOG_DEBUGH(_T("bCandSelectable=False"));
             resultStr.clear();
             STROKE_MERGER_NODE->ClearPrevHistState();     // まだ履歴検索が行われていないということを表す
-            HIST_CAND->ClearKeyInfo();      // まだ履歴検索が行われていないということを表す
+            SIMPLE_DIC_CAND->ClearKeyInfo();      // まだ簡易辞書検索が行われていないということを表す
         }
 
         // 履歴検索を初期化する状態か
@@ -1061,10 +1061,10 @@ namespace {
         void commitHistory() override {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
             // 候補が選択されていれば、それを使用履歴の先頭にpushする
-            HIST_CAND->DelayedPushFrontSelectedWord();
+            SIMPLE_DIC_CAND->DelayedPushFrontSelectedWord();
             // どれかの候補が選択されている状態なら、それを確定し、履歴キーをクリアしておく
             STROKE_MERGER_NODE->ClearPrevHistState();
-            HIST_CAND->ClearKeyInfo();
+            SIMPLE_DIC_CAND->ClearKeyInfo();
         }
 
         bool IsHistorySelectableByArrowKey() const override {
@@ -1087,7 +1087,7 @@ namespace {
         //        LOG_DEBUGH(_T("Set Reinitialized=true"));
         //        maybeEditedBySubState = true;
         //        STROKE_MERGER_NODE->ClearPrevHistState();    // まだ履歴検索が行われていない状態にしておく
-        //        HIST_CAND->ClearKeyInfo();      // まだ履歴検索が行われていないということを表す
+        //        SIMPLE_DIC_CAND->ClearKeyInfo();      // まだ簡易辞書検索が行われていないということを表す
         //    }
         //    LOG_DEBUGH(_T("LEAVE: {}"), Name);
 
@@ -1138,7 +1138,7 @@ namespace {
 
         // 明示的な簡易辞書検索を開始する
         void historySearch() {
-            LOG_DEBUGH(_T("ENTER: maybeEditedBySubState={}, histInSearch={}"), maybeEditedBySubState, HIST_CAND->IsHistInSearch());
+            LOG_DEBUGH(_T("ENTER: maybeEditedBySubState={}, histInSearch={}"), maybeEditedBySubState, SIMPLE_DIC_CAND->IsHistInSearch());
             // キー取得用 lambda
             auto keyGetter = []() {
                         // まず、ワイルドカードパターンを試す
@@ -1181,19 +1181,19 @@ namespace {
                     if (words.empty() || (words.size() == 1 && (words[0].empty() || words[0] == ky))) {
                         LOG_DEBUGH(_T("HistSearch: CANDS CHECKER-A: cands size <= 1"));
                     } else if (SETTINGS->showHistCandsFromFirst) {
-                        histBase->setCandidatesVKB(words, ky);
+                        simpleDicBase->setCandidatesVKB(words, ky);
                     }
                 };
                 if (key != STROKE_MERGER_NODE->GetPrevKey() || maybeEditedBySubState) {
                     LOG_DEBUGH(_T("HistSearch: different key"));
                     // 1文字ASCIIのhistMap検索は、英数モードから明示的に変換した場合だけ許可する
                     bool allowSingleAsciiHistMap = NextState() && NextState()->GetName() == L"EisuState";
-                    histCandsChecker(HIST_CAND->GetCandWords(key, 0, allowSingleAsciiHistMap), key);
-                    key = HIST_CAND->GetCurrentKey();
+                    histCandsChecker(SIMPLE_DIC_CAND->GetCandWords(key, 0, allowSingleAsciiHistMap), key);
+                    key = SIMPLE_DIC_CAND->GetCurrentKey();
                     LOG_DEBUGH(_T("HistSearch: currentKey={}"), to_wstr(key));
                 } else {
                     LOG_DEBUGH(_T("HistSearch: same key"));
-                    histCandsChecker(HIST_CAND->GetCandWords(), key);
+                    histCandsChecker(SIMPLE_DIC_CAND->GetCandWords(), key);
                 }
             }
             LOG_DEBUGH(_T("HistSearch: SetPrevHistKeyState(key={})"), to_wstr(key));
@@ -1201,7 +1201,7 @@ namespace {
             LOG_DEBUGH(_T("DONE HistSearch"));
 
             // この処理は、GUI側で候補の背景色を変更するために必要
-            if (isHotCandidateReady(STROKE_MERGER_NODE->GetPrevKey(), HIST_CAND->GetCandWords())) {
+            if (isHotCandidateReady(STROKE_MERGER_NODE->GetPrevKey(), SIMPLE_DIC_CAND->GetCandWords())) {
                 LOG_DEBUGH(_T("PATH 14"));
                 // 何がしかの文字出力があり、それをキーとする履歴候補があった場合 -- 未選択状態にセットする
                 LOG_DEBUGH(_T("Set Unselected"));
@@ -1232,22 +1232,22 @@ namespace {
                 } else {
                     LOG_DEBUGH(_T("PATH 4-B: handleArrow"));
                     // この処理は、GUI側で候補の背景色を変更するのと矢印キーをホットキーにするために必要
-                    LOG_DEBUGH(_T("Set selectedPos={}"), HIST_CAND->GetSelectPos());
-                    STATE_COMMON->SetWaitingCandSelect(HIST_CAND->GetSelectPos());
+                    LOG_DEBUGH(_T("Set selectedPos={}"), SIMPLE_DIC_CAND->GetSelectPos());
+                    STATE_COMMON->SetWaitingCandSelect(SIMPLE_DIC_CAND->GetSelectPos());
                 }
             } else {
                 LOG_DEBUGH(_T("PATH 5: by Other Input"));
                 // その他の文字出力だった場合
-                HIST_CAND->DelayedPushFrontSelectedWord();
+                SIMPLE_DIC_CAND->DelayedPushFrontSelectedWord();
                 bCandSelectable = false;
 
                 LOG_DEBUGH(_T("PATH 6: bCandSelectable={}"), bCandSelectable);
                 if (OUTPUT_STACK->isLastOutputStackCharBlocker()) {
                     LOG_DEBUGH(_T("PATH 7: LastOutputStackChar is Blocker"));
-                    HISTORY_DIC->ClearNgramSet();
+                    SIMPLE_DIC->ClearNgramSet();
                 }
                 STROKE_MERGER_NODE->ClearPrevHistState();
-                HIST_CAND->ClearKeyInfo();
+                SIMPLE_DIC_CAND->ClearKeyInfo();
             }
 
             LOG_DEBUGH(_T("LEAVE: {}\n"), Name);
@@ -1315,7 +1315,7 @@ namespace {
         // (Ctrl or Shift)+Space の処理 -- 履歴検索の開始、次の候補を返す
         void handleNextOrPrevCandTrigger(bool bNext) {
             bCandSelectable = isCandSelectable();
-            LOG_DEBUGH(_T("\nCALLED: {}: bCandSelectable={}, selectPos={}, bNext={}"), Name, bCandSelectable, HIST_CAND->GetSelectPos(), bNext);
+            LOG_DEBUGH(_T("\nCALLED: {}: bCandSelectable={}, selectPos={}, bNext={}"), Name, bCandSelectable, SIMPLE_DIC_CAND->GetSelectPos(), bNext);
             // これにより、前回のEnterによる改行点挿入やFullEscapeによるブロッカーフラグが削除される⇒(2021/12/18)workしなくなっていたので、いったん削除
             //OUTPUT_STACK->clearFlagAndPopNewLine();
             // 今回、履歴選択用ホットキーだったことを保存
@@ -1419,8 +1419,8 @@ namespace {
         // FullEscapeの処理 -- 履歴選択状態から抜けて、履歴検索文字列の遡及ブロッカーをセット
         void handleFullEscape() override {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
-            HIST_CAND->DelayedPushFrontSelectedWord();
-            histBase->setBlocker();
+            SIMPLE_DIC_CAND->DelayedPushFrontSelectedWord();
+            simpleDicBase->setBlocker();
             LOG_DEBUGH(_T("LEAVE"));
         }
 
@@ -1458,7 +1458,7 @@ namespace {
         void handleBS() override {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
             STROKE_MERGER_NODE->ClearPrevHistState();
-            HIST_CAND->ClearKeyInfo();
+            SIMPLE_DIC_CAND->ClearKeyInfo();
             if (WORD_LATTICE->isEmpty()) {
                 State::handleBS();
             }
@@ -1472,17 +1472,17 @@ namespace {
         
         // RET/Enter の処理
         void handleEnter() override {
-            LOG_DEBUGH(_T("ENTER: {}: bCandSelectable={}, selectPos={}"), Name, bCandSelectable, HIST_CAND->GetSelectPos());
-            if (SETTINGS->selectFirstCandByEnter && bCandSelectable && HIST_CAND->GetSelectPos() < 0) {
+            LOG_DEBUGH(_T("ENTER: {}: bCandSelectable={}, selectPos={}"), Name, bCandSelectable, SIMPLE_DIC_CAND->GetSelectPos());
+            if (SETTINGS->selectFirstCandByEnter && bCandSelectable && SIMPLE_DIC_CAND->GetSelectPos() < 0) {
                 // 選択可能状態かつ候補未選択なら第1候補を返す。
                 LOG_DEBUGH(_T("CALL: getNextCandidate(false)"));
                 setCandSelectIsCalled();
                 getNextCandidate(false);
-            } else if (bCandSelectable && HIST_CAND->GetSelectPos() >= 0) {
-                LOG_DEBUGH(_T("CALL: STROKE_MERGER_NODE->ClearPrevHistState(); HIST_CAND->ClearKeyInfo()"));
+            } else if (bCandSelectable && SIMPLE_DIC_CAND->GetSelectPos() >= 0) {
+                LOG_DEBUGH(_T("CALL: STROKE_MERGER_NODE->ClearPrevHistState(); SIMPLE_DIC_CAND->ClearKeyInfo()"));
                 // どれかの候補が選択されている状態なら、それを確定し、履歴キーをクリアしておく
                 STROKE_MERGER_NODE->ClearPrevHistState();
-                HIST_CAND->ClearKeyInfo();
+                SIMPLE_DIC_CAND->ClearKeyInfo();
                 if (SETTINGS->newLineWhenHistEnter) {
                     // 履歴候補選択時のEnterではつねに改行するなら、確定後、Enter処理を行う
                     State::handleEnter();
@@ -1501,15 +1501,15 @@ namespace {
 
         //// Ctrl-J の処理 -- 選択可能状態かつ候補未選択なら第1候補を返す。候補選択済みなら確定扱い
         //void handleCtrlJ() {
-        //    LOG_DEBUGH(_T("\nCALLED: {}: selectPos={}"), Name, HIST_CAND->GetSelectPos());
+        //    LOG_DEBUGH(_T("\nCALLED: {}: selectPos={}"), Name, SIMPLE_DIC_CAND->GetSelectPos());
         //    //setCandSelectIsCalled();
         //    if (bCandSelectable) {
-        //        if (HIST_CAND->GetSelectPos() < 0) {
+        //        if (SIMPLE_DIC_CAND->GetSelectPos() < 0) {
         //            // 選択可能状態かつ候補未選択なら第1候補を返す。
         //            getNextCandidate();
         //        } else {
         //            // 確定させる
-        //            HIST_CAND->DelayedPushFrontSelectedWord();
+        //            SIMPLE_DIC_CAND->DelayedPushFrontSelectedWord();
         //            histBase->setBlocker();
         //        }
         //    } else {
@@ -1521,8 +1521,8 @@ namespace {
         // Esc の処理 -- 処理のキャンセル
         void handleEsc() override {
             LOG_DEBUGH(_T("CALLED: {}, bCandSelectable={}, SelectPos={}, EisuPrevCount={}, TotalCount={}"),
-                Name, bCandSelectable, HIST_CAND->GetSelectPos(), EISU_NODE->prevHistSearchDeckeyCount, STATE_COMMON->GetTotalDecKeyCount());
-            if (bCandSelectable && HIST_CAND->GetSelectPos() >= 0) {
+                Name, bCandSelectable, SIMPLE_DIC_CAND->GetSelectPos(), EISU_NODE->prevHistSearchDeckeyCount, STATE_COMMON->GetTotalDecKeyCount());
+            if (bCandSelectable && SIMPLE_DIC_CAND->GetSelectPos() >= 0) {
                 LOG_DEBUGH(_T("Some Cand Selected"));
                 // どれかの候補が選択されている状態なら、選択のリセット
                 if (STATE_COMMON->GetTotalDecKeyCount() == EISU_NODE->prevHistSearchDeckeyCount + 1) {
@@ -1559,40 +1559,40 @@ namespace {
         // 次の候補を返す処理
         void getNextCandidate(bool bSetVkb = true) {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
-            outputHistResult(HIST_CAND->GetNext(), bSetVkb);
+            outputHistResult(SIMPLE_DIC_CAND->GetNext(), bSetVkb);
         }
 
         // 前の候補を返す処理
         void getPrevCandidate(bool bSetVkb = true) {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
-            outputHistResult(HIST_CAND->GetPrev(), bSetVkb);
+            outputHistResult(SIMPLE_DIC_CAND->GetPrev(), bSetVkb);
         }
 
         // 次の候補を返す処理
         void getPosCandidate(size_t pos, bool bSetVkb = true) {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
-            outputHistResult(HIST_CAND->GetPositionedHist(pos), bSetVkb);
+            outputHistResult(SIMPLE_DIC_CAND->GetPositionedHist(pos), bSetVkb);
         }
 
         // 選択のリセット
         void resetCandSelect(bool bSetVkb) {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
-            outputHistResult(HIST_CAND->ClearSelectPos(), bSetVkb);
+            outputHistResult(SIMPLE_DIC_CAND->ClearSelectPos(), bSetVkb);
             STATE_COMMON->SetWaitingCandSelect(-1);
         }
 
         // 履歴結果出力 (bSetVKb = false なら、仮想鍵盤表示を履歴選択モードにしない; 英数モードから履歴検索をした直後のESCのケース)
         void outputHistResult(const SimpleDicResult& result, bool bSetVkb) {
             LOG_DEBUGH(_T("ENTER: {}: bSetVkb={}"), Name, bSetVkb);
-            histBase->getLastHistKeyAndRewindOutput(resultStr);    // 前回の履歴検索キー取得と出力スタックの巻き戻し予約(numBackSpacesに値をセット)
+            simpleDicBase->getLastHistKeyAndRewindOutput(resultStr);    // 前回の履歴検索キー取得と出力スタックの巻き戻し予約(numBackSpacesに値をセット)
 
-            histBase->setOutString(result, resultStr);
+            simpleDicBase->setOutString(result, resultStr);
             if (!result.Word.empty() && (result.Word.find(VERT_BAR) == MString::npos || utils::contains_ascii(result.Word))) {
                 // 何か履歴候補(英数字を含まない変換形履歴以外)が選択されたら、ブロッカーを設定する (emptyの場合は元に戻ったので、ブロッカーを設定しない)
                 LOG_DEBUGH(_T("SetHistoryBlocker"));
                 STATE_COMMON->SetHistoryBlockFlag();
             }
-            if (bSetVkb) histBase->setCandidatesVKB(HIST_CAND->GetCandWords(), HIST_CAND->GetCurrentKey());
+            if (bSetVkb) simpleDicBase->setCandidatesVKB(SIMPLE_DIC_CAND->GetCandWords(), SIMPLE_DIC_CAND->GetCurrentKey());
 
             // 英数モードはキャンセルする
             if (NextState()) NextState()->handleEisuCancel();
@@ -1601,7 +1601,7 @@ namespace {
         }
 
     };
-    DEFINE_CLASS_LOGGER(StrokeMergerHistoryResidentStateImpl);
+    DEFINE_CLASS_LOGGER(SimpleDicResidentStateImpl);
 
     DEFINE_LOCAL_LOGGER(StrokeMerger);
 
@@ -1635,39 +1635,39 @@ namespace {
 } // namespace
 
 // 履歴入力(常駐)機能状態インスタンスの Singleton
-std::unique_ptr<StrokeMergerHistoryResidentState> StrokeMergerHistoryResidentState::_singleton;
+std::unique_ptr<SimpleDicResidentState> SimpleDicResidentState::_singleton;
 
-void StrokeMergerHistoryResidentState::SetSingleton(StrokeMergerHistoryResidentState* pState) {
+void SimpleDicResidentState::SetSingleton(SimpleDicResidentState* pState) {
     _singleton.reset(pState);
 }
 
-StrokeMergerHistoryResidentState* StrokeMergerHistoryResidentState::Singleton() {
+SimpleDicResidentState* SimpleDicResidentState::Singleton() {
     return _singleton.get();
 }
 
 // -------------------------------------------------------------------
-// StrokeMergerHistoryNode - マージ履歴機能 常駐ノード
-DEFINE_CLASS_LOGGER(StrokeMergerHistoryNode);
+// SimpleDicMergerNode - マージ入力簡易辞書機能 常駐ノード
+DEFINE_CLASS_LOGGER(SimpleDicMergerNode);
 
 // コンストラクタ
-StrokeMergerHistoryNode::StrokeMergerHistoryNode() {
+SimpleDicMergerNode::SimpleDicMergerNode() {
     _LOG_INFOH(_T("CALLED: constructor"));
 }
 
 // デストラクタ
-StrokeMergerHistoryNode::~StrokeMergerHistoryNode() {
+SimpleDicMergerNode::~SimpleDicMergerNode() {
     _LOG_INFOH(_T("CALLED: destructor"));
 }
 
 // StrokeMergerNode::Singleton
-std::unique_ptr<StrokeMergerHistoryNode> StrokeMergerHistoryNode::Singleton;
+std::unique_ptr<SimpleDicMergerNode> SimpleDicMergerNode::Singleton;
 
-void StrokeMergerHistoryNode::CreateSingleton() {
-    Singleton.reset(new StrokeMergerHistoryNode());
+void SimpleDicMergerNode::CreateSingleton() {
+    Singleton.reset(new SimpleDicMergerNode());
 }
 
 // マージ履歴機能常駐ノードの初期化
-void StrokeMergerHistoryNode::Initialize() {
+void SimpleDicMergerNode::Initialize() {
     LOG_INFOH(L"ENTER");
     // 履歴入力辞書ファイル名
     auto histFile = SETTINGS->historyFile;
@@ -1681,20 +1681,20 @@ void StrokeMergerHistoryNode::Initialize() {
 
     FunctionNodeManager::CreateFunctionNodeByName(_T("history"));
 
-    StrokeMergerHistoryNode::CreateSingleton();
+    SimpleDicMergerNode::CreateSingleton();
     LOG_INFOH(L"LEAVE");
 }
 
 // -------------------------------------------------------------------
 // 当ノードを処理する State インスタンスを作成する
-State* StrokeMergerHistoryNode::CreateState() {
-    StrokeMergerHistoryResidentState::SetSingleton(new StrokeMergerHistoryResidentStateImpl(this));
-    return MERGER_HISTORY_RESIDENT_STATE;
+State* SimpleDicMergerNode::CreateState() {
+    SimpleDicResidentState::SetSingleton(new SimpleDicResidentStateImpl(this));
+    return SIMPLE_DIC_RESIDENT_STATE;
 }
 
 // テーブルファイルを読み込んでストローク木を作成する
 // targetTable: 0=全テーブル, 1=主テーブルのみ, 2=副テーブルのみ (0以外の場合は multiStreamMode/multiCandidateMode を無効にして単一テーブルモードにする; テスト用)
-void StrokeMergerHistoryNode::createStrokeTrees(int targetTable) {
+void SimpleDicMergerNode::createStrokeTrees(int targetTable) {
 #define STROKE_TREE_CREATOR(F) [](StringRef file, std::vector<String>& lines) {F(file, lines);}
 
     if (targetTable != 0) {
