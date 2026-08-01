@@ -61,7 +61,7 @@ public:
     virtual mchar_t FindAutoComposite(mchar_t ca, mchar_t cb) = 0;
 
     //仮想鍵盤に部首合成ヘルプの情報を設定する
-    virtual bool CopyBushuCompHelpToVkbFaces(mchar_t ch, wchar_t* faces, size_t kbLen, size_t kbNum, bool bSetAssoc = false) = 0;
+    virtual bool CopyBushuCompHelpToVkbFaces(mchar_t ch, wchar_t* faces, size_t kbLen, size_t kbNum) = 0;
 
     //後置部首合成定義を書き出す
     virtual void ExportPostfixBushuCompDefs(utils::OfstreamWriter& writer, StringRef postfix) = 0;

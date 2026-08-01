@@ -842,10 +842,6 @@ kanchoku.user.ini のグローバルな設定が上書きされないように�
 ;;#set mazegakiKeySeq=23,26
 ;; 機能呼出: 「部首合成」機能の呼び出しキー(列)
 ;;#set bushuCompKeySeq=26,23
-;; 機能呼出: 「連想文字検索」機能の呼び出しキー(列)
-;;#set bushuAssocKeySeq=
-;; 機能呼出: 「連想直接変換」機能の呼び出しキー(列)
-;;#set bushuAssocDirectKeySeq=46
 ;; 機能呼出: 「カタカナ変換(一括)」機能の呼び出しキー(列)
 ;;#set katakanaOneShotKeySeq=
 ;; 機能呼出: 「半角カタカナ変換」機能の呼び出しキー(列)

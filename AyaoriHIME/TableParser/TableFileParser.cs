@@ -570,12 +570,6 @@ namespace KanchokuWS.TableParser
                 case "b":   // BushuComp
                     Settings.BushuCompKeySeq_Preset = chooseMinimalOne(Settings.BushuCompKeySeq_Preset, strkList);
                     break;
-                case "A":   // bushuAssoc
-                    Settings.BushuAssocKeySeq_Preset = chooseMinimalOne(Settings.BushuAssocKeySeq_Preset, strkList);
-                    break;
-                case "a":   // bushuAssocDirect
-                    Settings.BushuAssocDirectKeySeq_Preset = chooseMinimalOne(Settings.BushuAssocDirectKeySeq_Preset, strkList);
-                    break;
                 case "M":   // mazegaki
                 case "m":   // mazegaki
                     Settings.MazegakiKeySeq_Preset = chooseMinimalOne(Settings.MazegakiKeySeq_Preset, strkList);

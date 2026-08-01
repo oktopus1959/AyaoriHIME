@@ -49,7 +49,6 @@ namespace KanchokuWS.Gui
             this.button_openTableFile2 = new System.Windows.Forms.Button();
             this.label104 = new System.Windows.Forms.Label();
             this.button_openHistoryFile = new System.Windows.Forms.Button();
-            this.button_bushuAssocFile = new System.Windows.Forms.Button();
             this.button_openBushuCompFile = new System.Windows.Forms.Button();
             this.button_openStrokeHelpFile = new System.Windows.Forms.Button();
             this.button_openEasyCharsFile = new System.Windows.Forms.Button();
@@ -64,8 +63,6 @@ namespace KanchokuWS.Gui
             this.label10 = new System.Windows.Forms.Label();
             this.textBox_historyFile = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.textBox_bushuAssocFile = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.textBox_bushuCompFile = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -707,7 +704,6 @@ namespace KanchokuWS.Gui
             this.groupBox2.Controls.Add(this.button_openTableFile2);
             this.groupBox2.Controls.Add(this.label104);
             this.groupBox2.Controls.Add(this.button_openHistoryFile);
-            this.groupBox2.Controls.Add(this.button_bushuAssocFile);
             this.groupBox2.Controls.Add(this.button_openBushuCompFile);
             this.groupBox2.Controls.Add(this.button_openStrokeHelpFile);
             this.groupBox2.Controls.Add(this.button_openEasyCharsFile);
@@ -722,8 +718,6 @@ namespace KanchokuWS.Gui
             this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Controls.Add(this.textBox_historyFile);
             this.groupBox2.Controls.Add(this.label7);
-            this.groupBox2.Controls.Add(this.textBox_bushuAssocFile);
-            this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.textBox_bushuCompFile);
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.label1);
@@ -838,19 +832,6 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.button_openHistoryFile, "入力履歴(entry)ファイルを開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n");
             this.button_openHistoryFile.UseVisualStyleBackColor = true;
             this.button_openHistoryFile.Click += new System.EventHandler(this.button_openHistoryFile_Click);
-            // 
-            // button_bushuAssocFile
-            // 
-            this.button_bushuAssocFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_bushuAssocFile.Enabled = false;
-            this.button_bushuAssocFile.Location = new System.Drawing.Point(352, 214);
-            this.button_bushuAssocFile.Name = "button_bushuAssocFile";
-            this.button_bushuAssocFile.Size = new System.Drawing.Size(34, 23);
-            this.button_bushuAssocFile.TabIndex = 16;
-            this.button_bushuAssocFile.Text = "開く";
-            this.toolTip1.SetToolTip(this.button_bushuAssocFile, "部首連想辞書ファイルを開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n");
-            this.button_bushuAssocFile.UseVisualStyleBackColor = true;
-            this.button_bushuAssocFile.Click += new System.EventHandler(this.button_bushuAssocFile_Click);
             // 
             // button_openBushuCompFile
             // 
@@ -1014,30 +995,6 @@ namespace KanchokuWS.Gui
             this.label7.Size = new System.Drawing.Size(89, 15);
             this.label7.TabIndex = 8;
             this.label7.Text = "入力履歴ファイル";
-            // 
-            // textBox_bushuAssocFile
-            // 
-            this.textBox_bushuAssocFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_bushuAssocFile.Enabled = false;
-            this.textBox_bushuAssocFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_bushuAssocFile.Location = new System.Drawing.Point(129, 216);
-            this.textBox_bushuAssocFile.Name = "textBox_bushuAssocFile";
-            this.textBox_bushuAssocFile.Size = new System.Drawing.Size(218, 19);
-            this.textBox_bushuAssocFile.TabIndex = 15;
-            this.toolTip1.SetToolTip(this.textBox_bushuAssocFile, "部首連想の定義を記述したファイルを設定\r\n\r\n部首連想辞書ファイルは漢直窓S終了時に自動的に内容が上書きされるので、\r\nこのファイルをエディタ等で編集する場合は漢" +
-        "直を終了させてから行ってください。\r\n\r\n記述フォーマットについては、「ドキュメント」または「辞書登録」タブの「部首連想」\r\nテキストボックスのツールチップを参" +
-        "照してください。");
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Enabled = false;
-            this.label5.Location = new System.Drawing.Point(15, 218);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(113, 15);
-            this.label5.TabIndex = 4;
-            this.label5.Text = "部首連想辞書ファイル";
             // 
             // textBox_bushuCompFile
             // 
@@ -6437,8 +6394,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox textBox_historyFile;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox textBox_bushuAssocFile;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBox_bushuCompFile;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label1;
@@ -6578,7 +6533,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Button button_miscReload;
         private System.Windows.Forms.GroupBox groupBox38;
         private System.Windows.Forms.Button button_openHistoryFile;
-        private System.Windows.Forms.Button button_bushuAssocFile;
         private System.Windows.Forms.Button button_openBushuCompFile;
         private System.Windows.Forms.Button button_openStrokeHelpFile;
         private System.Windows.Forms.Button button_openEasyCharsFile;

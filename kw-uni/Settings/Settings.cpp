@@ -59,7 +59,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_USER_FILE_PATH(kanjiYomiFile);
     SET_USER_FILE_PATH(bushuFile);
     SET_USER_FILE_PATH(autoBushuFile);
-    SET_USER_FILE_PATH(bushuAssocFile);
     //SET_FILE_PATH(mazegakiFile);
     SET_KEY_VALUE(mazegakiFile);
     SET_USER_FILE_PATH(historyFile);
@@ -85,7 +84,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(mazeRightShiftYomiPos);
     SET_INT_VALUE(mazeYomiMaxLen);
 
-    SET_INT_VALUE(bushuAssocSelectCount);
 
     SET_INT_VALUE(hiraToKataShiftPlane);
     SET_BOOL_VALUE(hiraToKataNormalPlane);
@@ -162,8 +160,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     RESET_STROKE_FUNC("history");
     RESET_STROKE_FUNC("mazegaki");
     RESET_STROKE_FUNC("bushuComp");
-    RESET_STROKE_FUNC("bushuAssoc");
-    RESET_STROKE_FUNC("bushuAssocDirect");
     RESET_STROKE_FUNC("katakanaMode");
     RESET_STROKE_FUNC("katakanaOneShot");
     RESET_STROKE_FUNC("hanKataOneShot");

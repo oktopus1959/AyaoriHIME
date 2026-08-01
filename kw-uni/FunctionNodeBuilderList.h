@@ -5,7 +5,6 @@
 // 以下に新しい機能のためのビルダーヘッダーファイルを追加
 #include "KeysAndChars/MyPrevChar.h"
 #include "BushuComp/BushuComp.h"
-#include "BushuComp/BushuAssoc.h"
 //#include "Mazegaki/Mazegaki.h"
 #include "EscapeNode.h"
 #include "KeysAndChars/Zenkaku.h"
@@ -23,8 +22,6 @@ void FunctionNodeManager::AddFunctionNodeBuilders() {
     addFunctionNodeBuilder(_T("v"), _T("prevChar"), new PrevCharNodeBuilder());
     addFunctionNodeBuilder(_T("B"), _T("bushuComp"), new BushuCompNodeBuilder());
     addFunctionNodeBuilder(_T("b"), _T("bushuComp"), new BushuCompNodeBuilder());
-    addFunctionNodeBuilder(_T("A"), _T("bushuAssoc"), new BushuAssocNodeBuilder());
-    addFunctionNodeBuilder(_T("a"), _T("bushuAssocDirect"), new BushuAssocExNodeBuilder());
     //addFunctionNodeBuilder(_T("M"), _T("mazegaki"), new MazegakiNodeBuilder());
     //addFunctionNodeBuilder(_T("m"), _T("mazegaki"), new MazegakiNodeBuilder());
     addFunctionNodeBuilder(_T("\\"), _T("nextThrough"), new EscapeNodeBuilder());

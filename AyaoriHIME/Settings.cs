@@ -404,7 +404,6 @@ namespace KanchokuWS
         public static string AltKanjiFile { get; private set; }
 
         // 各種辞書ファイル
-        public static string BushuAssocFile { get; private set; }
         public static string BushuFile { get; private set; }
         public static string AutoBushuFile { get; private set; }
         public static string EasyCharsFile { get; private set; }
@@ -673,16 +672,6 @@ namespace KanchokuWS
         public static string BushuCompKeySeq_PropName = "bushuCompKeySeq";
         public static string BushuCompKeySeq_Preset { get; set; }
 
-        /// <summary>連想文字検索を呼び出す打鍵列</summary>
-        public static string BushuAssocKeySeq { get; set; }
-        public static string BushuAssocKeySeq_PropName = "bushuAssocKeySeq";
-        public static string BushuAssocKeySeq_Preset { get; set; }
-
-        /// <summary>連想直接変換を呼び出す打鍵列</summary>
-        public static string BushuAssocDirectKeySeq { get; set; }
-        public static string BushuAssocDirectKeySeq_PropName = "bushuAssocDirectKeySeq";
-        public static string BushuAssocDirectKeySeq_Preset { get; set; }
-
         /// <summary>カタカナ変換(モード)を呼び出す打鍵列</summary>
         public static string KatakanaModeKeySeq { get; set; }
         public static string KatakanaModeKeySeq_PropName = "katakanaModeKeySeq";
@@ -908,9 +897,6 @@ namespace KanchokuWS
 
         /// <summary>自動部首合成を有効にする最小合成回数</summary>
         public static int AutoBushuCompMinCount { get; set; }
-
-        /// <summary>部首連想直接出力の回数</summary>
-        public static int BushuAssocSelectCount { get; set; }
 
         /// <summary>ローマ字読みによる打鍵ガイドを有効にするか</summary>
         public static bool UpperRomanStrokeGuide { get; set; }
@@ -1405,8 +1391,6 @@ namespace KanchokuWS
                 NextThroughKeySeq_Preset = "";
                 MazegakiKeySeq_Preset = "";
                 BushuCompKeySeq_Preset = "";
-                BushuAssocKeySeq_Preset = "";
-                BushuAssocDirectKeySeq_Preset = "";
                 KatakanaModeKeySeq_Preset = "";
                 KatakanaOneShotKeySeq_Preset = "";
                 HankakuKatakanaOneShotKeySeq_Preset = "";
@@ -1807,7 +1791,6 @@ namespace KanchokuWS
             setDecoderSetting("multiCandidateMode", MultiCandidateMode);
             MultiStreamDetailLog = addDecoderSetting("multiStreamDetailLog", false);
             UseEditWindow = addDecoderSetting("useEditWindow", false);                  // 編集ウィンドウを使用するか
-            BushuAssocFile = addDecoderSetting("bushuAssocFile", "kwassoc.txt");
             BushuFile = addDecoderSetting("bushuFile", "bushu", "kwbushu.rev");
             AutoBushuFile = addDecoderSetting("autoBushuFile", "bushuAuto", "kwbushu.aut");
             //var charsDefFile = GetString("charsDefFile");
@@ -1865,7 +1848,6 @@ namespace KanchokuWS
             YamanobeEnabled = addDecoderSetting("yamanobeEnabled", false);                      // YAMANOBEアルゴリズムを有効にするか
             bool bAutoBushuComp = GetString("autoBushuComp")._parseBool(false);                 // 自動首部合成を有効にするか(旧フラグ)
             AutoBushuCompMinCount = addDecoderSetting("autoBushuCompMinCount", bAutoBushuComp ? 1 : 0, 0);   // 自動首部合成を有効にする最小合成回数
-            BushuAssocSelectCount = addDecoderSetting("bushuAssocSelectCount", 1, 1, 10);       // 部首連想直接出力の回数
 
             RomanBushuCompPrefix = addDecoderSetting("romanBushuCompPrefix", "");               // ローマ字テーブル出力時の部首合成用プレフィックス
             RomanSecPlanePrefix = addDecoderSetting("romanSecPlanePrefix", ":");                // 裏面定義文字に対するローマ字出力時のプレフィックス
@@ -1934,10 +1916,6 @@ namespace KanchokuWS
             if (MazegakiKeySeq._notEmpty()) FunctionKeySeqSet.Add(MazegakiKeySeq);
             BushuCompKeySeq = addDecoderKeySeqSetting(BushuCompKeySeq_PropName);
             if (BushuCompKeySeq._notEmpty()) FunctionKeySeqSet.Add(BushuCompKeySeq);
-            BushuAssocKeySeq = addDecoderKeySeqSetting(BushuAssocKeySeq_PropName);
-            if (BushuAssocKeySeq._notEmpty()) FunctionKeySeqSet.Add(BushuAssocKeySeq);
-            BushuAssocDirectKeySeq = addDecoderKeySeqSetting(BushuAssocDirectKeySeq_PropName);
-            if (BushuAssocDirectKeySeq._notEmpty()) FunctionKeySeqSet.Add(BushuAssocDirectKeySeq);
             KatakanaModeKeySeq = addDecoderKeySeqSetting(KatakanaModeKeySeq_PropName);
             if (KatakanaModeKeySeq._notEmpty()) FunctionKeySeqSet.Add(KatakanaModeKeySeq);
             KatakanaOneShotKeySeq = addDecoderKeySeqSetting(KatakanaOneShotKeySeq_PropName);

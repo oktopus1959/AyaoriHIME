@@ -147,12 +147,6 @@
     <ClInclude Include="StateCommonInfo.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="BushuComp\BushuAssoc.h">
-      <Filter>ヘッダー ファイル\BushuComp</Filter>
-    </ClInclude>
-    <ClInclude Include="BushuComp\BushuAssocDic.h">
-      <Filter>ヘッダー ファイル\BushuComp</Filter>
-    </ClInclude>
     <ClInclude Include="BushuComp\BushuComp.h">
       <Filter>ヘッダー ファイル\BushuComp</Filter>
     </ClInclude>
@@ -379,12 +373,6 @@
     </ClCompile>
     <ClCompile Include="OutputStack.cpp">
       <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="BushuComp\BushuAssoc.cpp">
-      <Filter>ソース ファイル\BushuComp</Filter>
-    </ClCompile>
-    <ClCompile Include="BushuComp\BushuAssocDic.cpp">
-      <Filter>ソース ファイル\BushuComp</Filter>
     </ClCompile>
     <ClCompile Include="BushuComp\BushuComp.cpp">
       <Filter>ソース ファイル\BushuComp</Filter>

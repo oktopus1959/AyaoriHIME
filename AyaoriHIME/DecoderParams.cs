@@ -108,9 +108,6 @@ namespace KanchokuWS
         /// <summary> 履歴候補選択中</summary>
         public const int HistCandSelecting = 3;
 
-        /// <summary> 連想候補選択中</summary>
-        public const int AssocCandSelecting = 4;
-
         /// <summary>部首合成ヘルプ</summary>
         public const int BushuCompHelp = 5;
 
@@ -159,9 +156,6 @@ namespace KanchokuWS
 
         /// <summary>履歴候補選択中か</summary>
         public static bool IsHistCandSelecting(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.HistCandSelecting; }
-
-        /// <summary>連想候補選択中か</summary>
-        public static bool IsAssocCandSelecting(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.AssocCandSelecting; }
 
         /// <summary>部首合成ヘルプか</summary>
         public static bool IsBushuCompHelp(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.BushuCompHelp; }

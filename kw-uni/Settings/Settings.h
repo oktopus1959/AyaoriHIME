@@ -24,7 +24,6 @@ struct Settings {
     String kanjiYomiFile;      // 漢字読みファイル
     String bushuFile;          // 部首合成辞書
     String autoBushuFile;      // 自動部首合成辞書
-    String bushuAssocFile;     // 部首連想辞書
     String mazegakiFile;       // 交ぜ書き辞書
     String historyFile;        // 履歴
     String historySystemRomanFile;          // システムローマ字辞書ファイル
@@ -53,7 +52,6 @@ struct Settings {
     bool mazeRightShiftYomiPos = true;      // 交ぜ書き変換で、読みの開始位置を右移動する
     size_t mazeYomiMaxLen = 10;             // 交ぜ書き変換時の最長入力読み長
 
-    size_t bushuAssocSelectCount = 1;       // 部首連想直接出力の回数
 
     int hiraToKataShiftPlane = 0;   // Shift入力された平仮名をカタカナに変換する面
     bool hiraToKataNormalPlane = false;   // 通常面の平仮名をカタカナに変換する
@@ -127,7 +125,7 @@ struct Settings {
     bool debughMazegakiDic = false;         // mazegakiDic モジュールで DebugH を有効にする
     bool debughHistory = false;             // history モジュールで DebugH を有効にする
     bool debughStrokeTable = false;         // strokeTable モジュールで DebugH を有効にする
-    bool debughBushu = false;               // bushuComp/bushuAssoc モジュールで DebugH を有効にする
+    bool debughBushu = false;               // bushuComp モジュールで DebugH を有効にする
     bool debughString = false;              // String モジュールで DebugH を有効にする
     bool debughZenkaku = false;             // Zenkaku モジュールで DebugH を有効にする
     bool debughKatakana = false;            // Katakana モジュールで DebugH を有効にする

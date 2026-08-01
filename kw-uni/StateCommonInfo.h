@@ -101,9 +101,6 @@ enum class ExpectedKeyType
     // 履歴候補選択中
     HistCandSelecting = 3,
 
-    // 連想候補選択中
-    AssocCandSelecting = 4,
-
     // 部首合成ヘルプ
     BushuCompHelp = 5,
 
@@ -290,7 +287,6 @@ public:
     inline void SetWaiting2ndStroke() { nextExpectedKeyType = ExpectedKeyType::SecondStroke; }
     //inline void SetMazeCandSelecting() { nextExpectedKeyType = ExpectedKeyType::MazeCandSelecting; }
     inline void SetHistCandSelecting() { nextExpectedKeyType = ExpectedKeyType::HistCandSelecting; }
-    inline void SetAssocCandSelecting() { nextExpectedKeyType = ExpectedKeyType::AssocCandSelecting; }
     inline void SetOtherStatus() { nextExpectedKeyType = ExpectedKeyType::OtherStatus; }
 
     inline void SetStrokeCount(int cnt) { strokeCount = cnt; }
@@ -336,7 +332,6 @@ public:
     inline bool IsWaiting2ndStroke() const { return nextExpectedKeyType == ExpectedKeyType::SecondStroke; }
     //inline bool IsMazeCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::MazeCandSelecting; }
     inline bool IsHistCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::HistCandSelecting; }
-    inline bool IsAssocCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::AssocCandSelecting; }
     inline bool IsOtherStatus() const { return nextExpectedKeyType == ExpectedKeyType::OtherStatus; }
 
 //    inline void OutputDeckeyChar(/*int numBS = -1*/) { SetOutString(GetDeckeyChar()); }

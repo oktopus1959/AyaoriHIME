@@ -1676,8 +1676,6 @@ namespace KanchokuWS
                 //    name = Settings.BgColorForMazegaki;
                 } else if (decoderOutput.IsHistCandSelecting()) {
                     name = Settings.BgColorForHistOrAssoc;
-                } else if (decoderOutput.IsAssocCandSelecting()) {
-                    name = Settings.BgColorForHistOrAssoc;
                 } else if (decoderOutput.IsBushuCompHelp()) {
                     name = Settings.BgColorForBushuCompHelp;
                 } else if (decoderOutput.IsOtherStatus()) {
@@ -1871,11 +1869,6 @@ namespace KanchokuWS
             //}
             frmMain.Terminate();
             logger.Info("LEAVE");
-        }
-
-        private void BushuAssocReload_ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            frmMain.ExecCmdDecoder("mergeBushuAssoc", null);
         }
 
         // 上部出力文字列に何かをペーストされたときのアクション

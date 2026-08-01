@@ -30,8 +30,6 @@
 
 #include "BushuComp/BushuComp.h"
 #include "BushuComp/BushuDic.h"
-#include "BushuComp/BushuAssoc.h"
-#include "BushuComp/BushuAssocDic.h"
 #include "SimpleDic/SimpleDictionary.h"
 //#include "Mazegaki/Mazegaki.h"
 //#include "Mazegaki/MazegakiDic.h"
@@ -194,9 +192,6 @@ public:
 
         //// 部首合成ノードのSingleton生成
         //BushuCompNode::CreateSingleton();
-
-        // 直接連想変換ノードのSingleton生成
-        BushuAssocExNode::CreateSingleton();
 
         // 全角変換ノードのSingleton生成
         //ZenkakuNode::CreateSingleton();
@@ -382,7 +377,6 @@ public:
             BUSHU_DIC->WriteBushuDic();
             BUSHU_DIC->WriteAutoBushuDic();
         }
-        if (BUSHU_ASSOC_DIC) BUSHU_ASSOC_DIC->WriteBushuAssocDic();
         //if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
         if (SIMPLE_DIC) {
             SIMPLE_DIC->WriteSimpleDictionary();
@@ -436,7 +430,7 @@ public:
                 } else {
                     SIMPLE_DIC->AddNewEntryAnyway(OUTPUT_STACK->GetLastJapaneseKey<MString>(32));
                 }
-            } else if (cmd == _T("saveHistoryDic") && BUSHU_ASSOC_DIC) {
+            } else if (cmd == _T("saveHistoryDic") && SIMPLE_DIC) {
                 // 履歴辞書の保存
                 if (SIMPLE_DIC) SIMPLE_DIC->WriteSimpleDictionary();
             } else if (cmd == _T("readBushuDic") && BUSHU_DIC) {
@@ -457,27 +451,16 @@ public:
             } else if (cmd == _T("saveAutoBushuDic") && BUSHU_DIC) {
                 // 自動部首合成辞書の保存
                 BUSHU_DIC->WriteAutoBushuDic();
-            } else if (cmd == _T("mergeBushuAssoc") && BUSHU_ASSOC_DIC) {
-                // 部首連想辞書マージ
-                BushuAssocDic::MergeBushuAssocDic(SETTINGS->bushuAssocFile);
-            } else if (cmd == _T("mergeBushuAssocEntry") && BUSHU_ASSOC_DIC) {
-                // 部首連想エントリマージ
-                if (items.size() >= 2 && !items[1].empty()) {
-                    BUSHU_ASSOC_DIC->MergeEntry(items[1]);
-                }
-            } else if (cmd == _T("saveBushuAssocDic") && BUSHU_ASSOC_DIC) {
-                // 部首連想辞書の保存
-                BUSHU_ASSOC_DIC->WriteBushuAssocDic();
             //} else if (cmd == _T("addMazegakiEntry")) {
             //    LOG_DEBUGH(_T("addMazegakiEntry: {}"), items.size() >= 2 && !items[1].empty() ? items[1] : _T("none"));
             //    if (MAZEGAKI_DIC && items.size() >= 2 && !items[1].empty()) {
             //        // 交ぜ書きエントリの追加
             //        MAZEGAKI_DIC->AddMazeDicEntry(items[1], true, false);
             //    }
-            //} else if (cmd == _T("readMazegakiDic") && BUSHU_ASSOC_DIC) {
+            //} else if (cmd == _T("readMazegakiDic")) {
             //    // 交ぜ書き辞書の読み込み
             //    if (MAZEGAKI_DIC) MAZEGAKI_DIC->ReadMazegakiDic(items[1]);
-            //} else if (cmd == _T("saveMazegakiDic") && BUSHU_ASSOC_DIC) {
+            //} else if (cmd == _T("saveMazegakiDic")) {
             //    // 交ぜ書き辞書の保存
             //    if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
             } else if (cmd == _T("saveRealtimeNgramFile")) {
@@ -626,9 +609,6 @@ public:
             } else if (cmd == _T("isKatakanaMode")) {
                 // カタカナモードか
                 if (STATE_COMMON->FindRunningState(_T("KatakanaState"))) outParams->resultFlags |=  (UINT32)ResultFlags::CurrentModeIsKatakana;
-            } else if (cmd == _T("readBushuAssoc")) {
-                // 連想辞書から定義文字列を読み出してくる
-                readBushuAssoc(items[1], outParams->faceStrings);
             } else if (cmd == _T("updateStrokeNodes")) {
                 // 後から部分的にストローク定義を解析してストローク木に差し込む
                 updateStrokeNodes(items[1]);
@@ -882,7 +862,7 @@ public:
             LOG_DEBUG(_T("BushuCompHelp"));
             //copyToTopString();
             if ((resultStr.numBS() > 0 && resultStr.resultStr().size() == 1)) {
-                if (BUSHU_DIC && BUSHU_DIC->CopyBushuCompHelpToVkbFaces(lastChar, OutParams->faceStrings, LONG_VKEY_CHAR_SIZE, LONG_VKEY_NUM, false)) {
+                if (BUSHU_DIC && BUSHU_DIC->CopyBushuCompHelpToVkbFaces(lastChar, OutParams->faceStrings, LONG_VKEY_CHAR_SIZE, LONG_VKEY_NUM)) {
                     OutParams->layout = (int)VkbLayout::BushuCompHelp;
                     OutParams->nextExpectedKeyType = (int)ExpectedKeyType::BushuCompHelp;
                     OutParams->centerString[0] = (wchar_t)lastChar;
@@ -981,7 +961,7 @@ public:
             if (!ms.empty()) {
                 if (bBushuComp || !STROKE_HELP->copyStrokeHelpToVkbFacesOutParams(ms[0], OutParams->faceStrings, utils::array_length(OutParams->faceStrings))) {
                     if (BUSHU_DIC) {
-                        if (BUSHU_DIC->CopyBushuCompHelpToVkbFaces(ms[0], OutParams->faceStrings, LONG_VKEY_CHAR_SIZE, LONG_VKEY_NUM, true)) {
+                        if (BUSHU_DIC->CopyBushuCompHelpToVkbFaces(ms[0], OutParams->faceStrings, LONG_VKEY_CHAR_SIZE, LONG_VKEY_NUM)) {
                             OutParams->layout = (int)VkbLayout::BushuCompHelp;
                             OutParams->nextExpectedKeyType = (int)ExpectedKeyType::BushuCompHelp;
                         }
@@ -1069,31 +1049,6 @@ public:
     void clearKeyFaces() {
         for (size_t i = 0; i < utils::array_length(OutParams->faceStrings); ++i) {
             OutParams->faceStrings[i] = 0;
-        }
-    }
-
-    // 連想辞書から定義文字列を読み出してくる
-    void readBushuAssoc(const String& ws, wchar_t* buffer) {
-        LOG_INFO(_T("CALLED: ws={}"), ws);
-        buffer[0] = 0;
-        if (!ws.empty()) {
-            if (BUSHU_ASSOC_DIC) {
-                LOG_INFO(_T("CALL: BUSHU_ASSOC_DIC->GetEntry({})"), ws[0]);
-                BushuAssocEntry* entry = BUSHU_ASSOC_DIC->GetEntry(ws[0]);
-                if (entry) {
-                    std::vector<MString> list(11);
-                    entry->CopySubList(list, 0, list.size(), true);
-                    size_t i = 0;
-                    for (auto ms : list) {
-                        if (!ms.empty()) {
-                            auto mp = decomp_mchar(ms[0]);
-                            if (mp.first != 0) buffer[i++] = mp.first;
-                            if (mp.second != 0) buffer[i++] = mp.second;
-                        }
-                    }
-                    buffer[i] = 0;
-                }
-            }
         }
     }
 

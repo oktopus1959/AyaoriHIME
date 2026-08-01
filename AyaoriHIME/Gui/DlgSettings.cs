@@ -345,7 +345,6 @@ namespace KanchokuWS.Gui
             textBox_easyCharsFile.Text = Settings.EasyCharsFile;
             textBox_strokeHelpFile.Text = Settings.StrokeHelpFile;
             textBox_bushuCompFile.Text = Settings.BushuFile;
-            textBox_bushuAssocFile.Text = Settings.BushuAssocFile;
             textBox_historyFile.Text = Settings.HistoryFile;
 
             // 入力文字列の表示方法
@@ -403,7 +402,6 @@ namespace KanchokuWS.Gui
             checkerBasic.Add(comboBox_tableFile2);
             checkerBasic.Add(textBox_strokeHelpFile);
             checkerBasic.Add(textBox_bushuCompFile);
-            checkerBasic.Add(textBox_bushuAssocFile);
             checkerBasic.Add(textBox_historyFile);
 
             // 入力文字列の表示方法
@@ -468,7 +466,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("tableFile2", getTableFileName(comboBox_tableFile2.Text));
             Settings.SetUserIni("strokeHelpFile", textBox_strokeHelpFile.Text.Trim());
             Settings.SetUserIni("bushuFile", textBox_bushuCompFile.Text.Trim());
-            Settings.SetUserIni("bushuAssocFile", textBox_bushuAssocFile.Text.Trim());
             Settings.SetUserIni("historyFile", textBox_historyFile.Text.Trim());
 
             // 入力文字列の表示方法
@@ -1736,10 +1733,6 @@ namespace KanchokuWS.Gui
             setEnabled(textBox_nextThroughKeySeq, Settings.NextThroughKeySeq_PropName);
             textBox_bushuCompKeySeq.Text = Settings.BushuCompKeySeq._orElse(() => makePresetString(Settings.BushuCompKeySeq_Preset));
             setEnabled(textBox_bushuCompKeySeq, Settings.BushuCompKeySeq_PropName);
-            textBox_bushuAssocKeySeq.Text = Settings.BushuAssocKeySeq._orElse(() => makePresetString(Settings.BushuAssocKeySeq_Preset));
-            setEnabled(textBox_bushuAssocKeySeq, Settings.BushuAssocKeySeq_PropName);
-            textBox_bushuAssocDirectKeySeq.Text = Settings.BushuAssocDirectKeySeq._orElse(() => makePresetString(Settings.BushuAssocDirectKeySeq_Preset));
-            setEnabled(textBox_bushuAssocDirectKeySeq, Settings.BushuAssocDirectKeySeq_PropName);
             textBox_katakanaOneShotKeySeq.Text = Settings.KatakanaOneShotKeySeq._orElse(() => makePresetString(Settings.KatakanaOneShotKeySeq_Preset));
             setEnabled(textBox_katakanaOneShotKeySeq, Settings.KatakanaOneShotKeySeq_PropName);
             textBox_hankakuKatakanaOneShotKeySeq.Text = Settings.HankakuKatakanaOneShotKeySeq._orElse(() => makePresetString(Settings.HankakuKatakanaOneShotKeySeq_Preset));
@@ -1769,8 +1762,6 @@ namespace KanchokuWS.Gui
             checkerKeyAssign.Add(textBox_katakanaModeKeySeq);
             checkerKeyAssign.Add(textBox_nextThroughKeySeq);
             checkerKeyAssign.Add(textBox_bushuCompKeySeq);
-            checkerKeyAssign.Add(textBox_bushuAssocKeySeq);
-            checkerKeyAssign.Add(textBox_bushuAssocDirectKeySeq);
             checkerKeyAssign.Add(textBox_katakanaOneShotKeySeq);
             checkerKeyAssign.Add(textBox_hankakuKatakanaOneShotKeySeq);
             checkerKeyAssign.Add(textBox_blockerSetterOneShotKeySeq);
@@ -1802,8 +1793,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("katakanaModeKeySeq", revertPresetString(textBox_katakanaModeKeySeq.Text));
             Settings.SetUserIni("nextThroughKeySeq", revertPresetString(textBox_nextThroughKeySeq.Text));
             Settings.SetUserIni("bushuCompKeySeq", revertPresetString(textBox_bushuCompKeySeq.Text));
-            Settings.SetUserIni("bushuAssocKeySeq", revertPresetString(textBox_bushuAssocKeySeq.Text));
-            Settings.SetUserIni("bushuAssocDirectKeySeq", revertPresetString(textBox_bushuAssocDirectKeySeq.Text));
             Settings.SetUserIni("katakanaOneShotKeySeq", revertPresetString(textBox_katakanaOneShotKeySeq.Text));
             Settings.SetUserIni("hanKataOneShotKeySeq", revertPresetString(textBox_hankakuKatakanaOneShotKeySeq.Text));
             Settings.SetUserIni("blkSetOneShotKeySeq", revertPresetString(textBox_blockerSetterOneShotKeySeq.Text));
@@ -2195,60 +2184,6 @@ namespace KanchokuWS.Gui
         // 辞書登録
         //-----------------------------------------------------------------------------------
         /// <summary> 交ぜ書き辞書登録 </summary>
-        /// <summary> 部首連想辞書登録 </summary>
-        private void button_enterBushuAssoc_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            var line = textBox_bushuAssoc.Text.Trim().Replace(" ", "");
-            if (line._reMatch(@"^[^=]=.")) {
-                frmMain?.ExecCmdDecoder("mergeBushuAssocEntry", line);
-                button_readBushuAssoc.Hide();
-                label_saveAssoc.Hide();
-                label_bushuAssoc.Show();
-                dicRegLabelCount = dicRegLabelCountMax;
-            } else {
-                SystemHelper.ShowWarningMessageBox("形式が間違っています。\r\n「文字=文字...」という形式で入力してください。");
-            }
-        }
-
-        private void button_saveBushuAssocFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            frmMain?.ExecCmdDecoder("saveBushuAssocDic", null);
-            button_readBushuAssoc.Hide();
-            label_bushuAssoc.Hide();
-            label_saveAssoc.Show();
-            dicRegLabelCount = dicRegLabelCountMax;
-        }
-
-        /// <summary>連想辞書からエントリを読み出す</summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button_readBushuAssoc_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            if (textBox_bushuAssoc.Text._notEmpty()) {
-                var s = textBox_bushuAssoc.Text.Substring(0, 1);
-                char[] result = frmMain?.CallDecoderFunc("readBushuAssoc", s);
-                if (result._notEmpty()) {
-                    var sb = new StringBuilder();
-                    sb.Append(s).Append('=');
-                    foreach (var ch in result) {
-                        if (ch == 0) break;
-                        sb.Append(ch);
-                    }
-                    textBox_bushuAssoc.Text = sb.ToString();
-                }
-            }
-        }
-
-        private void textBox_bushuAssoc_TextChanged(object sender, EventArgs e)
-        {
-            button_readBushuAssoc.Show();
-            label_saveAssoc.Hide();
-            label_bushuAssoc.Hide();
-        }
-
         /// <summary> 部首合成辞書登録 </summary>
         private void button_enterBushu_Click(object sender, EventArgs e)
         {
@@ -2953,12 +2888,6 @@ namespace KanchokuWS.Gui
             logger.Info("CALLED");
             openFileInUserFolder(Settings.BushuFile);
             openFileInUserFolder(Settings.AutoBushuFile);
-        }
-
-        private void button_bushuAssocFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            openFileInUserFolder(Settings.BushuAssocFile);
         }
 
         private void button_openHistoryFile_Click(object sender, EventArgs e)

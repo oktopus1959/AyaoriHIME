@@ -11,8 +11,6 @@
 #include "EasyChars.h"
 #include "StrokeTable.h"
 #include "BushuDic.h"
-#include "BushuAssoc.h"
-#include "BushuAssocDic.h"
 #include "VkbTableMaker.h"
 
 #define _LOG_DEBUGH_FLAG (SETTINGS->debughBushu)
@@ -395,21 +393,6 @@ namespace {
             }
         }
 
-        // 連想辞書に登録する
-        void setAssocTarget(mchar_t m, mchar_t tgt)
-        {
-            if (BUSHU_ASSOC_DIC) {
-                BUSHU_ASSOC_DIC->SelectTarget(m, tgt);
-            }
-        }
-
-        // 連想辞書に登録する
-        void setAssocTarget(mchar_t ca, mchar_t cb, mchar_t tgt)
-        {
-            setAssocTarget(ca, tgt);
-            setAssocTarget(cb, tgt);
-        }
-
 //#define _LOG_INFO(...) if (SETTINGS->bushuDicLogEnabled || SETTINGS->debughBushu) logger.InfoH(std::format(__VA_ARGS__), __func__, __FILE__, __LINE__)
 #define _LOG_INFO(...) if (SETTINGS->bushuDicLogEnabled || SETTINGS->debughBushu) {}
     public:
@@ -422,7 +405,6 @@ namespace {
             mchar_t c = findCompSub((wchar_t)ca, (wchar_t)cb, prev);
             if (c == 0 && prev != 0) c = findCompSub((wchar_t)ca, (wchar_t)cb, 0);    // retry from the beginning
             if (c != 0) {
-                setAssocTarget(ca, cb, c);
                 if (!(utils::is_punct(ca) || utils::is_punct(cb) || utils::is_hiragana(ca) || utils::is_hiragana(cb)) || (utils::is_katakana(ca) && utils::is_katakana(cb))) {
                     // 句読点または平仮名を含むか、または片仮名同士でない場合は、自動部首合成登録を行う
                     AddAutoBushuEntry(ca, cb, c);
@@ -949,7 +931,7 @@ namespace {
 
     public:
         //仮想鍵盤に部首合成ヘルプの情報を設定する
-        bool CopyBushuCompHelpToVkbFaces(mchar_t ch, wchar_t* faces, size_t kbLen, size_t kbNum, bool bSetAssoc) override {
+        bool CopyBushuCompHelpToVkbFaces(mchar_t ch, wchar_t* faces, size_t kbLen, size_t kbNum) override {
             // クリアしておく
             size_t numFaces = kbLen * kbNum;
             for (size_t i = 0; i < numFaces; i += kbLen) {
@@ -968,12 +950,6 @@ namespace {
                     return true;
                 }
                 return false;
-            }
-
-            if (bSetAssoc) {
-                wchar_t a = parts.a();
-                wchar_t b = parts.b();
-                setAssocTarget(a, b, ch);
             }
 
             size_t leftIn = (kbNum / 2) - 1;
@@ -1329,4 +1305,3 @@ void BushuDic::WriteBushuDic() {
 void BushuDic::WriteAutoBushuDic() {
     WriteAutoBushuDic(SETTINGS->autoBushuFile);
 }
-
