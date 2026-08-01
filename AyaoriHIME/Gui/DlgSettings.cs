@@ -1944,7 +1944,7 @@ namespace KanchokuWS.Gui
 
         private void button_loadUserRomanFile_Click(object sender, EventArgs e)
         {
-            frmMain?.ExecCmdDecoder("readSimpleDicFile", null);
+            frmMain?.ExecCmdDecoder("reloadSimpleDictionary", null);
         }
 
         private void button_openRomanDefFile_Click(object sender, EventArgs e)

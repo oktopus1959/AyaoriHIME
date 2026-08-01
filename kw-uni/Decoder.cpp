@@ -617,9 +617,9 @@ public:
             } else if (cmd == _T("commitSimpleDicState")) {
                 // 簡易辞書候補選択状態のコミットと初期化
                 commitSimpleDicState();
-            } else if (cmd == _T("readSimpleDicFile")) {
-                // ユーザー定義ローマ字辞書ファイルの読み込み
-                SIMPLE_DIC->ReadSimpleDicFile();
+            } else if (cmd == _T("reloadSimpleDictionary")) {
+                // 簡易辞書ファイルの再読み込み
+                SIMPLE_DIC->ReloadSimpleDictionary();
             } else if (cmd == _T("readRomanDefFile")) {
                 // ローマ字定義ファイルの読み込み
                 RomanToKatakana::ReadDefaultRomanDefFile();

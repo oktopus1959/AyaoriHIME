@@ -41,6 +41,11 @@ namespace {
         std::set<MString> emptySet;
 
     public:
+        // 全エントリーをクリア
+        void Clear() {
+            dic.clear();
+        }
+
         // 文字列(単語)の追加
         void Insert(const MString& s) {
             auto hsh = utils::get_hash(s);
@@ -390,6 +395,18 @@ namespace {
             headCandList.push_back(word);
         }
 
+        // 指定キーの優先エントリを置換する。未登録なら追加する
+        void ReplaceEntry(const MString& key, const MString& word) {
+            bool found = false;
+            for (auto& entry : headCandList) {
+                if (entry.size() > key.size() && entry.compare(0, key.size(), key) == 0 && entry[key.size()] == VERT_BAR) {
+                    entry = word;
+                    found = true;
+                }
+            }
+            if (!found) PushEntry(word);
+        }
+
         void ExtractHeadWord(const MString& key, SImpleDicResultList& outvec, std::set<MString>& set_) {
             LOG_DEBUG(_T("CALLED: key={}"), to_wstr(key));
             _DEBUG_SENT(size_t n = 0);
@@ -424,6 +441,9 @@ namespace {
 
         // 変換形の優先順リスト
         SimpleDicHeadCandList translatePriorityList;
+
+        // 先頭優先辞書に出現した変換キー
+        std::set<String> firstPreferredKeys;
 
         // 結果を保持しておくリスト
         //std::vector<SimpleDicResult> resultList;
@@ -473,6 +493,7 @@ namespace {
 
     public:
         SimpleDictionaryImpl() {
+            LOG_INFOH(_T("ctor"));
         }
 
         //// UTF8で書かれた辞書ソースを読み込む
@@ -480,34 +501,56 @@ namespace {
         //    readFile(lines, false);
         //}
 
-        // 辞書ソースを読み込む
-        void ReadDicFileAsReadOnly(const std::vector<String>& lines) override {
+        // 辞書ソースを読み込む (同じ変換キーを持つエントリの先頭を translatePriorityList に追加)
+        void ReadDicFileAsReadOnlyFirstPreferred(const std::vector<String>& lines) override {
             LOG_INFOH(_T("ENTER: {} lines"), lines.size());
             readFile(lines, true);
 
-            // 重複しているエントリを translatePriorityList に追加
-            String prevWord;
-            MString prevLine;
-            bool bDup = false;
+            // 同じ変換キーを持つエントリの先頭を translatePriorityList に追加
+            std::map<String, MString> firstEntries;
+            std::set<String> priorityKeys;
             size_t count = 0;
             for (const auto& line : lines) {
+                if (line.empty() || line[0] == '#') continue;
                 size_t pos = line.find(_T("|"));
                 if (pos < line.size()) {
                     String word = line.substr(0, pos);
-                    if (word == prevWord) {
-                        if (!bDup) {
-                            translatePriorityList.PushEntry(prevLine);
-                            ++count;
-                        }
-                        bDup = true;
-                    } else {
-                        prevWord = word;
-                        prevLine = to_mstr(line);
-                        bDup = false;
+                    firstPreferredKeys.insert(word);
+                    auto [iter, inserted] = firstEntries.emplace(word, to_mstr(line));
+                    if (!inserted && priorityKeys.insert(word).second) {
+                        translatePriorityList.PushEntry(iter->second);
+                        ++count;
                     }
                 }
             }
-            LOG_INFOH(_T("LEAVE: dup count={}"), count);
+            LOG_INFOH(_T("LEAVE: duplicate key count={}"), count);
+        }
+
+        // 辞書ソースを読み込む (同じ変換キーを持つエントリの末尾を translatePriorityList に追加)
+        void ReadDicFileAsReadOnlyLastPreferred(const std::vector<String>& lines) override {
+            LOG_INFOH(_T("ENTER: {} lines"), lines.size());
+            readFile(lines, true);
+
+            // 重複キーまたは先頭優先辞書にもあるキーの末尾エントリを translatePriorityList に登録
+            std::map<String, MString> lastEntries;
+            std::set<String> priorityKeys;
+            for (const auto& line : lines) {
+                if (line.empty() || line[0] == '#') continue;
+                size_t pos = line.find(_T("|"));
+                if (pos < line.size()) {
+                    String word = line.substr(0, pos);
+                    auto [iter, inserted] = lastEntries.emplace(word, to_mstr(line));
+                    if (!inserted) {
+                        iter->second = to_mstr(line);
+                        priorityKeys.insert(word);
+                    }
+                    if (firstPreferredKeys.contains(word)) priorityKeys.insert(word);
+                }
+            }
+            for (const auto& word : priorityKeys) {
+                translatePriorityList.ReplaceEntry(to_mstr(word), lastEntries.at(word));
+            }
+            LOG_INFOH(_T("LEAVE: priority key count={}"), priorityKeys.size());
         }
 
     private:
@@ -861,15 +904,13 @@ std::unique_ptr<SimpleDictionary> SimpleDictionary::Singleton;
 namespace {
     DEFINE_NAMESPACE_LOGGER(SimpleDic_Local);
 
-    String replaceStar(StringRef path, size_t pos, const wchar_t* name) {
-        return path.substr(0, pos) + name + path.substr(pos + 1);
-    }
+    String _systemRomanDicPath;
 
     typedef void (SimpleDictionary::* READ_FUNC)(const std::vector<String>& lines);
 
     // 履歴ファイルの読み込み
     void readFile(StringRef path, READ_FUNC func, bool bWarn = true) {
-        LOG_INFOH(_T("open simple dic file: {}"), path);
+        LOG_INFOH(_T("ENTER: open simple dic file: {}"), path);
         utils::IfstreamReader reader(path);
         if (reader.success()) {
             // ファイル読み込み
@@ -878,6 +919,7 @@ namespace {
         } else {
             if (bWarn) LOG_WARN(_T("Can't read simple dic file: {}"), path);
         }
+        LOG_INFOH(_T("LEAVE"));
     };
 
     typedef void (SimpleDictionary::* WRITE_FUNC)(utils::OfstreamWriter&);
@@ -894,11 +936,36 @@ namespace {
         LOG_SAVE_DICT(_T("LEAVE: path={}"), path);
     }
 
+    // 簡易辞書を読み込む
+    void readSimpleDictionary(StringRef dicFile, StringRef sysRomanPath) {
+        LOG_INFOH(_T("ENTER: dicFile={}, sysRomanPath={}"), dicFile, sysRomanPath);
+
+        // 辞書ファイルが無くても辞書インスタンスは作成する
+        hashToStrMap.Clear();
+        SimpleDictionary::Singleton.reset(new SimpleDictionaryImpl());
+
+        if (!sysRomanPath.empty()) {
+            // システムローマ字辞書ファイルの読み込み
+            _systemRomanDicPath = sysRomanPath;
+            LOG_DEBUGH(_T("open system roman file: {}"), sysRomanPath);
+            readFile(sysRomanPath, &SimpleDictionary::ReadDicFileAsReadOnlyFirstPreferred);
+        }
+
+        if (!dicFile.empty()) {
+            String filename = dicFile;
+            auto path = utils::joinPath(USER_FILES_FOLDER, filename);
+            LOG_DEBUGH(_T("open simple dic file: {}"), path);
+
+            readFile(path, &SimpleDictionary::ReadDicFileAsReadOnlyLastPreferred);
+            readFile(path + _T(".recent"), &SimpleDictionary::ReadUsedFile);
+        }
+        LOG_INFOH(_T("LEAVE"));
+    }
 }
 
 // 簡易辞書ファイルを読み込んで、辞書を作成する
 // エラーがあったら例外を投げる
-int SimpleDictionary::CreateSimpleDictionary(StringRef dicFile, StringRef _NDEBUG_SENT(sysRomanFile)) {
+int SimpleDictionary::CreateSimpleDictionary(StringRef dicFile, StringRef _NDEBUG_SENT(sysRomanPath)) {
     LOG_INFOH(_T("ENTER: dicFile={}"), dicFile);
 
     if (Singleton != 0) {
@@ -906,46 +973,28 @@ int SimpleDictionary::CreateSimpleDictionary(StringRef dicFile, StringRef _NDEBU
         return 0;
     }
 
-    // 辞書ファイルが無くても辞書インスタンスは作成する
-    Singleton.reset(new SimpleDictionaryImpl());
+    _NDEBUG_SENT(_systemRomanDicPath = sysRomanPath);
+    readSimpleDictionary(dicFile, _systemRomanDicPath);
 
-    if (!dicFile.empty()) {
-        String filename = dicFile;
-        auto path = utils::joinPath(SETTINGS->userFilesFolder, filename);
-        LOG_DEBUGH(_T("open simple dic file: {}"), path);
-
-        readFile(path, &SimpleDictionary::ReadDicFileAsReadOnly);
-        readFile(path + _T(".recent"), &SimpleDictionary::ReadUsedFile);
-    }
-#ifndef _DEBUG
-    if (!sysRomanFile.empty()) {
-        // システムローマ字辞書ファイルの読み込み
-        LOG_DEBUGH(_T("open system roman file: {}"), sysRomanFile);
-        readFile(sysRomanFile, &SimpleDictionary::ReadDicFileAsReadOnly);
-    }
-#endif
     LOG_INFOH(_T("LEAVE"));
     return 0;
 }
 
 // 簡易辞書を読み込む
-int SimpleDictionary::ReadSimpleDicFile() {
-    String filename = SETTINGS->simpleDicFile;
-    if (!filename.empty()) {
-        auto path = utils::joinPath(SETTINGS->userFilesFolder, filename);
-        readFile(path, &SimpleDictionary::ReadDicFileAsReadOnly, false);
-    }
+int SimpleDictionary::ReloadSimpleDictionary() {
+    readSimpleDictionary(SETTINGS->simpleDicFile, _systemRomanDicPath);
     return 0;
 }
 
-// 辞書ファイルの内容の書き出し
+// 最近使用辞書ファイルの内容の書き出し
 void SimpleDictionary::WriteSimpleDictionary(StringRef dicFile) {
     LOG_SAVE_DICT(_T("ENTER: dicFile={}"), dicFile);
     if (Singleton) {
-        auto path = utils::joinPath(SETTINGS->rootDir,
-            utils::joinPath(USER_FILES_FOLDER, utils::contains(dicFile, _T("*")) ? dicFile : _T("kwhist.*.txt")));
-        LOG_SAVE_DICT(_T("path={}"), path);
-        if (Singleton->IsUsedDicDirty()) writeFile(path + _T("recent"), &SimpleDictionary::WriteUsedFile);
+        auto path = utils::joinPath(USER_FILES_FOLDER, dicFile) + _T(".recent");
+        if (Singleton->IsUsedDicDirty()) {
+            LOG_SAVE_DICT(_T("path={}"), path);
+            writeFile(path, &SimpleDictionary::WriteUsedFile);
+        }
     }
     LOG_SAVE_DICT(_T("LEAVE: path={}"), dicFile);
 }

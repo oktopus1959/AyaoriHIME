@@ -113,7 +113,9 @@ class SimpleDictionary{
 
 public:
     // 仮想デストラクタ
-    virtual ~SimpleDictionary() { }
+    virtual ~SimpleDictionary() {
+        LOG_INFOH(_T("dtor"));
+    }
 
     // 作成された履歴入力辞書インスタンスにアクセスするための Singleton
     static std::unique_ptr<SimpleDictionary> Singleton;
@@ -122,7 +124,7 @@ public:
     static int CreateSimpleDictionary(const String&, const String&);
 
     // ユーザー定義のローマ字辞書を読み込む
-    static int ReadSimpleDicFile();
+    static int ReloadSimpleDictionary();
 
     // 辞書ファイルへの内容の書き出し
     static void WriteSimpleDictionary();
@@ -131,7 +133,9 @@ public:
     static void WriteSimpleDictionary(const String&);
 
     // 辞書ファイルの読み込み(読み込み専用辞書)
-    virtual void ReadDicFileAsReadOnly(const std::vector<String>& lines) = 0;
+    virtual void ReadDicFileAsReadOnlyFirstPreferred(const std::vector<String>& lines) = 0;
+
+    virtual void ReadDicFileAsReadOnlyLastPreferred(const std::vector<String>& lines) = 0;
 
     // 指定の見出し文字に対する変換候補のセットを取得する
     virtual const SImpleDicResultList& GetCandidates(const MString& key, MString&,
