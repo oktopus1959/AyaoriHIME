@@ -1978,7 +1978,7 @@ namespace KanchokuWS.Gui
         private void button_saveSimpleDic_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            frmMain?.ExecCmdDecoder("saveHistoryDic", null);
+            frmMain?.ExecCmdDecoder("saveSimpleDic", null);
             label_history.Hide();
             label_saveHist.Show();
             dicRegLabelCount = dicRegLabelCountMax;

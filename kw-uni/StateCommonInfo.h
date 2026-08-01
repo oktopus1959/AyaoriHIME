@@ -52,8 +52,8 @@ enum class ResultFlags
     // 出力履歴で、BS による削除を止める標識を追加する
     AppendBackspaceStopper = 32,
 
-    // 出力履歴で、履歴検索のための文字列取得のストップ標識を付加する
-    SetHistoryBlockFlag = 64,
+    // 出力履歴で、簡易辞書検索のための文字列取得のストップ標識を付加する
+    SetSimpleDicBlockFlag = 64,
 
     // 出力履歴で、交ぜ書きのための読み文字列取得のストップ標識を付加する
     SetMazegakiBlockFlag = 128,
@@ -272,9 +272,9 @@ public:
     inline void SetKatakanaModeMarkerShowFlag() { SetResultFlag(ResultFlags::ShowKatakanaModeMarker); }
     inline void SetKatakanaModeMarkerClearFlag() { ResetResultFlag(ResultFlags::ShowKatakanaModeMarker); SetResultFlag(ResultFlags::ClearKatakanaModeMarker); }
     inline void SetAppendBackspaceStopperFlag() { SetResultFlag(ResultFlags::AppendBackspaceStopper); }
-    inline void SetHistoryBlockFlag() { SetResultFlag(ResultFlags::SetHistoryBlockFlag); }
+    inline void SetSimpleDicBlockFlag() { SetResultFlag(ResultFlags::SetSimpleDicBlockFlag); }
     //inline void SetMazegakiBlockFlag() { SetResultFlag(ResultFlags::SetMazegakiBlockFlag); }
-    inline void SetBothHistoryBlockFlag() { SetResultFlag((UINT32)ResultFlags::AppendBackspaceStopper | (UINT32)ResultFlags::SetHistoryBlockFlag); }
+    inline void SetAppendBackspaceStopperAndSimpleDicBlockFlag() { SetResultFlag((UINT32)ResultFlags::AppendBackspaceStopper | (UINT32)ResultFlags::SetSimpleDicBlockFlag); }
     //inline void SetToggleInitialStrokeHelp() { SetResultFlag(ResultFlags::ToggleInitialStrokeHelp); }
     inline void SetDontMoveVirtualKeyboard() { SetResultFlag(ResultFlags::DontMoveVirtualKeyboard); }
     inline void SetCurrentModeIsKatakana() { SetResultFlag(ResultFlags::CurrentModeIsKatakana); }
@@ -324,9 +324,8 @@ public:
     inline bool IsDeckeyToVkey() const { return IsResultFlagOn(ResultFlags::DeckeyToVkey); }
     //inline bool IsSpecialDeckeyRequired() const { return IsResultFlagOn(ResultFlags::SpecialDeckeyRequired); }
     inline bool IsAppendBackspaceStopper() const { return IsResultFlagOn(ResultFlags::AppendBackspaceStopper); }
-    inline bool IsSetHistoryBlockFlag() const { return IsResultFlagOn(ResultFlags::SetHistoryBlockFlag); }
+    inline bool IsSetSimpleDicBlockFlag() const { return IsResultFlagOn(ResultFlags::SetSimpleDicBlockFlag); }
     inline bool IsSetMazegakiBlockFlag() const { return IsResultFlagOn(ResultFlags::SetMazegakiBlockFlag); }
-    inline bool IsSetEitherHistoryBlockFlag() const { return IsResultFlagOn((UINT32)ResultFlags::AppendBackspaceStopper | (UINT32)ResultFlags::SetHistoryBlockFlag); }
     //inline bool IsSetToggleInitialStrokeHelp() const { return IsResultFlagOn(ResultFlags::ToggleInitialStrokeHelp); }
 
     inline bool IsWaiting2ndStroke() const { return nextExpectedKeyType == ExpectedKeyType::SecondStroke; }

@@ -28,7 +28,7 @@
 
 DEFINE_CLASS_LOGGER(ModalStateUtil);
 
-// モード状態(HistoryResidentState や KatakanaState, EisuState など)のための前処理
+// モード状態(SimpleDicResidentState や KatakanaState, EisuState など)のための前処理
 // 後続処理が不要な場合は -1 を返す
 int ModalStateUtil::ModalStatePreProc(State* pState, int deckey, bool isStrokable) {
     _LOG_DEBUGH(_T("ENTER: {}: deckey={:x}H({}), strokable={}, NextState={}, NextNode={}"),

@@ -104,9 +104,6 @@ void State::HandleDeckeyChain(int deckey) {
     // deckey < 0 で返ってきたら、後続状態でのディスパッチ処理は行われない
     deckey = HandleDeckeyPreProc(deckey);
 
-    //// 履歴常駐状態の事前チェック(デフォルトでは何もしない)
-    //DoHistoryResidentPreCheck();
-
     _LOG_DEBUGH(_T("NextState={}"), STATE_NAME(pNext));
     if (pNext) {
         _LOG_DEBUGH(_T("NextState: FOUND"));
@@ -138,12 +135,6 @@ void State::HandleDeckeyPostProc() {
     /* デフォルトでは何もしない */
     _LOG_DEBUGH(_T("CALLED: {}: DEFAULT"), Name);
 }
-
-//// 履歴常駐状態の事前チェック
-//void State::DoHistoryResidentPreCheck() {
-//    /* デフォルトでは何もしない */
-//    _LOG_DEBUGH(_T("CALLED: {}: DEFAULT"), Name);
-//}
 
 //// ModalStateの前処理
 //int State::DoModalStatePreProc(int deckey) {
@@ -284,16 +275,16 @@ MStringApplyResult State::ApplyResultString() {
     return MStringApplyResult();
 }
 
-// 「最終的な出力履歴が整ったところで呼び出される処理」を先に次状態に対して実行する
-void State::DoLastHistoryProcChain() {
+// 最終的な出力が整ったところで呼び出される処理を、先に次状態に対して実行する
+void State::DoLastOutputProcChain() {
     LOG_DEBUGH(_T("ENTER: {}: outStr={}"), Name, to_wstr(resultStr.resultStr()));
-    if (pNext) pNext->DoLastHistoryProcChain();
-    if (!STATE_COMMON->IsOutStringProcDone()) DoLastHistoryProc();
+    if (pNext) pNext->DoLastOutputProcChain();
+    if (!STATE_COMMON->IsOutStringProcDone()) DoLastOutputProc();
     LOG_DEBUGH(_T("LEAVE: {}: outStr={}"), Name, to_wstr(resultStr.resultStr()));
 }
 
-// 最終的な出力履歴が整ったところで呼び出される処理
-void State::DoLastHistoryProc() {
+// 最終的な出力が整ったところで呼び出される処理
+void State::DoLastOutputProc() {
     LOG_DEBUGH(_T("ENTER: {}"), Name);
     // 何もしない
     LOG_DEBUGH(_T("LEAVE: {}"), Name);

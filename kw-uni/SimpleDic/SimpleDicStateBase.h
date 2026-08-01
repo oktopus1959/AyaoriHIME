@@ -21,7 +21,7 @@ public:
     virtual void setOutString(const SimpleDicResult& result, MStringResult& resultStr) = 0;
 
     // 前回の履歴検索の出力と現在の出力文字列(改行以降)の末尾を比較し、同じであれば前回の履歴検索のキーを取得する
-    virtual MString getLastHistKeyAndRewindOutput(MStringResult& resultStr) = 0;
+    virtual MString getLastSearchKeyAndRewindOutput(MStringResult& resultStr) = 0;
 
     // 簡易辞書候補を横列鍵盤にセットする
     virtual void setCandidatesVKB(const std::vector<MString>& cands, const MString& key) = 0;

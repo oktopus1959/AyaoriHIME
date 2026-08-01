@@ -19,7 +19,7 @@ class OutputStack {
 
 public:
     static const unsigned short FLAG_NEW_LINE = 1;
-    static const unsigned short FLAG_BLOCK_HIST = 2;
+    static const unsigned short FLAG_BLOCK_SIMPLE_DIC = 2;
     //static const unsigned short FLAG_BLOCK_MAZE = 4;
     static const unsigned short FLAG_BLOCK_KATA = 8;
     static const unsigned short FLAG_REWRITABLE = 16;
@@ -27,8 +27,7 @@ public:
     static const unsigned short FLAG_REWRITABLE_BLOCK = 64;     // Rewritable な範囲の終わり(含まない)を表す
     //static const unsigned short FLAG_ALL_KEY_UP = 128;          // すべてのキーがUP状態にあることを示す (RollOverStroke で代替)
 
-    static const size_t HIST_KEY_MAX_LEN = 8;   // 履歴用のキーの最大長
-    static const size_t HIST_ROMAN_KEY_MAX_LEN = 16;   // 英字履歴用のキーの最大長
+    static const size_t SIMPLE_DIC_KEY_MAX_LEN = 8;   // 簡易辞書検索用のキーの最大長
 
 private:
     struct Moji {
@@ -119,40 +118,29 @@ public:
         return stack.empty() ? 0 : (unsigned short)stack.back().flag;
     }
 
-    //inline void clearLastHistBlocker() {
-    //    if (!stack.empty()) {
-    //        stack.back().flag &= ~FLAG_BLOCK_HIST;
-    //    }
-    //}
-
     inline void toggleLastBlocker() {
         if (!stack.empty()) {
-            if (_isLastHistBlocker())
-                stack.back().flag &= ~FLAG_BLOCK_HIST;
+            if (_isLastSimpleDicBlocker())
+                stack.back().flag &= ~FLAG_BLOCK_SIMPLE_DIC;
             else
-                stack.back().flag |= FLAG_BLOCK_HIST;
-            //if (isLastMazeBlocker())
-            //    stack.back().flag &= ~FLAG_BLOCK_MAZE;
-            //else
-            //    stack.back().flag |= FLAG_BLOCK_MAZE;
+                stack.back().flag |= FLAG_BLOCK_SIMPLE_DIC;
         }
     }
 
     inline void setLastBlocker() {
         if (!stack.empty()) {
-            stack.back().flag |= FLAG_BLOCK_HIST;
-            //stack.back().flag |= FLAG_BLOCK_MAZE;
+            stack.back().flag |= FLAG_BLOCK_SIMPLE_DIC;
         }
     }
 
-    inline void setHistBlockerAt(size_t lastNth) {
+    inline void setSimpleDicBlockerAt(size_t lastNth) {
         if (stack.size() > lastNth) {
-            stack[stack.size() - lastNth - 1].flag |= FLAG_BLOCK_HIST;
+            stack[stack.size() - lastNth - 1].flag |= FLAG_BLOCK_SIMPLE_DIC;
         }
     }
 
-    inline void setHistBlocker() {
-        setFlag(FLAG_BLOCK_HIST);
+    inline void setSimpleDicBlocker() {
+        setFlag(FLAG_BLOCK_SIMPLE_DIC);
     }
 
     // 末尾にカタカナ変換用の平仮名採取ブロッカーをセット
@@ -194,61 +182,6 @@ public:
             stack.back().flag |= FLAG_REWRITABLE_BLOCK;
         }
     }
-
-    //// 末尾に交ぜ書きブロッカーをセットする
-    //inline void setMazeBlocker() {
-    //    setFlag(FLAG_BLOCK_MAZE);
-    //    setKataBlocker();
-    //}
-
-    //// 末尾の交ぜ書きブロッカーをリセットする
-    //inline void unsetMazeBlocker() {
-    //    unsetFlag(FLAG_BLOCK_MAZE);
-    //}
-
-    //inline bool isLastMazeBlocker() const {
-    //    return (getFlag() & FLAG_BLOCK_MAZE) != 0;
-    //}
-
-    //inline void leftShiftMazeBlocker() {
-    //    if (!stack.empty()) {
-    //        size_t pos = 1;
-    //        for (; pos < stack.size(); ++pos) {
-    //            Moji& elem = stack[stack.size() - pos];
-    //            auto flag = elem.flag & (FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
-    //            //if (!utils::is_hiragana(elem.chr)) {
-    //            //    // 交ぜ書きブロッカーが見つからなかった場合は、末尾にブロッカーをセット
-    //            //    if (pos > 1 && flag == 0) setMazeBlocker();
-    //            //    return;
-    //            //}
-    //            if (flag != 0) {
-    //                Moji& elem1 = stack[stack.size() - (pos + 1)];
-    //                elem.flag &= ~(FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
-    //                elem1.flag |= (flag | FLAG_BLOCK_MAZE);
-    //                return;
-    //            }
-    //        }
-    //        // 交ぜ書きブロッカーが見つからなかった場合は、末尾にブロッカーをセット
-    //        setMazeBlocker();
-    //    }
-    //}
-
-    //inline void rightShiftMazeBlocker() {
-    //    if (!stack.empty()) {
-    //        for (size_t pos = 1; pos < stack.size(); ++pos) {
-    //            Moji& elem = stack[stack.size() - pos];
-    //            auto flag = elem.flag & (FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
-    //            if (elem.chr < 0x20 || flag != 0) {
-    //                if (pos > 1) {
-    //                    Moji& elem1 = stack[stack.size() - (pos - 1)];
-    //                    elem.flag &= ~(FLAG_BLOCK_HIST | FLAG_BLOCK_MAZE);
-    //                    elem1.flag |= (flag | FLAG_BLOCK_MAZE);
-    //                }
-    //                return;
-    //            }
-    //        }
-    //    }
-    //}
 
     inline void setFlag(unsigned short flag) {
         if (!stack.empty()) {
@@ -376,19 +309,19 @@ public:
         return tail_string(maxlen, tail_size());
     }
 
-    // 改行を含まない末尾部分(最大長maxlen)で、履歴ブロッカーまたは句読点までの部分文字列を返す(先頭の空白と末尾の句読点は含める)
-    inline MString BackStringUptoHistBlockerOrPunct(size_t maxlen) const {
-        return tail_string(maxlen, tail_size_upto_flag_or_punct(OutputStack::FLAG_BLOCK_HIST));
+    // 改行を含まない末尾部分(最大長maxlen)で、簡易辞書ブロッカーまたは句読点までの部分文字列を返す(先頭の空白と末尾の句読点は含める)
+    inline MString BackStringUptoSimpleDicBlockerOrPunct(size_t maxlen) const {
+        return tail_string(maxlen, tail_size_upto_flag_or_punct(OutputStack::FLAG_BLOCK_SIMPLE_DIC));
     }
 
-    // 改行を含まない末尾部分の長さ(最大長maxlen)で、交ぜ書きor履歴ブロッカーまたは句読点までの部分文字列を返す(先頭の空白と末尾の句読点は含める)
-    inline size_t TailSizeUptoMazeOrHistBlockerOrPunct() const {
-        return tail_size_upto_flag_or_punct(OutputStack::FLAG_BLOCK_HIST /* | OutputStack::FLAG_BLOCK_MAZE*/);
+    // 改行を含まない末尾部分の長さ(最大長maxlen)で、交ぜ書きor簡易辞書ブロッカーまたは句読点までの部分文字列を返す(先頭の空白と末尾の句読点は含める)
+    inline size_t TailSizeUptoMazeOrSimpleDicBlockerOrPunct() const {
+        return tail_size_upto_flag_or_punct(OutputStack::FLAG_BLOCK_SIMPLE_DIC /* | OutputStack::FLAG_BLOCK_MAZE*/);
     }
 
-    // 改行を含まない末尾部分(最大長maxlen)で、交ぜ書きor履歴ブロッカーまたは句読点までの部分文字列を返す(先頭の空白と末尾の句読点は含める)
-    inline MString BackStringUptoMazeOrHistBlockerOrPunct(size_t maxlen) const {
-        return tail_string(maxlen, TailSizeUptoMazeOrHistBlockerOrPunct());
+    // 改行を含まない末尾部分(最大長maxlen)で、交ぜ書きor簡易辞書ブロッカーまたは句読点までの部分文字列を返す(先頭の空白と末尾の句読点は含める)
+    inline MString BackStringUptoMazeOrSimpleDicBlockerOrPunct(size_t maxlen) const {
+        return tail_string(maxlen, TailSizeUptoMazeOrSimpleDicBlockerOrPunct());
     }
 
     // 改行を含まない末尾部分(最大長maxlen)で、指定の flag の直後までの部分文字列を返す
@@ -447,7 +380,7 @@ public:
     inline MString GetLastOutputStackStr(size_t len, unsigned short flag = 0) const { return OutputStackBackStrUpto(len, flag); }
 
     inline MString GetLastOutputStackStrUptoNL(size_t len) const { return GetLastOutputStackStr(len, OutputStack::FLAG_NEW_LINE); }
-    inline MString GetLastOutputStackStrUptoBlocker(size_t len) const { return GetLastOutputStackStr(len, OutputStack::FLAG_NEW_LINE | OutputStack::FLAG_BLOCK_HIST); }
+    inline MString GetLastOutputStackStrUptoBlocker(size_t len) const { return GetLastOutputStackStr(len, OutputStack::FLAG_NEW_LINE | OutputStack::FLAG_BLOCK_SIMPLE_DIC); }
 
     // ブロッカーを反映した文字列を取得
     inline MString OutputStackBackStrWithFlagUpto(size_t len, size_t extraBarPos = 0) const { return backStringWithFlagUpto(len, extraBarPos); }
@@ -473,13 +406,13 @@ public:
     // ブロッカー以降で、出力履歴の末尾から len 文字までのカタカナ文字列を取得する
     template<typename T>
     inline T GetLastKatakanaStr(size_t len = 20) const {
-        return utils::find_tail_katakana_str(backStringUpto(len, OutputStack::FLAG_BLOCK_HIST));
+        return utils::find_tail_katakana_str(backStringUpto(len, OutputStack::FLAG_BLOCK_SIMPLE_DIC));
     }
 
     // ブロッカー以降で、出力履歴の末尾から len 文字までの半角カタカナ文字列を取得する
     template<typename T>
     inline T GetLastHankakuKatakanaStr(size_t len = 20) const {
-        return utils::find_tail_hankaku_katakana_str(backStringUpto(len, OutputStack::FLAG_BLOCK_HIST));
+        return utils::find_tail_hankaku_katakana_str(backStringUpto(len, OutputStack::FLAG_BLOCK_SIMPLE_DIC));
     }
 
     // 改行以降で、出力履歴の末尾から len 文字までの日本語文字列を取得する
@@ -491,31 +424,31 @@ public:
     // ブロッカー以降で、出力履歴の末尾から len 文字までのカタカナor漢字文字列を取得する
     template<typename T>
     inline T GetLastKanjiOrKatakanaKey(size_t len) const {
-        return utils::find_tail_kanji_or_katakana_str(backStringUpto(len, OutputStack::FLAG_BLOCK_HIST));
+        return utils::find_tail_kanji_or_katakana_str(backStringUpto(len, OutputStack::FLAG_BLOCK_SIMPLE_DIC));
     }
 
     // ブロッカー以降で、出力履歴の末尾から len 文字までの平仮名文字列を取得する (bHeadSpace=trueなら先頭の空白も含む)
     template<typename T>
     inline T GetLastHiraganaStr(bool bHeadSpace = false) const {
-        return utils::find_tail_hiragana_str(backStringUpto(20, OutputStack::FLAG_BLOCK_HIST + OutputStack::FLAG_BLOCK_KATA), bHeadSpace);
+        return utils::find_tail_hiragana_str(backStringUpto(20, OutputStack::FLAG_BLOCK_SIMPLE_DIC + OutputStack::FLAG_BLOCK_KATA), bHeadSpace);
     }
 
     // ブロッカー以降で、出力履歴の末尾から len 文字までの日本語文字列を取得する
     template<typename T>
     inline T GetLastJapaneseKey(size_t len) const {
-        return utils::find_tail_japanese_str(backStringUpto(len, OutputStack::FLAG_BLOCK_HIST));
+        return utils::find_tail_japanese_str(backStringUpto(len, OutputStack::FLAG_BLOCK_SIMPLE_DIC));
     }
 
     // ブロッカー以降で、出力履歴の末尾から len 文字までのアルファベット文字列を取得する
     template<typename T>
     inline T GetLastAlphabetKey(size_t len) const {
-        return utils::find_tail_alphabet_str(backStringUpto(len, OutputStack::FLAG_BLOCK_HIST));
+        return utils::find_tail_alphabet_str(backStringUpto(len, OutputStack::FLAG_BLOCK_SIMPLE_DIC));
     }
 
     // ブロッカー以降で、出力履歴の末尾から len 文字までのASCII文字列を取得する
     template<typename T>
     inline T GetLastAsciiKey(size_t len) const {
-        return utils::find_tail_ascii_str(backStringUpto(len, OutputStack::FLAG_BLOCK_HIST));
+        return utils::find_tail_ascii_str(backStringUpto(len, OutputStack::FLAG_BLOCK_SIMPLE_DIC));
     }
 
     // 出力履歴の末尾から4文字以上(ただしブロッカー以降)の漢字列またはカタカナ列をとり出す
@@ -523,7 +456,7 @@ public:
     // 末尾に漢字、カタカナ、ひらがながなかったら、アルファベット文字列を取り出す
     template<typename T>
     inline T GetLastKanjiOrKatakanaOrHirakanaOrAlphabetKey(size_t alphaMaxLen) const {
-        T key = GetLastKanjiOrKatakanaKey<T>(HIST_KEY_MAX_LEN);
+        T key = GetLastKanjiOrKatakanaKey<T>(SIMPLE_DIC_KEY_MAX_LEN);
         if (key.size() >= 4) return key;
         key = GetLastJapaneseKey<T>(4);
         if (!key.empty()) return key;
@@ -535,7 +468,7 @@ public:
     // 末尾に漢字、カタカナ、ひらがながなかったら、ASCII文字列を取り出す
     template<typename T>
     inline T GetLastKanjiOrKatakanaOrHirakanaOrAsciiKey(size_t asciiMaxLen) const {
-        T key = GetLastKanjiOrKatakanaKey<T>(HIST_KEY_MAX_LEN);
+        T key = GetLastKanjiOrKatakanaKey<T>(SIMPLE_DIC_KEY_MAX_LEN);
         if (key.size() >= 4) return key;
         key = GetLastJapaneseKey<T>(4);
         if (!key.empty()) return key;
@@ -573,11 +506,11 @@ private:
     void _resize();
 
     inline bool _isLastBlocker() const {
-        return back() == '\n' || (getFlag() & (FLAG_NEW_LINE | FLAG_BLOCK_HIST)) != 0;
+        return back() == '\n' || (getFlag() & (FLAG_NEW_LINE | FLAG_BLOCK_SIMPLE_DIC)) != 0;
     }
 
-    inline bool _isLastHistBlocker() const {
-        return (getFlag() & FLAG_BLOCK_HIST) != 0;
+    inline bool _isLastSimpleDicBlocker() const {
+        return (getFlag() & FLAG_BLOCK_SIMPLE_DIC) != 0;
     }
 
     // stackの末尾から、tailMaxlen の範囲で、tailLen の長さの文字列を取得する

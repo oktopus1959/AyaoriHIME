@@ -170,10 +170,10 @@ public:
         //Lattice::createLattice();
         Lattice2::createLattice();
 
-        // マージ履歴機能ノードを初期化
+        // 簡易辞書マージ機能ノードを初期化
         SimpleDicMergerNode::Initialize();
 
-        // 履歴入力機能を生成して常駐させる
+        // ストロークマージ機能を生成して常駐させる
         startState->CreateStateAndStayResidentAtEndOfChain(STROKE_MERGER_NODE.get());
 
         // 必要があれば、ここにその他の常駐機能を追加する
@@ -342,7 +342,7 @@ public:
         deleteRemainingState();
         STATE_COMMON->ClearAllStateInfo();
         LOG_INFOH(_T("pushNewLine"));
-        OUTPUT_STACK->pushNewLine();    // 履歴ブロッカーとして改行を追加
+        OUTPUT_STACK->pushNewLine();    // ブロッカーとして改行を追加
         if (startState) startState->Reactivate();
         //if (MAZEGAKI_INFO) MAZEGAKI_INFO->Initialize(false);
         if (WORD_LATTICE) WORD_LATTICE->clear();
@@ -424,14 +424,14 @@ public:
                     MorphBridge::morphCompileAndLoadUserDic(items[1], items[2]);
                 }
             } else if (cmd == _T("addHistEntry") && SIMPLE_DIC) {
-                // 履歴登録
+                // 簡易辞書登録
                 if (items.size() >= 2 && !items[1].empty()) {
                     SIMPLE_DIC->AddNewEntryAnyway(to_mstr(items[1]));
                 } else {
                     SIMPLE_DIC->AddNewEntryAnyway(OUTPUT_STACK->GetLastJapaneseKey<MString>(32));
                 }
-            } else if (cmd == _T("saveHistoryDic") && SIMPLE_DIC) {
-                // 履歴辞書の保存
+            } else if (cmd == _T("saveSimpleDic") && SIMPLE_DIC) {
+                // 簡易辞書の保存
                 if (SIMPLE_DIC) SIMPLE_DIC->WriteSimpleDictionary();
             } else if (cmd == _T("readBushuDic") && BUSHU_DIC) {
                 // 部首合成辞書の再読み込み
@@ -714,15 +714,15 @@ public:
         OutParams->numBackSpaces = resultStr.numBS();
         OutParams->strokeTableNum = StrokeTableNode::GetCurrentStrokeTableNum();
 
-        // 出力履歴の反映は MergerHistoryResidentState で行う
+        // 出力履歴の反映は MergerSimpleDicResidentState で行う
         // 出力履歴に BackSpaceStopper を反映
         if (STATE_COMMON->IsAppendBackspaceStopper()) {
             LOG_DEBUGH(_T("AppendBackspaceStopper: OUTPUT_STACK->pushNewLine()"));
             OUTPUT_STACK->pushNewLine();
         }
-        // 出力履歴に HistoryBlock を反映
-        if (STATE_COMMON->IsSetHistoryBlockFlag()) {
-            OUTPUT_STACK->setHistBlocker();
+        // 出力履歴に簡易辞書ブロッカーを反映
+        if (STATE_COMMON->IsSetSimpleDicBlockFlag()) {
+            OUTPUT_STACK->setSimpleDicBlocker();
             LOG_DEBUGH(_T("OUTPUT_STACK->setHistBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
         }
         //// 出力履歴に MazeBlock を反映
@@ -746,8 +746,8 @@ public:
         }
         LOG_DEBUGH(_T("STATE_COMMON->StrokeCount={}"), STATE_COMMON->GetStrokeCount());
 
-        // 最終的な出力履歴が整ったところで呼び出される処理
-        if (!STATE_COMMON->IsOutStringProcDone() && !STATE_COMMON->IsWaiting2ndStroke()) startState->DoLastHistoryProcChain();
+        // 最終的な出力が整ったところで呼び出される処理
+        if (!STATE_COMMON->IsOutStringProcDone() && !STATE_COMMON->IsWaiting2ndStroke()) startState->DoLastOutputProcChain();
 
         // ヘルプや候補文字列
         setHelpOrCandidates(guideTargetChar, resultStr);
@@ -758,13 +758,13 @@ public:
             STATE_COMMON->GetLayoutInt(), outParams->centerString, resultStr.numBS(), cpyLen, OUTPUT_STACK->OutputStackBackStrForDebug(10));
     }
 
-    // BackspaceStopper や HistoryBlock をセット
+    // BackspaceStopper と簡易辞書ブロッカーをセット
     void setBackspaceBlocker() {
         LOG_INFOH(_T("ENTER"));
-        STATE_COMMON->SetBothHistoryBlockFlag();
+        STATE_COMMON->SetAppendBackspaceStopperAndSimpleDicBlockFlag();
         LOG_INFOH(_T("pushNewLine"));
         OUTPUT_STACK->pushNewLine();
-        OUTPUT_STACK->setHistBlocker();
+        OUTPUT_STACK->setSimpleDicBlocker();
         LOG_INFOH(_T("LEAVE"));
     }
 

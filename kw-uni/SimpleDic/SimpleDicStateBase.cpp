@@ -22,8 +22,6 @@ namespace {
         String BaseName;
 
     protected:
-        // 履歴入力候補のリスト
-        //SimpleDicCandidates candidates;
 
     public:
         // コンストラクタ
@@ -35,15 +33,15 @@ namespace {
         ~SimpleDicStateBaseImpl() override { };
 
     public:
-        // 履歴検索文字列の遡及ブロッカーをセット
+        // 辞書検索文字列の遡及ブロッカーをセット
         void setBlocker() override {
             _LOG_DEBUGH(_T("CALLED: {}"), BaseName);
             STATE_COMMON->SetAppendBackspaceStopperFlag();
-            STATE_COMMON->SetHistoryBlockFlag();
+            STATE_COMMON->SetSimpleDicBlockFlag();
             STATE_COMMON->ClearDecKeyCount();
         }
 
-        // 選択された履歴候補を出力(これが呼ばれた時点で、すでにキーの先頭まで巻き戻すように plannedNumBS が設定されていること)
+        // 選択された候補を出力(これが呼ばれた時点で、すでにキーの先頭まで巻き戻すように plannedNumBS が設定されていること)
         void setOutString(const SimpleDicResult& result, MStringResult& resultStr) override {
             _LOG_DEBUGH(_T("ENTER: result.OrigKey={}, result.Key={}, result.Word={}, keyLen={}, wildKey={}, prevOutStr={}, prevKey={}, plannedNumBS={}"), \
                 to_wstr(result.OrigKey), to_wstr(result.Key), to_wstr(result.Word), result.KeyLen(), result.WildKey, \
@@ -60,18 +58,18 @@ namespace {
                 size_t pos = outStr.find(VERT_BAR);     // '|' を含むか
                 _LOG_DEBUGH(_T("pos={}, simpleDicMapKeyMaxLength={}"), pos, SETTINGS->simpleDicMapKeyMaxLength);
                 if (pos <= SETTINGS->simpleDicMapKeyMaxLength) {
-                    // histMap候補
-                    if (pos + 1 < outStr.size() && outStr[pos + 1] == VERT_BAR) ++pos;  // '||' だったら1つ進める(HistoryDicで既に対処済みなので、多分、ここでは不要のはず)
+                    // 変換候補
+                    if (pos + 1 < outStr.size() && outStr[pos + 1] == VERT_BAR) ++pos;  // '||' だったら1つ進める(SimpleDicで既に対処済みなので、多分、ここでは不要のはず)
                     if (pos + 1 < outStr.size() && outStr[pos + 1] == HASH_MARK) ++pos;  // '|#' だったら1つ進める(# はローマ字変換の印)
                     outStr = utils::safe_substr(outStr, pos + 1);
-                    _LOG_DEBUGH(_T("histMap: outStr={}, outKey={}"), to_wstr(outStr), to_wstr(outKey));
+                    _LOG_DEBUGH(_T("xlatMap: outStr={}, outKey={}"), to_wstr(outStr), to_wstr(outKey));
                 }
                 if (outKey.size() < result.OrigKey.size()) {
                     // 変換キーが元キーよりも短い場合(「あわなだ」が元キーで「わなだ」が変換キーのケース)
                     auto leadStr = result.OrigKey.substr(0, result.OrigKey.size() - outKey.size());
                     outStr = leadStr + outStr;
                     outKey = leadStr + outKey;
-                    _LOG_DEBUGH(_T("histMap: leadStr Appended: leadStr={}"), to_wstr(leadStr));
+                    _LOG_DEBUGH(_T("xlatMap: leadStr Appended: leadStr={}"), to_wstr(leadStr));
                 }
             }
             _LOG_DEBUGH(_T("outStr={}, outKey={}"), to_wstr(outStr), to_wstr(outKey));
@@ -79,27 +77,24 @@ namespace {
             resultStr.setResult(outStr);
             STROKE_MERGER_NODE->SetPrevState(outStr, outKey);
 
-            //_LOG_DEBUGH(_T("prevOutString={}, isPrevHistKeyUsed={}"), to_wstr(STROKE_MERGER_NODE->GetPrevOutString()), STROKE_MERGER_NODE->IsPrevHistKeyUsed());
             _LOG_DEBUGH(_T("LEAVE: prevOutString={}"), to_wstr(STROKE_MERGER_NODE->GetPrevOutString()));
         }
 
-        // 前回の履歴検索の出力と現在の出力文字列(改行以降)の末尾を比較し、同じであれば前回の履歴検索のキーを取得する
+        // 前回の検索の出力と現在の出力文字列(改行以降)の末尾を比較し、同じであれば前回の検索のキーを取得する
         // この時、出力スタックは、キーだけを残し、追加出力部分は巻き戻し予約される(numBackSpacesに値をセット)
         // 前回が空キーだった場合は、返値も空キーになるので、STROKE_MERGER_NODE->PrevKeyLen == 0 かどうかで前回と同じキーであるか否かを判断すること
         // ここに来る場合には、以下の3つの状態がありえる:
-        // ①まだ履歴検索がなされていない状態
+        // ①まだ辞書検索がなされていない状態
         // ②検索が実行されたが、出力文字列にはキーだけが表示されている状態
         // ③横列のどれかの候補が選択されて出力文字列に反映されている状態
-        MString getLastHistKeyAndRewindOutput(MStringResult& resultStr) override {
-            // 前回の履歴検索の出力
-            //bool bPrevHistUsed = STROKE_MERGER_NODE->IsPrevHistKeyUsed();
+        MString getLastSearchKeyAndRewindOutput(MStringResult& resultStr) override {
+            // 前回の辞書検索の出力
             const auto& prevKey = STROKE_MERGER_NODE->GetPrevKey();
             const auto& prevOut = STROKE_MERGER_NODE->GetPrevOutString();
-            //_LOG_DEBUGH(_T("isPrevHistUsed={}, prevOut={}, prevKey={}"), bPrevHistUsed, to_wstr(prevOut), to_wstr(prevKey));
             _LOG_DEBUGH(_T("prevOut={}, prevKey={}"), to_wstr(prevOut), to_wstr(prevKey));
 
             if (prevKey.empty()) {
-                // ①まだ履歴検索がなされていない状態
+                // ①まだ辞書検索がなされていない状態
                 // empty key を返す
                 _LOG_DEBUGH(_T("NOT YET HIST USED"));
             } else if (prevOut.empty()) {

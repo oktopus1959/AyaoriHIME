@@ -190,7 +190,7 @@ namespace {
         // FullEscapeの処理 -- 履歴検索文字列の遡及ブロッカーをセット
         void handleFullEscape() {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
-            STATE_COMMON->SetBothHistoryBlockFlag();
+            STATE_COMMON->SetAppendBackspaceStopperAndSimpleDicBlockFlag();
             setToRemoveAllStroke();
         }
 

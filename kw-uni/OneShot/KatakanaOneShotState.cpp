@@ -59,7 +59,7 @@ namespace {
             if (!outStr.empty()) {
                 // カタカナに変換して置換する
                 resultStr.setResult(utils::convert_hiragana_to_katakana(outStr), (int)(numBS));
-                OUTPUT_STACK->setHistBlockerAt(outStr.size());
+                OUTPUT_STACK->setSimpleDicBlockerAt(outStr.size());
             } else {
                 outStr = bCandSelecting
                     ? utils::find_tail_katakana_str(sourceStr)

@@ -264,7 +264,7 @@ namespace {
             if (!outStr.empty()) {
                 // 全角を半角カタカナに置換
                 resultStr.setResult(convert_zenkaku_to_hankaku(outStr), (int)(outStr.size()));
-                OUTPUT_STACK->setHistBlockerAt(outStr.size());
+                OUTPUT_STACK->setSimpleDicBlockerAt(outStr.size());
             } else {
                 outStr = OUTPUT_STACK->GetLastHankakuKatakanaStr<MString>();
                 LOG_DEBUG(_T("hankakuKatakanaStr={}"), to_wstr(outStr));

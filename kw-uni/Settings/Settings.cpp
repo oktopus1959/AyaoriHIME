@@ -169,7 +169,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_BOOL_VALUE(debughState);
     SET_BOOL_VALUE(debughMazegaki);
     SET_BOOL_VALUE(debughMazegakiDic);
-    SET_BOOL_VALUE(debughHistory);
     SET_BOOL_VALUE(debughStrokeTable);
     SET_BOOL_VALUE(debughBushu);
     SET_BOOL_VALUE(debughString);

@@ -35,7 +35,6 @@ namespace {
             LOG_DEBUG(_T("ENTER"));
 
             // ブロッカーをセット/リセットする
-            //STATE_COMMON->SetHistoryBlockFlag();
             OUTPUT_STACK->toggleLastBlocker();
 
             // チェイン不要

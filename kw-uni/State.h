@@ -136,11 +136,6 @@ protected:
     virtual void HandleDeckeyPostProc();
 
 protected:
-    //// 履歴常駐状態の事前チェック
-    //virtual void DoHistoryResidentPreCheck();
-
-    //// ModalStateの前処理
-    //virtual int DoModalStatePreProc(int /*deckey*/);
 
 protected:
     // 中間チェック
@@ -150,12 +145,6 @@ protected:
     // 最終チェック
     void DoFinalCheckChain();
     virtual void DoFinalCheck();
-
-//public:
-//    // DECKEY処理の後半部
-//    void DoDeckeyPostProcChain();
-//protected:
-//    void DoDeckeyPostProc();
 
 protected:
     // 新しい状態作成のチェイン
@@ -201,11 +190,11 @@ protected:
     //----------------------------------------------------------------------------------
     // Decoder からも呼ばれるメソッド
 public:
-    // 「最終的な出力履歴が整ったところで呼び出される処理」を先に次状態に対して実行する
-    void DoLastHistoryProcChain();
+    // 最終的な出力が整ったところで呼び出される処理を、先に次状態に対して実行する
+    void DoLastOutputProcChain();
 protected:
-    // 最終的な出力履歴が整ったところで呼び出される処理
-    virtual void DoLastHistoryProc();
+    // 最終的な出力が整ったところで呼び出される処理
+    virtual void DoLastOutputProc();
 
 public:
     // 状態の再アクティブ化
