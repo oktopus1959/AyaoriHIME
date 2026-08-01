@@ -1570,8 +1570,8 @@ void SimpleDicMergerNode::CreateSingleton() {
 void SimpleDicMergerNode::Initialize() {
     LOG_INFOH(L"ENTER");
     // 簡易辞書ファイル名
-    auto dicFile = SETTINGS->historyFile;
-    auto sysRomanFile = SETTINGS->historySystemRomanFile;
+    auto dicFile = SETTINGS->simpleDicFile;
+    auto sysRomanFile = SETTINGS->systemRomanDicFile;
     LOG_DEBUGH(_T("dicFile={}"), dicFile);
     // 簡易辞書の読み込み(ファイル名の指定がなくても辞書自体は構築する)
     LOG_DEBUGH(_T("CALLED: dicFile={}, sysRomanFile={}"), dicFile, sysRomanFile);

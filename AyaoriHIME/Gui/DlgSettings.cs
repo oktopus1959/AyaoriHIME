@@ -345,7 +345,6 @@ namespace KanchokuWS.Gui
             textBox_easyCharsFile.Text = Settings.EasyCharsFile;
             textBox_strokeHelpFile.Text = Settings.StrokeHelpFile;
             textBox_bushuCompFile.Text = Settings.BushuFile;
-            textBox_historyFile.Text = Settings.HistoryFile;
 
             // 入力文字列の表示方法
             checkBox_useTsfOutput.Checked = Settings.UseTsfOutput;
@@ -402,7 +401,6 @@ namespace KanchokuWS.Gui
             checkerBasic.Add(comboBox_tableFile2);
             checkerBasic.Add(textBox_strokeHelpFile);
             checkerBasic.Add(textBox_bushuCompFile);
-            checkerBasic.Add(textBox_historyFile);
 
             // 入力文字列の表示方法
             checkerBasic.Add(checkBox_useTsfOutput);
@@ -466,7 +464,6 @@ namespace KanchokuWS.Gui
             Settings.SetUserIni("tableFile2", getTableFileName(comboBox_tableFile2.Text));
             Settings.SetUserIni("strokeHelpFile", textBox_strokeHelpFile.Text.Trim());
             Settings.SetUserIni("bushuFile", textBox_bushuCompFile.Text.Trim());
-            Settings.SetUserIni("historyFile", textBox_historyFile.Text.Trim());
 
             // 入力文字列の表示方法
             Settings.SetUserIni("useTsfOutput", checkBox_useTsfOutput.Checked);
@@ -1846,7 +1843,7 @@ namespace KanchokuWS.Gui
             textBox_eisuSimpleDicSearchChar.Text = Settings.EisuSimpleDicSearchChar;
             textBox_eisuExitCapitalCharNum.Text = $"{Settings.EisuExitCapitalCharNum}";
             textBox_eisuExitSpaceNum.Text = $"{Settings.EisuExitSpaceNum}";
-            textBox_userRomanFile.Text = $"{Settings.HistoryFile._safeReplace("*", "roman")}";
+            textBox_simpleDicFile.Text = $"{Settings.SimpleDicFile}";
             textBox_romanDefFile.Text = Settings.DefaultRomanDefFile;
 
             checkBox_convertShiftedHiraganaToKatakana.Checked = Settings.ConvertShiftedHiraganaToKatakana;
@@ -1942,12 +1939,12 @@ namespace KanchokuWS.Gui
         private void button_openUserRomanFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            openFileInUserFolder(textBox_userRomanFile.Text);
+            openFileInUserFolder(textBox_simpleDicFile.Text);
         }
 
         private void button_loadUserRomanFile_Click(object sender, EventArgs e)
         {
-            frmMain?.ExecCmdDecoder("readUserRomanFile", null);
+            frmMain?.ExecCmdDecoder("readSimpleDicFile", null);
         }
 
         private void button_openRomanDefFile_Click(object sender, EventArgs e)
@@ -1967,8 +1964,7 @@ namespace KanchokuWS.Gui
             logger.Info("CALLED");
             var line = textBox_simpleDicEntryRO.Text.Trim().Replace(" ", "");
             if (line._notEmpty()) {
-                //FrmMain?.ExecCmdDecoder("addHistEntry", line);
-                frmMain?.AddHistEntry(line);
+                frmMain?.AddSimpleDicEntry(line);
                 label_saveHist.Hide();
                 label_history.Show();
                 dicRegLabelCount = dicRegLabelCountMax;
@@ -2888,12 +2884,6 @@ namespace KanchokuWS.Gui
             logger.Info("CALLED");
             openFileInUserFolder(Settings.BushuFile);
             openFileInUserFolder(Settings.AutoBushuFile);
-        }
-
-        private void button_openHistoryFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            openFileInUserFolder(Settings.HistoryFile._safeReplace("*", "entry"));
         }
 
         private void button_setCommonTable_Click(object sender, EventArgs e)

@@ -423,7 +423,7 @@ public:
                 if (items.size() > 2) {
                     MorphBridge::morphCompileAndLoadUserDic(items[1], items[2]);
                 }
-            } else if (cmd == _T("addHistEntry") && SIMPLE_DIC) {
+            } else if (cmd == _T("addSimpleDicEntry") && SIMPLE_DIC) {
                 // 簡易辞書登録
                 if (items.size() >= 2 && !items[1].empty()) {
                     SIMPLE_DIC->AddNewEntryAnyway(to_mstr(items[1]));
@@ -624,9 +624,9 @@ public:
             } else if (cmd == _T("commitSimpleDicState")) {
                 // 簡易辞書候補選択状態のコミットと初期化
                 commitSimpleDicState();
-            } else if (cmd == _T("readUserRomanFile")) {
+            } else if (cmd == _T("readSimpleDicFile")) {
                 // ユーザー定義ローマ字辞書ファイルの読み込み
-                SIMPLE_DIC->ReadUserRomanFile();
+                SIMPLE_DIC->ReadSimpleDicFile();
             } else if (cmd == _T("readRomanDefFile")) {
                 // ローマ字定義ファイルの読み込み
                 RomanToKatakana::ReadDefaultRomanDefFile();
@@ -723,7 +723,7 @@ public:
         // 出力履歴に簡易辞書ブロッカーを反映
         if (STATE_COMMON->IsSetSimpleDicBlockFlag()) {
             OUTPUT_STACK->setSimpleDicBlocker();
-            LOG_DEBUGH(_T("OUTPUT_STACK->setHistBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
+            LOG_DEBUGH(_T("OUTPUT_STACK->setSimpleDicBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
         }
         //// 出力履歴に MazeBlock を反映
         //if (STATE_COMMON->IsSetMazegakiBlockFlag()) {

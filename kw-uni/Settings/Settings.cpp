@@ -61,8 +61,8 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_USER_FILE_PATH(autoBushuFile);
     //SET_FILE_PATH(mazegakiFile);
     SET_KEY_VALUE(mazegakiFile);
-    SET_USER_FILE_PATH(historyFile);
-    SET_SYSTEM_FILE_PATH(historySystemRomanFile);
+    SET_USER_FILE_PATH(simpleDicFile);
+    SET_SYSTEM_FILE_PATH(systemRomanDicFile);
 
     SET_INT_VALUE(backFileRotationGeneration);
 
@@ -156,7 +156,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     RESET_STROKE_FUNC("zenkakuMode");
     RESET_STROKE_FUNC("zenkakuOneChar");
     RESET_STROKE_FUNC("nextThrough");
-    RESET_STROKE_FUNC("history");
     RESET_STROKE_FUNC("mazegaki");
     RESET_STROKE_FUNC("bushuComp");
     RESET_STROKE_FUNC("katakanaMode");

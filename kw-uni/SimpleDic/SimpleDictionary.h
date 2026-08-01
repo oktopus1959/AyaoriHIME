@@ -122,7 +122,7 @@ public:
     static int CreateSimpleDictionary(const String&, const String& sysRomanFile);
 
     // ユーザー定義のローマ字辞書を読み込む
-    static int ReadUserRomanFile();
+    static int ReadSimpleDicFile();
 
     // 辞書ファイルへの内容の書き出し
     static void WriteSimpleDictionary();

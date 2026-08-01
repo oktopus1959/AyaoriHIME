@@ -25,8 +25,8 @@ struct Settings {
     String bushuFile;          // 部首合成辞書
     String autoBushuFile;      // 自動部首合成辞書
     String mazegakiFile;       // 交ぜ書き辞書
-    String historyFile;        // 履歴
-    String historySystemRomanFile;          // システムローマ字辞書ファイル
+    String simpleDicFile;      // 簡易辞書
+    String systemRomanDicFile; // システムローマ字辞書ファイル
 
     int backFileRotationGeneration = 3;     // 辞書ファイル保存世代数
 

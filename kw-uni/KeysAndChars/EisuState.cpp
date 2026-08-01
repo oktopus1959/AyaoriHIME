@@ -110,7 +110,7 @@ namespace {
                     (!is_alphabet(s[len - 2]) && is_upper_alphabet(s[len - 1]))) {
                     // 履歴検索の実行(末尾文字が英小文字であるか、英大文字1文字でないと発動させない; "CO" の後の場合は、'O' がキーになるが、この場合は発動させない)
                     SIMPLE_DIC_RESIDENT_STATE->handleNextCandTrigger();
-                    MY_NODE->prevHistSearchDeckeyCount = STATE_COMMON->GetTotalDecKeyCount();
+                    MY_NODE->prevSimpleDicSearchDeckeyCount = STATE_COMMON->GetTotalDecKeyCount();
                     result = true;
                 }
             }

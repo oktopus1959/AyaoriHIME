@@ -520,7 +520,7 @@ namespace KanchokuWS
             copyFile("kwbushu.rev", false);                 // userFile フォルダ→ systemFiles フォルダの順で読む
             //copyFile("kanji-yomi.txt", false);            // userFile フォルダ→ systemFiles フォルダの順で読む
             copyFile(Settings.DefaultRomanDefFile, false);  // userFile フォルダ→ systemFiles フォルダの順で読む
-            copyFile("kwhist.roman.txt", true);
+            copyFile("simpleDic.txt", true);
             copyFile("easy_chars.txt", true);
             copyFile("stroke-help.txt", true);
             //copyFile("mod-conversion.txt", true);
@@ -1631,14 +1631,14 @@ namespace KanchokuWS
                 } else if (str._reMatch("^[^ ]+ /")) {
                     ExecCmdDecoder("addMazegakiEntry", str);
                 } else {
-                    AddHistEntry(str);
+                    AddSimpleDicEntry(str);
                 }
             }
         }
 
         /// <summary>文字列を履歴登録する(ただし、20文字以下で空白を含まない。変換形登録なら、変換部は32文字以下)</summary>
         /// <param name="str"></param>
-        public void AddHistEntry(string str)
+        public void AddSimpleDicEntry(string str)
         {
             var items = str._split2('|');
             int len1 = items._getFirst()._safeLength();
@@ -1647,7 +1647,7 @@ namespace KanchokuWS
             const int xferMaxLen = 64;
             logger.Info(() => $"len1={len1}, len2={len2}, items[0]={items._getFirst()._safeSubstring(0, keyMaxLen)}, items[1]={items._getSecond()._safeSubstring(0, 64)}");
             if (len1 > 0 && len1 <= keyMaxLen && len2 <= 64 && items._getFirst()._safeIndexOf(' ') < 0) {
-                ExecCmdDecoder("addHistEntry", str);
+                ExecCmdDecoder("addSimpleDicEntry", str);
             } else {
                 logger.WarnH($"key length({len1}) is greater than {keyMaxLen} or xfer length ({len2}) is greater than {xferMaxLen}: {str}");
             }

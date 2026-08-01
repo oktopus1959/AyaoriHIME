@@ -414,8 +414,8 @@ namespace KanchokuWS
         public static string TableFile { get; private set; }
         public static string TableFile2 { get; private set; }
         public static string TableFile3 { get; private set; }
-        public static string HistoryFile { get; private set; }
-        public static string HistorySystemRomanFile { get; private set; }
+        public static string SimpleDicFile { get; private set; }
+        public static string SystemRomanDicFile { get; private set; }
         //public static string MazegakiFile { get; private set; }
 
         // 使用したテーブルファイルの履歴(最大10個)
@@ -1802,8 +1802,8 @@ namespace KanchokuWS
             KanjiYomiFile = addDecoderSetting("kanjiYomiFile", "kanji-yomi.txt");
             AltKanjiFile = addDecoderSetting("altKanjiFile", "alt-kanji.txt");
             //addDecoderSetting("strokeHelpFile");
-            HistoryFile = addDecoderSetting("historyFile", "kwhist.*.txt");
-            HistorySystemRomanFile = addDecoderSetting("historySystemRomanFile", "kwhist.system.roman.txt");
+            SimpleDicFile = addDecoderSetting("simpleDicFile", "simpleDic.txt");
+            SystemRomanDicFile = addDecoderSetting("systemRomanDicFile", "system.romanDic.txt");
             //MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "kwmaze.*.dic");
             //MazegakiFile = addDecoderSettingByGettingFiles("mazegakiFile", "");
 

@@ -218,6 +218,7 @@ namespace Reporting {
 #define _LOG_DEBUG_COND(flag, ...)    {}
 #define _DEBUG_SENT(x)      
 #define _DEBUG_FLAG(x)      false
+#define _NDEBUG_SENT(x)     x 
 #else
 #define LOG_TRACE(fmt, ...)   LOG_REPORT_COND(Trace, fmt, __VA_ARGS__)
 #define LOG_DEBUG(fmt, ...)   LOG_REPORT_COND(Debug, fmt, __VA_ARGS__)
@@ -227,6 +228,7 @@ namespace Reporting {
 #define _LOG_DEBUGH_COND(flag, fmt, ...)  if (flag) LOG_REPORT_COND(DebugH, fmt, __VA_ARGS__)
 #define _DEBUG_SENT(x)      x
 #define _DEBUG_FLAG(x)      (x)
+#define _NDEBUG_SENT(x)      
 #endif
 
 #define LOG_INFO(fmt, ...)  LOG_REPORT_COND(Info, fmt, __VA_ARGS__)
