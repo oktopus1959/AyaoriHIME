@@ -1102,7 +1102,7 @@ namespace {
 
         // 明示的な簡易辞書検索を開始する
         void historySearch() {
-            LOG_DEBUGH(_T("ENTER: maybeEditedBySubState={}, histInSearch={}"), maybeEditedBySubState, SIMPLE_DIC_CAND->IsInSearch());
+            LOG_DEBUGH(_T("ENTER: maybeEditedBySubState={}"), maybeEditedBySubState);
             // キー取得用 lambda
             auto keyGetter = []() {
                 // まず、ワイルドカードパターンを試す
@@ -1152,7 +1152,7 @@ namespace {
                     LOG_DEBUGH(_T("SimpleDicSearch: different key"));
                     // 1文字ASCIIのhistMap検索は、英数モードから明示的に変換した場合だけ許可する
                     bool allowSingleAsciiMap = NextState() && NextState()->GetName() == L"EisuState";
-                    histCandsChecker(SIMPLE_DIC_CAND->GetCandWords(key, 0, allowSingleAsciiMap), key);
+                    histCandsChecker(SIMPLE_DIC_CAND->GetCandWords(key, allowSingleAsciiMap), key);
                     key = SIMPLE_DIC_CAND->GetCurrentKey();
                     LOG_DEBUGH(_T("SimpleDicSearch: currentKey={}"), to_wstr(key));
                 } else {
@@ -1206,10 +1206,6 @@ namespace {
                 bCandSelectable = false;
 
                 LOG_DEBUGH(_T("PATH 6: bCandSelectable={}"), bCandSelectable);
-                if (OUTPUT_STACK->isLastOutputStackCharBlocker()) {
-                    LOG_DEBUGH(_T("PATH 7: LastOutputStackChar is Blocker"));
-                    SIMPLE_DIC->ClearNgramSet();
-                }
                 STROKE_MERGER_NODE->ClearPrevState();
                 SIMPLE_DIC_CAND->ClearKeyInfo();
             }

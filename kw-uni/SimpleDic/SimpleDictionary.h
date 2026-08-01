@@ -139,14 +139,8 @@ public:
     // 登録(条件なし)
     virtual void AddNewEntryAnyway(const MString& line) = 0;
 
-    // Nグラム登録
-    virtual void AddNgramEntries(const MString& line) = 0;
-
-    // 登録済みNグラム集合をクリアする
-    virtual void ClearNgramSet() = 0;
-
     // 指定の見出し文字に対する変換候補のセットを取得する
-    virtual const SImpleDicResultList& GetCandidates(const MString& key, MString&, int len,
+    virtual const SImpleDicResultList& GetCandidates(const MString& key, MString&,
                                                 bool allowSingleAsciiMap = false) = 0;
 
     // 単語の使用
@@ -171,21 +165,6 @@ public:
 
     virtual bool IsUsedDicDirty() const = 0;
 
-    // 除外辞書の読み込み
-    virtual void ReadExcludeFile(const std::vector<String>& lines) = 0;
-
-    // 除外辞書内容の保存
-    virtual void WriteExcludeFile(utils::OfstreamWriter& writer) = 0;
-
-    virtual bool IsExcludeDicDirty() const = 0;
-
-    // Nグラム辞書の読み込み
-    virtual void ReadNgramFile(const std::vector<String>& lines) = 0;
-
-    // Nグラム辞書内容の保存
-    virtual void WriteNgramFile(utils::OfstreamWriter& writer) = 0;
-
-    virtual bool IsNgramDicDirty() const = 0;
 };
 
 #define SIMPLE_DIC (SimpleDictionary::Singleton)

@@ -15,15 +15,11 @@ public:
     // 履歴検索キー設定をクリアする
     virtual void ClearKeyInfo() = 0;
 
-    virtual bool IsInSearch() = 0;
-
-    virtual const MString& GetOrigKey() = 0;
-
-    // 指定のキーで始まる候補を取得する (len > 0 なら指定の長さの候補だけを取得, len < 0 なら Abs(len)以下の長さの候補を取得)
-    virtual const std::vector<SimpleDicResult>& GetCandidates(const MString& key, int len,
+    // 指定のキーで始まる候補を取得する
+    virtual const std::vector<SimpleDicResult>& GetCandidates(const MString& key,
                                                          bool allowSingleAsciiHistMap = false) = 0;
 
-    virtual const std::vector<MString> GetCandWords(const MString& key, int len,
+    virtual const std::vector<MString> GetCandWords(const MString& key,
                                                     bool allowSingleAsciiHistMap = false) = 0;
 
     // 取得済みの候補列を返す
@@ -40,7 +36,7 @@ public:
     virtual const SimpleDicResult GetPrev() const = 0;
 
     // 選択された単語を取得する
-    virtual const SimpleDicResult GetPositionedHist(size_t pos) const = 0;
+    virtual const SimpleDicResult GetPositionedResult(size_t pos) const = 0;
 
     // 選択された単語を取得する
     virtual const MString& GetSelectedWord() const = 0;
@@ -53,10 +49,6 @@ public:
 
     // 候補が選択されていれば、それを使用履歴の先頭にpushする -- selectPos は未選択状態に戻る
     virtual void DelayedPushFrontSelectedWord() = 0;
-
-    // 取得済みの履歴入力候補リストから指定位置の候補を返す
-    // 選択された候補は使用履歴の先頭に移動する
-    virtual const SimpleDicResult SelectNth(size_t n) = 0;
 
 public:
     static std::unique_ptr<SimpleDicCandidates> Singleton;

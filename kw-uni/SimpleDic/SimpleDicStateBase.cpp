@@ -23,7 +23,7 @@ namespace {
 
     protected:
         // 履歴入力候補のリスト
-        //SimpleDicCandidates histCands;
+        //SimpleDicCandidates candidates;
 
     public:
         // コンストラクタ
@@ -77,7 +77,7 @@ namespace {
             _LOG_DEBUGH(_T("outStr={}, outKey={}"), to_wstr(outStr), to_wstr(outKey));
 
             resultStr.setResult(outStr);
-            STROKE_MERGER_NODE->SetPrevHistState(outStr, outKey);
+            STROKE_MERGER_NODE->SetPrevState(outStr, outKey);
 
             //_LOG_DEBUGH(_T("prevOutString={}, isPrevHistKeyUsed={}"), to_wstr(STROKE_MERGER_NODE->GetPrevOutString()), STROKE_MERGER_NODE->IsPrevHistKeyUsed());
             _LOG_DEBUGH(_T("LEAVE: prevOutString={}"), to_wstr(STROKE_MERGER_NODE->GetPrevOutString()));
@@ -106,13 +106,13 @@ namespace {
                 // ②検索が実行されたが、出力文字列にはキーだけが表示されている状態
                 _LOG_DEBUGH(_T("CURRENT: SetOutString(str={}, numBS={})"), to_wstr(prevKey), prevKey.size());
                 resultStr.setResult(prevKey, (int)(prevKey.size()));
-                STROKE_MERGER_NODE->SetPrevHistState(prevKey, prevKey);
+                STROKE_MERGER_NODE->SetPrevState(prevKey, prevKey);
                 _LOG_DEBUGH(_T("CURRENT: prevKey={}"), to_wstr(prevKey));
             } else {
                 // ③横列のどれかの候補が選択されて出力文字列に反映されている状態
                 _LOG_DEBUGH(_T("REVERT and NEW HIST: SetOutString(str={}, numBS={})"), to_wstr(prevKey), prevOut.size());
                 resultStr.setResult(prevKey, (int)(prevOut.size()));
-                STROKE_MERGER_NODE->SetPrevHistState(prevKey, prevKey);
+                STROKE_MERGER_NODE->SetPrevState(prevKey, prevKey);
                 _LOG_DEBUGH(_T("REVERT and NEW HIST: prevKey={}"), to_wstr(prevKey));
             }
 

@@ -24,13 +24,8 @@ namespace {
 
         SimpleDicResult emptyResult;
 
-        // 辞書検索中か
-        bool isInSearch = false;
-
-        // 現在、履歴選択に使われているキー
+        // 現在、候補選択に使われているキー
         MString currentKey;
-
-        int currentLen = 0;
 
         // 英数モードから明示的に変換された1文字ASCIIキーの検索を許可するか
         bool currentAllowSingleAsciiMap = false;
@@ -84,40 +79,29 @@ namespace {
         }
 
     public:
-        // 履歴検索キー設定をクリアする
+        // 候補検索キー設定をクリアする
         void ClearKeyInfo() override {
             candidates.ClearKeyInfo();
             currentKey.clear();
             currentAllowSingleAsciiMap = false;
-            isInSearch = false;
         }
 
-        bool IsInSearch() override {
-            return isInSearch;
-        }
-
-        const MString& GetOrigKey() override {
-            return candidates.GetOrigKey();
-        }
-
-        // 指定のキーで始まる候補を取得する (len > 0 なら指定の長さの候補だけを取得, len < 0 なら Abs(len)以下の長さの候補を取得)
-        const std::vector<SimpleDicResult>& GetCandidates(const MString& key, int len,
+        // 指定のキーで始まる候補を取得する
+        const std::vector<SimpleDicResult>& GetCandidates(const MString& key,
                                                      bool allowSingleAsciiMap = false) override {
-            isInSearch = true;
             DelayedPushFrontSelectedWord();
-            currentLen = len;
             currentAllowSingleAsciiMap = allowSingleAsciiMap;
-            candidates = SIMPLE_DIC->GetCandidates(key, currentKey, len, allowSingleAsciiMap);  // ここで currentKey は変更される (currentKey = resultKey)
+            candidates = SIMPLE_DIC->GetCandidates(key, currentKey, allowSingleAsciiMap);  // ここで currentKey は変更される (currentKey = resultKey)
             results.clear();
             utils::append(results, candidates.GetResults());
             _LOG_DEBUGH(_T("cands num={}, new currentKey={}"), results.size(), to_wstr(currentKey));
             return results;
         }
 
-        const std::vector<MString> GetCandWords(const MString& key, int len,
+        const std::vector<MString> GetCandWords(const MString& key,
                                                 bool allowSingleAsciiMap = false) override {
-            _LOG_DEBUGH(_T("CALLED: key={}, len={}, allowSingleAsciiMap={}"), to_wstr(key), len, allowSingleAsciiMap);
-            GetCandidates(key, len, allowSingleAsciiMap);
+            _LOG_DEBUGH(_T("CALLED: key={}, allowSingleAsciiMap={}"), to_wstr(key), allowSingleAsciiMap);
+            GetCandidates(key, allowSingleAsciiMap);
             return GetCandWords();
         }
 
@@ -137,13 +121,13 @@ namespace {
             return currentKey;
         }
 
-        // 次の履歴を選択する
+        // 次の候補を選択する
         const SimpleDicResult GetNext() const override {
             incSelectPos();
             return getSelectedResult();
         }
 
-        // 前の履歴を選択する
+        // 前の候補を選択する
         const SimpleDicResult GetPrev() const override {
             decSelectPos();
             return getSelectedResult();
@@ -183,23 +167,6 @@ namespace {
             }
             ClearSelectPos();
             _LOG_DEBUGH(_T("LEAVE"));
-        }
-
-        // 取得済みの履歴入力候補リストから指定位置の候補を返す
-        // 選択された候補は使用履歴の先頭に移動する
-        const SimpleDicResult SelectNth(size_t n) override {
-            _LOG_DEBUGH(_T("ENTER: n={}, results={}"), n, results.size());
-            ClearSelectPos();
-            if (n >= results.size()) {
-                _LOG_DEBUGH(_T("LEAVE: empty"));
-                return emptyResult;
-            }
-
-            SimpleDicResult result = results[n];
-            SIMPLE_DIC->UseWord(result.Word);
-            GetCandidates(currentKey, currentLen, currentAllowSingleAsciiMap);
-            _LOG_DEBUGH(_T("LEAVE: OrigKey={}, Key={}, Word={}"), to_wstr(result.OrigKey), to_wstr(result.Key), to_wstr(result.Word));
-            return result;
         }
 
     };

@@ -259,17 +259,6 @@ namespace {
 
         bool bDirty = false;
 
-        // 順序復元用の位置
-        size_t revertPos = 0;
-
-        void clearRevertPos() {
-            revertPos = 0;
-        }
-
-        void setRevertPos(const std::vector<MString>::iterator iter) {
-            revertPos = iter - usedList.begin() + 1;
-        }
-
     public:
         // UTF8で書かれた辞書ソースを読み込む
         void ReadFile(const std::vector<String>& lines) {
@@ -288,7 +277,6 @@ namespace {
 
         void PushEntry(const MString& word, size_t minlen = 2) {
             _LOG_DEBUGH(_T("CALLED: word={}, minlen={}"), to_wstr(word), minlen);
-            clearRevertPos();
             if (word.size() >= minlen) {
                 if (!usedList.empty()) {
                     if (usedList[0] == word) return;
@@ -300,48 +288,6 @@ namespace {
                     usedList.erase(usedList.begin() + MAX_SIZE, usedList.end());
                     _LOG_DEBUGH(_T("EXTRA entries erased: size={}"), usedList.size());
                 }
-                bDirty = true;
-            }
-        }
-
-        // 指定の単語と先頭単語の入れ替え。指定単語が存在しなければ先頭に追加
-        void SwapEntry(const MString& word) {
-            LOG_DEBUG(_T("CALLED: word={}"), to_wstr(word));
-            clearRevertPos();
-            if (!word.empty()) {
-                if (!usedList.empty()) {
-                    if (usedList[0] == word) return;
-                    auto iter = std::find(usedList.begin(), usedList.end(), word);
-                    if (iter != usedList.end()) {
-                        setRevertPos(iter);
-                        iter->assign(usedList[0]);
-                        usedList[0].assign(word);
-                        return;
-                    }
-                }
-                usedList.insert(usedList.begin(), word);
-                bDirty = true;
-            }
-        }
-
-        // 先頭単語を復元位置に移動する
-        void RevertEntry() {
-            LOG_DEBUG(_T("CALLED"));
-            if (revertPos > 0 && revertPos <= usedList.size()) {
-                auto w = usedList[0];
-                LOG_DEBUG(_T("word={}"), to_wstr(w));
-                usedList.insert(usedList.begin() + revertPos, w);
-                usedList.erase(usedList.begin());
-                bDirty = true;
-            }
-            clearRevertPos();
-        }
-
-        void RemoveEntry(const MString& word) {
-            clearRevertPos();
-            LOG_DEBUG(_T("CALLED: word={}"), to_wstr(word));
-            if (!usedList.empty()) {
-                utils::erase(usedList, word);
                 bDirty = true;
             }
         }
@@ -398,29 +344,6 @@ namespace {
                     set_.erase(entry);
                     exactEntries.erase(iter);
                     if (exactEntries.empty()) break;
-                }
-            }
-        }
-
-        // usedList に含まれるものから下記を満たすものを返す(最大 n 個)
-        // ・単語長が minlen 以上、maxlen 以下
-        // ・maxlen == 0 なら単語長 >= 2
-        // ・1 <= maxlen <= 3 なら難打鍵文字を含むものだけ
-        // ・maxlen >= 9 なら単語長 >= 9
-        void ExtractUsedWords(const MString& key, SImpleDicResultList& outvec, size_t n, size_t minlen = 0, size_t maxlen = 0) {
-            LOG_DEBUG(_T("CALLED: size={}, minlen={}, maxlen={}"), n, minlen, maxlen);
-            auto checkCond = [minlen, maxlen](const MString& w) {
-                if (w.size() >= minlen && w.size() <= maxlen && (maxlen > 3 || !EASY_CHARS->AllContainedIn(w))) return true;
-                if (maxlen == 0 && w.size() >= 2) return true;
-                if (maxlen >= 9 && w.size() > 9) return true;
-                return false;
-            };
-            size_t i = 0;
-            for (const auto& w : usedList) {
-                if (w != key && checkCond(w)) {
-                    _LOG_DEBUGH_COND((i < 10), _T("outvec.PushEntry(key={}, w={})"), to_wstr(key), to_wstr(w));
-                    outvec.PushEntry(key, w);
-                    if (++i >= n) break;
                 }
             }
         }
@@ -490,164 +413,6 @@ namespace {
     DEFINE_CLASS_LOGGER(SimpleDicHeadCandList);
 
     // -------------------------------------------------------------------
-    // 除外する履歴を並べたリスト
-    class SimpleDicExcludeList {
-        DECLARE_CLASS_LOGGER;
-        std::set<MString> exclSet;
-
-        bool bDirty = false;
-
-    public:
-        // UTF8で書かれた辞書ソースを読み込む
-        void ReadFile(const std::vector<String>& lines) {
-            LOG_INFOH(_T("ENTER: {} lines"), lines.size());
-            for (const auto& w : lines) {
-                AddEntry(to_mstr(w));
-            }
-            bDirty = false;
-            LOG_INFOH(_T("LEAVE"));
-        }
-
-        void AddEntry(const MString& word) {
-            exclSet.insert(word);
-            bDirty = true;
-        }
-
-        void RemoveEntry(const MString& word) {
-            auto iter = exclSet.find(word);
-            if (iter != exclSet.end()) {
-                exclSet.erase(iter);
-                bDirty = true;
-            }
-        }
-
-        bool Find(const MString& word) {
-            return exclSet.find(word) != exclSet.end();
-        }
-
-        // 辞書内容の書き込み
-        void WriteFile(utils::OfstreamWriter& writer) {
-            LOG_INFOH(_T("CALLED"));
-            for (const auto& word : exclSet) {
-                writer.writeLine(utils::utf8_encode(to_wstr(word)));
-            }
-            bDirty = false;
-        }
-
-        //// 辞書が空か
-        //bool IsEmpty() const {
-        //    return exclSet.empty();
-        //}
-
-        // 辞書が更新されているか
-        bool IsDirty() const {
-            return bDirty;
-        }
-    };
-    DEFINE_CLASS_LOGGER(SimpleDicExcludeList);
-
-    // -------------------------------------------------------------------
-    // Nグラム頻度辞書
-    class NgramFreqDic {
-        DECLARE_CLASS_LOGGER;
-        std::map<MString, size_t> ngramFreqMap;
-
-        std::set<MString> seenNgrams;
-
-        bool bDirty = false;
-
-    public:
-        // UTF8で書かれた辞書ソースを読み込む
-        void ReadFile(const std::vector<String>& lines) {
-            LOG_INFOH(_T("ENTER: {} lines"), lines.size());
-            for (const auto& line : lines) {
-                auto items = utils::split(to_mstr(line), ',');
-                if (items.size() >= 2) {
-                    const auto& w = items[0];
-                    size_t freq = utils::strToInt(items[1]);
-                    if (!w.empty() && freq > 0) {
-                        ngramFreqMap[w] = freq;
-                    }
-                }
-            }
-            bDirty = false;
-            LOG_INFOH(_T("LEAVE"));
-        }
-
-
-        // 辞書内容の書き込み
-        void WriteFile(utils::OfstreamWriter& writer) {
-            for (const auto& pair : ngramFreqMap) {
-                if (pair.first.size() >= 2 && pair.second > 0) {
-                    writer.writeLine(utils::utf8_encode(std::format(_T("{},{}"), to_wstr(pair.first), pair.second)));
-                }
-            }
-            bDirty = false;
-        }
-
-        //// 辞書が空か
-        //bool IsEmpty() const {
-        //    return ngramFreqMap.empty();
-        //}
-
-        // 辞書が更新されているか
-        bool IsDirty() const {
-            return bDirty;
-        }
-
-#define NGRAM_FREQ_THRESHOLD 3
-        bool AddNgramEntry(const MString& ngram) {
-            LOG_DEBUG(_T("addNgramEntry={}"), to_wstr(ngram));
-            if (utils::is_kanji_or_katakana_str(ngram)) return false;
-
-            size_t count = 0;
-            //auto iter = ngramFreqMap.find(ngram);
-            //if (iter == ngramFreqMap.end()) {
-            //    count = 1;
-            //    ngramFreqMap[ngram] = count;
-            //} else {
-            //    count = iter->second + 1;
-            //    iter->second = count;
-            //}
-            //bDirty = true;
-            return count >= NGRAM_FREQ_THRESHOLD;
-        }
-#undef NGRAM_FREQ_THRESHOLD
-
-#define NGRAM_MIN_LEN 5
-#define NGRAM_MAX_LEN 10
-        // Nグラム登録
-        std::vector<MString> AddNgramEntries(const MString& word) {
-            LOG_DEBUG(_T("AddNgramEntries={}"), to_wstr(word));
-            std::vector<MString> entryTargets;
-            if (word.size() >= NGRAM_MIN_LEN && seenNgrams.find(word) == seenNgrams.end()) {
-                seenNgrams.insert(word);
-                size_t maxlen = word.size();
-                if (maxlen > NGRAM_MAX_LEN) maxlen = NGRAM_MAX_LEN;
-                for (size_t n = NGRAM_MIN_LEN; n <= maxlen; ++n) {
-                    MString w = utils::last_substr(word, n);
-                    if (AddNgramEntry(w))
-                        entryTargets.push_back(w);
-                }
-                bDirty = true;
-            } else {
-                LOG_DEBUG(_T("word=\"{}\" is already seen."), to_wstr(word));
-            }
-            return entryTargets;
-        }
-#undef NGRAM_MIN_LEN
-#undef NGRAM_MAX_LEN
-
-        // 登録済みNグラム集合をクリアする
-        void ClearNgramSet() {
-            LOG_DEBUG(_T("CALLED"));
-            seenNgrams.clear();
-        }
-
-    };
-    DEFINE_CLASS_LOGGER(NgramFreqDic);
-
-    // -------------------------------------------------------------------
     // 履歴辞書の実装クラス
     class SimpleDictionaryImpl : public SimpleDictionary {
     private:
@@ -659,13 +424,9 @@ namespace {
 
         SimpleDicHeadCandList romanPriorityList;
 
-        SimpleDicExcludeList exclList;
-
         // 結果を保持しておくリスト
         //std::vector<SimpleDicResult> resultList;
         SImpleDicResultList resultList;
-
-        NgramFreqDic ngramDic;
 
         bool bDirty = false;
 
@@ -753,45 +514,11 @@ namespace {
         }
 
     private:
-        inline void addNewEntryEx(const MString& word, bool bForce = false, size_t minlen = 2) {
-            LOG_DEBUG(_T("CALLED: word={}, bForce={}"), to_wstr(word), bForce);
-            if (bForce || !exclList.Find(word)) {
-                usedList.PushEntry(word, minlen);
-                addOneEntry(word, minlen, bForce);
-            }
-        }
-
-        inline void addNewEntry(const MString& word, bool bForce = false, size_t minlen = 2) {
-            LOG_DEBUG(_T("CALLED: word={}, bForce={}"), to_wstr(word), bForce);
-            if (bForce || !exclList.Find(word)) {
-                addOneEntry(word, minlen);
-            }
-        }
-
-        void addNgramEntry(const MString& ngram) {
-            if (ngramDic.AddNgramEntry(ngram)) {
-                LOG_DEBUGH(_T("addNewGgramEntry={}"), to_wstr(ngram));
-                addNewEntryEx(ngram);
-            }
-        }
-
     public:
         // 新規登録(条件なし)
         void AddNewEntryAnyway(const MString& word) override {
-            addNewEntryEx(word, true);
-            exclList.RemoveEntry(word);
-        }
-
-        // Nグラム登録
-        void AddNgramEntries(const MString& word) override {
-            for (const auto& w : ngramDic.AddNgramEntries(word)) {
-                addNewEntryEx(w);
-            }
-        }
-
-        // 登録済みNグラム集合をクリアする
-        void ClearNgramSet() override {
-            ngramDic.ClearNgramSet();
+            usedList.PushEntry(word);
+            addOneEntry(word, 2, true);
         }
 
     private:
@@ -938,24 +665,15 @@ namespace {
         }
 
     public:
-        // 指定の部分文字列に対する変換候補のリストを取得する (len > 0 なら指定の長さの候補だけを取得, len < 0 なら 2～abs(len)の範囲の長さの候補を取得)
-        // key.size() == 0 なら 最近使用した単語列を返す
+        // 指定の部分文字列に対する変換候補のリストを取得する
         // key.size() == 1 なら 2文字以上の候補列を返す
         // key.size() >= 2 なら key.size() 文字以上の候補を返す
-        const SImpleDicResultList& GetCandidates(const MString& key, MString& resultKey, int len,
+        const SImpleDicResultList& GetCandidates(const MString& key, MString& resultKey,
                                             bool allowSingleAsciiMap = false) override {
-            _LOG_DEBUGH(_T("ENTER: key={}, len={}, allowSingleAsciiMap={}"), to_wstr(key), len, allowSingleAsciiMap);
+            _LOG_DEBUGH(_T("ENTER: key={}, allowSingleAsciiMap={}"), to_wstr(key), allowSingleAsciiMap);
             // 結果を返すためのリストをクリアしておく
             resultList.ClearKeyInfo();
-            size_t minlen = len >= 0 ? len : 2;
-            size_t maxlen = len >= 0 ? len : std::max(minlen, (size_t)abs(len));
-            _LOG_DEBUGH(_T("minlen={}, maxlen={}"), minlen, maxlen);
-            if (key.empty()) {
-                // ここでは len < 0 の場合も考慮
-                usedList.ExtractUsedWords(key, resultList, 100, minlen, maxlen);
-                resultKey = key;
-            } else {
-                // ここでは maxlen は無視する
+            if (!key.empty()) {
                 // マッチしたキーの長さ(0ならキー全体がマッチ、>0 ならマッチした末尾の長さ)
                 size_t resultKeyLen = 0;
 
@@ -985,7 +703,7 @@ namespace {
                     // "■■■■■" (5)
                     _LOG_DEBUGH(_T("CHECK-POINT-A"));
                     CHECK_LIST_EMPTY(0);    // 最終的にマッチすれば、先頭からのマッチになるので 0 でよい
-                    extract_and_copy_for_longer_than_4(key, minlen, 0);
+                    extract_and_copy_for_longer_than_4(key, 0, 0);
                 }
                 bListEmpty = IS_LIST_EMPTY();
 
@@ -994,7 +712,7 @@ namespace {
                     // "□■■■■■" (6)
                     _LOG_DEBUGH(_T("CHECK-POINT-B"));
                     CHECK_LIST_EMPTY(5);
-                    extract_and_copy_for_longer_than_4(key, minlen, 1);
+                    extract_and_copy_for_longer_than_4(key, 0, 1);
                 }
                 bListEmpty = IS_LIST_EMPTY();
 
@@ -1004,7 +722,7 @@ namespace {
                         // "□□■■■■■■" (8)
                         _LOG_DEBUGH(_T("CHECK-POINT-C"));
                         CHECK_LIST_EMPTY(6);
-                        extract_and_copy_for_longer_than_4(key, minlen, keySize - resultKeyLen);
+                        extract_and_copy_for_longer_than_4(key, 0, keySize - resultKeyLen);
                     }
                     bListEmpty = IS_LIST_EMPTY();
                     if (keySize == 7 || (bAll || bListEmpty)) {
@@ -1012,7 +730,7 @@ namespace {
                         // "□□□■■■■■" (8)
                         _LOG_DEBUGH(_T("CHECK-POINT-D"));
                         CHECK_LIST_EMPTY(5);
-                        extract_and_copy_for_longer_than_4(key, minlen, keySize - resultKeyLen);
+                        extract_and_copy_for_longer_than_4(key, 0, keySize - resultKeyLen);
                     }
                 }
                 bListEmpty = IS_LIST_EMPTY();
@@ -1024,7 +742,7 @@ namespace {
                     if (checkFunc(4)) {
                         _LOG_DEBUGH(_T("CHECK-POINT-4"));
                         CHECK_LIST_EMPTY(4);
-                        extract_and_copy_for_tail_n(key, 4, minlen);
+                        extract_and_copy_for_tail_n(key, 4);
                         _LOG_DEBUGH(_T("histDic4: resultList.size()={}"), resultList.Size());
                     }
                     bListEmpty = IS_LIST_EMPTY();
@@ -1033,7 +751,7 @@ namespace {
                         if (checkFunc(3)) {
                             _LOG_DEBUGH(_T("CHECK-POINT-3"));
                             CHECK_LIST_EMPTY(3);
-                            extract_and_copy_for_tail_n(key, 3, minlen);
+                            extract_and_copy_for_tail_n(key, 3);
                             _LOG_DEBUGH(_T("histDic3: resultList.size()={}"), resultList.Size());
                         }
                         bListEmpty = IS_LIST_EMPTY();
@@ -1041,7 +759,7 @@ namespace {
                             if (checkFunc(2)) {
                                 _LOG_DEBUGH(_T("CHECK-POINT-2"));
                                 CHECK_LIST_EMPTY(2);
-                                extract_and_copy_for_tail_n(key, 2, minlen);
+                                extract_and_copy_for_tail_n(key, 2);
                                 _LOG_DEBUGH(_T("histDic2: resultList.size()={}"), resultList.Size());
                             }
                             bListEmpty = IS_LIST_EMPTY();
@@ -1051,7 +769,7 @@ namespace {
                                 if (checkFunc(1)) {
                                     _LOG_DEBUGH(_T("CHECK-POINT-1"));
                                     CHECK_LIST_EMPTY(1);
-                                    extract_and_copy_for_tail_n(key, 1, minlen);
+                                    extract_and_copy_for_tail_n(key, 1);
                                     _LOG_DEBUGH(_T("histDic1: resultList.size()={}"), resultList.Size());
                                 }
                             }
@@ -1073,7 +791,7 @@ namespace {
                             for (const auto& w : words) {
                                 if (w.size() > 1) {
                                     // ここで候補取得処理の再帰呼び出し
-                                    GetCandidates(w, resultKey, 0);
+                                    GetCandidates(w, resultKey);
                                     //const SimpleDicResult& hr = resultList.findSameResultMapKey(w);
                                     const MString& rw = resultList.GetNthWord(0);
                                     size_t pos = rw.find_first_of(VERT_BAR);
@@ -1124,16 +842,6 @@ namespace {
             usedList.PushEntry(word, 0);    // 1文字の単語についても優先順の移動をするため、ここの minlen は1以下にしておく
         }
 
-        //// 指定の単語と先頭単語の入れ替え。指定単語が存在しなければ先頭に追加
-        //void SwapWord(const MString& word) {
-        //    usedList.SwapEntry(word);
-        //}
-
-        //// 先頭単語を元の位置に戻す
-        //void RevertWord() {
-        //    usedList.RevertEntry();
-        //}
-
         // 辞書内容の保存
         void WriteFile(utils::OfstreamWriter& writer) override {
             LOG_SAVE_DICT(_T("CALLED: Save Main Entries"));
@@ -1165,38 +873,6 @@ namespace {
 
         bool IsUsedDicDirty() const override {
             return usedList.IsDirty();
-        }
-
-        // 除外辞書の読み込み
-        void ReadExcludeFile(const std::vector<String>& lines) override {
-            LOG_INFOH(_T("CALLED"));
-            exclList.ReadFile(lines);
-        }
-
-        // 除外辞書内容の保存
-        void WriteExcludeFile(utils::OfstreamWriter& writer) override {
-            LOG_SAVE_DICT(_T("CALLED: Save Exclude Entries"));
-            exclList.WriteFile(writer);
-        }
-
-        bool IsExcludeDicDirty() const override {
-            return exclList.IsDirty();
-        }
-
-        // Nグラム辞書の読み込み
-        void ReadNgramFile(const std::vector<String>& lines) override {
-            LOG_INFOH(_T("CALLED"));
-            ngramDic.ReadFile(lines);
-        }
-
-        // Nグラム辞書内容の保存
-        void WriteNgramFile(utils::OfstreamWriter& writer) override {
-            LOG_SAVE_DICT(_T("CALLED: Save Ngram Entries"));
-            ngramDic.WriteFile(writer);
-        }
-
-        bool IsNgramDicDirty() const override {
-            return ngramDic.IsDirty();
         }
 
     private:
@@ -1250,7 +926,7 @@ namespace {
 
 // 入力履歴ファイルを読み込んで、履歴辞書を作成する
 // ファイルに名は * を含むこと(例: xxxx.*.yyy)。
-// * の部分を {entry,recent,exclude,ngram} に置換したファイルが読み込まれる
+// * の部分を {entry,recent,roman} に置換したファイルが読み込まれる
 // エラーがあったら例外を投げる
 int SimpleDictionary::CreateSimpleDictionary(StringRef histFile, StringRef 
 #ifndef _DEBUG
@@ -1284,8 +960,6 @@ int SimpleDictionary::CreateSimpleDictionary(StringRef histFile, StringRef
 #endif
         readFile(replaceStar(path, pos, _T("roman")), &SimpleDictionary::ReadRomanFileAsReadOnly, false);
         readFile(replaceStar(path, pos, _T("recent")), &SimpleDictionary::ReadUsedFile);
-        readFile(replaceStar(path, pos, _T("exclude")), &SimpleDictionary::ReadExcludeFile);
-        //readFile(replaceStar(path, pos, _T("ngram")), &SimpleDictionary::ReadNgramFile);
     }
 #ifndef _DEBUG
     if (!sysRomanFile.empty()) {
@@ -1332,8 +1006,6 @@ void SimpleDictionary::WriteSimpleDictionary(StringRef histFile) {
             utils::compareAndMoveFileToBackDirWithRotation(pathEntryTmp, pathEntry, SETTINGS->backFileRotationGeneration);
         }
         if (Singleton->IsUsedDicDirty()) writeFile(replaceStar(path, pos, _T("recent")), &SimpleDictionary::WriteUsedFile);
-        if (Singleton->IsExcludeDicDirty()) writeFile(replaceStar(path, pos, _T("exclude")), &SimpleDictionary::WriteExcludeFile);
-        //if (Singleton->IsNgramDicDirty()) writeFile(replaceStar(path, pos, _T("ngram")), &SimpleDictionary::WriteNgramFile);
     }
     LOG_SAVE_DICT(_T("LEAVE: path={}"), histFile);
 }
