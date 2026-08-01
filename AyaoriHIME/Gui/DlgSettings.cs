@@ -1959,33 +1959,6 @@ namespace KanchokuWS.Gui
         }
 
         /// <summary> 簡易辞書登録 </summary>
-        private void button_enterSimpleDic_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            var line = textBox_simpleDicEntryRO.Text.Trim().Replace(" ", "");
-            if (line._notEmpty()) {
-                frmMain?.AddSimpleDicEntry(line);
-                label_saveHist.Hide();
-                label_history.Show();
-                dicRegLabelCount = dicRegLabelCountMax;
-            }
-        }
-
-        private void button_saveSimpleDic_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            frmMain?.ExecCmdDecoder("saveSimpleDic", null);
-            label_history.Hide();
-            label_saveHist.Show();
-            dicRegLabelCount = dicRegLabelCountMax;
-        }
-
-        private void textBox_simpleDic_TextChanged(object sender, EventArgs e)
-        {
-            label_saveHist.Hide();
-            label_history.Hide();
-        }
-
         private void button_faq_eisu_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
@@ -2175,88 +2148,6 @@ namespace KanchokuWS.Gui
             }
         }
 
-#if false
-        //-----------------------------------------------------------------------------------
-        // 辞書登録
-        //-----------------------------------------------------------------------------------
-        /// <summary> 交ぜ書き辞書登録 </summary>
-        /// <summary> 部首合成辞書登録 </summary>
-        private void button_enterBushu_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            var line = textBox_bushuComp.Text.Trim().Replace(" ", "");
-            int n = 0;
-            foreach (var ch in line) {
-                if (Char.IsHighSurrogate(ch)) continue;
-                ++n;
-            }
-            if (n == 2 || n == 3) {
-                frmMain?.ExecCmdDecoder("addBushuEntry", line);
-                label_saveBushu.Hide();
-                label_bushuComp.Show();
-                dicRegLabelCount = dicRegLabelCountMax;
-            } else {
-                SystemHelper.ShowWarningMessageBox("形式が間違っています。\r\n3文字または2文字で入力してください。");
-            }
-        }
-
-        private void button_saveBushuCompFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            frmMain?.ExecCmdDecoder("saveBushuDic", null);
-            label_bushuComp.Hide();
-            label_saveBushu.Show();
-            dicRegLabelCount = dicRegLabelCountMax;
-        }
-
-        private void textBox_bushuComp_TextChanged(object sender, EventArgs e)
-        {
-            label_saveBushu.Hide();
-            label_bushuComp.Hide();
-        }
-
-        /// <summary> 自動部首合成辞書登録 </summary>
-        private void button_enterAutoBushu_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            var line = textBox_autoBushuComp.Text.Trim().Replace(" ", "");
-            int n = 0;
-            foreach (var ch in line) {
-                if (Char.IsHighSurrogate(ch)) continue;
-                ++n;
-            }
-            if (n == 3) {
-                frmMain?.ExecCmdDecoder("addAutoBushuEntry", line);
-                label_saveAutoBushu.Hide();
-                label_autoBushuComp.Show();
-                dicRegLabelCount = dicRegLabelCountMax;
-            } else {
-                SystemHelper.ShowWarningMessageBox("形式が間違っています。\r\n3文字で入力してください。");
-            }
-        }
-
-        private void button_saveAutoBushuCompFile_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            frmMain?.ExecCmdDecoder("saveAutoBushuDic", null);
-            label_autoBushuComp.Hide();
-            label_saveAutoBushu.Show();
-            dicRegLabelCount = dicRegLabelCountMax;
-        }
-
-        private void textBox_autoBushuComp_TextChanged(object sender, EventArgs e)
-        {
-            label_saveAutoBushu.Hide();
-            label_autoBushuComp.Hide();
-        }
-
-        private void button_registerClose_Click(object sender, EventArgs e)
-        {
-            logger.Info("CALLED");
-            this.Close();
-        }
-#endif
-
         //-----------------------------------------------------------------------------------
         // 共通・ヘルパー他
         //-----------------------------------------------------------------------------------
@@ -2390,23 +2281,6 @@ namespace KanchokuWS.Gui
         //-----------------------------------------------------------------------------------
         // ヘルパー他
         //-----------------------------------------------------------------------------------
-        // 一定時間後にリザルトラベルを非表示にする
-        int dicRegLabelCount = 0;
-
-        private const int dicRegLabelCountMax = 5000 / timerInterval;    // 5秒
-
-        private void hideDicRegLabel()
-        {
-            if (dicRegLabelCount > 0) {
-                --dicRegLabelCount;
-                if (dicRegLabelCount == 0) {
-                    label_saveHist.Hide();
-                    label_history.Hide();
-                }
-            }
-        }
-
-        //-----------------------------------------------------------------------------------
         private void radioButton_modeMarker_CheckedChanged(object sender, EventArgs e)
         {
             //checkBox_hideTopText.Enabled = radioButton_modeMarker.Checked;
@@ -2464,7 +2338,6 @@ namespace KanchokuWS.Gui
         {
             checkerAll.CheckStatus();
             hideOkResultLabel();
-            hideDicRegLabel();
         }
 
         private void button_saveAll_Click(object sender, EventArgs e)

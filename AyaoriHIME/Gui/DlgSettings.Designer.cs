@@ -256,7 +256,6 @@ namespace KanchokuWS.Gui
             this.checkBox_leftAlt = new System.Windows.Forms.CheckBox();
             this.checkBox_rightAlt = new System.Windows.Forms.CheckBox();
             this.tabPage_simpleDic = new System.Windows.Forms.TabPage();
-            this.textBox_simpleDicEntryRO = new Utils.TextBoxRO();
             this.groupBox33 = new System.Windows.Forms.GroupBox();
             this.button_simpleDicRead2 = new System.Windows.Forms.Button();
             this.textBox_romanDefFile = new System.Windows.Forms.TextBox();
@@ -283,11 +282,6 @@ namespace KanchokuWS.Gui
             this.radioButton_shiftA = new System.Windows.Forms.RadioButton();
             this.radioButton_normalShift = new System.Windows.Forms.RadioButton();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.label_saveHist = new System.Windows.Forms.Label();
-            this.button_saveSimpleDic = new System.Windows.Forms.Button();
-            this.label_history = new System.Windows.Forms.Label();
-            this.textBox_simpleDicEntry = new System.Windows.Forms.TextBox();
-            this.button_enterSimpleDic = new System.Windows.Forms.Button();
             this.label_histReload = new System.Windows.Forms.Label();
             this.button_simpleDicReload = new System.Windows.Forms.Button();
             this.label_okResultHist = new System.Windows.Forms.Label();
@@ -524,7 +518,6 @@ namespace KanchokuWS.Gui
             this.tabPage_simpleDic.SuspendLayout();
             this.groupBox33.SuspendLayout();
             this.groupBox37.SuspendLayout();
-            this.groupBox7.SuspendLayout();
             this.groupBox12.SuspendLayout();
             this.tabPage_mazeHenkan.SuspendLayout();
             this.groupBox53.SuspendLayout();
@@ -3325,7 +3318,6 @@ namespace KanchokuWS.Gui
             // 
             // tabPage_simpleDic
             // 
-            this.tabPage_simpleDic.Controls.Add(this.textBox_simpleDicEntryRO);
             this.tabPage_simpleDic.Controls.Add(this.groupBox33);
             this.tabPage_simpleDic.Controls.Add(this.groupBox37);
             this.tabPage_simpleDic.Controls.Add(this.groupBox7);
@@ -3342,17 +3334,6 @@ namespace KanchokuWS.Gui
             this.tabPage_simpleDic.Text = "英数字・カタカナ・簡易辞書";
             this.tabPage_simpleDic.ToolTipText = "英数モード、カタカナ、簡易辞書に関する設定";
             this.tabPage_simpleDic.UseVisualStyleBackColor = true;
-            // 
-            // textBox_simpleDicEntryRO
-            // 
-            this.textBox_simpleDicEntryRO.actionOnPaste = null;
-            this.textBox_simpleDicEntryRO.Location = new System.Drawing.Point(403, 274);
-            this.textBox_simpleDicEntryRO.Name = "textBox_simpleDicEntryRO";
-            this.textBox_simpleDicEntryRO.Size = new System.Drawing.Size(285, 23);
-            this.textBox_simpleDicEntryRO.TabIndex = 39;
-            this.textBox_simpleDicEntryRO.TabStop = false;
-            this.toolTip1.SetToolTip(this.textBox_simpleDicEntryRO, "ここに、簡易辞書検索の対象となる文字列をペーストします。\r\n\r\nここでは任意の文字列を登録することが可能です。\r\n\r\n半角の「|」を含む文字列を登録すると、「|」" +
-        "の前の部分を\r\n短縮形(abbreviation)として扱うようになります。\r\n短縮形の場合は、「|」より後の部分が本体文字列となります。");
             // 
             // groupBox33
             // 
@@ -3653,11 +3634,6 @@ namespace KanchokuWS.Gui
             // 
             // groupBox7
             // 
-            this.groupBox7.Controls.Add(this.label_saveHist);
-            this.groupBox7.Controls.Add(this.button_saveSimpleDic);
-            this.groupBox7.Controls.Add(this.label_history);
-            this.groupBox7.Controls.Add(this.textBox_simpleDicEntry);
-            this.groupBox7.Controls.Add(this.button_enterSimpleDic);
             this.groupBox7.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.groupBox7.Location = new System.Drawing.Point(387, 194);
             this.groupBox7.Name = "groupBox7";
@@ -3665,65 +3641,6 @@ namespace KanchokuWS.Gui
             this.groupBox7.TabIndex = 3;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "簡易辞書登録";
-            // 
-            // label_saveHist
-            // 
-            this.label_saveHist.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label_saveHist.AutoSize = true;
-            this.label_saveHist.Location = new System.Drawing.Point(97, 51);
-            this.label_saveHist.Name = "label_saveHist";
-            this.label_saveHist.Size = new System.Drawing.Size(65, 15);
-            this.label_saveHist.TabIndex = 11;
-            this.label_saveHist.Text = "保存しました";
-            this.label_saveHist.Visible = false;
-            // 
-            // button_saveSimpleDic
-            // 
-            this.button_saveSimpleDic.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_saveSimpleDic.Location = new System.Drawing.Point(17, 47);
-            this.button_saveSimpleDic.Name = "button_saveSimpleDic";
-            this.button_saveSimpleDic.Size = new System.Drawing.Size(60, 21);
-            this.button_saveSimpleDic.TabIndex = 2;
-            this.button_saveSimpleDic.TabStop = false;
-            this.button_saveSimpleDic.Text = "保存";
-            this.toolTip1.SetToolTip(this.button_saveSimpleDic, "登録された辞書の内容をファイルに保存します。\r\n\r\n保存の際、現在のファイルを .1 という拡張子を付加して\r\nback フォルダに移動します。\r\n");
-            this.button_saveSimpleDic.UseVisualStyleBackColor = true;
-            this.button_saveSimpleDic.Click += new System.EventHandler(this.button_saveSimpleDic_Click);
-            // 
-            // label_history
-            // 
-            this.label_history.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_history.AutoSize = true;
-            this.label_history.Location = new System.Drawing.Point(151, 51);
-            this.label_history.Name = "label_history";
-            this.label_history.Size = new System.Drawing.Size(65, 15);
-            this.label_history.TabIndex = 10;
-            this.label_history.Text = "登録しました";
-            this.label_history.Visible = false;
-            // 
-            // textBox_simpleDicEntry
-            // 
-            this.textBox_simpleDicEntry.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_simpleDicEntry.Location = new System.Drawing.Point(16, 18);
-            this.textBox_simpleDicEntry.Name = "textBox_simpleDicEntry";
-            this.textBox_simpleDicEntry.ReadOnly = true;
-            this.textBox_simpleDicEntry.Size = new System.Drawing.Size(285, 23);
-            this.textBox_simpleDicEntry.TabIndex = 0;
-            this.toolTip1.SetToolTip(this.textBox_simpleDicEntry, "簡易辞書検索の対象となるエントリを登録します。\r\n\r\nここでは任意の文字列を登録することが可能です。\r\n\r\n半角の「|」を含む文字列を登録すると、「|」の前の部分" +
-        "を\r\n短縮形(abbreviation)として扱うようになります。\r\n短縮形の場合は、「|」より後の部分が本体文字列となります。");
-            this.textBox_simpleDicEntry.TextChanged += new System.EventHandler(this.textBox_simpleDic_TextChanged);
-            // 
-            // button_enterSimpleDic
-            // 
-            this.button_enterSimpleDic.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_enterSimpleDic.Location = new System.Drawing.Point(234, 47);
-            this.button_enterSimpleDic.Name = "button_enterSimpleDic";
-            this.button_enterSimpleDic.Size = new System.Drawing.Size(67, 21);
-            this.button_enterSimpleDic.TabIndex = 1;
-            this.button_enterSimpleDic.Text = "登録";
-            this.button_enterSimpleDic.UseVisualStyleBackColor = true;
-            this.button_enterSimpleDic.Click += new System.EventHandler(this.button_enterSimpleDic_Click);
             // 
             // label_histReload
             // 
@@ -6234,8 +6151,6 @@ namespace KanchokuWS.Gui
             this.groupBox33.PerformLayout();
             this.groupBox37.ResumeLayout(false);
             this.groupBox37.PerformLayout();
-            this.groupBox7.ResumeLayout(false);
-            this.groupBox7.PerformLayout();
             this.groupBox12.ResumeLayout(false);
             this.groupBox12.PerformLayout();
             this.tabPage_mazeHenkan.ResumeLayout(false);
@@ -6718,11 +6633,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.RadioButton radioButton_shiftA;
         private System.Windows.Forms.RadioButton radioButton_normalShift;
         private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.Label label_saveHist;
-        private System.Windows.Forms.Button button_saveSimpleDic;
-        private System.Windows.Forms.Label label_history;
-        private System.Windows.Forms.TextBox textBox_simpleDicEntry;
-        private System.Windows.Forms.Button button_enterSimpleDic;
         private System.Windows.Forms.GroupBox groupBox53;
         private System.Windows.Forms.Button button_mazeFAQ;
         private System.Windows.Forms.Button button_openUserDicFile;
@@ -6744,6 +6654,5 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.TextBox textBox_romanDefFile;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Button button_openRomanDefFile;
-        private Utils.TextBoxRO textBox_simpleDicEntryRO;
     }
 }

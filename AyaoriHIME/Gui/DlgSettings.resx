@@ -120,66 +120,6 @@
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="checkBox_eisuModeEnabled.ToolTip" xml:space="preserve">
-    <value>この項目がチェックされている場合、通常シフトなどで英大文字を入力すると
-英数字の直接入力モードに移行します。
-
-英数モードで EisuDecapitalize (拡張修飾キー割り当て)を呼び出すと、先頭文字を
-小文字化します。
-
-英数モードでは、簡易辞書検索機能または次項で設定した文字を使って、英単語を
-カタカナに変換することができます。
-
-マッチする簡易辞書エントリがなかった場合はローマ字変換を実行します。
-ローマ字変換ルールは kwroman.def.txt というファイルで定義しているので、
-このファイルを修正して独自のルールに変更することもできます。
-(kwroman.def.txt を削除するか名前を変えるとローマ字を変換が無効になります)
-
-英数モードには EisuModeToggle を実行することでも入れます。
-
-英数モードから抜けるには以下のいずかを実行してください。
-・EisuModeToggle を実行
-・Esc 入力
-・スペースを2回連続入力
-・EisuDecapitalize を2回連続実行
-・SelectCodeTable1,2,3のいずれかを実行
-
-詳しくは「FAQ 基本編」の「英数モード」や「カタカナの出し方」を参照して
-ください。</value>
-  </data>
-  <data name="textBox_eisuExitSpaceNum.ToolTip" xml:space="preserve">
-    <value>ここで設定した回数以上にSpaceを続けて入力すると自動的に
-英数モードから抜けます。
-
-設定した回数によってSpaceの出力数が次のように変わります。
-
-0: Spaceを入力すると直ちに英数モードを抜け、Spaceを出力しない
-1: Spaceを入力すると直ちに英数モードを抜け、Spaceを出力する
-2以上: 英数モードを抜ける時は Space を出力しない
-
-IMEなどと併用しているような場合には 0 か 1 を設定すると有用かも
-しれません。</value>
-  </data>
-  <data name="textBox_eisuSimpleDicSearchChar.ToolTip" xml:space="preserve">
-    <value>入力した英字列を簡易辞書検索またはローマ字変換によってカタカナ等の
-文字列に変換する機能を呼び出すための文字を設定します。
-
-デフォルトは「;」(セミコロン)です。
-英字列の後に「;」を入力すると、それまでの英字列をカタカナ等に変換します。
-
-なお、空白文字(Space)を設定したい場合は、かわりに「_」(アンダースコア)を
-入力してください。
-
-変換には、システムで用意した英字列変換辞書ファイルと下記のユーザー定義の
-辞書ファイルの内容が使用されます。これらの辞書ファイルの内容に合致しない
-英字列は、ローマ字として解釈されてカタカナに変換されます。
-
-カタカナ変換直後に ESC を打鍵すると、カタカナ変換をキャンセルして、再度
-英数モードに戻ります。</value>
-  </data>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
   <data name="checkBox_useTsfOutput.ToolTip" xml:space="preserve">
     <value>入力中の文字列を、対象アプリ内に表示する設定
 
@@ -506,6 +446,63 @@ IMEを利用していて、Spaceでフラッシュと同時にかな漢字変換
 キーとなります。
 
 キーを使用しない場合は、ComboBoxの内容を削除して空白にしてください。</value>
+  </data>
+  <data name="checkBox_eisuModeEnabled.ToolTip" xml:space="preserve">
+    <value>この項目がチェックされている場合、通常シフトなどで英大文字を入力すると
+英数字の直接入力モードに移行します。
+
+英数モードで EisuDecapitalize (拡張修飾キー割り当て)を呼び出すと、先頭文字を
+小文字化します。
+
+英数モードでは、簡易辞書検索機能または次項で設定した文字を使って、英単語を
+カタカナに変換することができます。
+
+マッチする簡易辞書エントリがなかった場合はローマ字変換を実行します。
+ローマ字変換ルールは kwroman.def.txt というファイルで定義しているので、
+このファイルを修正して独自のルールに変更することもできます。
+(kwroman.def.txt を削除するか名前を変えるとローマ字を変換が無効になります)
+
+英数モードには EisuModeToggle を実行することでも入れます。
+
+英数モードから抜けるには以下のいずかを実行してください。
+・EisuModeToggle を実行
+・Esc 入力
+・スペースを2回連続入力
+・EisuDecapitalize を2回連続実行
+・SelectCodeTable1,2,3のいずれかを実行
+
+詳しくは「FAQ 基本編」の「英数モード」や「カタカナの出し方」を参照して
+ください。</value>
+  </data>
+  <data name="textBox_eisuExitSpaceNum.ToolTip" xml:space="preserve">
+    <value>ここで設定した回数以上にSpaceを続けて入力すると自動的に
+英数モードから抜けます。
+
+設定した回数によってSpaceの出力数が次のように変わります。
+
+0: Spaceを入力すると直ちに英数モードを抜け、Spaceを出力しない
+1: Spaceを入力すると直ちに英数モードを抜け、Spaceを出力する
+2以上: 英数モードを抜ける時は Space を出力しない
+
+IMEなどと併用しているような場合には 0 か 1 を設定すると有用かも
+しれません。</value>
+  </data>
+  <data name="textBox_eisuSimpleDicSearchChar.ToolTip" xml:space="preserve">
+    <value>入力した英字列を簡易辞書検索またはローマ字変換によってカタカナ等の
+文字列に変換する機能を呼び出すための文字を設定します。
+
+デフォルトは「;」(セミコロン)です。
+英字列の後に「;」を入力すると、それまでの英字列をカタカナ等に変換します。
+
+なお、空白文字(Space)を設定したい場合は、かわりに「_」(アンダースコア)を
+入力してください。
+
+変換には、システムで用意した英字列変換辞書ファイルと下記のユーザー定義の
+辞書ファイルの内容が使用されます。これらの辞書ファイルの内容に合致しない
+英字列は、ローマ字として解釈されてカタカナに変換されます。
+
+カタカナ変換直後に ESC を打鍵すると、カタカナ変換をキャンセルして、再度
+英数モードに戻ります。</value>
   </data>
   <data name="checkBox_convertShiftedHiraganaToKatakana.ToolTip" xml:space="preserve">
     <value>Shiftキー(または拡張修飾キー)を押しながら平仮名を入力すると、対応するカタカナに変換します。

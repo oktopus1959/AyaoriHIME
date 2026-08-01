@@ -422,13 +422,12 @@ namespace {
 
         SimpleDicUsedList usedList;
 
-        SimpleDicHeadCandList romanPriorityList;
+        // 変換形の優先順リスト
+        SimpleDicHeadCandList translatePriorityList;
 
         // 結果を保持しておくリスト
         //std::vector<SimpleDicResult> resultList;
         SImpleDicResultList resultList;
-
-        bool bDirty = false;
 
     private:
         // 一行の辞書ソース文字列を解析して辞書に登録する
@@ -450,7 +449,6 @@ namespace {
                 simple4CharsDic.Insert(word);
                 hashToStrMap.Insert(word);
             }
-            bDirty = true;
             LOG_DEBUG(_T("LEAVE: true"));
             return true;
         }
@@ -469,7 +467,6 @@ namespace {
                     }
                 }
             }
-            bDirty = false;
             Reporting::Logger::SetLogLevel(logLevel);
             LOG_INFOH(_T("LEAVE"));
         }
@@ -478,17 +475,17 @@ namespace {
         SimpleDictionaryImpl() {
         }
 
-        // UTF8で書かれた辞書ソースを読み込む
-        void ReadFile(const std::vector<String>& lines) override {
-            readFile(lines, false);
-        }
+        //// UTF8で書かれた辞書ソースを読み込む
+        //void ReadFile(const std::vector<String>& lines) override {
+        //    readFile(lines, false);
+        //}
 
-        // roman辞書ソースを読み込む
-        void ReadRomanFileAsReadOnly(const std::vector<String>& lines) override {
+        // 辞書ソースを読み込む
+        void ReadDicFileAsReadOnly(const std::vector<String>& lines) override {
             LOG_INFOH(_T("ENTER: {} lines"), lines.size());
             readFile(lines, true);
 
-            // 重複しているエントリを romanPriorityList に追加
+            // 重複しているエントリを translatePriorityList に追加
             String prevWord;
             MString prevLine;
             bool bDup = false;
@@ -499,7 +496,7 @@ namespace {
                     String word = line.substr(0, pos);
                     if (word == prevWord) {
                         if (!bDup) {
-                            romanPriorityList.PushEntry(prevLine);
+                            translatePriorityList.PushEntry(prevLine);
                             ++count;
                         }
                         bDup = true;
@@ -511,14 +508,6 @@ namespace {
                 }
             }
             LOG_INFOH(_T("LEAVE: dup count={}"), count);
-        }
-
-    private:
-    public:
-        // 新規登録(条件なし)
-        void AddNewEntryAnyway(const MString& word) override {
-            usedList.PushEntry(word);
-            addOneEntry(word, 2, true);
         }
 
     private:
@@ -565,7 +554,7 @@ namespace {
             if (keylen <= 3) {
                 // 短いキーでは、前半部がキーに完全一致する変換候補を最近使用候補より優先する
                 usedList.ExtractExactUsedMapWords(key, resultList, set_, wlen);
-                romanPriorityList.ExtractHeadWord(key, resultList, set_);
+                translatePriorityList.ExtractHeadWord(key, resultList, set_);
                 std::vector<MString> exactUsedMapEntries;
                 for (const auto& s : set_) {
                     if (s.size() > keylen && s[keylen] == VERT_BAR) exactUsedMapEntries.push_back(s);
@@ -586,7 +575,7 @@ namespace {
             } else {
                 // 4文字以上は従来の候補順を維持する
                 usedList.ExtractUsedWords(key, resultList, set_, wlen);
-                romanPriorityList.ExtractHeadWord(key, resultList, set_);
+                translatePriorityList.ExtractHeadWord(key, resultList, set_);
             }
 
             // set_ を vec に詰め替えてソートしてから回す。なお、'|' のままだと期待した順にならないので、'\t' に置換してからソートする(後で'|'に戻す)
@@ -842,23 +831,6 @@ namespace {
             usedList.PushEntry(word, 0);    // 1文字の単語についても優先順の移動をするため、ここの minlen は1以下にしておく
         }
 
-        // 辞書内容の保存
-        void WriteFile(utils::OfstreamWriter& writer) override {
-            LOG_SAVE_DICT(_T("CALLED: Save Main Entries"));
-            for (const auto& word : hashToStrMap.GetAllWords()) {
-                if (word.find(MSTR_VERT_BAR_2) == MString::npos) {
-                    // '||' を含むものは除く
-                    writer.writeLine(utils::utf8_encode(to_wstr(word)));
-                }
-            }
-            bDirty = false;
-        }
-
-        // 辞書が空か
-        bool IsSimpleDicDirty() const override {
-            return bDirty;
-        }
-
         // 使用辞書の読み込み
         void ReadUsedFile(const std::vector<String>& lines) override {
             LOG_INFOH(_T("CALLED"));
@@ -942,14 +914,14 @@ int SimpleDictionary::CreateSimpleDictionary(StringRef dicFile, StringRef _NDEBU
         auto path = utils::joinPath(SETTINGS->userFilesFolder, filename);
         LOG_DEBUGH(_T("open simple dic file: {}"), path);
 
-        readFile(path, &SimpleDictionary::ReadFile);
+        readFile(path, &SimpleDictionary::ReadDicFileAsReadOnly);
         readFile(path + _T(".recent"), &SimpleDictionary::ReadUsedFile);
     }
 #ifndef _DEBUG
     if (!sysRomanFile.empty()) {
         // システムローマ字辞書ファイルの読み込み
         LOG_DEBUGH(_T("open system roman file: {}"), sysRomanFile);
-        readFile(sysRomanFile, &SimpleDictionary::ReadRomanFileAsReadOnly);
+        readFile(sysRomanFile, &SimpleDictionary::ReadDicFileAsReadOnly);
     }
 #endif
     LOG_INFOH(_T("LEAVE"));
@@ -961,7 +933,7 @@ int SimpleDictionary::ReadSimpleDicFile() {
     String filename = SETTINGS->simpleDicFile;
     if (!filename.empty()) {
         auto path = utils::joinPath(SETTINGS->userFilesFolder, filename);
-        readFile(path, &SimpleDictionary::ReadRomanFileAsReadOnly, false);
+        readFile(path, &SimpleDictionary::ReadDicFileAsReadOnly, false);
     }
     return 0;
 }
@@ -973,16 +945,7 @@ void SimpleDictionary::WriteSimpleDictionary(StringRef dicFile) {
         auto path = utils::joinPath(SETTINGS->rootDir,
             utils::joinPath(USER_FILES_FOLDER, utils::contains(dicFile, _T("*")) ? dicFile : _T("kwhist.*.txt")));
         LOG_SAVE_DICT(_T("path={}"), path);
-        size_t pos = path.find(_T("*"));
-        if (Singleton->IsSimpleDicDirty()) {
-            auto pathEntry = replaceStar(path, pos, _T("entry"));
-            // 一旦、一時ファイルに書き込み
-            auto pathEntryTmp = pathEntry + L".tmp";
-            writeFile(pathEntryTmp, &SimpleDictionary::WriteFile);
-            // pathEntryTmp ファイルのサイズが PathEntry ファイルのサイズよりも小さい場合は、書き込みに失敗した可能性があるので、既存ファイルを残す
-            utils::compareAndMoveFileToBackDirWithRotation(pathEntryTmp, pathEntry, SETTINGS->backFileRotationGeneration);
-        }
-        if (Singleton->IsUsedDicDirty()) writeFile(replaceStar(path, pos, _T("recent")), &SimpleDictionary::WriteUsedFile);
+        if (Singleton->IsUsedDicDirty()) writeFile(path + _T("recent"), &SimpleDictionary::WriteUsedFile);
     }
     LOG_SAVE_DICT(_T("LEAVE: path={}"), dicFile);
 }

@@ -423,13 +423,6 @@ public:
                 if (items.size() > 2) {
                     MorphBridge::morphCompileAndLoadUserDic(items[1], items[2]);
                 }
-            } else if (cmd == _T("addSimpleDicEntry") && SIMPLE_DIC) {
-                // 簡易辞書登録
-                if (items.size() >= 2 && !items[1].empty()) {
-                    SIMPLE_DIC->AddNewEntryAnyway(to_mstr(items[1]));
-                } else {
-                    SIMPLE_DIC->AddNewEntryAnyway(OUTPUT_STACK->GetLastJapaneseKey<MString>(32));
-                }
             } else if (cmd == _T("saveSimpleDic") && SIMPLE_DIC) {
                 // 簡易辞書の保存
                 if (SIMPLE_DIC) SIMPLE_DIC->WriteSimpleDictionary();

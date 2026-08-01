@@ -119,7 +119,7 @@ public:
     static std::unique_ptr<SimpleDictionary> Singleton;
 
     // 履歴入力辞書インスタンスを生成する
-    static int CreateSimpleDictionary(const String&, const String& sysRomanFile);
+    static int CreateSimpleDictionary(const String&, const String&);
 
     // ユーザー定義のローマ字辞書を読み込む
     static int ReadSimpleDicFile();
@@ -130,14 +130,8 @@ public:
     // 辞書ファイルへの内容の書き出し
     static void WriteSimpleDictionary(const String&);
 
-    // 履歴入力辞書ファイルの読み込み
-    virtual void ReadFile(const std::vector<String>& lines) = 0;
-
-    // 履歴入力辞書ファイルの読み込み(読み込み専用辞書)
-    virtual void ReadRomanFileAsReadOnly(const std::vector<String>& lines) = 0;
-
-    // 登録(条件なし)
-    virtual void AddNewEntryAnyway(const MString& line) = 0;
+    // 辞書ファイルの読み込み(読み込み専用辞書)
+    virtual void ReadDicFileAsReadOnly(const std::vector<String>& lines) = 0;
 
     // 指定の見出し文字に対する変換候補のセットを取得する
     virtual const SImpleDicResultList& GetCandidates(const MString& key, MString&,
@@ -145,17 +139,6 @@ public:
 
     // 単語の使用
     virtual void UseWord(const MString& word) = 0;
-
-    //// 指定の単語と先頭単語の入れ替え。指定単語が存在しなければ先頭に追加
-    //virtual void SwapWord(const MString& word) = 0;
-
-    //// 先頭単語を元の位置に戻す
-    //virtual void RevertWord() = 0;
-
-    // 辞書ファイルの内容の書き出し
-    virtual void WriteFile(utils::OfstreamWriter& writer) = 0;
-
-    virtual bool IsSimpleDicDirty() const = 0;
 
     // 使用辞書の読み込み
     virtual void ReadUsedFile(const std::vector<String>& lines) = 0;

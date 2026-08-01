@@ -1630,26 +1630,7 @@ namespace KanchokuWS
                     ExecCmdDecoder("addAutoBushuEntry", str._safeSubstring(3,1) + str._safeSubstring(0,2));
                 } else if (str._reMatch("^[^ ]+ /")) {
                     ExecCmdDecoder("addMazegakiEntry", str);
-                } else {
-                    AddSimpleDicEntry(str);
                 }
-            }
-        }
-
-        /// <summary>文字列を履歴登録する(ただし、20文字以下で空白を含まない。変換形登録なら、変換部は32文字以下)</summary>
-        /// <param name="str"></param>
-        public void AddSimpleDicEntry(string str)
-        {
-            var items = str._split2('|');
-            int len1 = items._getFirst()._safeLength();
-            int len2 = items._getSecond()._safeLength();
-            const int keyMaxLen = 32;
-            const int xferMaxLen = 64;
-            logger.Info(() => $"len1={len1}, len2={len2}, items[0]={items._getFirst()._safeSubstring(0, keyMaxLen)}, items[1]={items._getSecond()._safeSubstring(0, 64)}");
-            if (len1 > 0 && len1 <= keyMaxLen && len2 <= 64 && items._getFirst()._safeIndexOf(' ') < 0) {
-                ExecCmdDecoder("addSimpleDicEntry", str);
-            } else {
-                logger.WarnH($"key length({len1}) is greater than {keyMaxLen} or xfer length ({len2}) is greater than {xferMaxLen}: {str}");
             }
         }
 
