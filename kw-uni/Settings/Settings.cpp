@@ -73,7 +73,6 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_UINT_VALUE(simpleDicHorizontalCandMax);
     SET_BOOL_VALUE(simpleDicMoveShortestAt2nd);
     SET_BOOL_VALUE(simpleDicShowCandsFromFirst);
-    SET_BOOL_VALUE(simpleDicSelectCandByNumberKey);
 
     SET_BOOL_VALUE(simpleDicUseArrowToSelectCand);
     SET_BOOL_VALUE(simpleDicSelectCandByTab);

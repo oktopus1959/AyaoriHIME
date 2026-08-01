@@ -38,11 +38,6 @@ namespace {
             selectPos = -1;
         }
 
-        inline void setSelectPos(size_t n) const {
-            size_t x = std::min(candidates.Size(), SETTINGS->simpleDicHorizontalCandMax);
-            selectPos = (int)(n >= 0 && n < x ? n : -1);
-        }
-
         // 選択位置をインクリメント //(一周したら未選択状態に戻る)
         inline void incSelectPos() const {
             size_t x = std::min(candidates.Size(), SETTINGS->simpleDicHorizontalCandMax);
@@ -130,13 +125,6 @@ namespace {
         // 前の候補を選択する
         const SimpleDicResult GetPrev() const override {
             decSelectPos();
-            return getSelectedResult();
-        }
-
-        // 選択された単語を取得する
-        const SimpleDicResult GetPositionedResult(size_t pos) const override {
-            _LOG_DEBUGH(_T("CALLED: selectPos={}"), pos);
-            setSelectPos(pos);
             return getSelectedResult();
         }
 

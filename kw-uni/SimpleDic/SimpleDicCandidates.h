@@ -36,9 +36,6 @@ public:
     virtual const SimpleDicResult GetPrev() const = 0;
 
     // 選択された単語を取得する
-    virtual const SimpleDicResult GetPositionedResult(size_t pos) const = 0;
-
-    // 選択された単語を取得する
     virtual const MString& GetSelectedWord() const = 0;
 
     // 選択されている位置を返す -- 未選択状態なら -1を返す

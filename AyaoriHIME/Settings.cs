@@ -802,9 +802,6 @@ namespace KanchokuWS
         /// <summary>Tabで候補を選択</summary>
         public static bool SimpleDicSelectCandByTab { get; private set; }
 
-        /// <summary>横列候補表示時、数字キーで候補選択する</summary>
-        public static bool SimpleDicSelectCandByNumberKey { get; private set; }
-
         /// <summary>履歴検索&選択するCtrlキー </summary>
         public static string SimpleDicSearchCtrlKey { get; private set; }
 
@@ -1821,7 +1818,6 @@ namespace KanchokuWS
             SimpleDicUseArrowToSelectCand = addDecoderSetting("simpleDicUseArrowToSelectCand", true);       // 矢印キーで簡易辞書候補選択を行う
             SimpleDicSelectCandByTab = addDecoderSetting("simpleDicSelectCandByTab", true);                 // Tabキーで簡易辞書候補選択を行う
             //HandleShiftSpaceAsNormalSpace = addDecoderSetting("handleShiftSpaceAsNormalSpace", true);  // Shift+Space を通常 Space しとて扱う(HistSearchByShiftSpaceがfalseの場合)
-            SimpleDicSelectCandByNumberKey = addDecoderSetting("simpleDicSelectCandByNumberKey", false);  // 横列候補表示時、数字キーで候補選択する
 
             //MazegakiByShiftSpace = GetString("mazegakiByShiftSpace")._parseBool(true);          // Shift-Space で交ぜ書き変換
             MazegakiSelectFirstCand = addDecoderSetting("mazegakiSelectFirstCand", true);       // 交ぜ書き変換で文末最長一致候補を自動選択

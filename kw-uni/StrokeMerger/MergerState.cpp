@@ -938,16 +938,12 @@ namespace {
         }
 
         // -------------------------------------------------------------------
-        // 以下、履歴機能
+        // 以下、簡速辞書機能
     private:
-        int candSelectDeckey = -1;
+        bool isCandidateSelection = false;
 
-        /// 今回の履歴候補選択ホットキーを保存
-        /// これにより、DoLastHistoryProc() で継続的な候補選択のほうに処理が倒れる
-        void setCandSelectIsCalled() { candSelectDeckey = STATE_COMMON->GetDeckey(); }
-
-        // 状態管理のほうで記録している最新ホットキーと比較し、今回が履歴候補選択キーだったか
-        bool wasCandSelectCalled() { return candSelectDeckey >= 0 && candSelectDeckey == STATE_COMMON->GetDeckey(); }
+        // 今回の入力が簡易辞書候補の選択操作だったことを記録する
+        void markCandidateSelection() { isCandidateSelection = true; }
 
         // 呼び出されたのは編集用キーか
         bool isEditingFuncDecKey() {
@@ -989,6 +985,7 @@ namespace {
             // 初期化という意味で、下記のように変更しておく(2021/5/31)
             maybeEditedBySubState = false;
             bCandSelectable = false;
+            isCandidateSelection = false;
             LOG_DEBUGH(_T("bCandSelectable=False"));
             resultStr.clear();
             STROKE_MERGER_NODE->ClearPrevState();     // まだ履歴検索が行われていないということを表す
@@ -1184,7 +1181,9 @@ namespace {
             LOG_DEBUGH(_T("\nENTER: {}: {}"), Name, OUTPUT_STACK->OutputStackBackStrForDebug(10));
             LOG_DEBUGH(_T("PATH 2: bCandSelectable={}"), bCandSelectable);
 
-            if (bCandSelectable && wasCandSelectCalled()) {
+            bool wasCandidateSelection = isCandidateSelection;
+            isCandidateSelection = false;
+            if (bCandSelectable && wasCandidateSelection) {
                 LOG_DEBUGH(_T("PATH 3: by SelectionKey"));
                 // 履歴選択キーによる処理だった場合
                 if (isEnterDecKey()) {
@@ -1279,7 +1278,7 @@ namespace {
             // これにより、前回のEnterによる改行点挿入やFullEscapeによるブロッカーフラグが削除される⇒(2021/12/18)workしなくなっていたので、いったん削除
             //OUTPUT_STACK->clearFlagAndPopNewLine();
             // 今回、履歴選択用ホットキーだったことを保存
-            setCandSelectIsCalled();
+            markCandidateSelection();
 
             bool bShowHistCands = SETTINGS->simpleDicShowCandsFromFirst || bCandSelectable;
 
@@ -1298,16 +1297,6 @@ namespace {
                 LOG_DEBUGH(_T("NOP"));
             }
             LOG_DEBUGH(_T("LEAVE\n"));
-        }
-
-        // 0～9 を処理する
-        void handleStrokeKeys(int deckey) {
-            LOG_DEBUGH(_T("ENTER: {}: deckey={}, bCandSelectable={}"), Name, deckey, bCandSelectable);
-            if (bCandSelectable) {
-                setCandSelectIsCalled();
-                getPosCandidate((size_t)deckey);
-            }
-            LOG_DEBUGH(_T("LEAVE"));
         }
 
         //// Shift+Space の処理 -- 履歴検索の開始、次の候補を返す
@@ -1344,10 +1333,9 @@ namespace {
         void handleDownArrow() override {
             LOG_DEBUGH(_T("ENTER: {}: bCandSelectable={}"), Name, bCandSelectable);
             if (SETTINGS->simpleDicUseArrowToSelectCand && bCandSelectable) {
-                setCandSelectIsCalled();
+                markCandidateSelection();
                 getNextCandidate();
             } else {
-                LOG_DEBUGH(_T("candSelectDeckey={:x}"), candSelectDeckey);
                 State::handleDownArrow();
             }
             LOG_DEBUGH(_T("LEAVE"));
@@ -1357,10 +1345,9 @@ namespace {
         void handleUpArrow() override {
             LOG_DEBUGH(_T("ENTER: {}: bCandSelectable={}"), Name, bCandSelectable);
             if (SETTINGS->simpleDicUseArrowToSelectCand && bCandSelectable) {
-                setCandSelectIsCalled();
+                markCandidateSelection();
                 getPrevCandidate();
             } else {
-                LOG_DEBUGH(_T("candSelectDeckey={:x}"), candSelectDeckey);
                 State::handleUpArrow();
             }
             LOG_DEBUGH(_T("LEAVE"));
@@ -1396,7 +1383,7 @@ namespace {
         void handleTab() override {
             LOG_DEBUGH(_T("CALLED: {}: bCandSelectable={}"), Name, bCandSelectable);
             if (SETTINGS->simpleDicSelectCandByTab && bCandSelectable) {
-                setCandSelectIsCalled();
+                markCandidateSelection();
                 getNextCandidate();
             } else {
                 State::handleTab();
@@ -1407,7 +1394,7 @@ namespace {
         void handleShiftTab() override {
             LOG_DEBUGH(_T("CALLED: {}: bCandSelectable={}"), Name, bCandSelectable);
             if (SETTINGS->simpleDicSelectCandByTab && bCandSelectable) {
-                setCandSelectIsCalled();
+                markCandidateSelection();
                 getPrevCandidate();
             } else {
                 State::handleShiftTab();
@@ -1436,7 +1423,7 @@ namespace {
             if (SETTINGS->simpleDicSelectFirstCandByEnter && bCandSelectable && SIMPLE_DIC_CAND->GetSelectPos() < 0) {
                 // 選択可能状態かつ候補未選択なら第1候補を返す。
                 LOG_DEBUGH(_T("CALL: getNextCandidate(false)"));
-                setCandSelectIsCalled();
+                markCandidateSelection();
                 getNextCandidate(false);
             } else if (bCandSelectable && SIMPLE_DIC_CAND->GetSelectPos() >= 0) {
                 LOG_DEBUGH(_T("CALL: STROKE_MERGER_NODE->ClearPrevHistState(); SIMPLE_DIC_CAND->ClearKeyInfo()"));
@@ -1462,7 +1449,6 @@ namespace {
         //// Ctrl-J の処理 -- 選択可能状態かつ候補未選択なら第1候補を返す。候補選択済みなら確定扱い
         //void handleCtrlJ() {
         //    LOG_DEBUGH(_T("\nCALLED: {}: selectPos={}"), Name, SIMPLE_DIC_CAND->GetSelectPos());
-        //    //setCandSelectIsCalled();
         //    if (bCandSelectable) {
         //        if (SIMPLE_DIC_CAND->GetSelectPos() < 0) {
         //            // 選択可能状態かつ候補未選択なら第1候補を返す。
@@ -1526,12 +1512,6 @@ namespace {
         void getPrevCandidate(bool bSetVkb = true) {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
             outputHistResult(SIMPLE_DIC_CAND->GetPrev(), bSetVkb);
-        }
-
-        // 次の候補を返す処理
-        void getPosCandidate(size_t pos, bool bSetVkb = true) {
-            LOG_DEBUGH(_T("CALLED: {}"), Name);
-            outputHistResult(SIMPLE_DIC_CAND->GetPositionedResult(pos), bSetVkb);
         }
 
         // 選択のリセット

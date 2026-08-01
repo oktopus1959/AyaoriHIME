@@ -38,8 +38,6 @@ struct Settings {
 
     bool simpleDicMoveShortestAt2nd = false;       // 最短長候補を2番目に表示する
     bool simpleDicShowCandsFromFirst = true;       // 最初の簡易辞書候補選択から横列候補表示を行うか
-    bool simpleDicSelectCandByNumberKey = false;   // 横列候補表示時に、数字キーで候補の選択を行うか
-
     bool simpleDicUseArrowToSelectCand = true; // 矢印キーで簡易辞書候補選択を行う
     bool simpleDicSelectCandByTab = true;      // Tabキーで簡易辞書候補選択を行う
     //bool handleShiftSpaceAsNormalSpace = true;    // Shift-Space を通常の Space として扱う (ただし histSearchByShiftSpace が優先)
