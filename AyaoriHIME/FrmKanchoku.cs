@@ -1458,7 +1458,7 @@ namespace KanchokuWS
                 ExecCmdDecoder("isKatakanaMode", null);  // カタカナモードか
                 bool isKatakana = (decoderOutput.resultFlags & ResultFlags.CurrentModeIsKatakana) != 0;
                 logger.Info(() => $"isKatakana={isKatakana}, resultFlags={decoderOutput.resultFlags:x}");
-                ExecCmdDecoder("commitHistory", null);                  // 履歴のコミットと初期化
+                ExecCmdDecoder("commitSimpleDicState", null);           // 簡易辞書候補選択状態のコミットと初期化
                 //InvokeDecoder(DecoderKeys.FULL_ESCAPE_DECKEY, 0);
                 //InvokeDecoder(DecoderKeys.SOFT_ESCAPE_DECKEY, 0);
                 InvokeDecoder(DecoderKeys.COMMIT_STATE_DECKEY, -1, 0, false);      // これで各種モードがクリアされる
@@ -1483,7 +1483,7 @@ namespace KanchokuWS
             if (IsDecoderActive && !Settings.MultiStreamMode && (Settings.TableFile2._notEmpty() || Settings.TableFile3._notEmpty()) /*&& DecoderOutput.IsWaitingFirstStroke()*/) {
                 //ExecCmdDecoder("isKatakanaMode", null);  // カタカナモードか
                 //bool isKatakana = (decoderOutput.resultFlags & ResultFlags.CurrentModeIsKatakana) != 0;
-                ExecCmdDecoder("commitHistory", null);                  // 履歴のコミットと初期化
+                ExecCmdDecoder("commitSimpleDicState", null);           // 簡易辞書候補選択状態のコミットと初期化
                 //InvokeDecoder(DecoderKeys.SOFT_ESCAPE_DECKEY, 0);       // これで各種モードがクリアされる
                 //InvokeDecoder(DecoderKeys.SOFT_ESCAPE_DECKEY, 0);       // 念のため2回呼ぶ
                 InvokeDecoder(DecoderKeys.COMMIT_STATE_DECKEY, -1, 0, false);      // これで各種モードがクリアされる
@@ -1687,7 +1687,7 @@ namespace KanchokuWS
 
             if (IsDecoderActive) {
                 logger.Info("Decoder already activated");
-                ExecCmdDecoder("commitHistory", null);                  // 履歴のコミットと初期化
+                ExecCmdDecoder("commitSimpleDicState", null);           // 簡易辞書候補選択状態のコミットと初期化
                 //InvokeDecoder(DecoderKeys.SOFT_ESCAPE_DECKEY, 0);       // これで各種モードがクリアされる
                 //InvokeDecoder(DecoderKeys.SOFT_ESCAPE_DECKEY, 0);       // 念のため2回呼ぶ
                 InvokeDecoder(DecoderKeys.COMMIT_STATE_DECKEY, -1, 0, false);      // これで各種モードがクリアされる

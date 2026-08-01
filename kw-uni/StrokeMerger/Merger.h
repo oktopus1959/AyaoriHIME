@@ -3,7 +3,6 @@
 #include "Logger.h"
 
 #include "FunctionNode.h"
-//#include "StrokeMerger/SimpleDicResidentState.h"
 
 #if 0
 #define HIST_LOG_DEBUGH LOG_INFO
@@ -44,20 +43,20 @@ public:
         return prevKey;
     }
 
-    inline void SetPrevHistState(const MString& outStr, const MString& key /*, bool bPrevHistKeyUsed = true*/) {
+    inline void SetPrevState(const MString& outStr, const MString& key) {
         HIST_LOG_DEBUGH(_T("CALLED: outStr={}, key={}"), to_wstr(outStr), to_wstr(key));
         prevOutString = outStr;
         prevKey = key;
     }
 
-    inline void SetPrevHistKeyState(const MString& key /*, bool bPrevHistKeyUsed = true*/) {
+    inline void SetPrevKeyState(const MString& key) {
         HIST_LOG_DEBUGH(_T("CALLED: key={}"), to_wstr(key));
         prevOutString.clear();
         prevKey = key;
     }
 
-    inline void ClearPrevHistState() {
-        HIST_LOG_DEBUGH(_T("CALLED: ClearPrevHistState"));
+    inline void ClearPrevState() {
+        HIST_LOG_DEBUGH(_T("CALLED"));
         prevOutString.clear();
         prevKey.clear();
     }

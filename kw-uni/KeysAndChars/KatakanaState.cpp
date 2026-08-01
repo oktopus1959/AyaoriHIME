@@ -86,13 +86,6 @@ namespace {
             bInitialized = false;
         }
 
-        // 履歴検索を初期化する状態か
-        bool IsHistoryReset() {
-            bool result = (NextState() && NextState()->IsHistoryReset());
-            _LOG_DEBUGH(_T("CALLED: {}: result={}"), Name, result);
-            return result;
-        }
-
     private:
         MString translate(const MString& str) {
             MString result = str;

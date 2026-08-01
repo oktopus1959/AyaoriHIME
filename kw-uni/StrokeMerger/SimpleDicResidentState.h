@@ -6,9 +6,6 @@
 // 履歴入力(常駐)機能状態(抽象)クラス
 class SimpleDicResidentState : public ResidentState {
 protected:
-    // 履歴常駐状態の事前チェック
-    //void DoHistoryResidentPreCheck() override = 0;
-    //int HandleDeckeyPreProc(int deckey) override = 0;
 
 public:
     // 文字列を変換して出力
@@ -18,9 +15,9 @@ public:
 
     virtual void handleEisuDecapitalize() = 0;
 
-    virtual void commitHistory() = 0;
+    virtual void commitSimpleDicState() = 0;
 
-    virtual bool IsHistorySelectableByArrowKey() const = 0;
+    virtual bool IsSimpleDicSelectableByArrowKey() const = 0;
 
 public:
     // 唯一のインスタンスを指すポインタ (寿命管理は CreateState() を呼び出したところがやる)

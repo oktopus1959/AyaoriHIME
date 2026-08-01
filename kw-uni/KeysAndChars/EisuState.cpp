@@ -97,13 +97,6 @@ namespace {
             LOG_DEBUGH(_T("LEAVE: {}: resultStr={}, numBS={}"), Name, to_wstr(resultOut.resultStr()), resultOut.numBS());
         }
 
-        // 履歴検索を初期化する状態か
-        bool IsHistoryReset() {
-            bool result = (NextState() && NextState()->IsHistoryReset());
-            _LOG_DEBUGH(_T("CALLED: {}: result={}"), Name, result);
-            return result;
-        }
-
     private:
         // 英字列の変換
         bool _handleEisuConversion() {

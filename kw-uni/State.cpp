@@ -336,12 +336,6 @@ bool State::IsResident() const {
     return false;
 }
 
-// 履歴検索を初期化する状態か
-bool State::IsHistoryReset() {
-    _LOG_DEBUGH(_T("CALLED: {}: True (default)"), Name);
-    return true;
-}
-
 // 不要フラグをセット
 void State::MarkUnnecessary() {
     LOG_DEBUGH(_T("CALLED: {}"), Name);

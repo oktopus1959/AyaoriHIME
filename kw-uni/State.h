@@ -193,9 +193,6 @@ public:
     // この状態以降を不要としてマークする
     virtual void MarkUnnecessaryFromThis();
 
-    // 履歴検索を初期化する状態か
-    virtual bool IsHistoryReset();
-
 protected:
     // モード標識文字を返す
     virtual mchar_t GetModeMarker();
@@ -496,4 +493,3 @@ public:
     virtual void handleCtrlDownArrow();
 
 };
-

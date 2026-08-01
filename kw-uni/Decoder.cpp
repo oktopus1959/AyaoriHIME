@@ -365,9 +365,9 @@ public:
         STATE_COMMON->ClearStateInfo();
     }
 
-    // 履歴のコミットと初期化
-    void commitHistory() {
-        SIMPLE_DIC_RESIDENT_STATE->commitHistory();
+    // 簡易辞書候補選択状態のコミットと初期化
+    void commitSimpleDicState() {
+        SIMPLE_DIC_RESIDENT_STATE->commitSimpleDicState();
     }
 
     // デコーダが扱う辞書を保存する
@@ -621,9 +621,9 @@ public:
             } else if (cmd == _T("deleteRemainingState")) {
                 // 居残っている一時状態の削除
                 deleteRemainingState();
-            } else if (cmd == _T("commitHistory")) {
-                // 履歴のコミットと初期化
-                commitHistory();
+            } else if (cmd == _T("commitSimpleDicState")) {
+                // 簡易辞書候補選択状態のコミットと初期化
+                commitSimpleDicState();
             } else if (cmd == _T("readUserRomanFile")) {
                 // ユーザー定義ローマ字辞書ファイルの読み込み
                 SIMPLE_DIC->ReadUserRomanFile();

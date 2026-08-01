@@ -6,7 +6,7 @@
 #include "SimpleDic/SimpleDictionary.h"
 
 // -------------------------------------------------------------------
-// 履歴入力リストのクラス
+// 簡易辞書検索候補リストのクラス
 class SimpleDicCandidates {
 public:
     // デストラクタ
@@ -15,7 +15,7 @@ public:
     // 履歴検索キー設定をクリアする
     virtual void ClearKeyInfo() = 0;
 
-    virtual bool IsHistInSearch() = 0;
+    virtual bool IsInSearch() = 0;
 
     virtual const MString& GetOrigKey() = 0;
 
