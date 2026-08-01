@@ -5,17 +5,17 @@
 #include "FunctionNode.h"
 
 #if 0
-#define HIST_LOG_DEBUGH LOG_INFO
+#define SIMPLE_DIC_LOG_DEBUGH LOG_INFO
 #else
-#define HIST_LOG_DEBUGH(...) {}
+#define SIMPLE_DIC_LOG_DEBUGH(...) {}
 #endif
 
 // -------------------------------------------------------------------
-// SimpleDicMergerNode - マージ入力簡易辞書機能常駐ノード
+// SimpleDicMergerNode - 簡易辞書機能常駐ノード
 class SimpleDicMergerNode : public FunctionNode {
     DECLARE_CLASS_LOGGER;
 private:
-    // マージ選択により出力された文字列
+    // 簡易辞書検索により出力された文字列
     MString prevOutString;
 
     // 上記出力文字列を検索したときのキー文字列
@@ -33,30 +33,30 @@ public:
 
     String getNodeName() const { return _T("StrokeMergerNode"); }
 
-    // 履歴選択により出力された文字列
+    // 簡易辞書検索により出力された文字列
     inline const MString& GetPrevOutString() const {
         return prevOutString;
     }
 
-    // 選択された履歴に使われたキー
+    // 簡易辞書検索に使われたキー
     inline const MString& GetPrevKey() const {
         return prevKey;
     }
 
     inline void SetPrevState(const MString& outStr, const MString& key) {
-        HIST_LOG_DEBUGH(_T("CALLED: outStr={}, key={}"), to_wstr(outStr), to_wstr(key));
+        SIMPLE_DIC_LOG_DEBUGH(_T("CALLED: outStr={}, key={}"), to_wstr(outStr), to_wstr(key));
         prevOutString = outStr;
         prevKey = key;
     }
 
     inline void SetPrevKeyState(const MString& key) {
-        HIST_LOG_DEBUGH(_T("CALLED: key={}"), to_wstr(key));
+        SIMPLE_DIC_LOG_DEBUGH(_T("CALLED: key={}"), to_wstr(key));
         prevOutString.clear();
         prevKey = key;
     }
 
     inline void ClearPrevState() {
-        HIST_LOG_DEBUGH(_T("CALLED"));
+        SIMPLE_DIC_LOG_DEBUGH(_T("CALLED"));
         prevOutString.clear();
         prevKey.clear();
     }
@@ -65,13 +65,13 @@ public:
     void createStrokeTrees(int targetTable = 0);
 
 public:
-    // マージ履歴機能ノードのSingleton
+    // 簡易辞書機能常駐ノードのSingleton
     static std::unique_ptr<SimpleDicMergerNode> Singleton;
 
-    // マージ履歴機能ノードの生成
+    // 簡易辞書機能常駐ノードの生成
     static void CreateSingleton();
 
-    // マージ履歴機能ノードの初期化
+    // 簡易辞書機能常駐ノードの初期化
     static void Initialize();
 
 };

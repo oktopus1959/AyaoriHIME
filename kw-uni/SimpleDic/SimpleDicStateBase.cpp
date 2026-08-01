@@ -96,7 +96,7 @@ namespace {
             if (prevKey.empty()) {
                 // ①まだ辞書検索がなされていない状態
                 // empty key を返す
-                _LOG_DEBUGH(_T("NOT YET HIST USED"));
+                _LOG_DEBUGH(_T("NOT YET SIMPLE DIC USED"));
             } else if (prevOut.empty()) {
                 // ②検索が実行されたが、出力文字列にはキーだけが表示されている状態
                 _LOG_DEBUGH(_T("CURRENT: SetOutString(str={}, numBS={})"), to_wstr(prevKey), prevKey.size());
@@ -105,10 +105,10 @@ namespace {
                 _LOG_DEBUGH(_T("CURRENT: prevKey={}"), to_wstr(prevKey));
             } else {
                 // ③横列のどれかの候補が選択されて出力文字列に反映されている状態
-                _LOG_DEBUGH(_T("REVERT and NEW HIST: SetOutString(str={}, numBS={})"), to_wstr(prevKey), prevOut.size());
+                _LOG_DEBUGH(_T("REVERT and NEW SIMPLE DIC: SetOutString(str={}, numBS={})"), to_wstr(prevKey), prevOut.size());
                 resultStr.setResult(prevKey, (int)(prevOut.size()));
                 STROKE_MERGER_NODE->SetPrevState(prevKey, prevKey);
-                _LOG_DEBUGH(_T("REVERT and NEW HIST: prevKey={}"), to_wstr(prevKey));
+                _LOG_DEBUGH(_T("REVERT and NEW SIMPLE DIC: prevKey={}"), to_wstr(prevKey));
             }
 
             _LOG_DEBUGH(_T("last Japanese key={}"), to_wstr(prevKey));

@@ -108,7 +108,7 @@ namespace {
                 if ((len == 1 && is_upper_alphabet(s[0])) ||
                     (is_alphabet(s[len - 2]) && is_lower_alphabet(s[len - 1])) ||
                     (!is_alphabet(s[len - 2]) && is_upper_alphabet(s[len - 1]))) {
-                    // 履歴検索の実行(末尾文字が英小文字であるか、英大文字1文字でないと発動させない; "CO" の後の場合は、'O' がキーになるが、この場合は発動させない)
+                    // 簡易辞書検索の実行(末尾文字が英小文字であるか、英大文字1文字でないと発動させない; "CO" の後の場合は、'O' がキーになるが、この場合は発動させない)
                     SIMPLE_DIC_RESIDENT_STATE->handleNextCandTrigger();
                     MY_NODE->prevSimpleDicSearchDeckeyCount = STATE_COMMON->GetTotalDecKeyCount();
                     result = true;
@@ -209,7 +209,7 @@ namespace {
             _LOG_DEBUGH(_T("LEAVE: {}"), Name);
         }
 
-        // NextCandTrigger の処理 -- 履歴検索の開始、次の候補を返す
+        // NextCandTrigger の処理 -- 簡易辞書検索の開始、次の候補を返す
         void handleNextCandTrigger() override {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
             _handleEisuConversion();
@@ -241,7 +241,7 @@ namespace {
             if (deckey != BS_DECKEY) cancelMe();
         }
 
-        // FullEscape の処理 -- HISTORYを呼ぶ
+        // FullEscape の処理 -- 常駐状態に対して fullEscape を呼ぶ
         void handleFullEscape() override {
             _LOG_DEBUGH(_T("CALLED: {}"), Name);
             cancelMe();

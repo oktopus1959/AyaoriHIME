@@ -565,10 +565,10 @@ namespace KanchokuWS
         /// <summary>交ぜ書き変換時の中央鍵盤背景色 </summary>
         //public static string BgColorForMazegaki { get; private set; }
 
-        /// <summary>履歴・連想選択時の中央鍵盤背景色 </summary>
-        public static string BgColorForHistOrAssoc { get; private set; }
+        /// <summary>簡易辞書候補選択時の中央鍵盤背景色 </summary>
+        public static string BgColorForSimpleDic { get; private set; }
 
-        /// <summary>履歴候補選択を待っているときの選択対象候補の背景色</summary>
+        /// <summary>簡易辞書候補選択を待っているときの選択対象候補の背景色</summary>
         public static string BgColorForFirstCandidate { get; private set; }
 
         /// <summary>選択された候補の背景色</summary>
@@ -781,7 +781,7 @@ namespace KanchokuWS
         public static string DateStringFormat { get; private set; }
 
         //------------------------------------------------------------------------------
-        // 履歴
+        // 簡易辞書
         //------------------------------------------------------------------------------
         public static int SimpleDicMapKeyMaxLength { get; private set; }        // 簡易辞書変換キーの最大長
 
@@ -789,11 +789,11 @@ namespace KanchokuWS
         public static bool SimpleDicSelectFirstCandByEnter { get; private set; }
         public static bool SimpleDicNewLineWhenEnter { get; private set; }
 
-        /// <summary>履歴候補の横列鍵盤表示の際の最大候補数</summary>
+        /// <summary>簡易辞書候補の横列鍵盤表示の際の最大候補数</summary>
         public static int SimpleDicHorizontalCandMax { get; private set; }
         public static bool SimpleDicMoveShortestAt2nd { get; private set; }
 
-        /// <summary>最初の履歴選択から横列候補表示を行うか</summary>
+        /// <summary>最初の簡易辞書候補選択から横列候補表示を行うか</summary>
         public static bool SimpleDicShowCandsFromFirst { get; private set; }
 
         /// <summary>矢印キーで候補を選択</summary>
@@ -802,14 +802,12 @@ namespace KanchokuWS
         /// <summary>Tabで候補を選択</summary>
         public static bool SimpleDicSelectCandByTab { get; private set; }
 
-        /// <summary>履歴検索&選択するCtrlキー </summary>
+        /// <summary>簡易辞書の検索・選択に使うCtrlキー </summary>
         public static string SimpleDicSearchCtrlKey { get; private set; }
 
         //------------------------------------------------------------------------------
         // スペースキー
         //public static bool UseShiftSpaceAsDeckey49 => MazegakiByShiftSpace;
-        //public static bool UseCtrlSpaceKey => HistSearchByCtrlSpace;
-        //public static bool UseShiftSpaceAsSpecialDecKey => (HistSearchByShiftSpace || HandleShiftSpaceAsNormalSpace) && !UseShiftSpaceAsDeckey49;
         //public static bool UseShiftSpaceAsSpecialDecKey => (HandleShiftSpaceAsNormalSpace) && !UseShiftSpaceAsDeckey49;
 
         //------------------------------------------------------------------------------
@@ -847,7 +845,7 @@ namespace KanchokuWS
         /// <summary>英大文字入力による英数モード移行が有効か</summary>
         public static bool EisuModeEnabled { get; set; }
 
-        /// <summary>英数モードから履歴検索を呼び出す文字</summary>
+        /// <summary>英数モードから簡易辞書検索を呼び出す文字</summary>
         public static string EisuSimpleDicSearchChar { get; set; }
 
         /// <summary>英数モードからそのまま抜ける文字</summary>
@@ -1565,7 +1563,7 @@ namespace KanchokuWS
 
             BgColorOnWaiting2ndStroke = GetString("bgColorOnWaiting2ndStroke", "Yellow");
             //BgColorForMazegaki = GetString("bgColorForMazegaki", "Plum");
-            BgColorForHistOrAssoc = GetString("bgColorForHistOrAssoc", "PaleTurquoise");
+            BgColorForSimpleDic = GetString("bgColorForSimpleDic", "PaleTurquoise");
             BgColorForFirstCandidate = GetString("bgColorForFirstCandidate", "PaleGreen");
             BgColorOnSelected = GetString("bgColorOnSelected", "LightPink");
             BgColorForBushuCompHelp = GetString("bgColorForBushuCompHelp", "LightCyan");
@@ -1817,7 +1815,6 @@ namespace KanchokuWS
             SimpleDicShowCandsFromFirst = addDecoderSetting("simpleDicShowCandsFromFirst", true);           // 最初の簡易辞書候補選択から横列候補表示を行うか
             SimpleDicUseArrowToSelectCand = addDecoderSetting("simpleDicUseArrowToSelectCand", true);       // 矢印キーで簡易辞書候補選択を行う
             SimpleDicSelectCandByTab = addDecoderSetting("simpleDicSelectCandByTab", true);                 // Tabキーで簡易辞書候補選択を行う
-            //HandleShiftSpaceAsNormalSpace = addDecoderSetting("handleShiftSpaceAsNormalSpace", true);  // Shift+Space を通常 Space しとて扱う(HistSearchByShiftSpaceがfalseの場合)
 
             //MazegakiByShiftSpace = GetString("mazegakiByShiftSpace")._parseBool(true);          // Shift-Space で交ぜ書き変換
             MazegakiSelectFirstCand = addDecoderSetting("mazegakiSelectFirstCand", true);       // 交ぜ書き変換で文末最長一致候補を自動選択

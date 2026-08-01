@@ -1674,8 +1674,8 @@ namespace KanchokuWS
                     name = Settings.BgColorOnWaiting2ndStroke;
                 //} else if (decoderOutput.IsMazeCandSelecting()) {
                 //    name = Settings.BgColorForMazegaki;
-                } else if (decoderOutput.IsHistCandSelecting()) {
-                    name = Settings.BgColorForHistOrAssoc;
+                } else if (decoderOutput.IsSimpleDicCandSelecting()) {
+                    name = Settings.BgColorForSimpleDic;
                 } else if (decoderOutput.IsBushuCompHelp()) {
                     name = Settings.BgColorForBushuCompHelp;
                 } else if (decoderOutput.IsOtherStatus()) {

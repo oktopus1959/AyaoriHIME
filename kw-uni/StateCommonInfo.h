@@ -98,8 +98,8 @@ enum class ExpectedKeyType
     // 交ぜ書き変換候補選択中
     //MazeCandSelecting = 2,
 
-    // 履歴候補選択中
-    HistCandSelecting = 3,
+    // 簡易辞書候補選択中
+    SimpleDicCandSelecting = 3,
 
     // 部首合成ヘルプ
     BushuCompHelp = 5,
@@ -136,7 +136,7 @@ class StateCommonInfo {
     // 様々な結果フラグ (1 なら入力された DECKEY をVKEYに変換してアクティブWinに送る)
     UINT32 resultFlags = 0;
 
-    // 次の入力で期待されるキー (第2ストローク、履歴入力でのEnter、など)
+    // 次の入力で期待されるキー (第2ストローク、簡易辞書候補選択、など)
     ExpectedKeyType nextExpectedKeyType = ExpectedKeyType::None;
 
     // 文字入力中の打鍵数
@@ -286,7 +286,7 @@ public:
 
     inline void SetWaiting2ndStroke() { nextExpectedKeyType = ExpectedKeyType::SecondStroke; }
     //inline void SetMazeCandSelecting() { nextExpectedKeyType = ExpectedKeyType::MazeCandSelecting; }
-    inline void SetHistCandSelecting() { nextExpectedKeyType = ExpectedKeyType::HistCandSelecting; }
+    inline void SetSimpleDicCandSelecting() { nextExpectedKeyType = ExpectedKeyType::SimpleDicCandSelecting; }
     inline void SetOtherStatus() { nextExpectedKeyType = ExpectedKeyType::OtherStatus; }
 
     inline void SetStrokeCount(int cnt) { strokeCount = cnt; }
@@ -330,7 +330,7 @@ public:
 
     inline bool IsWaiting2ndStroke() const { return nextExpectedKeyType == ExpectedKeyType::SecondStroke; }
     //inline bool IsMazeCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::MazeCandSelecting; }
-    inline bool IsHistCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::HistCandSelecting; }
+    inline bool IsSimpleDicCandSelecting() const { return nextExpectedKeyType == ExpectedKeyType::SimpleDicCandSelecting; }
     inline bool IsOtherStatus() const { return nextExpectedKeyType == ExpectedKeyType::OtherStatus; }
 
 //    inline void OutputDeckeyChar(/*int numBS = -1*/) { SetOutString(GetDeckeyChar()); }

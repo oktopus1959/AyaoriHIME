@@ -111,7 +111,7 @@ namespace {
             return result;
         }
 
-        // FullEscape の処理 -- HISTORYを呼ぶ
+        // FullEscape の処理 -- 常駐状態に対して fullEscape を呼ぶ
         void handleFullEscape() override {
             _LOG_DEBUGH(_T("CALLED: {}"), Name);
             //cancelMe();
@@ -124,7 +124,7 @@ namespace {
             cancelMe();
         }
 
-        // その他の特殊キー (常駐の履歴機能があればそれを呼び出す)
+        // その他の特殊キー (簡易辞書常駐機能があればそれを呼び出す)
         void handleSpecialKeys(int deckey) {
             SIMPLE_DIC_RESIDENT_STATE->dispatchDeckey(deckey);
         }

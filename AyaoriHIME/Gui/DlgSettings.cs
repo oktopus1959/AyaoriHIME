@@ -1583,7 +1583,7 @@ namespace KanchokuWS.Gui
             // 中央鍵盤背景色
             textBox_on2ndStrokeBackColor.Text= Settings.BgColorOnWaiting2ndStroke;
             //textBox_onMazegaki.Text= Settings.BgColorForMazegaki;
-            textBox_onHistAssoc.Text= Settings.BgColorForHistOrAssoc;
+            textBox_onHistAssoc.Text= Settings.BgColorForSimpleDic;
             textBox_onBushuCompHelp.Text= Settings.BgColorForBushuCompHelp;
             textBox_onSecondaryTable.Text= Settings.BgColorForSecondaryTable;
             textBox_onKanaTrainingMode.Text= Settings.BgColorForKanaTrainingMode;
@@ -1669,7 +1669,7 @@ namespace KanchokuWS.Gui
             // 中央鍵盤背景色
             Settings.SetUserIni("bgColorOnWaiting2ndStroke", textBox_on2ndStrokeBackColor.Text.Trim());
             Settings.SetUserIni("bgColorForMazegaki", textBox_onMazegaki.Text.Trim());
-            Settings.SetUserIni("bgColorForHistOrAssoc", textBox_onHistAssoc.Text.Trim());
+            Settings.SetUserIni("bgColorForSimpleDic", textBox_onHistAssoc.Text.Trim());
             Settings.SetUserIni("bgColorForBushuCompHelp", textBox_onBushuCompHelp.Text.Trim());
             Settings.SetUserIni("bgColorForSecondaryTable", textBox_onSecondaryTable.Text.Trim());
             Settings.SetUserIni("bgColorForKanaTrainingMode", textBox_onKanaTrainingMode.Text.Trim());
@@ -1868,7 +1868,7 @@ namespace KanchokuWS.Gui
 
         private void setSimpleDicStatusChecker()
         {
-            // 履歴関連
+            // 簡易辞書関連
             button_simpleDicApply.Enabled = false;
             checkerHistory.CtlToBeEnabled = button_simpleDicApply;
             checkerHistory.ControlEnabler = tabSimpleDicStatusChanged;

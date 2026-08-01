@@ -101,7 +101,7 @@ namespace {
             outputZenkakuCharFromDeckey(deckey);
         }
 
-        // その他の特殊キー (常駐の履歴機能があればそれを呼び出す)
+        // その他の特殊キー (簡易辞書常駐機能があればそれを呼び出す)
         void handleSpecialKeys(int deckey) {
             SIMPLE_DIC_RESIDENT_STATE->dispatchDeckey(deckey);
         }

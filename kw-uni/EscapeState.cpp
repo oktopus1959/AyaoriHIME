@@ -63,7 +63,7 @@ namespace {
 }
 
 // -------------------------------------------------------------------
-// EscapeNode - 1文字履歴機能ノード
+// EscapeNode - エスケープ機能ノード
 DEFINE_CLASS_LOGGER(EscapeNode);
 
 // コンストラクタ
@@ -83,10 +83,9 @@ State* EscapeNode::CreateState() {
 }
 
 // -------------------------------------------------------------------
-// EscapeNodeBuilder - 1文字履歴機能ノードビルダー
+// EscapeNodeBuilder - エスケープ機能ノードビルダー
 DEFINE_CLASS_LOGGER(EscapeNodeBuilder);
 
 Node* EscapeNodeBuilder::CreateNode() {
     return new EscapeNode();
 }
-

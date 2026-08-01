@@ -187,7 +187,7 @@ namespace {
             }
         }
 
-        // FullEscapeの処理 -- 履歴検索文字列の遡及ブロッカーをセット
+        // FullEscapeの処理 -- 簡易辞書検索文字列の遡及ブロッカーをセット
         void handleFullEscape() {
             LOG_DEBUGH(_T("CALLED: {}"), Name);
             STATE_COMMON->SetAppendBackspaceStopperAndSimpleDicBlockFlag();

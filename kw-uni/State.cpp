@@ -433,9 +433,6 @@ bool State::isStrokableCharKey(int deckey) {
 // DECKEY はストロークキーとして扱われるキーか
 bool State::isStrokableKey(int deckey) {
     return isNormalStrokeKey(deckey) || isShiftedKey(deckey) || isStrokableFuncKey(deckey) || isComboShiftedKey(deckey);
-        //|| (isShiftedKey(deckey)
-        //    && (deckey != SHIFT_SPACE_DECKEY
-        //        || (!SETTINGS->histSearchByShiftSpace && SETTINGS->handleShiftSpaceAsNormalSpace)));
 }
 
 // ストロークテーブルチェインの長さ(テーブルのレベル)

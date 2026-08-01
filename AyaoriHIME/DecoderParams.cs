@@ -18,7 +18,7 @@ namespace KanchokuWS
         /// <summary> class ResultFlags で値を定義</summary>
         public uint resultFlags;
 
-        /// <summary> 次の入力で期待されるキー (第2ストローク、履歴入力でのEnter、など)</summary>
+        /// <summary> 次の入力で期待されるキー (第2ストローク、簡易辞書候補選択、など)</summary>
         public int nextExpectedKeyType;
 
         /// <summary> 文字を入力する際の現在の打鍵数</summary>
@@ -105,8 +105,8 @@ namespace KanchokuWS
         /// <summary> 交ぜ書き変換候補選択中</summary>
         //public const int MazeCandSelecting = 2;
 
-        /// <summary> 履歴候補選択中</summary>
-        public const int HistCandSelecting = 3;
+        /// <summary> 簡易辞書候補選択中</summary>
+        public const int SimpleDicCandSelecting = 3;
 
         /// <summary>部首合成ヘルプ</summary>
         public const int BushuCompHelp = 5;
@@ -154,8 +154,8 @@ namespace KanchokuWS
         /// <summary>交ぜ書き変換候補選択中か</summary>
         //public static bool IsMazeCandSelecting(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.MazeCandSelecting; }
 
-        /// <summary>履歴候補選択中か</summary>
-        public static bool IsHistCandSelecting(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.HistCandSelecting; }
+        /// <summary>簡易辞書候補選択中か</summary>
+        public static bool IsSimpleDicCandSelecting(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.SimpleDicCandSelecting; }
 
         /// <summary>部首合成ヘルプか</summary>
         public static bool IsBushuCompHelp(this DecoderOutParams output) { return output.nextExpectedKeyType == ExpectedKeyType.BushuCompHelp; }

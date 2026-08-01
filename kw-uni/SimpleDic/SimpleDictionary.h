@@ -5,16 +5,16 @@
 #include "Logger.h"
 
 // -------------------------------------------------------------------
-// 検索された履歴候補のクラス
+// 検索された簡易辞書候補のクラス
 struct SimpleDicResult {
-    MString OrigKey;        // 履歴検索の基となったキー (ex.「プログ」)
-    MString Key;            // 当履歴候補のキー (ex.「ログ」)
-    MString Word;           // 当履歴候補 (ex.「ログファイル」)
+    MString OrigKey;        // 簡易辞書検索の基となったキー (ex.「プログ」)
+    MString Key;            // 当簡易辞書候補のキー (ex.「ログ」)
+    MString Word;           // 当簡易辞書候補 (ex.「ログファイル」)
     bool WildKey = false;   // ワイルドカードを含むキーか
     size_t KeyLen() const { return Key.size(); }
 };
 
-// 検索された履歴候補リストのクラス
+// 検索された簡易辞書候補リストのクラス
 class SImpleDicResultList {
     std::vector<SimpleDicResult> dicResults;
     MString origKey;
@@ -23,7 +23,7 @@ class SImpleDicResultList {
     SimpleDicResult emptyResult;
 
 private:
-    // 履歴リストのサイズが10個以下なら、先頭から10個分の要素と比較する
+    // 候補リストのサイズが10個以下なら、先頭から10個分の要素と比較する
     bool findSameEntry(const MString& word) {
         if (dicResults.size() < 10) {
             for (size_t i = 0; i < dicResults.size(); ++i) {
@@ -97,7 +97,7 @@ public:
         }
     }
 
-    // 同じ履歴変換キーを探す
+    // 同じ簡易辞書変換キーを探す
     const SimpleDicResult& findSameResultMapKey(const MString& key) {
         for (const auto& hr : dicResults) {
             if (key == hr.Key && hr.Word.size() > key.size() && hr.Word[key.size()] == VERT_BAR) return hr;
@@ -107,7 +107,7 @@ public:
 };
 
 // -------------------------------------------------------------------
-// 履歴入力辞書クラス
+// 簡易辞書クラス
 class SimpleDictionary{
     DECLARE_CLASS_LOGGER;
 
@@ -117,10 +117,10 @@ public:
         LOG_INFOH(_T("dtor"));
     }
 
-    // 作成された履歴入力辞書インスタンスにアクセスするための Singleton
+    // 作成された簡易辞書インスタンスにアクセスするための Singleton
     static std::unique_ptr<SimpleDictionary> Singleton;
 
-    // 履歴入力辞書インスタンスを生成する
+    // 簡易辞書インスタンスを生成する
     static int CreateSimpleDictionary(const String&, const String&);
 
     // ユーザー定義のローマ字辞書を読み込む

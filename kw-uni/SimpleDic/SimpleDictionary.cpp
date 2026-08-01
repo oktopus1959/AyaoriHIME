@@ -334,7 +334,7 @@ namespace {
             std::map<MString, MString> exactEntries;
             for (const auto& s : set_) {
                 if (s.size() > keylen && s[keylen] == VERT_BAR) {
-                    // 読み取り専用辞書の内部表現「||」を、使用履歴と同じ「|」にそろえる
+                    // 読み取り専用辞書の内部表現「||」を、使用順リストと同じ「|」にそろえる
                     exactEntries.emplace(utils::replace(s, MSTR_VERT_BAR_2, MSTR_VERT_BAR), s);
                 }
             }
@@ -430,7 +430,7 @@ namespace {
     DEFINE_CLASS_LOGGER(SimpleDicHeadCandList);
 
     // -------------------------------------------------------------------
-    // 履歴辞書の実装クラス
+    // 簡易辞書の実装クラス
     class SimpleDictionaryImpl : public SimpleDictionary {
     private:
         DECLARE_CLASS_LOGGER;
@@ -812,7 +812,7 @@ namespace {
                 _LOG_DEBUGH(_T("CHECK-POINT-F"));
                 if (resultList.Empty()) {
                     _LOG_DEBUGH(_T("CHECK-POINT-G: resultList.Empty"));
-                    // 履歴検索で結果がなかった場合
+                    // 簡易辞書検索で結果がなかった場合
                     if (is_ascii_str(key)) {
                         _LOG_DEBUGH(_T("CHECK-POINT-H: find ASCII key: {}"), to_wstr(key));
                         // 英大文字で区切って検索、なければローマ字化
@@ -908,7 +908,7 @@ namespace {
 
     typedef void (SimpleDictionary::* READ_FUNC)(const std::vector<String>& lines);
 
-    // 履歴ファイルの読み込み
+    // 簡易辞書ファイルの読み込み
     void readFile(StringRef path, READ_FUNC func, bool bWarn = true) {
         LOG_INFOH(_T("ENTER: open simple dic file: {}"), path);
         utils::IfstreamReader reader(path);

@@ -147,7 +147,7 @@ namespace {
             return emptyResult;
         }
 
-        // 候補が選択されていれば、それを使用履歴の先頭にpushする -- selectPos は未選択状態に戻る
+        // 候補が選択されていれば、それを使用順リストの先頭にpushする -- selectPos は未選択状態に戻る
         void DelayedPushFrontSelectedWord() override {
             _LOG_DEBUGH(_T("ENTER"));
             if (isSelecting()) {

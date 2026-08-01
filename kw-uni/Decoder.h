@@ -42,7 +42,7 @@ struct DecoderOutParams
     // DECKEYを仮想キーに変換してアクティブウィンドウに対して送信する場合は 1
     UINT32 resultFlags;
 
-    // 次の入力で期待されるキー (第2ストローク、履歴入力でのEnter、など)
+    // 次の入力で期待されるキー (第2ストローク、簡易辞書候補選択、など)
     int nextExpectedKeyType;
 
     // 文字を入力する際の現在の打鍵数

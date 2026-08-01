@@ -3,7 +3,7 @@
 #include "ResidentState.h"
 
 // -------------------------------------------------------------------
-// 履歴入力(常駐)機能状態(抽象)クラス
+// 簡易辞書(常駐)機能状態(抽象)クラス
 class SimpleDicResidentState : public ResidentState {
 protected:
 

@@ -12,15 +12,15 @@ public:
     // デストラクタ
     virtual ~SimpleDicCandidates() { }
 
-    // 履歴検索キー設定をクリアする
+    // 簡易辞書検索キー設定をクリアする
     virtual void ClearKeyInfo() = 0;
 
     // 指定のキーで始まる候補を取得する
     virtual const std::vector<SimpleDicResult>& GetCandidates(const MString& key,
-                                                         bool allowSingleAsciiHistMap = false) = 0;
+                                                         bool allowSingleAsciiMap = false) = 0;
 
     virtual const std::vector<MString> GetCandWords(const MString& key,
-                                                    bool allowSingleAsciiHistMap = false) = 0;
+                                                    bool allowSingleAsciiMap = false) = 0;
 
     // 取得済みの候補列を返す
     //virtual const std::vector<SimpleDicResult>& GetCandidates() const = 0;
@@ -29,10 +29,10 @@ public:
 
     virtual const MString& GetCurrentKey() const = 0;
 
-    // 次の履歴を選択する
+    // 次の候補を選択する
     virtual const SimpleDicResult GetNext() const = 0;
 
-    // 前の履歴を選択する
+    // 前の候補を選択する
     virtual const SimpleDicResult GetPrev() const = 0;
 
     // 選択された単語を取得する
@@ -44,7 +44,7 @@ public:
     // 選択位置を初期化(未選択状態)する
     virtual const SimpleDicResult ClearSelectPos() = 0;
 
-    // 候補が選択されていれば、それを使用履歴の先頭にpushする -- selectPos は未選択状態に戻る
+    // 候補が選択されていれば、それを使用順リストの先頭にpushする -- selectPos は未選択状態に戻る
     virtual void DelayedPushFrontSelectedWord() = 0;
 
 public:

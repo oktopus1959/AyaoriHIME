@@ -14,13 +14,13 @@ public:
     virtual ~SimpleDicStateBase() { };
 
 public:
-    // 履歴検索文字列の遡及ブロッカーをセット
+    // 簡易辞書検索文字列の遡及ブロッカーをセット
     virtual void setBlocker() = 0;
 
-    // 選択された履歴候補を出力(これが呼ばれた時点で、すでにキーの先頭まで巻き戻すように plannedNumBS が設定されていること)
+    // 選択された簡易辞書候補を出力(これが呼ばれた時点で、すでにキーの先頭まで巻き戻すように plannedNumBS が設定されていること)
     virtual void setOutString(const SimpleDicResult& result, MStringResult& resultStr) = 0;
 
-    // 前回の履歴検索の出力と現在の出力文字列(改行以降)の末尾を比較し、同じであれば前回の履歴検索のキーを取得する
+    // 前回の簡易辞書検索の出力と現在の出力文字列(改行以降)の末尾を比較し、同じであれば前回の簡易辞書検索のキーを取得する
     virtual MString getLastSearchKeyAndRewindOutput(MStringResult& resultStr) = 0;
 
     // 簡易辞書候補を横列鍵盤にセットする

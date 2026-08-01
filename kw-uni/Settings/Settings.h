@@ -40,10 +40,8 @@ struct Settings {
     bool simpleDicShowCandsFromFirst = true;       // 最初の簡易辞書候補選択から横列候補表示を行うか
     bool simpleDicUseArrowToSelectCand = true; // 矢印キーで簡易辞書候補選択を行う
     bool simpleDicSelectCandByTab = true;      // Tabキーで簡易辞書候補選択を行う
-    //bool handleShiftSpaceAsNormalSpace = true;    // Shift-Space を通常の Space として扱う (ただし histSearchByShiftSpace が優先)
 
     bool simpleDicGatherAllCandidates = true; // キーの開始位置をずらして全簡易辞書候補を取得するか
-    //bool mazegakiByShiftSpace = true;       // Shift-Space で交ぜ書き変換
     bool mazegakiSelectFirstCand = false;   // 交ぜ書き変換で先頭の候補を自動選択
     bool mazeBlockerTail = true;            // 交ぜ書き変換で、変換後のブロッカーの位置
     bool mazeRemoveHeadSpace = true;        // 交ぜ書き変換で、変換開始位置の空白を削除

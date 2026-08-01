@@ -96,11 +96,11 @@ int ModalStateUtil::ModalStatePreProc(State* pState, int deckey, bool isStrokabl
     return deckey;
 }
 
-// その他の特殊キー (常駐の履歴機能があればそれを呼び出す)
+// その他の特殊キー (簡易辞書常駐機能があればそれを呼び出す)
 void ModalStateUtil::handleSpecialKeys(State* pState, int deckey) {
     _LOG_DEBUGH(_T("CALLED: {}, deckey={}"), pState->GetName(), deckey);
     if (SIMPLE_DIC_RESIDENT_STATE) {
-        // 常駐の履歴機能があればそれを呼び出す//
+        // 簡易辞書常駐機能があればそれを呼び出す//
         SIMPLE_DIC_RESIDENT_STATE->dispatchDeckey(deckey);
     } else {
         pState->State::handleSpecialKeys(deckey);

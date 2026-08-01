@@ -444,18 +444,6 @@ public:
             } else if (cmd == _T("saveAutoBushuDic") && BUSHU_DIC) {
                 // 自動部首合成辞書の保存
                 BUSHU_DIC->WriteAutoBushuDic();
-            //} else if (cmd == _T("addMazegakiEntry")) {
-            //    LOG_DEBUGH(_T("addMazegakiEntry: {}"), items.size() >= 2 && !items[1].empty() ? items[1] : _T("none"));
-            //    if (MAZEGAKI_DIC && items.size() >= 2 && !items[1].empty()) {
-            //        // 交ぜ書きエントリの追加
-            //        MAZEGAKI_DIC->AddMazeDicEntry(items[1], true, false);
-            //    }
-            //} else if (cmd == _T("readMazegakiDic")) {
-            //    // 交ぜ書き辞書の読み込み
-            //    if (MAZEGAKI_DIC) MAZEGAKI_DIC->ReadMazegakiDic(items[1]);
-            //} else if (cmd == _T("saveMazegakiDic")) {
-            //    // 交ぜ書き辞書の保存
-            //    if (MAZEGAKI_DIC) MAZEGAKI_DIC->WriteMazegakiDic();
             } else if (cmd == _T("saveRealtimeNgramFile")) {
                 // リアルタイムNgramファイルの保存
                 Lattice2::saveRealtimeNgramFile();
@@ -718,14 +706,7 @@ public:
             OUTPUT_STACK->setSimpleDicBlocker();
             LOG_DEBUGH(_T("OUTPUT_STACK->setSimpleDicBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
         }
-        //// 出力履歴に MazeBlock を反映
-        //if (STATE_COMMON->IsSetMazegakiBlockFlag()) {
-        //    OUTPUT_STACK->setMazeBlocker(STATE_COMMON->GetMazegakiBlockerPosition());
-        //    LOG_DEBUGH(_T("OUTPUT_STACK->setMazeBlocker(): {}"), to_wstr(OUTPUT_STACK->backStringWithFlagUpto(20)));
-        //}
         // 出力履歴に Rewritable を反映
-        //LOG_DEBUGH(_T("OUTPUT_STACK->setRewritable({})"), STATE_COMMON->RewritableLen());
-        //OUTPUT_STACK->setRewritable(STATE_COMMON->RewritableLen());
         LOG_DEBUGH(_T("OUTPUT_STACK->setRewritable({})"), resultStr.rewritableLen());
         OUTPUT_STACK->setRewritable(resultStr.rewritableLen());
         LOG_DEBUGH(_T("OutputStackBackStrWithFlagUpto(16)={}"), to_wstr(OUTPUT_STACK->OutputStackBackStrWithFlagUpto(16)));

@@ -281,8 +281,8 @@ namespace KanchokuWS
         public const int DATE_STRING_ROTATION_DECKEY = STROKE_HELP_UNROTATION_DECKEY + 1;   // 今日の日付文字列を正順に出力
         public const int DATE_STRING_UNROTATION_DECKEY = DATE_STRING_ROTATION_DECKEY + 1;   // 今日の日付文字列を逆順に出力 (10)
 
-        public const int FULL_ESCAPE_DECKEY = DATE_STRING_UNROTATION_DECKEY + 1;        // モードを抜けたり、履歴ブロックをしたりする
-        public const int UNBLOCK_DECKEY = FULL_ESCAPE_DECKEY + 1;                       // 改行コード除去と履歴ブロックの解除
+        public const int FULL_ESCAPE_DECKEY = DATE_STRING_UNROTATION_DECKEY + 1;        // モードを抜けたり、簡易辞書検索ブロックをしたりする
+        public const int UNBLOCK_DECKEY = FULL_ESCAPE_DECKEY + 1;                       // 改行コード除去と簡易辞書検索ブロックの解除
         public const int TOGGLE_BLOCKER_DECKEY = UNBLOCK_DECKEY + 1;                    // 末尾のブロッカーの設定・解除のトグル
 
         public const int SOFT_ESCAPE_DECKEY = TOGGLE_BLOCKER_DECKEY + 1;                // ESCの出力をせずに ESC同等のキャンセル動作を行う
