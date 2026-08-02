@@ -277,7 +277,7 @@ TSF を利用する方法は、一般のIMEと同様の表示方式です。入�
 
 ### TSF DLL のインストール
 
-まず CMD プロンプトを管理者という実行します。
+まず CMD プロンプトを管理者として実行します。
 
 ![alt text](image/invoke-cmd-by-admin.png)
 
