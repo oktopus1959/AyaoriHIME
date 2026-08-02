@@ -13,21 +13,7 @@
 #include "StrokeHelp.h"
 #include "RomanToKatakana.h"
 
-#if 0
-#undef _DEBUG_SENT
-#undef LOG_DEBUG
-#undef LOG_DEBUGH
-#undef _LOG_DEBUGH
-#undef _LOG_DEBUGH_COND
-#define _DEBUG_SENT(x) x
-#define LOG_SAVE_DICT LOG_WARNH
-#define LOG_DEBUG LOG_INFOH
-#define LOG_DEBUGH LOG_INFOH
-#define _LOG_DEBUGH LOG_INFOH
-#define _LOG_DEBUGH_COND LOG_INFOH_COND
-#else
-#define LOG_SAVE_DICT LOG_INFOH
-#endif
+#include "DebugLog.h"
 
 namespace {
     // -------------------------------------------------------------------

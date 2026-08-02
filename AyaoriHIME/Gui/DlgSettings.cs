@@ -40,7 +40,7 @@ namespace KanchokuWS.Gui
         private GuiStatusChecker checkerAdvanced;
         private GuiStatusChecker checkerImeCombo;
         private GuiStatusChecker checkerFusion;
-        private GuiStatusChecker checkerHistory;
+        private GuiStatusChecker checkerSimpleDic;
         private GuiStatusChecker checkerMazeHenkan;
         private GuiStatusChecker checkerCtrlKeys;
         private GuiStatusChecker checkerFontColor;
@@ -96,7 +96,7 @@ namespace KanchokuWS.Gui
             checkerFontColor = new GuiStatusChecker("FontAndColor");
             //checkerKeyAssign = new GuiStatusChecker("KeyAssign");
             checkerCtrlKeys = new GuiStatusChecker("CtrlKeys");
-            checkerHistory = new GuiStatusChecker("History");
+            checkerSimpleDic = new GuiStatusChecker("SimpleDic");
             checkerFusion = new GuiStatusChecker("Fusion");
             checkerMazeHenkan = new GuiStatusChecker("MazeHenkan");
             checkerDevelop = new GuiStatusChecker("Develop");
@@ -1583,7 +1583,7 @@ namespace KanchokuWS.Gui
             // 中央鍵盤背景色
             textBox_on2ndStrokeBackColor.Text= Settings.BgColorOnWaiting2ndStroke;
             //textBox_onMazegaki.Text= Settings.BgColorForMazegaki;
-            textBox_onHistAssoc.Text= Settings.BgColorForSimpleDic;
+            textBox_onSimpleDic.Text= Settings.BgColorForSimpleDic;
             textBox_onBushuCompHelp.Text= Settings.BgColorForBushuCompHelp;
             textBox_onSecondaryTable.Text= Settings.BgColorForSecondaryTable;
             textBox_onKanaTrainingMode.Text= Settings.BgColorForKanaTrainingMode;
@@ -1625,7 +1625,7 @@ namespace KanchokuWS.Gui
             // 中央鍵盤背景色
             checkerFontColor.Add(textBox_on2ndStrokeBackColor);
             checkerFontColor.Add(textBox_onMazegaki);
-            checkerFontColor.Add(textBox_onHistAssoc);
+            checkerFontColor.Add(textBox_onSimpleDic);
             checkerFontColor.Add(textBox_onBushuCompHelp);
             checkerFontColor.Add(textBox_onSecondaryTable);
             checkerFontColor.Add(textBox_onKanaTrainingMode);
@@ -1669,7 +1669,7 @@ namespace KanchokuWS.Gui
             // 中央鍵盤背景色
             Settings.SetUserIni("bgColorOnWaiting2ndStroke", textBox_on2ndStrokeBackColor.Text.Trim());
             Settings.SetUserIni("bgColorForMazegaki", textBox_onMazegaki.Text.Trim());
-            Settings.SetUserIni("bgColorForSimpleDic", textBox_onHistAssoc.Text.Trim());
+            Settings.SetUserIni("bgColorForSimpleDic", textBox_onSimpleDic.Text.Trim());
             Settings.SetUserIni("bgColorForBushuCompHelp", textBox_onBushuCompHelp.Text.Trim());
             Settings.SetUserIni("bgColorForSecondaryTable", textBox_onSecondaryTable.Text.Trim());
             Settings.SetUserIni("bgColorForKanaTrainingMode", textBox_onKanaTrainingMode.Text.Trim());
@@ -1860,7 +1860,6 @@ namespace KanchokuWS.Gui
             checkBox_simpleDicSearchKey.Checked = Settings.SimpleDicSearchCtrlKey._notEmpty() && !Settings.SimpleDicSearchCtrlKey.StartsWith("#");
             comboBox_selectCtrlKeyItem(comboBox_simpleDicSearchKey, $"{Settings.SimpleDicSearchCtrlKey.Replace("#", "")}");
             checkBox_showsimpleDicCandsFromFirst.Checked = !Settings.SimpleDicShowCandsFromFirst;
-            //checkBox_autoHistEnabled_CheckedChanged(null, null);
             checkBox_useArrowKeyToSelectCand.Checked = Settings.SimpleDicUseArrowToSelectCand;
             checkBox_selectSimpleDicCandByTab.Checked = Settings.SimpleDicSelectCandByTab;
 
@@ -1870,16 +1869,16 @@ namespace KanchokuWS.Gui
         {
             // 簡易辞書関連
             button_simpleDicApply.Enabled = false;
-            checkerHistory.CtlToBeEnabled = button_simpleDicApply;
-            checkerHistory.ControlEnabler = tabSimpleDicStatusChanged;
-            checkerHistory.Add(textBox_simpleDicCandMax);
-            checkerHistory.Add(checkBox_simpleDicSearchKey);
-            checkerHistory.Add(comboBox_simpleDicSearchKey);
-            checkerHistory.Add(checkBox_showsimpleDicCandsFromFirst);
-            checkerHistory.Add(checkBox_useArrowKeyToSelectCand);
-            checkerHistory.Add(checkBox_selectSimpleDicCandByTab);
+            checkerSimpleDic.CtlToBeEnabled = button_simpleDicApply;
+            checkerSimpleDic.ControlEnabler = tabSimpleDicStatusChanged;
+            checkerSimpleDic.Add(textBox_simpleDicCandMax);
+            checkerSimpleDic.Add(checkBox_simpleDicSearchKey);
+            checkerSimpleDic.Add(comboBox_simpleDicSearchKey);
+            checkerSimpleDic.Add(checkBox_showsimpleDicCandsFromFirst);
+            checkerSimpleDic.Add(checkBox_useArrowKeyToSelectCand);
+            checkerSimpleDic.Add(checkBox_selectSimpleDicCandByTab);
 
-            checkerAll.Add(checkerHistory);
+            checkerAll.Add(checkerSimpleDic);
         }
 
         private void tabSimpleDicStatusChanged(bool flag)
@@ -1904,14 +1903,14 @@ namespace KanchokuWS.Gui
             frmMain?.ReloadSettingsAndDefFiles();
 
             readSettings_tabSimpleDic();
-            checkerHistory.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+            checkerSimpleDic.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
 
             // 各種定義ファイルの再読み込み
             //FrmMain?.ReloadDefFiles();
 
             //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
 
-            label_okResultHist.Show();
+            label_okResultSimpleDic.Show();
 
             logger.Info("LEAVE");
         }
@@ -1920,7 +1919,7 @@ namespace KanchokuWS.Gui
         {
             logger.Info("CALLED");
             reloadIniFileAndDefFiles();
-            label_histReload.Show();
+            label_simpleDicReload.Show();
 
         }
 
@@ -1931,18 +1930,18 @@ namespace KanchokuWS.Gui
                 this.Close();
             } else {
                 readSettings_tabSimpleDic();
-                checkerHistory.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
+                checkerSimpleDic.Reinitialize();    // ここの Reinitialize() はタブごとにやる必要がある(まとめてやるとDirty状態の他のタブまでクリーンアップしてしまうため)
                 logger.Info("LEAVE");
             }
         }
 
-        private void button_openUserRomanFile_Click(object sender, EventArgs e)
+        private void button_openSimpleDicFile_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
             openFileInUserFolder(textBox_simpleDicFile.Text);
         }
 
-        private void button_loadUserRomanFile_Click(object sender, EventArgs e)
+        private void button_reloadSimpleDicFile_Click(object sender, EventArgs e)
         {
             frmMain?.ExecCmdDecoder("reloadSimpleDictionary", null);
         }
@@ -1971,12 +1970,6 @@ namespace KanchokuWS.Gui
             openDocumentUrl(Settings.FaqSimpleDicUrl);
         }
 
-        //private void checkBox_autoHistEnabled_CheckedChanged(object sender, EventArgs e)
-        //{
-        //    //checkBox_histSearchByCtrlSpace.Enabled = !checkBox_autoHistEnabled.Checked;
-        //    //checkBox_histSearchByShiftSpace.Enabled = !checkBox_autoHistEnabled.Checked;
-        //}
-
         //-----------------------------------------------------------------------------------
         //  交ぜ書き、書き換え設定
         //-----------------------------------------------------------------------------------
@@ -2003,8 +1996,8 @@ namespace KanchokuWS.Gui
         private void setMazeHankanSettingsStatusChecker()
         {
             // その他変換
-            button_miscEnter.Enabled = false;
-            checkerMazeHenkan.CtlToBeEnabled = button_miscEnter;
+            button_mazeHenkanEnter.Enabled = false;
+            checkerMazeHenkan.CtlToBeEnabled = button_mazeHenkanEnter;
             checkerMazeHenkan.ControlEnabler = tabMazeHenkanStatusChanged;
             checkerMazeHenkan.Add(checkBox_yamanobeEnabled);
             //checkerMazeHenkan.Add(checkBox_autoBushuComp);
@@ -2028,8 +2021,8 @@ namespace KanchokuWS.Gui
 
         private void tabMazeHenkanStatusChanged(bool flag)
         {
-            button_miscClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
-            changeCancelButton(flag, button_miscClose);
+            button_mazeHenkanClose.Text = flag ? "キャンセル(&C)" : "閉じる(&C)";
+            changeCancelButton(flag, button_mazeHenkanClose);
             //button_saveRomanTableFile.Enabled = !flag;
         }
 
@@ -2063,7 +2056,7 @@ namespace KanchokuWS.Gui
 
             //FrmMain?.ExecCmdDecoder("reloadSettings", Settings.SerializedDecoderSettings);
 
-            label_okResultMisc.Show();
+            label_okResultMazeHankan.Show();
 
             logger.Info("LEAVE");
         }
@@ -2084,14 +2077,14 @@ namespace KanchokuWS.Gui
         {
             logger.Info("CALLED");
             reloadIniFileAndDefFiles();
-            label_miscReload.Show();
+            label_mazeHenkanReload.Show();
         }
 
         /// <summary> 閉じる </summary>
         private void button_mazeHenkanClose_Click(object sender, EventArgs e)
         {
             logger.Info("CALLED");
-            if (button_miscClose.Text.StartsWith("閉")) {
+            if (button_mazeHenkanClose.Text.StartsWith("閉")) {
                 this.Close();
             } else {
                 readSettings_tabMazeHenkan();
@@ -2166,16 +2159,14 @@ namespace KanchokuWS.Gui
                     label_okResultAdvanced.Hide();
                     label_okResultImeCombo.Hide();
                     label_okResultFontColor.Hide();
-                    label_okResultHist.Hide();
+                    label_okResultSimpleDic.Hide();
                     label_okResultCtrlKeys.Hide();
-                    label_okResultMisc.Hide();
+                    label_okResultMazeHankan.Hide();
                     label_okResultFusion.Hide();
                     label_imeComboReload.Hide();
                     label_ctrlReload.Hide();
-                    label_histReload.Hide();
-                    //label_miscRomanOut.Hide();
-                    //label_miscEelllJsOut.Hide();
-                    label_miscReload.Hide();
+                    label_simpleDicReload.Hide();
+                    label_mazeHenkanReload.Hide();
                     label_fusionReload.Hide();
                     //label_execResultFile.Hide();
                     label_okResultDevelop.Hide();
@@ -2208,12 +2199,7 @@ namespace KanchokuWS.Gui
             okResultCount = okResultCountMax;
         }
 
-        private void label_okResultKeyAssign_VisibleChanged(object sender, EventArgs e)
-        {
-            okResultCount = okResultCountMax;
-        }
-
-        private void label_okResultHistory_VisibleChanged(object sender, EventArgs e)
+        private void label_okResultSimpleDic_VisibleChanged(object sender, EventArgs e)
         {
             okResultCount = okResultCountMax;
         }
@@ -2223,17 +2209,7 @@ namespace KanchokuWS.Gui
             okResultCount = okResultCountMax;
         }
         
-        private void label_execResultFile_VisibleChanged(object sender, EventArgs e)
-        {
-            okResultCount = okResultCountMax;
-        }
-
         private void label_imeComboReload_VisibleChanged(object sender, EventArgs e)
-        {
-            okResultCount = okResultCountMax;
-        }
-
-        private void label_keyAssignReload_VisibleChanged(object sender, EventArgs e)
         {
             okResultCount = okResultCountMax;
         }
@@ -2243,27 +2219,17 @@ namespace KanchokuWS.Gui
             okResultCount = okResultCountMax;
         }
 
-        private void label_histReload_VisibleChanged(object sender, EventArgs e)
+        private void label_simpleDicReload_VisibleChanged(object sender, EventArgs e)
         {
             okResultCount = okResultCountMax;
         }
 
-        private void label_miscReload_VisibleChanged(object sender, EventArgs e)
+        private void label_mazeHenkanReload_VisibleChanged(object sender, EventArgs e)
         {
             okResultCount = okResultCountMax;
         }
 
-        private void label_miscRomanOut_VisibleChanged(object sender, EventArgs e)
-        {
-            okResultCount = okResultCountMax;
-        }
-
-        private void label_miscEelllJsOut_VisibleChanged(object sender, EventArgs e)
-        {
-            okResultCount = okResultCountMax;
-        }
-
-        private void label_okResultMisc_VisibleChanged(object sender, EventArgs e)
+        private void label_okResultMazeHenkan_VisibleChanged(object sender, EventArgs e)
         {
             okResultCount = okResultCountMax;
         }
@@ -2313,13 +2279,13 @@ namespace KanchokuWS.Gui
                     AcceptButton = button_ctrlEnter;
                     CancelButton = button_ctrlClose;
                     break;
-                case "tabPage_history":
+                case "tabPage_simpleDic":
                     AcceptButton = button_simpleDicApply;
                     CancelButton = button_simpleDicClose;
                     break;
-                case "tabPage_misc":
-                    AcceptButton = button_miscEnter;
-                    CancelButton = button_miscClose;
+                case "tabPage_mazeHenkan":
+                    AcceptButton = button_mazeHenkanEnter;
+                    CancelButton = button_mazeHenkanClose;
                     readSettings_tabMazeHenkan();
                     break;
                 case "tabPage_fusion":
@@ -2695,12 +2661,12 @@ namespace KanchokuWS.Gui
             comboBox_ctrlKey_setItems(comboBox_strokeHelpRotationKey);
         }
 
-        private void comboBox_historySearchKey_DropDown(object sender, EventArgs e)
+        private void comboBox_simpleDicSearchKey_DropDown(object sender, EventArgs e)
         {
             comboBox_ctrlKey_setItems(comboBox_simpleDicSearchKey);
         }
 
-        private void checkBox_historySearchKey_CheckedChanged(object sender, EventArgs e)
+        private void checkBox_simpleDicSearchKey_CheckedChanged(object sender, EventArgs e)
         {
             comboBox_simpleDicSearchKey.Enabled = checkBox_simpleDicSearchKey.Checked;
         }

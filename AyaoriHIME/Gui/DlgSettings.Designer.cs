@@ -1,4 +1,4 @@
-﻿
+
 namespace KanchokuWS.Gui
 {
     partial class DlgSettings
@@ -262,10 +262,6 @@ namespace KanchokuWS.Gui
             this.label22 = new System.Windows.Forms.Label();
             this.button_openRomanDefFile = new System.Windows.Forms.Button();
             this.button_faq_eisu = new System.Windows.Forms.Button();
-            this.button_loadUserRomanFile = new System.Windows.Forms.Button();
-            this.textBox_simpleDicFile = new System.Windows.Forms.TextBox();
-            this.label60 = new System.Windows.Forms.Label();
-            this.button_openUserRomanFile = new System.Windows.Forms.Button();
             this.label147 = new System.Windows.Forms.Label();
             this.checkBox_eisuModeEnabled = new System.Windows.Forms.CheckBox();
             this.textBox_eisuExitSpaceNum = new System.Windows.Forms.TextBox();
@@ -281,18 +277,21 @@ namespace KanchokuWS.Gui
             this.checkBox_convertShiftedHiraganaToKatakana = new System.Windows.Forms.CheckBox();
             this.radioButton_shiftA = new System.Windows.Forms.RadioButton();
             this.radioButton_normalShift = new System.Windows.Forms.RadioButton();
-            this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.label_histReload = new System.Windows.Forms.Label();
+            this.label_simpleDicReload = new System.Windows.Forms.Label();
             this.button_simpleDicReload = new System.Windows.Forms.Button();
-            this.label_okResultHist = new System.Windows.Forms.Label();
+            this.label_okResultSimpleDic = new System.Windows.Forms.Label();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.button_faq_simpleDict = new System.Windows.Forms.Button();
             this.checkBox_showsimpleDicCandsFromFirst = new System.Windows.Forms.CheckBox();
             this.checkBox_selectSimpleDicCandByTab = new System.Windows.Forms.CheckBox();
             this.textBox_simpleDicCandMax = new System.Windows.Forms.TextBox();
             this.label79 = new System.Windows.Forms.Label();
+            this.label60 = new System.Windows.Forms.Label();
+            this.button_reloadSimpleDicFile = new System.Windows.Forms.Button();
             this.checkBox_useArrowKeyToSelectCand = new System.Windows.Forms.CheckBox();
+            this.textBox_simpleDicFile = new System.Windows.Forms.TextBox();
             this.comboBox_simpleDicSearchKey = new System.Windows.Forms.ComboBox();
+            this.button_openSimpleDicFile = new System.Windows.Forms.Button();
             this.checkBox_simpleDicSearchKey = new System.Windows.Forms.CheckBox();
             this.label15 = new System.Windows.Forms.Label();
             this.button_simpleDicClose = new System.Windows.Forms.Button();
@@ -315,16 +314,16 @@ namespace KanchokuWS.Gui
             this.textBox_preRewriteTargetChars = new System.Windows.Forms.TextBox();
             this.textBox_preRewriteAllowedDelayTimeMs = new System.Windows.Forms.TextBox();
             this.label99 = new System.Windows.Forms.Label();
-            this.label_miscReload = new System.Windows.Forms.Label();
-            this.button_miscReload = new System.Windows.Forms.Button();
+            this.label_mazeHenkanReload = new System.Windows.Forms.Label();
+            this.button_mazeHenkanReload = new System.Windows.Forms.Button();
             this.checkBox_autoBushuComp = new System.Windows.Forms.CheckBox();
             this.groupBox38 = new System.Windows.Forms.GroupBox();
             this.label122 = new System.Windows.Forms.Label();
             this.textBox_autoBushuCompMinCount = new System.Windows.Forms.TextBox();
             this.checkBox_yamanobeEnabled = new System.Windows.Forms.CheckBox();
-            this.label_okResultMisc = new System.Windows.Forms.Label();
-            this.button_miscEnter = new System.Windows.Forms.Button();
-            this.button_miscClose = new System.Windows.Forms.Button();
+            this.label_okResultMazeHankan = new System.Windows.Forms.Label();
+            this.button_mazeHenkanEnter = new System.Windows.Forms.Button();
+            this.button_mazeHenkanClose = new System.Windows.Forms.Button();
             this.tabPage_modKeys = new System.Windows.Forms.TabPage();
             this.button_faq_modKeys = new System.Windows.Forms.Button();
             this.label_ctrlReload = new System.Windows.Forms.Label();
@@ -406,7 +405,7 @@ namespace KanchokuWS.Gui
             this.label105 = new System.Windows.Forms.Label();
             this.textBox_onBushuCompHelp = new KanchokuWS.Gui.ColorTextBox();
             this.label38 = new System.Windows.Forms.Label();
-            this.textBox_onHistAssoc = new KanchokuWS.Gui.ColorTextBox();
+            this.textBox_onSimpleDic = new KanchokuWS.Gui.ColorTextBox();
             this.textBox_on2ndStrokeBackColor = new KanchokuWS.Gui.ColorTextBox();
             this.label52 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
@@ -680,7 +679,7 @@ namespace KanchokuWS.Gui
             this.button_restart.TabIndex = 9;
             this.button_restart.TabStop = false;
             this.button_restart.Text = "再起動(&K)";
-            this.toolTip1.SetToolTip(this.button_restart, "漢織媛を再起動します。\r\n\r\n部首合成辞書、交ぜ書き辞書、履歴辞書などを\r\n再読み込みする場合は再起動が必要です。");
+            this.toolTip1.SetToolTip(this.button_restart, "漢織媛を再起動します。\r\n\r\n部首合成辞書、交ぜ書き辞書、簡易辞書などを\r\n再読み込みする場合は再起動が必要です。");
             this.button_restart.UseVisualStyleBackColor = true;
             this.button_restart.Click += new System.EventHandler(this.button_restart_Click);
             // 
@@ -917,8 +916,8 @@ namespace KanchokuWS.Gui
             this.textBox_easyCharsFile.Name = "textBox_easyCharsFile";
             this.textBox_easyCharsFile.Size = new System.Drawing.Size(218, 19);
             this.textBox_easyCharsFile.TabIndex = 9;
-            this.toolTip1.SetToolTip(this.textBox_easyCharsFile, "容易に打鍵できる文字を定義するファイル\r\n\r\n交ぜ書き変換で、これらの文字を含む候補を出さないようにしたり、\r\n容易に打鍵できる短い文字列を履歴登録しないようにす" +
-        "るために\r\n使われます。\r\nそれ以外にも打鍵ヘルプの表示などでも利用されます。");
+            this.toolTip1.SetToolTip(this.textBox_easyCharsFile, "容易に打鍵できる文字を定義するファイル\r\n\r\n交ぜ書き変換で、これらの文字を含む候補を出さないようにするために\r\n使われます。\r\nそれ以外にも打鍵ヘルプの表示など" +
+        "でも利用されます。");
             // 
             // label44
             // 
@@ -3320,10 +3319,9 @@ namespace KanchokuWS.Gui
             // 
             this.tabPage_simpleDic.Controls.Add(this.groupBox33);
             this.tabPage_simpleDic.Controls.Add(this.groupBox37);
-            this.tabPage_simpleDic.Controls.Add(this.groupBox7);
-            this.tabPage_simpleDic.Controls.Add(this.label_histReload);
+            this.tabPage_simpleDic.Controls.Add(this.label_simpleDicReload);
             this.tabPage_simpleDic.Controls.Add(this.button_simpleDicReload);
-            this.tabPage_simpleDic.Controls.Add(this.label_okResultHist);
+            this.tabPage_simpleDic.Controls.Add(this.label_okResultSimpleDic);
             this.tabPage_simpleDic.Controls.Add(this.groupBox12);
             this.tabPage_simpleDic.Controls.Add(this.button_simpleDicClose);
             this.tabPage_simpleDic.Controls.Add(this.button_simpleDicApply);
@@ -3331,7 +3329,7 @@ namespace KanchokuWS.Gui
             this.tabPage_simpleDic.Name = "tabPage_simpleDic";
             this.tabPage_simpleDic.Size = new System.Drawing.Size(711, 393);
             this.tabPage_simpleDic.TabIndex = 4;
-            this.tabPage_simpleDic.Text = "英数字・カタカナ・簡易辞書";
+            this.tabPage_simpleDic.Text = "簡易辞書・英数字・カタカナ";
             this.tabPage_simpleDic.ToolTipText = "英数モード、カタカナ、簡易辞書に関する設定";
             this.tabPage_simpleDic.UseVisualStyleBackColor = true;
             // 
@@ -3342,10 +3340,6 @@ namespace KanchokuWS.Gui
             this.groupBox33.Controls.Add(this.label22);
             this.groupBox33.Controls.Add(this.button_openRomanDefFile);
             this.groupBox33.Controls.Add(this.button_faq_eisu);
-            this.groupBox33.Controls.Add(this.button_loadUserRomanFile);
-            this.groupBox33.Controls.Add(this.textBox_simpleDicFile);
-            this.groupBox33.Controls.Add(this.label60);
-            this.groupBox33.Controls.Add(this.button_openUserRomanFile);
             this.groupBox33.Controls.Add(this.label147);
             this.groupBox33.Controls.Add(this.checkBox_eisuModeEnabled);
             this.groupBox33.Controls.Add(this.textBox_eisuExitSpaceNum);
@@ -3355,17 +3349,17 @@ namespace KanchokuWS.Gui
             this.groupBox33.Controls.Add(this.textBox_eisuExitCapitalCharNum);
             this.groupBox33.Controls.Add(this.label145);
             this.groupBox33.Controls.Add(this.label143);
-            this.groupBox33.Location = new System.Drawing.Point(15, 10);
+            this.groupBox33.Location = new System.Drawing.Point(341, 16);
             this.groupBox33.Name = "groupBox33";
-            this.groupBox33.Size = new System.Drawing.Size(353, 169);
-            this.groupBox33.TabIndex = 0;
+            this.groupBox33.Size = new System.Drawing.Size(353, 145);
+            this.groupBox33.TabIndex = 1;
             this.groupBox33.TabStop = false;
             this.groupBox33.Text = "英数字入力モード";
             // 
             // button_simpleDicRead2
             // 
             this.button_simpleDicRead2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_simpleDicRead2.Location = new System.Drawing.Point(298, 139);
+            this.button_simpleDicRead2.Location = new System.Drawing.Point(299, 113);
             this.button_simpleDicRead2.Name = "button_simpleDicRead2";
             this.button_simpleDicRead2.Size = new System.Drawing.Size(51, 23);
             this.button_simpleDicRead2.TabIndex = 8;
@@ -3379,18 +3373,19 @@ namespace KanchokuWS.Gui
             this.textBox_romanDefFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_romanDefFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_romanDefFile.Location = new System.Drawing.Point(135, 141);
+            this.textBox_romanDefFile.Location = new System.Drawing.Point(136, 115);
             this.textBox_romanDefFile.Name = "textBox_romanDefFile";
             this.textBox_romanDefFile.ReadOnly = true;
             this.textBox_romanDefFile.Size = new System.Drawing.Size(125, 19);
             this.textBox_romanDefFile.TabIndex = 55;
+            this.textBox_romanDefFile.TabStop = false;
             this.toolTip1.SetToolTip(this.textBox_romanDefFile, "ローマ字変換定義ファイル名\r\n\r\n「開く」をクリックしてこのファイルをエディターで開いて編集した後、\r\n「再読込」をクリックすると、その内容がローマ字変換定義とし" +
         "て\r\n取り込まれます。");
             // 
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(7, 143);
+            this.label22.Location = new System.Drawing.Point(8, 117);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(127, 15);
             this.label22.TabIndex = 56;
@@ -3399,7 +3394,7 @@ namespace KanchokuWS.Gui
             // button_openRomanDefFile
             // 
             this.button_openRomanDefFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openRomanDefFile.Location = new System.Drawing.Point(263, 139);
+            this.button_openRomanDefFile.Location = new System.Drawing.Point(264, 113);
             this.button_openRomanDefFile.Name = "button_openRomanDefFile";
             this.button_openRomanDefFile.Size = new System.Drawing.Size(34, 23);
             this.button_openRomanDefFile.TabIndex = 7;
@@ -3420,53 +3415,6 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.button_faq_eisu, "「よくある質問と回答」ページのURLをブラウザで開きます");
             this.button_faq_eisu.UseVisualStyleBackColor = true;
             this.button_faq_eisu.Click += new System.EventHandler(this.button_faq_eisu_Click);
-            // 
-            // button_loadUserRomanFile
-            // 
-            this.button_loadUserRomanFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_loadUserRomanFile.Location = new System.Drawing.Point(298, 112);
-            this.button_loadUserRomanFile.Name = "button_loadUserRomanFile";
-            this.button_loadUserRomanFile.Size = new System.Drawing.Size(51, 23);
-            this.button_loadUserRomanFile.TabIndex = 6;
-            this.button_loadUserRomanFile.Text = "再読込";
-            this.toolTip1.SetToolTip(this.button_loadUserRomanFile, "ユーザー英字列変換辞書ファイルを読み込んで、\r\n英字列からの変換に利用できるようにします。");
-            this.button_loadUserRomanFile.UseVisualStyleBackColor = true;
-            this.button_loadUserRomanFile.Click += new System.EventHandler(this.button_loadUserRomanFile_Click);
-            // 
-            // textBox_simpleDicFile
-            // 
-            this.textBox_simpleDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_simpleDicFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox_simpleDicFile.Location = new System.Drawing.Point(135, 114);
-            this.textBox_simpleDicFile.Name = "textBox_simpleDicFile";
-            this.textBox_simpleDicFile.ReadOnly = true;
-            this.textBox_simpleDicFile.Size = new System.Drawing.Size(125, 19);
-            this.textBox_simpleDicFile.TabIndex = 49;
-            this.toolTip1.SetToolTip(this.textBox_simpleDicFile, "英字列変換のユーザー辞書ファイル名\r\n\r\n「開く」をクリックしてこのファイルをエディターで開いて編集した後、\r\n「再読込」をクリックすると、その内容が英字列の変換" +
-        "定義として\r\n取り込まれます。");
-            // 
-            // label60
-            // 
-            this.label60.AutoSize = true;
-            this.label60.Location = new System.Drawing.Point(7, 116);
-            this.label60.Name = "label60";
-            this.label60.Size = new System.Drawing.Size(125, 15);
-            this.label60.TabIndex = 52;
-            this.label60.Text = "英字列変換辞書ファイル";
-            // 
-            // button_openUserRomanFile
-            // 
-            this.button_openUserRomanFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openUserRomanFile.Location = new System.Drawing.Point(263, 112);
-            this.button_openUserRomanFile.Name = "button_openUserRomanFile";
-            this.button_openUserRomanFile.Size = new System.Drawing.Size(34, 23);
-            this.button_openUserRomanFile.TabIndex = 5;
-            this.button_openUserRomanFile.Text = "開く";
-            this.toolTip1.SetToolTip(this.button_openUserRomanFile, "ユーザー定義の英字列変換辞書ファイルを開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n\r\n辞書ファイルを修正した場合は、「再" +
-        "読込」をクリックすると、\r\nその内容が読み込まれて、内部状態が更新されます。");
-            this.button_openUserRomanFile.UseVisualStyleBackColor = true;
-            this.button_openUserRomanFile.Click += new System.EventHandler(this.button_openUserRomanFile_Click);
             // 
             // label147
             // 
@@ -3569,10 +3517,10 @@ namespace KanchokuWS.Gui
             this.groupBox37.Controls.Add(this.checkBox_convertShiftedHiraganaToKatakana);
             this.groupBox37.Controls.Add(this.radioButton_shiftA);
             this.groupBox37.Controls.Add(this.radioButton_normalShift);
-            this.groupBox37.Location = new System.Drawing.Point(15, 194);
+            this.groupBox37.Location = new System.Drawing.Point(341, 175);
             this.groupBox37.Name = "groupBox37";
             this.groupBox37.Size = new System.Drawing.Size(353, 95);
-            this.groupBox37.TabIndex = 1;
+            this.groupBox37.TabIndex = 2;
             this.groupBox37.TabStop = false;
             this.groupBox37.Text = "平仮名⇒片仮名変換";
             // 
@@ -3632,28 +3580,18 @@ namespace KanchokuWS.Gui
             this.radioButton_normalShift.Text = "通常シフト面";
             this.radioButton_normalShift.UseVisualStyleBackColor = true;
             // 
-            // groupBox7
+            // label_simpleDicReload
             // 
-            this.groupBox7.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox7.Location = new System.Drawing.Point(387, 194);
-            this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(307, 74);
-            this.groupBox7.TabIndex = 3;
-            this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "簡易辞書登録";
-            // 
-            // label_histReload
-            // 
-            this.label_histReload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label_histReload.AutoSize = true;
-            this.label_histReload.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_histReload.Location = new System.Drawing.Point(321, 345);
-            this.label_histReload.Name = "label_histReload";
-            this.label_histReload.Size = new System.Drawing.Size(77, 15);
-            this.label_histReload.TabIndex = 38;
-            this.label_histReload.Text = "再読込しました";
-            this.label_histReload.Visible = false;
-            this.label_histReload.VisibleChanged += new System.EventHandler(this.label_histReload_VisibleChanged);
+            this.label_simpleDicReload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label_simpleDicReload.AutoSize = true;
+            this.label_simpleDicReload.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_simpleDicReload.Location = new System.Drawing.Point(321, 345);
+            this.label_simpleDicReload.Name = "label_simpleDicReload";
+            this.label_simpleDicReload.Size = new System.Drawing.Size(77, 15);
+            this.label_simpleDicReload.TabIndex = 38;
+            this.label_simpleDicReload.Text = "再読込しました";
+            this.label_simpleDicReload.Visible = false;
+            this.label_simpleDicReload.VisibleChanged += new System.EventHandler(this.label_simpleDicReload_VisibleChanged);
             // 
             // button_simpleDicReload
             // 
@@ -3668,18 +3606,18 @@ namespace KanchokuWS.Gui
             this.button_simpleDicReload.UseVisualStyleBackColor = true;
             this.button_simpleDicReload.Click += new System.EventHandler(this.button_simpleDicReload_Click);
             // 
-            // label_okResultHist
+            // label_okResultSimpleDic
             // 
-            this.label_okResultHist.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_okResultHist.AutoSize = true;
-            this.label_okResultHist.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_okResultHist.Location = new System.Drawing.Point(629, 347);
-            this.label_okResultHist.Name = "label_okResultHist";
-            this.label_okResultHist.Size = new System.Drawing.Size(65, 15);
-            this.label_okResultHist.TabIndex = 19;
-            this.label_okResultHist.Text = "適用しました";
-            this.label_okResultHist.Visible = false;
-            this.label_okResultHist.VisibleChanged += new System.EventHandler(this.label_okResultHistory_VisibleChanged);
+            this.label_okResultSimpleDic.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_okResultSimpleDic.AutoSize = true;
+            this.label_okResultSimpleDic.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_okResultSimpleDic.Location = new System.Drawing.Point(629, 347);
+            this.label_okResultSimpleDic.Name = "label_okResultSimpleDic";
+            this.label_okResultSimpleDic.Size = new System.Drawing.Size(65, 15);
+            this.label_okResultSimpleDic.TabIndex = 19;
+            this.label_okResultSimpleDic.Text = "適用しました";
+            this.label_okResultSimpleDic.Visible = false;
+            this.label_okResultSimpleDic.VisibleChanged += new System.EventHandler(this.label_okResultSimpleDic_VisibleChanged);
             // 
             // groupBox12
             // 
@@ -3688,15 +3626,19 @@ namespace KanchokuWS.Gui
             this.groupBox12.Controls.Add(this.checkBox_selectSimpleDicCandByTab);
             this.groupBox12.Controls.Add(this.textBox_simpleDicCandMax);
             this.groupBox12.Controls.Add(this.label79);
+            this.groupBox12.Controls.Add(this.label60);
+            this.groupBox12.Controls.Add(this.button_reloadSimpleDicFile);
             this.groupBox12.Controls.Add(this.checkBox_useArrowKeyToSelectCand);
+            this.groupBox12.Controls.Add(this.textBox_simpleDicFile);
             this.groupBox12.Controls.Add(this.comboBox_simpleDicSearchKey);
+            this.groupBox12.Controls.Add(this.button_openSimpleDicFile);
             this.groupBox12.Controls.Add(this.checkBox_simpleDicSearchKey);
             this.groupBox12.Controls.Add(this.label15);
             this.groupBox12.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox12.Location = new System.Drawing.Point(387, 10);
+            this.groupBox12.Location = new System.Drawing.Point(15, 16);
             this.groupBox12.Name = "groupBox12";
-            this.groupBox12.Size = new System.Drawing.Size(307, 169);
-            this.groupBox12.TabIndex = 2;
+            this.groupBox12.Size = new System.Drawing.Size(307, 212);
+            this.groupBox12.TabIndex = 0;
             this.groupBox12.TabStop = false;
             this.groupBox12.Text = "簡易辞書検索";
             // 
@@ -3715,22 +3657,22 @@ namespace KanchokuWS.Gui
             // checkBox_showsimpleDicCandsFromFirst
             // 
             this.checkBox_showsimpleDicCandsFromFirst.AutoSize = true;
-            this.checkBox_showsimpleDicCandsFromFirst.Location = new System.Drawing.Point(15, 70);
+            this.checkBox_showsimpleDicCandsFromFirst.Location = new System.Drawing.Point(13, 113);
             this.checkBox_showsimpleDicCandsFromFirst.Name = "checkBox_showsimpleDicCandsFromFirst";
             this.checkBox_showsimpleDicCandsFromFirst.Size = new System.Drawing.Size(238, 19);
-            this.checkBox_showsimpleDicCandsFromFirst.TabIndex = 3;
+            this.checkBox_showsimpleDicCandsFromFirst.TabIndex = 4;
             this.checkBox_showsimpleDicCandsFromFirst.Text = "初回検索時は先頭候補以外を表示をしない";
-            this.toolTip1.SetToolTip(this.checkBox_showsimpleDicCandsFromFirst, "ここをチェックすると、簡易辞書検索・候補選択キーによる\r\n初回の履歴候補検索時には検索された候補の出力だけを行い、\r\n他の候補表示を行いません。\r\n\r\n続けて辞書" +
+            this.toolTip1.SetToolTip(this.checkBox_showsimpleDicCandsFromFirst, "ここをチェックすると、簡易辞書検索・候補選択キーによる\r\n初回の簡易辞書検索時には検索された候補の出力だけを行い、\r\n他の候補表示を行いません。\r\n\r\n続けて辞書" +
         "検索・候補選択キーによる候補検索を行うと、\r\n他の候補が表示されます。");
             this.checkBox_showsimpleDicCandsFromFirst.UseVisualStyleBackColor = true;
             // 
             // checkBox_selectSimpleDicCandByTab
             // 
             this.checkBox_selectSimpleDicCandByTab.AutoSize = true;
-            this.checkBox_selectSimpleDicCandByTab.Location = new System.Drawing.Point(15, 116);
+            this.checkBox_selectSimpleDicCandByTab.Location = new System.Drawing.Point(13, 159);
             this.checkBox_selectSimpleDicCandByTab.Name = "checkBox_selectSimpleDicCandByTab";
             this.checkBox_selectSimpleDicCandByTab.Size = new System.Drawing.Size(135, 19);
-            this.checkBox_selectSimpleDicCandByTab.TabIndex = 5;
+            this.checkBox_selectSimpleDicCandByTab.TabIndex = 6;
             this.checkBox_selectSimpleDicCandByTab.Text = "Tabで表示候補を選択";
             this.toolTip1.SetToolTip(this.checkBox_selectSimpleDicCandByTab, "検索候補が表示されている時に、Tab/Shift+Tabキーで候補の選択をできるようにします。");
             this.checkBox_selectSimpleDicCandByTab.UseVisualStyleBackColor = true;
@@ -3738,64 +3680,111 @@ namespace KanchokuWS.Gui
             // textBox_simpleDicCandMax
             // 
             this.textBox_simpleDicCandMax.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
-            this.textBox_simpleDicCandMax.Location = new System.Drawing.Point(121, 142);
+            this.textBox_simpleDicCandMax.Location = new System.Drawing.Point(119, 185);
             this.textBox_simpleDicCandMax.Name = "textBox_simpleDicCandMax";
             this.textBox_simpleDicCandMax.Size = new System.Drawing.Size(34, 19);
-            this.textBox_simpleDicCandMax.TabIndex = 6;
+            this.textBox_simpleDicCandMax.TabIndex = 7;
             this.textBox_simpleDicCandMax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip1.SetToolTip(this.textBox_simpleDicCandMax, "表示される最大候補数\r\n\r\n最小値は 1、 最大値は 10 です。");
             // 
             // label79
             // 
             this.label79.AutoSize = true;
-            this.label79.Location = new System.Drawing.Point(12, 144);
+            this.label79.Location = new System.Drawing.Point(10, 187);
             this.label79.Name = "label79";
             this.label79.Size = new System.Drawing.Size(101, 15);
             this.label79.TabIndex = 9;
             this.label79.Text = "候補表示の最大数";
             // 
+            // label60
+            // 
+            this.label60.AutoSize = true;
+            this.label60.Location = new System.Drawing.Point(10, 35);
+            this.label60.Name = "label60";
+            this.label60.Size = new System.Drawing.Size(65, 15);
+            this.label60.TabIndex = 52;
+            this.label60.Text = "辞書ファイル";
+            // 
+            // button_reloadSimpleDicFile
+            // 
+            this.button_reloadSimpleDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_reloadSimpleDicFile.Location = new System.Drawing.Point(251, 31);
+            this.button_reloadSimpleDicFile.Name = "button_reloadSimpleDicFile";
+            this.button_reloadSimpleDicFile.Size = new System.Drawing.Size(51, 23);
+            this.button_reloadSimpleDicFile.TabIndex = 1;
+            this.button_reloadSimpleDicFile.Text = "再読込";
+            this.toolTip1.SetToolTip(this.button_reloadSimpleDicFile, "簡易辞書ファイルを再読み込みして、検索候補に反映します。");
+            this.button_reloadSimpleDicFile.UseVisualStyleBackColor = true;
+            this.button_reloadSimpleDicFile.Click += new System.EventHandler(this.button_reloadSimpleDicFile_Click);
+            // 
             // checkBox_useArrowKeyToSelectCand
             // 
             this.checkBox_useArrowKeyToSelectCand.AutoSize = true;
-            this.checkBox_useArrowKeyToSelectCand.Location = new System.Drawing.Point(15, 93);
+            this.checkBox_useArrowKeyToSelectCand.Location = new System.Drawing.Point(13, 136);
             this.checkBox_useArrowKeyToSelectCand.Name = "checkBox_useArrowKeyToSelectCand";
             this.checkBox_useArrowKeyToSelectCand.Size = new System.Drawing.Size(190, 19);
-            this.checkBox_useArrowKeyToSelectCand.TabIndex = 4;
+            this.checkBox_useArrowKeyToSelectCand.TabIndex = 5;
             this.checkBox_useArrowKeyToSelectCand.Text = "矢印キー(↑↓)で表示候補を選択";
             this.toolTip1.SetToolTip(this.checkBox_useArrowKeyToSelectCand, "検索候補が表示されている時に、上下矢印キーで候補の選択をできるようにします。");
             this.checkBox_useArrowKeyToSelectCand.UseVisualStyleBackColor = true;
+            // 
+            // textBox_simpleDicFile
+            // 
+            this.textBox_simpleDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_simpleDicFile.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textBox_simpleDicFile.Location = new System.Drawing.Point(77, 33);
+            this.textBox_simpleDicFile.Name = "textBox_simpleDicFile";
+            this.textBox_simpleDicFile.ReadOnly = true;
+            this.textBox_simpleDicFile.Size = new System.Drawing.Size(136, 19);
+            this.textBox_simpleDicFile.TabIndex = 49;
+            this.textBox_simpleDicFile.TabStop = false;
+            this.toolTip1.SetToolTip(this.textBox_simpleDicFile, "簡易辞書ファイル名\r\n\r\n「開く」をクリックしてこのファイルをエディターで開いて編集した後、\r\n「再読込」をクリックすると、その内容が検索候補に反映されます。");
             // 
             // comboBox_simpleDicSearchKey
             // 
             this.comboBox_simpleDicSearchKey.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_simpleDicSearchKey.Font = new System.Drawing.Font("BIZ UDゴシック", 9F);
             this.comboBox_simpleDicSearchKey.FormattingEnabled = true;
-            this.comboBox_simpleDicSearchKey.Location = new System.Drawing.Point(66, 44);
+            this.comboBox_simpleDicSearchKey.Location = new System.Drawing.Point(64, 87);
             this.comboBox_simpleDicSearchKey.Name = "comboBox_simpleDicSearchKey";
             this.comboBox_simpleDicSearchKey.Size = new System.Drawing.Size(89, 20);
-            this.comboBox_simpleDicSearchKey.TabIndex = 2;
+            this.comboBox_simpleDicSearchKey.TabIndex = 3;
             this.toolTip1.SetToolTip(this.comboBox_simpleDicSearchKey, "簡易辞書検索および選択を実行する Ctrlキーを選択します\r\n\r\n文字入力中にここで設定したキーを押すと簡易辞書検索を実行します。\r\nまた、キーを続けて押すと候補" +
         "を上から順に選択していきます。\r\n(同時にShiftを押すと、逆順に選択します)");
-            this.comboBox_simpleDicSearchKey.DropDown += new System.EventHandler(this.comboBox_historySearchKey_DropDown);
+            this.comboBox_simpleDicSearchKey.DropDown += new System.EventHandler(this.comboBox_simpleDicSearchKey_DropDown);
+            // 
+            // button_openSimpleDicFile
+            // 
+            this.button_openSimpleDicFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_openSimpleDicFile.Location = new System.Drawing.Point(216, 31);
+            this.button_openSimpleDicFile.Name = "button_openSimpleDicFile";
+            this.button_openSimpleDicFile.Size = new System.Drawing.Size(34, 23);
+            this.button_openSimpleDicFile.TabIndex = 0;
+            this.button_openSimpleDicFile.Text = "開く";
+            this.toolTip1.SetToolTip(this.button_openSimpleDicFile, "簡易辞書ファイルを開きます。\r\n\r\n拡張子 \".txt\" に関連付けられたプログラムが起動されます。\r\n\r\n辞書ファイルを修正した場合は、「再読込」をクリックする" +
+        "と、\r\nその内容が読み込まれて、内部状態が更新されます。");
+            this.button_openSimpleDicFile.UseVisualStyleBackColor = true;
+            this.button_openSimpleDicFile.Click += new System.EventHandler(this.button_openSimpleDicFile_Click);
             // 
             // checkBox_simpleDicSearchKey
             // 
             this.checkBox_simpleDicSearchKey.AutoSize = true;
-            this.checkBox_simpleDicSearchKey.Location = new System.Drawing.Point(15, 22);
+            this.checkBox_simpleDicSearchKey.Location = new System.Drawing.Point(13, 65);
             this.checkBox_simpleDicSearchKey.Name = "checkBox_simpleDicSearchKey";
             this.checkBox_simpleDicSearchKey.Size = new System.Drawing.Size(232, 19);
-            this.checkBox_simpleDicSearchKey.TabIndex = 1;
+            this.checkBox_simpleDicSearchKey.TabIndex = 2;
             this.checkBox_simpleDicSearchKey.Text = "次の Ctrl キーで辞書検索・候補選択する：";
             this.toolTip1.SetToolTip(this.checkBox_simpleDicSearchKey, "Ctrl修飾キーで簡易辞書検索を実行し、同時に先頭候補を選択できるようにします。\r\n\r\n連続して押すことで、次の候補を選択することもできます。\r\n\r\n辞書検索・選" +
         "択は、 「その他設定 > 拡張修飾キー」の「設定」をクリックして開く\r\n「拡張修飾キー設定」ダイアログで、適当なキーに SimpleDicNext, Simpl" +
         "eDicPrev の呼び出しを\r\n設定することでも可能です。");
             this.checkBox_simpleDicSearchKey.UseVisualStyleBackColor = true;
-            this.checkBox_simpleDicSearchKey.CheckedChanged += new System.EventHandler(this.checkBox_historySearchKey_CheckedChanged);
+            this.checkBox_simpleDicSearchKey.CheckedChanged += new System.EventHandler(this.checkBox_simpleDicSearchKey_CheckedChanged);
             // 
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(36, 46);
+            this.label15.Location = new System.Drawing.Point(34, 89);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(30, 15);
             this.label15.TabIndex = 22;
@@ -3830,13 +3819,13 @@ namespace KanchokuWS.Gui
             // 
             this.tabPage_mazeHenkan.Controls.Add(this.groupBox53);
             this.tabPage_mazeHenkan.Controls.Add(this.groupBox48);
-            this.tabPage_mazeHenkan.Controls.Add(this.label_miscReload);
-            this.tabPage_mazeHenkan.Controls.Add(this.button_miscReload);
+            this.tabPage_mazeHenkan.Controls.Add(this.label_mazeHenkanReload);
+            this.tabPage_mazeHenkan.Controls.Add(this.button_mazeHenkanReload);
             this.tabPage_mazeHenkan.Controls.Add(this.checkBox_autoBushuComp);
             this.tabPage_mazeHenkan.Controls.Add(this.groupBox38);
-            this.tabPage_mazeHenkan.Controls.Add(this.label_okResultMisc);
-            this.tabPage_mazeHenkan.Controls.Add(this.button_miscEnter);
-            this.tabPage_mazeHenkan.Controls.Add(this.button_miscClose);
+            this.tabPage_mazeHenkan.Controls.Add(this.label_okResultMazeHankan);
+            this.tabPage_mazeHenkan.Controls.Add(this.button_mazeHenkanEnter);
+            this.tabPage_mazeHenkan.Controls.Add(this.button_mazeHenkanClose);
             this.tabPage_mazeHenkan.Location = new System.Drawing.Point(4, 24);
             this.tabPage_mazeHenkan.Name = "tabPage_mazeHenkan";
             this.tabPage_mazeHenkan.Size = new System.Drawing.Size(711, 393);
@@ -4039,31 +4028,31 @@ namespace KanchokuWS.Gui
             this.label99.TabIndex = 2;
             this.label99.Text = "入力されてから自動で確定するまでの時間(ミリ秒)：";
             // 
-            // label_miscReload
+            // label_mazeHenkanReload
             // 
-            this.label_miscReload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label_miscReload.AutoSize = true;
-            this.label_miscReload.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_miscReload.Location = new System.Drawing.Point(321, 345);
-            this.label_miscReload.Name = "label_miscReload";
-            this.label_miscReload.Size = new System.Drawing.Size(77, 15);
-            this.label_miscReload.TabIndex = 34;
-            this.label_miscReload.Text = "再読込しました";
-            this.label_miscReload.Visible = false;
-            this.label_miscReload.VisibleChanged += new System.EventHandler(this.label_miscReload_VisibleChanged);
+            this.label_mazeHenkanReload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label_mazeHenkanReload.AutoSize = true;
+            this.label_mazeHenkanReload.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_mazeHenkanReload.Location = new System.Drawing.Point(321, 345);
+            this.label_mazeHenkanReload.Name = "label_mazeHenkanReload";
+            this.label_mazeHenkanReload.Size = new System.Drawing.Size(77, 15);
+            this.label_mazeHenkanReload.TabIndex = 34;
+            this.label_mazeHenkanReload.Text = "再読込しました";
+            this.label_mazeHenkanReload.Visible = false;
+            this.label_mazeHenkanReload.VisibleChanged += new System.EventHandler(this.label_mazeHenkanReload_VisibleChanged);
             // 
-            // button_miscReload
+            // button_mazeHenkanReload
             // 
-            this.button_miscReload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_miscReload.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_miscReload.Location = new System.Drawing.Point(320, 363);
-            this.button_miscReload.Name = "button_miscReload";
-            this.button_miscReload.Size = new System.Drawing.Size(80, 23);
-            this.button_miscReload.TabIndex = 8;
-            this.button_miscReload.Text = "再読込(&R)";
-            this.toolTip1.SetToolTip(this.button_miscReload, "各種ファイルの内容を再読み込みします。\r\n\r\n辞書を除く各種INIファイル、定義ファイルの内容をリロードして、\r\n内部の設定状態を更新します。\r\n");
-            this.button_miscReload.UseVisualStyleBackColor = true;
-            this.button_miscReload.Click += new System.EventHandler(this.button_mazeHenkanReload_Click);
+            this.button_mazeHenkanReload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_mazeHenkanReload.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_mazeHenkanReload.Location = new System.Drawing.Point(320, 363);
+            this.button_mazeHenkanReload.Name = "button_mazeHenkanReload";
+            this.button_mazeHenkanReload.Size = new System.Drawing.Size(80, 23);
+            this.button_mazeHenkanReload.TabIndex = 8;
+            this.button_mazeHenkanReload.Text = "再読込(&R)";
+            this.toolTip1.SetToolTip(this.button_mazeHenkanReload, "各種ファイルの内容を再読み込みします。\r\n\r\n辞書を除く各種INIファイル、定義ファイルの内容をリロードして、\r\n内部の設定状態を更新します。\r\n");
+            this.button_mazeHenkanReload.UseVisualStyleBackColor = true;
+            this.button_mazeHenkanReload.Click += new System.EventHandler(this.button_mazeHenkanReload_Click);
             // 
             // checkBox_autoBushuComp
             // 
@@ -4120,43 +4109,43 @@ namespace KanchokuWS.Gui
             this.toolTip1.SetToolTip(this.checkBox_yamanobeEnabled, "部首合成における YAMANOBE アルゴリズムを利用する場合は、\r\nこれにチェックを入れてください。");
             this.checkBox_yamanobeEnabled.UseVisualStyleBackColor = true;
             // 
-            // label_okResultMisc
+            // label_okResultMazeHankan
             // 
-            this.label_okResultMisc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_okResultMisc.AutoSize = true;
-            this.label_okResultMisc.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label_okResultMisc.Location = new System.Drawing.Point(629, 345);
-            this.label_okResultMisc.Name = "label_okResultMisc";
-            this.label_okResultMisc.Size = new System.Drawing.Size(65, 15);
-            this.label_okResultMisc.TabIndex = 25;
-            this.label_okResultMisc.Text = "適用しました";
-            this.label_okResultMisc.Visible = false;
-            this.label_okResultMisc.VisibleChanged += new System.EventHandler(this.label_okResultMisc_VisibleChanged);
+            this.label_okResultMazeHankan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_okResultMazeHankan.AutoSize = true;
+            this.label_okResultMazeHankan.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label_okResultMazeHankan.Location = new System.Drawing.Point(629, 345);
+            this.label_okResultMazeHankan.Name = "label_okResultMazeHankan";
+            this.label_okResultMazeHankan.Size = new System.Drawing.Size(65, 15);
+            this.label_okResultMazeHankan.TabIndex = 25;
+            this.label_okResultMazeHankan.Text = "適用しました";
+            this.label_okResultMazeHankan.Visible = false;
+            this.label_okResultMazeHankan.VisibleChanged += new System.EventHandler(this.label_okResultMazeHenkan_VisibleChanged);
             // 
-            // button_miscEnter
+            // button_mazeHenkanEnter
             // 
-            this.button_miscEnter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_miscEnter.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_miscEnter.Location = new System.Drawing.Point(623, 363);
-            this.button_miscEnter.Name = "button_miscEnter";
-            this.button_miscEnter.Size = new System.Drawing.Size(75, 23);
-            this.button_miscEnter.TabIndex = 10;
-            this.button_miscEnter.Text = "適用(&E)";
-            this.toolTip1.SetToolTip(this.button_miscEnter, "設定内容を適用して kanchoku.user.ini に書き込みます");
-            this.button_miscEnter.UseVisualStyleBackColor = true;
-            this.button_miscEnter.Click += new System.EventHandler(this.button_mazeHenkanApply_Click);
+            this.button_mazeHenkanEnter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_mazeHenkanEnter.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_mazeHenkanEnter.Location = new System.Drawing.Point(623, 363);
+            this.button_mazeHenkanEnter.Name = "button_mazeHenkanEnter";
+            this.button_mazeHenkanEnter.Size = new System.Drawing.Size(75, 23);
+            this.button_mazeHenkanEnter.TabIndex = 10;
+            this.button_mazeHenkanEnter.Text = "適用(&E)";
+            this.toolTip1.SetToolTip(this.button_mazeHenkanEnter, "設定内容を適用して kanchoku.user.ini に書き込みます");
+            this.button_mazeHenkanEnter.UseVisualStyleBackColor = true;
+            this.button_mazeHenkanEnter.Click += new System.EventHandler(this.button_mazeHenkanApply_Click);
             // 
-            // button_miscClose
+            // button_mazeHenkanClose
             // 
-            this.button_miscClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_miscClose.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button_miscClose.Location = new System.Drawing.Point(515, 363);
-            this.button_miscClose.Name = "button_miscClose";
-            this.button_miscClose.Size = new System.Drawing.Size(80, 23);
-            this.button_miscClose.TabIndex = 9;
-            this.button_miscClose.Text = "閉じる(&C)";
-            this.button_miscClose.UseVisualStyleBackColor = true;
-            this.button_miscClose.Click += new System.EventHandler(this.button_mazeHenkanClose_Click);
+            this.button_mazeHenkanClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_mazeHenkanClose.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button_mazeHenkanClose.Location = new System.Drawing.Point(515, 363);
+            this.button_mazeHenkanClose.Name = "button_mazeHenkanClose";
+            this.button_mazeHenkanClose.Size = new System.Drawing.Size(80, 23);
+            this.button_mazeHenkanClose.TabIndex = 9;
+            this.button_mazeHenkanClose.Text = "閉じる(&C)";
+            this.button_mazeHenkanClose.UseVisualStyleBackColor = true;
+            this.button_mazeHenkanClose.Click += new System.EventHandler(this.button_mazeHenkanClose_Click);
             // 
             // tabPage_modKeys
             // 
@@ -5013,8 +5002,8 @@ namespace KanchokuWS.Gui
             this.textBox_onSelectedBackColor.ReadOnly = true;
             this.textBox_onSelectedBackColor.Size = new System.Drawing.Size(132, 23);
             this.textBox_onSelectedBackColor.TabIndex = 1;
-            this.toolTip1.SetToolTip(this.textBox_onSelectedBackColor, "縦列または横列鍵盤での選択済み候補の背景色\r\n\r\n履歴選択や交ぜ書き変換などで、縦列または横列鍵盤が\r\n表示されている時、選択された候補(出力済み候補)の\r\n背景" +
-        "色を設定します。\r\n（ここをクリックすると設定ダイアログが開きます。）");
+            this.toolTip1.SetToolTip(this.textBox_onSelectedBackColor, "横列鍵盤での選択済み候補の背景色\r\n\r\n簡易辞書の候補選択や交ぜ書き変換などで、横列鍵盤が\r\n表示されている時、選択された候補(出力済み候補)の\r\n背景色を設定し" +
+        "ます。\r\n（ここをクリックすると設定ダイアログが開きます。）");
             // 
             // textBox_firstCandidateBackColor
             // 
@@ -5025,9 +5014,9 @@ namespace KanchokuWS.Gui
             this.textBox_firstCandidateBackColor.ReadOnly = true;
             this.textBox_firstCandidateBackColor.Size = new System.Drawing.Size(132, 23);
             this.textBox_firstCandidateBackColor.TabIndex = 0;
-            this.toolTip1.SetToolTip(this.textBox_firstCandidateBackColor, "縦列または横列鍵盤で優先的に選択される候補の背景色\r\n\r\n履歴選択や交ぜ書き変換などで、縦列または横列鍵盤が\r\n表示されている時、Enterキーで選択できる優先候" +
-        "補の\r\n背景色を設定します。\r\n\r\nただし履歴選択については、Enterで優先候補を選択するか\r\nどうかは「履歴・交ぜ書き」タブで設定します。\r\n（ここをクリッ" +
-        "クすると設定ダイアログが開きます。）");
+            this.toolTip1.SetToolTip(this.textBox_firstCandidateBackColor, "横列鍵盤で優先的に選択される候補の背景色\r\n\r\n簡易辞書の候補選択や交ぜ書き変換などで、横列鍵盤が\r\n表示されている時、Enterキーで選択できる優先候補の\r\n背" +
+        "景色を設定します。\r\n\r\n簡易辞書でEnterによる先頭候補選択を有効にするかは、\r\n「簡易辞書・英数字・カタカナ」タブで設定します。\r\n（ここをクリックすると" +
+        "設定ダイアログが開きます。）");
             // 
             // label13
             // 
@@ -5055,7 +5044,7 @@ namespace KanchokuWS.Gui
             this.groupBox24.Controls.Add(this.label105);
             this.groupBox24.Controls.Add(this.textBox_onBushuCompHelp);
             this.groupBox24.Controls.Add(this.label38);
-            this.groupBox24.Controls.Add(this.textBox_onHistAssoc);
+            this.groupBox24.Controls.Add(this.textBox_onSimpleDic);
             this.groupBox24.Controls.Add(this.textBox_on2ndStrokeBackColor);
             this.groupBox24.Controls.Add(this.label52);
             this.groupBox24.Controls.Add(this.label11);
@@ -5128,17 +5117,17 @@ namespace KanchokuWS.Gui
             this.label38.TabIndex = 11;
             this.label38.Text = "部首合成ヘルプ";
             // 
-            // textBox_onHistAssoc
+            // textBox_onSimpleDic
             // 
-            this.textBox_onHistAssoc.BackColor = System.Drawing.Color.White;
-            this.textBox_onHistAssoc.ForBackColor = true;
-            this.textBox_onHistAssoc.Location = new System.Drawing.Point(103, 69);
-            this.textBox_onHistAssoc.Name = "textBox_onHistAssoc";
-            this.textBox_onHistAssoc.ReadOnly = true;
-            this.textBox_onHistAssoc.Size = new System.Drawing.Size(132, 23);
-            this.textBox_onHistAssoc.TabIndex = 2;
-            this.toolTip1.SetToolTip(this.textBox_onHistAssoc, "履歴選択・部首連想選択時の中央鍵盤背景色\r\n\r\n縦列鍵盤による履歴候補選択や部首連想での文字選択時の\r\n中央鍵盤の背景色を設定します。\r\n（ここをクリックすると設" +
-        "定ダイアログが開きます。）");
+            this.textBox_onSimpleDic.BackColor = System.Drawing.Color.White;
+            this.textBox_onSimpleDic.ForBackColor = true;
+            this.textBox_onSimpleDic.Location = new System.Drawing.Point(103, 69);
+            this.textBox_onSimpleDic.Name = "textBox_onSimpleDic";
+            this.textBox_onSimpleDic.ReadOnly = true;
+            this.textBox_onSimpleDic.Size = new System.Drawing.Size(132, 23);
+            this.textBox_onSimpleDic.TabIndex = 2;
+            this.toolTip1.SetToolTip(this.textBox_onSimpleDic, "簡易辞書候補選択時の中央鍵盤背景色\r\n\r\n横列鍵盤による簡易辞書候補選択時の\r\n中央鍵盤の背景色を設定します。\r\n（ここをクリックすると設定ダイアログが開きます。" +
+        "）");
             // 
             // textBox_on2ndStrokeBackColor
             // 
@@ -5156,9 +5145,9 @@ namespace KanchokuWS.Gui
             this.label52.AutoSize = true;
             this.label52.Location = new System.Drawing.Point(20, 73);
             this.label52.Name = "label52";
-            this.label52.Size = new System.Drawing.Size(61, 15);
+            this.label52.Size = new System.Drawing.Size(55, 15);
             this.label52.TabIndex = 9;
-            this.label52.Text = "履歴・連想";
+            this.label52.Text = "簡易辞書";
             // 
             // label11
             // 
@@ -6223,7 +6212,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label label_okResultBasic;
         private System.Windows.Forms.Label label_okResultAdvanced;
-        private System.Windows.Forms.Label label_okResultHist;
+        private System.Windows.Forms.Label label_okResultSimpleDic;
         private System.Windows.Forms.TextBox textBox_preWmCharGuardMillisec;
         private System.Windows.Forms.Label label31;
         private System.Windows.Forms.Label label19;
@@ -6310,7 +6299,7 @@ namespace KanchokuWS.Gui
         private ColorTextBox textBox_2ndStrokeForeColor;
         private ColorTextBox textBox_onSelectedBackColor;
         private ColorTextBox textBox_firstCandidateBackColor;
-        private ColorTextBox textBox_onHistAssoc;
+        private ColorTextBox textBox_onSimpleDic;
         private ColorTextBox textBox_onMazegaki;
         private ColorTextBox textBox_on2ndStrokeBackColor;
         private System.Windows.Forms.GroupBox groupBox26;
@@ -6399,11 +6388,11 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.Label label96;
         private System.Windows.Forms.TabPage tabPage_mazeHenkan;
         private System.Windows.Forms.CheckBox checkBox_autoBushuComp;
-        private System.Windows.Forms.Label label_okResultMisc;
-        private System.Windows.Forms.Button button_miscEnter;
-        private System.Windows.Forms.Button button_miscClose;
-        private System.Windows.Forms.Label label_miscReload;
-        private System.Windows.Forms.Button button_miscReload;
+        private System.Windows.Forms.Label label_okResultMazeHankan;
+        private System.Windows.Forms.Button button_mazeHenkanEnter;
+        private System.Windows.Forms.Button button_mazeHenkanClose;
+        private System.Windows.Forms.Label label_mazeHenkanReload;
+        private System.Windows.Forms.Button button_mazeHenkanReload;
         private System.Windows.Forms.GroupBox groupBox38;
         private System.Windows.Forms.Button button_openBushuCompFile;
         private System.Windows.Forms.Button button_openStrokeHelpFile;
@@ -6576,7 +6565,7 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.GroupBox groupBox52;
         private System.Windows.Forms.GroupBox groupBox51;
         private System.Windows.Forms.Button button_developSaveLog;
-        private System.Windows.Forms.Label label_histReload;
+        private System.Windows.Forms.Label label_simpleDicReload;
         private System.Windows.Forms.Button button_simpleDicReload;
         private System.Windows.Forms.TextBox textBox_maxStrokeBackCount;
         private System.Windows.Forms.Label label46;
@@ -6613,10 +6602,10 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.CheckBox checkBox_hiraganaBigramEnabled;
         private System.Windows.Forms.CheckBox checkBox_developerSettingsEnabled;
         private System.Windows.Forms.GroupBox groupBox33;
-        private System.Windows.Forms.Button button_loadUserRomanFile;
+        private System.Windows.Forms.Button button_reloadSimpleDicFile;
         private System.Windows.Forms.TextBox textBox_simpleDicFile;
         private System.Windows.Forms.Label label60;
-        private System.Windows.Forms.Button button_openUserRomanFile;
+        private System.Windows.Forms.Button button_openSimpleDicFile;
         private System.Windows.Forms.Label label147;
         private System.Windows.Forms.CheckBox checkBox_eisuModeEnabled;
         private System.Windows.Forms.TextBox textBox_eisuExitSpaceNum;
@@ -6632,7 +6621,6 @@ namespace KanchokuWS.Gui
         private System.Windows.Forms.CheckBox checkBox_convertShiftedHiraganaToKatakana;
         private System.Windows.Forms.RadioButton radioButton_shiftA;
         private System.Windows.Forms.RadioButton radioButton_normalShift;
-        private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.GroupBox groupBox53;
         private System.Windows.Forms.Button button_mazeFAQ;
         private System.Windows.Forms.Button button_openUserDicFile;

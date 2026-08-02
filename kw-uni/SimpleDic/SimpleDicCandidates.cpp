@@ -5,10 +5,7 @@
 
 #include "SimpleDicCandidates.h"
 
-#if 0
-#undef _LOG_DEBUGH
-#define _LOG_DEBUGH LOG_INFOH
-#endif
+#include "DebugLog.h"
 
 namespace {
     // -------------------------------------------------------------------
