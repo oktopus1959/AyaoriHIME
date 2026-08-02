@@ -112,15 +112,27 @@ static void RestartCurrentThreadCaretBlink()
     if (HideCaret(info.hwndCaret)) ShowCaret(info.hwndCaret);
 }
 
-static bool IsAyaoriHimeHostProcess()
+static bool IsHostProcessName(const wchar_t* expectedFileName)
 {
+    if (!expectedFileName || !*expectedFileName) return false;
+
     wchar_t modulePath[32768] = {};
     DWORD length = GetModuleFileNameW(nullptr, modulePath, _countof(modulePath));
     if (length == 0 || length >= _countof(modulePath)) return false;
 
     const wchar_t* fileName = wcsrchr(modulePath, L'\\');
     fileName = fileName ? fileName + 1 : modulePath;
-    return _wcsicmp(fileName, L"AyaoriHIME.exe") == 0;
+    return _wcsicmp(fileName, expectedFileName) == 0;
+}
+
+static bool IsAyaoriHimeHostProcess()
+{
+    return IsHostProcessName(L"AyaoriHIME.exe");
+}
+
+static bool IsVisualStudioHostProcess()
+{
+    return IsHostProcessName(L"devenv.exe");
 }
 
 static bool IsSameComIdentity(IUnknown* left, IUnknown* right)
@@ -1001,22 +1013,31 @@ private:
 
     HRESULT StartComposition(TfEditCookie ec)
     {
+        bool visualStudioCuas = false;
         if (IsTsfEmulatedContext(context_)) {
             ITfContext* fullContext = GetFullContext(context_);
             bool hasDistinctFullContext = fullContext && !IsSameComIdentity(context_, fullContext);
             if (fullContext) fullContext->Release();
-            if (!hasDistinctFullContext) {
+            visualStudioCuas = !hasDistinctFullContext && IsVisualStudioHostProcess();
+            if (!hasDistinctFullContext && !visualStudioCuas) {
                 RuntimeLog(L"CompositionEditSession: CUAS emulated context has no inline-capable parent");
                 return E_NOTIMPL;
             }
-            RuntimeLog(L"CompositionEditSession: CUAS transitory extension uses source context for inline composition");
+            RuntimeLog(hasDistinctFullContext
+                ? L"CompositionEditSession: CUAS transitory extension uses source context for inline composition"
+                : L"CompositionEditSession: Visual Studio CUAS context uses source context for inline composition");
         }
 
         HRESULT hr = ProbeInlineCompositionLayout(ec);
         if (FAILED(hr)) {
-            RuntimeLog(L"CompositionEditSession: inline layout unavailable hr=0x%08X",
-                static_cast<unsigned int>(hr));
-            return hr;
+            if (visualStudioCuas) {
+                RuntimeLog(L"CompositionEditSession: Visual Studio CUAS ignores inconclusive inline layout hr=0x%08X",
+                    static_cast<unsigned int>(hr));
+            } else {
+                RuntimeLog(L"CompositionEditSession: inline layout unavailable hr=0x%08X",
+                    static_cast<unsigned int>(hr));
+                return hr;
+            }
         }
 
         TF_SELECTION selection = {};
@@ -2511,11 +2532,15 @@ private:
             ITfContext* fullContext = GetFullContext(context);
             bool hasDistinctFullContext = fullContext && !IsSameComIdentity(context, fullContext);
             if (fullContext) fullContext->Release();
-            if (!hasDistinctFullContext) {
+            if (!hasDistinctFullContext && !IsVisualStudioHostProcess()) {
                 RuntimeLog(L"CompositionOperation: reject CUAS before edit session id=%llu sequence=%llu",
                     compositionId, sequence);
                 context->Release();
                 return E_NOTIMPL;
+            }
+            if (!hasDistinctFullContext) {
+                RuntimeLog(L"CompositionOperation: allow Visual Studio CUAS context id=%llu sequence=%llu",
+                    compositionId, sequence);
             }
         }
         if (!composition_ && operation == CompositionOperation::Update) {
