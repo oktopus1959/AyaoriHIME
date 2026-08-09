@@ -11,9 +11,9 @@
 namespace DymazinBridge {
     DEFINE_LOCAL_LOGGER(DymazinBridge);
 
-    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty, int mazeConnPenalty, int nonTerminalCost) {
-        LOG_INFOH(_T("ENTER: rcfile={}, dicdir={}, unkMax={}, mazePenalty={}, mazeConnPenalty={}, nonTerminalCost={}, costWithoutEOS={}, -O{}"),
-            rcfile, dicdir, unkMax, mazePenalty, mazeConnPenalty, nonTerminalCost, SETTINGS->morphCostWithoutEOS, SETTINGS->morphMazeFormat);
+    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty, int mazeConnPenalty, int nonTerminalCost, int nonTerminalPenaltyFactor) {
+        LOG_INFOH(_T("ENTER: rcfile={}, dicdir={}, unkMax={}, mazePenalty={}, mazeConnPenalty={}, nonTerminalCost={}, nonTerminalPenaltyFactor={}, costWithoutEOS={}, -O{}"),
+            rcfile, dicdir, unkMax, mazePenalty, mazeConnPenalty, nonTerminalCost, nonTerminalPenaltyFactor, SETTINGS->morphCostWithoutEOS, SETTINGS->morphMazeFormat);
 
         std::vector<const wchar_t*> av;
         av.push_back(L"dymazin");
@@ -41,6 +41,9 @@ namespace DymazinBridge {
         String nonTerminalCostOpt(L"--non-terminal-cost=");
         nonTerminalCostOpt.append(std::to_wstring(nonTerminalCost));
         av.push_back(nonTerminalCostOpt.c_str());
+        String nonTerminalPenaltyFactorOpt(L"--non-terminal-penalty-factor=");
+        nonTerminalPenaltyFactorOpt.append(std::to_wstring(nonTerminalPenaltyFactor));
+        av.push_back(nonTerminalPenaltyFactorOpt.c_str());
         if (SETTINGS->morphCostWithoutEOS) av.push_back(L"--ignore-eos");
 
         const int ARRAY_SIZE = 1024;

@@ -85,6 +85,7 @@ struct Settings {
     int morphMazeEntryPenalty = 1000;       // 交ぜ書きエントリに対するペナルティ
     int morphMazeConnectionPenalty = 1000;  // 交ぜ書きエントリの接続に対するペナルティ
     int morphNonTerminalCost = 5000;        // 非終端形態素の単語コスト
+    int morphNonTerminalPenaltyFactor = 2500; // 長い非終端形態素に対する文字数あたりの追加ペナルティ
     int analyzeMorphLen = 10;               // 形態素解析を行う際の最小形態素長
     int ngramCostFactor = 1;                // 形態素コストに対するNgramコストの係数
     double char3gramWeight = 1.0;           // 文字3-gram言語モデルの重み

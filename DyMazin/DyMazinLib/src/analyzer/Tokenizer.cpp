@@ -36,6 +36,7 @@ namespace analyzer {
         DictionaryPtr unkdic;               // unknown words dictionary
         Conn3gramPtr conn3gram;
         CharProperty charPproperty;
+        int nonTerminalPenaltyFactor = 2500;
 
         //  private val bos_feature = get_bos_feature()
         String unk_feature;
@@ -52,6 +53,7 @@ namespace analyzer {
 
             unk_feature = get_unk_feature();
             max_grouping_size = get_max_grouping_size();
+            nonTerminalPenaltyFactor = opts->getInt(L"non-terminal-penalty-factor", 2500);
 
             //dictionary_info.setCreator([this]() { return make_dic_info_chain(); });
 
@@ -134,7 +136,7 @@ namespace analyzer {
                     // 非終端エントリに対するペナルティ
                     if (node->rlength() > 3) {
                         // 長い非終端はペナルティを課す
-                        int penalty = (node->rlength() - 3) * 2500;
+                        int penalty = (node->rlength() - 3) * nonTerminalPenaltyFactor;
                         node->addWcost(penalty);
                         LOG_DEBUG(L"__addNewNode: add LONG non-terminal penalty: penalty={}, wcost={}", penalty, node->wcost());
                     }

@@ -122,6 +122,7 @@ void Settings::SetValues(const std::map<String, String>& dict) {
     SET_INT_VALUE(morphMazeEntryPenalty);
     SET_INT_VALUE(morphMazeConnectionPenalty);
     SET_INT_VALUE(morphNonTerminalCost);
+    SET_INT_VALUE(morphNonTerminalPenaltyFactor);
     SET_INT_VALUE(analyzeMorphLen);
     SET_INT_VALUE(ngramCostFactor);
     SET_DOUBLE_VALUE(char3gramWeight);

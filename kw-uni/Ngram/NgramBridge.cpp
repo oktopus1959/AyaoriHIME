@@ -32,6 +32,9 @@ namespace NgramBridge {
         av.push_back(char3gramTailKanjiCostDecayRate.c_str());
         av.push_back(L"--char-4gram-weight");
         av.push_back(char4gramWeight.c_str());
+        if (SETTINGS->isHiraganaTableOnly) {
+            av.push_back(L"--is-hiragana-table-only");
+        }
         if (SETTINGS->hiraganaBigramEnabled) {
             av.push_back(L"--hiragana-bigram");
         }

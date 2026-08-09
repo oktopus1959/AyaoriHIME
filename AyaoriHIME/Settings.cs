@@ -251,6 +251,9 @@ namespace KanchokuWS
         /// <summary>非終端形態素の単語コスト</summary>
         public static int MorphNonTerminalCost { get; set; } = 10000;
 
+        /// <summary>長い非終端形態素に対する文字数あたりの追加ペナルティ</summary>
+        public static int MorphNonTerminalPenaltyFactor { get; set; } = 2500;
+
         /// <summary>形態素解析を行う際の最大形態素長</summary>
         public static int AnalyzeMorphLen { get; set; } = 10;
 
@@ -1854,6 +1857,7 @@ namespace KanchokuWS
             MorphMazeEntryPenalty = addDecoderSetting("morphMazeEntryPenalty", 1000, 1, 10000); // 交ぜ書きエントリに対するペナルティ
             MorphMazeConnectionPenalty = addDecoderSetting("morphMazeConnectionPenalty", 2000); // 交ぜ書きエントリの接続に対するペナルティ
             MorphNonTerminalCost = addDecoderSetting("morphNonTerminalCost", 10000);            // 非終端形態素の単語コスト
+            MorphNonTerminalPenaltyFactor = addDecoderSetting("morphNonTerminalPenaltyFactor", 2500, 0); // 長い非終端形態素に対する文字数あたりの追加ペナルティ
             AnalyzeMorphLen = addDecoderSetting("analyzeMorphLen", 10);                         // 形態素解析を行う際の最小形態素長
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
             Char3gramWeight = addDecoderSetting("char3gramWeight", 1.0, 0.0);                   // 文字3-gram言語モデルによるコストの重み係数

@@ -64,6 +64,7 @@ namespace analyzer {
         double char3gramWeight_;
         double char3gramTailKanjiCostDecayRate_;
         double char4gramWeight_;
+        bool isHiraganaTableOnly_;
         Map<String, bool> exactMatchCache;
 
     public:
@@ -73,10 +74,11 @@ namespace analyzer {
             cost_factor_(opts->getInt(L"cost-factor", 800)),
             char3gramWeight_(opts->getDouble(L"char-3gram-weight", 1.0)),
             char3gramTailKanjiCostDecayRate_(opts->getDouble(L"char-3gram-tail-kanji-cost-decay-rate", 0.5)),
-            char4gramWeight_(opts->getDouble(L"char-4gram-weight", 0.5))
+            char4gramWeight_(opts->getDouble(L"char-4gram-weight", 0.5)),
+            isHiraganaTableOnly_(opts->getBoolean(L"is-hiragana-table-only"))
         {
-            LOG_INFOH(L"ENTER: cost_factor_={}, char3gramWeight_={}, char3gramTailKanjiCostDecayRate_={}, char4gramWeight_={}",
-                cost_factor_, char3gramWeight_, char3gramTailKanjiCostDecayRate_, char4gramWeight_);
+            LOG_INFOH(L"ENTER: cost_factor_={}, char3gramWeight_={}, char3gramTailKanjiCostDecayRate_={}, char4gramWeight_={}, isHiraganaTableOnly_={}",
+                cost_factor_, char3gramWeight_, char3gramTailKanjiCostDecayRate_, char4gramWeight_, isHiraganaTableOnly_);
             CHECK_OR_THROW(!tokenizer->getDictionaries().empty(), L"Dictionary is empty");
             CHECK_OR_THROW(std::isfinite(char3gramWeight_) && char3gramWeight_ >= 0 && std::isfinite(char3gramTailKanjiCostDecayRate_) &&
                 char3gramTailKanjiCostDecayRate_ >= 0 && char3gramTailKanjiCostDecayRate_ <= 1 &&
@@ -551,11 +553,13 @@ namespace analyzer {
 
         auto lattice = Lattice::CreateLattice(sentence, L"", nBest);
         analyze(lattice, morphEntries, tempEntries);
-        int baseCost = lattice->getSolutions(results, needResults);
+        int baseCost = pImpl->isHiraganaTableOnly_
+            ? 0
+            : lattice->getSolutions(results, needResults);
         int morphPenalty = pImpl->getMorphPenalty(penaltyEntries);
         int userNgramPenalty = RealtimeDict::getUserNgramPenalty(sentence);
         const bool char3gramHiraganaEnabled = pImpl->char4gramWeight_ == 0;
-        const auto markov3 = pImpl->char3gram
+        const auto markov3 = (!pImpl->isHiraganaTableOnly_ && pImpl->char3gram)
             ? pImpl->char3gram->score(sentence, char3gramHiraganaEnabled, pImpl->char3gramTailKanjiCostDecayRate_)
             : dict::Char3gram::ScoreResult{};
         const auto markov4 = pImpl->char4gram ? pImpl->char4gram->score(sentence) : dict::Char4gram::ScoreResult{};

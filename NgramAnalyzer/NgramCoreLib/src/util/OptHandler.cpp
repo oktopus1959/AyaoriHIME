@@ -28,6 +28,7 @@ namespace {
         Vector<String>({L"char-3gram-weight:FLOAT",        L"1.0", L"set character 3-gram weight (default 1.0)"}),
         Vector<String>({L"char-3gram-tail-kanji-cost-decay-rate:FLOAT", L"0.5", L"set character 3-gram tail kanji cost decay rate (default 0.5)"}),
         Vector<String>({L"char-4gram-weight:FLOAT",        L"0.5", L"set character 4-gram bonus factor (default 0.5)"}),
+        Vector<String>({L"is-hiragana-table-only",         L"", L"optimize analysis for hiragana-only table"}),
         Vector<String>({L"c/cost-factor:INT",           L"700", L"set cost factor (default 700)"}),
         Vector<String>({L"?/non-terminal-cost:INT",        L"10000", L"set non terminal word cost (default 10000)"}),
         Vector<String>({L"f/output:FILE",                  L"", L"set the output file name"}),

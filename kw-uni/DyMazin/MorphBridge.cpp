@@ -26,7 +26,8 @@ namespace MorphBridge {
         int unkMax = 3;
         auto rcfile = utils::joinPath(SETTINGS->rootDir, DYMAZIN_MORPHRC);
         auto dicdir = utils::joinPath(SETTINGS->rootDir, DYMAZIN_DICDIR);
-        int ret = DymazinBridge::dymazinInitialize(rcfile, dicdir, unkMax, SETTINGS->morphMazeEntryPenalty, SETTINGS->morphMazeConnectionPenalty, SETTINGS->morphNonTerminalCost);
+        int ret = DymazinBridge::dymazinInitialize(rcfile, dicdir, unkMax, SETTINGS->morphMazeEntryPenalty, SETTINGS->morphMazeConnectionPenalty,
+            SETTINGS->morphNonTerminalCost, SETTINGS->morphNonTerminalPenaltyFactor);
         initializeSucceeded = (ret != ErrorHandler::LEVEL_ERROR);
         if (!initializeSucceeded) {
             LOG_ERROR(_T("Morpher Initialize FAILED: rcfile={}, dicdir={}, unMax={}"), rcfile, dicdir, unkMax);

@@ -49,6 +49,7 @@ namespace {
         Vector<String>({L"z/maze-penalty:INT",         L"1000", L"set mazegaki entry penalty (default 1000)"}),
         Vector<String>({L"z/maze-conn-penalty:INT",    L"3000", L"set mazegaki connection penalty (default 3000)"}),
         Vector<String>({L"?/non-terminal-cost:INT",        L"10000", L"set non terminal word cost (default 10000)"}),
+        Vector<String>({L"?/non-terminal-penalty-factor:INT", L"2500", L"set long non terminal penalty factor (default 2500)"}),
         Vector<String>({L"?/ignore-eos",                   L"", L"ignore connection cost with EOS"}),
         Vector<String>({L"?/geta-cost:INT",              L"-1", L"GETA cost (doesn't use if negative)"}),
         Vector<String>({L"f/output:FILE",                  L"", L"set the output file name"}),
@@ -561,4 +562,3 @@ namespace util {
     }
 
 } // namespace util
-
