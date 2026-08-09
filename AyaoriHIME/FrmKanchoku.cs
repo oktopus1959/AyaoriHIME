@@ -595,6 +595,7 @@ namespace KanchokuWS
                     tableFile2 = Settings.TableFile;
                 }
             }
+            bool bDualTable = tableFile1._notEmpty() && tableFile2._notEmpty();
             hasKanchokuTable = CombinationKeyStroke.Determiner.Singleton.Initialize(tableFile1, tableFile2, Settings.TableFile3);
             CommonTableRuntime.Initialize(commonTable);
 
@@ -606,6 +607,7 @@ namespace KanchokuWS
                 Settings.SetMinMorphMazeEntryPenalty();
             }
             Settings.SetHiraganaTableOnly(!hasKanchokuTable);
+            Settings.SetChar4gramWeight(hasKanchokuTable ? 0.0 : Settings.Char4gramWeight);      // 漢直テーブルが存在する場合は、ひらがな4gramを無視する
 
             logger.InfoH("LEAVE");
         }

@@ -264,7 +264,7 @@ namespace KanchokuWS
         public static double Char3gramTailKanjiCostDecayRate { get; set; } = 0.5;
 
         /// <summary>文字4-gramボーナスの係数</summary>
-        public static double Char4gramWeight { get; set; } = 0.3;
+        public static double Char4gramWeight { get; set; } = 0.5;
 
         /// <summary>Ngramに与えるボーナスポイントの最大値</summary>
         public static int NgramMaxBonusPoint{ get; set; } = 100;
@@ -1942,6 +1942,16 @@ namespace KanchokuWS
         public static void SetHiraganaTableOnly(bool bHiraganaOnly)
         {
             setDecoderSetting("isHiraganaTableOnly", bHiraganaOnly);
+        }
+
+        public static void SetChar4gramWeight(double defaultWeight)
+        {
+            if (defaultWeight == 0.0) {
+                Char4gramWeight = 0.0;
+                setDecoderSetting("char4gramWeight", "0.0");
+            } else {
+                Char4gramWeight = addDecoderSetting("char4gramWeight", defaultWeight, 0.0);
+            }
         }
 
         public static void ToggleUseEditWindow()
