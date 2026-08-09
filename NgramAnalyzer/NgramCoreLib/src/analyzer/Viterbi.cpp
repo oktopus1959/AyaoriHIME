@@ -572,21 +572,21 @@ namespace analyzer {
         };
         const int char3gramCost = weightedAverage(
             pImpl->char3gramWeight_, markov3.costSum, markov3.validWindowCount);
-        const int char4gramBonus = weightedAverage(
-            pImpl->char4gramWeight_, markov4.bonusSum, markov4.targetWindowCount);
+        const int char4gramCost = weightedAverage(
+            pImpl->char4gramWeight_, markov4.costSum, markov4.targetWindowCount);
         const int64_t totalCost64 = static_cast<int64_t>(baseCost) + morphPenalty +
-            userNgramPenalty + char3gramCost - char4gramBonus;
+            userNgramPenalty + char3gramCost + char4gramCost;
         const int totalCost = static_cast<int>(std::clamp<int64_t>(totalCost64, 0, std::numeric_limits<int>::max()));
         const StringRef normalized = !markov3.normalized.empty() ? markov3.normalized : markov4.normalized;
         LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}, normalized={}, "
             L"char3gramWeight={}, char3gramTailKanjiCostDecayRate={}, char3gramHiraganaEnabled={}, char3gramWindows={}, char3gramCostSum={}, char3gramCost={}, "
             L"char4gramWeight={}, char4gramTargetWindows={}, char4gramMatchedWindows={}, "
-            L"char4gramBonusSum={}, char4gramBonus={}",
+            L"char4gramCostSum={}, char4gramCost={}",
             totalCost, baseCost, morphPenalty, userNgramPenalty, normalized,
             pImpl->char3gramWeight_, pImpl->char3gramTailKanjiCostDecayRate_, char3gramHiraganaEnabled,
             markov3.validWindowCount, markov3.costSum, char3gramCost,
             pImpl->char4gramWeight_, markov4.targetWindowCount, markov4.matchedWindowCount,
-            markov4.bonusSum, char4gramBonus);
+            markov4.costSum, char4gramCost);
         return totalCost;
     }
 

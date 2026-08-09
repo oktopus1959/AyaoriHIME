@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <cmath>
 #include <cwchar>
+#include <cwctype>
 #include <filesystem>
 #include <fstream>
 #include <limits>
@@ -41,6 +42,9 @@ namespace dict {
 #pragma pack(pop)
 
         static_assert(sizeof(FileHeader) == 40);
+
+        constexpr wchar_t DigitBlockChar = L'■';
+        constexpr wchar_t WideTildeChar = L'～';
 
         struct SourceRow {
             wchar_t first = 0;
@@ -108,10 +112,31 @@ namespace dict {
             return count;
         }
 
-        bool isHiraganaOnly(StringRef gram) {
-            return std::all_of(gram.begin(), gram.end(), [](wchar_t ch) {
-                return utils::is_hiragana(ch);
-            });
+        bool isChar4gramDigit(wchar_t ch) {
+            return (ch >= L'0' && ch <= L'9') || (ch >= L'０' && ch <= L'９');
+        }
+
+        bool isChar4gramAllowed(wchar_t ch) {
+            return utils::is_hiragana(ch) ||
+                ch == DigitBlockChar ||
+                ch == CHOON ||
+                ch == WideTildeChar ||
+                ch == NAKAGURO ||
+                ch == 0x3005 /* 々 */ ||
+                ch == TOTEN ||
+                ch == GETA_CHAR;
+        }
+
+        bool isChar4gramAllowedOnly(StringRef gram) {
+            return std::all_of(gram.begin(), gram.end(), isChar4gramAllowed);
+        }
+
+        void appendGetaRun(String& normalized, bool& inOtherRun) {
+            if (!inOtherRun) {
+                normalized.push_back(GETA_CHAR);
+                normalized.push_back(GETA_CHAR);
+                inOtherRun = true;
+            }
         }
     }
 
@@ -216,12 +241,12 @@ namespace dict {
         return it == characters_.end() || *it != ch ? -1 : static_cast<int>(it - characters_.begin());
     }
 
-    int Char4gram::bonus(wchar_t first, wchar_t second, wchar_t third, wchar_t next, bool& matched) const {
+    int Char4gram::cost(wchar_t first, wchar_t second, wchar_t third, wchar_t next, bool& matched) const {
         matched = false;
         const int firstId = findCharacterId(first);
         const int secondId = findCharacterId(second);
         const int thirdId = findCharacterId(third);
-        if (firstId < 0 || secondId < 0 || thirdId < 0) return 0;
+        if (firstId < 0 || secondId < 0 || thirdId < 0) return uniformCost_;
 
         const uint64_t key = contextKey(
             static_cast<uint16_t>(firstId),
@@ -232,34 +257,46 @@ namespace dict {
         });
         if (contextIt == contexts_.end() ||
             contextKey(contextIt->first, contextIt->second, contextIt->third) != key) {
-            return 0;
+            return uniformCost_;
         }
 
         const int nextId = findCharacterId(next);
-        if (nextId < 0) return 0;
+        if (nextId < 0) return contextIt->missingCost;
         const auto firstEntry = entries_.begin() + contextIt->entryBegin;
         const auto lastEntry = firstEntry + contextIt->entryCount;
         const auto entryIt = std::lower_bound(firstEntry, lastEntry, static_cast<uint16_t>(nextId), [](const Entry& entry, uint16_t value) {
             return entry.next < value;
         });
-        if (entryIt == lastEntry || entryIt->next != nextId) return 0;
+        if (entryIt == lastEntry || entryIt->next != nextId) return contextIt->missingCost;
 
         matched = true;
-        return std::max(0, contextIt->missingCost - entryIt->cost);
+        return entryIt->cost;
     }
 
     Char4gram::ScoreResult Char4gram::score(StringRef sentence) const {
         ScoreResult result;
         if (!loaded()) return result;
 
-        result.normalized.reserve(sentence.size());
-        for (size_t i = 0; i < sentence.size(); ++i) {
-            const wchar_t ch = sentence[i];
-            if (utils::is_hiragana(ch) || utils::is_kanji(ch) || ch == GETA_CHAR) {
+        result.normalized.reserve(sentence.size() + 1);
+        bool inOtherRun = false;
+        for (size_t i = 0; i <= sentence.size(); ++i) {
+            const wchar_t ch = i == 0 ? GETA_CHAR : sentence[i - 1];
+            if (std::iswspace(ch)) {
+                continue;
+            }
+            if (isChar4gramDigit(ch)) {
+                result.normalized.push_back(DigitBlockChar);
+                inOtherRun = false;
+                while (i < sentence.size() && isChar4gramDigit(sentence[i])) {
+                    ++i;
+                }
+            } else if (isChar4gramAllowed(ch)) {
                 result.normalized.push_back(ch);
+                inOtherRun = false;
             } else {
-                result.normalized.push_back(GETA_CHAR);
-                if (is_high_surrogate(ch) && i + 1 < sentence.size() && is_low_surrogate(sentence[i + 1])) {
+                appendGetaRun(result.normalized, inOtherRun);
+                const size_t sentenceIndex = i - 1;
+                if (i > 0 && is_high_surrogate(ch) && sentenceIndex + 1 < sentence.size() && is_low_surrogate(sentence[sentenceIndex + 1])) {
                     ++i;
                 }
             }
@@ -267,24 +304,18 @@ namespace dict {
 
         for (size_t i = 0; i + 3 < result.normalized.size(); ++i) {
             const StringRef normalized = result.normalized;
-            if (!utils::is_hiragana(normalized[i]) ||
-                !utils::is_hiragana(normalized[i + 1]) ||
-                !utils::is_hiragana(normalized[i + 2]) ||
-                !utils::is_hiragana(normalized[i + 3])) {
-                continue;
-            }
             bool matched = false;
-            result.bonusSum += bonus(normalized[i], normalized[i + 1], normalized[i + 2], normalized[i + 3], matched);
+            result.costSum += cost(normalized[i], normalized[i + 1], normalized[i + 2], normalized[i + 3], matched);
             ++result.targetWindowCount;
             if (matched) {
                 ++result.matchedWindowCount;
             }
         }
-        LOG_DEBUGH(L"targetWindowCount={}, matchedWindowCount={}, bonusSum={}",
-            result.targetWindowCount, result.matchedWindowCount, result.bonusSum);
+        LOG_DEBUGH(L"targetWindowCount={}, matchedWindowCount={}, costSum={}",
+            result.targetWindowCount, result.matchedWindowCount, result.costSum);
         if (result.targetWindowCount > 0) {
-            result.averageBonus = static_cast<int>(std::llround(
-                static_cast<double>(result.bonusSum) / result.targetWindowCount));
+            result.averageCost = static_cast<int>(std::llround(
+                static_cast<double>(result.costSum) / result.targetWindowCount));
         }
         return result;
     }
@@ -314,7 +345,7 @@ namespace dict {
                 LOG_ERROR_AND_THROW_RTE(L"Char4gram: line {} does not contain four UTF-16 characters", lineNumber);
             }
             const uint64_t count = parseCount(line.substr(tab + 1), lineNumber);
-            if (!isHiraganaOnly(gram)) continue;
+            if (!isChar4gramAllowedOnly(gram)) continue;
 
             const uint64_t key = quadgramKey(gram[0], gram[1], gram[2], gram[3]);
             if (!counts.emplace(key, count).second) {

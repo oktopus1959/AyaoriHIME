@@ -15,8 +15,8 @@ namespace dict {
             String normalized;
             int targetWindowCount = 0;
             int matchedWindowCount = 0;
-            int64_t bonusSum = 0;
-            int averageBonus = 0;
+            int64_t costSum = 0;
+            int averageCost = 0;
         };
 
     private:
@@ -47,7 +47,7 @@ namespace dict {
         int32_t uniformCost_ = 0;
 
         int findCharacterId(wchar_t ch) const;
-        int bonus(wchar_t first, wchar_t second, wchar_t third, wchar_t next, bool& matched) const;
+        int cost(wchar_t first, wchar_t second, wchar_t third, wchar_t next, bool& matched) const;
 
     public:
         Char4gram() = default;

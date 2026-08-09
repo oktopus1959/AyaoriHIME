@@ -266,7 +266,7 @@ namespace KanchokuWS
         /// <summary>文字3-gram窓末尾が漢字の場合のコスト減衰率</summary>
         public static double Char3gramTailKanjiCostDecayRate { get; set; } = 0.5;
 
-        /// <summary>文字4-gramボーナスの係数</summary>
+        /// <summary>文字4-gramコストの係数</summary>
         public static double Char4gramWeight { get; set; } = 0.5;
 
         /// <summary>Ngramに与えるボーナスポイントの最大値</summary>
@@ -1862,7 +1862,7 @@ namespace KanchokuWS
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
             Char3gramWeight = addDecoderSetting("char3gramWeight", 1.0, 0.0);                   // 文字3-gram言語モデルによるコストの重み係数
             Char3gramTailKanjiCostDecayRate = addDecoderSetting("char3gramTailKanjiCostDecayRate", 0.5, 0.0);
-            Char4gramWeight = addDecoderSetting("char4gramWeight", 0.0, 0.0);                   // 文字4-gramボーナスの係数 (正値にすると Char3gramひらがなのコストは 0 扱いになる)
+            Char4gramWeight = addDecoderSetting("char4gramWeight", 0.0, 0.0);                   // 文字4-gramコストの係数 (正値にすると Char3gramひらがなのコストは 0 扱いになる)
             NgramMaxBonusPoint = addDecoderSetting("ngramMaxBonusPoint", 25);                   // Ngramに与えるボーナスポイントの最大値
             NgramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 250);            // 嵩上げされたNgramに与えるボーナスの係数
             NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 10);           // 候補選択によるNgramカウントの変動幅

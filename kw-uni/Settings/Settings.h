@@ -90,7 +90,7 @@ struct Settings {
     int ngramCostFactor = 1;                // 形態素コストに対するNgramコストの係数
     double char3gramWeight = 1.0;           // 文字3-gram言語モデルの重み
     double char3gramTailKanjiCostDecayRate = 0.5; // 文字3-gram窓末尾が漢字の場合のコスト減衰率
-    double char4gramWeight = 0.0;           // 文字4-gramボーナスの係数 (正値にすると Char3gramひらがなのコストは 0 扱いになる)
+    double char4gramWeight = 0.0;           // 文字4-gramコストの係数 (正値にすると Char3gramひらがなのコストは 0 扱いになる)
     int ngramMaxBonusPoint = 25;            // Ngramに与えるボーナスポイントの最大値
     int ngramBonusPointFactor = 100;        // 嵩上げされたNgramに与えるボーナスの係数
     int ngramManualSelectDelta = 10;        // 候補選択によるNgramカウントの変動幅

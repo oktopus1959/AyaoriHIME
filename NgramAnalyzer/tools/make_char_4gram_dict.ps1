@@ -1,5 +1,5 @@
 param(
-    [string]$InputPath = "F:\Dev\Text\ngram-geta\wiki_hplt.mixed.4gram.txt",
+    [string]$InputPath = "F:\Dev\Text\ngram-geta\wiki_hplt.hiraganized.4gram.2m.txt",
     [string]$OutputPath = "",
     [string]$NgramerPath = ""
 )
