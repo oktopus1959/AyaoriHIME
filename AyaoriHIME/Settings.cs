@@ -172,6 +172,11 @@ namespace KanchokuWS
         public static bool DeveloperSettingsEnabled { get; private set; }
 
         //-------------------------------------------------------------------------------------
+        // ひらがなテーブル専用か
+        //-------------------------------------------------------------------------------------
+        public static bool IsHiraganaTableOnly { get; set; } = false;
+
+        //-------------------------------------------------------------------------------------
         // 基本設定
         //-------------------------------------------------------------------------------------
         /// <summary>Ctrl修飾なしで Decoder をアクティブにするホットキーの仮想キーコード</summary> 
@@ -1220,6 +1225,12 @@ namespace KanchokuWS
             return val;
         }
 
+        private static double setDecoderSetting(string attr, double val)
+        {
+            DecoderSettings[attr] = $"{val}";
+            return val;
+        }
+
         // KeySeq 設定
         private static string addDecoderKeySeqSetting(string attr)
         {
@@ -1862,7 +1873,7 @@ namespace KanchokuWS
             NgramCostFactor = addDecoderSetting("ngramCostFactor", 5);                          // 形態素コストに対するNgramコストの係数
             Char3gramWeight = addDecoderSetting("char3gramWeight", 1.0, 0.0);                   // 文字3-gram言語モデルによるコストの重み係数
             Char3gramTailKanjiCostDecayRate = addDecoderSetting("char3gramTailKanjiCostDecayRate", 0.5, 0.0);
-            Char4gramWeight = addDecoderSetting("char4gramWeight", 0.0, 0.0);                   // 文字4-gramコストの係数 (正値にすると Char3gramひらがなのコストは 0 扱いになる)
+            Char4gramWeight = addDecoderSetting("char4gramWeight", 1.0, 0.0);                   // 文字4-gramコストの係数 (正値にすると Char3gramひらがなのコストは 0 扱いになる)
             NgramMaxBonusPoint = addDecoderSetting("ngramMaxBonusPoint", 25);                   // Ngramに与えるボーナスポイントの最大値
             NgramBonusPointFactor = addDecoderSetting("ngramBonusPointFactor", 250);            // 嵩上げされたNgramに与えるボーナスの係数
             NgramManualSelectDelta = addDecoderSetting("ngramManualSelectDelta", 10);           // 候補選択によるNgramカウントの変動幅
@@ -1887,6 +1898,9 @@ namespace KanchokuWS
             MergerCandidateMax = addDecoderSetting("mergerCandidateMax", 10, 0, 10);            // 複数候補表示の最大数
             OutputSpaceAndBsAtFirstInChrome = addDecoderSetting("outputSpaceAndBsAtFirstInChrome", false);  // Chrome では、最初に編集バッファを表示する時、カレット位置を調整するために Space+BS を出力してみる
             setDecoderSetting("mergerCandidateFile", MergerCandidateFile );                     // 解候補ログファイル
+
+            // ひらがな関連のパラメータの再設定
+            setHiraganaTableRelatedParameters();
 
             // キー割当
             SimpleDicSearchCtrlKey = GetString("simpleDicSearchCtrlKey");                       // 簡易辞書検索&選択を行うCtrlキー
@@ -1938,23 +1952,17 @@ namespace KanchokuWS
             return true;
         }
 
-        public static void SetMinMorphMazeEntryPenalty()
+        private static void setHiraganaTableRelatedParameters()
         {
-            setDecoderSetting("morphMazeEntryPenalty", 1);
-        }
-
-        public static void SetHiraganaTableOnly(bool bHiraganaOnly)
-        {
-            setDecoderSetting("isHiraganaTableOnly", bHiraganaOnly);
-        }
-
-        public static void SetChar4gramWeight(double defaultWeight)
-        {
-            if (defaultWeight == 0.0) {
-                Char4gramWeight = 0.0;
-                setDecoderSetting("char4gramWeight", "0.0");
+            setDecoderSetting("isHiraganaTableOnly", IsHiraganaTableOnly);
+            if (IsHiraganaTableOnly) {
+                // ひらがなテーブルのみの場合
+                MorphMazeEntryPenalty = setDecoderSetting("morphMazeEntryPenalty", 0);
+                MorphMazeConnectionPenalty = setDecoderSetting("morphMazeConnectionPenalty", 0);        // 交ぜ書きエントリの接続に対するペナルティ
+                MorphNonTerminalCost = setDecoderSetting("morphNonTerminalCost", 5000);                 // 非終端形態素の単語コスト
+                MorphNonTerminalPenaltyFactor = setDecoderSetting("morphNonTerminalPenaltyFactor", 0);  // 長い非終端形態素に対する文字数あたりの追加ペナルティ
             } else {
-                Char4gramWeight = addDecoderSetting("char4gramWeight", defaultWeight, 0.0);
+                Char4gramWeight = setDecoderSetting("char4gramWeight", 0.0);                            // 漢直テーブルが存在する場合は、ひらがな4gramを無視する
             }
         }
 

@@ -323,11 +323,6 @@ namespace KanchokuWS
         /// </summary>
         private string complexCommandStr = null;
 
-        /// <summary>
-        /// 漢直テーブルが存在するか
-        /// </summary>
-        private bool hasKanchokuTable = false;
-
         //------------------------------------------------------------------
         /// <summary>
         /// コンストラクタ
@@ -596,18 +591,11 @@ namespace KanchokuWS
                 }
             }
             bool bDualTable = tableFile1._notEmpty() && tableFile2._notEmpty();
-            hasKanchokuTable = CombinationKeyStroke.Determiner.Singleton.Initialize(tableFile1, tableFile2, Settings.TableFile3);
+            Settings.IsHiraganaTableOnly = !CombinationKeyStroke.Determiner.Singleton.Initialize(tableFile1, tableFile2, Settings.TableFile3);
             CommonTableRuntime.Initialize(commonTable);
 
             // 設定ファイルの再読み込み
             Settings.ReadIniFile(false);
-
-            if (!hasKanchokuTable) {
-                // 漢直テーブルが存在しない場合は、MorphMazeのエントリペナルティを最小にして、Mazeエントリも候補に出るようにする
-                Settings.SetMinMorphMazeEntryPenalty();
-            }
-            Settings.SetHiraganaTableOnly(!hasKanchokuTable);
-            Settings.SetChar4gramWeight(hasKanchokuTable ? 0.0 : Settings.Char4gramWeight);      // 漢直テーブルが存在する場合は、ひらがな4gramを無視する
 
             logger.InfoH("LEAVE");
         }
