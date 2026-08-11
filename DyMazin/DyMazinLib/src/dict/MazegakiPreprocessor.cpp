@@ -745,8 +745,20 @@ namespace MazegakiPreprocessor {
         LOG_INFO(L"ENTER: resultLines.size={}, linesMap.size={}", resultLines.size(), linesMap.size());
 
         resultLines.reserve(resultLines.size() + linesMap.size()); // サイズを予約してコピー効率化
-        for (const auto& [key, value] : linesMap) {
-            resultLines.push_back(value);
+        for (auto iter = linesMap.cbegin(); iter != linesMap.cend(); ++iter) {
+            const auto& value = iter->second;
+            const auto next = std::next(iter);
+            bool skip = false;
+            if (next != linesMap.cend()) {
+                const auto items = utils::split(value, L",");
+                const auto nextItems = utils::split(next->second, L",");
+                skip = !items.empty() && !nextItems.empty() &&
+                    items.front() == nextItems.front() &&
+                    items.back() != L"MAZE" && nextItems.back() == L"MAZE";
+            }
+            if (!skip) {
+                resultLines.push_back(value);
+            }
         }
 
         linesMap.clear();
@@ -815,4 +827,3 @@ namespace MazegakiPreprocessor {
     }
 
 } // MazegakiPreprocessor
-
