@@ -26,6 +26,8 @@ namespace util {
         static SharedPtr<OptHandler> CreateDefaultHandler(StringRef progname = L"");
         static SharedPtr<OptHandler> CreateOptHandler(size_t argc, const wchar_t** argv, const wchar_t* logFilePath);
 
+        virtual void ResetOptHandler(size_t argc, const wchar_t** argv) = 0;
+
         // rcfile や dicrc などの設定ファイルを読み込む
         virtual void loadDictionaryResource() = 0;
 

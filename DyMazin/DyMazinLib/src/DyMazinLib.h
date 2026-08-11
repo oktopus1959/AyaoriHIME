@@ -11,6 +11,8 @@ extern "C" {
 // コマンドライン引数による形態素解析ライブラリの初期化
 DYMAZIN_DLL_EXTERN int DymazinInitialize(size_t argc, const wchar_t** argv, const wchar_t* logFile, wchar_t* errMsgBuf, size_t bufsiz, bool showError = false);
 
+DYMAZIN_DLL_EXTERN int DymazinResetArgs(size_t argc, const wchar_t** argv, bool showError = false);
+
 // ユーザー辞書の再オープン
 DYMAZIN_DLL_EXTERN int DymazinReloadUserDics(wchar_t* errMsgBuf, size_t bufsiz);
 

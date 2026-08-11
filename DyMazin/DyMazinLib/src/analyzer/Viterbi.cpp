@@ -167,7 +167,7 @@ namespace analyzer {
                 // rnodeに接続する lnodeのうち、最良コストのものを選出する
                 for (const auto& lnode : leftNodes) {
                     int connCost = connector->cost(*lnode, *rnode);  // connCost: connection cost
-                    if (mazePenalty < 0) {
+                    if (mazePenalty < 0 && mazeConnPenalty > 0) {
                         // TODO: ここは時間がかかるので、何か工夫が必要
                         // 交ぜ書きの連接は劣後
                         if (isMazeNode(lnode) && isMazeNode(rnode)) {
@@ -280,6 +280,10 @@ namespace analyzer {
 
     int Viterbi::conn3gramAverageCost(const Lattice& lattice) const {
         return pImpl->tokenizer->conn3gramAverageCost(lattice);
+    }
+
+    void Viterbi::resetNonTerminalCost(int cost) const {
+        return pImpl->tokenizer->resetNonTerminalCost(cost);
     }
 
 } // namespace analyzer

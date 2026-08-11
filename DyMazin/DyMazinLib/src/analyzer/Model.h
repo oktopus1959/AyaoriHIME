@@ -48,6 +48,7 @@ namespace analyzer {
 
         int conn3gramAverageCost(const Lattice& lattice) const;
 
+        void resetNonTerminalCost(int cost) const;
     };
 
 } // namespace analyzer

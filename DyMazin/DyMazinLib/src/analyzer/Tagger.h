@@ -35,6 +35,8 @@ namespace analyzer {
 
         int lastConn3gramAverageCost() const { return lastConn3gramAverageCost_; }
 
+        void resetNonTerminalCost(int cost) const { model->resetNonTerminalCost(cost); }
+
     };
 } // namespace analyzer
 

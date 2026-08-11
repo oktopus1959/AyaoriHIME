@@ -114,6 +114,16 @@ namespace {
 }
 
 namespace util {
+    void setLogLevel(StringRef logLevel) {
+        if (logLevel == L"error") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelError);
+        else if (logLevel == L"warnh") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelWarnH);
+        else if (logLevel == L"warn") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelWarn);
+        else if (logLevel == L"infoh") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelInfoH);
+        else if (logLevel == L"info") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelInfo);
+        else if (logLevel == L"debugh") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelDebugH);
+        else if (logLevel == L"debug") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelDebug);
+    }
+
     /**
      * command line option parser
      *
@@ -160,6 +170,24 @@ namespace util {
             }
 
             LOG_INFOH(L"LEAVE: ctor");
+        }
+
+        void ResetOptHandler(size_t argc, const wchar_t** argv) override {
+            LOG_INFOH(L"ENTER");
+            Vector<String> args;
+
+            for (size_t i = 0; i < argc; ++i) {
+                args.push_back(argv[i]);
+                if (args.size() >= 2 && (args[args.size() - 2] == L"-L" || args[args.size() - 2] == L"--log-level")) {
+                    setLogLevel(args.back());
+                }
+            }
+
+            if (parseArgs(args)) {
+                //println(opts->what);
+                std::cerr << "To show help, specify -h or --help" << std::endl;
+            }
+            LOG_INFOH(L"LEAVE");
         }
 
         // rcfile や dicrc の読み込み
@@ -515,16 +543,6 @@ namespace util {
     SharedPtr<OptHandler> OptHandler::CreateDefaultHandler(StringRef progname) {
         LOG_INFOH(L"CALLED: progname={}", progname);
         return CreateOptHandler(progname.empty() ? L"default" : progname, defaultOptions);
-    }
-
-    void setLogLevel(StringRef logLevel) {
-        if (logLevel == L"error") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelError);
-        else if (logLevel == L"warnh") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelWarnH);
-        else if (logLevel == L"warn") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelWarn);
-        else if (logLevel == L"infoh") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelInfoH);
-        else if (logLevel == L"info") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelInfo);
-        else if (logLevel == L"debugh") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelDebugH);
-        else if (logLevel == L"debug") Reporting::Logger::SetLogLevel(Reporting::Logger::LogLevelDebug);
     }
 
     SharedPtr<OptHandler> OptHandler::CreateOptHandler(size_t argc, const wchar_t** argv, const wchar_t* logFilePath) {

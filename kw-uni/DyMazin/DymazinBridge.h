@@ -3,8 +3,10 @@
 #include "string_utils.h"
 
 namespace DymazinBridge {
-    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty = 1000, int mazeConnPenalty = 1000,
-        int nonTerminalCost = 5000, int nonTerminalPenaltyFactor = 2500);
+    int dymazinInitialize(StringRef rcfile, StringRef dicdir, int unkMax, int mazePenalty = 2000, int mazeConnPenalty = 1000,
+        int nonTerminalCost = 10000, int nonTerminalPenaltyFactor = 2500);
+
+    int dymazinResetArgs(int mazePenalty = 2000, int mazeConnPenalty = 1000, int nonTerminalCost = 10000, int nonTerminalPenaltyFactor = 2500);
 
     int dymazinReopenUserDics();
 

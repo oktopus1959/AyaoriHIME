@@ -5,6 +5,8 @@
 namespace MorphBridge {
     void morphInitialize();
 
+    void morphResetArgs();
+
     void morphFinalize();
 
     void morphReopenUserDics();

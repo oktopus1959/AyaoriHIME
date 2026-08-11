@@ -73,6 +73,11 @@ namespace dict {
          */
         std::vector<SafePtr<analyzer::Token>> exactMatchSearch(const String& key);
 
+        // 非終端トークンのコストを再設定
+        void resetNonTerminalCost(int cost) {
+            nonTerminalToken.wcost = cost;
+        }
+
         // デバッグ用検索
         Vector<String> debugSearch(StringRef key);
 

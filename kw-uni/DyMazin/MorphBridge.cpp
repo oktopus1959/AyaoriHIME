@@ -39,6 +39,16 @@ namespace MorphBridge {
 #endif //USE_MORPHER
     }
 
+    void morphResetArgs() {
+#if USE_MORPHER
+        _LOG_TEMPH(L"ENTER");
+        DymazinBridge::dymazinResetArgs(
+            SETTINGS->morphMazeEntryPenalty, SETTINGS->morphMazeConnectionPenalty,
+            SETTINGS->morphNonTerminalCost, SETTINGS->morphNonTerminalPenaltyFactor);
+        _LOG_TEMPH(L"LEAVE");
+#endif //USE_MORPHER
+    }
+
     void morphFinalize() {
 #if USE_MORPHER
         return DymazinBridge::dymazinFinalize();

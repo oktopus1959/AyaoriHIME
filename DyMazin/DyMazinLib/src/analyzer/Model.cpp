@@ -57,4 +57,8 @@ namespace analyzer {
         return viterbi.conn3gramAverageCost(lattice);
     }
 
+    void Model::resetNonTerminalCost(int cost) const {
+        return viterbi.resetNonTerminalCost(cost);
+    }
+
 } // namespace analyzer

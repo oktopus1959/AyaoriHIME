@@ -92,59 +92,58 @@ namespace analyzer {
 
             // ノードを作成してリストに追加するローカル関数
             auto __addNewNode = [&](DictionaryPtr dic, const Token& token, size_t end2, node::NodeType stat,
-                StringRef feature = L"", int addCost = 0 /*, bool isUnk = false*/)
-            {
-                //auto node = node::Node::Create(sentence->subString(begin2, end2));
-                auto node = lattice.newNode(begin2, end2);
-                String surf = node->surface()->toString();
-                node->setLcAttr(token.lcAttr);
-                node->setRcAttr(token.rcAttr);
-                //    node->posid   = token.posId;
-                node->setWcost(token.wcost + addCost);
-                String feat = !feature.empty() ? feature : dic->feature(token);
-                if (stat == node::NodeType::UNKNOWN_NODE) {
-                    feat.append(std::format(L",{},{},{}", surf, surf, surf));
-                }
-                node->setFeature(feat);
-                node->setRlength((int)(end2 - rngstr->begin()));
-                node->setStat(stat);
-                node->setCharType(cinfo->primaryType());
-                LOG_DEBUG(L"__addNewNode: ENTER: surf={}, feat={}, wcost={}", surf, feat, node->wcost());
-                // 交ぜ書きエントリに対するペナルティ
-                if (mazePenalty != 0) {
-                    String feat = node->feature();
-                    if (utils::endsWith(feat, L"MAZE")) {
-                        // 交ぜ書き候補
-                        int factor = 1;
-                        //if (mazePenalty > 0) {
-                        //    size_t len = end2 > begin2 ? end2 - begin2 : 0;
-                        //    factor = len <= 2 ? 5 : len == 3 ? 3 : len == 4 ? 1 : 0;
-                        //}
-                        int oneCharPenalty = (end2 - begin2 == 1) ? 2000 : 0;
-                        if (utils::startsWith(feat, L"名詞:固有名詞")) factor += 2;
-                        LOG_DEBUG(L"__addNewNode: MAZE penalty={}, factor={}, oneCharPenalty={}", mazePenalty, factor, oneCharPenalty);
-                        node->addWcost(mazePenalty * factor + oneCharPenalty);
-                    } else if (mazePenalty < 0) {
-                        if (utils::contains(feat, L",非MAZE") || utils::contains(feat, L",非交")) {
-                            // 非交ぜ書きエントリに対するペナルティ(負値の場合のみ)
-                            LOG_DEBUG(L"__addNewNode: add non-maze penalty: feat={}, penalty={}", feat, 1000000);
-                            node->addWcost(1000000);
+                StringRef feature = L"", int addCost = 0 /*, bool isUnk = false*/) {
+                    //auto node = node::Node::Create(sentence->subString(begin2, end2));
+                    auto node = lattice.newNode(begin2, end2);
+                    String surf = node->surface()->toString();
+                    node->setLcAttr(token.lcAttr);
+                    node->setRcAttr(token.rcAttr);
+                    //    node->posid   = token.posId;
+                    node->setWcost(token.wcost + addCost);
+                    String feat = !feature.empty() ? feature : dic->feature(token);
+                    if (stat == node::NodeType::UNKNOWN_NODE) {
+                        feat.append(std::format(L",{},{},{}", surf, surf, surf));
+                    }
+                    node->setFeature(feat);
+                    node->setRlength((int)(end2 - rngstr->begin()));
+                    node->setStat(stat);
+                    node->setCharType(cinfo->primaryType());
+                    LOG_DEBUG(L"__addNewNode: ENTER: surf={}, feat={}, wcost={}", surf, feat, node->wcost());
+                    // 交ぜ書きエントリに対するペナルティ
+                    if (mazePenalty != 0) {
+                        String feat = node->feature();
+                        if (utils::endsWith(feat, L"MAZE")) {
+                            // 交ぜ書き候補
+                            int factor = 1;
+                            //if (mazePenalty > 0) {
+                            //    size_t len = end2 > begin2 ? end2 - begin2 : 0;
+                            //    factor = len <= 2 ? 5 : len == 3 ? 3 : len == 4 ? 1 : 0;
+                            //}
+                            int oneCharPenalty = (end2 - begin2 == 1) ? 2000 : 0;
+                            if (utils::startsWith(feat, L"名詞:固有名詞")) factor += 2;
+                            LOG_DEBUG(L"__addNewNode: MAZE penalty={}, factor={}, oneCharPenalty={}", mazePenalty, factor, oneCharPenalty);
+                            node->addWcost(mazePenalty * factor + oneCharPenalty);
+                        } else if (mazePenalty < 0) {
+                            if (utils::contains(feat, L",非MAZE") || utils::contains(feat, L",非交")) {
+                                // 非交ぜ書きエントリに対するペナルティ(負値の場合のみ)
+                                LOG_DEBUG(L"__addNewNode: add non-maze penalty: feat={}, penalty={}", feat, 1000000);
+                                node->addWcost(1000000);
+                            }
                         }
                     }
-                }
-                if (feat.starts_with(L"非終端")) {
-                    // 非終端エントリに対するペナルティ
-                    if (node->rlength() > 3) {
-                        // 長い非終端はペナルティを課す
-                        int penalty = (node->rlength() - 3) * nonTerminalPenaltyFactor;
-                        node->addWcost(penalty);
-                        LOG_DEBUG(L"__addNewNode: add LONG non-terminal penalty: penalty={}, wcost={}", penalty, node->wcost());
+                    if (feat.starts_with(L"非終端")) {
+                        // 非終端エントリに対するペナルティ
+                        if (node->rlength() > 3) {
+                            // 長い非終端はペナルティを課す
+                            int penalty = (node->rlength() - 3) * nonTerminalPenaltyFactor;
+                            node->addWcost(penalty);
+                            LOG_DEBUG(L"__addNewNode: add LONG non-terminal penalty: penalty={}, wcost={}", penalty, node->wcost());
+                        }
                     }
-                }
-                //node->isUnknown = isUnk;
-                LOG_DEBUG(L"__addNewNode: LEAVE: node={}", node->toVerbose());
-                result_nodes.push_back(node);
-            };
+                    //node->isUnknown = isUnk;
+                    LOG_DEBUG(L"__addNewNode: LEAVE: node={}", node->toVerbose());
+                    result_nodes.push_back(node);
+                };
 
             // 辞書引きしてノード作成する
             for (const auto& dic : dics) {
@@ -174,7 +173,7 @@ namespace analyzer {
                     if (limit < maxlen && cinfo->group()) ary.push_back(maxlen);
                     LOG_DEBUG(L"unk array={}", utils::join_primitive(ary, L", "));
                     return ary;
-                };
+                    };
 
                 // 未知語ノード追加用のローカル関数
                 auto __addUnknown = [&](size_t end2) {
@@ -185,18 +184,18 @@ namespace analyzer {
                         auto surf = rngstr->toString(begin2, end2);
                         auto isKatakanaWord = !surf.empty() &&
                             std::all_of(surf.begin(), surf.end(), [](wchar_t ch) {
-                                return utils::is_katakana(ch) || utils::is_hankaku_katakana(ch);
-                            });
+                            return utils::is_katakana(ch) || utils::is_hankaku_katakana(ch);
+                                });
                         auto addCost = isKatakanaWord
                             ? static_cast<int>((end2 - begin2) * ONE_CHAR_COST_FACTOR)
                             : 0;
 
                         for (const auto token : unk_tokens[primType]) {
                             __addNewNode(unkdic, *token, end2, node::NodeType::UNKNOWN_NODE,
-                                         L"", addCost /*, true*/);
+                                L"", addCost /*, true*/);
                         }
                     }
-                };
+                    };
 
                 // 未知語長さの候補に対して未知語を切り出してノードリストに追加
                 for (auto len : __getUnkLenCandidates()) {
@@ -291,11 +290,9 @@ namespace analyzer {
                         }
                         dics.push_back(d);
                         userdics.push_back(d);
-                    }
-                    catch (const RuntimeException& ex) {
+                    } catch (const RuntimeException& ex) {
                         LOG_ERROR(L"cannot open user dictionary {}: {}({}): {}", fname, ex.getFile(), ex.getLine(), ex.getCause());
-                    }
-                    catch (...) {
+                    } catch (...) {
                         LOG_ERROR(L"unknow error: user dictionary {}", fname);
                     }
                 }
@@ -340,11 +337,19 @@ namespace analyzer {
                 int cost = conn3gram->cost(ids[i], ids[i + 1], ids[i + 2]);
                 sum += cost;
 #if _LOG_DEBUGH_FLAG
-            LOG_DEBUG(L"sum={}, cost={} ({},{},{})", sum, cost, ids[i], ids[i + 1], ids[i + 2]);
+                LOG_DEBUG(L"sum={}, cost={} ({},{},{})", sum, cost, ids[i], ids[i + 1], ids[i + 2]);
 #endif
                 ++count;
             }
             return count == 0 ? 0 : static_cast<int>(std::llround((sum * factor) / count));
+        }
+
+        void resetNonTerminalCost(int cost) const {
+            LOG_INFOH(L"ENTER: cost={}", cost);
+            for (const auto& dic : dics) {
+                dic->resetNonTerminalCost(cost);
+            }
+            LOG_INFOH(L"LEAVE");
         }
 
         //SharedPtr<dict::DictionaryInfo> make_dic_info_chain() {
@@ -386,6 +391,10 @@ namespace analyzer {
 
     int Tokenizer::conn3gramAverageCost(const Lattice& lattice) const {
         return pImpl->conn3gramAverageCost(lattice);
+    }
+
+    void Tokenizer::resetNonTerminalCost(int cost) const {
+        return pImpl->resetNonTerminalCost(cost);
     }
 
 } // namespace analyzer

@@ -81,6 +81,21 @@ int DymazinInitialize(size_t argc, const wchar_t** argv, const wchar_t* logFileP
     return 0;
 }
 
+// 引数の再初期化
+// @return ErrorLevel 0: 成功, -1: 成功(情報メッセージあり), -2: 警告, -3: エラー
+int DymazinResetArgs(size_t argc, const wchar_t** argv, bool showError) {
+    LOG_INFOH(L"ENTER");
+    ERROR_HANDLER->Clear();
+    bShowError = showError;
+
+    if (opts) {
+        opts->ResetOptHandler(argc, argv);
+        tagger->resetNonTerminalCost(opts->getInt(L"non-terminal-cost"));
+    }
+    LOG_INFOH(L"LEAVE");
+    return 0;
+}
+
 namespace {
     // ユーザー辞書の再ロード
     // @return ErrorLevel 0: 成功, -1: 成功(情報メッセージあり), -2: 警告, -3: エラー

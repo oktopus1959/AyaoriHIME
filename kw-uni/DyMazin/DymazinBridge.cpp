@@ -56,6 +56,31 @@ namespace DymazinBridge {
         return result;
     }
 
+    int dymazinResetArgs(int mazePenalty, int mazeConnPenalty, int nonTerminalCost, int nonTerminalPenaltyFactor) {
+        std::vector<const wchar_t*> av;
+        String mazePenaltyOpt(L"--maze-penalty=");
+        mazePenaltyOpt.append(std::to_wstring(mazePenalty));
+        av.push_back(mazePenaltyOpt.c_str());
+        String mazeConnPenaltyOpt(L"--maze-conn-penalty=");
+        mazeConnPenaltyOpt.append(std::to_wstring(mazeConnPenalty));
+        av.push_back(mazeConnPenaltyOpt.c_str());
+        String nonTerminalCostOpt(L"--non-terminal-cost=");
+        nonTerminalCostOpt.append(std::to_wstring(nonTerminalCost));
+        av.push_back(nonTerminalCostOpt.c_str());
+        String nonTerminalPenaltyFactorOpt(L"--non-terminal-penalty-factor=");
+        nonTerminalPenaltyFactorOpt.append(std::to_wstring(nonTerminalPenaltyFactor));
+        av.push_back(nonTerminalPenaltyFactorOpt.c_str());
+
+        const int ARRAY_SIZE = 1024;
+        wchar_t errMsgBuf[ARRAY_SIZE] = { 0 };
+
+        int result = DymazinResetArgs(av.size(), av.data());
+
+        ERROR_HANDLER->SetErrorInfo(result, errMsgBuf);
+        LOG_INFOH(_T("LEAVE: result={}, errorMsg={}"), result, errMsgBuf);
+        return result;
+    }
+
     int dymazinReopenUserDics() {
         LOG_INFOH(_T("ENTER"));
         const int ARRAY_SIZE = 1024;
