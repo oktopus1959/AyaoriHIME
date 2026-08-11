@@ -67,6 +67,42 @@ namespace analyzer {
         bool isHiraganaTableOnly_;
         Map<String, bool> exactMatchCache;
 
+        void loadChar4gramIfNeeded() {
+            if (char4gramWeight_ <= 0) {
+                if (char4gram) {
+                    LOG_INFOH(L"文字4-gram辞書を無効化します: char4gramWeight={}", char4gramWeight_);
+                }
+                char4gram.reset();
+                return;
+            }
+            if (char4gram && char4gram->loaded()) return;
+
+            const auto dicdir = opts->getString(L"dicdir", L".");
+            const auto char4gramPath = utils::join_path(dicdir, CHAR_4GRAM_FILE);
+            if (utils::isFileExistent(char4gramPath)) {
+                try {
+                    char4gram = MakeShared<dict::Char4gram>(char4gramPath);
+                } catch (const RuntimeException& ex) {
+                    char4gram.reset();
+                    LOG_WARN(L"文字4-gram辞書を無効化します: file={}, error={}", char4gramPath, ex.getMessage());
+                } catch (...) {
+                    char4gram.reset();
+                    LOG_WARN(L"文字4-gram辞書を無効化します: file={}, unknown error", char4gramPath);
+                }
+            } else {
+                char4gram.reset();
+                LOG_WARN(L"文字4-gram辞書が見つからないため無効化します: {}", char4gramPath);
+            }
+        }
+
+        void validateRuntimeArgs() const {
+            CHECK_OR_THROW(std::isfinite(char3gramWeight_) && char3gramWeight_ >= 0 && std::isfinite(char3gramTailKanjiCostDecayRate_) &&
+                char3gramTailKanjiCostDecayRate_ >= 0 && char3gramTailKanjiCostDecayRate_ <= 1 &&
+                std::isfinite(char4gramWeight_) && char4gramWeight_ >= 0,
+                L"invalid character n-gram parameters: 3gram={}, tailKanjiDecayRate={}, 4gram={}",
+                char3gramWeight_, char3gramTailKanjiCostDecayRate_, char4gramWeight_);
+        }
+
     public:
         Impl(OptHandlerPtr opts) :
             opts(opts),
@@ -80,11 +116,7 @@ namespace analyzer {
             LOG_INFOH(L"ENTER: cost_factor_={}, char3gramWeight_={}, char3gramTailKanjiCostDecayRate_={}, char4gramWeight_={}, isHiraganaTableOnly_={}",
                 cost_factor_, char3gramWeight_, char3gramTailKanjiCostDecayRate_, char4gramWeight_, isHiraganaTableOnly_);
             CHECK_OR_THROW(!tokenizer->getDictionaries().empty(), L"Dictionary is empty");
-            CHECK_OR_THROW(std::isfinite(char3gramWeight_) && char3gramWeight_ >= 0 && std::isfinite(char3gramTailKanjiCostDecayRate_) &&
-                char3gramTailKanjiCostDecayRate_ >= 0 && char3gramTailKanjiCostDecayRate_ <= 1 &&
-                std::isfinite(char4gramWeight_) && char4gramWeight_ >= 0,
-                L"invalid character n-gram parameters: 3gram={}, tailKanjiDecayRate={}, 4gram={}",
-                char3gramWeight_, char3gramTailKanjiCostDecayRate_, char4gramWeight_);
+            validateRuntimeArgs();
 
             const auto dicdir = opts->getString(L"dicdir", L".");
             if (char3gramWeight_ > 0) {
@@ -104,23 +136,18 @@ namespace analyzer {
                 }
             }
 
-            if (char4gramWeight_ > 0) {
-                const auto char4gramPath = utils::join_path(dicdir, CHAR_4GRAM_FILE);
-                if (utils::isFileExistent(char4gramPath)) {
-                    try {
-                        char4gram = MakeShared<dict::Char4gram>(char4gramPath);
-                    } catch (const RuntimeException& ex) {
-                        char4gram.reset();
-                        LOG_WARN(L"文字4-gram辞書を無効化します: file={}, error={}", char4gramPath, ex.getMessage());
-                    } catch (...) {
-                        char4gram.reset();
-                        LOG_WARN(L"文字4-gram辞書を無効化します: file={}, unknown error", char4gramPath);
-                    }
-                } else {
-                    LOG_WARN(L"文字4-gram辞書が見つからないため無効化します: {}", char4gramPath);
-                }
-            }
+            loadChar4gramIfNeeded();
             LOG_INFOH(L"LEAVE");
+        }
+
+        void resetArgs() {
+            LOG_INFOH(L"ENTER");
+            char4gramWeight_ = opts->getDouble(L"char-4gram-weight", char4gramWeight_);
+            isHiraganaTableOnly_ = opts->getBoolean(L"is-hiragana-table-only");
+            validateRuntimeArgs();
+            loadChar4gramIfNeeded();
+            LOG_INFOH(L"LEAVE: char4gramWeight_={}, isHiraganaTableOnly_={}, char4gramLoaded={}",
+                char4gramWeight_, isHiraganaTableOnly_, char4gram && char4gram->loaded());
         }
 
     private:
@@ -578,11 +605,11 @@ namespace analyzer {
             userNgramPenalty + char3gramCost + char4gramCost;
         const int totalCost = static_cast<int>(std::clamp<int64_t>(totalCost64, 0, std::numeric_limits<int>::max()));
         const StringRef normalized = !markov3.normalized.empty() ? markov3.normalized : markov4.normalized;
-        LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}, normalized={}, "
+        LOG_INFOH(L"LEAVE: {}: baseCost={}, morphPenalty={}, userNgramPenalty={}, normalized={}, hiraganaOnly={}, "
             L"char3gramWeight={}, char3gramTailKanjiCostDecayRate={}, char3gramHiraganaEnabled={}, char3gramWindows={}, char3gramCostSum={}, char3gramCost={}, "
             L"char4gramWeight={}, char4gramTargetWindows={}, char4gramMatchedWindows={}, "
             L"char4gramCostSum={}, char4gramCost={}",
-            totalCost, baseCost, morphPenalty, userNgramPenalty, normalized,
+            totalCost, baseCost, morphPenalty, userNgramPenalty, normalized, pImpl->isHiraganaTableOnly_,
             pImpl->char3gramWeight_, pImpl->char3gramTailKanjiCostDecayRate_, char3gramHiraganaEnabled,
             markov3.validWindowCount, markov3.costSum, char3gramCost,
             pImpl->char4gramWeight_, markov4.targetWindowCount, markov4.matchedWindowCount,
@@ -611,6 +638,12 @@ namespace analyzer {
     void Viterbi::reload_userdics() {
         LOG_INFOH(L"ENTER");
         pImpl->tokenizer->reload_userdics();
+        LOG_INFOH(L"LEAVE");
+    }
+
+    void Viterbi::resetArgs() {
+        LOG_INFOH(L"ENTER");
+        pImpl->resetArgs();
         LOG_INFOH(L"LEAVE");
     }
 

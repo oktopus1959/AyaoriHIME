@@ -67,6 +67,23 @@ namespace NgramBridge {
         _LOG_TEMPH(L"LEAVE");
     }
 
+    void ngramResetArgs() {
+        if (!initializeSucceeded) return;
+
+        LOG_INFOH(_T("ENTER"));
+        std::vector<const wchar_t*> av;
+        String char4gramWeight = std::to_wstring(SETTINGS->char4gramWeight);
+        av.push_back(L"--char-4gram-weight");
+        av.push_back(char4gramWeight.c_str());
+        if (SETTINGS->isHiraganaTableOnly) {
+            av.push_back(L"--is-hiragana-table-only");
+        }
+
+        int result = NgramCoreLib::NgramResetArgs(av.size(), av.data());
+        ERROR_HANDLER->SetErrorInfo(result, L"");
+        LOG_INFOH(_T("LEAVE: result={}"), result);
+    }
+
     void ngramFinalize() {
         LOG_INFOH(_T("CALLED"));
         const int ARRAY_SIZE = 1024;

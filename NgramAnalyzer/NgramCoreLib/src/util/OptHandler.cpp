@@ -91,6 +91,8 @@ namespace {
 }
 
 namespace util {
+    void setLogLevel(const String& logLevel);
+
     /**
      * command line option parser
      *
@@ -250,6 +252,20 @@ namespace util {
             set(key, sx::toStr(value));
         }
 
+        void forceSet(StringRef key, StringRef value) override {
+            LOG_INFOH(L"CALLED: key={}, value={}", key, value);
+            auto p = _find(key);
+            if (p) {
+                p->value = value;
+                p->isSpecified = true;
+            } else {
+                OptsDefPtr od = MakeShared<OptsDef>(key, value, L"");
+                od->isSpecified = true;
+                optValues.push_back(od);
+                optMap[key] = od;
+            }
+        }
+
 #if 0
         // load configuration file
         int loadConfig(StringRef confFile) override {
@@ -299,6 +315,21 @@ namespace util {
                 args.push_back(argv[i]);
             }
             return _parseArgs(args);
+        }
+
+        void ResetOptHandler(size_t argc, const wchar_t** argv) override {
+            LOG_INFOH(L"ENTER");
+            Vector<String> args;
+            for (size_t i = 0; i < argc; ++i) {
+                args.push_back(argv[i]);
+                if (args.size() >= 2 && (args[args.size() - 2] == L"-L" || args[args.size() - 2] == L"--log-level")) {
+                    setLogLevel(args.back());
+                }
+            }
+            if (!parseArgs(args)) {
+                std::cerr << "To show help, specify -h or --help" << std::endl;
+            }
+            LOG_INFOH(L"LEAVE");
         }
 
         /**
@@ -499,7 +530,7 @@ namespace util {
         return CreateOptHandler(progname.empty() ? L"default" : progname, defaultOptions);
     }
 
-    void setLogLevel(StringRef logLevel) {
+    void setLogLevel(const String& logLevel) {
         if (logLevel == L"error") Logger::SetLogLevel(Logger::LogLevelError);
         else if (logLevel == L"warnh") Logger::SetLogLevel(Logger::LogLevelWarnH);
         else if (logLevel == L"warn") Logger::SetLogLevel(Logger::LogLevelWarn);

@@ -11,6 +11,9 @@ extern "C" {
 // コマンドライン引数による形態素解析ライブラリの初期化
 NGRAM_DLL_EXTERN int NgramInitialize(size_t argc, const wchar_t** argv, const wchar_t* logFile, wchar_t* errMsgBuf, size_t bufsiz, bool showError = false);
 
+// 解析引数の再初期化
+NGRAM_DLL_EXTERN int NgramResetArgs(size_t argc, const wchar_t** argv, bool showError = false);
+
 // ユーザー辞書の再オープン
 NGRAM_DLL_EXTERN int NgramReloadUserDics(wchar_t* errMsgBuf, size_t bufsiz);
 

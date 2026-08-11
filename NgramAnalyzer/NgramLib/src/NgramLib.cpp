@@ -7,6 +7,10 @@ int NgramInitialize(size_t argc, const wchar_t** argv, const wchar_t* logFilePat
     return NgramCoreLib::NgramInitialize(argc, argv, logFilePath, errMsgBuf, bufsiz, showError);
 }
 
+int NgramResetArgs(size_t argc, const wchar_t** argv, bool showError) {
+    return NgramCoreLib::NgramResetArgs(argc, argv, showError);
+}
+
 // ユーザー辞書の再ロード
 // @return ErrorLevel 0: 成功, -1: 成功(情報メッセージあり), -2: 警告, -3: エラー
 int NgramReloadUserDics(wchar_t* errMsgBuf, size_t bufsiz) {

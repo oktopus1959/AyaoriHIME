@@ -39,6 +39,9 @@ namespace analyzer {
         /** ユーザー辞書の再オープン */
         void reload_userdics();
 
+        /** 解析パラメータの再読み込み */
+        void resetArgs();
+
     };
 
 } // namespace analyzer

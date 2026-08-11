@@ -5,6 +5,8 @@
 namespace NgramBridge {
     void ngramInitialize();
 
+    void ngramResetArgs();
+
     void ngramFinalize();
 
     void ngramReopenUserDics();

@@ -5,6 +5,9 @@ namespace NgramCoreLib {
     // コマンドライン引数による形態素解析ライブラリの初期化
     int NgramInitialize(size_t argc, const wchar_t** argv, const wchar_t* logFile, wchar_t* errMsgBuf, size_t bufsiz, bool showError = false);
 
+    // 解析引数の再初期化
+    int NgramResetArgs(size_t argc, const wchar_t** argv, bool showError = false);
+
     // リアルタイムNgram辞書のパラメータ設定
     // @param minNgramLen 最小N-gram長
     // @param maxNgramLen 最大N-gram長

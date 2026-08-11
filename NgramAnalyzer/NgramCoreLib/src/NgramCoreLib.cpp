@@ -63,6 +63,20 @@ namespace {
 }
 
 namespace NgramCoreLib {
+    namespace {
+        bool hasBooleanArg(size_t argc, const wchar_t** argv, StringRef name) {
+            String longArg = L"--";
+            longArg += name;
+            const String longArgWithValue = longArg + L"=";
+            for (size_t i = 0; i < argc; ++i) {
+                if (!argv[i]) continue;
+                const String arg = argv[i];
+                if (arg == longArg || arg.starts_with(longArgWithValue)) return true;
+            }
+            return false;
+        }
+    }
+
     // 初期化
     // @return ErrorLevel 0: 成功, -1: 成功(情報メッセージあり), -2: 警告, -3: エラー
     int NgramInitialize(size_t argc, const wchar_t** argv, const wchar_t* logFilePath, wchar_t* errMsgBuf, size_t bufsiz, bool showError) {
@@ -104,6 +118,45 @@ namespace NgramCoreLib {
 
         LOG_INFOH(L"LEAVE: SUCCESS");
         return 0;
+    }
+
+    // 引数の再初期化
+    // @return ErrorLevel 0: 成功, -1: 成功(情報メッセージあり), -2: 警告, -3: エラー
+    int NgramResetArgs(size_t argc, const wchar_t** argv, bool showError) {
+        LOG_INFOH(L"ENTER");
+        ERROR_HANDLER->Clear();
+        bShowError = showError;
+
+        try {
+            if (!opts) {
+                ERROR_HANDLER->Warn(L"Ngram OptHandler not created");
+            } else {
+                const bool hiraganaTableOnlySpecified = hasBooleanArg(argc, argv, L"is-hiragana-table-only");
+                opts->ResetOptHandler(argc, argv);
+                if (!hiraganaTableOnlySpecified) {
+                    opts->forceSet(L"is-hiragana-table-only", L"false");
+                }
+                LOG_INFOH(L"opts:\n{}", opts->dump());
+
+                if (viterbi) {
+                    viterbi->resetArgs();
+                } else {
+                    ERROR_HANDLER->Warn(L"viterbi not created");
+                }
+            }
+        } catch (RuntimeException ex) {
+            ERROR_HANDLER->Error(ex.getMessage());
+            if (showError) printError(ex);
+        } catch (...) {
+            auto msg = L"Unknown exception occurred";
+            LOG_ERROR(msg);
+            ERROR_HANDLER->Error(msg);
+            if (showError) std::wcerr << msg << std::endl;
+        }
+
+        LOG_INFOH(L"LEAVE");
+        String errMsg;
+        return ERROR_HANDLER->GetErrorInfo(errMsg);
     }
 
     // リアルタイムNgram辞書のパラメータ設定

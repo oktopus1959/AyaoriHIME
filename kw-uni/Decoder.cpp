@@ -310,6 +310,7 @@ public:
 
         // 形態素解析器の引数の再設定
         MorphBridge::morphResetArgs();
+        NgramBridge::ngramResetArgs();
 
         LOG_INFOH(_T("LEAVE"));
     }
