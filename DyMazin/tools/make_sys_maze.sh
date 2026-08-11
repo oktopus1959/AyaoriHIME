@@ -4,6 +4,7 @@
 
 MY_DIR=$(dirname $0)
 BIN_DIR=$(cd $MY_DIR/../../bin/Release; pwd)
+SYSDIC_DIR=$(cd $MY_DIR/../../../systemFiles/dymazin/dic/mazedic; pwd)
 #EXECUTER="ruby $MY_DIR/make_ipa_maze.rb"
 EXPANDER="$BIN_DIR/dymaz.exe expand"
 COMPILER="$BIN_DIR/dymaz.exe make-dict"
@@ -39,3 +40,4 @@ cd $TGT_DIR
 RUN_CMD -m "pwd"
 RUN_CMD -m "rm -f matrix.def.csv"
 RUN_CMD -m "$COMPILER --build-sysdic -o bin -L info"
+RUN_CMD -m "cp bin/sys.dic $SYSDIC_DIR/"
