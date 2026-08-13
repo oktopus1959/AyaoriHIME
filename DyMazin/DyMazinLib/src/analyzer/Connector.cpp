@@ -7,6 +7,8 @@
 #include "exception.h"
 #include "xsv_parser.h"
 
+#include <fstream>
+
 namespace {
     DEFINE_LOCAL_LOGGER(Connector);
 
@@ -144,37 +146,47 @@ namespace analyzer {
         
         int penalty = _getLeftAttributesWithEOSConnectionPenalty(pfile, leftAttrsWithEOSConnPenalty);
 
-        utils::IfstreamReader reader(ifile);
-        CHECK_OR_THROW(reader.success(), L"matrix.def.csv is not found: {}", ifile);
+        std::ifstream reader(ifile, std::ios::in | std::ios::binary);
+        CHECK_OR_THROW(reader.is_open(), L"matrix.def.csv is not found: {}", ifile);
 
         size_t rl_size = 0;
         Vector<Vector<int>> rows;
+        bool headerRead = false;
+        size_t lineNumber = 0;
 
-        while (true) {
-            auto [ln, eof] = reader.getLine();
-            if (eof) break;
+        std::string utf8Line;
+        while (std::getline(reader, utf8Line)) {
+            ++lineNumber;
 
-            auto line = utils::strip(ln);
+            auto line = utils::strip(utils::utf8_decode(utf8Line));
             if (line.empty()) continue;
+            if (!headerRead && !line.empty() && line.front() == 0xfeff) {
+                line.erase(0, 1);  // UTF-8 BOM をヘッダの先頭セルから除去する
+            }
 
             auto cols = utils::parseCSV(line);
-            CHECK_OR_THROW(!cols.empty(), L"matrix.def.csv has no columns at row {}: {}", rows.size() + 1, ifile);
-
-            if (rl_size == 0) {
-                rl_size = cols.size();
-                CHECK_OR_THROW(rl_size > 0, L"matrix.def.csv has no columns: {}", ifile);
-            } else {
-                CHECK_OR_THROW(cols.size() == rl_size, L"matrix.def.csv row width is inconsistent at row {}: expected {}, actual {}", rows.size() + 1, rl_size, cols.size());
+            if (!headerRead) {
+                CHECK_OR_THROW(cols.size() >= 2, L"matrix.def.csv header has no cost columns: {}", ifile);
+                rl_size = cols.size() - 1;  // 先頭列は右接続属性の説明
+                headerRead = true;
+                continue;
             }
+
+            CHECK_OR_THROW(cols.size() == rl_size + 1,
+                L"matrix.def.csv row width is inconsistent at line {}: expected {}, actual {}",
+                lineNumber, rl_size + 1, cols.size());
 
             Vector<int> row;
             row.reserve(rl_size);
             for (size_t rl = 0; rl < rl_size; ++rl) {
-                row.push_back(parseMatrixCsvInt(cols[rl], ifile, rows.size() + 1, rl + 1));
+                row.push_back(parseMatrixCsvInt(cols[rl + 1], ifile, lineNumber, rl + 2));
             }
             rows.push_back(std::move(row));
         }
 
+        CHECK_OR_THROW(!reader.bad(), L"failed to read matrix.def.csv: {}", ifile);
+
+        CHECK_OR_THROW(headerRead, L"matrix.def.csv has no header: {}", ifile);
         CHECK_OR_THROW(!rows.empty(), L"matrix.def.csv has no rows: {}", ifile);
         CHECK_OR_THROW(rl_size > 0, L"matrix.def.csv has no columns: {}", ifile);
         size_t lr_size = rows.size();
