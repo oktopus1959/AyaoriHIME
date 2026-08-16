@@ -110,6 +110,36 @@ namespace dict {
                 return utils::is_hiragana(ch);
             });
         }
+
+        bool isDigitForChar3gram(wchar_t ch) {
+            return (ch >= L'0' && ch <= L'9') || (ch >= L'０' && ch <= L'９');
+        }
+
+        bool isKatakanaLetterForChar3gram(wchar_t ch) {
+            return ch >= L'ァ' && ch <= L'ヺ';
+        }
+
+        bool isKatakanaTrailingMarkForChar3gram(wchar_t ch) {
+            return ch == L'ー' || ch == L'～';
+        }
+
+        size_t appendNormalizedKatakanaRun(StringRef sentence, size_t pos, String& normalized) {
+            size_t runLength = 0;
+            while (pos + runLength < sentence.size()) {
+                const wchar_t ch = sentence[pos + runLength];
+                if (isKatakanaLetterForChar3gram(ch) ||
+                    (runLength > 0 && isKatakanaTrailingMarkForChar3gram(ch))) {
+                    ++runLength;
+                    continue;
+                }
+                break;
+            }
+            normalized.push_back(L'ア');
+            if (runLength >= 2) {
+                normalized.push_back(L'ア');
+            }
+            return pos + runLength;
+        }
     }
 
     Char3gram::Char3gram(StringRef filepath) {
@@ -241,10 +271,16 @@ namespace dict {
         if (!loaded()) return result;
 
         result.normalized.reserve(sentence.size());
+        // 3-gram評価用に文字種を畳み込む。ひらがな・漢字・〓は保持し、数字は９、
+        // カタカナ連続はア/アア、それ以外は〓へ正規化する。
         for (size_t i = 0; i < sentence.size(); ++i) {
             const wchar_t ch = sentence[i];
             if (utils::is_hiragana(ch) || utils::is_kanji(ch) || ch == GETA_CHAR) {
                 result.normalized.push_back(ch);
+            } else if (isDigitForChar3gram(ch)) {
+                result.normalized.push_back(L'９');
+            } else if (isKatakanaLetterForChar3gram(ch)) {
+                i = appendNormalizedKatakanaRun(sentence, i, result.normalized) - 1;
             } else {
                 result.normalized.push_back(GETA_CHAR);
                 if (is_high_surrogate(ch) && i + 1 < sentence.size() && is_low_surrogate(sentence[i + 1])) {
