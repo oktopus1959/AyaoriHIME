@@ -7,6 +7,7 @@ namespace MazegakiPreprocessor {
     DEFINE_NAMESPACE_LOGGER(MazegakiPreprocessor);
 
     const int MinKatakanaWordCost = 6000;
+    const int MinMazeCostAdvantage = 2000;
 
     //int _mazeCost = 0;
 
@@ -744,21 +745,33 @@ namespace MazegakiPreprocessor {
     void output(std::vector<String>& resultLines) {
         LOG_INFO(L"ENTER: resultLines.size={}, linesMap.size={}", resultLines.size(), linesMap.size());
 
+        const auto makeMazeEntryGroupKey = [](VectorRefString items) {
+            return std::format(L"{},{},{},{},{}", items[0], items[1], items[2], items[4], items[5]);
+        };
+        MapInt mazeEntryMinCosts;
+        for (const auto& [key, value] : linesMap) {
+            const auto items = utils::split(value, L",");
+            if (items.size() == 9 && items.back() == L"MAZE") {
+                const auto groupKey = makeMazeEntryGroupKey(items);
+                const auto mazeCost = utils::stringToInt(items[3]);
+                if (!mazeEntryMinCosts.contains(groupKey) || mazeCost < mazeEntryMinCosts[groupKey]) {
+                    mazeEntryMinCosts[groupKey] = mazeCost;
+                }
+            }
+        }
+
         resultLines.reserve(resultLines.size() + linesMap.size()); // サイズを予約してコピー効率化
-        for (auto iter = linesMap.cbegin(); iter != linesMap.cend(); ++iter) {
-            const auto& value = iter->second;
-            const auto next = std::next(iter);
-            bool skip = false;
-            if (next != linesMap.cend()) {
-                const auto items = utils::split(value, L",");
-                const auto nextItems = utils::split(next->second, L",");
-                skip = !items.empty() && !nextItems.empty() &&
-                    items.front() == nextItems.front() &&
-                    items.back() != L"MAZE" && nextItems.back() == L"MAZE";
+        for (const auto& [key, value] : linesMap) {
+            const auto items = utils::split(value, L",");
+            if (items.size() == 8) {
+                const auto groupKey = makeMazeEntryGroupKey(items);
+                const auto iter = mazeEntryMinCosts.find(groupKey);
+                if (iter != mazeEntryMinCosts.end() && iter->second <= utils::stringToInt(items[3]) - MinMazeCostAdvantage) {
+                    std::cerr << utils::utf8_encode(value) << std::endl;
+                    continue;
+                }
             }
-            if (!skip) {
-                resultLines.push_back(value);
-            }
+            resultLines.push_back(value);
         }
 
         linesMap.clear();
