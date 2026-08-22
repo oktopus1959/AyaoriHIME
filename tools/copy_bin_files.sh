@@ -4,8 +4,8 @@
 
 RUN_CMD -m "mkdir -p ../bin/tsf/{Win32,x64}"
 RUN_CMD -m "mkdir -p ../publish/bin/tsf/{Win32,x64}"
-RUN_CMD -m "cp -p tools/register_tsf_dll.bat ../bin/"
-RUN_CMD -m "cp -p tools/register_tsf_dll.bat ../publish/bin/"
+RUN_CMD -m "cp -p tools/*register_tsf_dll.bat ../bin/"
+RUN_CMD -m "cp -p tools/*register_tsf_dll.bat ../publish/bin/"
 
 RUN_CMD -m "cd bin/Release"
 
